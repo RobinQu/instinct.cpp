@@ -2,13 +2,12 @@
 
 LLM magics for cpp world.
 
-
 # Roadmap
 
 ## v0.1 - Model I/O
 
 * [ ] PromptTemplate
-* [ ] ChatOpenAI model uisng Ollama
+* [ ] ChatOpenAI model using Ollama
 * [ ] LLMChain
 
 ## v0.2 - Model I/O
