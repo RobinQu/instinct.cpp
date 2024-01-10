@@ -11,8 +11,13 @@ namespace langchain {
 namespace core {
 
 class StringPromptTemplate: BasePromptTemplate {
+
 public:
-    PromptValue* FormatPrompt() override;
+    PromptValuePtr FormatPrompt() override;
+
+    std::string FormatDocument(DocumentPtr document) override;
+
+    void Save(std::filesystem::path filepath) override;
 };
 
 } // core

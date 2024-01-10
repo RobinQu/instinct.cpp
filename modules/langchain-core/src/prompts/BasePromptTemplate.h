@@ -8,6 +8,9 @@
 #include <any>
 #include <map>
 #include <string>
+#include <filesystem>
+
+#include "../documents/Document.h"
 #include "PromptValue.h"
 
 namespace langchain {
@@ -18,7 +21,10 @@ class BasePromptTemplate {
     // std::map<std::string,std::any> ;
 public:
     virtual  ~BasePromptTemplate();
-    virtual PromptValue* FormatPrompt() = 0;
+    virtual PromptValuePtr FormatPrompt() = 0;
+    virtual std::string FormatDocument(DocumentPtr document) = 0;
+    virtual void Save(std::filesystem::path filepath) = 0;
+
 };
 
 } // model

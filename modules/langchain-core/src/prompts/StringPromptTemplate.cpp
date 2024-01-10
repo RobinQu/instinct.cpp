@@ -7,8 +7,7 @@
 
 namespace langchain {
 namespace core {
-    PromptValue* StringPromptTemplate::FormatPrompt() {
-        fmt::format();
-    }
+
+
 } // core
 } // langchain
