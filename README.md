@@ -7,8 +7,7 @@ LLM magics for cpp world.
 ## v0.1 - Model I/O
 
 * [ ] PromptTemplate
-* [ ] ChatOpenAI model using Ollama
-* [ ] LLMChain
+* [ ] OllamaLLM
 
 ## v0.2 - Model I/O
 
