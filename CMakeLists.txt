@@ -59,6 +59,10 @@ find_package(fmt)
 set(JSON_Install OFF CACHE INTERNAL "")
 add_subdirectory(thirdparty/nlohmann_json)
 
+add_subdirectory(thirdparty/httplib)
+add_subdirectory(thirdparty/xtl)
+add_subdirectory(thirdparty/xtensor)
+
 
 if(BUILD_TESTING)
     find_package(GTest)

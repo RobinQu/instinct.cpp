@@ -22,6 +22,9 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/model/LLMResult.h
         src/model/LLMGeneration.h
         src/types.h
+        src/documents/Embedding.h
+        src/model/BaseEmbeddingModel.h
+        src/model/BaseChatModel.h
 )
 set(${LIBRARY_TARGET_NAME}_SRC
         src/prompts/BasePromptTemplate.cpp
@@ -41,6 +44,10 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/model/BaseLanguageModel.cpp
         src/model/LLMResult.cpp
         src/model/LLMGeneration.cpp
+        src/model/BaseChatModel.cpp
+        src/model/BaseEmbeddingModel.cpp
+        src/documents/Embedding.cpp
+
 )
 
 add_library(
@@ -51,11 +58,16 @@ add_library(
 
 add_library(langchain::core
         ALIAS ${LIBRARY_TARGET_NAME})
-target_link_libraries(${LIBRARY_TARGET_NAME} fmt::fmt nlohmann_json::nlohmann_json)
+target_link_libraries(${LIBRARY_TARGET_NAME}
+        fmt::fmt
+        nlohmann_json::nlohmann_json
+        xtensor
+)
 
 set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES
-        VERSION ${${PROJECT_NAME}_VERSION}
-        PUBLIC_HEADER ${${LIBRARY_TARGET_NAME}_HDR})
+#        VERSION ${${PROJECT_NAME}_VERSION}
+        PUBLIC_HEADER ${${LIBRARY_TARGET_NAME}_HDR}
+)
 
 target_include_directories(${LIBRARY_TARGET_NAME}
         PUBLIC
