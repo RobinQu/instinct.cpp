@@ -53,17 +53,34 @@ endif()
 
 
 # thirdparty dependencies
+
+## fmt
 add_subdirectory(thirdparty/fmt)
 find_package(fmt)
 
+## json
 set(JSON_Install OFF CACHE INTERNAL "")
 add_subdirectory(thirdparty/nlohmann_json)
 
-add_subdirectory(thirdparty/httplib)
+
+## tensor
 add_subdirectory(thirdparty/xtl)
 add_subdirectory(thirdparty/xtensor)
 
+## boost
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(Boost 1.84.0)
 
+if (NOT Boost_FOUND)
+#    set(BOOST_INCLUDE_LIBRARIES beast asio)
+#    set(ENV{BOOST_ROOT} "${PROJECT_SOURCE_DIR}/thirdparty/boost")
+    add_subdirectory(thirdparty/boost EXCLUDE_FROM_ALL)
+endif ()
+message(STATUS "Boost version: ${Boost_VERSION}")
+
+## gtest
 if(BUILD_TESTING)
     find_package(GTest)
     if(NOT GTEST_LIBRARIES)
