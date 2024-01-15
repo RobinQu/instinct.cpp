@@ -11,7 +11,7 @@
 
 namespace langchain::core {
 
-class ChatMessage: BaseMessage {
+class ChatMessage: public BaseMessage {
     std::string role;
 public:
     ChatMessage(std::string content,  std::string role)

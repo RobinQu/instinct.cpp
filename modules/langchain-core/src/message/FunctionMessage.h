@@ -11,7 +11,7 @@
 namespace langchain{
 namespace core {
 
-class FunctionMessage: BaseMessage  {
+class FunctionMessage: public BaseMessage  {
 
     std::string name;
 public:

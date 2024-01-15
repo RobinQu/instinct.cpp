@@ -12,7 +12,7 @@
 namespace langchain {
 namespace core {
 
-class SystemMessage: BaseMessage {
+class SystemMessage: public BaseMessage {
 public:
     explicit SystemMessage(std::string content)
         : BaseMessage(std::move(content), kSystemMessageType) {

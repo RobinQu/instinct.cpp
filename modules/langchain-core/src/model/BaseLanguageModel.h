@@ -16,21 +16,21 @@ class BaseLanguageModel {
 
 public:
     virtual LLMResultPtr GeneratePrompt(
-        std::vector<PromptValuePtr>& prompts,
-        std::vector<std::string>& stop_words,
-        OptionDict& options
+        const std::vector<PromptValuePtr>& prompts,
+        const std::vector<std::string>& stop_words,
+        const OptionDict& options
         ) = 0;
 
     virtual std::string Predict(
-        std::string& text,
-        std::vector<std::string>& stop_words,
-        OptionDict& options
+        const std::string& text,
+        const std::vector<std::string>& stop_words,
+        const OptionDict& options
         ) = 0;
 
     virtual BaseMessagePtr PredictMessage(
-        std::vector<BaseMessagePtr>& messages,
-        std::vector<std::string>& stop_words,
-        OptionDict& options
+        const std::vector<BaseMessagePtr>& messages,
+        const std::vector<std::string>& stop_words,
+        const OptionDict& options
         ) = 0;
 
     // virtual std::future<LLMResultPtr> GeneratePromptAsync(
@@ -51,11 +51,11 @@ public:
     // OptionDict& options
     // ) = 0;
 
-    virtual std::vector<long> GetTokenIds(std::string& text) = 0;
+    virtual std::vector<long> GetTokenIds(const std::string& text) = 0;
 
-    virtual long GetTokenCount(std::string& text) = 0;
+    virtual long GetTokenCount(const std::string& text) = 0;
 
-    virtual long GetTokenCount(std::vector<BaseMessagePtr>& messages) = 0;
+    virtual long GetTokenCount(const std::vector<BaseMessagePtr>& messages) = 0;
 
 };
 

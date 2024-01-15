@@ -12,7 +12,7 @@
 namespace langchain {
 namespace core {
 
-class HumanMessage: BaseMessage {
+class HumanMessage: public BaseMessage {
     bool exmaple = false;
 public:
     HumanMessage(std::string content,  const bool exmaple)

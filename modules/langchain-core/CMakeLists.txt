@@ -54,6 +54,8 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/tools/SimpleHttpClient.cpp
         src/tools/SimpleHttpClient.h
         src/model/BaseLLM.cpp
+        src/message/AIMessage.cpp
+        src/message/AIMessage.h
 )
 
 add_library(
