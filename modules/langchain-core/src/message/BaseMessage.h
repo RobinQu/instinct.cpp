@@ -6,29 +6,30 @@
 #define BASEMESSAGE_H
 #include <memory>
 #include <string>
+#include "MessageType.h"
 
-namespace langchain {
-namespace core {
+
+namespace langchain::core {
 
 class BaseMessage {
     std::string content;
-    std::string type;
+    MessageType type;
 
 public:
-
-    BaseMessage(std::string content, std::string type)
+    BaseMessage(std::string content, const MessageType type)
         : content(std::move(content)),
-          type(std::move(type)) {
+          type(type) {
     }
 
     virtual ~BaseMessage() = 0;
     virtual std::string GetContent() = 0;
     virtual std::string GetType() = 0;
+    virtual std::string ToString() = 0;
 
 };
 using BaseMessagePtr = std::shared_ptr<BaseMessage>;
 
 } // core
-} // langchain
+// langchain
 
 #endif //BASEMESSAGE_H

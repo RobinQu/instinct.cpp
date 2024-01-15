@@ -7,7 +7,7 @@
 #include <future>
 #include <vector>
 
-#include "../documents/Embedding.h"
+#include "../document/Embedding.h"
 
 namespace langchain {
 namespace core {

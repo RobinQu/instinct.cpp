@@ -8,19 +8,19 @@
 #include "BaseMessage.h"
 #include <string>
 
-namespace langchain {
-namespace core {
+
+namespace langchain::core {
 
 class ChatMessage: BaseMessage {
     std::string role;
 public:
     ChatMessage(std::string content,  std::string role)
-        : BaseMessage(std::move(content), "chat"),
+        : BaseMessage(std::move(content), kChatMessageType),
           role(std::move(role)) {
     }
 };
 
 } // core
-} // langchain
+// langchain
 
 #endif //CHATMESSAGE_H

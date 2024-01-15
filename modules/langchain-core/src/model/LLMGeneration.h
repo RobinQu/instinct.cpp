@@ -5,10 +5,10 @@
 #ifndef LLMGENERATION_H
 #define LLMGENERATION_H
 #include <string>
-#include "../types.h"
+#include "Types.h"
 
 
-namespace langchain {
+namespace langchain::core {
 
 class LLMGeneration {
 private:

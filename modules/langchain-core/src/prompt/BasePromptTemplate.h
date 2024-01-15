@@ -10,7 +10,7 @@
 #include <string>
 #include <filesystem>
 
-#include "../documents/Document.h"
+#include "../document/Document.h"
 #include "PromptValue.h"
 
 namespace langchain {

@@ -7,7 +7,7 @@
 #include <future>
 
 #include "LLMResult.h"
-#include "../prompts/PromptValue.h"
+#include "../prompt/PromptValue.h"
 
 namespace langchain {
 namespace core {
@@ -21,19 +21,7 @@ public:
         OptionDict& options
         ) = 0;
 
-    virtual std::future<LLMResultPtr> GeneratePromptAsync(
-        std::vector<PromptValuePtr>& prompts,
-        std::vector<std::string>& stop_words,
-        OptionDict& options
-        ) = 0;
-
     virtual std::string Predict(
-        std::string& text,
-        std::vector<std::string>& stop_words,
-        OptionDict& options
-        ) = 0;
-
-    virtual std::future<std::string> PredictAsync(
         std::string& text,
         std::vector<std::string>& stop_words,
         OptionDict& options
@@ -45,11 +33,23 @@ public:
         OptionDict& options
         ) = 0;
 
-    virtual std::future<BaseMessagePtr> PredictMessageAsync(
-        std::vector<BaseMessagePtr>& messages,
-        std::vector<std::string>& stop_words,
-        OptionDict& options
-        ) = 0;
+    // virtual std::future<LLMResultPtr> GeneratePromptAsync(
+    // std::vector<PromptValuePtr>& prompts,
+    // std::vector<std::string>& stop_words,
+    // OptionDict& options
+    // ) = 0;
+    //
+    // virtual std::future<std::string> PredictAsync(
+    //     std::string& text,
+    //     std::vector<std::string>& stop_words,
+    //     OptionDict& options
+    //     ) = 0;
+    //
+    // virtual std::future<BaseMessagePtr> PredictMessageAsync(
+    // std::vector<BaseMessagePtr>& messages,
+    // std::vector<std::string>& stop_words,
+    // OptionDict& options
+    // ) = 0;
 
     virtual std::vector<long> GetTokenIds(std::string& text) = 0;
 

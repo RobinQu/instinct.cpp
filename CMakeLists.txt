@@ -74,7 +74,8 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost 1.84.0)
 
 if (NOT Boost_FOUND)
-#    set(BOOST_INCLUDE_LIBRARIES beast asio)
+    message(STATUS "add_subdirectory sub-directory of thirdparty/boost as Boost is not found")
+#    set(BOOST_INCLUDE_LIBRARIES beast asio algorithm)
 #    set(ENV{BOOST_ROOT} "${PROJECT_SOURCE_DIR}/thirdparty/boost")
     add_subdirectory(thirdparty/boost EXCLUDE_FROM_ALL)
 endif ()
@@ -92,5 +93,6 @@ endif ()
 
 # project modules
 add_subdirectory(modules/langchain-core)
+add_subdirectory(modules/langchain-model)
 
 #include(AddUninstallTarget)

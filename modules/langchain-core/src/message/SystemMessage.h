@@ -15,7 +15,7 @@ namespace core {
 class SystemMessage: BaseMessage {
 public:
     explicit SystemMessage(std::string content)
-        : BaseMessage(std::move(content), "system") {
+        : BaseMessage(std::move(content), kSystemMessageType) {
     }
 };
 

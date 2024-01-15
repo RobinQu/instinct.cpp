@@ -23,4 +23,10 @@ LLM magics for cpp world.
 
 ## v0.4 - Agent
 
-TODO
+# References
+
+
+* API Endpoints
+  * [ollama](https://github.com/jmorganca/ollama/blob/main/docs/api.md)
+  * [OpenAI](https://platform.openai.com/docs/api-reference)
+* 

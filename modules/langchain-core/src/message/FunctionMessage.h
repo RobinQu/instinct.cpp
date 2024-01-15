@@ -16,7 +16,7 @@ class FunctionMessage: BaseMessage  {
     std::string name;
 public:
     FunctionMessage(std::string content,  std::string name)
-        : BaseMessage(std::move(content), "function"),
+        : BaseMessage(std::move(content), kFunctionMessageType),
           name(std::move(name)) {
     }
 };

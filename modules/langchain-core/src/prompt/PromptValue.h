@@ -6,7 +6,7 @@
 #define PROMPTVALUE_H
 #include <memory>
 
-#include "../messages/BaseMessage.h"
+#include "../message/BaseMessage.h"
 
 namespace langchain {
 namespace core {

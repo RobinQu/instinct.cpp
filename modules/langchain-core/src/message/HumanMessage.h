@@ -16,7 +16,7 @@ class HumanMessage: BaseMessage {
     bool exmaple = false;
 public:
     HumanMessage(std::string content,  const bool exmaple)
-        : BaseMessage(std::move(content), "human"),
+        : BaseMessage(std::move(content), kHumanMessageType),
           exmaple(exmaple) {
     }
 };
