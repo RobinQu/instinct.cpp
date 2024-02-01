@@ -15,6 +15,18 @@ namespace langchain::core {
         int port;
     };
 
+    typedef std::unordered_map<std::string, std::string> HttpHeaders;
+
+    enum HttpMethod {
+        Unkown,
+        GET,
+        POST,
+        PUT,
+        DELETE,
+        HEAD
+    };
+
+
     class LangchainException final: std::runtime_error {
     public:
         explicit LangchainException(const std::string& basic_string)

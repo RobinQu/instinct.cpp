@@ -6,10 +6,13 @@
 #define LANGCHAIN_CORE_H
 
 
-#include "documents/Document.h"
-#include "documents/Embedding.h"
+#include "document/Document.h"
+#include "document/Embedding.h"
 #include "model/BaseChatModel.h"
 #include "model/BaseLanguageModel.h"
 #include "model/BaseEmbeddingModel.h"
+#include "model/BaseLLM.h"
+
+
 
 #endif //LANGCHAIN_CORE_H

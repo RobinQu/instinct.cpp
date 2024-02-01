@@ -19,3 +19,6 @@
 [submodule "thirdparty/boost"]
 	path = thirdparty/boost
 	url = https://github.com/boostorg/boost.git
+[submodule "thirdparty/uriparser"]
+	path = thirdparty/uriparser
+	url = https://github.com/uriparser/uriparser.git

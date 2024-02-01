@@ -21,7 +21,12 @@ LLM magics for cpp world.
 * [ ] Retriever classes
 * [ ] official package release
 
-## v0.4 - Agent
+## v1.0 - with ChamberAI app
+
+
+## v1.1 - Agents framework
+
+
 
 # References
 

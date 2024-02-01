@@ -9,13 +9,15 @@
 namespace langchian {
 namespace model {
 
-class Ollama: langchain::core::BaseLanguageModel {
+class Ollama final: langchain::core::BaseLLM {
     langchain::core::Endpoint endpoint;
 public:
-    Ollama() = default;
-    explicit Ollama(langchain::core::Endpoint& endpoint);
+    Ollama();
+    explicit Ollama(const langchain::core::Endpoint& endpoint);
 
-
+protected:
+    langchain::core::LLMResultPtr Generate(const std::vector<std::string>& prompts,
+        const std::vector<std::string>& stop_words, const langchain::core::OptionDict& options) override;
 };
 
 } // model

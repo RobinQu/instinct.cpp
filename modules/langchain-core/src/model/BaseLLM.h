@@ -24,6 +24,12 @@ namespace langchain::core {
             const OptionDict& options) override;
         BaseMessagePtr PredictMessage(const std::vector<BaseMessagePtr>& messages,
             const std::vector<std::string>& stop_words, const OptionDict& options) override;
+
+        std::vector<long> GetTokenIds(const std::string& text) override;
+
+        long GetTokenCount(const std::string& text) override;
+
+        long GetTokenCount(const std::vector<BaseMessagePtr>& messages) override;
     };
 
 }

@@ -35,5 +35,14 @@ namespace langchain::core {
         throw LangchainException("Empty response");
     }
 
+    std::vector<long> BaseLLM::GetTokenIds(const std::string& text) {
+    }
+
+    long BaseLLM::GetTokenCount(const std::string& text) {
+    }
+
+    long BaseLLM::GetTokenCount(const std::vector<BaseMessagePtr>& messages) {
+
+    }
 }
 

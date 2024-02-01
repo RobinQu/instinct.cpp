@@ -56,6 +56,12 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/model/BaseLLM.cpp
         src/message/AIMessage.cpp
         src/message/AIMessage.h
+        src/tools/HttpCall.cpp
+        src/tools/HttpCall.h
+        src/tools/StringUtils.h
+        src/tools/HttpUtils.h
+        src/tools/HttpResponse.cpp
+        src/tools/HttpResponse.h
 )
 
 add_library(
@@ -72,6 +78,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME}
         xtensor
         Boost::beast
         Boost::algorithm
+        Boost::url
 )
 
 set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES
