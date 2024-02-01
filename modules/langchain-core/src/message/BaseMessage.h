@@ -21,7 +21,7 @@ public:
           type(type) {
     }
 
-    virtual ~BaseMessage() = 0;
+    virtual ~BaseMessage() = default;
     virtual std::string GetContent() = 0;
     virtual std::string GetType() = 0;
     virtual std::string ToString() = 0;

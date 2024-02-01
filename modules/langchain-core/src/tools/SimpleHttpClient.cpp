@@ -60,12 +60,16 @@ namespace core {
         // std::string body = res.body();
 
 
-        std::string body_string = boost::beast::buffers_to_string(res.body());
         HttpHeaders response_headers;
         for(auto& h: res.base()) {
-            response_headers.insert(h.name_string(), h.value());
+            response_headers.emplace(h.name_string(), h.value());
         }
-        HttpResponse response(res.result_int(), response_headers, body_string);
+        // HttpResponse response {res.result_int(), const_cast<HttpHeaders&>(response_headers), body_string};
+        HttpResponse response;
+        response.body = buffers_to_string(res.body().data());
+        response.headers = response_headers;
+        response.status_code = res.result_int();
+
         response_body_function(response);
 
         beast::error_code ec;

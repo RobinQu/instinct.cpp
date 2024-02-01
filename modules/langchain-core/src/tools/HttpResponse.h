@@ -9,28 +9,11 @@
 
 namespace langchain::core {
 
-class HttpResponse {
+struct HttpResponse {
 
-    HttpHeaders headers_;
-    std::string body_;
-    unsigned int status_code_;
-
-public:
-    HttpResponse(
-        unsigned int status_code,
-        const HttpHeaders& headers,
-        const std::string& body
-    );
-
-    HttpHeaders& GetHeaders();
-    [[nodiscard]] HttpHeaders GetHeaders() const;
-
-    std::string& GetBody();
-    [[nodiscard]] std::string GetBody() const;
-
-    [[nodiscard]] unsigned int GetStatusCode() const;
-
-
+    HttpHeaders headers;
+    std::string body;
+    unsigned int status_code;
 };
 
 } // core

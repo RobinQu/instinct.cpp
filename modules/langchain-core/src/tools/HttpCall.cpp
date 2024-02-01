@@ -34,7 +34,9 @@ namespace langchain::core {
         }
     }
 
-    HttpCall::HttpCall(const std::string& host, int port, const std::string& target, const HttpMethod& method, const HttpHeaders& headers): endpoint_(host, port), method_(method), headers_(headers), target_(target), query_string_(), path_() {
+    HttpCall::HttpCall(const std::string& host, int port, const std::string& target, const HttpMethod& method, const HttpHeaders& headers): endpoint_(), method_(method), headers_(headers), target_(target), query_string_(), path_() {
+        endpoint_.host = host;
+        endpoint_.port = port;
     }
 
     Endpoint HttpCall::GetEndpoint() const {

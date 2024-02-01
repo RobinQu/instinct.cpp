@@ -4,7 +4,7 @@
 
 #ifndef BASELANGUAGEMODEL_H
 #define BASELANGUAGEMODEL_H
-#include <future>
+// #include <future>
 
 #include "LLMResult.h"
 #include "../prompt/PromptValue.h"

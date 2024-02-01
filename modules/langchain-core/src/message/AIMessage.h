@@ -6,8 +6,8 @@
 #define AIMESSAGE_H
 #include "BaseMessage.h"
 
-namespace langchain {
-namespace core {
+
+namespace langchain::core {
 
 class AIMessage : public BaseMessage {
 
@@ -17,9 +17,17 @@ public:
         : BaseMessage(std::move(content), kAIMessageType),
           example(example) {
     }
+
+    ~AIMessage() override;
+
+    std::string GetContent() override;
+
+    std::string GetType() override;
+
+    std::string ToString() override;
 };
 
 } // core
-} // langchain
+// langchain
 
 #endif //AIMESSAGE_H

@@ -8,8 +8,8 @@
 
 #include "LLMGeneration.h"
 
-namespace langchain {
-namespace core {
+
+namespace langchain::core {
 
 class LLMResult {
 public:
@@ -21,6 +21,6 @@ public:
 using LLMResultPtr = std::shared_ptr<LLMResult>;
 
 } // core
-} // langchain
+// langchain
 
 #endif //LLMRESULT_H
