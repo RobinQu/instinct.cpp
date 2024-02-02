@@ -3,18 +3,10 @@
 //
 
 #include "HttpRestClient.h"
+#include <nlohmann/json.hpp>
 
-namespace langchain {
-namespace core {
-    template<typename Result>
-    Result HttpRestClient::GetObject(const HttpRequest& call) {
-        DoExecute(call, []() {return ""; }, [](const auto& resp) {
 
-        });
-    }
+namespace langchain::core {
 
-    template<typename Param, typename Result>
-    Result HttpRestClient::GetObject(const HttpRequest& call, const Param& param) {
-    }
 } // core
-} // langchain
+// langchain

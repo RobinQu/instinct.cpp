@@ -9,12 +9,13 @@
 #include "LLMResult.h"
 #include "../prompt/PromptValue.h"
 
-namespace langchain {
-namespace core {
+
+namespace langchain::core {
 
 class BaseLanguageModel {
 
 public:
+    virtual ~BaseLanguageModel() = default;
     virtual LLMResultPtr GeneratePrompt(
         const std::vector<PromptValuePtr>& prompts,
         const std::vector<std::string>& stop_words,
@@ -60,6 +61,6 @@ public:
 };
 
 } // core
-} // langchian
+// langchian
 
 #endif //BASELANGUAGEMODEL_H

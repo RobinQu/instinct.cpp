@@ -88,12 +88,14 @@ endif ()
 
 ## gtest
 if(BUILD_TESTING)
-    find_package(GTest)
-    if(NOT GTEST_LIBRARIES)
+#    find_package(GTest)
+#    if(NOT GTEST_LIBRARIES)
         message(STATUS "add sub-directory of thirdpart/googtest as GTest is not found and BUILD_TESTING is enabled")
         set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
         add_subdirectory(thirdparty/googletest)
-    endif ()
+#    else ()
+#        message(STATUS "Found GTest, version=" ${GTest_VERSION} ", GTest libraries=" ${GTEST_LIBRARIES})
+#    endif ()
 endif ()
 
 # project modules

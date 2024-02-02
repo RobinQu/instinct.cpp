@@ -14,14 +14,15 @@ if(NOT GTEST_LIBRARIES)
 endif()
 
 
-file(GLOB TEST_SRC_FILES *.cpp)
+file(GLOB_RECURSE TEST_SRC_FILES *.cpp)
 
 
 # from list of files we'll create tests test_name.cpp -> test_name
 foreach(_test_file ${TEST_SRC_FILES})
     get_filename_component(_test_name ${_test_file} NAME_WE)
-    add_executable(${_test_name} ${_test_file})
-    target_link_libraries(${_test_name} GTest::GTest GTest::Main ${CMAKE_THREAD_LIBS_INIT})
+    add_executable(${_test_name} ${_test_file}
+            llm/TestOllamaLLM.cpp)
+    target_link_libraries(${_test_name} gtest gtest_main)
     target_link_libraries(${_test_name} ${LIBRARY_TARGET_NAME})
     add_test(${_test_name} ${_test_name})
     set_tests_properties(${_test_name} PROPERTIES TIMEOUT 5)

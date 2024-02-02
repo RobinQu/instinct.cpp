@@ -9,7 +9,7 @@
 #include <nlohmann/json.hpp>
 
 namespace langchain::core {
-    using OptionDict = nlohmann::ordered_json;
+    using OptionDict = nlohmann::json;
     struct Endpoint {
         std::string host;
         int port;

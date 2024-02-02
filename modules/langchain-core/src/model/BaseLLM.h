@@ -17,7 +17,7 @@ namespace langchain::core {
             ) = 0;
     public:
         BaseLLM() = default;
-        virtual ~BaseLLM() = 0;
+        ~BaseLLM() override = default;
         LLMResultPtr GeneratePrompt(const std::vector<PromptValuePtr>& prompts,
             const std::vector<std::string>& stop_words, const OptionDict& options) override;
         std::string Predict(const std::string& text, const std::vector<std::string>& stop_words,

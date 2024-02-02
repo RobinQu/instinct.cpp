@@ -7,23 +7,31 @@
 #include "tools/HttpRequest.h"
 #include <fmt/format.h>
 
+#include <utility>
+
 namespace langchian::model {
 
-    constexpr std::string OLLAMA_GENERATE_PATH = "/api/generate";
+    const static std::string OLLAMA_GENERATE_PATH = "http://localhost:11434/api/generate";
 
-    constexpr langchain::core::Endpoint OLLAMA_DEFAULT_ENDPOINT = {"localhost", 11434};
-
-    OllamaLLM::OllamaLLM(): endpoint(OLLAMA_DEFAULT_ENDPOINT) {
+    OllamaLLM::OllamaLLM(): endpoint_(OLLAMA_GENERATE_PATH), http_client_() {
     }
 
-    OllamaLLM::OllamaLLM(const langchain::core::Endpoint& endpoint): endpoint(endpoint) {
+    OllamaLLM::OllamaLLM(std::string  endpoint): endpoint_(std::move(endpoint)), http_client_() {
     }
 
     langchain::core::LLMResultPtr OllamaLLM::Generate(const std::vector<std::string>& prompts,
         const std::vector<std::string>& stop_words, const langchain::core::OptionDict& options) {
-        langchain::core::HttpRequest call {fmt::format("POST {}:{}{}", endpoint.host, endpoint.port, OLLAMA_GENERATE_PATH)};
-
-
+        OllamaGenerateRequest request;
+        request.prompt = prompts[0];
+        auto ollama_response = http_client_.PostObject<OllamaGenerateRequest, OllamaGenerateResponse>(endpoint_, request);
+        auto result = std::make_shared<langchain::core::LLMResult>();
+        langchain::core::OptionDict option_dict = ollama_response;
+        result->generations.push_back({
+            std::make_shared<langchain::core::LLMGeneration>(
+                    ollama_response.response,
+                    option_dict
+                    )});
+        return result;
     }
 } // model
 // langchian
