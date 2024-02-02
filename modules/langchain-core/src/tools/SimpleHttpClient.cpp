@@ -5,6 +5,7 @@
 #include "SimpleHttpClient.h"
 #include <fmt/format.h>
 
+#include "HttpRequest.h"
 #include "HttpResponse.h"
 
 namespace langchain {
@@ -18,18 +19,17 @@ namespace core {
     using tcp = net::ip::tcp;           // from <boost/asio/ip/tcp.hpp>
 
 
-    void SimpleHttpClient::DoExecute(const HttpCall& call, const std::function<std::string()>& request_body_function,
-        const std::function<void(const HttpResponse&)>& response_body_function) {
+    HttpResponse SimpleHttpClient::DoExecute(const HttpRequest& call) {
         tcp::resolver resolver(ioc);
         beast::tcp_stream stream(ioc);
-        auto endpoint = call.GetEndpoint();
+        // auto endpoint = call.GetEndpoint();
         auto const results = resolver.resolve(
-            endpoint.host,
-            std::to_string(endpoint.port)
+            call.host,
+            std::to_string(call.port)
             );
         stream.connect(results);
         http::verb verb;
-        switch (call.GetMethod()) {
+        switch (call.method) {
             case GET:
                 verb = http::verb::get;
                 break;
@@ -48,9 +48,9 @@ namespace core {
         if(verb == http::verb::unknown) {
             throw LangchainException("unknown http verb");
         }
-        http::request<http::string_body> req{verb, call.GetTarget(), 11};
-        req.set(http::field::host, endpoint.host);
-        req.body() = request_body_function();
+        http::request<http::string_body> req{verb, call.target, 11};
+        req.set(http::field::host, call.host);
+        req.body() = call.body;
         req.prepare_payload();
         http::write(stream, req);
 
@@ -70,13 +70,12 @@ namespace core {
         response.headers = response_headers;
         response.status_code = res.result_int();
 
-        response_body_function(response);
-
         beast::error_code ec;
         stream.socket().shutdown(tcp::socket::shutdown_both, ec);
         if(ec && ec != beast::errc::not_connected) {
             throw LangchainException(fmt::format("TCP socket shutdown error: {}", ec.message()));
         }
+        return response;
     }
 } // core
 } // langchain

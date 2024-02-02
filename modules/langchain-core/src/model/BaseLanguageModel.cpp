@@ -4,7 +4,7 @@
 
 #include "BaseLanguageModel.h"
 
-namespace langchain {
-namespace core {
+
+namespace langchain::core {
 } // core
-} // langchian
+// langchian

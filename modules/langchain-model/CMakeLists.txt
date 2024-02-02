@@ -6,11 +6,11 @@ project(langchain_model)
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
 set(${LIBRARY_TARGET_NAME}_HDR
-        src/llm/Ollama.h
+        src/llm/OllamaLLM.h
 )
 
 set(${LIBRARY_TARGET_NAME}_SRC
-        src/llm/Ollama.cpp
+        src/llm/OllamaLLM.cpp
 )
 
 add_library(

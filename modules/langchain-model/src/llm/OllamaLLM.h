@@ -9,11 +9,11 @@
 namespace langchian {
 namespace model {
 
-class Ollama final: langchain::core::BaseLLM {
+class OllamaLLM final: langchain::core::BaseLLM {
     langchain::core::Endpoint endpoint;
 public:
-    Ollama();
-    explicit Ollama(const langchain::core::Endpoint& endpoint);
+    OllamaLLM();
+    explicit OllamaLLM(const langchain::core::Endpoint& endpoint);
 
 protected:
     langchain::core::LLMResultPtr Generate(const std::vector<std::string>& prompts,

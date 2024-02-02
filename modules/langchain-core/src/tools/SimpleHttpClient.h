@@ -7,7 +7,7 @@
 
 #include <boost/beast.hpp>
 
-#include "HttpCall.h"
+#include "HttpRequest.h"
 #include "HttpResponse.h"
 
 
@@ -19,11 +19,10 @@ namespace langchain::core {
 class SimpleHttpClient {
     net::io_context ioc;
 public:
-    void DoExecute(
-        const HttpCall& call,
-        const std::function<std::string()>& request_body_function,
-        const std::function<void(const HttpResponse&)>& response_body_function
+    HttpResponse DoExecute(
+        const HttpRequest& call
     );
+
 };
 
 } // core

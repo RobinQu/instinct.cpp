@@ -56,12 +56,14 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/model/BaseLLM.cpp
         src/message/AIMessage.cpp
         src/message/AIMessage.h
-        src/tools/HttpCall.cpp
-        src/tools/HttpCall.h
+        src/tools/HttpRequest.cpp
+        src/tools/HttpRequest.h
         src/tools/StringUtils.h
         src/tools/HttpUtils.h
         src/tools/HttpResponse.cpp
         src/tools/HttpResponse.h
+        src/tools/HttpRestClient.cpp
+        src/tools/HttpRestClient.h
 )
 
 add_library(
