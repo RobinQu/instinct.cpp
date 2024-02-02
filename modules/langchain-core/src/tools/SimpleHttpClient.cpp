@@ -13,21 +13,22 @@ namespace langchain {
 namespace core {
 
 
-    namespace beast = boost::beast;     // from <boost/beast.hpp>
-    namespace http = beast::http;       // from <boost/beast/http.hpp>
-    namespace net = boost::asio;        // from <boost/asio.hpp>
-    using tcp = net::ip::tcp;           // from <boost/asio/ip/tcp.hpp>
+
+    SimpleHttpClient::SimpleHttpClient(Endpoint endpoint): SimpleHttpClient(std::move(endpoint), {}) {
+    }
+
+    SimpleHttpClient::SimpleHttpClient(Endpoint endpoint, HttpClientOptions options): ioc_(), endpoint_(std::move(endpoint)), options_(options), resolve_results_() {
+        tcp::resolver resolver(ioc_);
+        resolve_results_ = resolver.resolve(
+            endpoint.host,
+            std::to_string(endpoint.port)
+            );
+    }
 
 
     HttpResponse SimpleHttpClient::DoExecute(const HttpRequest& call) {
-        tcp::resolver resolver(ioc);
-        beast::tcp_stream stream(ioc);
-        // auto endpoint = call.GetEndpoint();
-        auto const results = resolver.resolve(
-            call.host,
-            std::to_string(call.port)
-            );
-        stream.connect(results);
+        beast::tcp_stream stream(ioc_);
+        stream.connect(resolve_results_);
         http::verb verb;
         switch (call.method) {
             case GET:
@@ -49,7 +50,7 @@ namespace core {
             throw LangchainException("unknown http verb");
         }
         http::request<http::string_body> req{verb, call.target, 11};
-        req.set(http::field::host, call.host);
+        req.set(http::field::host, endpoint_.host);
         req.body() = call.body;
         req.prepare_payload();
         http::write(stream, req);

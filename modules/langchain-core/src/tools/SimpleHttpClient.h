@@ -16,14 +16,33 @@ using namespace boost::beast;
 
 namespace langchain::core {
 
-class SimpleHttpClient {
-    net::io_context ioc;
-public:
-    HttpResponse DoExecute(
-        const HttpRequest& call
-    );
+    namespace beast = boost::beast;     // from <boost/beast.hpp>
+    namespace http = beast::http;       // from <boost/beast/http.hpp>
+    namespace net = boost::asio;        // from <boost/asio.hpp>
+    using tcp = net::ip::tcp;           // from <boost/asio/ip/tcp.hpp>
 
-};
+
+    struct HttpClientOptions {
+        int timeout = 6;
+    };
+
+
+    class SimpleHttpClient {
+        net::io_context ioc_;
+        Endpoint endpoint_;
+        HttpClientOptions options_;
+         tcp::resolver::results_type resolve_results_;
+    public:
+        SimpleHttpClient() = delete;
+        explicit SimpleHttpClient(Endpoint endpoint);
+        SimpleHttpClient(Endpoint endpoint, HttpClientOptions options);
+
+
+        HttpResponse DoExecute(
+            const HttpRequest& call
+        );
+
+    };
 
 } // core
 // langchain

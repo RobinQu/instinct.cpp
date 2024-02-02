@@ -23,17 +23,18 @@ namespace langchain::core {
             throw LangchainException(fmt::format("invalid request line: {}", request_line));
         }
         call.method = HttpUtils::ParseMethod(parts[0]);
-        if(auto uri_result = boost::urls::parse_uri_reference(parts[1]); uri_result) {
-            boost::url url = *uri_result;
-            call.host = url.host();
-            call.port = url.port_number();
-            call.path = url.path();
-            call.query_string = url.query();
-            call.target = call.path + "?" + call.query_string;
-        } else {
-            const boost::system::error_code e = uri_result.error();
-            throw LangchainException(fmt::format("invalid url: {}", e.to_string()));
-        }
+        call.target = parts[1];
+        // if(auto uri_result = boost::urls::parse_uri_reference(parts[1]); uri_result) {
+        //     boost::url url = *uri_result;
+        //     call.host = url.host();
+        //     call.port = url.port_number();
+        //     call.path = url.path();
+        //     call.query_string = url.query();
+        //     call.target = call.path + "?" + call.query_string;
+        // } else {
+        //     const boost::system::error_code e = uri_result.error();
+        //     throw LangchainException(fmt::format("invalid url: {}", e.to_string()));
+        // }
         return call;
     }
 } // core

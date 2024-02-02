@@ -11,19 +11,23 @@
 
 namespace langchian::model {
 
-    const static std::string OLLAMA_GENERATE_PATH = "http://localhost:11434/api/generate";
+    static const langchain::core::Endpoint OLLAMA_ENDPOINT {"localhost", 11434};
 
-    OllamaLLM::OllamaLLM(): endpoint_(OLLAMA_GENERATE_PATH), http_client_() {
+    static const std::string OLLAMA_GENERATE_PATH = "/api/generate";
+
+    // const static std::string OLLAMA_GENERATE_PATH = "http://localhost:11434/api/generate";
+
+    OllamaLLM::OllamaLLM(): http_client_(OLLAMA_ENDPOINT) {
     }
 
-    OllamaLLM::OllamaLLM(std::string  endpoint): endpoint_(std::move(endpoint)), http_client_() {
+    OllamaLLM::OllamaLLM(langchain::core::Endpoint  endpoint):  http_client_(std::move(endpoint)) {
     }
 
     langchain::core::LLMResultPtr OllamaLLM::Generate(const std::vector<std::string>& prompts,
         const std::vector<std::string>& stop_words, const langchain::core::OptionDict& options) {
         OllamaGenerateRequest request;
         request.prompt = prompts[0];
-        auto ollama_response = http_client_.PostObject<OllamaGenerateRequest, OllamaGenerateResponse>(endpoint_, request);
+        auto ollama_response = http_client_.PostObject<OllamaGenerateRequest, OllamaGenerateResponse>(OLLAMA_GENERATE_PATH, request);
         auto result = std::make_shared<langchain::core::LLMResult>();
         langchain::core::OptionDict option_dict = ollama_response;
         result->generations.push_back({

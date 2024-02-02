@@ -9,19 +9,24 @@
 
 namespace langchain::core {
 
-class HttpRestClient final: SimpleHttpClient {
+class HttpRestClient final: public SimpleHttpClient {
 public:
+    HttpRestClient() = delete;
+
+    explicit HttpRestClient(Endpoint endpoint)
+        : SimpleHttpClient(std::move(endpoint)) {
+    }
+
     template<typename Result>
     Result GetObject(const std::string& uri) {
-        const HttpRequest request = HttpRequest::FromReuqestLine("GET " + uri);
+        const HttpRequest request = {GET, uri, {}, ""};
         const HttpResponse response = DoExecute(request);
         return nlohmann::json::parse(response.body);
     }
     template<typename Param, typename Result>
     Result PostObject(const std::string& uri, const Param& param) {
-        HttpRequest request = HttpRequest::FromReuqestLine("POST " + uri);
         const nlohmann::json json_object = param;
-        request.body = json_object.dump();
+        const HttpRequest request = {POST, uri, {}, json_object.dump()};
         const HttpResponse response = DoExecute(request);
         auto response_body_json = nlohmann::json::parse(response.body);
         return response_body_json.get<Result>();

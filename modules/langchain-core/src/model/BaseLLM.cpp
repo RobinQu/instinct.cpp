@@ -10,7 +10,7 @@ namespace langchain::core {
 
     LLMResultPtr BaseLLM::GeneratePrompt(const std::vector<PromptValuePtr>& prompts,
                                          const std::vector<std::string>& stop_words, const OptionDict& options) {
-        std::vector<std::string> prompt_strings;
+        std::vector<std::string> prompt_strings(prompts.size());
         for(const PromptValuePtr& prompt_value: prompts) {
             prompt_strings.push_back(prompt_value->ToString());
         }

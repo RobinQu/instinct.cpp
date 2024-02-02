@@ -61,11 +61,11 @@ namespace langchian::model {
 
 class OllamaLLM final: public langchain::core::BaseLLM {
     // langchain::core::Endpoint endpoint;
-    std::string endpoint_;
+    // std::string endpoint_;
     langchain::core::HttpRestClient http_client_;
 public:
     OllamaLLM();
-    explicit OllamaLLM(std::string  endpoint);
+    explicit OllamaLLM(langchain::core::Endpoint endpoint);
 
 protected:
     langchain::core::LLMResultPtr Generate(const std::vector<std::string>& prompts,

@@ -8,6 +8,6 @@
 
 TEST(OllamaLLM, TestSimpleGenerate) {
     langchian::model::OllamaLLM ollama_llm;
-    auto output = ollama_llm.Predict("Hello", {}, {});
+    auto output = ollama_llm.Predict("Why sky is blue?", {}, {});
     std::cout << output << std::endl;
 }

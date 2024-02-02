@@ -11,12 +11,12 @@ namespace langchain::core {
 
 struct HttpRequest {
     static HttpRequest FromReuqestLine(const std::string& request_line);
-    std::string host;
-    int port;
-    std::string path;
-    std::string query_string;
-    std::string target;
+    // std::string host;
+    // int port;
+    // std::string path;
+    // std::string query_string;
     HttpMethod method;
+    std::string target;
     HttpHeaders headers;
     std::string body;
 };
