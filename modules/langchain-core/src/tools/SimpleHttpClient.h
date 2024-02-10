@@ -7,6 +7,7 @@
 
 #include <boost/beast.hpp>
 
+#include "HttpChunkBodyIterator.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
 
@@ -37,8 +38,11 @@ namespace langchain::core {
         explicit SimpleHttpClient(Endpoint endpoint);
         SimpleHttpClient(Endpoint endpoint, HttpClientOptions options);
 
+        HttpResponsePtr DoExecute(
+            const HttpRequest& call
+        );
 
-        HttpResponse DoExecute(
+        HttpChunkBodyIteratorPtr Stream(
             const HttpRequest& call
         );
 

@@ -11,3 +11,7 @@ TEST(OllamaLLM, TestSimpleGenerate) {
     auto output = ollama_llm.Predict("Why sky is blue?", {}, {});
     std::cout << output << std::endl;
 }
+
+TEST(OllamaLM, TestStream) {
+
+}

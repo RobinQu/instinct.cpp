@@ -64,6 +64,8 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/tools/HttpResponse.h
         src/tools/HttpRestClient.cpp
         src/tools/HttpRestClient.h
+        src/tools/HttpChunkBodyIterator.cpp
+        src/tools/HttpChunkBodyIterator.h
 )
 
 add_library(

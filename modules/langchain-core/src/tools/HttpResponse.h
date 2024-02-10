@@ -10,11 +10,11 @@
 namespace langchain::core {
 
 struct HttpResponse {
-
     HttpHeaders headers;
     std::string body;
     unsigned int status_code;
 };
+using HttpResponsePtr = std::shared_ptr<HttpResponse>;
 
 } // core
 // langchain

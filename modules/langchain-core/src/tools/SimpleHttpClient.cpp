@@ -12,7 +12,29 @@ namespace langchain {
 
 namespace core {
 
-
+    static http::verb parse_verb(const HttpRequest& call) {
+        http::verb verb;
+        switch (call.method) {
+            case GET:
+                verb = http::verb::get;
+            break;
+            case POST:
+                verb = http::verb::post;
+            break;
+            case PUT:
+                verb = http::verb::put;
+            break;
+            case HEAD:
+                verb = http::verb::head;
+            break;
+            default:
+                verb = http::verb::unknown;
+        }
+        if(verb == http::verb::unknown) {
+            throw LangchainException("unknown http verb");
+        }
+        return verb;
+    }
 
     SimpleHttpClient::SimpleHttpClient(Endpoint endpoint): SimpleHttpClient(std::move(endpoint), {}) {
     }
@@ -26,29 +48,10 @@ namespace core {
     }
 
 
-    HttpResponse SimpleHttpClient::DoExecute(const HttpRequest& call) {
+    HttpResponsePtr SimpleHttpClient::DoExecute(const HttpRequest& call) {
         beast::tcp_stream stream(ioc_);
         stream.connect(resolve_results_);
-        http::verb verb;
-        switch (call.method) {
-            case GET:
-                verb = http::verb::get;
-                break;
-            case POST:
-                verb = http::verb::post;
-                break;
-            case PUT:
-                verb = http::verb::put;
-                break;
-            case HEAD:
-                verb = http::verb::head;
-                break;
-            default:
-                verb = http::verb::unknown;
-        }
-        if(verb == http::verb::unknown) {
-            throw LangchainException("unknown http verb");
-        }
+        http::verb verb = parse_verb(call);
         http::request<http::string_body> req{verb, call.target, 11};
         req.set(http::field::host, endpoint_.host);
         req.body() = call.body;
@@ -66,10 +69,10 @@ namespace core {
             response_headers.emplace(h.name_string(), h.value());
         }
         // HttpResponse response {res.result_int(), const_cast<HttpHeaders&>(response_headers), body_string};
-        HttpResponse response;
-        response.body = buffers_to_string(res.body().data());
-        response.headers = response_headers;
-        response.status_code = res.result_int();
+        HttpResponsePtr response = std::make_shared<HttpResponse>();
+        response->body = buffers_to_string(res.body().data());
+        response->headers = response_headers;
+        response->status_code = res.result_int();
 
         beast::error_code ec;
         stream.socket().shutdown(tcp::socket::shutdown_both, ec);
@@ -78,5 +81,20 @@ namespace core {
         }
         return response;
     }
+
+    HttpChunkBodyIteratorPtr SimpleHttpClient::Stream(const HttpRequest& call) {
+        auto* stream = new beast::tcp_stream(ioc_);
+        stream->connect(resolve_results_);
+        http::verb verb = parse_verb(call);
+        http::request<http::string_body> req{verb, call.target, 11};
+        req.set(http::field::host, endpoint_.host);
+        req.body() = call.body;
+        req.prepare_payload();
+        http::write(*stream, req);
+        // read header to ensure that response is chunked-encoding
+        return std::make_shared<HttpChunkBodyIterator>(stream);
+    }
+
+
 } // core
 } // langchain
