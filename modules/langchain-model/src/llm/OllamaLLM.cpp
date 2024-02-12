@@ -15,12 +15,10 @@ namespace langchian::model {
 
     static const std::string OLLAMA_GENERATE_PATH = "/api/generate";
 
-    // const static std::string OLLAMA_GENERATE_PATH = "http://localhost:11434/api/generate";
-
-    OllamaLLM::OllamaLLM(): http_client_(OLLAMA_ENDPOINT) {
+    OllamaLLM::OllamaLLM():BaseLLM(), http_client_(OLLAMA_ENDPOINT) {
     }
 
-    OllamaLLM::OllamaLLM(langchain::core::Endpoint  endpoint):  http_client_(std::move(endpoint)) {
+    OllamaLLM::OllamaLLM(langchain::core::Endpoint  endpoint): BaseLLM(), http_client_(std::move(endpoint)) {
     }
 
     langchain::core::LLMResultPtr OllamaLLM::Generate(const std::vector<std::string>& prompts,
@@ -31,10 +29,8 @@ namespace langchian::model {
         auto result = std::make_shared<langchain::core::LLMResult>();
         langchain::core::OptionDict option_dict = ollama_response;
         result->generations.push_back({
-            std::make_shared<langchain::core::LLMGeneration>(
-                    ollama_response.response,
-                    option_dict
-                    )});
+            {ollama_response.response, option_dict}
+        });
         return result;
     }
 } // model

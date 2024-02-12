@@ -8,9 +8,8 @@
 #include "HttpRequest.h"
 #include "HttpResponse.h"
 
-namespace langchain {
 
-namespace core {
+namespace langchain::core {
 
     static http::verb parse_verb(const HttpRequest& call) {
         http::verb verb;
@@ -48,7 +47,7 @@ namespace core {
     }
 
 
-    HttpResponsePtr SimpleHttpClient::DoExecute(const HttpRequest& call) {
+    HttpResponsePtr SimpleHttpClient::Execute(const HttpRequest& call) {
         beast::tcp_stream stream(ioc_);
         stream.connect(resolve_results_);
         http::verb verb = parse_verb(call);
@@ -97,4 +96,4 @@ namespace core {
 
 
 } // core
-} // langchain
+// langchain

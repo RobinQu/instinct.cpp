@@ -13,12 +13,18 @@ namespace langchain {
 namespace core {
 
 class HumanMessage: public BaseMessage {
-    bool exmaple = false;
+    bool exmaple;
 public:
-    HumanMessage(std::string content,  const bool exmaple)
+    explicit HumanMessage(std::string content,  const bool exmaple = false)
         : BaseMessage(std::move(content), kHumanMessageType),
           exmaple(exmaple) {
     }
+
+    std::string GetContent() override;
+
+    std::string GetType() override;
+
+    std::string ToString() override;
 };
 
 } // core

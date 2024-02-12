@@ -10,9 +10,10 @@
 #include "message/BaseMessage.h"
 #include "message/ChatMessage.h"
 #include <boost/beast/core.hpp>
+#include "CoreGlobals.h"
 
 
-namespace langchain::core {
+namespace LC_CORE_NS {
     static std::string GetBufferString(
         const std::vector<BaseMessagePtr>& messages,
         const std::string& human_prefix = "Human",

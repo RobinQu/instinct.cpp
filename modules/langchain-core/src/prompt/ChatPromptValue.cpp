@@ -4,7 +4,7 @@
 
 #include "ChatPromptValue.h"
 
-namespace langchain {
-namespace core {
+
+namespace langchain::core {
 } // core
-} // langchain
+// langchain

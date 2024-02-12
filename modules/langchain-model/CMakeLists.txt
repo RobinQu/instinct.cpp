@@ -11,6 +11,8 @@ set(${LIBRARY_TARGET_NAME}_HDR
 
 set(${LIBRARY_TARGET_NAME}_SRC
         src/llm/OllamaLLM.cpp
+        src/chat_model/OllamaChat.cpp
+        src/chat_model/OllamaChat.h
 )
 
 add_library(

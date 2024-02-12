@@ -7,8 +7,9 @@
 #include <any>
 #include <unordered_map>
 #include <nlohmann/json.hpp>
+#include "CoreGlobals.h"
 
-namespace langchain::core {
+namespace LC_CORE_NS {
     using OptionDict = nlohmann::json;
     struct Endpoint {
         std::string host;

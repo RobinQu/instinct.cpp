@@ -20,7 +20,7 @@ public:
 
     std::string ToString() override;
 
-    BaseMessagePtr ToMessage() override;
+    std::vector<BaseMessagePtr> ToMessages() override;
 };
 
 

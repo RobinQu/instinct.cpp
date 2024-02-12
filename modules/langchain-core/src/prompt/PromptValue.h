@@ -20,7 +20,7 @@ public:
 
     virtual ~PromptValue() = 0;
     virtual std::string ToString() = 0;
-    virtual BaseMessagePtr ToMessage() = 0;
+    virtual std::vector<BaseMessagePtr> ToMessages() = 0;
 };
 using PromptValuePtr = std::shared_ptr<PromptValue>;
 

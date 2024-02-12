@@ -18,6 +18,12 @@ public:
         : BaseMessage(std::move(content), kChatMessageType),
           role(std::move(role)) {
     }
+
+    std::string GetContent() override;
+
+    std::string GetType() override;
+
+    std::string ToString() override;
 };
 
 } // core

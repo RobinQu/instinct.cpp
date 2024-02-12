@@ -38,7 +38,7 @@ namespace langchain::core {
         explicit SimpleHttpClient(Endpoint endpoint);
         SimpleHttpClient(Endpoint endpoint, HttpClientOptions options);
 
-        HttpResponsePtr DoExecute(
+        HttpResponsePtr Execute(
             const HttpRequest& call
         );
 

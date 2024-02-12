@@ -6,16 +6,16 @@
 #define LLMRESULT_H
 #include <vector>
 
-#include "LLMGeneration.h"
+#include "Generation.h"
 
 
 namespace langchain::core {
 
 class LLMResult {
 public:
-    std::vector<std::vector<LLMGenerationPtr>> generations;
+    std::vector<std::vector<Generation>> generations;
     OptionDict llm_output;
-    std::vector<LLMGenerationPtr> flatten();
+    std::vector<Generation> flatten();
 };
 
 using LLMResultPtr = std::shared_ptr<LLMResult>;

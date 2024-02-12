@@ -20,15 +20,14 @@ set(${LIBRARY_TARGET_NAME}_HDR src/prompt/BasePromptTemplate.h
         src/prompt/PipelineTemplate.h
         src/model/BaseLanguageModel.h
         src/model/LLMResult.h
-        src/model/LLMGeneration.h
-        src/Types.h
+        src/CoreTypes.h
         src/document/Embedding.h
         src/model/BaseEmbeddingModel.h
         src/model/BaseChatModel.h
-        src/LangchainCore.h
+        src/Core.h
         src/message/MessageType.h
         src/model/BaseLLM.h
-        src/Functions.h
+        src/CoreFunctions.h
 )
 set(${LIBRARY_TARGET_NAME}_SRC
         src/prompt/BasePromptTemplate.cpp
@@ -47,7 +46,6 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/prompt/PipelineTemplate.cpp
         src/model/BaseLanguageModel.cpp
         src/model/LLMResult.cpp
-        src/model/LLMGeneration.cpp
         src/model/BaseChatModel.cpp
         src/model/BaseEmbeddingModel.cpp
         src/document/Embedding.cpp
@@ -66,6 +64,13 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/tools/HttpRestClient.h
         src/tools/HttpChunkBodyIterator.cpp
         src/tools/HttpChunkBodyIterator.h
+        src/model/ChatResult.cpp
+        src/model/ChatResult.h
+        src/model/ChatGeneration.cpp
+        src/model/ChatGeneration.h
+        src/CoreGlobals.h
+        src/model/Generation.cpp
+        src/model/Generation.h
 )
 
 add_library(

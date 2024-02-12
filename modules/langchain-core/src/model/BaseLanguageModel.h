@@ -15,7 +15,10 @@ namespace langchain::core {
 class BaseLanguageModel {
 
 public:
+    BaseLanguageModel()=default;
     virtual ~BaseLanguageModel() = default;
+    BaseLanguageModel(const BaseLanguageModel&) = delete;
+    BaseLanguageModel(BaseLanguageModel&&) = delete;
     virtual LLMResultPtr GeneratePrompt(
         const std::vector<PromptValuePtr>& prompts,
         const std::vector<std::string>& stop_words,

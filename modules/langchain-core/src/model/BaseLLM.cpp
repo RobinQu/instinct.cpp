@@ -3,7 +3,7 @@
 //
 
 #include "BaseLLM.h"
-#include "Functions.h"
+#include "CoreFunctions.h"
 #include "message/AIMessage.h"
 
 namespace langchain::core {
