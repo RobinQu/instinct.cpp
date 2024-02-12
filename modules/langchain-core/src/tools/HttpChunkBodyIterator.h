@@ -22,8 +22,17 @@ namespace langchain::core {
         beast::flat_buffer buffer_;
         http::chunk_extensions ce_;
 
+        std::function<void(std::uint64_t,
+            boost::string_view,
+            boost::system::error_code&)> header_callback_;
+
+        std::function<std::size_t(std::uint64_t,
+            boost::string_view,
+            boost::system::error_code&)> body_callback_;
+
     public:
         HttpChunkBodyIterator() = delete;
+        HttpChunkBodyIterator(const HttpChunkBodyIterator &) = delete;
         ~HttpChunkBodyIterator();
         explicit HttpChunkBodyIterator(
             beast::tcp_stream* stream

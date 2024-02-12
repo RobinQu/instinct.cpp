@@ -26,6 +26,7 @@ foreach(_test_file ${TEST_SRC_FILES})
             tools/TestBeast.cpp
             tools/TestCustomParser.cpp
             tools/TestSimpleHttpClient.cpp
+            tools/TestLambda.cpp
     )
     target_link_libraries(${_test_name} gtest gtest_main)
     target_link_libraries(${_test_name} ${LIBRARY_TARGET_NAME})
