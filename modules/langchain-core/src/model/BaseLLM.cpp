@@ -21,7 +21,7 @@ namespace langchain::core {
         const OptionDict& options) {
         const std::vector<std::string> prompt_strings {text};
         if (const LLMResultPtr result = Generate(prompt_strings, stop_words, options); result && !result->generations.empty() && !result->generations[0].empty()) {
-            return result->generations[0][0]->text;
+            return result->generations[0][0].text;
         }
         throw LangchainException("Empty response");
     }
@@ -30,7 +30,7 @@ namespace langchain::core {
         const std::vector<std::string>& stop_words, const OptionDict& options) {
         std::string text = GetBufferString(messages);
         if(const LLMResultPtr result = Generate({text}, stop_words, options); result && !result->generations.empty() && !result->generations[0].empty()) {
-            return std::make_shared<AIMessage>(result->generations[0][0]->text);
+            return std::make_shared<AIMessage>(result->generations[0][0].text);
         }
         throw LangchainException("Empty response");
     }

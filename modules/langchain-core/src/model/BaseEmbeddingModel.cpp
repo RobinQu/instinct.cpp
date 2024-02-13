@@ -4,7 +4,10 @@
 
 #include "BaseEmbeddingModel.h"
 
-namespace langchain {
-namespace core {
+
+namespace LC_CORE_NS {
+
+
+
 } // core
-} // langchain
+// langchain

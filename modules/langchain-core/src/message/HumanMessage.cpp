@@ -4,7 +4,15 @@
 
 #include "HumanMessage.h"
 
-namespace langchain {
-namespace core {
+
+namespace LC_CORE_NS {
+    std::string HumanMessage::GetContent() {
+    }
+
+    std::string HumanMessage::GetType() {
+    }
+
+    std::string HumanMessage::ToString() {
+    }
 } // core
-} // langchain
+// langchain

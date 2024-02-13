@@ -7,7 +7,7 @@
 
 #include "BaseMessage.h"
 #include <string>
-
+#include "CoreGlobals.h"
 
 namespace langchain {
 namespace core {

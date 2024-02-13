@@ -34,6 +34,7 @@ namespace LC_MODEL_NS {
     core::ChatResultPtr OllamaChat::Generate(const std::vector<std::vector<core::BaseMessagePtr>>& messages_batch,
                                              const std::vector<std::string>& stop_words, const core::OptionDict& options) {
         auto chat_result = std::make_shared<core::ChatResult>();
+        // TODO better concunrrency control
         for(const auto& messages: messages_batch) {
             auto ollama_messages = messages | std::views::transform([](const core::BaseMessagePtr& message_ptr) {
                 return ConvertToOllamaMessage(message_ptr);

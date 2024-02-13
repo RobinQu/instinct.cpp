@@ -12,6 +12,7 @@
 #include "model/BaseLLM.h"
 #include "model/LLMResult.h"
 #include "ModelGlobals.h"
+#include "commons/OllamaCommons.h"
 
 namespace LC_MODEL_NS {
 

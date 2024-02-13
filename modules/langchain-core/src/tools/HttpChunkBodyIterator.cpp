@@ -4,7 +4,7 @@
 
 #include "HttpChunkBodyIterator.h"
 
-#include "Types.h"
+#include "CoreTypes.h"
 #include <iostream>
 
 namespace langchain::core {

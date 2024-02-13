@@ -8,10 +8,10 @@
 #include "CoreGlobals.h"
 #include <nlohmann/json.hpp>
 
-namespace LC_MODEL_NS {
-    /**
- * https://github.com/ollama/ollama/blob/main/docs/api.md
+/**
+ * @see https://github.com/ollama/ollama/blob/main/docs/api.md
  */
+namespace LC_MODEL_NS {
     struct OllamaGenerateReuqestOption {
         unsigned int temperature;
     };
@@ -54,11 +54,26 @@ namespace LC_MODEL_NS {
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(OllamaGenerateResponse, model, created_at, context, response, done, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration)
 
+    struct OllamaEmbeddingRequest {
+        std::string model;
+        std::string prompt;
+        OllamaGenerateReuqestOption options;
+    };
+
+    struct OllamaEmbeddingResponse {
+        std::vector<float> embedding;
+    };
+
+
+
+
     static const core::Endpoint OLLAMA_ENDPOINT {"localhost", 11434};
 
     static const std::string OLLAMA_GENERATE_PATH = "/api/generate";
 
     static const std::string OLLAMA_CHAT_PATH = "/api/chat";
+
+    static const std::string OLLAMA_EMBEDDING_PATH = "/api/embeddings";
 
     static const std::string OLLAMA_DEFUALT_MODEL_NAME = "llama2";
 

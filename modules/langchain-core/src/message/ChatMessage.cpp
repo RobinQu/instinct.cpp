@@ -6,6 +6,13 @@
 
 
 namespace langchain::core {
+    std::string ChatMessage::GetContent() {
+    }
 
+    std::string ChatMessage::GetType() {
+    }
+
+    std::string ChatMessage::ToString() {
+    }
 } // core
 // langchain

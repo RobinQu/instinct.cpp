@@ -4,7 +4,7 @@
 
 #ifndef HTTPRESPONSE_H
 #define HTTPRESPONSE_H
-#include "Types.h"
+#include "CoreTypes.h"
 
 
 namespace langchain::core {

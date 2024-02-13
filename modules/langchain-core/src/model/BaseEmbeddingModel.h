@@ -8,19 +8,25 @@
 #include <vector>
 
 #include "../document/Embedding.h"
+#include "CoreGlobals.h"
 
-namespace langchain {
-namespace core {
+
+namespace LC_CORE_NS {
 
 class BaseEmbeddingModel {
+public:
+    BaseEmbeddingModel()=default;
+    BaseEmbeddingModel(BaseEmbeddingModel&&)=delete;
+    BaseEmbeddingModel(const BaseEmbeddingModel&)=delete;
     virtual ~BaseEmbeddingModel()=0;
+
     virtual EmbeddingPtr EmbedDocuments(std::vector<std::string>& texts) = 0;
     virtual EmbeddingPtr EmbedQuery(std::string& text) = 0;
-    virtual std::future<EmbeddingPtr> EmbedDocumentsAsync(std::vector<std::string>& texts) = 0;
-    virtual std::future<EmbeddingPtr> EmbedQueryAsync(std::string& text) = 0;
+    // virtual std::future<EmbeddingPtr> EmbedDocumentsAsync(std::vector<std::string>& texts) = 0;
+    // virtual std::future<EmbeddingPtr> EmbedQueryAsync(std::string& text) = 0;
 };
 
 } // core
-} // langchain
+// langchain
 
 #endif //BASEEMBBEDINGMODEL_H

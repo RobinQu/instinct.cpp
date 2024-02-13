@@ -15,6 +15,8 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/chat_model/OllamaChat.h
         src/commons/OllamaCommons.h
         src/ModelGlobals.h
+        src/embedding_model/OllamaEmbedding.cpp
+        src/embedding_model/OllamaEmbedding.h
 )
 
 add_library(

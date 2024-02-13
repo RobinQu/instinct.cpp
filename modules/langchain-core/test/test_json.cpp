@@ -5,7 +5,6 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
-#include "../../langchain-model/src/llm/OllamaLLM.h"
 
 namespace ns {
     // a simple struct to model a person
@@ -47,14 +46,3 @@ TEST(JSONTest, TestConvert) {
 
 }
 
-TEST(JSONTest, TestDerivedClasss) {
-    langchian::model::OllamaGenerateRequest request;
-    nlohmann::json req = request;
-    std::cout << req << std::endl;
-
-    langchian::model::OllamaGenerateResponse response;
-    nlohmann::json res = response;
-    std::cout << res << std::endl;
-    response = res.get<langchian::model::OllamaGenerateResponse>();
-
-}

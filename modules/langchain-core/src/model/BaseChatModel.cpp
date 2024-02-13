@@ -14,16 +14,24 @@ namespace LC_CORE_NS {
                     return value->ToMessages();
                 });
         ChatResultPtr chat_result = Generate({messages_range.begin(), messages_range.end()}, stop_words, options);
-        LLMResultPtr llm_result = std::make_shared<LLMResult> {
-            chat_result->generations,
+        auto generations = chat_result->generations | std::views::transform([](const ChatGeneration& g)->Generation {
+            return Generation{g.text, g.generation_info, g.type};
+        });
+        auto llm_generations = std::vector{1, std::vector(generations.begin(), generations.end())};
+        LLMResultPtr llm_result = std::make_shared<LLMResult>(
+            llm_generations,
             chat_result->llm_output
-        };
+            );
         return llm_result;
     }
 
     std::string BaseChatModel::Predict(const std::string& text, const std::vector<std::string>& stop_words,
         const OptionDict& options) {
-        auto messages = {{std::make_shared<HumanMessage>(text)}};
+
+        auto messages = std::vector{1, std::vector{
+            dynamic_pointer_cast<BaseMessage>(std::make_shared<HumanMessage>(text))
+        }};
+
         auto result = Generate(messages, stop_words, options);
         return result->generations[0].text;
     }

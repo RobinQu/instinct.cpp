@@ -4,7 +4,7 @@
 
 #ifndef HTTPCALL_H
 #define HTTPCALL_H
-#include "Types.h"
+#include "CoreTypes.h"
 
 
 namespace langchain::core {

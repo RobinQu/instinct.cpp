@@ -5,7 +5,7 @@
 #ifndef HTTPUTILS_H
 #define HTTPUTILS_H
 #include "StringUtils.h"
-#include "Types.h"
+#include "CoreTypes.h"
 
 
 namespace langchain::core {

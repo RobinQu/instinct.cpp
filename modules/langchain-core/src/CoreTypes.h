@@ -27,7 +27,6 @@ namespace LC_CORE_NS {
         HEAD
     };
 
-
     class LangchainException: std::runtime_error {
     public:
         explicit LangchainException(const std::string& basic_string)
