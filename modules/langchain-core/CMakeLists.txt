@@ -71,6 +71,8 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/CoreGlobals.h
         src/model/Generation.cpp
         src/model/Generation.h
+        src/tools/HttpClientException.cpp
+        src/tools/HttpClientException.h
 )
 
 add_library(

@@ -12,8 +12,8 @@
 namespace LC_CORE_NS {
 
 struct ChatResult {
-    const std::vector<ChatGeneration> generations;
-    const OptionDict llm_output;
+    std::vector<ChatGeneration> generations;
+    OptionDict llm_output;
 };
 using ChatResultPtr = std::shared_ptr<ChatResult>;
 

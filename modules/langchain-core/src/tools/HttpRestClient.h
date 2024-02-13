@@ -4,6 +4,10 @@
 
 #ifndef HTTPRESTCLIENT_H
 #define HTTPRESTCLIENT_H
+#include <fmt/os.h>
+
+#include "CoreTypes.h"
+#include "HttpClientException.h"
 #include "SimpleHttpClient.h"
 
 
@@ -21,6 +25,9 @@ public:
     Result GetObject(const std::string& uri) {
         const HttpRequest request = {GET, uri, {}, ""};
         const HttpResponsePtr response = Execute(request);
+        if(response->status_code >= 400) {
+            throw HttpClientException(response->status_code, response->body);
+        }
         return nlohmann::json::parse(response->body);
     }
     template<typename Param, typename Result>
@@ -28,6 +35,9 @@ public:
         const nlohmann::json json_object = param;
         const HttpRequest request = {POST, uri, {}, json_object.dump()};
         const HttpResponsePtr response = Execute(request);
+        if(response->status_code >= 400) {
+            throw HttpClientException(response->status_code, response->body);
+        }
         auto response_body_json = nlohmann::json::parse(response->body);
         return response_body_json.get<Result>();
     }

@@ -13,6 +13,8 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/llm/OllamaLLM.cpp
         src/chat_model/OllamaChat.cpp
         src/chat_model/OllamaChat.h
+        src/commons/OllamaCommons.h
+        src/ModelGlobals.h
 )
 
 add_library(

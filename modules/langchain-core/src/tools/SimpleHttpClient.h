@@ -7,6 +7,7 @@
 
 #include <boost/beast.hpp>
 
+#include "CoreTypes.h"
 #include "HttpChunkBodyIterator.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"

@@ -19,7 +19,6 @@ namespace LC_CORE_NS {
             chat_result->llm_output
         };
         return llm_result;
-
     }
 
     std::string BaseChatModel::Predict(const std::string& text, const std::vector<std::string>& stop_words,
