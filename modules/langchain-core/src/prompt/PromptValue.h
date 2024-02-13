@@ -14,6 +14,7 @@ namespace core {
 class PromptValue {
     std::string type;
 public:
+
     explicit PromptValue(std::string type)
         : type(std::move(type)) {
     }

@@ -11,7 +11,7 @@
 namespace langchain {
 namespace core {
 
-class StringPromptValue: PromptValue {
+class StringPromptValue: public PromptValue {
     std::string text;
 public:
     explicit StringPromptValue(std::string text)

@@ -6,9 +6,10 @@
 #define HTTPUTILS_H
 #include "StringUtils.h"
 #include "CoreTypes.h"
+#include "CoreGlobals.h"
 
 
-namespace langchain::core {
+namespace LC_CORE_NS {
     struct HttpUtils {
         static HttpMethod ParseMethod(const std::string& str) {
             auto m = langchian::core::StringUtils::ToUpper(str);

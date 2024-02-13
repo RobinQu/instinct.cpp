@@ -8,23 +8,23 @@
 #include <string>
 #include "PromptValue.h"
 #include <vector>
+#include "CoreGlobals.h"
 
-namespace langchain {
-namespace core {
 
-class ChatPromptValue: PromptValue {
-    std::vector<std::string> messages;
-public:
-    explicit ChatPromptValue(std::vector<std::string> messages)
-        : PromptValue("ChatPromptValue"), messages(std::move(messages)) {
-    }
+namespace LC_CORE_NS {
+    class ChatPromptValue : public PromptValue {
+        std::vector<BaseMessagePtr> messages_;
 
-    std::string ToString() override;
+    public:
+        explicit ChatPromptValue(std::vector<BaseMessagePtr> messages)
+            : PromptValue("ChatPromptValue"), messages_(std::move(messages)) {
+        }
 
-    std::vector<BaseMessagePtr> ToMessages() override;
-};
+        std::string ToString() override;
 
+        std::vector<BaseMessagePtr> ToMessages() override;
+    };
 } // core
-} // langchain
+// langchain
 
 #endif //CHATPROMPTVALUE_H

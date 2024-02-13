@@ -23,7 +23,7 @@ namespace LC_MODEL_NS {
             });
             auto shape = {1, response.embedding.size()};
             // move response to heap
-            auto buf = new std::vector{response.embedding};
+            auto buf = new std::vector{std::move(response.embedding)};
             // transfer to xarray
             auto one = xt::adapt(
                 buf,
@@ -42,7 +42,7 @@ namespace LC_MODEL_NS {
                 text,
                 {}
             });
-        auto buf = new std::vector{response.embedding};
+        auto buf = new std::vector{std::move(response.embedding)};
         return std::make_shared<core::Embedding>{
             xt::adapt(buf, buf->size(), xt::acquire_ownership(), {buf->size()})
         };

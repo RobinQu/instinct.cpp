@@ -73,6 +73,14 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/model/Generation.h
         src/tools/HttpClientException.cpp
         src/tools/HttpClientException.h
+        src/prompt/PromptTemplate.cpp
+        src/prompt/PromptTemplate.h
+        src/prompt/BaseMessagePromptTemplate.cpp
+        src/prompt/BaseMessagePromptTemplate.h
+        src/prompt/AIMessagePromptTemplate.cpp
+        src/prompt/AIMessagePromptTemplate.h
+        src/prompt/ChatMessagePromptTemplate.cpp
+        src/prompt/ChatMessagePromptTemplate.h
 )
 
 add_library(
