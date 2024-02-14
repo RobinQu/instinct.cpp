@@ -17,12 +17,6 @@ namespace LC_CORE_NS {
     using ChatPromptTemplatePtr = std::shared_ptr<ChatPromptTemplate>;
 
 
-
-    template <class Type, class Content>
-    static auto ConvertToMessageTuple(Type t, Content c) {
-        return {t,c};
-    };
-
     class ChatPromptTemplate : public BasePromptTemplate {
         std::vector<BaseMessagePromptTemplatePtr> messages_;
 

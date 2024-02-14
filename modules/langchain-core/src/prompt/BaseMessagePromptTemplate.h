@@ -16,7 +16,7 @@ namespace LC_CORE_NS {
     public:
         explicit BaseMessagePromptTemplate(const PromptTemplatePtr& prompt);
 
-        virtual ~BaseMessagePromptTemplate() = 0;
+        virtual ~BaseMessagePromptTemplate() = default;
 
         virtual BaseMessagePtr Format(const OptionDict& variables) = 0;
 

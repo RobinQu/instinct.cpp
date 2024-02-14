@@ -4,7 +4,16 @@
 
 #include "StringPromptValue.h"
 
-namespace langchain {
-namespace core {
+#include "message/HumanMessage.h"
+
+
+namespace LC_CORE_NS {
+    std::string StringPromptValue::ToString() {
+        return text;
+    }
+
+    std::vector<BaseMessagePtr> StringPromptValue::ToMessages() {
+        return {std::make_shared<HumanMessage>(text)};
+    }
 } // core
-} // langchain
+// langchain

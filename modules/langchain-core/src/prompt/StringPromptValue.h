@@ -7,9 +7,10 @@
 
 #include <string>
 #include "PromptValue.h"
+#include "CoreGlobals.h"
 
-namespace langchain {
-namespace core {
+
+namespace LC_CORE_NS {
 
 class StringPromptValue: public PromptValue {
     std::string text;
@@ -25,6 +26,6 @@ public:
 
 
 } // core
-} // langchain
+// langchain
 
 #endif //STRINGPROMPTVALUE_H

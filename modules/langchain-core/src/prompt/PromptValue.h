@@ -19,7 +19,7 @@ public:
         : type(std::move(type)) {
     }
 
-    virtual ~PromptValue() = 0;
+    virtual ~PromptValue() = default;
     virtual std::string ToString() = 0;
     virtual std::vector<BaseMessagePtr> ToMessages() = 0;
 };

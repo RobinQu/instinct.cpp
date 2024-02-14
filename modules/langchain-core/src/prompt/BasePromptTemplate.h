@@ -22,7 +22,7 @@ namespace LC_CORE_NS {
 class BasePromptTemplate {
     // std::map<std::string,std::any> ;
 public:
-    virtual  ~BasePromptTemplate();
+    virtual ~BasePromptTemplate() = default;
 
     virtual PromptValuePtr FormatPrompt() = 0;
     virtual PromptValuePtr FormatPrompt(const OptionDict& variables) = 0;

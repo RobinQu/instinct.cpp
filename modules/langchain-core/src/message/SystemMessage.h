@@ -17,6 +17,12 @@ public:
     explicit SystemMessage(std::string content)
         : BaseMessage(std::move(content), kSystemMessageType) {
     }
+
+    std::string GetContent() override;
+
+    std::string GetType() override;
+
+    std::string ToString() override;
 };
 
 } // core

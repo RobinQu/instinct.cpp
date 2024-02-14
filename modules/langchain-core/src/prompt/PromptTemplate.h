@@ -7,8 +7,7 @@
 #include "CoreGlobals.h"
 #include "StringPromptTemplate.h"
 
-namespace
-LC_CORE_NS {
+namespace LC_CORE_NS {
     class PromptTemplate;
     using PromptTemplatePtr = std::shared_ptr<PromptTemplate>;
 

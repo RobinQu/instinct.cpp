@@ -12,7 +12,9 @@
 namespace LC_CORE_NS {
     template<typename ... Arg>
     ChatPromptTemplatePtr ChatPromptTemplate::FromMessages(const Arg&... args) {
-        std::vector<std::pair<std::string, std::string>> data = {args...};
+        std::vector<BaseMessagePromptTemplatePtr> messages;
+        messages.insert(messages.end(), {args...});
+        return std::make_shared<ChatPromptTemplate>(messages);
     }
 
     ChatPromptTemplate::ChatPromptTemplate(std::vector<BaseMessagePromptTemplatePtr> messages): messages_(std::move(messages)) {

@@ -30,6 +30,18 @@ namespace langchian::core {
             auto parts =  data | std::views::transform([](auto const c) {return std::toupper(c);});
             return {parts.begin(), parts.end()};
         }
+
+
+        static std::string Join(const std::vector<std::string>& parts) {
+            std::string buf;
+            for(const auto& part: parts) {
+                buf += part;
+            }
+            return buf;
+        }
+
+
+
     };
 
 

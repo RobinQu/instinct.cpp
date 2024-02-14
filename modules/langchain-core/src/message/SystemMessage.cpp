@@ -3,8 +3,16 @@
 //
 
 #include "SystemMessage.h"
+#include "CoreGlobals.h"
 
-namespace langchain {
-namespace core {
+namespace LC_CORE_NS {
+    std::string SystemMessage::GetContent() {
+    }
+
+    std::string SystemMessage::GetType() {
+    }
+
+    std::string SystemMessage::ToString() {
+    }
 } // core
-} // langchain
+// langchain

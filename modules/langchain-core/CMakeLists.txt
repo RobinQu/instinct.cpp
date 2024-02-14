@@ -81,6 +81,10 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/prompt/AIMessagePromptTemplate.h
         src/prompt/ChatMessagePromptTemplate.cpp
         src/prompt/ChatMessagePromptTemplate.h
+        src/prompt/SystemMessagePromptTemplate.cpp
+        src/prompt/SystemMessagePromptTemplate.h
+        src/prompt/HumanMessagePromptTemplate.cpp
+        src/prompt/HumanMessagePromptTemplate.h
 )
 
 add_library(
