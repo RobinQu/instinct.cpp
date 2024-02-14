@@ -6,13 +6,9 @@
 
 
 namespace LC_CORE_NS {
-    std::string HumanMessage::GetContent() {
-    }
-
-    std::string HumanMessage::GetType() {
-    }
 
     std::string HumanMessage::ToString() {
+        return fmt::format("{role}: {content}", fmt::arg("role", "Human"), fmt::arg("content", GetContent()));
     }
 } // core
 // langchain

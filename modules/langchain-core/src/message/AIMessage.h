@@ -18,11 +18,7 @@ public:
           example(example) {
     }
 
-    ~AIMessage() override;
-
-    std::string GetContent() override;
-
-    std::string GetType() override;
+    ~AIMessage() override = default;
 
     std::string ToString() override;
 };

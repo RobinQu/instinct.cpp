@@ -91,6 +91,12 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/prompt/LengthBasedExampleSelector.h
         src/prompt/MutableExampleSelector.cpp
         src/prompt/MutableExampleSelector.h
+        src/prompt/FewShotChatMessagePromptTemplate.cpp
+        src/prompt/FewShotChatMessagePromptTemplate.h
+        src/prompt/BaseChatPromptTemplate.cpp
+        src/prompt/BaseChatPromptTemplate.h
+        src/prompt/PassthroughExampleSelector.cpp
+        src/prompt/PassthroughExampleSelector.h
 )
 
 add_library(

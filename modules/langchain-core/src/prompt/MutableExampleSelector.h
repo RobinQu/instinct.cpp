@@ -17,7 +17,7 @@ protected:
     PromptTemplatePtr example_prompt_template_;
 
 public:
-    explicit MutableExampleSelector(std::vector<OptionDict> examples, PromptTemplatePtr prompt_template)
+    MutableExampleSelector(std::vector<OptionDict> examples, PromptTemplatePtr prompt_template)
         : examples_(std::move(examples)), example_prompt_template_(std::move(prompt_template)) {
     }
     void AddExample(const OptionDict& example) override;

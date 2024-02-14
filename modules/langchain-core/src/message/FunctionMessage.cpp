@@ -4,7 +4,10 @@
 
 #include "FunctionMessage.h"
 
-namespace langchain {
-namespace core {
+
+namespace langchain::core {
+    std::string FunctionMessage::ToString() {
+        return fmt::format("{role}: {content}", fmt::arg("role", "Function"), fmt::arg("content", GetContent()));
+    }
 } // core
-} // langchian
+// langchian

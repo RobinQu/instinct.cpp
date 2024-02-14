@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include "BaseChatPromptTemplate.h"
 #include "BaseMessagePromptTemplate.h"
 
 
@@ -17,7 +18,7 @@ namespace LC_CORE_NS {
     using ChatPromptTemplatePtr = std::shared_ptr<ChatPromptTemplate>;
 
 
-    class ChatPromptTemplate : public BasePromptTemplate {
+    class ChatPromptTemplate : public BaseChatPromptTemplate {
         std::vector<BaseMessagePromptTemplatePtr> messages_;
 
     public:
@@ -26,15 +27,7 @@ namespace LC_CORE_NS {
 
         explicit ChatPromptTemplate(std::vector<BaseMessagePromptTemplatePtr> messages);
 
-        std::vector<BaseMessagePtr> FormatMessages(const OptionDict& variables);
-
-        PromptValuePtr FormatPrompt() override;
-
-        PromptValuePtr FormatPrompt(const OptionDict& variables) override;
-
-        std::string Format() override;
-
-        std::string Format(const OptionDict& variables) override;
+        std::vector<BaseMessagePtr> FormatMessages(const OptionDict& variables) override;
     };
 } // core
 // langchain

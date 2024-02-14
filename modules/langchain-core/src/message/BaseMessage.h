@@ -7,23 +7,24 @@
 #include <memory>
 #include <string>
 #include "MessageType.h"
+#include "CoreGlobals.h"
 
-
-namespace langchain::core {
+namespace LC_CORE_NS {
 
 class BaseMessage {
-    std::string content;
-    MessageType type;
+
+    std::string content_;
+    MessageType type_;
 
 public:
     BaseMessage(std::string content, const MessageType type)
-        : content(std::move(content)),
-          type(type) {
+        : content_(std::move(content)),
+          type_(type) {
     }
 
     virtual ~BaseMessage() = default;
-    virtual std::string GetContent() = 0;
-    virtual std::string GetType() = 0;
+    [[nodiscard]] std::string GetContent() const;
+    [[nodiscard]] MessageType GetType() const;
     virtual std::string ToString() = 0;
 
 };

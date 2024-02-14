@@ -19,10 +19,6 @@ public:
           role(std::move(role)) {
     }
 
-    std::string GetContent() override;
-
-    std::string GetType() override;
-
     std::string ToString() override;
 };
 

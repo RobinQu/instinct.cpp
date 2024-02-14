@@ -27,21 +27,5 @@ namespace LC_CORE_NS {
         return {message_view.begin(), message_view.end()};
     }
 
-    PromptValuePtr ChatPromptTemplate::FormatPrompt() {
-        return FormatPrompt({});
-    }
-
-    PromptValuePtr ChatPromptTemplate::FormatPrompt(const OptionDict& variables) {
-        auto messages = FormatMessages(variables);
-        return std::make_shared<ChatPromptValue>(messages);
-    }
-
-    std::string ChatPromptTemplate::Format() {
-        return Format({});
-    }
-
-    std::string ChatPromptTemplate::Format(const OptionDict& variables) {
-        return FormatPrompt(variables)->ToString();
-    }
 } // core
 // langchain

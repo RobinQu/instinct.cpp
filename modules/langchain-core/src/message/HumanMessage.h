@@ -9,8 +9,8 @@
 #include <string>
 #include "CoreGlobals.h"
 
-namespace langchain {
-namespace core {
+
+namespace LC_CORE_NS {
 
 class HumanMessage: public BaseMessage {
     bool exmaple;
@@ -20,14 +20,10 @@ public:
           exmaple(exmaple) {
     }
 
-    std::string GetContent() override;
-
-    std::string GetType() override;
-
     std::string ToString() override;
 };
 
 } // core
-} // langchain
+// langchain
 
 #endif //HUMANMESSAGE_H

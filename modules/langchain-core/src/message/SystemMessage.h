@@ -8,9 +8,7 @@
 #include "BaseMessage.h"
 #include <string>
 
-
-namespace langchain {
-namespace core {
+namespace LC_CORE_NS {
 
 class SystemMessage: public BaseMessage {
 public:
@@ -18,14 +16,10 @@ public:
         : BaseMessage(std::move(content), kSystemMessageType) {
     }
 
-    std::string GetContent() override;
-
-    std::string GetType() override;
-
     std::string ToString() override;
 };
 
 } // core
-} // langchain
+// langchain
 
 #endif //SYSTEMMESSAGE_H

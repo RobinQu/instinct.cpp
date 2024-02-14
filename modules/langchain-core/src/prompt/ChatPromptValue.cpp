@@ -10,7 +10,7 @@
 namespace LC_CORE_NS {
     std::string ChatPromptValue::ToString() {
         auto parts = messages_ | std::views::transform([](const BaseMessagePtr& m) {return m->ToString();});
-        return langchian::core::StringUtils::Join({parts.begin(), parts.end()});
+        return langchian::core::StringUtils::JoinWith({parts.begin(), parts.end()}, "\n");
     }
 
     std::vector<BaseMessagePtr> ChatPromptValue::ToMessages() {

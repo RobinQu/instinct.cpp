@@ -3,19 +3,12 @@
 //
 
 #include "AIMessage.h"
+#include "CoreGlobals.h"
 
-namespace langchain {
-namespace core {
-    AIMessage::~AIMessage() {
-    }
-
-    std::string AIMessage::GetContent() {
-    }
-
-    std::string AIMessage::GetType() {
-    }
+namespace LC_CORE_NS {
 
     std::string AIMessage::ToString() {
+        return fmt::format("{role}: {content}", fmt::arg("role", "Asistant"), fmt::arg("content", GetContent()));
     }
 } // core
-} // langchain
+// langchain

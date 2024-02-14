@@ -4,7 +4,14 @@
 
 #include "BaseMessage.h"
 
-namespace langchain {
-namespace core {
+
+namespace LC_CORE_NS {
+    std::string BaseMessage::GetContent() const {
+        return content_;
+    }
+
+    MessageType BaseMessage::GetType() const {
+        return type_;
+    }
 } // core
-} // langchain
+// langchain

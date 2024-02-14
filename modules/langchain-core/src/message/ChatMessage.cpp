@@ -3,16 +3,12 @@
 //
 
 #include "ChatMessage.h"
-
+#include <fmt/format.h>
 
 namespace langchain::core {
-    std::string ChatMessage::GetContent() {
-    }
-
-    std::string ChatMessage::GetType() {
-    }
 
     std::string ChatMessage::ToString() {
+        return fmt::format("{role}: {content}", fmt::arg("role", role), fmt::arg("content", GetContent()));
     }
 } // core
 // langchain

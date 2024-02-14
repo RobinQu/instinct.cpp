@@ -6,13 +6,9 @@
 #include "CoreGlobals.h"
 
 namespace LC_CORE_NS {
-    std::string SystemMessage::GetContent() {
-    }
-
-    std::string SystemMessage::GetType() {
-    }
 
     std::string SystemMessage::ToString() {
+        return fmt::format("{role}: {content}", fmt::arg("role", "System"), fmt::arg("content", GetContent()));
     }
 } // core
 // langchain
