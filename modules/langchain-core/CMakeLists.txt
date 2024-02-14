@@ -85,6 +85,12 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/prompt/SystemMessagePromptTemplate.h
         src/prompt/HumanMessagePromptTemplate.cpp
         src/prompt/HumanMessagePromptTemplate.h
+        src/prompt/BaseExmapleSelector.cpp
+        src/prompt/BaseExmapleSelector.h
+        src/prompt/LengthBasedExampleSelector.cpp
+        src/prompt/LengthBasedExampleSelector.h
+        src/prompt/MutableExampleSelector.cpp
+        src/prompt/MutableExampleSelector.h
 )
 
 add_library(

@@ -40,6 +40,18 @@ namespace langchian::core {
             return buf;
         }
 
+        static std::string JoinWith(const std::vector<std::string>& parts, const std::string& sep) {
+            std::string buf;
+            const size_t len = parts.size();
+            for(int i=0;i<len;++i) {
+                buf+= parts[i];
+                if(i!=len-1) {
+                    buf+= sep;
+                }
+            }
+            return buf;
+        }
+
 
 
     };
