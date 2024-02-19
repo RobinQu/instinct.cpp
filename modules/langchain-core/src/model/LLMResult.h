@@ -16,6 +16,8 @@ public:
     std::vector<std::vector<Generation>> generations;
     OptionDict llm_output;
 
+    LLMResult() = default;
+
     LLMResult(std::vector<std::vector<Generation>> generations, OptionDict llm_output)
         : generations(std::move(generations)),
           llm_output(std::move(llm_output)) {

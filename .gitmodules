@@ -22,3 +22,6 @@
 [submodule "thirdparty/uriparser"]
 	path = thirdparty/uriparser
 	url = https://github.com/uriparser/uriparser.git
+[submodule "thirdparty/taskflow"]
+	path = thirdparty/taskflow
+	url = https://github.com/taskflow/taskflow.git

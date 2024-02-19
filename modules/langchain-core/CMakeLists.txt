@@ -97,6 +97,19 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/prompt/BaseChatPromptTemplate.h
         src/prompt/PassthroughExampleSelector.cpp
         src/prompt/PassthroughExampleSelector.h
+        src/runnable/Runnable.cpp
+        src/runnable/Runnable.h
+        src/runnable/RunnableSequence.cpp
+        src/runnable/RunnableSequence.h
+        src/runnable/RunnableParallel.cpp
+        src/runnable/RunnableParallel.h
+        src/runnable/RunnableLambda.cpp
+        src/runnable/RunnableLambda.h
+        src/runnable/RunnableAssign.cpp
+        src/runnable/RunnableAssign.h
+        src/runnable/RunnablePick.cpp
+        src/runnable/RunnablePick.h
+        src/flowgraph/GraphNode.h
 )
 
 add_library(
@@ -114,6 +127,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME}
         Boost::beast
         Boost::algorithm
         Boost::url
+        Taskflow
 )
 
 set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES

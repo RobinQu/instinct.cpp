@@ -4,7 +4,6 @@
 
 #ifndef HTTPRESTCLIENT_H
 #define HTTPRESTCLIENT_H
-#include <fmt/os.h>
 
 #include "CoreTypes.h"
 #include "HttpClientException.h"

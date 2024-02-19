@@ -25,9 +25,9 @@ namespace LC_MODEL_NS {
             auto ollama_response = http_client_.PostObject<OllamaGenerateRequest, OllamaGenerateResponse>(OLLAMA_GENERATE_PATH, request);
             core::OptionDict option_dict = ollama_response;
             auto generations = {
-                {ollama_response.response, option_dict, "LLMGeneration"}
+                core::Generation{ollama_response.response, option_dict, "LLMGeneration"}
             };
-            result->generations.push_back(generations);
+            result->generations.emplace_back(generations);
         }
         return result;
     }

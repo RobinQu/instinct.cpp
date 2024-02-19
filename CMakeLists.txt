@@ -85,6 +85,8 @@ else ()
     message(STATUS "Boost version: ${Boost_VERSION}")
 endif ()
 
+## taskflow
+add_subdirectory(thirdparty/taskflow)
 
 ## gtest
 if(BUILD_TESTING)
@@ -97,6 +99,7 @@ if(BUILD_TESTING)
 #        message(STATUS "Found GTest, version=" ${GTest_VERSION} ", GTest libraries=" ${GTEST_LIBRARIES})
 #    endif ()
 endif ()
+
 
 # project modules
 add_subdirectory(modules/langchain-core)
