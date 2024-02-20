@@ -1,0 +1,5 @@
+@startuml
+
+interface Chainable<Input,Output> {}
+
+@enduml

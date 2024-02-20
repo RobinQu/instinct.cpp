@@ -46,6 +46,11 @@ interface Invocable {
 interface InvocableGraphNode extends GraphNode, Invocable
 
 
+class ContextAwareFlowGraph<C extends Context> implements FlowGraph {
+    C context
+}
+
+
 class LambdaGraphNode<Fn> implements InvocableGraphNode
 
 class JoinGraphNode extends InvocableGraphNode

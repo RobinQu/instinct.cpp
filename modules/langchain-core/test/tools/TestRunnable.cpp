@@ -4,69 +4,40 @@
 
 #include <gtest/gtest.h>
 //
-
-#include <flowgraph/GraphNode.h>
 #include "CoreTypes.h"
-#include <cctype>
+#include "chain/Chainable.hpp"
 
 // auto map_callables(std::map<std::string, F>) {}
 using namespace LC_CORE_NS;
 
 
-template<typename Ret, typename Arg, typename... Rest>
-Arg first_argument_helper(Ret(*) (Arg, Rest...));
+class DoubleCopyString final: public chain::Chainable<std::string, std::string> {
+public:
+    std::string Invoke(const std::string& input) override {
+        return input + input;
+    }
 
-template<typename Ret, typename F, typename Arg, typename... Rest>
-Arg first_argument_helper(Ret(F::*) (Arg, Rest...));
-
-template<typename Ret, typename F, typename Arg, typename... Rest>
-Arg first_argument_helper(Ret(F::*) (Arg, Rest...) const);
-
-template <typename F>
-decltype(first_argument_helper(&F::operator())) first_argument_helper(F);
-
-template <typename T>
-using first_argument = decltype(first_argument_helper(std::declval<T>()));
-
-
-using map_fn = std::function<std::any(std::any)>;
-
-// Trait to get the argument type of a unary function
-template<typename T>
-struct unary_func_arg_pointer;
-
-template<typename R, typename T>
-struct unary_func_arg_pointer< R(*)(T*) >
-{
-    using type = T;
+    static chain::ChainablePtr<std::string, std::string> Create() {
+        return std::make_shared<DoubleCopyString>();
+    }
 };
 
-// Trait to get the argument type of a unary function
-template<typename T>
-struct unary_func_arg;
 
-template<typename R, typename T>
-struct unary_func_arg< R(*)(T) >
-{
-    using type = T;
+class CalculateStringLength final: public chain::Chainable<std::string, std::string::size_type> {
+public:
+    using Ptr = chain::ChainablePtr<std::string, std::string::size_type>;
+
+    unsigned long Invoke(const std::string& input) override {
+        return input.size();
+    }
+
+    static Ptr Create() {
+        return std::make_shared<CalculateStringLength>();
+    }
 };
-
-template<typename Fn>
-map_fn wrap(Fn&& fn) {
-    using Arg = typename unary_func_arg<Fn>::type;
-    return [&](const std::any& x) {
-        Arg v = std::get<Arg>(x);
-        return std::invoke<Fn>(fn, v);
-    };
-}
-
-template<typename Arg>
-void test_fn(Arg a) {}
-
 
 
 TEST(TestRunnable, TestPipeline) {
-
 
     auto fn_1 = [](const std::string& str) {return str.size();};
     auto fn_2 = [](const size_t val) {return val*2;};
@@ -81,9 +52,14 @@ TEST(TestRunnable, TestPipeline) {
         return str + str;
     };
     // using ArgType = first_argument<decltype(fn_1)>;
-    auto n_1 = create_node(fn_1);
+    // auto n_1 = chain::create_chainable(fn_1);
 
-    n_1.Invoke("123");
+    auto n1 = DoubleCopyString::Create();
+    auto n2 = CalculateStringLength::Create();
+    auto chain = n1 | n2;
+    std::cout << chain->Invoke("hello_world") << std::endl;
+
+    // n_1.Invoke("123");
 
     // std::function<std::any()> x_1 = []() {return 1;};
     // using Ret = std::invoke_result_t<decltype(x_1)>;
@@ -99,13 +75,13 @@ TEST(TestRunnable, TestPipeline) {
 
     // fn: std::function<Input> -> map{std::string, X}
 
-    auto xn_4 = create_node(fn_4, "fn_4");
-    auto xn_5 = create_node(fn_5, "fn_5");
-    using T = decltype(fn_4);
-    JoinFunctionsGraphNode<T> map_node;
-    map_node.AddPort("fn_4", fn_4);
-    map_node.AddPort("fn_5", fn_5);
-
+    // auto xn_4 = create_node(fn_4, "fn_4");
+    // auto xn_5 = create_node(fn_5, "fn_5");
+    // using T = decltype(fn_4);
+    // JoinFunctionsGraphNode<T> map_node;
+    // map_node.AddPort("fn_4", fn_4);
+    // map_node.AddPort("fn_5", fn_5);
+    //
 
 
 

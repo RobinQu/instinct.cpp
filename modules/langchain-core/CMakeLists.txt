@@ -109,7 +109,7 @@ set(${LIBRARY_TARGET_NAME}_SRC
         src/runnable/RunnableAssign.h
         src/runnable/RunnablePick.cpp
         src/runnable/RunnablePick.h
-        src/flowgraph/GraphNode.h
+        src/chain/Chainable.hpp
 )
 
 add_library(
