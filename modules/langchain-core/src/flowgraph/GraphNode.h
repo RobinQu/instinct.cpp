@@ -8,6 +8,9 @@
 #include "CoreGlobals.h"
 #include "taskflow/taskflow.hpp"
 
+/**
+ * \brief  ctx.obserable.subscribe(v -> Invoke(v));
+ */
 namespace
 LC_CORE_NS {
     class AnyMap {
@@ -43,7 +46,8 @@ LC_CORE_NS {
 
     using SS_FN = std::function<AnyMap(const AnyMap&)>;
 
-    template<typename Fn>
+
+
     struct GraphNode {
         GraphNode() = default;
 
@@ -53,10 +57,16 @@ LC_CORE_NS {
 
         GraphNode(GraphNode&&) = delete;
 
+        virtual void Invoke() = 0;
+
+        [[nodiscard]] virtual const std::string& GetName() const = 0;
     };
 
+    class Visitor{};
+
+
     template<typename Fn>
-    class FunctionGraphNode final : public GraphNode<Fn> {
+    class FunctionGraphNode final : public GraphNode {
         Fn fn_;
         std::string name_;
 
@@ -75,15 +85,45 @@ LC_CORE_NS {
             return Invoke(input);
         }
 
-        Fn GetRunnable() override {
-            return fn_;
-        }
-
-        [[nodiscard]] const std::string& GetName() const {
+        [[nodiscard]] const std::string& GetName() const override {
             return name_;
         }
 
+        void Visit(Visitor* v) {
+            // auto p = GetParam();
+            // GetParams().Put("doc_context", {})
+            //
+            // GetContext().Put("context", {});
+            // v->visit(this);
+        }
+
+        void Invoke() override {}
     };
+
+
+    class MyVisistor: public Visitor {
+
+        tf::Taskflow taskflow_;
+
+        template<typename Fn>
+        void visit(FunctionGraphNode<Fn> node) {
+            taskflow_.emplace([]() {
+
+            });
+        }
+    };
+
+
+    // auto chain = prompt | ollama | output_parser
+    // struct V {}
+    // auto c2 = create_map<V>(combiner, chain1, chain2, chain3);
+
+    //
+    // template<typename... Fns, typename Map, typename Xn=std::invoke_result_t<Map>>
+    // Xn create_map() {
+    //
+    // }
+
 
 
     // template <typename Input, typename Intermediate, typename Output, typename Fn1 = Intermediate(Input), typename Fn2 = Output(Intermediate)>

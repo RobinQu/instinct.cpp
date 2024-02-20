@@ -170,7 +170,7 @@ class RunnableMapping {
 
 ```
 
-```plantuml
+```puml
 @startuml
 
 interface Runnable {
