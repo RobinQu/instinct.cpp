@@ -29,6 +29,8 @@ foreach(_test_file ${TEST_SRC_FILES})
             tools/TestLambda.cpp
             tools/TestRunnable.cpp
             tools/TestFunction.cpp
+            exprimental/TestInputOutputChainable.cpp
+            exprimental/TestFnChainable.cpp
     )
     target_link_libraries(${_test_name} gtest gtest_main)
     target_link_libraries(${_test_name} ${LIBRARY_TARGET_NAME})

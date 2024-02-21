@@ -60,60 +60,7 @@ namespace LC_CORE_NS::chain {
     //
     // };
 
-    template <typename R, typename V>
-    concept RangeOf = std::ranges::range<R> && std::same_as<std::ranges::range_value_t<R>, V>;
 
-
-    template <typename Input, typename Output, typename InputRange=std::vector<Input>, typename OutputRange=std::vector<Output>>
-        requires RangeOf<InputRange, Input> && RangeOf<OutputRange, Output>
-    class Chainable {
-    public:
-        virtual ~Chainable() = default;
-
-        virtual Output Invoke(const Input& input) = 0;
-
-        virtual OutputRange Batch(const InputRange& input) {
-            const auto output_view =  input | std::views::transform([&](const auto& v) {
-                return Invoke(v);
-            });
-            return {output_view.begin(), output_view.end()};
-        }
-
-        virtual OutputRange Stream(const Input& input) {
-            return {std::forward<Output>(Invoke(input))};
-        }
-    };
-    template <typename Input, typename Output>
-    using ChainablePtr = std::shared_ptr<Chainable<Input, Output>>;
-
-    template <typename Input, typename Intermediate, typename Output>
-    class ChainablePair final: public Chainable<Input,Output> {
-        ChainablePtr<Input, Intermediate> c1_;
-        ChainablePtr<Intermediate, Output> c2_;
-
-    public:
-        ChainablePair(
-            ChainablePtr<Input, Intermediate>& c1,
-            ChainablePtr<Intermediate, Output>& c2
-        ):
-            c1_(std::forward<ChainablePtr<Input, Intermediate>>(c1)),
-            c2_(std::forward<ChainablePtr<Intermediate, Output>>(c2))
-            // c1_(c1), c2_(c2)
-        {
-        }
-
-        Output Invoke(const Input& input) override {
-            return c2_->Invoke(std::forward<Intermediate>(c1_->Invoke(input)));
-        }
-    };
-
-    template <typename Input, typename Intermediate, typename Output>
-    static ChainablePtr<Input, Output> operator|(
-        ChainablePtr<Input, Intermediate> &lhs,
-        ChainablePtr<Intermediate, Output> &rhs
-    ) {
-        return std::make_shared<ChainablePair<Input, Intermediate, Output>>(lhs, rhs);
-    }
 
 
 }
