@@ -111,6 +111,7 @@ LC_CORE_NS {
 
         beast::error_code ec;
         stream.socket().shutdown(tcp::socket::shutdown_both, ec);
+
         if(ec && ec != beast::errc::not_connected) {
             throw LangchainException(fmt::format("TCP socket shutdown error: {}", ec.message()));
         }

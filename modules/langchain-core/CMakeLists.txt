@@ -20,7 +20,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/model/BaseLanguageModel.hpp
         src/model/LLMResult.hpp
         src/CoreTypes.hpp
-        src/document/Embedding.hpp
         src/model/BaseEmbeddingModel.hpp
         src/model/BaseChatModel.hpp
         src/model/BaseLLM.hpp
@@ -53,6 +52,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/model/LLMRuntimeOptions.hpp
         src/prompt/Forwards.hpp
         src/prompt/BaseStringMessagePromptTemplate.hpp
+        src/tools/TensorUtils.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

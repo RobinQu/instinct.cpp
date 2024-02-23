@@ -72,10 +72,12 @@ LC_LLM_NS {
         std::string prompt;
         OllamaGenerateReuqestOption options;
     };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(OllamaEmbeddingRequest, model, prompt, options);
 
     struct OllamaEmbeddingResponse {
         std::vector<float> embedding;
     };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(OllamaEmbeddingResponse, embedding);
 
     static const core::Endpoint OLLAMA_ENDPOINT {"localhost", 11434};
 

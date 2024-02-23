@@ -10,62 +10,52 @@
 #include "tools/HttpRestClient.hpp"
 
 LC_LLM_NS {
+    class OllamaEmbedding : public langchain::core::BaseEmbeddingModel {
+        core::HttpRestClient client_;
 
-class OllamaEmbedding: public langchain::core::BaseEmbeddingModel {
-    core::HttpRestClient client_;
-    std::string model_name_;
+    public:
+        explicit OllamaEmbedding(core::Endpoint endpoint = OLLAMA_ENDPOINT): client_(std::move(endpoint)) {
+        }
 
-public:
-    OllamaEmbedding();
-    OllamaEmbedding(core::Endpoint endpoint=OLLAMA_ENDPOINT, std::string model_name=OLLAMA_DEFUALT_MODEL_NAME);
+        std::vector<core::Embedding> EmbedDocuments(const std::vector<std::string>& texts,
+                                                    const core::LLMRuntimeOptions& options) override;
 
-    core::EmbeddingPtr EmbedDocuments(std::vector<std::string>& texts) override;
+        core::Embedding EmbedQuery(const std::string& text, const core::LLMRuntimeOptions& options) override;
 
-    core::EmbeddingPtr EmbedQuery(std::string& text) override;
-};
+        std::vector<core::Embedding> EmbedDocuments(const std::vector<std::string>& texts) override {
+            return EmbedDocuments(texts, {});
+        }
 
-    OllamaEmbedding::OllamaEmbedding(): client_(OLLAMA_ENDPOINT), model_name_(OLLAMA_DEFUALT_MODEL_NAME) {
+        core::Embedding EmbedQuery(const std::string& text) override {
+            return EmbedQuery(text, {});
+        }
+    };
+
+    inline std::vector<core::Embedding> OllamaEmbedding::EmbedDocuments(const std::vector<std::string>& texts,
+                                                                        const core::LLMRuntimeOptions& options) {
+        std::vector<core::Embedding> result;
+        for (const auto& text: texts) {
+            auto&& [embedding] = client_.PostObject<OllamaEmbeddingRequest, OllamaEmbeddingResponse>(
+                OLLAMA_EMBEDDING_PATH, {
+                    options.model_name,
+                    text,
+                    {}
+                });
+            result.emplace_back(std::move(embedding));
+        }
+        return result;
     }
 
-    OllamaEmbedding::OllamaEmbedding(core::Endpoint endpoint, std::string model_name): client_(std::move(endpoint)), model_name_(std::move(model_name)) {
-    }
-
-
-    core::EmbeddingPtr OllamaEmbedding::EmbedDocuments(std::vector<std::string>& texts) {
-        auto embedding = std::make_shared<core::Embedding>();
-        for(const auto& text: texts) {
-            auto response = client_.PostObject<OllamaEmbeddingRequest, OllamaEmbeddingResponse>(OLLAMA_EMBEDDING_PATH, {
-                model_name_,
+    inline core::Embedding
+    OllamaEmbedding::EmbedQuery(const std::string& text, const core::LLMRuntimeOptions& options) {
+        auto&& [embedding] = client_.PostObject<OllamaEmbeddingRequest, OllamaEmbeddingResponse>(
+            OLLAMA_EMBEDDING_PATH, {
+                options.model_name,
                 text,
                 {}
             });
-            auto shape = {1, response.embedding.size()};
-            // move response to heap
-            auto buf = new std::vector{std::move(response.embedding)};
-            // transfer to xarray
-            auto one = xt::adapt(
-                buf,
-                buf->size(),
-                xt::acquire_ownership(),
-                shape
-                );
-            xt::stack(xt::xtuple(embedding->data, one));
-        }
         return embedding;
     }
-
-    core::EmbeddingPtr OllamaEmbedding::EmbedQuery(std::string& text) {
-        auto response = client_.PostObject<OllamaEmbeddingRequest, OllamaEmbeddingResponse>(OLLAMA_EMBEDDING_PATH, {
-                model_name_,
-                text,
-                {}
-            });
-        auto buf = new std::vector{std::move(response.embedding)};
-        return std::make_shared<core::Embedding>{
-            xt::adapt(buf, buf->size(), xt::acquire_ownership(), {buf->size()})
-        };
-    }
-
 } // LC_MODEL_NS
 
 #endif //OLLAMAEMBEDDING_H
