@@ -6,7 +6,7 @@
 #define BASELLM_H
 #include "BaseLanguageModel.hpp"
 #include "CoreGlobals.hpp"
-#include "LLMResult.h"
+#include "LLMResult.hpp"
 
 
 LC_CORE_NS {
@@ -37,7 +37,7 @@ LC_CORE_NS {
         virtual LLMResult Generate(
             const std::vector<std::string>& prompts,
             const LLMRuntimeOptions& runtime_options
-            );
+            ) = 0;
     public:
         // BaseLLM() = default;
 
@@ -77,7 +77,7 @@ LC_CORE_NS {
     }
 
     inline LLMResult BaseLLM::GeneratePrompts(const std::vector<PromptValueVairant>& prompts,
-                                              const LLMRuntimeOptions& runtime_options) override {
+                                              const LLMRuntimeOptions& runtime_options)  {
         const auto string_view = prompts | std::views::transform([](const PromptValueVairant& pvv) {
             return std::visit(conv_prompt_value_to_string, pvv);
         });
@@ -91,9 +91,9 @@ LC_CORE_NS {
             return std::visit(conv_language_model_input_to_prompt_value, v);
         });
 
-        if(const auto result = GeneratePrompts({prompt_value_view.begin(), prompt_value_view.end()}, options); !result.generations.empty()) {
-            auto generation_view = result.generations | std::views::transform([](const std::vector<Generation>& g) {
-                return g[0].text;
+        if(const auto result = GeneratePrompts({prompt_value_view.begin(), prompt_value_view.end()}, options); !result.generations.empty() && !result.generations[0].empty()) {
+            auto generation_view = result.generations | std::views::transform([](const std::vector<GenerationVariant>& g) -> std::string {
+                return std::visit([](const auto& v)-> std::string {return v.text;}, g[0]);
             });
             return {generation_view.begin(), generation_view.end()};
         }

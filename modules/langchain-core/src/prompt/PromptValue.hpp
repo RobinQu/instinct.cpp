@@ -21,8 +21,8 @@ public:
     }
 
     virtual ~PromptValue() = default;
-    virtual std::string ToString() = 0;
-    virtual std::vector<MessageVariant> ToMessages() = 0;
+    [[nodiscard]] virtual std::string ToString() const = 0;
+    [[nodiscard]] virtual std::vector<MessageVariant> ToMessages() const = 0;
 };
 using PromptValuePtr = std::shared_ptr<PromptValue>;
 

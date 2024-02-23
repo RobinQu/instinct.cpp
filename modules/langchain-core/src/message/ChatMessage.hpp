@@ -18,10 +18,10 @@ LC_CORE_NS {
               role(std::move(role)) {
         }
 
-        std::string ToString() override;
+        [[nodiscard]] std::string ToString() const override ;
     };
 
-    inline std::string ChatMessage::ToString() {
+    inline std::string ChatMessage::ToString() const {
         return fmt::format("{role}: {content}", fmt::arg("role", role), fmt::arg("content", GetContent()));
     }
 } // core

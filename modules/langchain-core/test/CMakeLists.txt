@@ -6,9 +6,9 @@ if(BUILD_TESTING)
     enable_testing()
 endif()
 
-find_package(Threads REQUIRED)
+#find_package(Threads REQUIRED)
 #find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})
+#include_directories(${GTEST_INCLUDE_DIRS})
 #if(NOT GTEST_LIBRARIES)
 #    message(WARNING "gtest not found, download the library, build it and run cmake once again.")
 #    return()
@@ -27,7 +27,6 @@ foreach(_test_file ${TEST_SRC_FILES})
             tools/TestCustomParser.cpp
             tools/TestSimpleHttpClient.cpp
             tools/TestLambda.cpp
-            tools/TestRunnable.cpp
             tools/TestFunction.cpp
             exprimental/TestInputOutputChainable.cpp
             exprimental/TestFnChainable.cpp

@@ -36,7 +36,7 @@ LC_CORE_NS {
 
         [[nodiscard]] MessageType GetType() const;
 
-        virtual std::string ToString() = 0;
+        [[nodiscard]] virtual std::string ToString() const = 0;
     };
 
     using BaseMessagePtr = std::shared_ptr<Message>;

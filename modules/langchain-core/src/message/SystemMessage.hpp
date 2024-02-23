@@ -15,10 +15,10 @@ LC_CORE_NS {
             : Message(std::move(content), kSystemMessageType) {
         }
 
-        std::string ToString() override;
+        [[nodiscard]] std::string ToString() const override;
     };
 
-    inline std::string SystemMessage::ToString() {
+    inline std::string SystemMessage::ToString() const {
         return fmt::format("{role}: {content}", fmt::arg("role", "System"), fmt::arg("content", GetContent()));
     }
 } // core

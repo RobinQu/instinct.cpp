@@ -7,13 +7,13 @@
 #include "CoreGlobals.hpp"
 #include "CoreTypes.hpp"
 
-namespace LC_CORE_NS {
+LC_CORE_NS {
 
 class Generation {
 public:
-    const OptionDict generation_info;
-    const std::string type;
-    const std::string text;
+    OptionDict generation_info;
+    std::string type;
+    std::string text;
 
     explicit Generation(std::string text, OptionDict generation_info, std::string type)
         : text(std::move(text)), generation_info(std::move(generation_info)), type(std::move(type)) {

@@ -20,10 +20,10 @@ LC_CORE_NS {
               exmaple(exmaple) {
         }
 
-        std::string ToString() override;
+        [[nodiscard]] std::string ToString() const override;
     };
 
-    inline std::string HumanMessage::ToString() {
+    inline std::string HumanMessage::ToString() const {
         return fmt::format("{role}: {content}", fmt::arg("role", "Human"), fmt::arg("content", GetContent()));
     }
 } // core

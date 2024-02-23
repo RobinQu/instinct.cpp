@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.27)
 project(langchain_core)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
-
-
 set(${LIBRARY_TARGET_NAME}_HDR
         src/ALL.hpp
         src/prompt/PromptTemplate.hpp
@@ -61,14 +59,14 @@ set(${LIBRARY_TARGET_NAME}_HDR
 #)
 
 add_library(
-        ${LIBRARY_TARGET_NAME}
+        ${LIBRARY_TARGET_NAME} INTERFACE
 #        ${${LIBRARY_TARGET_NAME}_SRC}
         ${${LIBRARY_TARGET_NAME}_HDR}
 )
 
 add_library(langchain::core
         ALIAS ${LIBRARY_TARGET_NAME})
-target_link_libraries(${LIBRARY_TARGET_NAME}
+target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         fmt::fmt
         nlohmann_json::nlohmann_json
         xtensor
@@ -79,15 +77,15 @@ target_link_libraries(${LIBRARY_TARGET_NAME}
         RPP::rpp
 )
 
-set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES
-#        VERSION ${${PROJECT_NAME}_VERSION}
-        PUBLIC_HEADER "${${LIBRARY_TARGET_NAME}_HDR}"
-)
+#set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES
+##        VERSION ${${PROJECT_NAME}_VERSION}
+#        PUBLIC_HEADER "${${LIBRARY_TARGET_NAME}_HDR}"
+#)
 
 target_include_directories(${LIBRARY_TARGET_NAME}
-        PUBLIC
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
-        "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+        INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
 install(TARGETS ${LIBRARY_TARGET_NAME}
         EXPORT  ${PROJECT_NAME}

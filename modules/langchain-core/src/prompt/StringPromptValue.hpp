@@ -20,16 +20,16 @@ public:
         : PromptValue("StringPromptValue"), text(std::move(text)) {
     }
 
-    std::string ToString() override;
+    [[nodiscard]] std::string ToString() const override;
 
-    std::vector<MessageVariant> ToMessages() override;
+    [[nodiscard]] std::vector<MessageVariant> ToMessages() const override;
 };
 
-    inline std::string StringPromptValue::ToString() {
+    inline std::string StringPromptValue::ToString() const {
         return text;
     }
 
-    inline std::vector<MessageVariant> StringPromptValue::ToMessages() {
+    inline std::vector<MessageVariant> StringPromptValue::ToMessages() const {
         return {HumanMessage(text)};
     }
 

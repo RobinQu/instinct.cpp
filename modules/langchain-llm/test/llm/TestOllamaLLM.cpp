@@ -4,27 +4,32 @@
 
 #include <gtest/gtest.h>
 
-#include "llm/OllamaLLM.h"
+
+#include "llm/OllamaLLM.hpp"
+#include "ModelGlobals.hpp"
 
 
-TEST(OllamaLLM, TestDerivedClasss) {
-    LC_MODEL_NS::OllamaGenerateRequest request;
-    nlohmann::json req = request;
-    std::cout << req << std::endl;
+LC_LLM_NS {
+    TEST(OllamaLLM, TestDerivedClasss) {
+        OllamaGenerateRequest request;
+        nlohmann::json req = request;
+        std::cout << req << std::endl;
 
-    LC_MODEL_NS::OllamaGenerateResponse response;
-    nlohmann::json res = response;
-    std::cout << res << std::endl;
-    response = res.get<LC_MODEL_NS::OllamaGenerateResponse>();
+        OllamaGenerateResponse response;
+        nlohmann::json res = response;
+        std::cout << res << std::endl;
+        response = res.get<OllamaGenerateResponse>();
 
+    }
+
+    TEST(OllamaLLM, TestSimpleGenerate) {
+        OllamaLLM ollama_llm;
+        auto output = ollama_llm("Why sky is blue?");
+        std::cout << output << std::endl;
+    }
+
+    TEST(OllamaLM, TestStream) {
+
+    }
 }
 
-TEST(OllamaLLM, TestSimpleGenerate) {
-    LC_MODEL_NS::OllamaLLM ollama_llm;
-    auto output = ollama_llm.Predict("Why sky is blue?", {}, {});
-    std::cout << output << std::endl;
-}
-
-TEST(OllamaLM, TestStream) {
-
-}

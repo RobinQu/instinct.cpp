@@ -11,15 +11,12 @@
 
 LC_CORE_NS {
 
-
-
     template <typename T>
         concept RuntimeOptionsALike =
-            requires(T){
-                typename T;
+            requires(T t){
                 {
                     T::Defaults()
-                } -> T;
+                } -> std::same_as<T>;
             } ;
 
     template <

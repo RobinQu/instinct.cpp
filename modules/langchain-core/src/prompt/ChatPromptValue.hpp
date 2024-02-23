@@ -21,19 +21,19 @@ LC_CORE_NS {
             : PromptValue("ChatPromptValue"), messages_(std::move(messages)) {
         }
 
-        std::string ToString() override;
+        [[nodiscard]] std::string ToString() const override;
 
-        std::vector<MessageVariant> ToMessages() override;
+        [[nodiscard]] std::vector<MessageVariant> ToMessages() const override;
     };
 
-    inline std::string ChatPromptValue::ToString() {
+    inline std::string ChatPromptValue::ToString() const {
         auto parts = messages_ | std::views::transform([](const MessageVariant& m) {
-            return std::visit([](auto&& v) { v.ToString(); }, m);
+            return std::visit([](const auto& v) -> std::string { return v.ToString(); }, m);
         });
-        return langchian::core::StringUtils::JoinWith({parts.begin(), parts.end()}, "\n");
+        return langchian::core::StringUtils::JoinWith(parts, "\n");
     }
 
-    inline MessageVariants ChatPromptValue::ToMessages() {
+    inline MessageVariants ChatPromptValue::ToMessages() const {
         return messages_;
     }
 } // core

@@ -11,17 +11,16 @@
 #include "LLMRuntimeOptions.hpp"
 #include "prompt/PromptValue.hpp"
 #include "chain/Chain.hpp"
-#include "Forwards.hpp"
+#include "prompt/Forwards.hpp"
 #include "message/AIMessage.hpp"
 #include "message/ChatMessage.hpp"
 #include "message/FunctionMessage.hpp"
 #include "message/HumanMessage.hpp"
 #include "message/Message.hpp"
 #include "message/SystemMessage.hpp"
-#include "prompt/ChatPromptValue.h"
-#include "prompt/StringPromptValue.h"
+#include "prompt/ChatPromptValue.hpp"
+#include "prompt/StringPromptValue.hpp"
 #include "tools/StringUtils.hpp"
-#include "Forwards.hpp"
 
 
 LC_CORE_NS {
@@ -46,16 +45,6 @@ LC_CORE_NS {
 
         virtual LLMResult GeneratePrompts(
             const std::vector<PromptValueVairant>& prompts,
-            const LLMRuntimeOptions& runtime_options
-        ) = 0;
-
-        virtual std::string Predict(
-            const std::string& text,
-            const LLMRuntimeOptions& runtime_options
-        ) = 0;
-
-        virtual MessageVariant PredictMessages(
-            const std::vector<MessageVariant>& messages,
             const LLMRuntimeOptions& runtime_options
         ) = 0;
 

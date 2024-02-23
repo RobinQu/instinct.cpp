@@ -3,8 +3,7 @@ project(langchain_llm)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
-set(${LIBRARY_TARGET_NAME}_HDR
-        src/All.hpp
+set(${LIBRARY_TARGET_NAME}_HDR  src/All.hpp
         src/ModelGlobals.hpp
         src/commons/OllamaCommons.hpp
         src/llm/OllamaLLM.hpp
@@ -17,7 +16,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
 #)
 
 add_library(
-        ${LIBRARY_TARGET_NAME}
+        ${LIBRARY_TARGET_NAME} INTERFACE
 #        ${${LIBRARY_TARGET_NAME}_SRC}
         ${${LIBRARY_TARGET_NAME}_HDR}
 )
@@ -27,18 +26,18 @@ add_library(langchain::llm
         ALIAS ${LIBRARY_TARGET_NAME})
 
 
-set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES
-        #        VERSION ${${PROJECT_NAME}_VERSION}
-        PUBLIC_HEADER "${${LIBRARY_TARGET_NAME}_HDR}"
-)
+#set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES
+#        #        VERSION ${${PROJECT_NAME}_VERSION}
+#        PUBLIC_HEADER "${${LIBRARY_TARGET_NAME}_HDR}"
+#)
 
 
 target_include_directories(${LIBRARY_TARGET_NAME}
-        PUBLIC
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
-        "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+        INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
-target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC langchain::core)
+target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE langchain::core)
 
 install(TARGETS ${LIBRARY_TARGET_NAME}
         EXPORT  ${PROJECT_NAME}

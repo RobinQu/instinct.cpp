@@ -14,45 +14,75 @@
 #include "ModelGlobals.hpp"
 #include "commons/OllamaCommons.hpp"
 
+
 LC_LLM_NS {
+
+
     class OllamaLLM final : public langchain::core::BaseLLM {
-        langchain::core::HttpRestClient http_client_;
+        core::HttpRestClient http_client_;
 
     public:
         OllamaLLM();
 
         explicit OllamaLLM(langchain::core::Endpoint endpoint);
 
+        std::vector<std::string> Stream(
+            const std::variant<core::StringPromptValue, core::ChatPromptValue, std::string, std::vector<std::variant<
+            core::AIMessage, core::HumanMessage, core::FunctionMessage, core::SystemMessage, core::ChatMessage>>>&
+            input, const core::LLMRuntimeOptions& options) override;
+
+        std::vector<core::TokenId> GetTokenIds(const std::string& text) override;
+
+        core::TokenSize GetTokenCount(const std::string& text) override;
+
+        core::TokenSize GetTokenCount(const std::vector<core::BaseMessagePtr>& messages) override;
+
     protected:
-        langchain::core::LLMResultPtr Generate(const std::vector<std::string>& prompts,
-                                               const std::vector<std::string>& stop_words,
-                                               const langchain::core::OptionDict& options) override;
+        core::LLMResult Generate(const std::vector<std::string>& prompts,
+            const core::LLMRuntimeOptions& runtime_options) override;
     };
 
-    OllamaLLM::OllamaLLM(): langchain::core::BaseLLM(), http_client_(OLLAMA_ENDPOINT) {
+    inline OllamaLLM::OllamaLLM(): langchain::core::BaseLLM(), http_client_(OLLAMA_ENDPOINT) {
     }
 
-    OllamaLLM::OllamaLLM(langchain::core::Endpoint endpoint): BaseLLM(), http_client_(std::move(endpoint)) {
+    inline OllamaLLM::OllamaLLM(langchain::core::Endpoint endpoint): BaseLLM(), http_client_(std::move(endpoint)) {
     }
 
-    langchain::core::LLMResultPtr OllamaLLM::Generate(const std::vector<std::string>& prompts,
-                                                      const std::vector<std::string>& stop_words,
-                                                      const core::OptionDict& options) {
-        auto result = std::make_shared<core::LLMResult>();
+    inline std::vector<std::string> OllamaLLM::Stream(
+        const std::variant<core::StringPromptValue, core::ChatPromptValue, std::string, std::vector<std::variant<core::
+        AIMessage, core::HumanMessage, core::FunctionMessage, core::SystemMessage, core::ChatMessage>>>& input,
+        const core::LLMRuntimeOptions& options) {
+        return {};
+    }
+
+    inline std::vector<core::TokenId> OllamaLLM::GetTokenIds(const std::string& text) {
+        return {};
+    }
+
+    inline core::TokenSize OllamaLLM::GetTokenCount(const std::string& text) {
+        return 0;
+    }
+
+    inline core::TokenSize OllamaLLM::GetTokenCount(const std::vector<core::BaseMessagePtr>& messages) {
+        return 0;
+    }
+
+    inline core::LLMResult OllamaLLM::Generate(const std::vector<std::string>& prompts,
+        const core::LLMRuntimeOptions& runtime_options) {
+        auto result = core::LLMResult();
         for (const auto& prompt: prompts) {
-            // TODO: concurrent execution for multi prompts request
             OllamaGenerateRequest request;
             request.prompt = prompt;
             auto ollama_response = http_client_.PostObject<OllamaGenerateRequest, OllamaGenerateResponse>(
                 OLLAMA_GENERATE_PATH, request);
             core::OptionDict option_dict = ollama_response;
-            auto generations = {
-                core::Generation{ollama_response.response, option_dict, "LLMGeneration"}
-            };
-            result->generations.emplace_back(generations);
+            std::vector<core::GenerationVariant> generation;
+            generation.emplace_back(core::Generation{ollama_response.response, option_dict, "LLMGeneration"});
+            result.generations.emplace_back(generation);
         }
         return result;
     }
+
 } // model
 // langchian
 

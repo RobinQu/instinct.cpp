@@ -19,10 +19,10 @@ LC_CORE_NS {
 
         ~AIMessage() override = default;
 
-        std::string ToString() override;
+        [[nodiscard]] std::string ToString() const override;
     };
 
-    inline std::string AIMessage::ToString() {
+    inline std::string AIMessage::ToString() const {
         return fmt::format("{role}: {content}", fmt::arg("role", "Asistant"), fmt::arg("content", GetContent()));
     }
 } // core

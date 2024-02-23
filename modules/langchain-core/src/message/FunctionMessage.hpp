@@ -19,10 +19,10 @@ LC_CORE_NS {
               name(std::move(name)) {
         }
 
-        std::string ToString() override;
+        [[nodiscard]] std::string ToString() const override;
     };
 
-    inline std::string FunctionMessage::ToString() {
+    inline std::string FunctionMessage::ToString() const {
         return fmt::format("{role}: {content}", fmt::arg("role", "Function"), fmt::arg("content", GetContent()));
     }
 } // core

@@ -7,7 +7,7 @@
 #include "CoreGlobals.hpp"
 #include "CoreTypes.hpp"
 
-namespace LC_CORE_NS {
+LC_CORE_NS {
 
 class HttpClientException: public LangchainException {
 public:
@@ -15,7 +15,7 @@ public:
     const std::string raw_response;
 
 
-    HttpClientException(const unsigned int status_code, std::string raw_response): LangchainException("HttpClientException with status_code="+status_code), status_code(status_code), raw_response(std::move(raw_response)) {
+    HttpClientException(const unsigned int status_code, std::string raw_response): LangchainException("HttpClientException with status_code="+std::to_string(status_code)), status_code(status_code), raw_response(std::move(raw_response)) {
 
     }
 

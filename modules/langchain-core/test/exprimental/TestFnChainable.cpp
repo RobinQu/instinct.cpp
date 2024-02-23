@@ -6,7 +6,7 @@
 #include "CoreGlobals.hpp"
 
 
-namespace LC_CORE_NS::experimental::fn_chain {
+LC_CORE_NS::experimental::fn_chain {
 
     template<typename Fn>
     class Chainable {
