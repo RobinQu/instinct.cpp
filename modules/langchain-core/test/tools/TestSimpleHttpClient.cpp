@@ -5,7 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include "tools/SimpleHttpClient.h"
+#include "tools/SimpleHttpClient.hpp"
 
 using namespace langchain::core;
 

@@ -3,7 +3,7 @@
 //
 #include <gtest/gtest.h>
 
-#include "CoreGlobals.h"
+#include "CoreGlobals.hpp"
 
 
 namespace LC_CORE_NS::experimental::fn_chain {
@@ -65,6 +65,14 @@ Output Invoke(const Input& input) {
         auto xn_1 = create_chainable(fn_1) | fn_2;
 
         std::cout << xn_1.Invoke("hello") << std::endl;
+
+        auto xn_2 = create_chainable(fn_5) | fn_1 | fn_2 | [](const std::string::size_type& n) {
+            return std::vector {n};
+        };
+
+        for(const auto& i: xn_2.Invoke("hello")) {
+            std::cout << i << std::endl;
+        }
 
     }
 

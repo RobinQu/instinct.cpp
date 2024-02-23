@@ -5,23 +5,26 @@
 #ifndef SYSTEMMESSAGEPROMPTTEMPLATE_H
 #define SYSTEMMESSAGEPROMPTTEMPLATE_H
 
-#include "BaseMessagePromptTemplate.h"
-#include "CoreGlobals.h"
+#include "BaseStringMessagePromptTemplate.hpp"
+#include "CoreGlobals.hpp"
+#include "CoreTypes.hpp"
+#include "message/SystemMessage.hpp"
 
-namespace LC_CORE_NS {
+LC_CORE_NS {
+    class SystemMessagePromptTemplate : public BaseStringMessagePromptTemplate {
+    public:
+        explicit SystemMessagePromptTemplate(PlainPromptTemplate prompt)
+            : BaseStringMessagePromptTemplate(std::move(prompt)) {
+        }
 
-class SystemMessagePromptTemplate: public BaseMessagePromptTemplate{
-public:
-    explicit SystemMessagePromptTemplate(const PromptTemplatePtr& prompt)
-        : BaseMessagePromptTemplate(prompt) {
+        MessageVariant Format(const OptionDict& variables) override;
+    };
 
+
+    inline MessageVariant SystemMessagePromptTemplate::Format(const OptionDict& variables) {
+        const auto text = prompt_.Format(variables);
+        return SystemMessage(text);
     }
-
-    BaseMessagePtr Format(const OptionDict& variables) override;
-
-    BaseMessagePtr Format() override;
-};
-
 } // LC_CORE_NS
 
 #endif //SYSTEMMESSAGEPROMPTTEMPLATE_H

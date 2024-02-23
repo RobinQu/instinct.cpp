@@ -25,3 +25,6 @@
 [submodule "thirdparty/taskflow"]
 	path = thirdparty/taskflow
 	url = https://github.com/taskflow/taskflow.git
+[submodule "thirdparty/ReactivePlusPlus"]
+	path = thirdparty/ReactivePlusPlus
+	url = git@github.com:victimsnino/ReactivePlusPlus.git

@@ -3,7 +3,7 @@
 //
 #include <gtest/gtest.h>
 
-#include "CoreGlobals.h"
+#include "CoreGlobals.hpp"
 
 
 namespace LC_CORE_NS::exprimental::io_chain {

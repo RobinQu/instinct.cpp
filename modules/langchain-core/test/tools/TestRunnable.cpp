@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 //
-#include "CoreTypes.h"
+#include "CoreTypes.hpp"
 #include "chain/Chainable.hpp"
 #include <string>
 

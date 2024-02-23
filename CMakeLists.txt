@@ -88,6 +88,9 @@ endif ()
 ## taskflow
 add_subdirectory(thirdparty/taskflow)
 
+## rpp
+add_subdirectory(thirdparty/ReactivePlusPlus)
+
 ## gtest
 if(BUILD_TESTING)
 #    find_package(GTest)
@@ -103,6 +106,4 @@ endif ()
 
 # project modules
 add_subdirectory(modules/langchain-core)
-add_subdirectory(modules/langchain-model)
-
-#include(AddUninstallTarget)
+add_subdirectory(modules/langchain-llm)
