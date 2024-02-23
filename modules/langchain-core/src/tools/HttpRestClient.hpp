@@ -33,7 +33,10 @@ public:
     Result PostObject(const std::string& uri, const Param& param) {
         const nlohmann::json json_object = param;
         const HttpRequest request = {POST, uri, {}, json_object.dump()};
+
+        std::cout << "Request body: " <<  request.body << std::endl;
         const HttpResponsePtr response = Execute(request);
+        std::cout << "Response body: " << response->body << std::endl;
         if(response->status_code >= 400) {
             throw HttpClientException(response->status_code, response->body);
         }

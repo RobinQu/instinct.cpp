@@ -10,19 +10,24 @@
 
 LC_CORE_NS {
     class ChatMessage : public Message {
-        std::string role;
+        std::string role_;
 
     public:
+
         ChatMessage(std::string content, std::string role)
             : Message(std::move(content), kChatMessageType),
-              role(std::move(role)) {
+              role_(std::move(role)) {
         }
 
         [[nodiscard]] std::string ToString() const override ;
+
+        [[nodiscard]] std::string GetRole() const {
+            return role_;
+        }
     };
 
     inline std::string ChatMessage::ToString() const {
-        return fmt::format("{role}: {content}", fmt::arg("role", role), fmt::arg("content", GetContent()));
+        return fmt::format("{role}: {content}", fmt::arg("role", role_), fmt::arg("content", GetContent()));
     }
 } // core
 // langchain

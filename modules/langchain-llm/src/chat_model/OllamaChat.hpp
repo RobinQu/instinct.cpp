@@ -7,67 +7,89 @@
 #include "model/BaseChatModel.hpp"
 #include "tools/HttpRestClient.hpp"
 #include "ModelGlobals.hpp"
+#include "commons/OllamaCommons.hpp"
 
 LC_LLM_NS {
+    static auto conv_message_variant_to_ollama_message = core::overloaded {
+      [](const core::AIMessage& v) {return OllamaGenerateMessage{"assistant", v.GetContent()};},
+        [](const core::SystemMessage& v) {return OllamaGenerateMessage{"system", v.GetContent()};},
+        [](const core::HumanMessage& v) {return OllamaGenerateMessage{"user", v.GetContent()};},
+        [](const core::FunctionMessage& v) {return OllamaGenerateMessage{"assistant", v.GetContent()};},
+        [](const core::ChatMessage& v) {return OllamaGenerateMessage{v.GetRole(), v.GetContent()};},
+    };
 
-class OllamaChat: public core::BaseChatModel {
-    std::string model_name_;
-    core::HttpRestClient client_;
-public:
-    OllamaChat();
-    explicit OllamaChat(core::Endpoint endpoint);
-protected:
-    core::ChatResultPtr Generate(const std::vector<std::vector<core::BaseMessagePtr>>& messages,
-                                 const std::vector<std::string>& stop_words, const core::OptionDict& options) override;
-};
 
-    static OllamaGenerateMessage ConvertToOllamaMessage(const core::BaseMessagePtr& m) {
-        if(dynamic_pointer_cast<core::HumanMessage>(m)) {
-            return {"user", m->GetContent()};
+    class OllamaChat : public core::BaseChatModel {
+        core::HttpRestClient client_;
+
+    public:
+        OllamaChat(): client_(OLLAMA_ENDPOINT) {
+        };
+
+        explicit OllamaChat(core::Endpoint endpoint): client_(std::move(endpoint)) {
         }
-        if(dynamic_pointer_cast<core::AIMessage>(m)) {
-            return {"asistant", m->GetContent()};
-        }
-        if(std::dynamic_pointer_cast<core::SystemMessage>(m)) {
-            return {"system", m->GetContent()};
-        }
-        throw core::LangchainException("unknown message type: " + std::string(typeid(*m).name()));
+
+        core::MessageVariants Stream(
+            const core::LanguageModelInput& input,
+            const core::LLMRuntimeOptions& options) override;
+
+        std::vector<core::TokenId> GetTokenIds(const std::string& text) override;
+
+        core::TokenSize GetTokenCount(const std::string& text) override;
+
+        core::TokenSize GetTokenCount(const core::MessageVariants& messages) override;
+
+    protected:
+        core::LLMResult Generate(const std::vector<core::MessageVariants>& messages_batch,
+                                 const core::LLMRuntimeOptions& runtime_options) override;
+    };
+
+
+    inline core::MessageVariants OllamaChat::Stream(const core::LanguageModelInput& input,
+        const core::LLMRuntimeOptions& options) {
+        return {};
     }
 
-    OllamaChat::OllamaChat(): BaseChatModel(), client_(OLLAMA_ENDPOINT), model_name_(OLLAMA_DEFUALT_MODEL_NAME) {
+    inline std::vector<core::TokenId> OllamaChat::GetTokenIds(const std::string& text) {
+        return {};
     }
 
-    OllamaChat::OllamaChat(core::Endpoint endpoint): BaseChatModel(), client_(std::move(endpoint)), model_name_(OLLAMA_DEFUALT_MODEL_NAME) {
+    inline core::TokenSize OllamaChat::GetTokenCount(const std::string& text) {
+        return 0;
     }
 
-    core::ChatResultPtr OllamaChat::Generate(const std::vector<std::vector<core::BaseMessagePtr>>& messages_batch,
-                                             const std::vector<std::string>& stop_words, const core::OptionDict& options) {
-        auto chat_result = std::make_shared<core::ChatResult>();
-        // TODO better concunrrency control
-        for(const auto& messages: messages_batch) {
-            auto ollama_messages = messages | std::views::transform([](const core::BaseMessagePtr& message_ptr) {
-                return ConvertToOllamaMessage(message_ptr);
+    inline core::TokenSize OllamaChat::GetTokenCount(const core::MessageVariants& messages) {
+        return 0;
+    }
+
+    inline core::LLMResult OllamaChat::Generate(const std::vector<core::MessageVariants>& messages_batch,
+                                                const core::LLMRuntimeOptions& runtime_options) {
+        core::LLMResult result;
+        for (const auto& messages: messages_batch) {
+            auto ollama_messages = messages | std::views::transform([](const core::MessageVariant& m) {
+                return std::visit(conv_message_variant_to_ollama_message, m);
             });
-            OllamaGenerateRequest request = {
-                model_name_,
+            OllamaChatRequest request = {
+                runtime_options.model_name,
                 {ollama_messages.begin(), ollama_messages.end()},
-                {},
-                {},
                 "json",
                 {},
                 false
             };
-            OllamaGenerateResponse response = client_.PostObject<OllamaGenerateRequest, OllamaGenerateResponse>(OLLAMA_CHAT_PATH, request);
+            OllamaGenerateResponse response = client_.PostObject<OllamaChatRequest, OllamaGenerateResponse>(
+                OLLAMA_CHAT_PATH, request);
             core::OptionDict option_dict = response;
-            chat_result->generations.push_back({
+
+            std::vector<core::GenerationVariant> geneartions;
+            geneartions.emplace_back(core::ChatGeneration{
                 response.message.content,
                 {response.message.content, response.message.role},
-                option_dict
+                std::move(option_dict)
             });
+            result.generations.push_back(geneartions);
         }
-        return chat_result;
+        return result;
     }
-
 } // core
 // langchain
 

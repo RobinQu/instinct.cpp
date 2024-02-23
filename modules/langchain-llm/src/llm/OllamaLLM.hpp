@@ -20,7 +20,6 @@ LC_LLM_NS {
 
     class OllamaLLM final : public langchain::core::BaseLLM {
         core::HttpRestClient http_client_;
-
     public:
         OllamaLLM();
 
@@ -35,7 +34,7 @@ LC_LLM_NS {
 
         core::TokenSize GetTokenCount(const std::string& text) override;
 
-        core::TokenSize GetTokenCount(const std::vector<core::BaseMessagePtr>& messages) override;
+        core::TokenSize GetTokenCount(const core::MessageVariants& messages) override;
 
     protected:
         core::LLMResult Generate(const std::vector<std::string>& prompts,
@@ -63,7 +62,7 @@ LC_LLM_NS {
         return 0;
     }
 
-    inline core::TokenSize OllamaLLM::GetTokenCount(const std::vector<core::BaseMessagePtr>& messages) {
+    inline core::TokenSize OllamaLLM::GetTokenCount(const core::MessageVariants& messages) {
         return 0;
     }
 
@@ -71,12 +70,22 @@ LC_LLM_NS {
         const core::LLMRuntimeOptions& runtime_options) {
         auto result = core::LLMResult();
         for (const auto& prompt: prompts) {
-            OllamaGenerateRequest request;
-            request.prompt = prompt;
-            auto ollama_response = http_client_.PostObject<OllamaGenerateRequest, OllamaGenerateResponse>(
+            OllamaGenerateRequest request {
+                runtime_options.model_name,
+                prompt,
+                {},
+                "json",
+                {},
+                false
+            };
+
+            const auto ollama_response = http_client_.PostObject<OllamaGenerateRequest, OllamaGenerateResponse>(
                 OLLAMA_GENERATE_PATH, request);
             core::OptionDict option_dict = ollama_response;
             std::vector<core::GenerationVariant> generation;
+
+            std::cout << "model response: " << ollama_response.response << std::endl;
+
             generation.emplace_back(core::Generation{ollama_response.response, option_dict, "LLMGeneration"});
             result.generations.emplace_back(generation);
         }

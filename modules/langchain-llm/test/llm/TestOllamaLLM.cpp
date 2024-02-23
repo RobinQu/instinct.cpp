@@ -28,8 +28,16 @@ LC_LLM_NS {
         std::cout << output << std::endl;
     }
 
-    TEST(OllamaLM, TestStream) {
-
+    TEST(OllamaLM, TestBatch) {
+        const std::vector<core::LanguageModelInput> prompts = {
+            "Why sky is blue?",
+            "What's the biggest country in the world?",
+            "What's the population in China as in 2019?"
+        };
+        OllamaLLM ollama_llm;
+        for(const auto& result: ollama_llm.Batch(prompts, {})) {
+            std::cout << result << std::endl;
+        }
     }
 }
 

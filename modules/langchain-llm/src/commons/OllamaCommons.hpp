@@ -26,9 +26,19 @@ LC_LLM_NS {
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(OllamaGenerateMessage, role, content, images)
 
-    struct OllamaGenerateRequest {
-        std::string model = "llama2";
+
+    struct OllamaChatRequest {
+        std::string model;
         std::vector<OllamaGenerateMessage> messages;
+        std::string format = "json";
+        OllamaGenerateReuqestOption options;
+        bool stream;
+    };
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(OllamaChatRequest, model, messages, format, options, stream)
+
+    struct OllamaGenerateRequest {
+        std::string model;
         std::string prompt;
         std::vector<std::string> images;
         std::string format = "json";
@@ -37,6 +47,7 @@ LC_LLM_NS {
         // system message template
         // std::string system;
     };
+
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(OllamaGenerateRequest, model, prompt, images, format, options, stream)
 
 
@@ -54,7 +65,7 @@ LC_LLM_NS {
         int eval_count;
         unsigned long eval_duration;
     };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(OllamaGenerateResponse, model, created_at, context, response, done, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(OllamaGenerateResponse, model, created_at, context, response, message, done, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration)
 
     struct OllamaEmbeddingRequest {
         std::string model;
@@ -65,7 +76,6 @@ LC_LLM_NS {
     struct OllamaEmbeddingResponse {
         std::vector<float> embedding;
     };
-
 
     static const core::Endpoint OLLAMA_ENDPOINT {"localhost", 11434};
 

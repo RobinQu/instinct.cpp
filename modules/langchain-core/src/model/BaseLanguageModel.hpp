@@ -52,8 +52,12 @@ LC_CORE_NS {
 
         virtual TokenSize GetTokenCount(const std::string& text) = 0;
 
-        virtual TokenSize GetTokenCount(const std::vector<BaseMessagePtr>& messages) = 0;
+        virtual TokenSize GetTokenCount(const MessageVariants& messages) = 0;
+
     };
+
+
+
 } // core
 // langchian
 

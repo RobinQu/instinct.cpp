@@ -10,9 +10,13 @@
 
 
 LC_CORE_NS {
-    static auto conv_prompt_value_to_message = overloaded {
-        [](const StringPromptValue& v) -> MessageVariants {return v.ToMessages();},
-        [](const ChatPromptValue& v) -> MessageVariants {return v.ToMessages();}
+    static auto conv_prompt_value_to_message = overloaded{
+        [](const StringPromptValue& v) -> MessageVariants { return v.ToMessages(); },
+        [](const ChatPromptValue& v) -> MessageVariants { return v.ToMessages(); }
+    };
+
+    static auto conv_message_to_string = [](const auto& v) {
+        return v.ToString();
     };
 
 
@@ -27,34 +31,46 @@ LC_CORE_NS {
         MessageVariant Invoke(
             const LanguageModelInput& input, const LLMRuntimeOptions& options) override;
 
+        /**
+         * \brief Batching is disabled on chat models. This function throws unconditionally.
+         * \param input
+         * \param a
+         * \return a
+         */
+        MessageVariants Batch(
+            const std::vector<LanguageModelInput>& input,
+            const LLMRuntimeOptions& options) override;
+
         LLMResult GeneratePrompts(const std::vector<PromptValueVairant>& prompts,
                                   const LLMRuntimeOptions& runtime_options) override;
-
     };
 
     inline MessageVariant BaseChatModel::Invoke(const LanguageModelInput& input, const LLMRuntimeOptions& options) {
         const auto prompt_value = std::visit(conv_language_model_input_to_prompt_value, input);
-        if(const auto result = GeneratePrompts(std::vector{prompt_value}, options); !result.generations.empty()) {
-            return std::visit([]<typename X>(X &&arg) {
-                using T = std::decay_t<decltype(arg)>;
-               if constexpr(std::is_same_v<T, ChatGeneration>) {
-                   return MessageVariant{arg.message};
-               } else {
-                   static_assert(always_false_v<T>, "generation should be kind of ChatGeneration.");
-               }
-            }, result.generations[0][0]);
+        if (const auto result = GeneratePrompts(std::vector{prompt_value}, options);
+            !result.generations.empty() && !result.generations[0].empty()) {
+            const auto generation = result.generations[0][0];
+            if(std::holds_alternative<ChatGeneration>(generation)) {
+                auto chat_gen = std::get<ChatGeneration>(generation);
+                return chat_gen.message;
+            }
+            throw LangchainException("unexpected branch here");
         }
         throw LangchainException("Empty response");
     }
 
     inline LLMResult BaseChatModel::GeneratePrompts(const std::vector<PromptValueVairant>& prompts,
-        const LLMRuntimeOptions& runtime_options) {
+                                                    const LLMRuntimeOptions& runtime_options) {
         const auto messages_view = prompts | std::views::transform([](const PromptValueVairant& pvv) {
             return std::visit(conv_prompt_value_to_message, pvv);
         });
         return Generate({messages_view.begin(), messages_view.end()}, runtime_options);
     }
 
+    inline MessageVariants BaseChatModel::Batch(const std::vector<LanguageModelInput>& input,
+        const LLMRuntimeOptions& options) {
+        throw LangchainException("Not supported for Chat models");
+    }
 } // core
 // langchain
 

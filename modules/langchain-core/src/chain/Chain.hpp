@@ -38,6 +38,10 @@ LC_CORE_NS {
         virtual Output Invoke(const Input& input, const RuntimeOptions& options) = 0;
         virtual OutputRange Batch(const InputRange& input, const RuntimeOptions& options) = 0;
         virtual OutputChunkRange Stream(const Input& input, const RuntimeOptions& options) = 0;
+
+        // virtual Output Invoke(const Input& input) = 0;
+        // virtual OutputRange Batch(const InputRange& input)=0;
+        // virtual OutputChunkRange Stream(const Input& input)=0;
         virtual Output operator()(const Input& input) {return Invoke(input, RuntimeOptions::Defaults());}
     };
 

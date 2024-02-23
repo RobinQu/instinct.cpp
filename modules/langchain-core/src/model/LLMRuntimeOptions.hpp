@@ -11,13 +11,18 @@
 LC_CORE_NS {
     struct LLMRuntimeOptions {
         static auto Defaults() {
-            return LLMRuntimeOptions{};
+            return LLMRuntimeOptions{
+
+
+            };
         }
 
         /**
          * \brief custom stop words
          */
-        const std::vector<std::string> stop_words;
+        std::vector<std::string> stop_words;
+
+        std::string model_name = "llama2";
     };
 }
 
