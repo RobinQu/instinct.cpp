@@ -30,7 +30,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/tools/HttpUtils.hpp
         src/tools/HttpResponse.hpp
         src/tools/HttpRestClient.hpp
-        src/tools/HttpChunkBodyIterator.hpp
         src/model/ChatResult.hpp
         src/model/ChatGeneration.hpp
         src/CoreGlobals.hpp
@@ -53,6 +52,10 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/prompt/Forwards.hpp
         src/prompt/BaseStringMessagePromptTemplate.hpp
         src/tools/TensorUtils.hpp
+        src/tools/FunctionUtils.hpp
+        src/tools/ChunkStream.hpp
+        src/tools/HttpChunkIterator.hpp
+        src/tools/HttpChunkConnection.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

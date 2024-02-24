@@ -53,6 +53,7 @@ LC_CORE_NS {
         virtual TokenSize GetTokenCount(const std::string& text) = 0;
 
         virtual TokenSize GetTokenCount(const MessageVariants& messages) = 0;
+        
 
     };
 

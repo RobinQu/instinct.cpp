@@ -38,6 +38,8 @@ LC_CORE_NS {
             const std::vector<std::string>& prompts,
             const LLMRuntimeOptions& runtime_options
             ) = 0;
+
+
     public:
         // BaseLLM() = default;
 
@@ -45,6 +47,11 @@ LC_CORE_NS {
         std::string Invoke(
             const LanguageModelInput& input, const LLMRuntimeOptions& options) override;
 
+
+        std::string Invoke(
+            const LanguageModelInput& input) override {
+            return Invoke(input, {});
+        }
 
         /**
          * \brief `Batch` is overriden for LLMs, so that user can reach the real batch API underneath
@@ -56,6 +63,21 @@ LC_CORE_NS {
             const std::vector<LanguageModelInput>& input,
             const LLMRuntimeOptions& options) override;
 
+
+        std::vector<std::string> Batch(
+            const std::vector<LanguageModelInput>& input) override {
+            return Batch(input, {});
+        }
+
+        std::vector<std::string> Stream(
+            const LanguageModelInput& input,
+            const LLMRuntimeOptions& options) override;
+
+        std::vector<std::string> Stream(
+            const LanguageModelInput& input) override {
+            return Stream(input, {});
+        }
+
         /**
          * \brief Prompt with model with a batch. for those with batch API, this method will direct these prompts to as a single batch.
          * \param prompts sequence of prompt as a batch
@@ -64,7 +86,6 @@ LC_CORE_NS {
          */
         LLMResult GeneratePrompts(const std::vector<PromptValueVairant>& prompts,
                                   const LLMRuntimeOptions& runtime_options) override;
-
 
     };
 
@@ -98,6 +119,10 @@ LC_CORE_NS {
             return {generation_view.begin(), generation_view.end()};
         }
         throw LangchainException("Empty response");
+    }
+
+    inline std::vector<std::string> BaseLLM::Stream(const LanguageModelInput& input, const LLMRuntimeOptions& options) {
+        throw LangchainException("Not implmented");
     }
 }
 

@@ -26,8 +26,6 @@ LC_LLM_NS {
         for(const auto& vector: embedding.EmbedDocuments(docs)) {
             TensorUtils::PrintEmbedding(vector);
         }
-
-
     }
 
 }

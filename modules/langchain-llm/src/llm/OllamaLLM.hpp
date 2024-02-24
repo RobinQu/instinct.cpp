@@ -25,10 +25,6 @@ LC_LLM_NS {
 
         explicit OllamaLLM(langchain::core::Endpoint endpoint);
 
-        std::vector<std::string> Stream(
-            const std::variant<core::StringPromptValue, core::ChatPromptValue, std::string, std::vector<std::variant<
-            core::AIMessage, core::HumanMessage, core::FunctionMessage, core::SystemMessage, core::ChatMessage>>>&
-            input, const core::LLMRuntimeOptions& options) override;
 
         std::vector<core::TokenId> GetTokenIds(const std::string& text) override;
 
@@ -47,12 +43,6 @@ LC_LLM_NS {
     inline OllamaLLM::OllamaLLM(langchain::core::Endpoint endpoint): BaseLLM(), http_client_(std::move(endpoint)) {
     }
 
-    inline std::vector<std::string> OllamaLLM::Stream(
-        const std::variant<core::StringPromptValue, core::ChatPromptValue, std::string, std::vector<std::variant<core::
-        AIMessage, core::HumanMessage, core::FunctionMessage, core::SystemMessage, core::ChatMessage>>>& input,
-        const core::LLMRuntimeOptions& options) {
-        return {};
-    }
 
     inline std::vector<core::TokenId> OllamaLLM::GetTokenIds(const std::string& text) {
         return {};

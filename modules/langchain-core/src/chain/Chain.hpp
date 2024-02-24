@@ -23,7 +23,7 @@ LC_CORE_NS {
         typename Input,
         typename Output,
         typename RuntimeOptions,
-        typename OutputChunk=Output,
+        typename OutputChunk,
         typename InputRange=std::vector<Input>,
         typename OutputRange=std::vector<Output>,
         typename OutputChunkRange=std::vector<OutputChunk>
@@ -39,9 +39,9 @@ LC_CORE_NS {
         virtual OutputRange Batch(const InputRange& input, const RuntimeOptions& options) = 0;
         virtual OutputChunkRange Stream(const Input& input, const RuntimeOptions& options) = 0;
 
-        // virtual Output Invoke(const Input& input) = 0;
-        // virtual OutputRange Batch(const InputRange& input)=0;
-        // virtual OutputChunkRange Stream(const Input& input)=0;
+        virtual Output Invoke(const Input& input) = 0;
+        virtual OutputRange Batch(const InputRange& input)=0;
+        virtual OutputChunkRange Stream(const Input& input)=0;
         virtual Output operator()(const Input& input) {return Invoke(input, RuntimeOptions::Defaults());}
     };
 

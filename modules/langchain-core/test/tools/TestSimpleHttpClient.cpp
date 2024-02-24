@@ -18,9 +18,10 @@ TEST(SimpleHTTPCientTest, TestStream) {
     )";
     SimpleHttpClient client {{"localhost", 11434}};
     HttpRequest request = {POST, "/api/generate", {}, request_str};
-    const auto itr = client.Stream(request);
-    while (itr->HasNext()) {
-        std::cout << itr->Next() << std::endl;
+    auto stream = client.Stream(request);
+    for(auto& chunk: stream) {
+        std::cout << chunk << std::endl;
     }
+
 
 }

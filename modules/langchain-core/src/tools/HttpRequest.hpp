@@ -16,7 +16,7 @@ struct HttpRequest {
     // int port;
     // std::string path;
     // std::string query_string;
-    HttpMethod method;
+    HttpMethod method = HttpMethod::GET;
     std::string target;
     HttpHeaders headers;
     std::string body;

@@ -41,6 +41,16 @@ LC_CORE_NS {
             const std::vector<LanguageModelInput>& input,
             const LLMRuntimeOptions& options) override;
 
+
+        std::vector<MessageVar> Stream(
+            const std::variant<StringPromptValue, ChatPromptValue, std::string, std::vector<std::variant<AIMessage,
+            HumanMessage, FunctionMessage, SystemMessage, ChatMessage>>>& input,
+            const LLMRuntimeOptions& options) override;
+
+        std::vector<std::variant<AIMessage, HumanMessage, FunctionMessage, SystemMessage, ChatMessage>> Stream(
+            const std::variant<StringPromptValue, ChatPromptValue, std::string, std::vector<std::variant<AIMessage,
+            HumanMessage, FunctionMessage, SystemMessage, ChatMessage>>>& input) override;
+
         LLMResult GeneratePrompts(const std::vector<PromptValueVairant>& prompts,
                                   const LLMRuntimeOptions& runtime_options) override;
     };
@@ -69,7 +79,24 @@ LC_CORE_NS {
 
     inline MessageVariants BaseChatModel::Batch(const std::vector<LanguageModelInput>& input,
         const LLMRuntimeOptions& options) {
-        throw LangchainException("Not supported for Chat models");
+        const auto prompt_view = input | std::views::transform([](const auto& e) {
+            return std::visit(conv_language_model_input_to_prompt_value, e);
+        });
+        const auto llm_result = GeneratePrompts({prompt_view.begin(), prompt_view.end()}, options);
+
+        MessageVariants mvs;
+        for(const auto& mv: llm_result.generations) {
+            if(!mv.empty()) {
+                if(std::holds_alternative<ChatGeneration>(mv[0])) {
+                    const auto generation = std::get<ChatGeneration>(mv[0]);
+                    mvs.emplace_back(generation.message);
+                }
+            }
+        }
+        if(mvs.empty()) {
+            throw LangchainException("Empty response");
+        }
+        return mvs;
     }
 } // core
 // langchain
