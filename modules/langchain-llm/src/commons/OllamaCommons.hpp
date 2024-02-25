@@ -14,6 +14,14 @@
  * @see https://github.com/ollama/ollama/blob/main/docs/api.md
  */
 LC_LLM_NS {
+
+    struct OllamaConfiguration {};
+
+    struct OllamaRuntimeOptions {
+        std::string model_name = "llama2";
+    };
+
+
     struct OllamaGenerateReuqestOption {
         unsigned int temperature;
     };

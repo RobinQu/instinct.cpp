@@ -6,9 +6,8 @@
 #define SIMPLEHTTPCLIENT_H
 
 #include <boost/beast.hpp>
-
-#include "ChunkStream.hpp"
 #include "CoreTypes.hpp"
+#include "HttpChunkStream.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 

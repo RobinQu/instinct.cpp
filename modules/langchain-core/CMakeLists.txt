@@ -48,14 +48,14 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/prompt/BaseChatPromptTemplate.hpp
         src/prompt/PassthroughExampleSelector.hpp
         src/chain/Chain.hpp
-        src/model/LLMRuntimeOptions.hpp
         src/prompt/Forwards.hpp
         src/prompt/BaseStringMessagePromptTemplate.hpp
         src/tools/TensorUtils.hpp
         src/tools/FunctionUtils.hpp
-        src/tools/ChunkStream.hpp
+        src/tools/HttpChunkStream.hpp
         src/tools/HttpChunkIterator.hpp
         src/tools/HttpChunkConnection.hpp
+        src/tools/DelegateChunkStream.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

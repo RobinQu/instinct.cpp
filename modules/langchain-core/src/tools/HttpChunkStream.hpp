@@ -26,7 +26,9 @@ LC_CORE_NS {
     template<typename Chunk>
     class HttpChunkStream {
     public:
+        //using iterator = typename std::vector<Chunk>::iterator;
         using iterator = HttpChunkIterator<Chunk>;
+        using const_iterator = HttpChunkIterator<const Chunk>;
         using ChunkConverter = std::function<Chunk(std::string)>;
 
         HttpChunkStream()=delete;
@@ -40,13 +42,20 @@ LC_CORE_NS {
          * \brief
          * \return will send actual request to target every time invoked
          */
-        [[nodiscard]] iterator begin();
+        [[nodiscard]] auto begin();
 
         /**
          * \brief
          * \return return empty iterator
          */
-        [[nodiscard]] iterator end();
+        [[nodiscard]] auto end();
+
+
+        [[nodiscard]] auto cbegin() const;
+
+        [[nodiscard]] auto cend() const;
+
+
 
     private:
 
@@ -68,16 +77,24 @@ LC_CORE_NS {
     }
 
     template<typename Chunk>
-    typename HttpChunkStream<Chunk>::iterator HttpChunkStream<Chunk>::begin() {
+    auto HttpChunkStream<Chunk>::begin() {
         auto* stream = strema_provider_();
-        auto* connection = new HttpChunkConnection<Chunk>(stream, chunk_convert_);
-        connections_[stream] = connection;
-        return HttpChunkIterator<Chunk>(connection);
+        return HttpChunkIterator<Chunk>(new HttpChunkConnection<Chunk>(stream, chunk_convert_));
     }
 
     template<typename Chunk>
-    typename HttpChunkStream<Chunk>::iterator HttpChunkStream<Chunk>::end() {
+    auto HttpChunkStream<Chunk>::end() {
         return HttpChunkIterator<Chunk>(nullptr);
+    }
+
+    template<typename Chunk>
+    auto HttpChunkStream<Chunk>::cbegin() const {
+        return begin();
+    }
+
+    template<typename Chunk>
+    auto HttpChunkStream<Chunk>::cend() const {
+        return end();
     }
 }
 

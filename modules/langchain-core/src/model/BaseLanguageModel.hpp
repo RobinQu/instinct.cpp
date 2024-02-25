@@ -8,7 +8,6 @@
 
 #include "ChatGeneration.hpp"
 #include "LLMResult.hpp"
-#include "LLMRuntimeOptions.hpp"
 #include "prompt/PromptValue.hpp"
 #include "chain/Chain.hpp"
 #include "prompt/Forwards.hpp"
@@ -36,8 +35,14 @@ LC_CORE_NS {
         }
     };
 
-    template<typename LanguageModelOutput>
-    class BaseLanguageModel : public Chain<LanguageModelInput, LanguageModelOutput, LLMRuntimeOptions> {
+    template<typename Configuraiton, typename RuntimeOptions, typename Input=LanguageModelInput, typename Output, typename OutputChunk=Output, typename OutputChunkRange>
+    class BaseLanguageModel : public Chain<
+            Configuraiton,
+            RuntimeOptions,
+            Input,
+            Output,
+            OutputChunk,
+            OutputChunkRange> {
     public:
         // BaseLanguageModel() = default;
         // BaseLanguageModel(const BaseLanguageModel&) = delete;
@@ -45,7 +50,7 @@ LC_CORE_NS {
 
         virtual LLMResult GeneratePrompts(
             const std::vector<PromptValueVairant>& prompts,
-            const LLMRuntimeOptions& runtime_options
+            const RuntimeOptions& runtime_options
         ) = 0;
 
         virtual std::vector<TokenId> GetTokenIds(const std::string& text) = 0;
@@ -53,7 +58,7 @@ LC_CORE_NS {
         virtual TokenSize GetTokenCount(const std::string& text) = 0;
 
         virtual TokenSize GetTokenCount(const MessageVariants& messages) = 0;
-        
+
 
     };
 

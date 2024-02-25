@@ -18,7 +18,7 @@
 LC_LLM_NS {
 
 
-    class OllamaLLM final : public langchain::core::BaseLLM {
+    class OllamaLLM final : public core::BaseLLM<OllamaConfiguration, OllamaRuntimeOptions> {
         core::HttpRestClient http_client_;
     public:
         OllamaLLM();

@@ -32,9 +32,26 @@ LC_CORE_NS {
         using reference_type = Chunk &;
         using iterator_category = std::input_iterator_tag;
 
-        explicit  HttpChunkIterator(ConnectionType* connection): chunk_connection_(connection) {}
+        HttpChunkIterator() = default;
+
+        explicit  HttpChunkIterator(ConnectionType* connection): chunk_connection_(connection) {
+            // assert(chunk_connection_, "chunk_connection_ cannot be nullptr");
+        }
+
+        explicit HttpChunkIterator(
+            beast::tcp_stream* stream,
+            std::function<Chunk(std::string)> chunk_convert)  {
+                this->chunk_connection_ = new HttpChunkConnection<Chunk>(stream, chunk_convert);
+            }
+
+        // ~HttpChunkIterator()  {
+        //     delete chunk_connection_;
+        // }
 
         reference_type operator*() const {
+            if(!chunk_connection_) {
+                throw LangchainException("Cannot deference HttpChunkIterator with nullptr");
+            }
             chunk_connection_->ReadNextOf(current_);
             return chunk_connection_->GetChunk(current_);
         }
@@ -62,13 +79,17 @@ LC_CORE_NS {
             return tmp;
         }
 
-        bool operator==(const HttpChunkIterator& rhs) {
+        /**
+         * \brief const qualifier cannot be removed or range-for loop with const value will fail
+         * \param rhs
+         * \return
+         */
+        bool operator==(const HttpChunkIterator& rhs) const {
             if(this->chunk_connection_) {
                 if(rhs.chunk_connection_) { // both are valid pointer
                     return this->chunk_connection_->GetChunk(current_) == rhs.chunk_connection_->GetChunk(current_);
                 }
-                // return false;
-                // if connection is empty, then it should be treated as nullptr
+                // if this->chunk_connection_ is empty, it should be treated as nullptr
                 return !this->chunk_connection_->hasNext();
             }
             if(!rhs.chunk_connection_) { // both are nullptr
@@ -78,7 +99,7 @@ LC_CORE_NS {
             return !rhs.chunk_connection_->hasNext();
         }
 
-        bool operator!=(const HttpChunkIterator& rhs) {
+        bool operator!=(const HttpChunkIterator& rhs) const {
             return !(*this == rhs);
         }
     };

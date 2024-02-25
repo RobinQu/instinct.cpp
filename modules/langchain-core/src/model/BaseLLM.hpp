@@ -32,12 +32,14 @@ LC_CORE_NS {
         [](const auto& m) {return m.ToString();}
     };
 
-    class BaseLLM: public BaseLanguageModel<std::string>{
+    template<typename Configuration, typename RuntimeOptions, typename Chunk=std::string, typename ChunkRange=auto>
+    class BaseLLM: public BaseLanguageModel<Configuration, RuntimeOptions, LanguageModelInput, std::string, Chunk, ChunkRange> {
     protected:
         virtual LLMResult Generate(
             const std::vector<std::string>& prompts,
-            const LLMRuntimeOptions& runtime_options
+            const RuntimeOptions& runtime_options
             ) = 0;
+
 
 
     public:
@@ -45,7 +47,13 @@ LC_CORE_NS {
 
 
         std::string Invoke(
-            const LanguageModelInput& input, const LLMRuntimeOptions& options) override;
+            const LanguageModelInput& input, const RuntimeOptions& options) override {
+            const auto prompt_value = std::visit(conv_language_model_input_to_prompt_value, input);
+        if(const auto result = GeneratePrompts(std::vector{prompt_value}, options); !result.generations.empty()) {
+            return std::visit([](auto&& v){return v.text;}, result.generations[0][0]);
+        }
+        throw LangchainException("Empty response");
+        }
 
 
         std::string Invoke(
@@ -61,7 +69,19 @@ LC_CORE_NS {
          */
         std::vector<std::string> Batch(
             const std::vector<LanguageModelInput>& input,
-            const LLMRuntimeOptions& options) override;
+            const RuntimeOptions& options) override {
+            const auto prompt_value_view = input | std::views::transform([](const auto& v) {
+            return std::visit(conv_language_model_input_to_prompt_value, v);
+        });
+
+            if(const auto result = GeneratePrompts({prompt_value_view.begin(), prompt_value_view.end()}, options); !result.generations.empty() && !result.generations[0].empty()) {
+                auto generation_view = result.generations | std::views::transform([](const std::vector<GenerationVariant>& g) -> std::string {
+                    return std::visit([](const auto& v)-> std::string {return v.text;}, g[0]);
+                });
+                return {generation_view.begin(), generation_view.end()};
+            }
+            throw LangchainException("Empty response");
+        }
 
 
         std::vector<std::string> Batch(
@@ -69,11 +89,11 @@ LC_CORE_NS {
             return Batch(input, {});
         }
 
-        std::vector<std::string> Stream(
+        ChunkRange Stream(
             const LanguageModelInput& input,
-            const LLMRuntimeOptions& options) override;
+            const RuntimeOptions& options) override;
 
-        std::vector<std::string> Stream(
+        ChunkRange Stream(
             const LanguageModelInput& input) override {
             return Stream(input, {});
         }
@@ -85,45 +105,20 @@ LC_CORE_NS {
          * \return
          */
         LLMResult GeneratePrompts(const std::vector<PromptValueVairant>& prompts,
-                                  const LLMRuntimeOptions& runtime_options) override;
+                                  const RuntimeOptions& runtime_options) override {
+            const auto string_view = prompts | std::views::transform([](const PromptValueVairant& pvv) {
+            return std::visit(conv_prompt_value_to_string, pvv);
+        });
+            return Generate({string_view.begin(), string_view.end()}, runtime_options);
+        }
 
     };
 
-    inline std::string BaseLLM::Invoke(const LanguageModelInput& input, const LLMRuntimeOptions& options) {
-        const auto prompt_value = std::visit(conv_language_model_input_to_prompt_value, input);
-        if(const auto result = GeneratePrompts(std::vector{prompt_value}, options); !result.generations.empty()) {
-            return std::visit([](auto&& v){return v.text;}, result.generations[0][0]);
-        }
-        throw LangchainException("Empty response");
-    }
-
-    inline LLMResult BaseLLM::GeneratePrompts(const std::vector<PromptValueVairant>& prompts,
-                                              const LLMRuntimeOptions& runtime_options)  {
-        const auto string_view = prompts | std::views::transform([](const PromptValueVairant& pvv) {
-            return std::visit(conv_prompt_value_to_string, pvv);
-        });
-        return Generate({string_view.begin(), string_view.end()}, runtime_options);
-    }
 
 
-    inline std::vector<std::string> BaseLLM::Batch(const std::vector<LanguageModelInput>& input,
-        const LLMRuntimeOptions& options) {
-        const auto prompt_value_view = input | std::views::transform([](const auto& v) {
-            return std::visit(conv_language_model_input_to_prompt_value, v);
-        });
 
-        if(const auto result = GeneratePrompts({prompt_value_view.begin(), prompt_value_view.end()}, options); !result.generations.empty() && !result.generations[0].empty()) {
-            auto generation_view = result.generations | std::views::transform([](const std::vector<GenerationVariant>& g) -> std::string {
-                return std::visit([](const auto& v)-> std::string {return v.text;}, g[0]);
-            });
-            return {generation_view.begin(), generation_view.end()};
-        }
-        throw LangchainException("Empty response");
-    }
 
-    inline std::vector<std::string> BaseLLM::Stream(const LanguageModelInput& input, const LLMRuntimeOptions& options) {
-        throw LangchainException("Not implmented");
-    }
+
 }
 
 
