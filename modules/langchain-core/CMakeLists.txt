@@ -55,7 +55,9 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/tools/HttpChunkStream.hpp
         src/tools/HttpChunkIterator.hpp
         src/tools/HttpChunkConnection.hpp
-        src/tools/DelegateChunkStream.hpp
+        src/tools/ChunkStreamView.hpp
+        src/tools/ResultIterator.hpp
+        src/tools/HttpChunkResultIterator.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

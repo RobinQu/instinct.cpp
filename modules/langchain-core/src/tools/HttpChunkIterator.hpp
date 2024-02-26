@@ -22,7 +22,10 @@ LC_CORE_NS {
         using IdType = typename HttpChunkConnection<Chunk>::ChunkCache::size_type;
         using ConnectionType = HttpChunkConnection<Chunk>;
 
-        ConnectionType* chunk_connection_;
+        /**
+         * \brief chunk_connection_ is shared across multiple iterator, shared_ptr seems to be a simple solution
+         */
+        HttpChunkConnectionPtr<Chunk> chunk_connection_;
         IdType current_ {0};
 
     public:
@@ -34,14 +37,14 @@ LC_CORE_NS {
 
         HttpChunkIterator() = default;
 
-        explicit  HttpChunkIterator(ConnectionType* connection): chunk_connection_(connection) {
-            // assert(chunk_connection_, "chunk_connection_ cannot be nullptr");
+        explicit  HttpChunkIterator(HttpChunkConnectionPtr<Chunk> chunk_connection): chunk_connection_(std::move(chunk_connection)) {
+
         }
 
         explicit HttpChunkIterator(
             beast::tcp_stream* stream,
             std::function<Chunk(std::string)> chunk_convert)  {
-                this->chunk_connection_ = new HttpChunkConnection<Chunk>(stream, chunk_convert);
+                this->chunk_connection_ = std::make_shared<HttpChunkConnection<Chunk>>(stream, chunk_convert);
             }
 
         // ~HttpChunkIterator()  {

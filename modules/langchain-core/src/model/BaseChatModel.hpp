@@ -19,86 +19,109 @@ LC_CORE_NS {
         return v.ToString();
     };
 
-
-    class BaseChatModel : public BaseLanguageModel<MessageVariant> {
+    template<
+        typename Configuration,
+        typename RuntimeOptions,
+        typename Input=LanguageModelInput,
+        typename Output=MessageVariant>
+    class BaseChatModel : public BaseLanguageModel<Configuration, RuntimeOptions, Input, Output> {
     protected:
-        virtual LLMResult Generate(
+        virtual ChatResult Generate(
             const std::vector<MessageVariants>& messages,
-            const LLMRuntimeOptions& runtime_options
+            const RuntimeOptions& runtime_options
         ) = 0;
+
+        virtual ResultIterator<ChatGeneration>* StreamGenerate(const MessageVariants& messages, const RuntimeOptions& runtime_options) = 0;
 
     public:
         MessageVariant Invoke(
-            const LanguageModelInput& input, const LLMRuntimeOptions& options) override;
+            const LanguageModelInput& input, const RuntimeOptions& options) override {
+            const auto prompt_value = std::visit(conv_language_model_input_to_prompt_value, input);
+            if (const auto result = GeneratePrompts(std::vector{prompt_value}, options);
+                !result.generations.empty() && !result.generations[0].empty()) {
+                const auto generation = result.generations[0][0];
+                if (std::holds_alternative<ChatGeneration>(generation)) {
+                    auto chat_gen = std::get<ChatGeneration>(generation);
+                    return chat_gen.message;
+                }
+                throw LangchainException("unexpected branch here");
+            }
+            throw LangchainException("Empty response");
+        }
+
+        Output Invoke(const Input& input) override {
+            return Invoke(input, {});
+        }
 
         /**
          * \brief Batching is disabled on chat models. This function throws unconditionally.
          * \param input
-         * \param a
+         * \param options
          * \return a
          */
-        MessageVariants Batch(
+        ResultIterator<MessageVariant>* Batch(
             const std::vector<LanguageModelInput>& input,
-            const LLMRuntimeOptions& options) override;
+            const RuntimeOptions& options) override {
+            const auto prompt_view = input | std::views::transform([](const auto& e) {
+                return std::visit(conv_language_model_input_to_prompt_value, e);
+            });
+            const auto llm_result = GeneratePrompts({prompt_view.begin(), prompt_view.end()}, options);
 
-
-        std::vector<MessageVar> Stream(
-            const std::variant<StringPromptValue, ChatPromptValue, std::string, std::vector<std::variant<AIMessage,
-            HumanMessage, FunctionMessage, SystemMessage, ChatMessage>>>& input,
-            const LLMRuntimeOptions& options) override;
-
-        std::vector<std::variant<AIMessage, HumanMessage, FunctionMessage, SystemMessage, ChatMessage>> Stream(
-            const std::variant<StringPromptValue, ChatPromptValue, std::string, std::vector<std::variant<AIMessage,
-            HumanMessage, FunctionMessage, SystemMessage, ChatMessage>>>& input) override;
-
-        LLMResult GeneratePrompts(const std::vector<PromptValueVairant>& prompts,
-                                  const LLMRuntimeOptions& runtime_options) override;
-    };
-
-    inline MessageVariant BaseChatModel::Invoke(const LanguageModelInput& input, const LLMRuntimeOptions& options) {
-        const auto prompt_value = std::visit(conv_language_model_input_to_prompt_value, input);
-        if (const auto result = GeneratePrompts(std::vector{prompt_value}, options);
-            !result.generations.empty() && !result.generations[0].empty()) {
-            const auto generation = result.generations[0][0];
-            if(std::holds_alternative<ChatGeneration>(generation)) {
-                auto chat_gen = std::get<ChatGeneration>(generation);
-                return chat_gen.message;
-            }
-            throw LangchainException("unexpected branch here");
-        }
-        throw LangchainException("Empty response");
-    }
-
-    inline LLMResult BaseChatModel::GeneratePrompts(const std::vector<PromptValueVairant>& prompts,
-                                                    const LLMRuntimeOptions& runtime_options) {
-        const auto messages_view = prompts | std::views::transform([](const PromptValueVairant& pvv) {
-            return std::visit(conv_prompt_value_to_message, pvv);
-        });
-        return Generate({messages_view.begin(), messages_view.end()}, runtime_options);
-    }
-
-    inline MessageVariants BaseChatModel::Batch(const std::vector<LanguageModelInput>& input,
-        const LLMRuntimeOptions& options) {
-        const auto prompt_view = input | std::views::transform([](const auto& e) {
-            return std::visit(conv_language_model_input_to_prompt_value, e);
-        });
-        const auto llm_result = GeneratePrompts({prompt_view.begin(), prompt_view.end()}, options);
-
-        MessageVariants mvs;
-        for(const auto& mv: llm_result.generations) {
-            if(!mv.empty()) {
-                if(std::holds_alternative<ChatGeneration>(mv[0])) {
-                    const auto generation = std::get<ChatGeneration>(mv[0]);
-                    mvs.emplace_back(generation.message);
+            MessageVariants mvs;
+            for (const auto& mv: llm_result.generations) {
+                if (!mv.empty()) {
+                    if (std::holds_alternative<ChatGeneration>(mv[0])) {
+                        const auto generation = std::get<ChatGeneration>(mv[0]);
+                        mvs.emplace_back(generation.message);
+                    }
                 }
             }
+            if (mvs.empty()) {
+                throw LangchainException("Empty response");
+            }
+            return create_from_range(mvs);
         }
-        if(mvs.empty()) {
-            throw LangchainException("Empty response");
+
+        ResultIterator<Output>* Batch(ResultIterator<Input>* const& input) override {
+            return Batch(input, {});
         }
-        return mvs;
-    }
-} // core
+
+
+        ResultIterator<MessageVariant>* Stream(
+            const LanguageModelInput& input,
+            const RuntimeOptions& options) override {
+            const auto prompt_value = std::visit(conv_language_model_input_to_prompt_value, input);
+            const auto message = std::visit(conv_prompt_value_to_message, prompt_value);
+            ResultIterator<ChatGeneration>* generation_result = StreamGenerate(message, options);
+            return create_transform([](auto&& chat_gen) -> MessageVariant {
+                return chat_gen.message;
+            }, generation_result);
+        }
+
+        ResultIterator<MessageVariant>* Stream(
+            const LanguageModelInput& input) override {
+            return Stream(input, {});
+        }
+
+        LLMResult GeneratePrompts(const std::vector<PromptValueVairant>& prompts,
+                                  const RuntimeOptions& runtime_options) override {
+            const auto messages_view = prompts | std::views::transform([](const PromptValueVairant& pvv) {
+                return std::visit(conv_prompt_value_to_message, pvv);
+            });
+            ChatResult chat_result = Generate({messages_view.begin(), messages_view.end()}, runtime_options);
+
+            LLMResult result;
+            result.generations.reserve(1);
+            for(auto& chat_gen: chat_result.generations) {
+                result.generations[0].emplace_back(chat_gen);
+            }
+            result.llm_output  = chat_result.llm_output;
+            return result;
+        };
+    };
+}
+
+// core
 // langchain
 
 #endif //BASECHATMODEL_H

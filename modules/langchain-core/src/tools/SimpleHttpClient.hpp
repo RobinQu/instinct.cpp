@@ -7,6 +7,7 @@
 
 #include <boost/beast.hpp>
 #include "CoreTypes.hpp"
+#include "HttpChunkResultIterator.hpp"
 #include "HttpChunkStream.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
@@ -46,15 +47,9 @@ LC_CORE_NS {
             const HttpRequest& call
         );
 
-        template<typename Chunk, typename ChunkConverter=std::function<Chunk(std::string)>>
-        HttpChunkStream<Chunk> Stream(
-            const HttpRequest& call,
-            ChunkConverter&& converter
+        HttpChunkResultIterator<std::string>* Stream(
+            const HttpRequest& call
         ) ;
-
-        [[nodiscard]] auto Stream(const HttpRequest& call)  {
-            return this->template Stream<std::string>(call, string_idenity_fn);
-        }
 
     };
 
@@ -129,13 +124,10 @@ LC_CORE_NS {
         return response;
     }
 
-
-    template<typename Chunk, typename ChunkConverter>
-    HttpChunkStream<Chunk> SimpleHttpClient::Stream(
-            const HttpRequest& call,
-            ChunkConverter&& converter
+    inline HttpChunkResultIterator<std::string>* SimpleHttpClient::Stream(
+            const HttpRequest& call
         )  {
-        return HttpChunkStream<Chunk>([&,call]() {
+        return new HttpChunkResultIterator<std::string>{string_idenity_fn, [&,call]() {
             auto stream = new beast::tcp_stream(ioc_);
             stream->connect(resolve_results_);
             http::verb verb = parse_verb(call);
@@ -145,7 +137,7 @@ LC_CORE_NS {
             req.prepare_payload();
             http::write(*stream, req);
             return stream;
-        }, std::forward<ChunkConverter>(converter));
+        }};
     }
 
 } // core

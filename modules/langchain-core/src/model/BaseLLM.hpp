@@ -7,6 +7,7 @@
 #include "BaseLanguageModel.hpp"
 #include "CoreGlobals.hpp"
 #include "LLMResult.hpp"
+#include "tools/ChunkStreamView.hpp"
 
 
 LC_CORE_NS {
@@ -32,19 +33,22 @@ LC_CORE_NS {
         [](const auto& m) {return m.ToString();}
     };
 
-    template<typename Configuration, typename RuntimeOptions, typename Chunk=std::string, typename ChunkRange=auto>
-    class BaseLLM: public BaseLanguageModel<Configuration, RuntimeOptions, LanguageModelInput, std::string, Chunk, ChunkRange> {
+    template<
+        typename Configuration,
+        typename RuntimeOptions,
+        typename Input=LanguageModelInput,
+        typename Output=std::string
+    >
+    class BaseLLM: public BaseLanguageModel<Configuration, RuntimeOptions, Input, Output> {
     protected:
         virtual LLMResult Generate(
             const std::vector<std::string>& prompts,
             const RuntimeOptions& runtime_options
             ) = 0;
 
-
-
+        virtual ResultIterator<Generation>* StreamGenerate(const std::string& prompt, const RuntimeOptions& runtime_options ) = 0;
     public:
         // BaseLLM() = default;
-
 
         std::string Invoke(
             const LanguageModelInput& input, const RuntimeOptions& options) override {
@@ -67,7 +71,7 @@ LC_CORE_NS {
          * \param options
          * \return
          */
-        std::vector<std::string> Batch(
+        ResultIterator<std::string>* Batch(
             const std::vector<LanguageModelInput>& input,
             const RuntimeOptions& options) override {
             const auto prompt_value_view = input | std::views::transform([](const auto& v) {
@@ -78,23 +82,27 @@ LC_CORE_NS {
                 auto generation_view = result.generations | std::views::transform([](const std::vector<GenerationVariant>& g) -> std::string {
                     return std::visit([](const auto& v)-> std::string {return v.text;}, g[0]);
                 });
-                return {generation_view.begin(), generation_view.end()};
+                return create_from_range(generation_view);
             }
             throw LangchainException("Empty response");
         }
 
 
-        std::vector<std::string> Batch(
+        ResultIterator<std::string>* Batch(
             const std::vector<LanguageModelInput>& input) override {
             return Batch(input, {});
         }
 
-        ChunkRange Stream(
-            const LanguageModelInput& input,
-            const RuntimeOptions& options) override;
+        ResultIterator<std::string>* Stream(const Input& input, const RuntimeOptions& options) override {
+            const auto prompt_value = std::visit(conv_language_model_input_to_prompt_value, input);
+            const std::string prompt_string = std::visit(conv_prompt_value_to_string, prompt_value);
+            ResultIterator<Generation>* geneartion_iter = StreamGenerate(prompt_string, options);
+            return create_transform([](Generation& generation) {
+                return generation.text;
+            }, geneartion_iter);
+        }
 
-        ChunkRange Stream(
-            const LanguageModelInput& input) override {
+        ResultIterator<std::string>* Stream(const Input& input) override {
             return Stream(input, {});
         }
 

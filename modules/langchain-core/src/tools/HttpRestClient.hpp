@@ -5,6 +5,7 @@
 #ifndef HTTPRESTCLIENT_H
 #define HTTPRESTCLIENT_H
 
+#include "ChunkStreamView.hpp"
 #include "CoreTypes.hpp"
 #include "HttpClientException.hpp"
 #include "SimpleHttpClient.hpp"
@@ -23,25 +24,34 @@ public:
     template<typename Result>
     Result GetObject(const std::string& uri) {
         const HttpRequest request = {GET, uri, {}, ""};
-        const HttpResponsePtr response = Execute(request);
-        if(response->status_code >= 400) {
-            throw HttpClientException(response->status_code, response->body);
+        const HttpResponse response = Execute(request);
+        if(response.status_code >= 400) {
+            throw HttpClientException(response.status_code, response.body);
         }
-        return nlohmann::json::parse(response->body);
+        return nlohmann::json::parse(response.body);
     }
     template<typename Param, typename Result>
     Result PostObject(const std::string& uri, const Param& param) {
         const nlohmann::json json_object = param;
         const HttpRequest request = {POST, uri, {}, json_object.dump()};
-
         // std::cout << "Request body: " <<  request.body << std::endl;
-        const HttpResponsePtr response = Execute(request);
+        const HttpResponse response = Execute(request);
         // std::cout << "Response body: " << response->body << std::endl;
-        if(response->status_code >= 400) {
-            throw HttpClientException(response->status_code, response->body);
+        if(response.status_code >= 400) {
+            throw HttpClientException(response.status_code, response.body);
         }
-        auto response_body_json = nlohmann::json::parse(response->body);
+        auto response_body_json = nlohmann::json::parse(response.body);
         return response_body_json.get<Result>();
+    }
+
+    template<typename Param, typename Result>
+    ResultIterator<Result>* StreamChunk(const std::string& uri, const Param& param) {
+        const nlohmann::json json_object = param;
+        const HttpRequest request = {POST, uri, {}, json_object.dump()};
+        return create_transform([](auto&& v) {
+            auto response_body_json = nlohmann::json::parse(v);
+            return response_body_json.template get<Result>();
+        }, Stream(request));
     }
 };
 

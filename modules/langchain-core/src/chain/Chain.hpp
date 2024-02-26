@@ -8,6 +8,8 @@
 #include <rpp/rpp.hpp>
 
 #include "CoreGlobals.hpp"
+#include "tools/ChunkStreamView.hpp"
+#include "tools/ResultIterator.hpp"
 
 LC_CORE_NS {
     // template<typename T>
@@ -24,11 +26,11 @@ LC_CORE_NS {
         typename RuntimeOptions,
         typename Input,
         typename Output,
-        typename OutputChunk,
-        typename OutputChunkRange,
-        typename OutputRange=std::vector<Output>,
-        typename InputRange=std::vector<Input>
-    >
+    typename OutputChunk=Output,
+    typename OutputChunkRange=ResultIterator<OutputChunk> *,
+    typename OutputRange=ResultIterator<Output>*,
+    typename InputRange=ResultIterator<Input>*
+>
         requires RangeOf<OutputRange, Output> && RangeOf<OutputChunkRange, OutputChunk> && RangeOf<InputRange, Input>
     class Chain {
     public:

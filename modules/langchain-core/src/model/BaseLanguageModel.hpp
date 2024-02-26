@@ -19,11 +19,11 @@
 #include "message/SystemMessage.hpp"
 #include "prompt/ChatPromptValue.hpp"
 #include "prompt/StringPromptValue.hpp"
+#include "tools/ResultIterator.hpp"
 #include "tools/StringUtils.hpp"
 
 
 LC_CORE_NS {
-
     static auto conv_language_model_input_to_prompt_value = overloaded{
         [](const StringPromptValue& v) { return PromptValueVairant{v}; },
 
@@ -35,14 +35,18 @@ LC_CORE_NS {
         }
     };
 
-    template<typename Configuraiton, typename RuntimeOptions, typename Input=LanguageModelInput, typename Output, typename OutputChunk=Output, typename OutputChunkRange>
+    template<
+        typename Configuraiton,
+        typename RuntimeOptions,
+        typename Input=LanguageModelInput,
+        typename Output
+    >
     class BaseLanguageModel : public Chain<
-            Configuraiton,
-            RuntimeOptions,
-            Input,
-            Output,
-            OutputChunk,
-            OutputChunkRange> {
+                Configuraiton,
+                RuntimeOptions,
+                Input,
+                Output
+            > {
     public:
         // BaseLanguageModel() = default;
         // BaseLanguageModel(const BaseLanguageModel&) = delete;
@@ -58,12 +62,7 @@ LC_CORE_NS {
         virtual TokenSize GetTokenCount(const std::string& text) = 0;
 
         virtual TokenSize GetTokenCount(const MessageVariants& messages) = 0;
-
-
     };
-
-
-
 } // core
 // langchian
 

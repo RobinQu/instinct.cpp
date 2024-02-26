@@ -35,7 +35,7 @@ LC_CORE_NS {
 
         void ReadNextOf(ChunkCacheIdx idx);
         [[nodiscard]] bool hasNext() const;
-        ChunkType& GetChunk(ChunkCacheIdx idx);
+        ChunkType& GetChunk(ChunkCacheIdx idx) const;
 
         bool operator==(const HttpChunkConnection&) const;
         bool operator!=(const HttpChunkConnection&) const;
@@ -135,7 +135,7 @@ LC_CORE_NS {
     }
 
     template<typename ChunkType, typename ChunkCacheType>
-    void HttpChunkConnection<ChunkType, ChunkCacheType>::ReadNextOf(ChunkCacheIdx idx) {
+    void HttpChunkConnection<ChunkType, ChunkCacheType>::ReadNextOf(ChunkCacheIdx idx)  {
         // make sure only one thread is reading underlying stream at the same time
         std::lock_guard<std::mutex> guard(read_mutex_);
         while(idx >= cache_.size()) {
@@ -173,10 +173,13 @@ LC_CORE_NS {
     }
 
     template<typename ChunkType, typename ChunkCacheType>
-    ChunkType& HttpChunkConnection<ChunkType, ChunkCacheType>::GetChunk(ChunkCacheIdx idx)  {
+    ChunkType& HttpChunkConnection<ChunkType, ChunkCacheType>::GetChunk(ChunkCacheIdx idx) const  {
         // return const_cast<const ChunkType&>(cache_.at(idx));
         return cache_.at(idx);
     }
+
+    template<typename ChunkType>
+    using HttpChunkConnectionPtr= std::shared_ptr<HttpChunkConnection<ChunkType>>;
 }
 
 #endif //HTTPCHUNKCONNECTION_HPP
