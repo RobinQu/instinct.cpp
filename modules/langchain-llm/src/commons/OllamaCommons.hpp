@@ -38,25 +38,28 @@ LC_LLM_NS {
     struct OllamaChatRequest {
         std::string model;
         std::vector<OllamaGenerateMessage> messages;
-        std::string format = "json";
-        OllamaGenerateReuqestOption options;
+
+        // OllamaGenerateReuqestOption options;
         bool stream;
+        std::string format = "json";
     };
 
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(OllamaChatRequest, model, messages, format, options, stream)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(OllamaChatRequest, model, messages, format, stream)
 
     struct OllamaGenerateRequest {
         std::string model;
         std::string prompt;
-        std::vector<std::string> images;
-        std::string format = "json";
-        OllamaGenerateReuqestOption options;
+
+
+        // OllamaGenerateReuqestOption options;
         bool stream;
+        std::string format = "json";
+        std::vector<std::string> images;
         // system message template
         // std::string system;
     };
 
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(OllamaGenerateRequest, model, prompt, images, format, options, stream)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(OllamaGenerateRequest, model, prompt, images, format, stream)
 
 
     struct OllamaGenerateResponse {

@@ -5,7 +5,6 @@
 #ifndef HTTPRESTCLIENT_H
 #define HTTPRESTCLIENT_H
 
-#include "ChunkStreamView.hpp"
 #include "CoreTypes.hpp"
 #include "HttpClientException.hpp"
 #include "SimpleHttpClient.hpp"
@@ -49,7 +48,11 @@ public:
         const nlohmann::json json_object = param;
         const HttpRequest request = {POST, uri, {}, json_object.dump()};
         return create_transform([](auto&& v) {
-            auto response_body_json = nlohmann::json::parse(v);
+            const auto trimed = langchian::core::StringUtils::Trim(v);
+            if(trimed.empty()) {
+                return Result {};
+            }
+            auto response_body_json = nlohmann::json::parse(trimed);
             return response_body_json.template get<Result>();
         }, Stream(request));
     }

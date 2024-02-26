@@ -13,6 +13,8 @@
 #include <mutex>
 #include <exception>
 
+#include "StringUtils.hpp"
+
 LC_CORE_NS {
 
 
@@ -21,21 +23,22 @@ LC_CORE_NS {
     namespace net = boost::asio;        // from <boost/asio.hpp>
     using tcp = net::ip::tcp;           // from <boost/asio/ip/tcp.hpp>
 
-    template<typename ChunkType, typename ChunkCacheType = std::vector<ChunkType>>
+
     class HttpChunkConnection {
     public:
-        using ChunkConverter = std::function<ChunkType(std::string)>;
-        using ChunkCache = ChunkCacheType;
-        using ChunkCacheIdx = typename ChunkCache::size_type;
-        explicit HttpChunkConnection(beast::tcp_stream* stream, ChunkConverter converter);
+        // using ChunkConverter = std::function<ChunkType(std::string)>;
+        // using ChunkCache = ChunkCacheType;
+        // using ChunkCacheIdx = typename ChunkCache::size_type;
+
+        explicit HttpChunkConnection(beast::tcp_stream* stream);
         ~HttpChunkConnection();
         // HttpChunkConnection()=delete;
         HttpChunkConnection(HttpChunkConnection&&)=delete;
         HttpChunkConnection(const HttpChunkConnection&)=delete;
 
-        void ReadNextOf(ChunkCacheIdx idx);
+        std::string ReadNext();
         [[nodiscard]] bool hasNext() const;
-        ChunkType& GetChunk(ChunkCacheIdx idx) const;
+        // std::string& GetChunk(ChunkCacheIdx idx);
 
         bool operator==(const HttpChunkConnection&) const;
         bool operator!=(const HttpChunkConnection&) const;
@@ -43,8 +46,8 @@ LC_CORE_NS {
     private:
         // owning pointer to stream
         beast::tcp_stream* stream_;
-        ChunkConverter chunk_converter_;
-        std::vector<ChunkType> cache_;
+        // ChunkConverter chunk_converter_;
+        // std::vector<ChunkType> cache_;
 
         http::parser<false, http::empty_body> parser_;
         std::string chunk_;
@@ -62,23 +65,22 @@ LC_CORE_NS {
         std::mutex read_mutex_;
     };
 
-    template<typename ChunkType, typename ChunkCacheType>
-    HttpChunkConnection<ChunkType, ChunkCacheType>::~HttpChunkConnection() {
+
+    inline HttpChunkConnection::~HttpChunkConnection() {
         delete stream_;
     }
 
-    template<typename ChunkType, typename ChunkCacheType>
-    bool HttpChunkConnection<ChunkType, ChunkCacheType>::operator==(const HttpChunkConnection&rhs) const {
+
+    inline bool HttpChunkConnection::operator==(const HttpChunkConnection&rhs) const {
         return this->stream_ == rhs.stream_;
     }
 
-    template<typename ChunkType, typename ChunkCacheType>
-    bool HttpChunkConnection<ChunkType, ChunkCacheType>::operator!=(const HttpChunkConnection&rhs) const {
+
+    inline bool HttpChunkConnection::operator!=(const HttpChunkConnection&rhs) const {
         return !(*this==rhs);
     }
 
-    template<typename ChunkType, typename ChunkCacheType>
-    HttpChunkConnection<ChunkType, ChunkCacheType>::HttpChunkConnection(beast::tcp_stream* const stream, ChunkConverter converter): stream_(stream), chunk_converter_(converter) {
+    inline HttpChunkConnection::HttpChunkConnection(beast::tcp_stream* const stream): stream_(stream) {
         beast::error_code ec_;
         http::read_header(*stream, buffer_, parser_, ec_);
         if(ec_) {
@@ -134,30 +136,32 @@ LC_CORE_NS {
         parser_.on_chunk_body(body_callback_);
     }
 
-    template<typename ChunkType, typename ChunkCacheType>
-    void HttpChunkConnection<ChunkType, ChunkCacheType>::ReadNextOf(ChunkCacheIdx idx)  {
+
+    inline std::string HttpChunkConnection::ReadNext()  {
         // make sure only one thread is reading underlying stream at the same time
         std::lock_guard<std::mutex> guard(read_mutex_);
-        while(idx >= cache_.size()) {
-            boost::system::error_code ec;
-            while(!parser_.is_done()) {
-                http::read(*stream_, buffer_, parser_, ec);
-                if(! ec)
-                    continue;
-                else if(ec != http::error::end_of_chunk)
-                    throw LangchainException("chunk parsing exception: " + ec.message());
-                else
-                    ec.assign(0, ec.category());
-                break;
-            }
-            try {
-                cache_.emplace_back(chunk_converter_(chunk_));
-            } catch (const std::runtime_error &e) {
-                throw LangchainException(e, "ChunkConverter error");
-            } catch (const std::exception& e) {
-                throw LangchainException(e.what());
-            }
+
+        boost::system::error_code ec;
+        while(!parser_.is_done()) {
+            http::read(*stream_, buffer_, parser_, ec);
+            if(! ec)
+                continue;
+            else if(ec != http::error::end_of_chunk)
+                throw LangchainException("chunk parsing exception: " + ec.message());
+            else
+                ec.assign(0, ec.category());
+
+            break;
         }
+        // try {
+        //     cache_.emplace_back(chunk_converter_(
+        //         langchian::core::StringUtils::Trim(chunk_)
+        //     ));
+        // } catch (const std::runtime_error &e) {
+        //     throw LangchainException(e, "ChunkConverter error");
+        // } catch (const std::exception& e) {
+        //     throw LangchainException(e.what());
+        // }
 
         if(parser_.is_done()) {
             delete stream_;
@@ -165,21 +169,14 @@ LC_CORE_NS {
             stream_ = nullptr;
         }
 
+        return chunk_;
     }
 
-    template<typename ChunkType, typename ChunkCacheType>
-    bool HttpChunkConnection<ChunkType, ChunkCacheType>::hasNext() const {
+    inline bool HttpChunkConnection::hasNext() const {
         return stream_ && !parser_.is_done();
     }
 
-    template<typename ChunkType, typename ChunkCacheType>
-    ChunkType& HttpChunkConnection<ChunkType, ChunkCacheType>::GetChunk(ChunkCacheIdx idx) const  {
-        // return const_cast<const ChunkType&>(cache_.at(idx));
-        return cache_.at(idx);
-    }
-
-    template<typename ChunkType>
-    using HttpChunkConnectionPtr= std::shared_ptr<HttpChunkConnection<ChunkType>>;
+    using HttpChunkConnectionPtr= std::shared_ptr<HttpChunkConnection>;
 }
 
 #endif //HTTPCHUNKCONNECTION_HPP

@@ -38,7 +38,7 @@ LC_CORE_NS {
     template<
         typename Configuraiton,
         typename RuntimeOptions,
-        typename Input=LanguageModelInput,
+        typename Input,
         typename Output
     >
     class BaseLanguageModel : public Chain<

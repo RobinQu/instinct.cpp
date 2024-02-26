@@ -52,6 +52,13 @@ namespace langchian::core {
             return buf;
         }
 
+        static std::string Trim(const std::string& input) {
+            auto view = input | std::views::filter([](unsigned char c) {
+               return !std::isspace(c);
+            });
+            return std::string {view.begin(), view.end()};
+        }
+
 
 
     };

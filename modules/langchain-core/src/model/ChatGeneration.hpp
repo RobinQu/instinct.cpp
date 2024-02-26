@@ -13,14 +13,12 @@
 
 LC_CORE_NS {
 
-class ChatGeneration: public Generation {
-public:
-    const ChatMessage message;
-
-    ChatGeneration(std::string text, ChatMessage message, OptionDict generation_info)
-        : Generation(std::move(text), std::move(generation_info), "ChatGeneration"),
-          message(std::move(message)) {
-    }
+struct ChatGeneration: Generation {
+    ChatMessage message;
+    // ChatGeneration(std::string text, ChatMessage message, OptionDict generation_info)
+    //     : Generation(std::move(text), std::move(generation_info), "ChatGeneration"),
+    //       message(std::move(message)) {
+    // }
 };
 using ChatGenerationPtr = std::shared_ptr<ChatGeneration>;
 

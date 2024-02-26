@@ -7,7 +7,6 @@
 #include "BaseLanguageModel.hpp"
 #include "CoreGlobals.hpp"
 #include "LLMResult.hpp"
-#include "tools/ChunkStreamView.hpp"
 
 
 LC_CORE_NS {
@@ -97,7 +96,7 @@ LC_CORE_NS {
             const auto prompt_value = std::visit(conv_language_model_input_to_prompt_value, input);
             const std::string prompt_string = std::visit(conv_prompt_value_to_string, prompt_value);
             ResultIterator<Generation>* geneartion_iter = StreamGenerate(prompt_string, options);
-            return create_transform([](Generation& generation) {
+            return create_transform([](const Generation& generation) {
                 return generation.text;
             }, geneartion_iter);
         }

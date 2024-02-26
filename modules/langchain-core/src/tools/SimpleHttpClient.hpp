@@ -8,7 +8,6 @@
 #include <boost/beast.hpp>
 #include "CoreTypes.hpp"
 #include "HttpChunkResultIterator.hpp"
-#include "HttpChunkStream.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 

@@ -9,15 +9,13 @@
 
 LC_CORE_NS {
 
-class Generation {
-public:
-    OptionDict generation_info;
-    std::string type;
-    std::string text;
+struct Generation {
 
-    explicit Generation(std::string text, OptionDict generation_info, std::string type)
-        : text(std::move(text)), generation_info(std::move(generation_info)), type(std::move(type)) {
-    }
+    std::string text;
+    OptionDict generation_info;
+    // explicit Generation(std::string text, OptionDict generation_info, std::string type)
+    //     : text(std::move(text)), generation_info(std::move(generation_info)), type(std::move(type)) {
+    // }
 };
 
 } // LC_CORE_NS

@@ -47,12 +47,15 @@ LC_LLM_NS {
 
 
     inline std::vector<core::TokenId> OllamaChat::GetTokenIds(const std::string& text) {
+        return {};
     }
 
     inline core::TokenSize OllamaChat::GetTokenCount(const std::string& text) {
+        return 0;
     }
 
     inline core::TokenSize OllamaChat::GetTokenCount(const core::MessageVariants& messages) {
+        return 0;
     }
 
     inline core::ResultIterator<core::ChatGeneration>* OllamaChat::StreamGenerate(const core::MessageVariants& messages,
@@ -64,8 +67,6 @@ LC_LLM_NS {
         OllamaChatRequest request = {
             runtime_options.model_name,
             {ollama_messages.begin(), ollama_messages.end()},
-            "json",
-            {},
             true
         };
 
@@ -73,8 +74,9 @@ LC_LLM_NS {
         return create_transform([](const OllamaGenerateResponse& response) {
             core::OptionDict option_dict = response;
             return core::ChatGeneration {response.message.content,
-                {response.message.content, response.message.role},
-                std::move(option_dict)};
+                option_dict,
+                core::ChatMessage {response.message.content, response.message.role},
+                };
         }, resposne_result);
     }
 
@@ -88,8 +90,7 @@ LC_LLM_NS {
             OllamaChatRequest request = {
                 runtime_options.model_name,
                 {ollama_messages.begin(), ollama_messages.end()},
-                "json",
-                {},
+
                 false
             };
             OllamaGenerateResponse response = client_.PostObject<OllamaChatRequest, OllamaGenerateResponse>(
@@ -97,11 +98,11 @@ LC_LLM_NS {
             core::OptionDict option_dict = response;
 
             std::vector<core::ChatGeneration> geneartions;
-            result.generations.emplace_back(
+            result.generations.emplace_back(core::ChatGeneration {
                 response.message.content,
-                {response.message.content, response.message.role},
-                std::move(option_dict)
-            );
+                std::move(option_dict),
+                core::ChatMessage {response.message.content, response.message.role},
+            });
 
         }
         return result;

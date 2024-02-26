@@ -66,9 +66,6 @@ LC_LLM_NS {
             OllamaGenerateRequest request {
                 runtime_options.model_name,
                 prompt,
-                {},
-                "json",
-                {},
                 false
             };
 
@@ -79,7 +76,7 @@ LC_LLM_NS {
 
             // std::cout << "model response: " << ollama_response.response << std::endl;
 
-            generation.emplace_back(core::Generation{ollama_response.response, option_dict, "LLMGeneration"});
+            generation.emplace_back(core::Generation{ollama_response.response, option_dict});
             result.generations.emplace_back(generation);
         }
         return result;
@@ -90,15 +87,12 @@ LC_LLM_NS {
         OllamaGenerateRequest request {
             runtime_options.model_name,
             prompt,
-            {},
-            "json",
-            {},
             true
         };
-        const auto chunk_result = http_client_.StreamChunk<OllamaGenerateRequest, OllamaGenerateResponse>(OLLAMA_GENERATE_PATH, request);
+        auto* chunk_result = http_client_.StreamChunk<OllamaGenerateRequest, OllamaGenerateResponse>(OLLAMA_GENERATE_PATH, request);
         return create_transform([](const OllamaGenerateResponse& response) {
             core::OptionDict option_dict = response;
-           return core::Generation{response.response, option_dict, "LLMGeneration"};
+           return core::Generation{  response.response,option_dict};
         }, chunk_result);
     }
 

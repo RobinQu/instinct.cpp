@@ -6,6 +6,7 @@
 #define HTTPCHUNKRESULTITERATOR_HPP
 
 #include <boost/beast.hpp>
+#include <utility>
 
 #include "CoreGlobals.hpp"
 #include "HttpChunkConnection.hpp"
@@ -22,34 +23,49 @@ LC_CORE_NS {
     public:
         using ChunkConverter = std::function<Chunk(std::string)>;
         using TCPStremaProvider = std::function<beast::tcp_stream*()>;
-        using IdType = typename HttpChunkConnection<Chunk>::ChunkCache::size_type;
+        // using IdType = typename HttpChunkConnection<Chunk>::ChunkCache::size_type;
 
         HttpChunkResultIterator()=delete;
 
         HttpChunkResultIterator(
-                ChunkConverter chunk_convert_,
-                TCPStremaProvider strema_provider_
-        ): connection_(chunk_convert_, strema_provider_) {
+                ChunkConverter chunk_convert,
+                TCPStremaProvider strema_provider
+        ): chunk_convert_(std::move(chunk_convert)), strema_provider_(std::move(strema_provider)) {
+            EnsureConnection();
+        }
 
+        ~HttpChunkResultIterator() {
+            delete connection_;
         }
 
         [[nodiscard]] bool HasNext() const override {
-            return connection_.hasNext();
+            return connection_->hasNext();
         }
 
-        Chunk& Next() const override  {
-            ++current_;
-            // FIXME: const hack
-            const_cast<HttpChunkConnection<Chunk>&>(connection_).ReadNextOf(current_);
-            return connection_.GetChunk();
+        Chunk& Next() override  {
+            // while (connection_->HasNext()) {
+            //     auto tmp = langchian::core::StringUtils::Trim(connection_->Next());
+            //     if(!tmp.empty()) {
+            //         return chunk_convert_(tmp);
+            //     }
+            // }
+            data_.push_back(chunk_convert_(connection_->ReadNext()));
+            return data_.back();
         }
 
     private:
-        // ChunkConverter chunk_convert_;
-        // TCPStremaProvider strema_provider_;
-        HttpChunkConnection<Chunk> connection_;
-        IdType current_ {0};
+        ChunkConverter chunk_convert_;
+        TCPStremaProvider strema_provider_;
+        HttpChunkConnection* connection_ = nullptr;
+        // IdType current_ {0};
+        std::vector<Chunk> data_;
 
+
+        void EnsureConnection() {
+            if(!connection_) {
+                connection_ = new HttpChunkConnection(strema_provider_());
+            }
+        }
     };
 
 

@@ -10,7 +10,7 @@
 #include "tools/HttpRestClient.hpp"
 
 LC_LLM_NS {
-    class OllamaEmbedding : public langchain::core::BaseEmbeddingModel {
+    class OllamaEmbedding : public langchain::core::BaseEmbeddingModel<OllamaConfiguration, OllamaRuntimeOptions> {
         core::HttpRestClient client_;
 
     public:
@@ -18,9 +18,9 @@ LC_LLM_NS {
         }
 
         std::vector<core::Embedding> EmbedDocuments(const std::vector<std::string>& texts,
-                                                    const core::LLMRuntimeOptions& options) override;
+                                                    const OllamaRuntimeOptions& options) override;
 
-        core::Embedding EmbedQuery(const std::string& text, const core::LLMRuntimeOptions& options) override;
+        core::Embedding EmbedQuery(const std::string& text, const OllamaRuntimeOptions& options) override;
 
         std::vector<core::Embedding> EmbedDocuments(const std::vector<std::string>& texts) override {
             return EmbedDocuments(texts, {});
@@ -32,7 +32,7 @@ LC_LLM_NS {
     };
 
     inline std::vector<core::Embedding> OllamaEmbedding::EmbedDocuments(const std::vector<std::string>& texts,
-                                                                        const core::LLMRuntimeOptions& options) {
+                                                                        const OllamaRuntimeOptions& options) {
         std::vector<core::Embedding> result;
         for (const auto& text: texts) {
             auto&& [embedding] = client_.PostObject<OllamaEmbeddingRequest, OllamaEmbeddingResponse>(
@@ -47,7 +47,7 @@ LC_LLM_NS {
     }
 
     inline core::Embedding
-    OllamaEmbedding::EmbedQuery(const std::string& text, const core::LLMRuntimeOptions& options) {
+    OllamaEmbedding::EmbedQuery(const std::string& text, const OllamaRuntimeOptions& options) {
         auto&& [embedding] = client_.PostObject<OllamaEmbeddingRequest, OllamaEmbeddingResponse>(
             OLLAMA_EMBEDDING_PATH, {
                 options.model_name,

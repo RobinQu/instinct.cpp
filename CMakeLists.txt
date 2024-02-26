@@ -64,8 +64,8 @@ add_subdirectory(thirdparty/nlohmann_json)
 
 
 ## tensor
-add_subdirectory(thirdparty/xtl)
-add_subdirectory(thirdparty/xtensor)
+#add_subdirectory(thirdparty/xtl)
+#add_subdirectory(thirdparty/xtensor)
 
 
 ## boost
@@ -86,6 +86,8 @@ else ()
 endif ()
 
 ## taskflow
+set(TF_BUILD_TESTS OFF)
+set(TF_BUILD_EXAMPLES OFF)
 add_subdirectory(thirdparty/taskflow)
 
 ## rpp

@@ -82,7 +82,7 @@ LC_CORE_NS {
             return create_from_range(mvs);
         }
 
-        ResultIterator<Output>* Batch(ResultIterator<Input>* const& input) override {
+        ResultIterator<Output>* Batch(const std::vector<Input>& input) override {
             return Batch(input, {});
         }
 

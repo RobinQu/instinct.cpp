@@ -52,10 +52,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/prompt/BaseStringMessagePromptTemplate.hpp
         src/tools/TensorUtils.hpp
         src/tools/FunctionUtils.hpp
-        src/tools/HttpChunkStream.hpp
-        src/tools/HttpChunkIterator.hpp
         src/tools/HttpChunkConnection.hpp
-        src/tools/ChunkStreamView.hpp
         src/tools/ResultIterator.hpp
         src/tools/HttpChunkResultIterator.hpp
 )
@@ -74,7 +71,7 @@ add_library(langchain::core
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         fmt::fmt
         nlohmann_json::nlohmann_json
-        xtensor
+#        xtensor
         Boost::beast
         Boost::algorithm
         Boost::url

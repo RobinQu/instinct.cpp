@@ -9,13 +9,7 @@ LC_LLM_NS {
 
     TEST(OllamaChat, SimpleTest) {
         OllamaChat ollama_chat;
-        std::cout << std::visit(core::conv_message_to_string, ollama_chat.Invoke("Why sky is blue?", {})) << std::endl;
-
-
-        ollama_chat.Batch()
+        std::cout << std::visit(core::conv_message_to_string, ollama_chat.Invoke("Why sky is blue?")) << std::endl;
     }
-
-
-
 
 }

@@ -17,8 +17,8 @@ LC_CORE_NS {
     class ChatMessage;
     class StringPromptValue;
     class ChatPromptValue;
-    class Generation;
-    class ChatGeneration;
+    struct Generation;
+    struct ChatGeneration;
     class HumanMessagePromptTemplate;
     class SystemMessagePromptTemplate;
     class ChatMessagePromptTemplate;
