@@ -19,7 +19,7 @@ LC_LLM_NS {
         "What's the population in China as in 2019?"
     };
 
-    TEST(OllamaLLM, TestDerivedClasss) {
+    TEST(TestOllamaLLM, DerivedClasss) {
         OllamaGenerateRequest request;
         nlohmann::json req = request;
         std::cout << req << std::endl;
@@ -31,7 +31,7 @@ LC_LLM_NS {
 
     }
 
-    TEST(OllamaLLM, TestSimpleGenerate) {
+    TEST(TestOllamaLLM, SimpleGenerate) {
         OllamaLLM ollama_llm;
         auto output = ollama_llm(prompts[0]);
         std::cout << output << std::endl;
@@ -44,7 +44,7 @@ LC_LLM_NS {
         ASSERT_TRUE(std::holds_alternative<core::Generation>(output2.generations[0][0]));
     }
 
-    TEST(OllamaLM, TestBatch) {
+    TEST(TestOllamaLLM, Batch) {
 
         OllamaLLM ollama_llm;
         auto* result = ollama_llm.Batch(prompts);
@@ -54,7 +54,7 @@ LC_LLM_NS {
         delete result;
     }
 
-    TEST(OllamaLLM, TestStream) {
+    TEST(TestOllamaLLM, Stream) {
         OllamaLLM ollama_llm;
         auto* result = ollama_llm.Stream(prompts[0]);
         while (result->HasNext()) {

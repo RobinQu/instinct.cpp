@@ -15,8 +15,12 @@ LC_CORE_NS {
         [](const ChatPromptValue& v) -> MessageVariants { return v.ToMessages(); }
     };
 
-    static auto conv_message_to_string = [](const auto& v) {
-        return v.ToString();
+    static auto conv_message_to_string = overloaded {
+        [](const AIMessage& v) {return v.ToString();},
+        [](const HumanMessage& v) {return v.ToString();},
+        [](const FunctionMessage& v) {return v.ToString();},
+        [](const ChatMessage& v) {return v.ToString();},
+        [](const SystemMessage& v) {return v.ToString();},
     };
 
     template<
@@ -72,7 +76,7 @@ LC_CORE_NS {
                 if (!mv.empty()) {
                     if (std::holds_alternative<ChatGeneration>(mv[0])) {
                         const auto generation = std::get<ChatGeneration>(mv[0]);
-                        mvs.emplace_back(generation.message);
+                        mvs.push_back(generation.message);
                     }
                 }
             }
@@ -108,12 +112,10 @@ LC_CORE_NS {
             const auto messages_view = prompts | std::views::transform([](const PromptValueVairant& pvv) {
                 return std::visit(conv_prompt_value_to_message, pvv);
             });
-            ChatResult chat_result = Generate({messages_view.begin(), messages_view.end()}, runtime_options);
-
+            const ChatResult chat_result = Generate({messages_view.begin(), messages_view.end()}, runtime_options);
             LLMResult result;
-            result.generations.reserve(1);
-            for(auto& chat_gen: chat_result.generations) {
-                result.generations[0].emplace_back(chat_gen);
+            for(const auto& chat_gen: chat_result.generations) {
+                result.generations.push_back({GenerationVariant{chat_gen}});
             }
             result.llm_output  = chat_result.llm_output;
             return result;

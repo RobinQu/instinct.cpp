@@ -19,7 +19,7 @@ LC_LLM_NS {
     };
 
 
-    class OllamaChat : public core::BaseChatModel<OllamaConfiguration, OllamaRuntimeOptions> {
+    class OllamaChat final: public core::BaseChatModel<OllamaConfiguration, OllamaRuntimeOptions> {
         core::HttpRestClient client_;
 
     public:
@@ -41,7 +41,7 @@ LC_LLM_NS {
         core::ResultIterator<core::ChatGeneration>* StreamGenerate(const core::MessageVariants& messages,
             const OllamaRuntimeOptions& runtime_options) override;
 
-        core::ChatResult Generate(const std::vector<core::MessageVariants>& messages,
+        core::ChatResult Generate(const std::vector<core::MessageVariants>& messages_batch,
             const OllamaRuntimeOptions& runtime_options) override;
     };
 
@@ -90,7 +90,6 @@ LC_LLM_NS {
             OllamaChatRequest request = {
                 runtime_options.model_name,
                 {ollama_messages.begin(), ollama_messages.end()},
-
                 false
             };
             OllamaGenerateResponse response = client_.PostObject<OllamaChatRequest, OllamaGenerateResponse>(
@@ -98,9 +97,9 @@ LC_LLM_NS {
             core::OptionDict option_dict = response;
 
             std::vector<core::ChatGeneration> geneartions;
-            result.generations.emplace_back(core::ChatGeneration {
+            result.generations.push_back(core::ChatGeneration {
                 response.message.content,
-                std::move(option_dict),
+                option_dict,
                 core::ChatMessage {response.message.content, response.message.role},
             });
 

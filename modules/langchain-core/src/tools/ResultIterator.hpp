@@ -33,7 +33,7 @@ LC_CORE_NS {
     template<typename T>
     class ResultVecIterator : public ResultIterator<T>{
         std::vector<T> data_;
-        typename std::vector<T>::size_type current_;
+        typename std::vector<T>::size_type current_ = {0};
     public:
         explicit ResultVecIterator(std::vector<T> data)
             : data_(std::move(data)) {
@@ -43,12 +43,11 @@ LC_CORE_NS {
         }
 
         [[nodiscard]] bool HasNext() const override {
-            return current_ == data_.size();
+            return current_ < data_.size();
         }
 
         T& Next()  override {
-            ++current_;
-            return data_[current_];
+            return data_[current_++];
         }
 
         std::vector<T>& GetRange() {
@@ -77,7 +76,7 @@ LC_CORE_NS {
         }
 
         [[nodiscard]] T& Next()  override {
-            data_.push_back(std::invoke(fn_, std::forward<R>(base_->Next())));
+            data_.push_back(std::invoke(fn_, base_->Next()));
             return data_.back();
         }
     };
