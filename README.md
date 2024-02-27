@@ -18,3 +18,15 @@
 | M3        | Agent flowgraph, ChatAgent with function calling, v0.2.0 release           | 4.26 |
 | M4        | linux/macOS CI build brew package, deb/yum package                         | 5.10 |
 
+## Documentations
+
+* Programing Models
+  * Chain
+  * Flowgraph
+* Reference apps
+  * RAG
+  * ChatAgent
+* Components
+  * LLM Provider
+  * Memory
+  * Function calling toolkit

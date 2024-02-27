@@ -107,5 +107,5 @@ endif ()
 
 
 # project modules
-add_subdirectory(modules/langchain-core)
-add_subdirectory(modules/langchain-llm)
+add_subdirectory(modules/instinct-core)
+add_subdirectory(modules/instinct-llm)
