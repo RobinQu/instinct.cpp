@@ -93,6 +93,15 @@ add_subdirectory(thirdparty/taskflow)
 ## rpp
 add_subdirectory(thirdparty/ReactivePlusPlus)
 
+## icu
+# as prebuilt on mac arm64 is not available, we have to build from scratch
+#set(SYSTEM_ICU ON)
+#set(BUILD_ICU ON)
+#set(ICU_BUILD_VERSION 74.2)
+#add_subdirectory(thirdparty/icu-cmake)
+# TODO embedd icu as submodule
+find_package(ICU 74.2 COMPONENTS uc REQUIRED)
+
 ## gtest
 if(BUILD_TESTING)
 #    find_package(GTest)

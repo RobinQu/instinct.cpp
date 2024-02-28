@@ -28,3 +28,6 @@
 [submodule "thirdparty/ReactivePlusPlus"]
 	path = thirdparty/ReactivePlusPlus
 	url = git@github.com:victimsnino/ReactivePlusPlus.git
+[submodule "thirdparty/icu-cmake"]
+	path = thirdparty/icu-cmake
+	url = https://github.com/viaduck/icu-cmake.git

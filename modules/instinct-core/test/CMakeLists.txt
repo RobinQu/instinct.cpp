@@ -32,7 +32,7 @@ foreach(_test_file ${TEST_SRC_FILES})
 #            exprimental/TestReactiveStreamChainable.cpp
 #            exprimental/TestIterator.cpp
     )
-    target_link_libraries(${_test_name} gtest gtest_main)
+    target_link_libraries(${_test_name} gtest gtest_main RPP::rpp)
     target_link_libraries(${_test_name} ${LIBRARY_TARGET_NAME})
     add_test(${_test_name} ${_test_name})
     set_tests_properties(${_test_name} PROPERTIES TIMEOUT 5)

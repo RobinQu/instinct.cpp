@@ -57,6 +57,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/tools/HttpChunkResultIterator.hpp
         src/document/TextSplitter.hpp
         src/model/Embeddings.hpp
+        src/document/RecursiveCharacterTextSplitter.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
@@ -78,7 +79,9 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         Boost::algorithm
         Boost::url
         Taskflow
-        RPP::rpp
+#        RPP::rpp
+        ICU::uc
+        ICU::data
 )
 
 #set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES

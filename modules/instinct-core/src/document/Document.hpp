@@ -40,7 +40,6 @@ namespace INSTINCT_CORE_NS {
     };
 
     struct Document {
-        DocumentId id;
         std::string text;
         std::map<std::string, FieldValue> metadata;
     };

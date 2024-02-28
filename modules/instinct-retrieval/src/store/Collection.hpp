@@ -25,6 +25,11 @@ namespace INSTINCT_RETRIEVAL_NS {
         MetadataFilter filter;
     };
 
+    struct DocumentRecord: Document {
+        DocumentId id{};
+        Embedding embedding;
+    };
+
     class Collection {
     public:
         virtual ~Collection() = default;
