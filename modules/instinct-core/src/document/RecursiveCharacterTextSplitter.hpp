@@ -8,27 +8,48 @@
 #include "TextSplitter.hpp"
 #include <unicode/regex.h>
 #include <unicode/ustring.h>
+#include <unicode/schriter.h>
+#include <unicode/brkiter.h>
 
 namespace INSTINCT_CORE_NS {
+
     using namespace U_ICU_NAMESPACE;
 
     using LengthFunction = std::function<int32_t(const UnicodeString&)> ;
 
     namespace details {
+        template<int parts_size = 10>
         static std::vector<UnicodeString> split_text_with_regex(const UnicodeString& text, const UnicodeString& seperator, bool keep_seperator) {
-            UErrorCode status = U_ZERO_ERROR;
-            RegexMatcher matcher(seperator, 0, status);
-            if(U_FAILURE(status)) {
-                std::string sep_utf8;
-                throw LangchainException("Failed to compile regex with seperator string: " + seperator.toUTF8String(sep_utf8));
+            std::vector<UnicodeString> result;
+            if(seperator.length()) {
+                UnicodeString parts[parts_size];
+                if (keep_seperator) {
+                    // TOOD
+
+                } else {
+                    UErrorCode status = U_ZERO_ERROR;
+                    RegexMatcher matcher(seperator, 0, status);
+                    if(U_FAILURE(status)) {
+                        std::string sep_utf8;
+                        throw LangchainException("Failed to compile regex with seperator string: " + seperator.toUTF8String(sep_utf8));
+                    }
+
+                    matcher.split(text, parts, parts_size, status);
+                    if(U_FAILURE(status)) {
+                        throw LangchainException("Failed to split text with seperator regex");
+                    }
+                }
+                result.insert(result.end(), parts, parts+parts_size);
+            } else { // it's empty seperator, so we have to split into a sequence of chars.
+                StringCharacterIterator itr(text);
+                while (itr.hasNext()) {
+                    result.push_back(itr.next32PostInc());
+                }
             }
-            constexpr int parts_size = 10;
-            UnicodeString parts[parts_size];
-            matcher.split(text, parts, parts_size, status);
-            if(U_FAILURE(status)) {
-                throw LangchainException("Failed to split text with seperator regex");
-            }
-            return std::vector<UnicodeString>(parts,  parts+parts_size);
+            auto parts_view = result | std::views::filter([](const UnicodeString& v) {
+                return v.length() > 0;
+            });
+            return {parts_view.begin(), parts_view.end()};
         }
     }
 
@@ -94,7 +115,7 @@ namespace INSTINCT_CORE_NS {
             return final_chunks;
         }
 
-        std::vector<UnicodeString> MergeSplits_(const std::vector<UnicodeString>& splits, const UnicodeString& seperator) {
+        [[nodiscard]] std::vector<UnicodeString> MergeSplits_(const std::vector<UnicodeString>& splits, const UnicodeString& seperator) const {
             const auto s_len = length_function_(seperator);
             std::vector<UnicodeString> docs;
             std::vector<UnicodeString> current_doc;
@@ -125,7 +146,7 @@ namespace INSTINCT_CORE_NS {
             return docs;
         }
 
-        UnicodeString JoinDocs_(const std::vector<UnicodeString>& docs, const UnicodeString& seperator)  {
+        [[nodiscard]] UnicodeString JoinDocs_(const std::vector<UnicodeString>& docs, const UnicodeString& seperator) const  {
             UnicodeString text;
             for(int i=0; auto&& doc: docs) {
                 text+=doc;
@@ -138,7 +159,6 @@ namespace INSTINCT_CORE_NS {
             }
             return text;
         }
-
 
         int chunk_size_ = 4000;
         int chunk_overlap_ = 200;
