@@ -21,13 +21,13 @@ namespace INSTINCT_CORE_NS {
         template<int parts_size = 10>
         static std::vector<UnicodeString> split_text_with_regex(const UnicodeString& text, const UnicodeString& seperator, bool keep_seperator) {
             std::vector<UnicodeString> result;
+            UErrorCode status = U_ZERO_ERROR;
             if(seperator.length()) {
                 UnicodeString parts[parts_size];
                 if (keep_seperator) {
                     // TOOD
-
                 } else {
-                    UErrorCode status = U_ZERO_ERROR;
+
                     RegexMatcher matcher(seperator, 0, status);
                     if(U_FAILURE(status)) {
                         std::string sep_utf8;
@@ -41,10 +41,24 @@ namespace INSTINCT_CORE_NS {
                 }
                 result.insert(result.end(), parts, parts+parts_size);
             } else { // it's empty seperator, so we have to split into a sequence of chars.
-                StringCharacterIterator itr(text);
-                while (itr.hasNext()) {
-                    result.push_back(itr.next32PostInc());
+
+                auto itr = BreakIterator::createCharacterInstance(Locale::getDefault(), status);
+                itr->setText(text);
+                if(U_FAILURE(status)) {
+                    throw LangchainException("Failed to createCharacterInstance");
                 }
+                // see example at: https://github.com/unicode-org/icu/blob/main/icu4c/source/samples/break/break.cpp
+                // copy each *grapheme* not code point into result
+                int32_t start = itr->first();
+                for(int32_t end = itr->next(); end!=BreakIterator::DONE; start=end, end=itr->next()) {
+                    result.push_back(UnicodeString(text, start, end));
+                }
+                delete itr;
+
+                // StringCharacterIterator itr(text);
+                // while (itr.hasNext()) {
+                //     result.push_back(itr.next32PostInc());
+                // }
             }
             auto parts_view = result | std::views::filter([](const UnicodeString& v) {
                 return v.length() > 0;
