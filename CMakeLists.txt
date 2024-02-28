@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.27)
-project(langchain_cpp)
+project(instinct)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -109,3 +109,4 @@ endif ()
 # project modules
 add_subdirectory(modules/instinct-core)
 add_subdirectory(modules/instinct-llm)
+add_subdirectory(modules/instinct-retrieval)

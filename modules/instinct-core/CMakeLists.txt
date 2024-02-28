@@ -55,6 +55,8 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/tools/HttpChunkConnection.hpp
         src/tools/ResultIterator.hpp
         src/tools/HttpChunkResultIterator.hpp
+        src/document/TextSplitter.hpp
+        src/model/Embeddings.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

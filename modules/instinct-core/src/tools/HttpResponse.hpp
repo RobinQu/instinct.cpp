@@ -10,7 +10,7 @@
 namespace INSTINCT_CORE_NS {
 
 struct HttpResponse {
-    instinct::core::HttpHeaders headers;
+    HttpHeaders headers;
     std::string body;
     unsigned int status_code;
 };

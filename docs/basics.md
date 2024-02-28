@@ -26,19 +26,18 @@
 * ...
 
 
-## instinct-rag
+## instinct-retrievers
 
 RAG related utilities, including
-* Memory: vector indexers, topK retrievers
+
+* Document manipulation:
+  * DocumentSource
+  * DocumentTransformers
+  * TextSplitter
+* Memory:
+  * Document store
+  * Top-k Retriever
 * Built-in chains:
   * RAGChain
   * ...
 
-
-## instinct-cli
-
-TODO
-
-## instinct-serve
-
-TODO
