@@ -72,6 +72,8 @@ add_subdirectory(thirdparty/nlohmann_json)
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
+## hack to prevent linkage error for icu
+#set(BOOST_LOCALE_ENABLE_ICU OFF)
 
 find_package(Boost 1.84.0)
 
@@ -100,7 +102,7 @@ add_subdirectory(thirdparty/ReactivePlusPlus)
 #set(ICU_BUILD_VERSION 74.2)
 #add_subdirectory(thirdparty/icu-cmake)
 # TODO embedd icu as submodule
-find_package(ICU 74.2 COMPONENTS uc REQUIRED)
+find_package(ICU 74.2 COMPONENTS uc i18n io REQUIRED)
 
 ## gtest
 if(BUILD_TESTING)

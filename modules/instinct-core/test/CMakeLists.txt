@@ -22,7 +22,8 @@ file(GLOB_RECURSE TEST_SRC_FILES *.cpp)
 foreach(_test_file ${TEST_SRC_FILES})
     get_filename_component(_test_name ${_test_file} NAME_WE)
     add_executable(${_test_name} ${_test_file}
-#            tools/TestBeast.cpp
+            exprimental/TestICU.cpp
+            #            tools/TestBeast.cpp
 #            tools/TestCustomParser.cpp
 #            tools/TestSimpleHttpClient.cpp
 #            tools/TestLambda.cpp

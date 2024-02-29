@@ -8,7 +8,6 @@
 #include "TextSplitter.hpp"
 #include <unicode/regex.h>
 #include <unicode/ustring.h>
-#include <unicode/schriter.h>
 #include <unicode/brkiter.h>
 
 namespace INSTINCT_CORE_NS {
@@ -19,29 +18,45 @@ namespace INSTINCT_CORE_NS {
 
     namespace details {
         template<int parts_size = 10>
+        void split_text_with_regex(const UnicodeString& text, const UnicodeString& seperator, std::vector<UnicodeString>& result) {
+            UErrorCode status = U_ZERO_ERROR;
+            RegexMatcher matcher(seperator, 0, status);
+            UnicodeString parts[parts_size];
+            if(U_FAILURE(status)) {
+                std::string sep_utf8;
+                throw LangchainException("Failed to compile regex with seperator string: " + seperator.toUTF8String(sep_utf8));
+            }
+            // it's okay that parts_size is relatively small, since TextSplitter will call split_text_with_regex in a tail-recursive style.
+            int32_t splits_size = matcher.split(text, parts, parts_size, status);
+            if(U_FAILURE(status)) {
+                throw LangchainException("Failed to split text with seperator regex");
+            }
+            result.insert(result.end(), parts, parts+splits_size);
+        }
+
+
+        template<int parts_size = 10>
         static std::vector<UnicodeString> split_text_with_regex(const UnicodeString& text, const UnicodeString& seperator, bool keep_seperator) {
             std::vector<UnicodeString> result;
-            UErrorCode status = U_ZERO_ERROR;
             if(seperator.length()) {
                 UnicodeString parts[parts_size];
                 if (keep_seperator) {
-                    // TOOD
-                } else {
-
-                    RegexMatcher matcher(seperator, 0, status);
-                    if(U_FAILURE(status)) {
-                        std::string sep_utf8;
-                        throw LangchainException("Failed to compile regex with seperator string: " + seperator.toUTF8String(sep_utf8));
+                    UnicodeString grouped_sepeartor = "(";
+                    grouped_sepeartor.append(seperator);
+                    grouped_sepeartor.append(")");
+                    auto splits_temp = split_text_with_regex<parts_size>(text, grouped_sepeartor);
+                    result.push_back(splits_temp[0]);
+                    for(int i=1;i<splits_temp.size();i+=2) {
+                        result.push_back(splits_temp[i] + splits_temp[i+1]);
                     }
-
-                    matcher.split(text, parts, parts_size, status);
-                    if(U_FAILURE(status)) {
-                        throw LangchainException("Failed to split text with seperator regex");
+                    if (splits_temp.size()%2==0) {
+                        result.push_back(splits_temp.back());
                     }
+                }  else {
+                    split_text_with_regex(text, seperator, result);
                 }
-                result.insert(result.end(), parts, parts+parts_size);
             } else { // it's empty seperator, so we have to split into a sequence of chars.
-
+                UErrorCode status = U_ZERO_ERROR;
                 auto itr = BreakIterator::createCharacterInstance(Locale::getDefault(), status);
                 itr->setText(text);
                 if(U_FAILURE(status)) {
@@ -72,6 +87,26 @@ namespace INSTINCT_CORE_NS {
      */
     class RecursiveCharacterTextSplitter: public TextSplitter {
     public:
+        RecursiveCharacterTextSplitter(const int chunk_size, const int chunk_overlap, const bool keep_sepeartor,
+            const bool strip_whitespace, LengthFunction length_function, std::vector<UnicodeString> seperators)
+            : chunk_size_(chunk_size),
+              chunk_overlap_(chunk_overlap),
+              keep_sepeartor_(keep_sepeartor),
+              strip_whitespace_(strip_whitespace),
+              length_function_(std::move(length_function)),
+              seperators_(std::move(seperators)) {
+        }
+
+        explicit RecursiveCharacterTextSplitter(LengthFunction length_function)
+            : length_function_(std::move(length_function)) {
+        }
+
+        RecursiveCharacterTextSplitter(LengthFunction length_function, std::vector<UnicodeString> seperators)
+            : length_function_(std::move(length_function)),
+              seperators_(std::move(seperators)) {
+        }
+
+
         std::vector<std::string> SplitText(const std::string& text) override {
             auto seps = std::vector(seperators_);
             auto splits = SplitText_(UnicodeString::fromUTF8(text), seps);

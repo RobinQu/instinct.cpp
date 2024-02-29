@@ -81,6 +81,8 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         Taskflow
 #        RPP::rpp
         ICU::uc
+        ICU::i18n
+        ICU::io
 )
 
 #set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES
