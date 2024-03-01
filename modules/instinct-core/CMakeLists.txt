@@ -58,9 +58,9 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/document/TextSplitter.hpp
         src/model/Embeddings.hpp
         src/document/RecursiveCharacterTextSplitter.hpp
-        src/document/tokenizer/HuggingfaceCompliantTokenizer.hpp
         src/document/tokenizer/PretrainedTokenizer.hpp
         src/document/tokenizer/RegexpTokenizer.hpp
+        src/document/tokenizer/TiktokenTokenizer.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

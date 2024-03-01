@@ -56,7 +56,6 @@ namespace INSTINCT_CORE_NS {
 
 
     private:
-
         UnicodeString Decode_(const std::vector<int32_t>& ids) {
             UnicodeString result;
             for(const auto& id: ids) {
@@ -136,13 +135,20 @@ namespace INSTINCT_CORE_NS {
                 }
                 UnicodeString chunk = text.tempSubStringBetween(start, end);
                 Bytes buf;
-                auto parts = EncodeChunk_(chunk.toUTF8String(buf));
+                chunk.toUTF8String(buf);
+                auto parts = EncodeChunk_(buf);
                 result.insert(result.end(), parts.begin(), parts.end());
             }
             return result;
         }
 
-        std::vector<int32_t> EncodeChunk_(const Bytes& text_bytes) {
+        virtual void HandleChunkBytes_(Bytes& text_bytes) {
+
+        }
+
+        std::vector<int32_t> EncodeChunk_(Bytes& text_bytes) {
+            // give subclass changes to alter `text_bytes`
+            HandleChunkBytes_(text_bytes);
             std::vector<int32_t> ids;
             for(const auto &c: text_bytes) {
                 ids.push_back(c);
@@ -165,6 +171,8 @@ namespace INSTINCT_CORE_NS {
             }
             return ids;
         }
+
+
     };
 
 

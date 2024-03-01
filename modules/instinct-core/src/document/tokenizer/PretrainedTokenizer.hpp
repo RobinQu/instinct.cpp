@@ -24,6 +24,9 @@ namespace INSTINCT_CORE_NS {
     using Vocab = std::unordered_map<int32_t, UnicodeString>;
     using RevseredVocab = std::unordered_map<UnicodeString, int32_t>;
 
+    // using BPETokenPair = std::pair<UnicodeString, UnicodeString>;
+    using BPETokenRanks = std::unordered_map<UnicodeString, int32_t>;
+
 
     class PretrainedTokenizer {
     public:
@@ -39,6 +42,9 @@ namespace INSTINCT_CORE_NS {
     };
 
 
+    /**
+     * following details are invisible to you
+     */
     namespace details {
 
         static void merge_u32_ids(std::vector<int32_t>& ids, const BPEPair& pair, int32_t idx) {
@@ -96,7 +102,7 @@ namespace INSTINCT_CORE_NS {
                 std::string sep_utf8;
                 throw LangchainException("Failed to compile regex with seperator string: " + seperator.toUTF8String(sep_utf8));
             }
-            // it's okay that parts_size is relatively small, since TextSplitter will call split_text_with_regex in a tail-recursive style.
+            // we do exhaustive splitting using do-while loop
             int32_t splits_size = 0;
             do {
                 splits_size = matcher.split(text, parts, max_split_size, status);
@@ -114,6 +120,15 @@ namespace INSTINCT_CORE_NS {
             } while(max_split_size == splits_size);
             result.insert(result.end(), parts, parts+splits_size-1);
         }
+
+
+
+        static BPERanks recover_byte_pair_bpe_ranks(const BPETokenRanks& bpe_token_ranks) {
+
+        }
+
+
+
 
     }
 
