@@ -21,4 +21,19 @@ namespace INSTINCT_CORE_NS {
             std::cout << words[i] << std::endl;
         }
     }
+
+    TEST(TestICU, W32Char) {
+        std::string s1 = "今天😊天气 Good weather today";
+        UnicodeString s2 = UnicodeString::fromUTF8(s1);
+        std::string s3;
+        s2.toUTF8String(s3);
+        auto print = [](const std::string& s) {
+            for(const auto& c: s) {
+                std::cout << int32_t(c) << ",";
+            }
+            std::cout << std::endl;
+        };
+        print(s1);
+        print(s3);
+    }
 }

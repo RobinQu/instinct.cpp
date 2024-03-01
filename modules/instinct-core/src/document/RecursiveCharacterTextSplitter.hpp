@@ -9,6 +9,7 @@
 #include <unicode/regex.h>
 #include <unicode/ustring.h>
 #include <unicode/brkiter.h>
+#include "document/tokenizer/PretrainedTokenizer.hpp"
 
 namespace INSTINCT_CORE_NS {
 
@@ -17,23 +18,6 @@ namespace INSTINCT_CORE_NS {
     using LengthFunction = std::function<int32_t(const UnicodeString&)> ;
 
     namespace details {
-        template<int parts_size = 10>
-        void split_text_with_regex(const UnicodeString& text, const UnicodeString& seperator, std::vector<UnicodeString>& result) {
-            UErrorCode status = U_ZERO_ERROR;
-            RegexMatcher matcher(seperator, 0, status);
-            UnicodeString parts[parts_size];
-            if(U_FAILURE(status)) {
-                std::string sep_utf8;
-                throw LangchainException("Failed to compile regex with seperator string: " + seperator.toUTF8String(sep_utf8));
-            }
-            // it's okay that parts_size is relatively small, since TextSplitter will call split_text_with_regex in a tail-recursive style.
-            int32_t splits_size = matcher.split(text, parts, parts_size, status);
-            if(U_FAILURE(status)) {
-                throw LangchainException("Failed to split text with seperator regex");
-            }
-            result.insert(result.end(), parts, parts+splits_size);
-        }
-
 
         template<int parts_size = 10>
         static std::vector<UnicodeString> split_text_with_regex(const UnicodeString& text, const UnicodeString& seperator, bool keep_seperator) {
