@@ -62,7 +62,7 @@ namespace INSTINCT_CORE_NS {
         }
 
         if (!vocab_bpe_file.is_open()) {
-            throw LangchainException("failed to open vocab file: " + vocab_bpe_file_path_.string());
+            throw InstinctException("failed to open vocab file: " + vocab_bpe_file_path_.string());
         }
 
 
@@ -127,14 +127,14 @@ namespace INSTINCT_CORE_NS {
         encoder_json_loaded.erase("<|startoftext|>");
         for (const auto& key: encoder_json_loaded | std::views::keys) {
             if (!bpe_token_ranks.contains(key)) {
-                throw LangchainException(
+                throw InstinctException(
                     "invalid vocab bpe or encoder json file, as key found in encoder json but not in vocab bpe: " +
                     key);
             }
         }
         for (const auto& key: bpe_token_ranks | std::views::keys) {
             if (!encode_json.contains(key)) {
-                throw LangchainException(
+                throw InstinctException(
                     "invalid vocab bpe or encoder json file, as key found in vocab bpe but not in encoder json: " +
                     key);
             }

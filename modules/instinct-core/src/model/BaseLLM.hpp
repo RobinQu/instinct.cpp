@@ -55,7 +55,7 @@ namespace INSTINCT_CORE_NS {
         if(const auto result = GeneratePrompts(std::vector{prompt_value}, options); !result.generations.empty()) {
             return std::visit([](auto&& v){return v.text;}, result.generations[0][0]);
         }
-        throw LangchainException("Empty response");
+        throw InstinctException("Empty response");
         }
 
 
@@ -83,7 +83,7 @@ namespace INSTINCT_CORE_NS {
                 });
                 return create_from_range(generation_view);
             }
-            throw LangchainException("Empty response");
+            throw InstinctException("Empty response");
         }
 
 

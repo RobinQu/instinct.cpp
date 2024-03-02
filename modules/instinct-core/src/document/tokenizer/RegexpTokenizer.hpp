@@ -62,7 +62,7 @@ namespace INSTINCT_CORE_NS {
 
         void Train(const UnicodeString& text, int vocab_size) override {
             if (vocab_size<256) {
-                throw LangchainException("vocab_size should be greter than 256");
+                throw InstinctException("vocab_size should be greter than 256");
             }
             int num_merges = vocab_size - 256;
             Bytes text_bytes;
@@ -120,7 +120,7 @@ namespace INSTINCT_CORE_NS {
                 } else if(reversed_special_tokens_.contains(id)) {
                     text_bytes.append(details::conv_to_utf8_string(reversed_special_tokens_[id]));
                 } else {
-                    throw LangchainException("Invalid token value found: " + std::to_string(id));
+                    throw InstinctException("Invalid token value found: " + std::to_string(id));
                 }
             }
             return text_bytes;
@@ -139,7 +139,7 @@ namespace INSTINCT_CORE_NS {
                 case kNoneRaise:
                     for(const auto& token: special_tokens_ | std::views::keys) {
                         if(text.indexOf(token)) {
-                            throw LangchainException("special token not allowed in text");
+                            throw InstinctException("special token not allowed in text");
                         }
                     }
                     break;
@@ -148,7 +148,7 @@ namespace INSTINCT_CORE_NS {
                         specials.emplace(token, special_tokens_[token]);
                     }
                 case kUnspecified:
-                    throw LangchainException("allowd_special unspecified");
+                    throw InstinctException("allowd_special unspecified");
             }
 
 
@@ -176,17 +176,17 @@ namespace INSTINCT_CORE_NS {
             UErrorCode status = U_ZERO_ERROR;
             RegexMatcher regex_matcher_(regexp_pattern_, 0, status);
             if(U_FAILURE(status)) {
-                throw LangchainException("Failed to create RegexMatcher before encoding");
+                throw InstinctException("Failed to create RegexMatcher before encoding");
             }
             regex_matcher_.reset(text);
             while (regex_matcher_.find()) {
                 const int start = regex_matcher_.start(status);
                 if(U_FAILURE(status)) {
-                    throw LangchainException("Failed to match start during encoding");
+                    throw InstinctException("Failed to match start during encoding");
                 }
                 int end = std::min(regex_matcher_.end(status), text.length());
                 if(U_FAILURE(status)) {
-                    throw LangchainException("Failed to match end during encoding");
+                    throw InstinctException("Failed to match end during encoding");
                 }
                 UnicodeString chunk = text.tempSubStringBetween(start, end);
                 Bytes buf;

@@ -31,19 +31,19 @@ namespace INSTINCT_CORE_NS {
         HEAD
     };
 
-    class LangchainException: std::runtime_error {
+    class InstinctException: std::runtime_error {
         std::string reason_;
 
     public:
-        explicit LangchainException(const std::string& basic_string)
+        explicit InstinctException(const std::string& basic_string)
             : std::runtime_error(basic_string), reason_(basic_string) {
         }
 
-        explicit LangchainException(const char* const string)
+        explicit InstinctException(const char* const string)
             : std::runtime_error(string), reason_(string) {
         }
 
-        explicit LangchainException(const runtime_error& runtime_error, std::string  basic_string)
+        explicit InstinctException(const runtime_error& runtime_error, std::string  basic_string)
             : std::runtime_error(runtime_error),reason_(std::move(basic_string)) {
 
         }

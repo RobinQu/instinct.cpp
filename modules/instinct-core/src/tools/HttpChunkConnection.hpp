@@ -84,10 +84,10 @@ namespace INSTINCT_CORE_NS {
         beast::error_code ec_;
         http::read_header(*stream, buffer_, parser_, ec_);
         if(ec_) {
-            throw LangchainException("failed to read header: " + ec_.message());
+            throw InstinctException("failed to read header: " + ec_.message());
         }
         if(!parser_.chunked()) {
-            throw LangchainException("response is not chunk-encoding");
+            throw InstinctException("response is not chunk-encoding");
         }
 
         header_callback_ =
@@ -147,7 +147,7 @@ namespace INSTINCT_CORE_NS {
             if(! ec)
                 continue;
             else if(ec != http::error::end_of_chunk)
-                throw LangchainException("chunk parsing exception: " + ec.message());
+                throw InstinctException("chunk parsing exception: " + ec.message());
             else
                 ec.assign(0, ec.category());
 
@@ -158,9 +158,9 @@ namespace INSTINCT_CORE_NS {
         //         langchian::core::StringUtils::Trim(chunk_)
         //     ));
         // } catch (const std::runtime_error &e) {
-        //     throw LangchainException(e, "ChunkConverter error");
+        //     throw InstinctException(e, "ChunkConverter error");
         // } catch (const std::exception& e) {
-        //     throw LangchainException(e.what());
+        //     throw InstinctException(e.what());
         // }
 
         if(parser_.is_done()) {

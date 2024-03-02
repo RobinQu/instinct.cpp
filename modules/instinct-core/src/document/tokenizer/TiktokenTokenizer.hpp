@@ -40,7 +40,7 @@ namespace INSTINCT_CORE_NS {
         }
 
         void Train(const UnicodeString& text, int vocab_size) override {
-            throw LangchainException("Not implemented");
+            throw InstinctException("Not implemented");
         }
 
         static TiktokenTokenizer* FromTiktokenConfig(const TiktokenConfig& config) {

@@ -27,7 +27,7 @@ struct HttpRequest {
         // parse request line
         std::vector<std::string> parts = langchian::core::StringUtils::Resplit(request_line);
         if(parts.size() != 2) {
-            throw LangchainException(fmt::format("invalid request line: {}", request_line));
+            throw InstinctException(fmt::format("invalid request line: {}", request_line));
         }
         call.method = HttpUtils::ParseMethod(parts[0]);
         call.target = parts[1];
@@ -40,7 +40,7 @@ struct HttpRequest {
         //     call.target = call.path + "?" + call.query_string;
         // } else {
         //     const boost::system::error_code e = uri_result.error();
-        //     throw LangchainException(fmt::format("invalid url: {}", e.to_string()));
+        //     throw InstinctException(fmt::format("invalid url: {}", e.to_string()));
         // }
         return call;
     }

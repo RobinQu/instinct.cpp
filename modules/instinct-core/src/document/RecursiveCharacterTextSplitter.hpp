@@ -45,7 +45,7 @@ namespace INSTINCT_CORE_NS {
                 auto itr = BreakIterator::createCharacterInstance(Locale::getDefault(), status);
                 itr->setText(text);
                 if(U_FAILURE(status)) {
-                    throw LangchainException("Failed to createCharacterInstance");
+                    throw InstinctException("Failed to createCharacterInstance");
                 }
                 // see example at: https://github.com/unicode-org/icu/blob/main/icu4c/source/samples/break/break.cpp
                 // copy each *grapheme* not code point into result

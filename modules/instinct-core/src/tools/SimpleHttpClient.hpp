@@ -71,7 +71,7 @@ namespace INSTINCT_CORE_NS {
                 verb = http::verb::unknown;
         }
         if (verb == http::verb::unknown) {
-            throw LangchainException("unknown http verb");
+            throw InstinctException("unknown http verb");
         }
         return verb;
     }
@@ -118,7 +118,7 @@ namespace INSTINCT_CORE_NS {
         beast::error_code ec;
         stream.socket().shutdown(tcp::socket::shutdown_both, ec);
         if (ec && ec != beast::errc::not_connected) {
-            throw LangchainException(fmt::format("TCP socket shutdown error: {}", ec.message()));
+            throw InstinctException(fmt::format("TCP socket shutdown error: {}", ec.message()));
         }
         return response;
     }

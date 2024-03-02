@@ -25,7 +25,7 @@ namespace INSTINCT_CORE_NS {
     inline BPETokenRanks TiktokenBPEFileReader::Fetch() {
         std::ifstream bpe_file(bpe_file_path_);
         if (!bpe_file.is_open()) {
-            throw LangchainException("failed to open bpe file at " + bpe_file_path_.string());
+            throw InstinctException("failed to open bpe file at " + bpe_file_path_.string());
         }
 
         BPETokenRanks bpe_token_ranks;

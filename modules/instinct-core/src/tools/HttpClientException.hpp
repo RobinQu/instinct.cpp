@@ -9,18 +9,18 @@
 
 namespace INSTINCT_CORE_NS {
 
-class HttpClientException: public LangchainException {
+class HttpClientException: public InstinctException {
 public:
     const unsigned int status_code;
     const std::string raw_response;
 
 
-    HttpClientException(const unsigned int status_code, std::string raw_response): LangchainException("HttpClientException with status_code="+std::to_string(status_code)), status_code(status_code), raw_response(std::move(raw_response)) {
+    HttpClientException(const unsigned int status_code, std::string raw_response): InstinctException("HttpClientException with status_code="+std::to_string(status_code)), status_code(status_code), raw_response(std::move(raw_response)) {
 
     }
 
     HttpClientException(const std::string& basic_string, const unsigned int status_code, std::string raw_response)
-        : LangchainException(basic_string),
+        : InstinctException(basic_string),
           status_code(status_code),
           raw_response(std::move(raw_response)) {
     }

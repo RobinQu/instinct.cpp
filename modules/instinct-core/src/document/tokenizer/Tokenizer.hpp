@@ -76,7 +76,7 @@ namespace INSTINCT_CORE_NS {
             auto* regex_matcher = new RegexMatcher(UnicodeString::fromUTF8(pattern), 0, status);
             if(U_FAILURE(status)) {
                 std::string sep_utf8;
-                throw LangchainException("Failed to compile regex with pattern string: " + pattern);
+                throw InstinctException("Failed to compile regex with pattern string: " + pattern);
             }
             return regex_matcher;
         }
@@ -154,14 +154,14 @@ namespace INSTINCT_CORE_NS {
             UnicodeString parts[max_split_size];
             if(U_FAILURE(status)) {
                 std::string sep_utf8;
-                throw LangchainException("Failed to compile regex with seperator string: " + seperator.toUTF8String(sep_utf8));
+                throw InstinctException("Failed to compile regex with seperator string: " + seperator.toUTF8String(sep_utf8));
             }
             // we do exhaustive splitting using do-while loop
             int32_t splits_size = 0;
             do {
                 splits_size = matcher.split(text, parts, max_split_size, status);
                 if(U_FAILURE(status)) {
-                    throw LangchainException("Failed to split text with seperator regex");
+                    throw InstinctException("Failed to split text with seperator regex");
                 }
                 // validate if splits is all done
                 matcher.reset(parts[splits_size-1]);
@@ -227,7 +227,7 @@ namespace INSTINCT_CORE_NS {
                 }
                 auto pair = _bpe(bpe_token_ranks, token, rank);
                 if (pair.size()!=2) {
-                    throw LangchainException("failed to recover bit-level token for token string: " + token);
+                    throw InstinctException("failed to recover bit-level token for token string: " + token);
                 }
                 auto id0 = bpe_token_ranks.at(pair[0]);
                 auto id1 = bpe_token_ranks.at(pair[1]);

@@ -48,9 +48,9 @@ namespace INSTINCT_CORE_NS {
                     auto chat_gen = std::get<ChatGeneration>(generation);
                     return chat_gen.message;
                 }
-                throw LangchainException("unexpected branch here");
+                throw InstinctException("unexpected branch here");
             }
-            throw LangchainException("Empty response");
+            throw InstinctException("Empty response");
         }
 
         Output Invoke(const Input& input) override {
@@ -81,7 +81,7 @@ namespace INSTINCT_CORE_NS {
                 }
             }
             if (mvs.empty()) {
-                throw LangchainException("Empty response");
+                throw InstinctException("Empty response");
             }
             return create_from_range(mvs);
         }
