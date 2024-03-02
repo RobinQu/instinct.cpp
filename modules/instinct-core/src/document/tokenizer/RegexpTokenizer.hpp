@@ -29,24 +29,28 @@ namespace INSTINCT_CORE_NS {
 
     class RegexpTokenizer: public PretrainedTokenizer {
         BPERanks merges_;
-        Vocab vocab_;
-        UnicodeString regexp_pattern_;
-        RevseredVocab special_tokens_;
-        Vocab reversed_special_tokens_;
+        Vocab vocab_{};
+        UnicodeString regexp_pattern_{};
+        StringIDDict special_tokens_{};
+        ReversedStringIDDict reversed_special_tokens_{};
 
     public:
-        // RegexpTokenizer()=delete;
-
-        RegexpTokenizer(BPERanks bpe_ranks, Vocab vocab, const UnicodeString& regexp_string, RevseredVocab special_tokens):  merges_(std::move(bpe_ranks)), vocab_(std::move(vocab)), regexp_pattern_(regexp_string), special_tokens_(std::move(special_tokens)), reversed_special_tokens_() {
+        RegexpTokenizer()=delete;
+        RegexpTokenizer(BPERanks bpe_ranks, Vocab vocab, const UnicodeString& regexp_string, const StringIDDict& special_tokens):  merges_(std::move(bpe_ranks)), vocab_(std::move(vocab)), regexp_pattern_(regexp_string), reversed_special_tokens_() {
             // initialize revsered speicial tokens
-            for (const auto&[token,id]: special_tokens_) {
+            RegisterSpecials(special_tokens);
+        }
+
+        void RegisterSpecials(const StringIDDict& special_tokens) {
+            for (const auto&[token,id]: special_tokens) {
+                special_tokens_[token] = id;
                 reversed_special_tokens_[id] = token;
             }
         }
 
         std::string Decode(const std::vector<int32_t>& ids) override {
             std::string buf;
-            return Decode_(ids).toUTF8String(buf);
+            return Decode_(ids);
         }
 
         std::vector<int32_t> Encode(const std::string& text) override {
@@ -56,25 +60,24 @@ namespace INSTINCT_CORE_NS {
 
 
     private:
-        UnicodeString Decode_(const std::vector<int32_t>& ids) {
-            UnicodeString result;
+        std::string Decode_(const std::vector<int32_t>& ids) {
+            std::string text_bytes;
             for(const auto& id: ids) {
                 if (vocab_.contains(id)) {
-                    result.append(vocab_[id]);
+                    text_bytes.append(vocab_[id]);
                 } else if(reversed_special_tokens_.contains(id)) {
-                    result.append(reversed_special_tokens_[id]);
+                    text_bytes.append(details::conv_to_utf8_string(reversed_special_tokens_[id]));
                 } else {
                     throw LangchainException("Invalid token value found: " + std::to_string(id));
                 }
             }
-            return result;
+            return text_bytes;
         }
 
         std::vector<int32_t> Encode_(const UnicodeString& text, const RegexpEncodeOptions& options) {
-            RevseredVocab specials;
+            StringIDDict specials;
             switch (options.allow_special) {
                 case kAll:
-                    auto view = special_tokens_ | std::views::keys;
                     for(const auto&token : special_tokens_ | std::views::keys) {
                         specials.emplace(token, special_tokens_[token]);
                     }
@@ -142,9 +145,7 @@ namespace INSTINCT_CORE_NS {
             return result;
         }
 
-        virtual void HandleChunkBytes_(Bytes& text_bytes) {
-
-        }
+        virtual void HandleChunkBytes_(Bytes& text_bytes) {}
 
         std::vector<int32_t> EncodeChunk_(Bytes& text_bytes) {
             // give subclass changes to alter `text_bytes`

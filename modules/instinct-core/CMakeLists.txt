@@ -61,6 +61,8 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/document/tokenizer/PretrainedTokenizer.hpp
         src/document/tokenizer/RegexpTokenizer.hpp
         src/document/tokenizer/TiktokenTokenizer.hpp
+        src/document/tokenizer/BPEFileReader.hpp
+        src/document/tokenizer/GPT2BPEFileReader.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

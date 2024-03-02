@@ -10,7 +10,6 @@
 #include <utility>
 #include <unicode/regex.h>
 #include <unicode/unistr.h>
-
 #include "CoreTypes.hpp"
 
 
@@ -21,16 +20,20 @@ namespace INSTINCT_CORE_NS {
     using BPEPair = std::pair<int32_t, int32_t>;
     using BPERanks = std::unordered_map<BPEPair, int32_t>;
     using Bytes = std::string;
-    using Vocab = std::unordered_map<int32_t, UnicodeString>;
-    using RevseredVocab = std::unordered_map<UnicodeString, int32_t>;
+    using Vocab = std::unordered_map<int32_t, Bytes>;
+
+    // for storing mappings special token to id
+    using StringIDDict = std::unordered_map<UnicodeString, int32_t>;
+    using ReversedStringIDDict = std::unordered_map<int32_t, UnicodeString>;
 
     // using BPETokenPair = std::pair<UnicodeString, UnicodeString>;
-    using BPETokenRanks = std::unordered_map<UnicodeString, int32_t>;
+    using BPETokenRanks = std::unordered_map<Bytes, int32_t>;
 
 
     class PretrainedTokenizer {
     public:
-        PretrainedTokenizer()=delete;
+        // PretrainedTokenizer()=delete;
+        PretrainedTokenizer()=default;
         virtual ~PretrainedTokenizer()=default;
         PretrainedTokenizer(PretrainedTokenizer&&)=delete;
         PretrainedTokenizer(const PretrainedTokenizer&)=delete;
@@ -46,6 +49,16 @@ namespace INSTINCT_CORE_NS {
      * following details are invisible to you
      */
     namespace details {
+
+        static RegexMatcher* create_regex_matcher(const std::string& pattern) {
+            UErrorCode status = U_ZERO_ERROR;
+            auto* regex_matcher = new RegexMatcher(UnicodeString::fromUTF8(pattern), 0, status);
+            if(U_FAILURE(status)) {
+                std::string sep_utf8;
+                throw LangchainException("Failed to compile regex with pattern string: " + pattern);
+            }
+            return regex_matcher;
+        }
 
         static void merge_u32_ids(std::vector<int32_t>& ids, const BPEPair& pair, int32_t idx) {
             int i =0;

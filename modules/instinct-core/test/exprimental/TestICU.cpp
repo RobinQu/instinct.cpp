@@ -36,4 +36,17 @@ namespace INSTINCT_CORE_NS {
         print(s1);
         print(s3);
     }
+
+
+    TEST(TestICU, TestBuildRanks) {
+        // std::vector<UChar32> rank_to_int;
+        for(int i=0;i<256;i++) {
+            UnicodeString tmp(i);
+            if (u_isprint(i) && tmp != ' ') {
+                std::cout << "printable: " << tmp << std::endl;
+            }
+        }
+
+
+    }
 }
