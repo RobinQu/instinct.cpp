@@ -11,6 +11,8 @@
 #include "CoreTypes.hpp"
 #include "Forwards.hpp"
 #include "CoreGlobals.hpp"
+#include "StringPromptValue.hpp"
+#include "ChatPromptValue.hpp"
 
 
 namespace INSTINCT_CORE_NS {

@@ -10,6 +10,10 @@
 #include "CoreGlobals.hpp"
 #include "Forwards.hpp"
 #include "message/HumanMessage.hpp"
+#include "message/AIMessage.hpp"
+#include "message/FunctionMessage.hpp"
+#include "message/SystemMessage.hpp"
+#include "message/ChatMessage.hpp"
 
 namespace INSTINCT_CORE_NS {
 

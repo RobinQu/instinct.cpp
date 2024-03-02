@@ -11,6 +11,10 @@
 #include <unicode/regex.h>
 #include <unicode/unistr.h>
 #include "CoreTypes.hpp"
+#include "tools/TensorUtils.hpp"
+#include <unicode/ustream.h>
+#include <unicode/schriter.h>
+#include <unicode/unimatch.h>
 
 
 namespace INSTINCT_CORE_NS {
@@ -71,15 +75,15 @@ namespace INSTINCT_CORE_NS {
      */
     namespace details {
 
-        static RegexMatcher* create_regex_matcher(const std::string& pattern) {
-            UErrorCode status = U_ZERO_ERROR;
-            auto* regex_matcher = new RegexMatcher(UnicodeString::fromUTF8(pattern), 0, status);
-            if(U_FAILURE(status)) {
-                std::string sep_utf8;
-                throw InstinctException("Failed to compile regex with pattern string: " + pattern);
-            }
-            return regex_matcher;
-        }
+        // static RegexMatcher* create_regex_matcher(const std::string& pattern) {
+        //     UErrorCode status = U_ZERO_ERROR;
+        //     auto* regex_matcher = new RegexMatcher(UnicodeString::fromUTF8(pattern), 0, status);
+        //     if(U_FAILURE(status)) {
+        //         std::string sep_utf8;
+        //         throw InstinctException("Failed to compile regex with pattern string: " + pattern);
+        //     }
+        //     return regex_matcher;
+        // }
 
         static void merge_u32_ids(std::vector<int32_t>& ids, const BPEPair& pair, int32_t idx) {
             int i =0;
@@ -147,19 +151,62 @@ namespace INSTINCT_CORE_NS {
             return result;
         }
 
+        static void find_all_with_regex(const UnicodeString& text, const UnicodeString& regexp_pattern, std::vector<UnicodeString>& result) {
+            UErrorCode status = U_ZERO_ERROR;
+            RegexMatcher regex_matcher_(regexp_pattern, 0, status);
+            if(U_FAILURE(status)) {
+                std::string sep_utf8;
+                throw InstinctException("Failed to compile regex with seperator string: " + regexp_pattern.toUTF8String(sep_utf8));
+            }
+            regex_matcher_.reset(text);
+            while (regex_matcher_.find()) {
+                const int start = regex_matcher_.start(status);
+                if(U_FAILURE(status)) {
+                    throw InstinctException("Failed to match start during encoding");
+                }
+                int end = std::min(regex_matcher_.end(status), text.length());
+                if(U_FAILURE(status)) {
+                    throw InstinctException("Failed to match end during encoding");
+                }
+                result.push_back(text.tempSubStringBetween(start, end));
+            }
+        }
+
+        /**
+         *
+         * https://stackoverflow.com/questions/39228912/stdregex-escape-special-characters-for-use-in-regex
+         * @param s input string
+         * @return escaped string
+         */
+        static UnicodeString escape_for_regular_expression(const UnicodeString& s) {
+            UErrorCode status = U_ZERO_ERROR;
+            RegexMatcher regex_matcher(R"(([\\\.\^\$\-\+\(\)\[\]\{\}\|\?\*]))", 0, status);
+            if(U_FAILURE(status)) {
+                std::string sep_utf8;
+                throw InstinctException("Failed to compile regex");
+            }
+            regex_matcher.reset(s);
+            return regex_matcher.replaceAll(R"(\\$0)", status);
+        }
+
         template<int max_split_size=10>
         static void split_text_with_regex(const UnicodeString& text, const UnicodeString& seperator, std::vector<UnicodeString>& result) {
             UErrorCode status = U_ZERO_ERROR;
             RegexMatcher matcher(seperator, 0, status);
-            UnicodeString parts[max_split_size];
             if(U_FAILURE(status)) {
                 std::string sep_utf8;
                 throw InstinctException("Failed to compile regex with seperator string: " + seperator.toUTF8String(sep_utf8));
             }
+            UnicodeString parts[max_split_size];
             // we do exhaustive splitting using do-while loop
             int32_t splits_size = 0;
+            auto text_to_be_split = text;
+            // std::cout << "input=" << text_to_be_split << std::endl;
             do {
-                splits_size = matcher.split(text, parts, max_split_size, status);
+                splits_size = matcher.split(text_to_be_split, parts, max_split_size, status);
+                // for(int i=0;i<splits_size;i++) {
+                //     std::cout << "len=" << parts[i].length() << ": "<<  parts[i] << std::endl;
+                // }
                 if(U_FAILURE(status)) {
                     throw InstinctException("Failed to split text with seperator regex");
                 }
@@ -167,12 +214,14 @@ namespace INSTINCT_CORE_NS {
                 matcher.reset(parts[splits_size-1]);
                 if(matcher.find()) {
                     // insert all except last split
-                    result.insert(result.end(), parts, parts+splits_size-2);
+                    result.insert(result.end(), parts, parts+splits_size-1);
                     // do it recusively
-                    splits_size = matcher.split(parts[splits_size-1], parts, max_split_size, status);
+                    // splits_size = matcher.split(parts[splits_size-1], parts, max_split_size, status);
+                    text_to_be_split = parts[splits_size-1];
                 }
             } while(max_split_size == splits_size);
-            result.insert(result.end(), parts, parts+splits_size-1);
+
+            result.insert(result.end(), parts, parts+splits_size);
         }
 
         static std::vector<std::string> _bpe(const BPETokenRanks& bpe_token_ranks, const Bytes& token, int32_t max_rank) {

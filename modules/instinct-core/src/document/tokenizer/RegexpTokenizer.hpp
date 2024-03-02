@@ -57,7 +57,54 @@ namespace INSTINCT_CORE_NS {
         }
 
         std::vector<int32_t> Encode(const UnicodeString& text) override {
-            return Encode_(text, {});
+            return Encode(text, {});
+        }
+
+        std::vector<int32_t> Encode(const UnicodeString& text, const RegexpEncodeOptions& options) {
+            StringIDDict specials;
+            switch (options.allow_special) {
+                case kAll:
+                    for(const auto&token : special_tokens_ | std::views::keys) {
+                        specials.emplace(token, special_tokens_[token]);
+                    }
+                break;
+                case kNone:
+                    break;
+                case kNoneRaise:
+                    for(const auto& token: special_tokens_ | std::views::keys) {
+                        if(text.indexOf(token)) {
+                            throw InstinctException("special token not allowed in text");
+                        }
+                    }
+                break;
+                case kSome:
+                    for(const auto& token: options.specials) {
+                        specials.emplace(token, special_tokens_[token]);
+                    }
+                case kUnspecified:
+                    throw InstinctException("allowd_special unspecified");
+            }
+            if(specials.empty()) {
+                return EncodeOrdinary_(text);
+            }
+            const auto pattern_string = "(" + details::join_with_seperator(
+                "|",
+                specials | std::views::keys | std::views::transform([](const auto& s) {return details::escape_for_regular_expression(s);})
+                ) + ")";
+
+
+            std::vector<UnicodeString> chunks;
+            details::split_text_with_regex(text, pattern_string, chunks);
+            std::vector<int32_t> result;
+            for(const auto& chunk: chunks) {
+                if(specials.contains(chunk)) {
+                    result.push_back(specials[chunk]);
+                } else {
+                    auto chunk_result = EncodeOrdinary_(chunk);
+                    result.insert(result.end(), chunk_result.begin(), chunk_result.end());
+                }
+            }
+            return result;
         }
 
         void Train(const UnicodeString& text, int vocab_size) override {
@@ -65,24 +112,23 @@ namespace INSTINCT_CORE_NS {
                 throw InstinctException("vocab_size should be greter than 256");
             }
             int num_merges = vocab_size - 256;
-            Bytes text_bytes;
-            text.toUTF8String(text_bytes);
+            // Bytes text_bytes;
+            // text.toUTF8String(text_bytes);
             // auto ids_view = text_bytes | std::views::transform([](const char c) {
             //     return static_cast<u_int32_t>(c);
             // });
             // auto ids = std::vector{ids_view.begin(), ids_view.end()};
-
-
             std::vector<UnicodeString> splits;
-            details::split_text_with_regex(text, regexp_pattern_, splits);
+            details::find_all_with_regex(text, regexp_pattern_, splits);
 
             std::vector<std::vector<int32_t>> ids;
             for(const auto& chunk: splits) {
                 Bytes buf;
                 chunk.toUTF8String(buf);
-                for(const auto& c: buf) {
-                    ids.push_back({static_cast<u_int8_t>(c)});
-                }
+                auto int_view = buf | std::views::transform([](char c) {
+                    return static_cast<u_int8_t>(c);
+                });
+                ids.emplace_back(int_view.begin(), int_view.end());
             }
 
             BPERanks merges;
@@ -126,74 +172,41 @@ namespace INSTINCT_CORE_NS {
             return text_bytes;
         }
 
-        std::vector<int32_t> Encode_(const UnicodeString& text, const RegexpEncodeOptions& options) {
-            StringIDDict specials;
-            switch (options.allow_special) {
-                case kAll:
-                    for(const auto&token : special_tokens_ | std::views::keys) {
-                        specials.emplace(token, special_tokens_[token]);
-                    }
-                    break;
-                case kNone:
-                    break;
-                case kNoneRaise:
-                    for(const auto& token: special_tokens_ | std::views::keys) {
-                        if(text.indexOf(token)) {
-                            throw InstinctException("special token not allowed in text");
-                        }
-                    }
-                    break;
-                case kSome:
-                    for(const auto& token: options.specials) {
-                        specials.emplace(token, special_tokens_[token]);
-                    }
-                case kUnspecified:
-                    throw InstinctException("allowd_special unspecified");
-            }
 
-
-            if(specials.empty()) {
-                return EncodeOrdinary_(text);
-            }
-
-            const auto pattern_string = "(" + details::join_with_seperator("|", specials | std::views::keys) + ")";
-            std::vector<UnicodeString> chunks;
-            details::split_text_with_regex(text, pattern_string, chunks);
-            std::vector<int32_t> result;
-            for(const auto& chunk: chunks) {
-                if(specials.contains(chunk)) {
-                    result.push_back(specials[chunk]);
-                } else {
-                    auto chunk_result = EncodeOrdinary_(chunk);
-                    result.insert(result.end(), chunk_result.begin(), chunk_result.end());
-                }
-            }
-            return result;
-        }
 
         std::vector<int32_t> EncodeOrdinary_(const UnicodeString& text) {
             std::vector<int32_t> result;
-            UErrorCode status = U_ZERO_ERROR;
-            RegexMatcher regex_matcher_(regexp_pattern_, 0, status);
-            if(U_FAILURE(status)) {
-                throw InstinctException("Failed to create RegexMatcher before encoding");
-            }
-            regex_matcher_.reset(text);
-            while (regex_matcher_.find()) {
-                const int start = regex_matcher_.start(status);
-                if(U_FAILURE(status)) {
-                    throw InstinctException("Failed to match start during encoding");
-                }
-                int end = std::min(regex_matcher_.end(status), text.length());
-                if(U_FAILURE(status)) {
-                    throw InstinctException("Failed to match end during encoding");
-                }
-                UnicodeString chunk = text.tempSubStringBetween(start, end);
+
+            std::vector<UnicodeString> text_chunks;
+            details::find_all_with_regex(text, regexp_pattern_, text_chunks);
+
+            for(const auto& chunk: text_chunks) {
                 Bytes buf;
                 chunk.toUTF8String(buf);
                 auto parts = EncodeChunk_(buf);
                 result.insert(result.end(), parts.begin(), parts.end());
             }
+            // UErrorCode status = U_ZERO_ERROR;
+            // RegexMatcher regex_matcher_(regexp_pattern_, 0, status);
+            // if(U_FAILURE(status)) {
+            //     throw InstinctException("Failed to create RegexMatcher before encoding");
+            // }
+            // regex_matcher_.reset(text);
+            // while (regex_matcher_.find()) {
+            //     const int start = regex_matcher_.start(status);
+            //     if(U_FAILURE(status)) {
+            //         throw InstinctException("Failed to match start during encoding");
+            //     }
+            //     int end = std::min(regex_matcher_.end(status), text.length());
+            //     if(U_FAILURE(status)) {
+            //         throw InstinctException("Failed to match end during encoding");
+            //     }
+            //     UnicodeString chunk = text.tempSubStringBetween(start, end);
+            //     Bytes buf;
+            //     chunk.toUTF8String(buf);
+            //     auto parts = EncodeChunk_(buf);
+            //     result.insert(result.end(), parts.begin(), parts.end());
+            // }
             return result;
         }
 
