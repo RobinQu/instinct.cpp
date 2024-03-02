@@ -6,7 +6,7 @@
 #define BPEFILEREADER_HPP
 
 #include "CoreGlobals.hpp"
-#include "PretrainedTokenizer.hpp"
+#include "Tokenizer.hpp"
 
 namespace INSTINCT_CORE_NS {
     class BPEFileReader {

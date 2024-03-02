@@ -7,7 +7,7 @@
 
 
 #include "RetrievalGlobals.hpp"
-#include "document/tokenizer/PretrainedTokenizer.hpp"
+#include "document/tokenizer/Tokenizer.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
 

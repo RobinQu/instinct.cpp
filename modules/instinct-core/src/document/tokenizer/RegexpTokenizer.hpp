@@ -6,9 +6,10 @@
 #define GPT4TOKENIZER_HPP
 
 #include "CoreGlobals.hpp"
-#include "PretrainedTokenizer.hpp"
+#include "Tokenizer.hpp"
 #include <ranges>
 #include <unordered_set>
+#include <utility>
 
 #include "tools/StringUtils.hpp"
 
@@ -27,7 +28,7 @@ namespace INSTINCT_CORE_NS {
         std::vector<UnicodeString> specials = {};
     };
 
-    class RegexpTokenizer: public PretrainedTokenizer {
+    class RegexpTokenizer: public Tokenizer {
         BPERanks merges_;
         Vocab vocab_{};
         UnicodeString regexp_pattern_{};
@@ -36,7 +37,10 @@ namespace INSTINCT_CORE_NS {
 
     public:
         RegexpTokenizer()=delete;
-        RegexpTokenizer(BPERanks bpe_ranks, Vocab vocab, const UnicodeString& regexp_string, const StringIDDict& special_tokens):  merges_(std::move(bpe_ranks)), vocab_(std::move(vocab)), regexp_pattern_(regexp_string), reversed_special_tokens_() {
+        RegexpTokenizer(UnicodeString regexp_string, const StringIDDict& special_tokens): regexp_pattern_(std::move(regexp_string)) {
+            RegisterSpecials(special_tokens);
+        }
+        RegexpTokenizer(BPERanks bpe_ranks, Vocab vocab, UnicodeString  regexp_string, const StringIDDict& special_tokens):  merges_(std::move(bpe_ranks)), vocab_(std::move(vocab)), regexp_pattern_(std::move(regexp_string)) {
             // initialize revsered speicial tokens
             RegisterSpecials(special_tokens);
         }
@@ -48,14 +52,62 @@ namespace INSTINCT_CORE_NS {
             }
         }
 
-        std::string Decode(const std::vector<int32_t>& ids) override {
-            std::string buf;
-            return Decode_(ids);
+        UnicodeString Decode(const std::vector<int32_t>& ids) override {
+            return UnicodeString::fromUTF8(Decode_(ids));
         }
 
-        std::vector<int32_t> Encode(const std::string& text) override {
-            const UnicodeString text_u32 = details::conv_to_unicode_string(text);
-            return Encode_(text_u32, {});
+        std::vector<int32_t> Encode(const UnicodeString& text) override {
+            return Encode_(text, {});
+        }
+
+        void Train(const UnicodeString& text, int vocab_size) override {
+            if (vocab_size<256) {
+                throw LangchainException("vocab_size should be greter than 256");
+            }
+            int num_merges = vocab_size - 256;
+            Bytes text_bytes;
+            text.toUTF8String(text_bytes);
+            // auto ids_view = text_bytes | std::views::transform([](const char c) {
+            //     return static_cast<u_int32_t>(c);
+            // });
+            // auto ids = std::vector{ids_view.begin(), ids_view.end()};
+
+
+            std::vector<UnicodeString> splits;
+            details::split_text_with_regex(text, regexp_pattern_, splits);
+
+            std::vector<std::vector<int32_t>> ids;
+            for(const auto& chunk: splits) {
+                Bytes buf;
+                chunk.toUTF8String(buf);
+                for(const auto& c: buf) {
+                    ids.push_back({static_cast<u_int8_t>(c)});
+                }
+            }
+
+            BPERanks merges;
+            Vocab vocab;
+            for(int i=0;i<256;i++) {
+                vocab[i] = Bytes{static_cast<char>(i)};
+            }
+            for (int i=0;i<num_merges;i++) {
+                BPERanks stats;
+                for(const auto& chunk_ids: ids) {
+                    details::compute_pairs_state(chunk_ids, stats);
+                }
+                auto pair = details::get_max_pair(stats);
+                int32_t idx = 256 + i;
+
+                for(auto& chunk_ids: ids) {
+                    // auto copy = chunk_ids;
+                    details::merge_u32_ids(chunk_ids, pair, idx);
+                }
+
+                merges[pair] = idx;
+                vocab[idx] = vocab[pair.first] + vocab[pair.second];
+            }
+            this->merges_ = std::move(merges);
+            this->vocab_ = std::move(vocab);
         }
 
 
@@ -104,7 +156,7 @@ namespace INSTINCT_CORE_NS {
                 return EncodeOrdinary_(text);
             }
 
-            const auto pattern_string = "(" + details::join_with_seperator("|", specials) + ")";
+            const auto pattern_string = "(" + details::join_with_seperator("|", specials | std::views::keys) + ")";
             std::vector<UnicodeString> chunks;
             details::split_text_with_regex(text, pattern_string, chunks);
             std::vector<int32_t> result;
@@ -152,7 +204,8 @@ namespace INSTINCT_CORE_NS {
             HandleChunkBytes_(text_bytes);
             std::vector<int32_t> ids;
             for(const auto &c: text_bytes) {
-                ids.push_back(c);
+                // from [-128,127) to [0,256)
+                ids.push_back(static_cast<u_int8_t>(c));
             }
             while (ids.size()>=2) {
                 auto stats = details::compute_pairs_state(ids);

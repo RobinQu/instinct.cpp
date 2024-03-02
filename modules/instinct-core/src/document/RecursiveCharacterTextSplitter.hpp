@@ -9,7 +9,8 @@
 #include <unicode/regex.h>
 #include <unicode/ustring.h>
 #include <unicode/brkiter.h>
-#include "document/tokenizer/PretrainedTokenizer.hpp"
+#include "LanguageSplitters.hpp"
+#include "tokenizer/Tokenizer.hpp"
 
 namespace INSTINCT_CORE_NS {
 
@@ -85,11 +86,17 @@ namespace INSTINCT_CORE_NS {
             : length_function_(std::move(length_function)) {
         }
 
-        RecursiveCharacterTextSplitter(LengthFunction length_function, std::vector<UnicodeString> seperators)
+        RecursiveCharacterTextSplitter(LengthFunction length_function, seperators::Language langauge)
             : length_function_(std::move(length_function)),
-              seperators_(std::move(seperators)) {
+              seperators_(seperators::SEPERATORS_FOR_LANGUAGE.at(langauge)) {
         }
 
+        RecursiveCharacterTextSplitter(Tokenizer* tokenizer, seperators::Language langugae):
+            RecursiveCharacterTextSplitter(
+                [&](const UnicodeString& string) {return tokenizer->Encode(string).size();},
+                langugae
+            ) {
+        }
 
         std::vector<std::string> SplitText(const std::string& text) override {
             auto seps = std::vector(seperators_);

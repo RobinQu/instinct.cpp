@@ -17,13 +17,30 @@ namespace INSTINCT_CORE_NS {
 
     using namespace U_ICU_NAMESPACE;
 
+
+    struct hash_pair_int32_t {
+        size_t operator()(const std::pair<int32_t,int32_t>& p) const {
+            auto hash1 = std::hash<int32_t>{}(p.first);
+            auto hash2 = std::hash<int32_t>{}(p.second);
+            // If hash1 == hash2, their XOR is zero.
+            return (hash1 != hash2) ? hash1 ^ hash2 : hash1;
+        }
+    };
+
+    struct hash_unicode_string {
+        size_t operator()(const UnicodeString& s) const {
+            return s.hashCode();
+        }
+    };
+
+
     using BPEPair = std::pair<int32_t, int32_t>;
-    using BPERanks = std::unordered_map<BPEPair, int32_t>;
+    using BPERanks = std::unordered_map<BPEPair, int32_t, hash_pair_int32_t>;
     using Bytes = std::string;
     using Vocab = std::unordered_map<int32_t, Bytes>;
 
     // for storing mappings special token to id
-    using StringIDDict = std::unordered_map<UnicodeString, int32_t>;
+    using StringIDDict = std::unordered_map<UnicodeString, int32_t, hash_unicode_string>;
     using ReversedStringIDDict = std::unordered_map<int32_t, UnicodeString>;
 
     // using BPETokenPair = std::pair<UnicodeString, UnicodeString>;
@@ -32,15 +49,17 @@ namespace INSTINCT_CORE_NS {
 
 
 
-    class PretrainedTokenizer {
+    class Tokenizer {
     public:
         // PretrainedTokenizer()=delete;
-        PretrainedTokenizer()=default;
-        virtual ~PretrainedTokenizer()=default;
-        PretrainedTokenizer(PretrainedTokenizer&&)=delete;
-        PretrainedTokenizer(const PretrainedTokenizer&)=delete;
-        virtual std::vector<int32_t> Encode(const std::string& text) = 0;
-        virtual std::string Decode(const std::vector<int32_t>& ids) = 0;
+        Tokenizer()=default;
+        virtual ~Tokenizer()=default;
+        Tokenizer(Tokenizer&&)=delete;
+        Tokenizer(const Tokenizer&)=delete;
+        virtual std::vector<int32_t> Encode(const UnicodeString& text) = 0;
+        virtual UnicodeString Decode(const std::vector<int32_t>& ids) = 0;
+        virtual void Train(const UnicodeString& text, int vocab_size) = 0;
+
         // virtual size_t GetVocabSize() = 0;
         // virtual std::string IdToToken(int32_t id) = 0;
         // virtual int32_t TokenToId(const std::string& token) = 0;
@@ -69,11 +88,27 @@ namespace INSTINCT_CORE_NS {
                     auto itr = ids.erase(ids.begin()+i, ids.begin()+i+1);
                     ids.insert(itr, idx);
                 }
+                i++;
             }
+        }
+
+        static BPEPair get_min_pair(const BPERanks& stats) {
 
         }
-        static BPERanks compute_pairs_state(const std::vector<int32_t>& ids) {
-            BPERanks stats;
+
+        static BPEPair get_max_pair(const BPERanks& stats) {
+            int32_t max = INT32_MIN;
+            auto max_pair_itr = stats.end();
+            for (auto itr=stats.begin();itr!=stats.end();++itr) {
+                if (itr->second>max) {
+                    max = itr->second;
+                    max_pair_itr = itr;
+                }
+            }
+            return max_pair_itr->first;
+        }
+
+        static void compute_pairs_state(const std::vector<int32_t>& ids, BPERanks& stats) {
             for(int i=0;i<ids.size()-1;++i) {
                 BPEPair pair {ids[i], ids[i+1]};
                 if (stats.contains(pair)) {
@@ -82,6 +117,11 @@ namespace INSTINCT_CORE_NS {
                     stats.emplace(pair, 1);
                 }
             }
+        }
+
+        static BPERanks compute_pairs_state(const std::vector<int32_t>& ids) {
+            BPERanks stats;
+            compute_pairs_state(ids, stats);
             return stats;
         }
 
@@ -191,7 +231,7 @@ namespace INSTINCT_CORE_NS {
                 }
                 auto id0 = bpe_token_ranks.at(pair[0]);
                 auto id1 = bpe_token_ranks.at(pair[1]);
-                bpe_ranks.emplace({id0,id1}, rank);
+                bpe_ranks.insert({std::pair{id0,id1}, rank});
             }
             return bpe_ranks;
         }

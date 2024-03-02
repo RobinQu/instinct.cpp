@@ -39,6 +39,10 @@ namespace INSTINCT_CORE_NS {
             }
         }
 
+        void Train(const UnicodeString& text, int vocab_size) override {
+            throw LangchainException("Not implemented");
+        }
+
         static TiktokenTokenizer* FromTiktokenConfig(const TiktokenConfig& config) {
             BPERanks bpe_ranks = details::recover_byte_pair_bpe_ranks(config.mergeable_ranks);
 

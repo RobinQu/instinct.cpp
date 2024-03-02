@@ -13,6 +13,9 @@
 #include <unicode/ustream.h>
 #include "tools/StringUtils.hpp"
 #include <nlohmann/json.hpp>
+#include <unicode/schriter.h>
+
+
 
 namespace INSTINCT_CORE_NS {
     class GPT2BPEFileReader : public BPEFileReader {
@@ -72,10 +75,11 @@ namespace INSTINCT_CORE_NS {
         }
 
         std::vector<std::pair<UnicodeString, UnicodeString>> bpe_merges;
-        for (int i = 0, len = lines.size(); const auto& l: lines) {
+        for (size_t i=0,len=lines.size();i<len;++i) {
             if (i == 0 || i == len - 1) {
                 continue;
             }
+            auto l = lines[i];
             std::vector<UnicodeString> splits;
             details::split_text_with_regex(l, UnicodeString::fromUTF8("\n"), splits);
             if (splits.size() != 2) {
@@ -88,8 +92,11 @@ namespace INSTINCT_CORE_NS {
 
         auto decode_data_gym = [&](const UnicodeString& str) {
             std::string buf;
-            for (const auto& c: str) {
-                buf.append({data_gym_byte_to_byte[c]});
+
+            StringCharacterIterator itr(str);
+            while (itr.hasNext()) {
+                auto c = itr.next32PostInc();
+                buf.append({static_cast<char>(data_gym_byte_to_byte[c])});
             }
             return buf;
         };

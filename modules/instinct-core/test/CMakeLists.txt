@@ -23,6 +23,8 @@ foreach(_test_file ${TEST_SRC_FILES})
     get_filename_component(_test_name ${_test_file} NAME_WE)
     add_executable(${_test_name} ${_test_file}
             exprimental/TestICU.cpp
+            document/tokenizer/TestTiktokenTokenizer.cpp
+            document/tokenizer/TestRegexpTokenizer.hpp
             #            tools/TestBeast.cpp
 #            tools/TestCustomParser.cpp
 #            tools/TestSimpleHttpClient.cpp
