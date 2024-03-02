@@ -31,3 +31,6 @@
 [submodule "thirdparty/icu-cmake"]
 	path = thirdparty/icu-cmake
 	url = https://github.com/viaduck/icu-cmake.git
+[submodule "thirdparty/base64"]
+	path = thirdparty/base64
+	url = https://github.com/tobiaslocker/base64.git

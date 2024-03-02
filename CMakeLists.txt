@@ -104,6 +104,15 @@ add_subdirectory(thirdparty/ReactivePlusPlus)
 # TODO embedd icu as submodule
 find_package(ICU 74.2 COMPONENTS uc i18n io REQUIRED)
 
+## base64
+## hand-written target rules to prevent conflicts in the original CMakelists.txt
+add_library(base64 INTERFACE thirdparty/base64/include/base64.hpp)
+target_include_directories(base64
+        INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/base64/include>
+        $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
 ## gtest
 if(BUILD_TESTING)
 #    find_package(GTest)

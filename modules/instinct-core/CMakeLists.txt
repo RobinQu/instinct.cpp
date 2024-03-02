@@ -63,6 +63,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/document/tokenizer/TiktokenTokenizer.hpp
         src/document/tokenizer/BPEFileReader.hpp
         src/document/tokenizer/GPT2BPEFileReader.hpp
+        src/document/tokenizer/TiktokenBPEFileReader.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
@@ -88,6 +89,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         ICU::uc
         ICU::i18n
         ICU::io
+        base64
 )
 
 #set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES

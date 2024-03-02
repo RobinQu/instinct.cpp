@@ -9,6 +9,9 @@
 #include "RegexpTokenizer.hpp"
 #include <ranges>
 
+#include "GPT2BPEFileReader.hpp"
+#include "TiktokenBPEFileReader.hpp"
+
 
 namespace INSTINCT_CORE_NS {
 
@@ -62,13 +65,35 @@ namespace INSTINCT_CORE_NS {
         static TiktokenTokenizer* MakeGPT2Tokenizer(
             const std::filesystem::path& bpe_file_path,
             const std::filesystem::path& encoder_json_file_path) {
-
+            auto reader = GPT2BPEFileReader(bpe_file_path, encoder_json_file_path);
+            return FromTiktokenConfig({
+                .name = "gpt2",
+                .explict_n_vocab = 50257,
+                .pat_str = R"""('(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+)""",
+                .mergeable_ranks =  reader.Fetch(),
+                .special_tokens = {
+                    {"<|endoftext|>", 50256}
+                }
+            });
         }
 
         static TiktokenTokenizer* MakeGPT4Tokenizer(
             const std::filesystem::path& tiktoken_bpe_file_path
             ) {
-
+            TiktokenBPEFileReader reader(tiktoken_bpe_file_path);
+            // auto mergeable_rank = reader.Fetch();
+            return FromTiktokenConfig({
+                .name = "c100k_base",
+                .pat_str = R"""('(?i:[sdmt]|ll|ve|re)|[^\r\n\p{L}\p{N}]?+\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]++[\r\n]*|\s*[\r\n]|\s+(?!\S)|\s+)""",
+                .mergeable_ranks = reader.Fetch(),
+                .special_tokens = {
+                    {"<|endoftext|>", 100257},
+                    {"<|fim_prefix|>", 100258},
+                    {"<|fim_middle|>", 100259},
+                    {"<|fim_suffix|>", 100260},
+                    {"<|endofprompt|>", 100276}
+                }
+            });
         }
 
     private:
@@ -80,7 +105,6 @@ namespace INSTINCT_CORE_NS {
             text_bytes = new_bytes;
         }
     };
-
 
 
 }

@@ -30,6 +30,8 @@ namespace INSTINCT_CORE_NS {
     using BPETokenRanks = std::unordered_map<Bytes, int32_t>;
 
 
+
+
     class PretrainedTokenizer {
     public:
         // PretrainedTokenizer()=delete;
@@ -103,7 +105,6 @@ namespace INSTINCT_CORE_NS {
                 }
             }
             return result;
-
         }
 
         template<int max_split_size=10>
@@ -134,15 +135,66 @@ namespace INSTINCT_CORE_NS {
             result.insert(result.end(), parts, parts+splits_size-1);
         }
 
+        static std::vector<std::string> _bpe(const BPETokenRanks& bpe_token_ranks, const Bytes& token, int32_t max_rank) {
+            auto part_view = token | std::views::transform([](char c) {
+               return std::string({c});
+            });
+            auto parts = std::vector(part_view.begin(), part_view.end());
+            while (true) {
+                int min_rank = INT32_MAX;
+                int min_id = -1;
+                for(int i=0;i<parts.size()-1;++i) {
+                    auto key = parts[i] + parts[i+1];
+                    if (bpe_token_ranks.contains(key)) {
+                        auto rank = bpe_token_ranks.at(key);
+                        if(rank < min_rank) {
+                            min_rank = rank;
+                            min_id = i;
+                        }
+                    }
+                }
+                if(min_id == -1 || min_rank >= max_rank) {
+                    // 1. found min_rank, but it's greater than max_rank
+                    // 2. min_rank is not found (by checking min_id==-1)
+                    break;
+                }
 
-
-        static BPERanks recover_byte_pair_bpe_ranks(const BPETokenRanks& bpe_token_ranks) {
-
+                std::vector<std::string> new_parts;
+                if(min_id > 0) {
+                    for(int i=0;i<min_id;i++) {
+                        new_parts.push_back(parts[i]);
+                    }
+                }
+                new_parts.push_back(parts[min_id]);
+                if(min_id+1 < parts.size()) {
+                    new_parts.push_back(parts[min_id+1]);
+                }
+                if(min_id+2 < parts.size()) {
+                    for(int i=min_id+2;i<parts.size();i++) {
+                        new_parts.push_back(parts[i]);
+                    }
+                }
+                parts = std::move(new_parts);
+            }
+            return parts;
         }
 
-
-
-
+        static BPERanks recover_byte_pair_bpe_ranks(const BPETokenRanks& bpe_token_ranks) {
+            BPERanks bpe_ranks;
+            for(const auto&[token, rank]: bpe_token_ranks) {
+                if(token.size()==1) {
+                    continue;
+                }
+                auto pair = _bpe(bpe_token_ranks, token, rank);
+                if (pair.size()!=2) {
+                    throw LangchainException("failed to recover bit-level token for token string: " + token);
+                }
+                auto id0 = bpe_token_ranks.at(pair[0]);
+                auto id1 = bpe_token_ranks.at(pair[1]);
+                bpe_ranks.emplace({id0,id1}, rank);
+            }
+            return bpe_ranks;
+        }
     }
 
 
