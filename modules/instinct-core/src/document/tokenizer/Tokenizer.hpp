@@ -25,10 +25,11 @@ namespace INSTINCT_CORE_NS {
 
     struct hash_pair_int32_t {
         size_t operator()(const std::pair<int32_t,int32_t>& p) const {
-            auto hash1 = std::hash<int32_t>{}(p.first);
-            auto hash2 = std::hash<int32_t>{}(p.second);
-            // If hash1 == hash2, their XOR is zero.
-            return (hash1 != hash2) ? hash1 ^ hash2 : hash1;
+            // TODO find a better hash function. Current implmentation results 2580ms rebuild of 100K bpe tokens
+            // http://szudzik.com/ElegantPairing.pdf
+            auto& [x,y] = p;
+            auto& max = std::max(x,y);
+            return x == max ? x*x+x+y : y*y + x;
         }
     };
 
@@ -243,10 +244,15 @@ namespace INSTINCT_CORE_NS {
         }
 
         static std::vector<std::string> _bpe(const BPETokenRanks& bpe_token_ranks, const Bytes& token, int32_t max_rank) {
-            auto part_view = token | std::views::transform([](char c) {
-               return std::string({c});
-            });
-            auto parts = std::vector(part_view.begin(), part_view.end());
+            // auto part_view = token | std::views::transform([](char c) {
+            //    return std::string({c});
+            // });
+            // auto parts = std::vector(part_view.begin(), part_view.end());
+            std::vector<std::string> parts;
+            parts.reserve(token.size());
+            for(const auto& c: token) {
+                parts.push_back(std::string {c});
+            }
             while (true) {
                 int min_rank = INT32_MAX;
                 int min_id = -1;
@@ -295,6 +301,7 @@ namespace INSTINCT_CORE_NS {
                 }
                 auto id0 = bpe_token_ranks.at(pair[0]);
                 auto id1 = bpe_token_ranks.at(pair[1]);
+
                 bpe_ranks.insert({std::pair{id0,id1}, rank});
             }
             return bpe_ranks;

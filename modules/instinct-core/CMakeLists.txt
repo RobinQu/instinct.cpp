@@ -63,9 +63,10 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/document/tokenizer/TiktokenTokenizer.hpp
         src/document/tokenizer/BPETokenRanksReader.hpp
         src/document/tokenizer/GPT2BPEFileReader.hpp
-        src/document/tokenizer/BPETokenRanksFileReader.hpp
+        src/document/tokenizer/TiktokenBPEFileReader.hpp
         src/document/LanguageSplitters.hpp
         src/tools/Assertions.hpp
+        src/tools/ChronoUtils.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
