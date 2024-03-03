@@ -113,6 +113,10 @@ target_include_directories(base64
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+## ordered-map
+add_subdirectory(thirdparty/ordered-map)
+
+
 ## gtest
 if(BUILD_TESTING)
 #    find_package(GTest)

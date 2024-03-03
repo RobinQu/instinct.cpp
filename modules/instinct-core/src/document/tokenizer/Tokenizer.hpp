@@ -15,6 +15,7 @@
 #include <unicode/ustream.h>
 #include <unicode/schriter.h>
 #include <unicode/unimatch.h>
+#include <tsl/ordered_map.h>
 
 
 namespace INSTINCT_CORE_NS {
@@ -38,10 +39,20 @@ namespace INSTINCT_CORE_NS {
     };
 
 
-    using BPEPair = std::pair<int32_t, int32_t>;
-    using BPERanks = std::unordered_map<BPEPair, int32_t, hash_pair_int32_t>;
+    /**
+     * UTF-8 raw bytes, where single char range from -128 to 127. To make things easier, we use std::string directly as it has many conviniences comparing to `std::vector<uint8_t>`.  In BPE, token rank or token index is often stored in u_int8 which ranges from 0 to 255. So explict casting should be done to convert char, or int8_t to U32Char in ICU, or int32_t in BPEPair and BPERanks below.
+     */
     using Bytes = std::string;
-    using Vocab = std::unordered_map<int32_t, Bytes>;
+    using BPEPair = std::pair<int32_t, int32_t>;
+    /**
+     * many algorithm depends on insertion-order like python's dict or OrderedDict. To make things easier, we try to do the same.
+     *
+     * FYI, in Python docs:
+     * > Ordered dictionaries are just like regular dictionaries but have some extra capabilities relating to ordering operations. They have become less important now that the built-in dict class gained the ability to remember insertion order (this new behavior became guaranteed in Python 3.7).
+     *
+     */
+    using BPERanks = tsl::ordered_map<BPEPair, int32_t, hash_pair_int32_t>;
+    using Vocab = tsl::ordered_map<int32_t, Bytes>;
 
     // for storing mappings special token to id
     using StringIDDict = std::unordered_map<UnicodeString, int32_t, hash_unicode_string>;
@@ -86,13 +97,11 @@ namespace INSTINCT_CORE_NS {
         // }
 
         static void merge_u32_ids(std::vector<int32_t>& ids, const BPEPair& pair, int32_t idx) {
-            int i =0;
-            while (i<ids.size()) {
-                if(i<ids.size()-1 && ids[i] == pair.first && ids[i+1] == pair.second) {
-                    auto itr = ids.erase(ids.begin()+i, ids.begin()+i+1);
-                    ids.insert(itr, idx);
+            for(auto itr=ids.begin();itr!=ids.end();++itr) {
+                if(*itr == pair.first && itr+1!=ids.end() && *(itr+1) == pair.second) {
+                    itr = ids.erase(itr, itr+2);
+                    itr = ids.insert(itr, idx);
                 }
-                i++;
             }
         }
 

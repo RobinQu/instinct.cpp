@@ -91,6 +91,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         ICU::i18n
         ICU::io
         base64
+        tsl::ordered_map
 )
 
 #set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES

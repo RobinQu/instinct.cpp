@@ -34,3 +34,6 @@
 [submodule "thirdparty/base64"]
 	path = thirdparty/base64
 	url = https://github.com/tobiaslocker/base64.git
+[submodule "thirdparty/ordered-map"]
+	path = thirdparty/ordered-map
+	url = https://github.com/Tessil/ordered-map.git
