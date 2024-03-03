@@ -78,12 +78,6 @@ namespace INSTINCT_CORE_NS {
 
 
         std::vector<UnicodeString> lines;
-
-        // UnicodeString line;
-        // while (vocab_bpe_file) {
-        //     vocab_bpe_file >> line;
-        //     lines.push_back(line);
-        // }
         for (std::string line; std::getline(vocab_bpe_file, line);) {
             lines.push_back(UnicodeString::fromUTF8(line));
         }

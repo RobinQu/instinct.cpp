@@ -10,7 +10,7 @@
 #include <ranges>
 
 #include "GPT2BPEFileReader.hpp"
-#include "BPETokenRanksFileReader.hpp"
+#include "TiktokenBPEFileReader.hpp"
 
 
 namespace INSTINCT_CORE_NS {
@@ -86,7 +86,7 @@ namespace INSTINCT_CORE_NS {
         static Tokenizer* MakeGPT4Tokenizer(
             const std::filesystem::path& tiktoken_bpe_file_path
             ) {
-            BPETokenRanksFileReader reader(tiktoken_bpe_file_path);
+            TiktokenBPEFileReader reader(tiktoken_bpe_file_path);
             // auto mergeable_rank = reader.Fetch();
             return FromTiktokenConfig({
                 .name = "c100k_base",

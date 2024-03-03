@@ -12,27 +12,25 @@
 #include <base64.hpp>
 
 namespace INSTINCT_CORE_NS {
-    class BPETokenRanksFileReader: public BPETokenRanksReader {
+    class TiktokenBPEFileReader: public BPETokenRanksReader {
         std::filesystem::path bpe_file_path_;
 
     public:
-        explicit BPETokenRanksFileReader(std::filesystem::path bpe_file_path)
+        explicit TiktokenBPEFileReader(std::filesystem::path bpe_file_path)
             : bpe_file_path_(std::move(bpe_file_path)) {
         }
         BPETokenRanks Fetch() override;
     };
 
-    inline BPETokenRanks BPETokenRanksFileReader::Fetch() {
+    inline BPETokenRanks TiktokenBPEFileReader::Fetch() {
         std::ifstream bpe_file(bpe_file_path_);
         if (!bpe_file.is_open()) {
             throw InstinctException("failed to open bpe file at " + bpe_file_path_.string());
         }
 
         BPETokenRanks bpe_token_ranks;
-        while (bpe_file) {
+        for (std::string line; std::getline(bpe_file, line);) {
             // as content is encoded in base64, it's fine to use std::string
-            std::string line;
-            bpe_file >> line;
             auto splits = langchian::core::StringUtils::Resplit(line);
             if (splits.size()!=2) {
                 // TODO warn about invalid line
@@ -41,6 +39,7 @@ namespace INSTINCT_CORE_NS {
             auto key = base64::from_base64(splits[0]);
             bpe_token_ranks[key] = std::stoi(splits[1]);
         }
+
         return bpe_token_ranks;
     }
 }
