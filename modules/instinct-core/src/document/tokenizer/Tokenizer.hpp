@@ -272,10 +272,7 @@ namespace INSTINCT_CORE_NS {
                         new_parts.push_back(parts[i]);
                     }
                 }
-                new_parts.push_back(parts[min_id]);
-                if(min_id+1 < parts.size()) {
-                    new_parts.push_back(parts[min_id+1]);
-                }
+                new_parts.push_back(parts[min_id] + parts[min_id+1]);
                 if(min_id+2 < parts.size()) {
                     for(int i=min_id+2;i<parts.size();i++) {
                         new_parts.push_back(parts[i]);

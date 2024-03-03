@@ -87,9 +87,8 @@ namespace INSTINCT_CORE_NS {
             const std::filesystem::path& tiktoken_bpe_file_path
             ) {
             TiktokenBPEFileReader reader(tiktoken_bpe_file_path);
-            // auto mergeable_rank = reader.Fetch();
             return FromTiktokenConfig({
-                .name = "c100k_base",
+                .name = "cl100k_base",
                 .pat_str = R"""('(?i:[sdmt]|ll|ve|re)|[^\r\n\p{L}\p{N}]?+\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]++[\r\n]*|\s*[\r\n]|\s+(?!\S)|\s+)""",
                 .mergeable_ranks = reader.Fetch(),
                 .special_tokens = {
@@ -105,11 +104,11 @@ namespace INSTINCT_CORE_NS {
         UnicodeString Decode(const std::vector<int32_t>& ids) override {
             Bytes text_bytes;
             for(const auto& id: ids) {
-                text_bytes += GetVocab()[id];
+                text_bytes += GetVocab().at(id);
             }
             Bytes result;
             for(const auto& c: text_bytes) {
-                result += static_cast<char>(revsered_byte_shuffle_[static_cast<u_int8_t>(c)]);
+                result += static_cast<char>(revsered_byte_shuffle_.at(static_cast<u_int8_t>(c)));
             }
             return UnicodeString::fromUTF8(result);
         }
@@ -118,7 +117,7 @@ namespace INSTINCT_CORE_NS {
         void HandleChunkBytes_(Bytes& text_bytes) override {
             Bytes new_bytes;
             for (const auto&c: text_bytes) {
-                new_bytes += static_cast<char>(byte_shuffle_[static_cast<u_int8_t>(c)]);
+                new_bytes += static_cast<char>(byte_shuffle_.at(static_cast<u_int8_t>(c)));
             }
             text_bytes = new_bytes;
         }

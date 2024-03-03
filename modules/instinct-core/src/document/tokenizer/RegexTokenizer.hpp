@@ -76,7 +76,7 @@ namespace INSTINCT_CORE_NS {
                     break;
                 case kNoneRaise:
                     for(const auto& token: special_tokens_ | std::views::keys) {
-                        if(text.indexOf(token)) {
+                        if(text.indexOf(token) > -1) {
                             throw InstinctException("special token not allowed in text");
                         }
                     }
