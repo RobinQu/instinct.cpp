@@ -106,7 +106,15 @@ namespace INSTINCT_CORE_NS {
         }
 
         static BPEPair get_min_pair(const BPERanks& stats) {
-
+            int32_t min = INT32_MAX;
+            auto min_pair_itr = stats.end();
+            for (auto itr=stats.begin();itr!=stats.end();++itr) {
+                if (itr->second<min) {
+                    min = itr->second;
+                    min_pair_itr = itr;
+                }
+            }
+            return min_pair_itr->first;
         }
 
         static BPEPair get_max_pair(const BPERanks& stats) {

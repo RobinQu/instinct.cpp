@@ -6,7 +6,7 @@
 #define TIKTOKENTOKENIZER_HPP
 
 #include <filesystem>
-#include "RegexpTokenizer.hpp"
+#include "RegexTokenizer.hpp"
 #include <ranges>
 
 #include "GPT2BPEFileReader.hpp"
@@ -25,14 +25,14 @@ namespace INSTINCT_CORE_NS {
         StringIDDict special_tokens;
     };
 
-    class TiktokenTokenizer: public RegexpTokenizer {
+    class TiktokenTokenizer: public RegexTokenizer {
         ByteShuffle byte_shuffle_;
         ByteShuffle revsered_byte_shuffle_;
 
     public:
         TiktokenTokenizer(BPERanks bpe_ranks, Vocab vocab, const UnicodeString& regexp_string,
             const StringIDDict& special_tokens, ByteShuffle byte_shuffle)
-            : RegexpTokenizer(std::move(bpe_ranks), std::move(vocab), regexp_string, special_tokens),
+            : RegexTokenizer(std::move(bpe_ranks), std::move(vocab), regexp_string, special_tokens),
               byte_shuffle_(std::move(byte_shuffle)) {
             for(const auto& [id,token]: byte_shuffle_) {
                 revsered_byte_shuffle_[token] = id;

@@ -23,12 +23,12 @@ namespace INSTINCT_CORE_NS {
         kNoneRaise
     };
 
-    struct RegexpEncodeOptions {
+    struct RegexEncodeOptions {
         AllowSpecialType allow_special = kNoneRaise;
         std::vector<UnicodeString> specials = {};
     };
 
-    class RegexpTokenizer: public Tokenizer {
+    class RegexTokenizer: public Tokenizer {
         BPERanks merges_;
         Vocab vocab_{};
         UnicodeString regexp_pattern_{};
@@ -36,11 +36,11 @@ namespace INSTINCT_CORE_NS {
         ReversedStringIDDict reversed_special_tokens_{};
 
     public:
-        RegexpTokenizer()=delete;
-        RegexpTokenizer(UnicodeString regexp_string, const StringIDDict& special_tokens): regexp_pattern_(std::move(regexp_string)) {
+        RegexTokenizer()=delete;
+        RegexTokenizer(UnicodeString regexp_string, const StringIDDict& special_tokens): regexp_pattern_(std::move(regexp_string)) {
             RegisterSpecials(special_tokens);
         }
-        RegexpTokenizer(BPERanks bpe_ranks, Vocab vocab, UnicodeString  regexp_string, const StringIDDict& special_tokens):  merges_(std::move(bpe_ranks)), vocab_(std::move(vocab)), regexp_pattern_(std::move(regexp_string)) {
+        RegexTokenizer(BPERanks bpe_ranks, Vocab vocab, UnicodeString  regexp_string, const StringIDDict& special_tokens):  merges_(std::move(bpe_ranks)), vocab_(std::move(vocab)), regexp_pattern_(std::move(regexp_string)) {
             // initialize revsered speicial tokens
             RegisterSpecials(special_tokens);
         }
@@ -60,7 +60,7 @@ namespace INSTINCT_CORE_NS {
             return Encode(text, {});
         }
 
-        std::vector<int32_t> Encode(const UnicodeString& text, const RegexpEncodeOptions& options) {
+        std::vector<int32_t> Encode(const UnicodeString& text, const RegexEncodeOptions& options) {
             StringIDDict specials;
             switch (options.allow_special) {
                 case kAll:

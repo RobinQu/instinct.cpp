@@ -8,7 +8,7 @@
 
 #include <gtest/gtest.h>
 
-#include "document/tokenizer/RegexpTokenizer.hpp"
+#include "document/tokenizer/RegexTokenizer.hpp"
 #include "tools/TensorUtils.hpp"
 
 namespace INSTINCT_CORE_NS {
@@ -17,10 +17,10 @@ Llamas are social animals and live with others as a herd. Their wool is soft and
 The ancestors of llamas are thought to have originated from the Great Plains of North America about 40 million years ago, and subsequently migrated to South America about three million years ago during the Great American Interchange. By the end of the last ice age (10,000–12,000 years ago), camelids were extinct in North America.[3] As of 2007, there were over seven million llamas and alpacas in South America and over 158,000 llamas and 100,000 alpacas, descended from progenitors imported late in the 20th century, in the United States and Canada.[5]
 <|fim_prefix|>In Aymara mythology, llamas are important beings. The Heavenly Llama is said to drink water from the ocean and urinates as it rains.[6] According to Aymara eschatology,<|fim_suffix|> where they come from at the end of time.[6]<|fim_middle|> llamas will return to the water springs and ponds<|endofprompt|>)""");
 
-    TEST(RegexpTokenizer, TestEncode) {
+    TEST(RegexTokenizer, TestEncode) {
         std::filesystem::path assets_dir("./modules/instinct-core/test/_assets");
         auto reg_pattern = UnicodeString::fromUTF8(R"""('(?i:[sdmt]|ll|ve|re)|[^\r\n\p{L}\p{N}]?+\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]++[\r\n]*|\s*[\r\n]|\s+(?!\S)|\s+)""");
-        RegexpTokenizer regexp_tokenizer(reg_pattern, {
+        RegexTokenizer regexp_tokenizer(reg_pattern, {
                     {"<|endoftext|>", 100257},
                     {"<|fim_prefix|>", 100258},
                     {"<|fim_middle|>", 100259},
