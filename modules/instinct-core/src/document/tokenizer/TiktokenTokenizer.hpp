@@ -10,12 +10,12 @@
 #include <ranges>
 
 #include "GPT2BPEFileReader.hpp"
-#include "TiktokenBPEFileReader.hpp"
+#include "BPETokenRanksFileReader.hpp"
 
 
 namespace INSTINCT_CORE_NS {
-
-    using ByteShuffle = std::unordered_map<int8_t, int8_t>;
+    using ByteShuffle = std::unordered_map<u_int8_t, u_int8_t>;
+    // using ReversedByteShuffle = std::unordered_map<int32_t, u_int8_t>;
 
     struct TiktokenConfig {
         std::string name;
@@ -58,15 +58,17 @@ namespace INSTINCT_CORE_NS {
 
             // byte mapping
             ByteShuffle byte_shuffle;
+
             for(const auto i: std::ranges::iota_view {0, 256}) {
-                // NOTE: uint8_t to char, that's from [0.256) to [-128,127)
-                const int8_t id = config.mergeable_ranks.at(Bytes{static_cast<char>(i)});
+                // uint8_t to char, that's from [0.256) to [-128,127)
+                const int32_t id = config.mergeable_ranks.at(Bytes{static_cast<char>(i)});
+                // first 256 char have rank of less than 256,  so it's safe to cast back to uint8_t
                 byte_shuffle[i] = id;
             }
             return new TiktokenTokenizer(bpe_ranks, vocab, UnicodeString::fromUTF8(config.pat_str), config.special_tokens, byte_shuffle);
         }
 
-        static TiktokenTokenizer* MakeGPT2Tokenizer(
+        static Tokenizer* MakeGPT2Tokenizer(
             const std::filesystem::path& bpe_file_path,
             const std::filesystem::path& encoder_json_file_path) {
             auto reader = GPT2BPEFileReader(bpe_file_path, encoder_json_file_path);
@@ -81,10 +83,10 @@ namespace INSTINCT_CORE_NS {
             });
         }
 
-        static TiktokenTokenizer* MakeGPT4Tokenizer(
+        static Tokenizer* MakeGPT4Tokenizer(
             const std::filesystem::path& tiktoken_bpe_file_path
             ) {
-            TiktokenBPEFileReader reader(tiktoken_bpe_file_path);
+            BPETokenRanksFileReader reader(tiktoken_bpe_file_path);
             // auto mergeable_rank = reader.Fetch();
             return FromTiktokenConfig({
                 .name = "c100k_base",
@@ -100,11 +102,23 @@ namespace INSTINCT_CORE_NS {
             });
         }
 
+        UnicodeString Decode(const std::vector<int32_t>& ids) override {
+            Bytes text_bytes;
+            for(const auto& id: ids) {
+                text_bytes += GetVocab()[id];
+            }
+            Bytes result;
+            for(const auto& c: text_bytes) {
+                result += static_cast<char>(revsered_byte_shuffle_[static_cast<u_int8_t>(c)]);
+            }
+            return UnicodeString::fromUTF8(result);
+        }
+
     private:
         void HandleChunkBytes_(Bytes& text_bytes) override {
             Bytes new_bytes;
             for (const auto&c: text_bytes) {
-                new_bytes += byte_shuffle_[c];
+                new_bytes += static_cast<char>(byte_shuffle_[static_cast<u_int8_t>(c)]);
             }
             text_bytes = new_bytes;
         }

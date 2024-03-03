@@ -10,6 +10,7 @@
 
 #include "document/tokenizer/RegexTokenizer.hpp"
 #include "tools/TensorUtils.hpp"
+#include "tools/Assertions.hpp"
 
 namespace INSTINCT_CORE_NS {
     static UnicodeString text1 = UnicodeString::fromUTF8(R"""(<|endoftext|>The llama (/ˈlɑːmə/; Spanish pronunciation: [ˈʎama] or [ˈʝama]) (Lama glama) is a domesticated South American camelid, widely used as a meat and pack animal by Andean cultures since the pre-Columbian era.
@@ -18,7 +19,7 @@ The ancestors of llamas are thought to have originated from the Great Plains of 
 <|fim_prefix|>In Aymara mythology, llamas are important beings. The Heavenly Llama is said to drink water from the ocean and urinates as it rains.[6] According to Aymara eschatology,<|fim_suffix|> where they come from at the end of time.[6]<|fim_middle|> llamas will return to the water springs and ponds<|endofprompt|>)""");
 
     TEST(RegexTokenizer, TestEncode) {
-        std::filesystem::path assets_dir("./modules/instinct-core/test/_assets");
+
         auto reg_pattern = UnicodeString::fromUTF8(R"""('(?i:[sdmt]|ll|ve|re)|[^\r\n\p{L}\p{N}]?+\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]++[\r\n]*|\s*[\r\n]|\s+(?!\S)|\s+)""");
         RegexTokenizer regexp_tokenizer(reg_pattern, {
                     {"<|endoftext|>", 100257},
@@ -30,6 +31,11 @@ The ancestors of llamas are thought to have originated from the Great Plains of 
         regexp_tokenizer.Train(text1, 512);
         const auto ids = regexp_tokenizer.Encode("hello", {.allow_special = kAll});
         TensorUtils::PrintEmbedding(ids);
+        ASSERT_TRUE(check_equality(ids, {291,297,111}));
+        auto ret1 = regexp_tokenizer.Decode(ids);
+        std::cout << ret1 << std::endl;
+        // Decode(Encode(text)) should be text
+        ASSERT_EQ(ret1, "hello");
     }
 
 }

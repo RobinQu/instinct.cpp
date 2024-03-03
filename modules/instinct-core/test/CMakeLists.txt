@@ -22,7 +22,7 @@ file(GLOB_RECURSE TEST_SRC_FILES *.cpp)
 foreach(_test_file ${TEST_SRC_FILES})
     get_filename_component(_test_name ${_test_file} NAME_WE)
     add_executable(${_test_name} ${_test_file}
-            document/tokenizer/TestTokenizer.cpp)
+            document/tokenizer/TestGPT2BPEFileReader.cpp)
     target_link_libraries(${_test_name} gtest gtest_main RPP::rpp)
     target_link_libraries(${_test_name} ${LIBRARY_TARGET_NAME})
     add_test(${_test_name} ${_test_name})

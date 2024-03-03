@@ -6,7 +6,7 @@
 #define GPT2BPEFILEREADER_HPP
 
 
-#include "BPEFileReader.hpp"
+#include "BPETokenRanksReader.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -18,7 +18,7 @@
 
 
 namespace INSTINCT_CORE_NS {
-    class GPT2BPEFileReader : public BPEFileReader {
+    class GPT2BPEFileReader : public BPETokenRanksReader {
         std::filesystem::path vocab_bpe_file_path_;
         std::filesystem::path encoder_json_file_path_;
 
@@ -35,13 +35,24 @@ namespace INSTINCT_CORE_NS {
         std::ifstream vocab_bpe_file(vocab_bpe_file_path_);
 
         std::vector<u_int8_t> rank_to_byte;
-        for (int i = 0; i < 256; i++) {
-            if (u_isprint(i) && UnicodeString(i) != ' ') {
-                rank_to_byte.push_back(i);
-            }
-        }
+        // for (int i = 0; i < 256; i++) {
+        //     if (u_isprint(i) && UnicodeString(i) != ' ') {
+        //         rank_to_byte.push_back(i);
+        //     }
+        // }
 
-        std::unordered_map<UChar32, u_int8_t> data_gym_byte_to_byte;
+        // NOTE: sadlly, u_isprint(i) is not equalivent to str.isprintable() in Python. Codepoint 166 in unicode is an example when `u_isprint` in C++ returns true but `str.isprintable` return false in Python.
+        auto insert_fn = [&](u_int32_t a, u_int32_t b) {
+            for(u_int32_t begin = a; begin<=b; begin++) {
+                rank_to_byte.push_back(begin);
+            }
+        };
+        insert_fn(L'!', L'~');
+        insert_fn(L'¡', L'¬');
+        insert_fn(L'®', L'ÿ');
+
+
+        tsl::ordered_map<UChar32, u_int8_t> data_gym_byte_to_byte;
         for (const auto& i: rank_to_byte) {
             data_gym_byte_to_byte[static_cast<UChar32>(i)] = i;
         }
@@ -68,20 +79,25 @@ namespace INSTINCT_CORE_NS {
 
         std::vector<UnicodeString> lines;
 
-        UnicodeString line;
-        while (vocab_bpe_file) {
-            vocab_bpe_file >> line;
-            lines.push_back(line);
+        // UnicodeString line;
+        // while (vocab_bpe_file) {
+        //     vocab_bpe_file >> line;
+        //     lines.push_back(line);
+        // }
+        for (std::string line; std::getline(vocab_bpe_file, line);) {
+            lines.push_back(UnicodeString::fromUTF8(line));
         }
+
 
         std::vector<std::pair<UnicodeString, UnicodeString>> bpe_merges;
         for (size_t i=0,len=lines.size();i<len;++i) {
-            if (i == 0 || i == len - 1) {
+            // last new line is ommitted already by std::get_line
+            if (i == 0) {
                 continue;
             }
             auto l = lines[i];
             std::vector<UnicodeString> splits;
-            details::split_text_with_regex(l, UnicodeString::fromUTF8("\n"), splits);
+            details::split_text_with_regex(l, UnicodeString::fromUTF8("\\s"), splits);
             if (splits.size() != 2) {
                 //TODO should warn about invalid line
                 continue;
@@ -96,7 +112,11 @@ namespace INSTINCT_CORE_NS {
             StringCharacterIterator itr(str);
             while (itr.hasNext()) {
                 auto c = itr.next32PostInc();
-                buf.append({static_cast<char>(data_gym_byte_to_byte[c])});
+                if (data_gym_byte_to_byte.contains(c)) {
+                    buf += static_cast<char>(data_gym_byte_to_byte.at(c));
+                } else {
+                    throw InstinctException("char not found " + std::to_string(c));
+                }
             }
             return buf;
         };
@@ -121,7 +141,11 @@ namespace INSTINCT_CORE_NS {
         for (auto& el: encode_json.items()) {
             // UnicodeString key = UnicodeString::fromUTF8(el.key());
             // encoder_json_loaded.emplace(decode_data_gym(key), el.value().get<int32_t>());
-            encoder_json_loaded.emplace(el.key(), el.value().get<int32_t>());
+            auto key = decode_data_gym(UnicodeString::fromUTF8(el.key()));
+            if (encoder_json_loaded.contains(key)) {
+                throw InstinctException("internal data error due to duplicated token: " + key);
+            }
+            encoder_json_loaded.emplace(key, el.value().get<int32_t>());
         }
         encoder_json_loaded.erase("<|endoftext|>");
         encoder_json_loaded.erase("<|startoftext|>");
@@ -133,7 +157,7 @@ namespace INSTINCT_CORE_NS {
             }
         }
         for (const auto& key: bpe_token_ranks | std::views::keys) {
-            if (!encode_json.contains(key)) {
+            if (!encoder_json_loaded.contains(key)) {
                 throw InstinctException(
                     "invalid vocab bpe or encoder json file, as key found in vocab bpe but not in encoder json: " +
                     key);

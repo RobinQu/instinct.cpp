@@ -9,12 +9,12 @@
 #include "Tokenizer.hpp"
 
 namespace INSTINCT_CORE_NS {
-    class BPEFileReader {
+    class BPETokenRanksReader {
     public:
-        BPEFileReader()=default;
-        virtual ~BPEFileReader()=default;
-        BPEFileReader(const BPEFileReader&&)=delete;
-        BPEFileReader(BPEFileReader&&)=delete;
+        BPETokenRanksReader()=default;
+        virtual ~BPETokenRanksReader()=default;
+        BPETokenRanksReader(const BPETokenRanksReader&&)=delete;
+        BPETokenRanksReader(BPETokenRanksReader&&)=delete;
         virtual BPETokenRanks Fetch()=0;
     };
 }

@@ -45,10 +45,10 @@ namespace INSTINCT_CORE_NS {
     using Bytes = std::string;
     using BPEPair = std::pair<int32_t, int32_t>;
     /**
-     * many algorithm depends on insertion-order like python's dict or OrderedDict. To make things easier, we try to do the same.
+     * many algorithms depends on maps with insertion-order like python's dict or OrderedDict. To make things easier, we try to do the same.
      *
      * FYI, in Python docs:
-     * > Ordered dictionaries are just like regular dictionaries but have some extra capabilities relating to ordering operations. They have become less important now that the built-in dict class gained the ability to remember insertion order (this new behavior became guaranteed in Python 3.7).
+     * Ordered dictionaries are just like regular dictionaries but have some extra capabilities relating to ordering operations. They have become less important now that the built-in dict class gained the ability to remember insertion order (this new behavior became guaranteed in Python 3.7).
      *
      */
     using BPERanks = tsl::ordered_map<BPEPair, int32_t, hash_pair_int32_t>;
@@ -59,7 +59,8 @@ namespace INSTINCT_CORE_NS {
     using ReversedStringIDDict = std::unordered_map<int32_t, UnicodeString>;
 
     // using BPETokenPair = std::pair<UnicodeString, UnicodeString>;
-    using BPETokenRanks = std::unordered_map<Bytes, int32_t>;
+
+    using BPETokenRanks = tsl::ordered_map<Bytes, int32_t>;
 
 
 

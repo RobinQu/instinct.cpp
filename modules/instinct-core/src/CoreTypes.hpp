@@ -31,7 +31,7 @@ namespace INSTINCT_CORE_NS {
         HEAD
     };
 
-    class InstinctException: std::runtime_error {
+    class InstinctException: public std::runtime_error {
         std::string reason_;
 
     public:

@@ -52,6 +52,10 @@ namespace INSTINCT_CORE_NS {
             }
         }
 
+        Vocab& GetVocab() {
+            return vocab_;
+        }
+
         UnicodeString Decode(const std::vector<int32_t>& ids) override {
             return UnicodeString::fromUTF8(Decode_(ids));
         }

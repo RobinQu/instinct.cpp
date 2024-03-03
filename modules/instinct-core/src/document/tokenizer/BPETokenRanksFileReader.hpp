@@ -5,24 +5,24 @@
 #ifndef TIKTOKENBPEFILEREADER_HPP
 #define TIKTOKENBPEFILEREADER_HPP
 
-#include "BPEFileReader.hpp"
+#include "BPETokenRanksReader.hpp"
 #include <fstream>
 
 #include "tools/StringUtils.hpp"
 #include <base64.hpp>
 
 namespace INSTINCT_CORE_NS {
-    class TiktokenBPEFileReader: public BPEFileReader {
+    class BPETokenRanksFileReader: public BPETokenRanksReader {
         std::filesystem::path bpe_file_path_;
 
     public:
-        explicit TiktokenBPEFileReader(std::filesystem::path bpe_file_path)
+        explicit BPETokenRanksFileReader(std::filesystem::path bpe_file_path)
             : bpe_file_path_(std::move(bpe_file_path)) {
         }
         BPETokenRanks Fetch() override;
     };
 
-    inline BPETokenRanks TiktokenBPEFileReader::Fetch() {
+    inline BPETokenRanks BPETokenRanksFileReader::Fetch() {
         std::ifstream bpe_file(bpe_file_path_);
         if (!bpe_file.is_open()) {
             throw InstinctException("failed to open bpe file at " + bpe_file_path_.string());
