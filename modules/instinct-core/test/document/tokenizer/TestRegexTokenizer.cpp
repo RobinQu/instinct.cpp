@@ -31,7 +31,7 @@ The ancestors of llamas are thought to have originated from the Great Plains of 
         regexp_tokenizer.Train(text1, 512);
         const auto ids = regexp_tokenizer.Encode("hello", {.allow_special = kAll});
         TensorUtils::PrintEmbedding(ids);
-        ASSERT_TRUE(check_equality(ids, {291,297,111}));
+        ASSERT_TRUE(check_equality(ids, std::vector{291,297,111}));
         auto ret1 = regexp_tokenizer.Decode(ids);
         std::cout << ret1 << std::endl;
         // Decode(Encode(text)) should be text

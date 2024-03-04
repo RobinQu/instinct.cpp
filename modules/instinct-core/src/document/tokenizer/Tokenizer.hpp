@@ -98,7 +98,7 @@ namespace INSTINCT_CORE_NS {
         //     return regex_matcher;
         // }
 
-        static void merge_u32_ids(std::vector<int32_t>& ids, const BPEPair& pair, int32_t idx) {
+        static void merge_u32_ids(std::vector<int32_t>& ids, const BPEPair& pair, const int32_t idx) {
             for(auto itr=ids.begin();itr!=ids.end();++itr) {
                 if(*itr == pair.first && itr+1!=ids.end() && *(itr+1) == pair.second) {
                     itr = ids.erase(itr, itr+2);
@@ -208,7 +208,14 @@ namespace INSTINCT_CORE_NS {
             return regex_matcher.replaceAll(R"(\\$0)", status);
         }
 
-        template<int max_split_size=10>
+        /**
+         * split with regex pattern string
+         * @tparam max_split_size
+         * @param text
+         * @param seperator
+         * @param result
+         */
+        template<int max_split_size=3>
         static void split_text_with_regex(const UnicodeString& text, const UnicodeString& seperator, std::vector<UnicodeString>& result) {
             UErrorCode status = U_ZERO_ERROR;
             RegexMatcher matcher(seperator, 0, status);
@@ -222,6 +229,7 @@ namespace INSTINCT_CORE_NS {
             auto text_to_be_split = text;
             // std::cout << "input=" << text_to_be_split << std::endl;
             do {
+                // TODO: fix needed! sometimes last chunk of remianing split is ill-formed resulting incomplete text return.
                 splits_size = matcher.split(text_to_be_split, parts, max_split_size, status);
                 // for(int i=0;i<splits_size;i++) {
                 //     std::cout << "len=" << parts[i].length() << ": "<<  parts[i] << std::endl;
@@ -229,18 +237,11 @@ namespace INSTINCT_CORE_NS {
                 if(U_FAILURE(status)) {
                     throw InstinctException("Failed to split text with seperator regex");
                 }
-                // validate if splits is all done
-                matcher.reset(parts[splits_size-1]);
-                if(matcher.find()) {
-                    // insert all except last split
-                    result.insert(result.end(), parts, parts+splits_size-1);
-                    // do it recusively
-                    // splits_size = matcher.split(parts[splits_size-1], parts, max_split_size, status);
-                    text_to_be_split = parts[splits_size-1];
-                }
+                result.insert(result.end(), parts, parts+splits_size-1);
+                text_to_be_split = parts[splits_size-1];
             } while(max_split_size == splits_size);
 
-            result.insert(result.end(), parts, parts+splits_size);
+            result.push_back(parts[splits_size-1]);
         }
 
         static std::vector<std::string> _bpe(const BPETokenRanks& bpe_token_ranks, const Bytes& token, int32_t max_rank) {

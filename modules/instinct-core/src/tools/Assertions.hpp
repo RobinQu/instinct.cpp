@@ -9,9 +9,12 @@
 
 namespace INSTINCT_CORE_NS {
 
-    template <typename R>
-    requires std::ranges::input_range<R> && std::ranges::sized_range<R>
-    static bool check_equality(R&& a, R&& b) {
+
+
+    template <typename R1, typename R2>
+    requires std::ranges::input_range<R1> && std::ranges::sized_range<R1>
+        && std::ranges::input_range<R2> && std::ranges::sized_range<R2>
+    static bool check_equality(R1&& a, R2&& b) {
         if (std::ranges::size(a) != std::ranges::size(b)) {
             return false;
         }
@@ -26,6 +29,7 @@ namespace INSTINCT_CORE_NS {
         }
         return true;
     }
+
 
 }
 

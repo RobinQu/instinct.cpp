@@ -60,7 +60,7 @@ namespace INSTINCT_CORE_NS {
             ByteShuffle byte_shuffle;
 
             for(const auto i: std::ranges::iota_view {0, 256}) {
-                // uint8_t to char, that's from [0.256) to [-128,127)
+                // uint8_t to char, that's from [0.256) to [-128,128)
                 const int32_t id = config.mergeable_ranks.at(Bytes{static_cast<char>(i)});
                 // first 256 char have rank of less than 256,  so it's safe to cast back to uint8_t
                 byte_shuffle[i] = id;
@@ -68,7 +68,7 @@ namespace INSTINCT_CORE_NS {
             return new TiktokenTokenizer(bpe_ranks, vocab, UnicodeString::fromUTF8(config.pat_str), config.special_tokens, byte_shuffle);
         }
 
-        static Tokenizer* MakeGPT2Tokenizer(
+        static TiktokenTokenizer* MakeGPT2Tokenizer(
             const std::filesystem::path& bpe_file_path,
             const std::filesystem::path& encoder_json_file_path) {
             auto reader = GPT2BPEFileReader(bpe_file_path, encoder_json_file_path);
@@ -83,7 +83,7 @@ namespace INSTINCT_CORE_NS {
             });
         }
 
-        static Tokenizer* MakeGPT4Tokenizer(
+        static TiktokenTokenizer* MakeGPT4Tokenizer(
             const std::filesystem::path& tiktoken_bpe_file_path
             ) {
             TiktokenBPEFileReader reader(tiktoken_bpe_file_path);

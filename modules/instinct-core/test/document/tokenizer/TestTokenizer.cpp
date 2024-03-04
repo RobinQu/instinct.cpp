@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include "document/tokenizer/Tokenizer.hpp"
+#include "tools/Assertions.hpp"
 
 
 namespace INSTINCT_CORE_NS {
@@ -24,7 +25,17 @@ namespace INSTINCT_CORE_NS {
         ASSERT_EQ(ids2[0], 98);
         ASSERT_EQ(ids2[1], 256);
         ASSERT_EQ(ids2[2], 65);
+
+
+        std::vector<int32_t> ids3 = {220, 86, 78, 81, 75, 67};
+        details::merge_u32_ids(ids3, {78,81}, 269);
+        TensorUtils::PrintEmbedding("merged ids: ", ids3);
+        ASSERT_EQ(ids3.size(), 5);
+        ASSERT_TRUE(check_equality(ids3, std::vector{220,86,269,75,67}));
     }
+
+
+
 
 
 

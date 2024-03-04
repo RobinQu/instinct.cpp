@@ -68,9 +68,7 @@ namespace INSTINCT_CORE_NS {
             StringIDDict specials;
             switch (options.allow_special) {
                 case kAll:
-                    for(const auto&token : special_tokens_ | std::views::keys) {
-                        specials.emplace(token, special_tokens_[token]);
-                    }
+                    specials = special_tokens_;
                 break;
                 case kNone:
                     break;
@@ -190,27 +188,6 @@ namespace INSTINCT_CORE_NS {
                 auto parts = EncodeChunk_(buf);
                 result.insert(result.end(), parts.begin(), parts.end());
             }
-            // UErrorCode status = U_ZERO_ERROR;
-            // RegexMatcher regex_matcher_(regexp_pattern_, 0, status);
-            // if(U_FAILURE(status)) {
-            //     throw InstinctException("Failed to create RegexMatcher before encoding");
-            // }
-            // regex_matcher_.reset(text);
-            // while (regex_matcher_.find()) {
-            //     const int start = regex_matcher_.start(status);
-            //     if(U_FAILURE(status)) {
-            //         throw InstinctException("Failed to match start during encoding");
-            //     }
-            //     int end = std::min(regex_matcher_.end(status), text.length());
-            //     if(U_FAILURE(status)) {
-            //         throw InstinctException("Failed to match end during encoding");
-            //     }
-            //     UnicodeString chunk = text.tempSubStringBetween(start, end);
-            //     Bytes buf;
-            //     chunk.toUTF8String(buf);
-            //     auto parts = EncodeChunk_(buf);
-            //     result.insert(result.end(), parts.begin(), parts.end());
-            // }
             return result;
         }
 
@@ -221,7 +198,7 @@ namespace INSTINCT_CORE_NS {
             HandleChunkBytes_(text_bytes);
             std::vector<int32_t> ids;
             for(const auto &c: text_bytes) {
-                // from [-128,127) to [0,256)
+                // from [-128,128) to [0,256)
                 ids.push_back(static_cast<u_int8_t>(c));
             }
             while (ids.size()>=2) {
@@ -230,8 +207,11 @@ namespace INSTINCT_CORE_NS {
                 auto min_entry = stats.end();
                 for(auto itr=stats.begin();itr!=stats.end();++itr) {
                     if(merges_.contains(itr->first)) {
-                        min_idx = std::min(merges_[itr->first],min_idx);
-                        min_entry = itr;
+                        auto cur_idx = merges_[itr->first];
+                        if (cur_idx < min_idx) {
+                            min_idx = cur_idx;
+                            min_entry = itr;
+                        }
                     }
                 }
                 if (min_entry==stats.end()) {// no mergeable found
