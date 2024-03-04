@@ -49,7 +49,7 @@ public:
         const nlohmann::json json_object = param;
         const HttpRequest request = {POST, uri, {}, json_object.dump()};
         return create_transform([](auto&& v) {
-            const auto trimed = langchian::core::StringUtils::Trim(v);
+            const auto trimed = StringUtils::Trim(v);
             if(trimed.empty()) {
                 return Result {};
             }

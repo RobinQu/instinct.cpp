@@ -66,7 +66,7 @@ namespace INSTINCT_CORE_NS {
         std::vector<std::string> parts = {prefix_};
         parts.insert(parts.end(), example_strings_view.begin(), example_strings_view.end());
         parts.push_back(suffix_);
-        return langchian::core::StringUtils::JoinWith(parts, example_seperator_);
+        return StringUtils::JoinWith(parts, example_seperator_);
     }
 } // core
 // langchain

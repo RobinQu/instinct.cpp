@@ -24,7 +24,7 @@ namespace INSTINCT_CORE_NS {
     //         const auto string_view = v | std::views::transform([](const MessageVariant& m) {
     //             return std::visit(conv_message_to_string, m);
     //         });
-    //         return langchian::core::StringUtils::JoinWith(string_view, "\n");
+    //         return StringUtils::JoinWith(string_view, "\n");
     //     }
     // };
 

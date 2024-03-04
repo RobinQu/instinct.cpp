@@ -44,7 +44,7 @@ namespace INSTINCT_CORE_NS {
 
         Chunk& Next() override  {
             // while (connection_->HasNext()) {
-            //     auto tmp = langchian::core::StringUtils::Trim(connection_->Next());
+            //     auto tmp = StringUtils::Trim(connection_->Next());
             //     if(!tmp.empty()) {
             //         return chunk_convert_(tmp);
             //     }

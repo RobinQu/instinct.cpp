@@ -30,7 +30,7 @@ namespace INSTINCT_CORE_NS {
         auto parts = messages_ | std::views::transform([](const MessageVariant& m) {
             return std::visit([](const auto& v) -> std::string { return v.ToString(); }, m);
         });
-        return langchian::core::StringUtils::JoinWith(parts, "\n");
+        return StringUtils::JoinWith(parts, "\n");
     }
 
     inline MessageVariants ChatPromptValue::ToMessages() const {

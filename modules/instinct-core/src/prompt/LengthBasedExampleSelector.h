@@ -14,7 +14,7 @@ namespace INSTINCT_CORE_NS {
 
     namespace details {
         static auto DEFAULT_LENGTH_BASE_FUNCTION = [](const std::string& str) {
-            return langchian::core::StringUtils::Resplit(str).size();
+            return StringUtils::Resplit(str).size();
         };
         static int DEFAULT_MAX_LENGTH = 25;
     }

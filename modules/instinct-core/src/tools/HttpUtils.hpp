@@ -12,7 +12,7 @@
 namespace INSTINCT_CORE_NS {
     struct HttpUtils {
         static HttpMethod ParseMethod(const std::string& str) {
-            auto m = langchian::core::StringUtils::ToUpper(str);
+            auto m = StringUtils::ToUpper(str);
             if(m == "PUT") return HttpMethod::PUT;
             if(m == "GET") return HttpMethod::GET;
             if(m == "POST") return HttpMethod::POST;

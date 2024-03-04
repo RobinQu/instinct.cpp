@@ -12,8 +12,17 @@
 #include <iostream>
 
 
-namespace langchian::core {
+namespace INSTINCT_CORE_NS {
     struct StringUtils final {
+
+        static std::string CopiesOf(int n, const std::string& text) {
+            std::string result;
+            while(n-->0) {
+                result += text;
+            }
+            return result;
+        }
+
         static std::vector<std::string> Resplit(const std::string &s, const std::regex &sep_regex = std::regex{"\\s+"}) {
             std::sregex_token_iterator iter(s.begin(), s.end(), sep_regex, -1);
             std::sregex_token_iterator end;

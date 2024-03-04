@@ -31,7 +31,7 @@ namespace INSTINCT_CORE_NS {
         BPETokenRanks bpe_token_ranks;
         for (std::string line; std::getline(bpe_file, line);) {
             // as content is encoded in base64, it's fine to use std::string
-            auto splits = langchian::core::StringUtils::Resplit(line);
+            auto splits = StringUtils::Resplit(line);
             if (splits.size()!=2) {
                 // TODO warn about invalid line
                 continue;

@@ -10,6 +10,7 @@
 #include <unicode/ustring.h>
 #include <unicode/brkiter.h>
 #include "LanguageSplitters.hpp"
+#include "tokenizer/TiktokenTokenizer.hpp"
 #include "tokenizer/Tokenizer.hpp"
 
 namespace INSTINCT_CORE_NS {
@@ -18,117 +19,79 @@ namespace INSTINCT_CORE_NS {
 
     using LengthFunction = std::function<int32_t(const UnicodeString&)> ;
 
-    namespace details {
+    static LengthFunction IdentityLengthFunction = [](const UnicodeString& s)->int32_t {
+        return s.length();
+    };
 
-        template<int parts_size = 10>
-        static std::vector<UnicodeString> split_text_with_regex(const UnicodeString& text, const UnicodeString& seperator, bool keep_seperator) {
-            std::vector<UnicodeString> result;
-            if(seperator.length()) {
-                UnicodeString parts[parts_size];
-                if (keep_seperator) {
-                    UnicodeString grouped_sepeartor = "(";
-                    grouped_sepeartor.append(seperator);
-                    grouped_sepeartor.append(")");
-                    auto splits_temp = split_text_with_regex<parts_size>(text, grouped_sepeartor);
-                    result.push_back(splits_temp[0]);
-                    for(int i=1;i<splits_temp.size();i+=2) {
-                        result.push_back(splits_temp[i] + splits_temp[i+1]);
-                    }
-                    if (splits_temp.size()%2==0) {
-                        result.push_back(splits_temp.back());
-                    }
-                }  else {
-                    split_text_with_regex(text, seperator, result);
-                }
-            } else { // it's empty seperator, so we have to split into a sequence of chars.
-                UErrorCode status = U_ZERO_ERROR;
-                auto itr = BreakIterator::createCharacterInstance(Locale::getDefault(), status);
-                itr->setText(text);
-                if(U_FAILURE(status)) {
-                    throw InstinctException("Failed to createCharacterInstance");
-                }
-                // see example at: https://github.com/unicode-org/icu/blob/main/icu4c/source/samples/break/break.cpp
-                // copy each *grapheme* not code point into result
-                int32_t start = itr->first();
-                for(int32_t end = itr->next(); end!=BreakIterator::DONE; start=end, end=itr->next()) {
-                    result.push_back(UnicodeString(text, start, end));
-                }
-                delete itr;
+    static std::vector<UnicodeString> DEFAULT_SEPERATOR_FOR_TEXT_SPLITTER = {
+        "\n\n",
+        "\n",
+        " ",
+        ""
+    };
 
-                // StringCharacterIterator itr(text);
-                // while (itr.hasNext()) {
-                //     result.push_back(itr.next32PostInc());
-                // }
-            }
-            auto parts_view = result | std::views::filter([](const UnicodeString& v) {
-                return v.length() > 0;
-            });
-            return {parts_view.begin(), parts_view.end()};
-        }
-    }
+    struct RecursiveCharacterTextSplitterOptions {
+        LengthFunction length_function = IdentityLengthFunction;
+        std::vector<UnicodeString> seperators = DEFAULT_SEPERATOR_FOR_TEXT_SPLITTER;
+        int chunk_size=4000;
+        int chunk_overlap=200;
+        bool keep_sepeartor=false;
+        bool strip_whitespace=true;
+    };
+
 
     /**
      * \brief Recusively split text using a sequnce of given characters as splitter. Copied a lot from Langchain Python.
      */
     class RecursiveCharacterTextSplitter: public TextSplitter {
     public:
-        RecursiveCharacterTextSplitter(const int chunk_size, const int chunk_overlap, const bool keep_sepeartor,
-            const bool strip_whitespace, LengthFunction length_function, std::vector<UnicodeString> seperators)
-            : chunk_size_(chunk_size),
-              chunk_overlap_(chunk_overlap),
-              keep_sepeartor_(keep_sepeartor),
-              strip_whitespace_(strip_whitespace),
-              length_function_(std::move(length_function)),
-              seperators_(std::move(seperators)) {
+        RecursiveCharacterTextSplitter()=delete;
+        explicit RecursiveCharacterTextSplitter(const RecursiveCharacterTextSplitterOptions& options)
+            : chunk_size_(options.chunk_size),
+              chunk_overlap_(options.chunk_overlap),
+              keep_sepeartor_(options.keep_sepeartor),
+              strip_whitespace_(options.strip_whitespace),
+              length_function_(options.length_function),
+              seperators_(options.seperators) {
         }
 
-        explicit RecursiveCharacterTextSplitter(LengthFunction length_function)
-            : length_function_(std::move(length_function)) {
-        }
-
-        RecursiveCharacterTextSplitter(LengthFunction length_function, seperators::Language langauge)
-            : length_function_(std::move(length_function)),
-              seperators_(seperators::SEPERATORS_FOR_LANGUAGE.at(langauge)) {
-        }
-
-        RecursiveCharacterTextSplitter(Tokenizer* tokenizer, seperators::Language langugae):
-            RecursiveCharacterTextSplitter(
-                [&](const UnicodeString& string) {return tokenizer->Encode(string).size();},
-                langugae
-            ) {
+        static RecursiveCharacterTextSplitter* FromTiktokenTokenizer(TiktokenTokenizer* tokenizer, RecursiveCharacterTextSplitterOptions options = {}) {
+            options.length_function = [=](const UnicodeString& str)->int32_t {
+                return tokenizer->Encode(str).size();
+            };
+            return new RecursiveCharacterTextSplitter(options);
         }
 
         std::vector<std::string> SplitText(const std::string& text) override {
             auto seps = std::vector(seperators_);
             auto splits = SplitText_(UnicodeString::fromUTF8(text), seps);
-            auto string_view = splits | std::views::transform([](const UnicodeString& split) {
-                std::string utf8_string;
-                return split.toUTF8String(utf8_string);
-            });
+            auto string_view = splits | std::views::transform(details::conv_to_utf8_string);
             return {string_view.begin(), string_view.end()};
         }
     private:
         std::vector<UnicodeString> SplitText_(const UnicodeString& text, std::vector<UnicodeString>& seperators) {
-            static auto empty = UnicodeString::fromUTF8("");
+
+            // static auto empty = UnicodeString::fromUTF8("");
             std::vector<UnicodeString> final_chunks;
 
-            // choose last sep, assuming it's most common case in text
-            UnicodeString seperator = seperators.back();
-            for(const auto& sep: seperators) {
+            // default to last sep, assuming it's most common case in text
+            UnicodeString seperator = details::escape_for_regular_expression(seperators.back());
+            for(auto itr=seperators.begin(); itr!=seperators.end(); ++itr) {
+                auto sep = *itr;
                 // break if it's empty string
-                if(sep == empty) {
-                    seperator = sep;
+                if(sep == "") {
+                    seperator = details::escape_for_regular_expression(sep);
                     break;
                 }
                 // break if text can be spllited by sep
                 if(text.indexOf(sep) > 0) {
-                    seperator = sep;
-                    seperators.pop_back();
+                    seperator = details::escape_for_regular_expression(sep);
+                    seperators = std::vector(itr+1, seperators.end());
                     break;
                 }
             }
 
-            auto splits = details::split_text_with_regex(text, seperator, keep_sepeartor_);
+            auto splits = details::split_text_with_seperator(text, seperator, keep_sepeartor_);
             std::vector<UnicodeString> good_splits;
             for(auto& s: splits) {
                 if(length_function_(s) < chunk_size_) {
@@ -200,17 +163,12 @@ namespace INSTINCT_CORE_NS {
             return text;
         }
 
-        int chunk_size_ = 4000;
-        int chunk_overlap_ = 200;
-        bool keep_sepeartor_ = false;
-        bool strip_whitespace_ = true;
+        int chunk_size_;
+        int chunk_overlap_;
+        bool keep_sepeartor_;
+        bool strip_whitespace_;
         LengthFunction length_function_;
-        std::vector<UnicodeString> seperators_ = {
-            "\n\n",
-            "\n",
-            " ",
-            ""
-        };
+        std::vector<UnicodeString> seperators_{};
     };
 }
 

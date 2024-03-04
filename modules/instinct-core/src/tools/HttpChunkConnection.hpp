@@ -155,7 +155,7 @@ namespace INSTINCT_CORE_NS {
         }
         // try {
         //     cache_.emplace_back(chunk_converter_(
-        //         langchian::core::StringUtils::Trim(chunk_)
+        //         StringUtils::Trim(chunk_)
         //     ));
         // } catch (const std::runtime_error &e) {
         //     throw InstinctException(e, "ChunkConverter error");
