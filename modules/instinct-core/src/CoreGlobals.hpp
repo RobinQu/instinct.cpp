@@ -7,6 +7,8 @@
 
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
+#include <unicode/unistr.h>
+#include <unicode/uversion.h>
 
 #define INSTINCT_CORE_NS instinct::core
 
@@ -22,6 +24,8 @@ namespace INSTINCT_CORE_NS {
 
     template <typename R, typename V>
         concept RangeOf = std::ranges::range<R> && std::same_as<std::ranges::range_value_t<R>, V>;
+
+    using U32String = U_ICU_NAMESPACE::UnicodeString;
 
 }
 

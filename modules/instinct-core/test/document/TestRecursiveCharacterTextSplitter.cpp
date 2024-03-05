@@ -13,10 +13,27 @@
 #include "tools/Assertions.hpp"
 
 namespace INSTINCT_CORE_NS {
+    TEST(RecursiveCharacterTextSplitter, split_text_with_seperator) {
+        auto results = details::split_text_with_seperator(
+        u32_utils::copies_of(5, "abcdef"),
+        "",true);
+        ASSERT_EQ(results.size(), 30);
+        ASSERT_EQ(results[29].char32At(0), UChar32{'f'});
+    }
+
     TEST(RecursiveCharacterTextSplitter, TestSimpleSplit) {
-        RecursiveCharacterTextSplitter text_splitter({.chunk_size = 5, .chunk_overlap = 0});
-        auto result = text_splitter.SplitText(StringUtils::CopiesOf(5, "abcdef"));
+        auto* text_splitter = new RecursiveCharacterTextSplitter({.chunk_size = 15, .chunk_overlap = 0});
+        auto result = text_splitter->SplitText(u32_utils::copies_of(5, "abcdef"));
+        TensorUtils::PrintEmbedding(result);
         ASSERT_TRUE(check_equality(result, std::vector {"abcdefabcdefabc", "defabcdefabcdef"}));
+
+        text_splitter = new RecursiveCharacterTextSplitter({.chunk_size = 5, .chunk_overlap = 0});
+        result = text_splitter->SplitText(corpus::text4);
+        TensorUtils::PrintEmbedding(result);
+        ASSERT_EQ(result.size(), 3);
+        ASSERT_EQ(result[2].char32At(0), UChar32{U'👋'});
+
+        delete text_splitter;
     }
 
     TEST(RecursiveCharacterTextSplitter, TestSplitWithTokenizer) {

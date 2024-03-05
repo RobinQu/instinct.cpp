@@ -13,6 +13,17 @@
 
 
 namespace INSTINCT_CORE_NS {
+
+    namespace u32_utils {
+        static U32String copies_of(int n, const U32String& text) {
+            U32String result;
+            while(n-->0) {
+                result += text;
+            }
+            return result;
+        }
+    }
+
     struct StringUtils final {
 
         static std::string CopiesOf(int n, const std::string& text) {
@@ -22,6 +33,8 @@ namespace INSTINCT_CORE_NS {
             }
             return result;
         }
+
+
 
         static std::vector<std::string> Resplit(const std::string &s, const std::regex &sep_regex = std::regex{"\\s+"}) {
             std::sregex_token_iterator iter(s.begin(), s.end(), sep_regex, -1);

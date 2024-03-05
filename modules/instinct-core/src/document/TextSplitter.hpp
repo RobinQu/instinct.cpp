@@ -19,8 +19,11 @@ namespace INSTINCT_CORE_NS {
 
     class TextSplitter {
     public:
+        TextSplitter()=default;
         virtual ~TextSplitter() =default;
-        virtual std::vector<std::string> SplitText(const std::string& text) = 0;
+        TextSplitter(TextSplitter&&)=delete;
+        TextSplitter(const TextSplitter&)=delete;
+        virtual std::vector<UnicodeString> SplitText(const UnicodeString& text) = 0;
     };
 
 
@@ -59,7 +62,7 @@ namespace INSTINCT_CORE_NS {
                 // copy each *grapheme* not code point into result
                 int32_t start = itr->first();
                 for(int32_t end = itr->next(); end!=BreakIterator::DONE; start=end, end=itr->next()) {
-                    result.emplace_back(text, start, end);
+                    result.emplace_back(text, start, end-start);
                 }
                 delete itr;
 

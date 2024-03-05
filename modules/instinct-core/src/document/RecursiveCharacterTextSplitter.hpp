@@ -8,7 +8,6 @@
 #include "TextSplitter.hpp"
 #include <unicode/regex.h>
 #include <unicode/ustring.h>
-#include <unicode/brkiter.h>
 #include "LanguageSplitters.hpp"
 #include "tokenizer/TiktokenTokenizer.hpp"
 #include "tokenizer/Tokenizer.hpp"
@@ -17,9 +16,9 @@ namespace INSTINCT_CORE_NS {
 
     using namespace U_ICU_NAMESPACE;
 
-    using LengthFunction = std::function<int32_t(const UnicodeString&)> ;
+    using LengthFunction = std::function<size_t(const UnicodeString&)> ;
 
-    static LengthFunction IdentityLengthFunction = [](const UnicodeString& s)->int32_t {
+    static LengthFunction IdentityLengthFunction = [](const UnicodeString& s) {
         return s.length();
     };
 
@@ -35,7 +34,7 @@ namespace INSTINCT_CORE_NS {
         std::vector<UnicodeString> seperators = DEFAULT_SEPERATOR_FOR_TEXT_SPLITTER;
         int chunk_size=4000;
         int chunk_overlap=200;
-        bool keep_sepeartor=false;
+        bool keep_sepeartor=true;
         bool strip_whitespace=true;
     };
 
@@ -56,22 +55,19 @@ namespace INSTINCT_CORE_NS {
         }
 
         static RecursiveCharacterTextSplitter* FromTiktokenTokenizer(TiktokenTokenizer* tokenizer, RecursiveCharacterTextSplitterOptions options = {}) {
-            options.length_function = [=](const UnicodeString& str)->int32_t {
+            options.length_function = [=](const UnicodeString& str) {
                 return tokenizer->Encode(str).size();
             };
             return new RecursiveCharacterTextSplitter(options);
         }
 
-        std::vector<std::string> SplitText(const std::string& text) override {
+        std::vector<UnicodeString> SplitText(const UnicodeString& text) override {
             auto seps = std::vector(seperators_);
-            auto splits = SplitText_(UnicodeString::fromUTF8(text), seps);
-            auto string_view = splits | std::views::transform(details::conv_to_utf8_string);
-            return {string_view.begin(), string_view.end()};
+            return SplitText_(text, seps);
         }
     private:
-        std::vector<UnicodeString> SplitText_(const UnicodeString& text, std::vector<UnicodeString>& seperators) {
 
-            // static auto empty = UnicodeString::fromUTF8("");
+        std::vector<UnicodeString> SplitText_(const UnicodeString& text, std::vector<UnicodeString>& seperators) { // NOLINT(*-no-recursion)
             std::vector<UnicodeString> final_chunks;
 
             // default to last sep, assuming it's most common case in text
@@ -81,25 +77,27 @@ namespace INSTINCT_CORE_NS {
                 // break if it's empty string
                 if(sep == "") {
                     seperator = details::escape_for_regular_expression(sep);
+                    seperators.clear();
                     break;
                 }
                 // break if text can be spllited by sep
                 if(text.indexOf(sep) > 0) {
                     seperator = details::escape_for_regular_expression(sep);
-                    seperators = std::vector(itr+1, seperators.end());
+                    // seperators = std::vector(itr+1, seperators.end());
+                    seperators.erase(seperators.begin(), itr+1);
                     break;
                 }
             }
 
-            auto splits = details::split_text_with_seperator(text, seperator, keep_sepeartor_);
+            const auto splits = details::split_text_with_seperator(text, seperator, keep_sepeartor_);
             std::vector<UnicodeString> good_splits;
+            const auto merging_seperator = keep_sepeartor_ ? "" : seperator;
             for(auto& s: splits) {
-                if(length_function_(s) < chunk_size_) {
+                if(length_function_(s) <= chunk_size_) {
                     good_splits.push_back(s);
                 } else {
                     if(!good_splits.empty()) {
-                        auto merged_text = MergeSplits_(good_splits, seperator);
-                        final_chunks.insert(final_chunks.end(), merged_text.begin(), merged_text.end());
+                        MergeSplits_(good_splits, merging_seperator, final_chunks);
                         good_splits.clear();
                     }
                     if(seperators.empty()) {
@@ -112,48 +110,49 @@ namespace INSTINCT_CORE_NS {
             }
 
             if(!good_splits.empty()) {
-                auto merged_text = MergeSplits_(good_splits, seperator);
-                final_chunks.insert(final_chunks.end(), merged_text.begin(), merged_text.end());
+                MergeSplits_(good_splits, merging_seperator, final_chunks);
             }
             return final_chunks;
         }
 
-        [[nodiscard]] std::vector<UnicodeString> MergeSplits_(const std::vector<UnicodeString>& splits, const UnicodeString& seperator) const {
+        void MergeSplits_(const std::vector<UnicodeString>& splits, const UnicodeString& seperator, std::vector<UnicodeString>& docs) const {
             const auto s_len = length_function_(seperator);
-            std::vector<UnicodeString> docs;
+            // std::vector<UnicodeString> docs;
             std::vector<UnicodeString> current_doc;
-            int32_t total = 0;
+            size_t total = 0;
             for(const auto& s: splits) {
                 const auto d_len = length_function_(s);
-                if(const auto len1 = total + d_len + (current_doc.empty() ? 0 : s_len); len1 > chunk_size_) {
-                    if(total>chunk_size_) {
-                        // TODO warns
-                    }
+                if (total + d_len + (current_doc.empty() ? 0: s_len) > chunk_size_) {
                     if(!current_doc.empty()) {
-                        if (const auto doc = JoinDocs_(current_doc, seperator); doc.length()) {
+                        if(const auto doc = JoinDocs_(current_doc, seperator); doc.length()) {
                             docs.push_back(doc);
                         }
-                        const auto len2 = total + d_len + (current_doc.empty() ? 0 : s_len);
-                        while (total>chunk_overlap_ || len2>chunk_size_) {
-                            total -= length_function_(current_doc[0]) + (current_doc.size()>1 ? s_len :0);
-                            current_doc.erase(current_doc.begin());
+                        if (chunk_overlap_!=0) {
+                            // handle overlapping
+                            while(total > chunk_overlap_) {
+                                // strip first item until remianing chunks are enough for overlapping
+                                total -= d_len + (current_doc.empty() ? 0: s_len);
+                                current_doc.erase(current_doc.begin());
+                            }
+                        } else {
+                            total = 0;
+                            current_doc.clear();
                         }
                     }
                 }
+                total += d_len + (current_doc.empty() ? 0 : s_len);
                 current_doc.push_back(s);
-                total += d_len + (current_doc.size()>1 ? s_len :0);
             }
-            if(const auto doc = JoinDocs_(current_doc, seperator); doc.length()) {
-                docs.push_back(doc);
+            if (const auto rest = JoinDocs_(current_doc, seperator); rest.length()) {
+                docs.push_back(rest);
             }
-            return docs;
         }
 
         [[nodiscard]] UnicodeString JoinDocs_(const std::vector<UnicodeString>& docs, const UnicodeString& seperator) const  {
             UnicodeString text;
-            for(int i=0; auto&& doc: docs) {
-                text+=doc;
-                if(++i < docs.size()) {
+            for(int i=0; i<docs.size(); i++) {
+                text+=docs[i];
+                if(i+1 < docs.size()) {
                     text+=seperator;
                 }
             }
