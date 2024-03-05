@@ -58,6 +58,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/document/TextSplitter.hpp
         src/model/Embeddings.hpp
         src/document/RecursiveCharacterTextSplitter.hpp
+        src/document/CharacterTextSplitter.hpp
         src/document/tokenizer/Tokenizer.hpp
         src/document/tokenizer/RegexTokenizer.hpp
         src/document/tokenizer/TiktokenTokenizer.hpp
@@ -67,6 +68,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/document/LanguageSplitters.hpp
         src/tools/Assertions.hpp
         src/tools/ChronoUtils.hpp
+        src/document/BaseTextSplitter.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

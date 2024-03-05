@@ -10,7 +10,7 @@
 #include <string_view>
 #include <string>
 #include <iostream>
-
+#include <unicode/ustream.h>
 
 namespace INSTINCT_CORE_NS {
 
@@ -21,6 +21,16 @@ namespace INSTINCT_CORE_NS {
                 result += text;
             }
             return result;
+        }
+
+        static void print_splits(const std::string& announce , const std::vector<U32String>& splits, std::ostream& stream = std::cout, const bool flush = true) {
+            std::cout << announce;
+            for(const auto& f: splits) {
+                stream << f << " | ";
+            }
+            if(flush) {
+                stream << std::endl;
+            }
         }
     }
 

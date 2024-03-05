@@ -26,6 +26,17 @@ The ancestors of llamas are thought to have originated from the Great Plains of 
             R"(At age nine, Swift became interested in musical theater and performed in four Berks Youth Theatre Academy productions.[19] She also traveled regularly to New York City for vocal and acting lessons.[20] Swift later shifted her focus toward country music, inspired by Shania Twain's songs, which made her "want to just run around the block four times and daydream about everything".[21] She spent weekends performing at local festivals and events.)";
 
     static U32String text4 = "hello world 👋";
+
+
+    static U32String text5 = R"(The Great Gold Robbery took place on the night of 15 May 1855, when a shipment of gold to Paris was stolen from the guard's van of the rail service between London and Folkestone.
+
+There were four robbers: two employees of the rail company, a former employee and Edward Agar, a career criminal. They took wax impressions of the keys to the train safes and made copies. One of them ensured he was on guard duty when a shipment was taking place, and Agar hid in the guard's van.
+
+They emptied the safes of 224 pounds (102 kg) of gold, valued at £12,000 (approximately equivalent to £1,193,000 in 2021); the theft was only discovered in Paris.
+
+When Agar was arrested for another crime, his former girlfriend, in need of funds, revealed the details of the theft. Agar admitted his guilt and testified as a witness. )";
+
+    static U32String text6 = R"(位于巴西东北部的帕拉伊巴州当前下辖4个中级地理区、15个直接地理区及223个市镇。该州人口4,039,277人，占巴西人口的1.908%，在巴西各州及联邦区名列第15；面积56,467.242平方千米（21,802.124平方英里），占巴西国土的0.664%，在巴西各州及联邦区排名第21位。若昂佩索阿为帕拉伊巴州首府、人口数最多及人口密度最高的市镇，其人口超过80万人，而人口数最少的市镇为帕拉里，人口密度最低的市镇为圣若昂杜蒂格雷。蒙泰鲁为面积最大的市镇，而博博雷马则为面积最小的市镇。)";
 }
 
 #endif //CORPUS_HPP
