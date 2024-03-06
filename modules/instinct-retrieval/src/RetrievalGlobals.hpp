@@ -5,6 +5,9 @@
 #ifndef RETRIEVALGLOBALS_HPP
 #define RETRIEVALGLOBALS_HPP
 
+#include <retrieval.pb.h>
+#include "CoreGlobals.hpp"
+
 #define INSTINCT_RETRIEVAL_NS instinct::retrieval
 
 namespace INSTINCT_RETRIEVAL_NS {

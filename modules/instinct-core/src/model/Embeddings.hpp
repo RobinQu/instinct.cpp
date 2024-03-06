@@ -15,6 +15,8 @@ namespace INSTINCT_CORE_NS {
         virtual std::vector<Embedding> EmbedDocuments(const std::vector<std::string>& texts) = 0;
         virtual Embedding EmbedQuery(const std::string& text) = 0;
     };
+
+    using EmbeddingsPtr = std::shared_ptr<Embeddings>;
 }
 
 #endif //EMBEDDINGS_HPP

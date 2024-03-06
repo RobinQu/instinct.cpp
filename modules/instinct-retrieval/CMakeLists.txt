@@ -4,10 +4,11 @@ project(instinct_retrieval)
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
 set(${LIBRARY_TARGET_NAME}_HDR src/ingestor/DocumentIngestor.hpp
-        src/store/Collection.hpp
-        src/retrieval/DocumentRetrieval.hpp
+        src/retrieval/DocumentRetriever.hpp
         src/RetrievalGlobals.hpp
         src/store/VectorStore.hpp
+        src/store/duckdb/DuckDBVectorStore.hpp
+        src/retrieval/VectorStoreDocumentRetriever.hpp
 
 )
 

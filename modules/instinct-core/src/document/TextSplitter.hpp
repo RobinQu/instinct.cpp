@@ -5,11 +5,8 @@
 #ifndef TEXTSPLITTER_HPP
 #define TEXTSPLITTER_HPP
 
-#include <unicode/ustring.h>
-#include <unicode/regex.h>
 #include <unicode/brkiter.h>
 
-#include "Document.hpp"
 #include "CoreGlobals.hpp"
 #include "tokenizer/Tokenizer.hpp"
 

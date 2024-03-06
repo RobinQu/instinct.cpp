@@ -128,8 +128,6 @@ set(DISABLE_VPTR_SANITIZER TRUE)
 add_subdirectory(thirdparty/duckdb)
 
 
-
-
 ## gtest
 if(BUILD_TESTING)
 #    find_package(GTest)

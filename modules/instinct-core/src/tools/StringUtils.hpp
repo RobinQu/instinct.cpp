@@ -11,6 +11,8 @@
 #include <string>
 #include <iostream>
 #include <unicode/ustream.h>
+#include <uuid/uuid.h>
+
 
 namespace INSTINCT_CORE_NS {
 
@@ -33,6 +35,23 @@ namespace INSTINCT_CORE_NS {
             }
         }
     }
+
+    namespace u8_utils {
+        /**
+        * Generate UUID string, using system library. For windows, linux, and macs, different headers are concerned.
+        *
+        * https://stackoverflow.com/questions/543306/platform-independent-guid-generation-in-c
+        *
+        */
+        static std::string uuid_v8() {
+            uuid_t uuid;
+            uuid_generate_random ( uuid );
+            char s[37];
+            uuid_unparse ( uuid, s );
+            return s;
+        }
+    }
+
 
     struct StringUtils final {
 

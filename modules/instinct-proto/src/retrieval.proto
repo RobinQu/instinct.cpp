@@ -1,9 +1,29 @@
 syntax = "proto3";
 
 
-package instinct.retrival;
+package instinct.retrieval;
 
 
+enum MetadataFieldType {
+  Unknown = 0;
+  INT32 = 1;
+  INT64 = 2;
+  FLOAT = 3;
+  DOUBLE = 4;
+  BOOL = 5;
+  VARCHAR = 6;
+}
+
+message MetadataFieldSchema {
+  string name = 1;
+  MetadataFieldType type = 2;
+  string description = 3;
+}
+
+message MetadataSchema {
+  repeated MetadataFieldSchema fields = 1;
+  string description = 2;
+}
 
 message MetadataField {
   string name = 1;
@@ -19,9 +39,39 @@ message MetadataField {
 }
 
 message Document {
-  int32 id = 1;
+  string id = 1;
   string text = 2;
-//  repeated MetadataField metadata = 3;
-  map<string, MetadataField> metadata = 3;
+//  repeated float vector = 3;
+  repeated MetadataField metadata = 3;
+//  map<string, MetadataField> metadata = 4;
 }
+
+message MetadataBoolQuery {
+  repeated MetadataQuery must = 1;
+  repeated MetadataQuery should = 2;
+  repeated MetadataQuery mustNot = 3;
+}
+
+message MetadataTermQuery {
+    MetadataField predicate = 1;
+}
+
+message MetadataQuery {
+  oneof query {
+      MetadataBoolQuery bool = 1;
+      MetadataTermQuery term = 2;
+  }
+}
+
+message SearchRequest {
+  string query = 1;
+  int32 top_k = 2;
+  MetadataQuery metadata_filter = 3;
+}
+
+message SearchResponse {
+
+}
+
+
 

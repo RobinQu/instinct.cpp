@@ -3,13 +3,13 @@ project(instinct-proto)
 
 set(CMAKE_CXX_STANDARD 20)
 
+#INCLUDE(FindProtobuf)
 find_package(Protobuf CONFIG REQUIRED)
 
-add_library(proto-objects OBJECT ${CMAKE_CURRENT_LIST_DIR}/src/retrieval.proto)
+add_library(proto-objects ${CMAKE_CURRENT_LIST_DIR}/src/retrieval.proto)
 
 add_library(instinct::proto
         ALIAS proto-objects)
-
 
 target_link_libraries(proto-objects PUBLIC protobuf::libprotobuf)
 

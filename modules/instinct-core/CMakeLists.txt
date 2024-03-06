@@ -7,7 +7,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/prompt/PromptTemplate.hpp
         src/prompt/PromptValue.hpp
         src/prompt/StringPromptTemplate.hpp
-        src/document/Document.hpp
         src/message/Message.hpp
         src/prompt/StringPromptValue.hpp
         src/message/ChatMessage.hpp

@@ -8,6 +8,7 @@
 #include "RetrievalGlobals.hpp"
 #include "document/TextSplitter.hpp"
 #include "tools/ResultIterator.hpp"
+#include <retrieval.pb.h>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

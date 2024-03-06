@@ -40,3 +40,6 @@
 [submodule "thirdparty/duckdb"]
 	path = thirdparty/duckdb
 	url = https://github.com/duckdb/duckdb.git
+[submodule "thirdparty/stduuid"]
+	path = thirdparty/stduuid
+	url = https://github.com/mariusbancila/stduuid.git
