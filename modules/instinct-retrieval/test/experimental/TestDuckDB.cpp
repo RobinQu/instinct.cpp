@@ -63,17 +63,19 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
 
     void import_with_insert_statement(Connection& con, const size_t n, const size_t d, const float* xt) {
         auto prepared_statement = con.Prepare("insert into sift_1m (vector) values ($1)");
+        std::cout << "insert started" << std::endl;
         for(int i=0;i<n;i++) {
             vector<Value> vector_list_value;
             for(int j=0;j<d;j++) {
                 vector_list_value.push_back(Value::FLOAT(xt[i*d+j]));
             }
-            auto vector_value = Value::LIST(LogicalType::FLOAT, vector_list_value);
-            auto result = prepared_statement->Execute(vector_value);
+            auto array_value = Value::ARRAY(LogicalType::FLOAT, vector_list_value);
+            auto result = prepared_statement->Execute(array_value);
             if (auto error = result->GetErrorObject(); error.HasError()) {
                 std::cout << error.Message() << std::endl;
             }
         }
+        std::cout << "insert done" << std::endl;
     }
 
     void import_with_appender(Connection& con, const size_t nt, const size_t d, const float* xt) {
@@ -90,17 +92,13 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
             for(int j=0;j<d;j++) {
                 vector_list_value.push_back(Value::FLOAT(xt[i*d+j]));
             }
-            auto vector_value = Value::LIST(LogicalType::FLOAT, vector_list_value);
-
-            appender.Append(vector_value);
-            // appender.AppendRow(i+1, vector_value);
+            auto array_value = Value::ARRAY(LogicalType::FLOAT, vector_list_value);
+            appender.Append(array_value);
             appender.EndRow();
         }
         appender.Close();
         std::cout << "Appender finished!" << std::endl;
     }
-
-
 
     TEST(DuckDB, TestBatchImport) {
         auto asset_dir_path = std::filesystem::current_path() /"modules/instinct-retrieval/test/_assets";
@@ -111,7 +109,7 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
         Connection con(db);
         std::vector<std::string> DSL = {
             "create or replace sequence sift_1m_id_seq start 1;",
-            "create or replace table sift_1m (id BIGINT DEFAULT nextval('sift_1m_id_seq'), vector FLOAT[]);"
+            "create or replace table sift_1m (id BIGINT DEFAULT nextval('sift_1m_id_seq'), vector FLOAT[128]);"
         };
 
         std::cout << "Prepare DB with SQLs:" << std::endl;
@@ -132,13 +130,14 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
 
         std::vector<std::string> DML = {
             "select * from sift_1m limit 20",
-            "select count(*) from sift_1m"
+            "select count(*) from sift_1m",
+            "select id, list_cosine_similarity(vector, $1) as similarity from sift_1m order by similarity desc limit $2"
         };
 
         size_t exepcted_number = 2000;
         auto count_result = con.Query(DML[1]);
 
-        if(const auto count = count_result->GetValue(0, 0).GetValue<size_t>(); count != exepcted_number) {
+        if(const auto count = count_result->GetValue(0, 0).GetValue<u_int32_t>(); count != exepcted_number) {
             import_with_insert_statement(con, exepcted_number, d, xt);
         }
 
@@ -147,15 +146,26 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
         auto result = con.Query(DML[0]);
         // result->Print();
         for (int i = 0; i<result->RowCount(); i++) {
+            // do printing
             auto id_value = result->GetValue(0, i);
             std::cout << "id=" << BigIntValue::Get(id_value) << std::endl;
             auto vector_value = result->GetValue(1, i);
 
-            core::TensorUtils::PrintEmbedding("vector=", ListValue::GetChildren(vector_value));
+            core::TensorUtils::PrintEmbedding("vector=", ArrayValue::GetChildren(vector_value));
+
+            // do topK recall
+            auto search_statement = con.Prepare(DML[2]);
+            auto search_result = search_statement->Execute(vector_value, 10);
+            if (auto error=search_statement->GetErrorObject(); error.HasError()) {
+                error.Throw("recall search failed");
+            }
+
+            // print recall
+            for(auto row: *search_result) {
+                std::cout << "--> id=" << BigIntValue::Get(row.GetValue<int64_t>(0)) << std::endl;
+                std::cout << "--> sim=" << FloatValue::Get(row.GetValue<float>(1)) << std::endl;
+            }
         }
-
-
-
 
         // delete tensor data
         delete[] xt;
