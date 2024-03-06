@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.27)
-project(langchain_core)
+project(instinct_core)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 set(${LIBRARY_TARGET_NAME}_HDR
@@ -80,7 +80,7 @@ add_library(
         ${${LIBRARY_TARGET_NAME}_HDR}
 )
 
-add_library(langchain::core
+add_library(instinct::core
         ALIAS ${LIBRARY_TARGET_NAME})
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         fmt::fmt

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.27)
-project(langchain_retrieval)
+project(instinct_retrieval)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
@@ -22,7 +22,7 @@ add_library(
 )
 
 
-add_library(langchain::retrieval
+add_library(instinct::retrieval
         ALIAS ${LIBRARY_TARGET_NAME})
 
 
@@ -38,8 +38,9 @@ target_include_directories(${LIBRARY_TARGET_NAME}
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
-        langchain::core
-        langchain::llm
+        instinct::proto
+        instinct::core
+        instinct::llm
         duckdb
 )
 

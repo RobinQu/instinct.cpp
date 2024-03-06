@@ -9,6 +9,32 @@
 * Programing models: Extensive `Chain` and `Flowgraph`.
 * Embeddable: header only and multi-platform compatability.
 
+## Getting started
+
+### Installation
+
+For macs with Apple silicons at this moment:
+
+```shell
+brew install instinct-all
+```
+
+### Build from sources
+
+System Requirements:
+
+* OS: Debian X64, Linux X64, macOS arm64
+* Preinstalled system libraries:
+  * icu 72+
+  * protobuf
+  * openssl
+
+```shell
+git submodule update --init --recursive
+
+```
+
+
 ## Roadmap
 
 | Milestone | Features                                                                   | DDL  |

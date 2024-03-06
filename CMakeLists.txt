@@ -127,6 +127,9 @@ set(ENABLE_SANITIZER FALSE)
 set(DISABLE_VPTR_SANITIZER TRUE)
 add_subdirectory(thirdparty/duckdb)
 
+
+
+
 ## gtest
 if(BUILD_TESTING)
 #    find_package(GTest)
@@ -141,6 +144,7 @@ endif ()
 
 
 # project modules
+add_subdirectory(modules/instinct-proto)
 add_subdirectory(modules/instinct-core)
 add_subdirectory(modules/instinct-llm)
 add_subdirectory(modules/instinct-retrieval)

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.27)
-project(langchain_llm)
+project(instinct_llm)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
@@ -22,7 +22,7 @@ add_library(
 )
 
 
-add_library(langchain::llm
+add_library(instinct::llm
         ALIAS ${LIBRARY_TARGET_NAME})
 
 
@@ -37,7 +37,7 @@ target_include_directories(${LIBRARY_TARGET_NAME}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
-target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE langchain::core)
+target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::core)
 
 install(TARGETS ${LIBRARY_TARGET_NAME}
         EXPORT  ${PROJECT_NAME}
