@@ -3,6 +3,10 @@ project(instinct)
 
 set(CMAKE_CXX_STANDARD 20)
 
+# force cache value to update when building with submodules
+# https://cmake.org/cmake/help/latest/policy/CMP0077.html
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
 
 # specify default install location
 IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -116,6 +120,12 @@ target_include_directories(base64
 ## ordered-map
 add_subdirectory(thirdparty/ordered-map)
 
+
+## duckdb
+## disable SANITIZER on M1 Macs
+set(ENABLE_SANITIZER FALSE)
+set(DISABLE_VPTR_SANITIZER TRUE)
+add_subdirectory(thirdparty/duckdb)
 
 ## gtest
 if(BUILD_TESTING)

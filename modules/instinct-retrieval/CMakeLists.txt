@@ -37,7 +37,11 @@ target_include_directories(${LIBRARY_TARGET_NAME}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
-target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE langchain::core langchain::llm)
+target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
+        langchain::core
+        langchain::llm
+        duckdb
+)
 
 install(TARGETS ${LIBRARY_TARGET_NAME}
         EXPORT  ${PROJECT_NAME}
