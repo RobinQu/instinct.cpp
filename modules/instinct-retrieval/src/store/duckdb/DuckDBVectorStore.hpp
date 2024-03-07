@@ -24,25 +24,55 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
     namespace details {
+        /**
+         * make sql text for prepared statement, ignoring metadata filter
+         * @param table_name
+         * @param metadata_schema
+         * @return
+         */
+        static std::string make_prepared_search_sql(
+            const std::string& table_name,
+            const MetadataSchema& metadata_schema
+
+            ) {
+            std::string select_sql = "SELECT id, text";
+            auto name_view = metadata_schema.fields() | std::views::transform(
+                                 [](const MetadataFieldSchema& field)-> std::string {
+                                     return field.name();
+                                 });
+            select_sql += name_view.empty() ? ""  : ", " + StringUtils::JoinWith(name_view, ", ");
+            select_sql += ", array_cosine_similarity(vector, ?) AS similarity FROM  ";
+            select_sql += table_name;
+            select_sql += " ORDER BY similarity DESC LIMIT ?";
+            return select_sql;
+        }
+
         static std::string make_search_sql(
             const std::string& table_name,
+            const MetadataSchema& metadata_schema,
             const std::vector<float>& query_vector,
             const MetadataQuery& metadata_filter,
             size_t limit = 10
         ) {
-
             assert_gt(limit, 0, "limit shoud be positive");
             assert_lt(limit, 1000, "limit shold be less than 1000");
 
-            std::string select_sql = "SELECT *, list_cosine_similarity(vector, [";
-            // select_sql += StringUtils::JoinWith(query_vector, ", ");
-            for(int i=0;i<query_vector.size();i++) {
-                select_sql += std::to_string(query_vector.at(i));
-                if (i<query_vector.size()-1) {
+            // ommit vectro field to reduce payload size
+            std::string select_sql = "SELECT id, text";
+            auto name_view = metadata_schema.fields() | std::views::transform(
+                                 [](const MetadataFieldSchema& field)-> std::string {
+                                     return field.name();
+                                 });
+            select_sql += name_view.empty() ? ""  : ", " + StringUtils::JoinWith(name_view, ", ");
+            select_sql += ", array_cosine_similarity(vector, array_value(";
+
+            for (int i = 0; i < query_vector.size(); i++) {
+                select_sql += std::to_string(query_vector.at(i)) + "::FLOAT";
+                if (i < query_vector.size() - 1) {
                     select_sql += ",";
                 }
             }
-            select_sql += "]) AS similarity FROM ";
+            select_sql += ")) AS similarity FROM ";
             select_sql += table_name;
 
 
@@ -54,24 +84,25 @@ namespace INSTINCT_RETRIEVAL_NS {
                     switch (field.value_case()) {
                         case MetadataField::kIntValue:
                             select_sql += (field.name() + "=" + std::to_string(field.int_value()));
-                        break;
+                            break;
                         case MetadataField::kLongValue:
                             select_sql += (field.name() + "=" + std::to_string(field.long_value()));
-                        break;
+                            break;
                         case MetadataField::kFloatValue:
                             select_sql += (field.name() + "=" + std::to_string(field.float_value()));
-                        break;
+                            break;
                         case MetadataField::kDoubleValue:
                             select_sql += (field.name() + "=" + std::to_string(field.double_value()));
-                        break;
+                            break;
                         case MetadataField::kBoolValue:
                             select_sql += (field.name() + "=" + std::to_string(field.bool_value()));
-                        break;
+                            break;
                         case MetadataField::kStringValue:
                             select_sql += (field.name() + "=\"" + field.string_value() + "\"");
-                        break;
+                            break;
                         default:
-                            throw InstinctException("unknown value type in meatdata filter for field named " + field.name());
+                            throw InstinctException(
+                                "unknown value type in meatdata filter for field named " + field.name());
                     }
                 }
             }
@@ -138,6 +169,12 @@ namespace INSTINCT_RETRIEVAL_NS {
             }
         }
 
+        static void assert_query_ok(const unique_ptr<QueryResult>& result) {
+            if (const auto error = result->GetErrorObject(); error.HasError()) {
+                throw InstinctException(result->GetError());
+            }
+        }
+
 
         static void append_row(const MetadataSchema& metadata_schema, Appender& appender, const Document& doc,
                                const Embedding& embedding,
@@ -169,7 +206,6 @@ namespace INSTINCT_RETRIEVAL_NS {
             auto* reflection = Document::GetReflection();
             const auto* metadata_field = schema->FindFieldByName("metadata");
             int metadata_size = reflection->FieldSize(doc, metadata_field);
-
             for (int i = 0; i < metadata_size; i++) {
                 const auto& metadata_field_message = reflection->GetRepeatedMessage(
                     doc,
@@ -179,32 +215,45 @@ namespace INSTINCT_RETRIEVAL_NS {
                 auto* field_value_reflection = metadata_field_message.GetReflection();
                 auto name_field_desccriptor = metadata_field_descriptor->FindFieldByName("name");
                 auto name = field_value_reflection->GetString(metadata_field_message, name_field_desccriptor);
+
+                assert_true((known_field_names.contains(name)),
+                            "metadata cannot contains field not defined by schema. Field in question is " + name);
+                known_field_names.erase(name);
+
                 auto* value_descriptor = metadata_field_descriptor->FindOneofByName("value");
                 const auto* field_descriptor = field_value_reflection->GetOneofFieldDescriptor(doc, value_descriptor);
 
                 switch (field_descriptor->cpp_type()) {
                     case FieldDescriptor::CPPTYPE_INT32:
-                        appender.Append<int32_t>(field_value_reflection->GetInt32(metadata_field_message, field_descriptor));
+                        appender.Append<int32_t>(
+                            field_value_reflection->GetInt32(metadata_field_message, field_descriptor));
                         break;
                     case FieldDescriptor::CPPTYPE_INT64:
-                        appender.Append<int64_t>(field_value_reflection->GetInt64(metadata_field_message, field_descriptor));
+                        appender.Append<int64_t>(
+                            field_value_reflection->GetInt64(metadata_field_message, field_descriptor));
                         break;
                     case FieldDescriptor::CPPTYPE_BOOL:
-                        appender.Append<bool>(field_value_reflection->GetBool(metadata_field_message, field_descriptor));
+                        appender.Append<
+                            bool>(field_value_reflection->GetBool(metadata_field_message, field_descriptor));
                         break;
                     case FieldDescriptor::CPPTYPE_STRING:
-                        appender.Append<>(field_value_reflection->GetString(metadata_field_message, field_descriptor).c_str());
+                        appender.Append<>(
+                            field_value_reflection->GetString(metadata_field_message, field_descriptor).c_str());
                         break;
                     case FieldDescriptor::CPPTYPE_FLOAT:
-                        appender.Append<float>(field_value_reflection->GetFloat(metadata_field_message, field_descriptor));
+                        appender.Append<float>(
+                            field_value_reflection->GetFloat(metadata_field_message, field_descriptor));
                         break;
                     case FieldDescriptor::CPPTYPE_DOUBLE:
-                        appender.Append<double>(field_value_reflection->GetDouble(metadata_field_message, field_descriptor));
+                        appender.Append<double>(
+                            field_value_reflection->GetDouble(metadata_field_message, field_descriptor));
                         break;
                     default:
                         throw InstinctException("unknown field type for appending: " + field_descriptor->name());
                 }
             }
+
+            assert_true(known_field_names.empty(), "Some metadata fields not set: " + StringUtils::JoinWith(known_field_names, ","));
             appender.EndRow();
         }
     }
@@ -212,13 +261,13 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     class DuckDBVectorStore : public VectorStore {
         std::string table_name_;
-        // std::filesystem::path db_file_path_;
         DuckDB db_;
         size_t dimmension_;
         // non-owning pointer to message descriptor
         MetadataSchema metadata_schema_;
         Connection connection_;
         EmbeddingsPtr embeddings_;
+        std::unique_ptr<PreparedStatement> prepared_search_statement_;
 
     public:
         DuckDBVectorStore() = delete;
@@ -229,12 +278,9 @@ namespace INSTINCT_RETRIEVAL_NS {
                                                                               dimmension_(options.dimmension),
                                                                               connection_(db_),
                                                                               embeddings_(options.embeddings) {
-            if (dimmension_ < 0 || dimmension_ > 10000) {
-                throw InstinctException("dimension should be within in (0, 10000]");
-            }
-            if(!embeddings_) {
-                throw InstinctException("should provide embeddings object pointer");
-            }
+            assert_positive(dimmension_, "dimension should be positive");
+            assert_lt(dimmension_, 10000, "dimension should be less than 10000");
+            assert_true(embeddings_ != nullptr, "should provide embeddings object pointer");
             assert_non_empty_range(table_name_, "table_name cannot be empty");
             InitializeDB_();
         }
@@ -266,7 +312,12 @@ namespace INSTINCT_RETRIEVAL_NS {
             auto embeddings = embeddings_->EmbedDocuments({text_view.begin(), text_view.end()});
             assert_equal_size(embeddings, records);
             for (int i = 0; i < records.size(); i++) {
-                details::append_row(metadata_schema_, appender, records[i], embeddings[i], id_result);
+                try {
+                    details::append_row(metadata_schema_, appender, records[i], embeddings[i], id_result);
+                } catch (const InstinctException& e) {
+                    // TODO with better logging facilities
+                    std::cerr << e.what() << std::endl;
+                }
             }
             appender.Close();
             // return ids;
@@ -281,9 +332,26 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         ResultIterator<Document>* SearchDocuments(const SearchRequest& request) override {
             const auto query_embedding = embeddings_->EmbedQuery(request.query());
-            const auto search_sql = details::make_search_sql(table_name_, query_embedding, request.metadata_filter(),
-                                                             request.top_k());
-            const auto result = connection_.Query(search_sql);
+
+            bool has_filter = request.has_metadata_filter() && (request.metadata_filter().has_bool_() || request.metadata_filter().has_term());
+
+            unique_ptr<QueryResult> result;
+            if (has_filter) {
+                const auto search_sql = details::make_search_sql(
+                table_name_,
+                metadata_schema_,
+                query_embedding,
+                request.metadata_filter(),
+                request.top_k());
+                result = connection_.Query(search_sql);
+            } else {
+                // use prepared statement for better performenace when no filter is actually given
+                vector<Value> vector_array;
+                for(const float& f: query_embedding) {
+                    vector_array.push_back(Value::FLOAT(f));
+                }
+                result = prepared_search_statement_->Execute(Value::ARRAY(LogicalType::FLOAT, vector_array), request.top_k());
+            }
             details::assert_query_ok(result);
             std::vector<Document> docs;
             for (const auto& row: *result) {
@@ -333,6 +401,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto sql = details::make_create_table_sql(table_name_, dimmension_, metadata_schema_);
             const auto create_table_result = connection_.Query(sql);
             details::assert_query_ok(create_table_result);
+            prepared_search_statement_ = connection_.Prepare(details::make_prepared_search_sql(table_name_, metadata_schema_));
         }
     };
 }

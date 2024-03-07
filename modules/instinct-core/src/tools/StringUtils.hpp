@@ -92,11 +92,12 @@ namespace INSTINCT_CORE_NS {
         }
 
 
-        static std::string JoinWith(const std::ranges::range auto& parts, const std::string& sep) {
+        static std::string JoinWith(const sized_range auto& parts, const std::string& sep) {
             std::string buf;
-            for(auto itr=parts.begin(); itr!=parts.end(); ++itr) {
-                buf+= *itr;;
-                if(itr!=parts.end()-1) {
+            const size_t len = std::ranges::size(parts);
+            for(int i=0; const auto& part: parts) {
+                buf+= part;
+                if(++i < len) {
                     buf+= sep;
                 }
             }

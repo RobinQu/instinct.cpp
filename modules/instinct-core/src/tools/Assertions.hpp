@@ -81,6 +81,12 @@ namespace INSTINCT_CORE_NS {
         return a>0;
     }
 
+    static void assert_positive(const numberic auto & a, const std::string& message = "value should be positive ") {
+        if(!check_positive(a)) {
+            throw InstinctException(message);
+        }
+    }
+
     static void assert_gt(const numberic auto & a, const numberic auto & b, const std::string& message = "value should be greater") {
         if(!check_gt(a,b)) {
             throw InstinctException(message);
@@ -89,6 +95,12 @@ namespace INSTINCT_CORE_NS {
 
     static void assert_lt(const numberic auto & a, const numberic auto & b, const std::string& message = "value should be less") {
         if(!check_lt(a,b)) {
+            throw InstinctException(message);
+        }
+    }
+
+    static void assert_true(bool v, const std::string& message = "assertion failed") {
+        if (!v) {
             throw InstinctException(message);
         }
     }
