@@ -4,70 +4,29 @@ project(instinct_core)
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 set(${LIBRARY_TARGET_NAME}_HDR
         src/ALL.hpp
-        src/prompt/PromptTemplate.hpp
-        src/prompt/PromptValue.hpp
-        src/prompt/StringPromptTemplate.hpp
-        src/message/Message.hpp
-        src/prompt/StringPromptValue.hpp
-        src/message/ChatMessage.hpp
-        src/message/HumanMessage.hpp
-        src/message/FunctionMessage.hpp
-        src/message/SystemMessage.hpp
-        src/prompt/ChatPromptValue.hpp
-        src/prompt/ChatPromptTemplate.hpp
-        src/prompt/FewShotPromptTemplate.hpp
-        src/model/BaseLanguageModel.hpp
-        src/model/LLMResult.hpp
         src/CoreTypes.hpp
-        src/model/BaseEmbeddingModel.hpp
-        src/model/BaseChatModel.hpp
-        src/model/BaseLLM.hpp
         src/tools/SimpleHttpClient.hpp
-        src/message/AIMessage.hpp
         src/tools/HttpRequest.hpp
         src/tools/StringUtils.hpp
         src/tools/HttpUtils.hpp
         src/tools/HttpResponse.hpp
         src/tools/HttpRestClient.hpp
-        src/model/ChatResult.hpp
-        src/model/ChatGeneration.hpp
         src/CoreGlobals.hpp
-        src/model/Generation.hpp
         src/tools/HttpClientException.hpp
-        src/prompt/PlainPromptTemplate.hpp
-        src/prompt/MessagePromptTemplate.hpp
-        src/prompt/AIMessagePromptTemplate.hpp
-        src/prompt/ChatMessagePromptTemplate.hpp
-        src/prompt/SystemMessagePromptTemplate.h
-        src/prompt/HumanMessagePromptTemplate.hpp
-        src/prompt/ExampleSelector.hpp
-        src/prompt/LengthBasedExampleSelector.h
-        src/prompt/MutableExampleSelector.hpp
-        src/prompt/FewShotChatMessagePromptTemplate.hpp
-        src/prompt/BaseChatPromptTemplate.hpp
-        src/prompt/PassthroughExampleSelector.hpp
-        src/chain/Chain.hpp
-        src/prompt/Forwards.hpp
-        src/prompt/BaseStringMessagePromptTemplate.hpp
+        src/functional/IRunnable.hpp
         src/tools/TensorUtils.hpp
         src/tools/FunctionUtils.hpp
         src/tools/HttpChunkConnection.hpp
         src/tools/ResultIterator.hpp
         src/tools/HttpChunkResultIterator.hpp
-        src/document/TextSplitter.hpp
-        src/model/Embeddings.hpp
-        src/document/RecursiveCharacterTextSplitter.hpp
-        src/document/CharacterTextSplitter.hpp
-        src/document/tokenizer/Tokenizer.hpp
-        src/document/tokenizer/RegexTokenizer.hpp
-        src/document/tokenizer/TiktokenTokenizer.hpp
-        src/document/tokenizer/BPETokenRanksReader.hpp
-        src/document/tokenizer/GPT2BPEFileReader.hpp
-        src/document/tokenizer/TiktokenBPEFileReader.hpp
-        src/document/LanguageSplitters.hpp
+        src/tokenizer/Tokenizer.hpp
+        src/tokenizer/RegexTokenizer.hpp
+        src/tokenizer/TiktokenTokenizer.hpp
+        src/tokenizer/BPETokenRanksReader.hpp
+        src/tokenizer/GPT2BPEFileReader.hpp
+        src/tokenizer/TiktokenBPEFileReader.hpp
         src/tools/Assertions.hpp
         src/tools/ChronoUtils.hpp
-        src/document/BaseTextSplitter.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
@@ -82,6 +41,7 @@ add_library(
 add_library(instinct::core
         ALIAS ${LIBRARY_TARGET_NAME})
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
+        instinct::proto
         fmt::fmt
         nlohmann_json::nlohmann_json
 #        xtensor

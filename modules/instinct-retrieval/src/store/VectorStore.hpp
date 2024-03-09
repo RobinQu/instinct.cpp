@@ -8,7 +8,7 @@
 #include <retrieval.pb.h>
 #include "RetrievalGlobals.hpp"
 #include "model/BaseEmbeddingModel.hpp"
-#include "model/Embeddings.hpp"
+#include "model/IEmbeddingModel.hpp"
 
 
 namespace INSTINCT_RETRIEVAL_NS {

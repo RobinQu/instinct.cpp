@@ -1,0 +1,233 @@
+syntax = "proto3";
+//import "google/protobuf/any.proto";
+//import "core.proto";
+
+package instinct.llm;
+
+message PrimitiveVariable {
+  string name = 1;
+  oneof value {
+    int32  int_value = 2;
+    int64 long_value = 3;
+    float float_value = 4;
+    double double_value = 5;
+    bool bool_value = 6;
+    string string_value = 7;
+    bytes bytes_value = 8;
+  }
+}
+
+
+//message FormattableVariables {
+//  repeated PrimitiveVariable values = 1;
+//}
+
+message LLMChainConfiguration {
+    LLMConfiguration llm_config = 1;
+}
+
+message LLMConfiguration {
+  oneof value {
+      OllamaConfiguration ollama = 1;
+  }
+}
+
+message ChatModelConfiguration {
+
+}
+
+message OllamaConfiguration {
+  string model_name = 1;
+  string endpoint_host = 2;
+  int32 endpoint_port = 3;
+  OllamaModelOptions model_options = 4;
+}
+
+message LLMChainContext {
+  // make it a K-V structure so we can easily merge
+  map<string, PrimitiveVariable> values = 1;
+}
+
+message Message {
+  oneof value {
+    AIMessage ai = 1;
+    HumanMessage human = 2;
+    FunctionMessage function = 3;
+    SystemMessage system = 4;
+    ChatMessage chat = 5;
+  }
+}
+
+message AIMessage {
+  string content = 1;
+  bool example = 2;
+}
+
+message HumanMessage {
+  string content = 1;
+  bool example = 2;
+}
+
+message FunctionMessage {
+  string name = 1;
+  string content = 2;
+}
+
+message SystemMessage {
+  string content = 1;
+}
+
+message ChatMessage {
+  string role = 1;
+  string content = 2;
+}
+
+message PromptValue {
+  oneof value {
+    StringPromptValue string = 1;
+    ChatPromptValue chat = 2;
+  }
+}
+
+message StringPromptValue {
+  string text = 1;
+}
+
+message ChatPromptValue {
+  repeated Message messages = 1;
+}
+
+message MessageList {
+  repeated Message messages = 1;
+}
+
+message PromptExample {
+  map<string, PrimitiveVariable> values = 1;
+}
+
+message PromptExamples {
+  repeated PromptExample values = 1;
+}
+
+
+
+message Generation {
+  string text = 1;
+  optional ChatMessage message = 2;
+  bool is_chunk = 3;
+}
+
+
+//message LanguageModelInput {
+//  oneof value {
+//    string text = 1;
+//    StringPromptValue string_prompt = 2;
+//    ChatPromptValue chat_prompt = 3;
+//  }
+//}
+
+//message BatchedLanguageModelInput {
+//  repeated LanguageModelInput inputs = 1;
+//}
+
+/**
+for both LLM and ChatModel
+ */
+message LangaugeModelResult {
+  repeated Generation generations = 1;
+  oneof raw_response {
+    OllamaCompletionResponse ollama_completion = 2;
+    OllamaChatCompletionResponse ollama_chat = 3;
+  }
+}
+
+
+message BatchedLangaugeModelResult {
+  //  LangaugeModelOutput won't contain valid `raw_response` in BatchedLangaugeModelOutput, read content of `raw_response` below
+  repeated LangaugeModelResult generations = 1;
+  oneof raw_response {
+    OllamaCompletionResponse ollama_completion = 2;
+    OllamaChatCompletionResponse ollama_chat = 3;
+  }
+}
+
+
+message FewShotPromptTemplateConfiguration {
+  string prefix = 1;
+  string suffix = 2;
+  string example_seperator = 3;
+}
+
+
+
+message LengthBasedExampleSelectorConfiguration {
+  int32 max_length = 1;
+}
+
+message OllamaGenerateMessage {
+  string role = 1;
+  string content = 2;
+  repeated string images = 3;
+}
+
+message OllamaModelOptions {
+  int32 temperature = 1;
+}
+
+message OllamaCompletionRequest {
+  string model = 1;
+  string prompt = 2;
+  bool stream = 3;
+  string format = 4;
+  OllamaModelOptions options = 5;
+  bool raw = 6;
+}
+
+message OllamaCompletionResponse {
+  string model = 1;
+  string created_at = 2;
+  repeated int32 context = 3;
+  string response = 4;
+  bool done = 6;
+  uint64 total_duration = 7;
+  uint64 load_duration = 8;
+  int32 prompt_eval_count = 9;
+  uint32 prompt_eval_duration = 10;
+  int32 eval_count = 11;
+  uint64 eval_duration = 12;
+}
+
+message OllamaChatCompletionRequest {
+  string model = 1;
+  repeated OllamaGenerateMessage messages = 2;
+  bool stream = 3;
+  string format = 4;
+  OllamaModelOptions options = 5;
+}
+
+message OllamaChatCompletionResponse {
+  string model = 1;
+  string created_at = 2;
+  repeated int32 context = 3;
+  OllamaGenerateMessage message = 5;
+  bool done = 6;
+  uint64 total_duration = 7;
+  uint64 load_duration = 8;
+  int32 prompt_eval_count = 9;
+  uint32 prompt_eval_duration = 10;
+  int32 eval_count = 11;
+  uint64 eval_duration = 12;
+}
+
+message OllamaEmbeddingRequest {
+  string model = 1;
+  string prompt = 2;
+  OllamaModelOptions options = 3;
+}
+
+message OllamaEmbeddingResponse {
+  repeated float embedding = 1;
+}
+
+
+

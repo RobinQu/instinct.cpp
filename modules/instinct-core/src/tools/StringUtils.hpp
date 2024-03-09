@@ -14,6 +14,9 @@
 #include <uuid/uuid.h>
 
 
+#include "Assertions.hpp"
+
+
 namespace INSTINCT_CORE_NS {
 
     namespace u32_utils {
@@ -50,6 +53,10 @@ namespace INSTINCT_CORE_NS {
             uuid_unparse ( uuid, s );
             return s;
         }
+
+
+
+
     }
 
 
@@ -91,7 +98,6 @@ namespace INSTINCT_CORE_NS {
             return buf;
         }
 
-
         static std::string JoinWith(const sized_range auto& parts, const std::string& sep) {
             std::string buf;
             const size_t len = std::ranges::size(parts);
@@ -110,6 +116,18 @@ namespace INSTINCT_CORE_NS {
             });
             return std::string {view.begin(), view.end()};
         }
+
+        static bool IsBlankString(const std::string& s) {
+            return !s.empty() && !Trim(s).empty();
+        }
+
+        static std::string GetWithDefault(const std::string& value, const std::string& fallback) {
+            if (IsBlankString(value)) {
+                return fallback;
+            }
+            return value;
+        }
+
 
 
 

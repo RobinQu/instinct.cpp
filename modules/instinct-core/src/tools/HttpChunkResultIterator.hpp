@@ -68,6 +68,9 @@ namespace INSTINCT_CORE_NS {
         }
     };
 
+    template <typename Chunk>
+    using HttpChunkResultIteratorPtr = std::shared_ptr<HttpChunkResultIterator<Chunk>>;
+
 
 
 }

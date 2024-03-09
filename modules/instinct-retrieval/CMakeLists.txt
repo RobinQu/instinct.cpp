@@ -9,6 +9,8 @@ set(${LIBRARY_TARGET_NAME}_HDR src/ingestor/DocumentIngestor.hpp
         src/store/VectorStore.hpp
         src/store/duckdb/DuckDBVectorStore.hpp
         src/retrieval/VectorStoreDocumentRetriever.hpp
+        ../instinct-llm/src/chain/LLMChain.hpp
+        src/chain/RAGChain.hpp
 
 )
 

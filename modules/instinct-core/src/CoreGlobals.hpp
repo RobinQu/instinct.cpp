@@ -9,6 +9,7 @@
 #include <nlohmann/json.hpp>
 #include <unicode/unistr.h>
 #include <unicode/uversion.h>
+#include <google/protobuf/message.h>
 
 #define INSTINCT_CORE_NS instinct::core
 
@@ -26,6 +27,9 @@ namespace INSTINCT_CORE_NS {
         concept RangeOf = std::ranges::range<R> && std::same_as<std::ranges::range_value_t<R>, V>;
 
     using U32String = U_ICU_NAMESPACE::UnicodeString;
+
+    template <typename T>
+    concept is_pb_message = std::derived_from<T, google::protobuf::Message>;
 
 }
 

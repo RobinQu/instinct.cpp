@@ -4,11 +4,7 @@
 
 #ifndef RESULTSET_HPP
 #define RESULTSET_HPP
-
-#include <ranges>
-
 #include "CoreGlobals.hpp"
-
 
 
 namespace INSTINCT_CORE_NS {
@@ -66,8 +62,7 @@ namespace INSTINCT_CORE_NS {
         TransofromResultView(Fn fn, ResultIterator<R>* base): fn_(std::move(fn)), base_(base) {
 
         }
-
-        ~TransofromResultView() {
+        ~TransofromResultView() override {
             delete base_;
         }
 
@@ -81,14 +76,17 @@ namespace INSTINCT_CORE_NS {
         }
     };
 
+    template<typename T>
+    using ResultIteratorPtr = std::shared_ptr<ResultIterator<T>>;
+
     template<typename R, typename Fn, typename T=std::invoke_result_t<Fn, R>>
     requires std::is_invocable_r_v<T, Fn, R>
-    ResultIterator<T>* create_transform(Fn&& fn, ResultIterator<R> *itr) {
-        return new TransofromResultView<R, Fn, T>(fn, itr);
+    ResultIteratorPtr<T> create_result_itr_with_transform(Fn&& fn, ResultIteratorPtr<R> itr) {
+        return std::make_shared<TransofromResultView<R, Fn, T>>(fn, itr);
     }
 
-    auto create_from_range(std::ranges::input_range auto && r) {
-        return new ResultVecIterator<std::ranges::range_value_t<decltype(r)>>(r);
+    auto create_result_itr_from_range(std::ranges::input_range auto && r) {
+        return std::make_shared<ResultVecIterator<std::ranges::range_value_t<decltype(r)>>>(r);
     }
 
 }

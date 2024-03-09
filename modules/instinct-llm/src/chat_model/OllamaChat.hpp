@@ -4,108 +4,134 @@
 
 #ifndef OLLAMACHAT_H
 #define OLLAMACHAT_H
-#include "model/BaseChatModel.hpp"
+#include "BaseChatModel.hpp"
 #include "tools/HttpRestClient.hpp"
-#include "ModelGlobals.hpp"
+#include "LLMGlobals.hpp"
 #include "commons/OllamaCommons.hpp"
+#include <llm.pb.h>
+
 
 namespace INSTINCT_LLM_NS {
-    static auto conv_message_variant_to_ollama_message = core::overloaded {
-      [](const core::AIMessage& v) {return OllamaGenerateMessage{"assistant", v.GetContent()};},
-        [](const core::SystemMessage& v) {return OllamaGenerateMessage{"system", v.GetContent()};},
-        [](const core::HumanMessage& v) {return OllamaGenerateMessage{"user", v.GetContent()};},
-        [](const core::FunctionMessage& v) {return OllamaGenerateMessage{"assistant", v.GetContent()};},
-        [](const core::ChatMessage& v) {return OllamaGenerateMessage{v.GetRole(), v.GetContent()};},
-    };
+    using namespace google::protobuf;
+    using namespace INSTINCT_CORE_NS;
+
+    //
+    // struct message_variant_to_ollama_message_converter {
+    //     using result_type = OllamaGenerateMessage*;
+    //
+    //     OllamaChatCompletionRequest* request = nullptr;
+    //
+    //     result_type operator()(const AIMessage& v) const {
+    //         auto msg = request->add_messages();
+    //         msg->set_role("assistant");
+    //         msg->set_content(v.GetContent);
+    //         return msg;
+    //     }
+    //
+    //     result_type operator()(const SystemMessage& v) const {
+    //         auto msg = request->add_messages();
+    //           msg->set_role("system");
+    //           msg->set_content(v.GetContent);
+    //           return msg;
+    //     }
+    //
+    //     result_type operator()(const HumanMessage& v) const {
+    //         auto msg = request->add_messages();
+    //         msg->set_role("user");
+    //         msg->set_content(v.GetContent);
+    //         return msg;
+    //     }
+    //
+    //     result_type operator()(const FunctionMessage& v) const {
+    //         auto msg = request->add_messages();
+    //         msg->set_role("assistant");
+    //         msg->set_content(v.GetContent);
+    //         return msg;
+    //     }
+    //
+    //     result_type operator()(const ChatMessage& v) const {
+    //         auto msg = request->add_messages();
+    //         msg -> set_role(v.GetRole());
+    //         msg -> set_content(v.GetContent);
+    //         return msg;
+    //     }
+    //
+    // };
 
 
-    class OllamaChat final: public core::BaseChatModel<OllamaConfiguration, OllamaRuntimeOptions> {
-        core::HttpRestClient client_;
+    static LangaugeModelResult transform_raw_response(const OllamaChatCompletionResponse& response) {
+        LangaugeModelResult model_result;
+        auto* generation = model_result.add_generations();
+        generation->set_is_chunk(false);
+        auto *generation_msg = generation->mutable_message();
+        generation_msg->set_content(response.message().content());
+        generation_msg->set_role(response.message().role());
+        generation->set_text(fmt::format("{}: {}", generation_msg->role(), generation->text()));
+        return model_result;
+    }
 
+    class OllamaChat final: public BaseChatModel {
+        HttpRestClient client_;
+        std::shared_ptr<OllamaConfiguration> configuration_;
     public:
-        OllamaChat(): client_(OLLAMA_ENDPOINT) {
-        };
 
-        explicit OllamaChat(core::Endpoint endpoint): client_(std::move(endpoint)) {
+        explicit OllamaChat(const std::shared_ptr<OllamaConfiguration>& configuration_): client_(configuration_->endpoint_host(), configuration_->endpoint_port()) {
         }
 
-        std::vector<core::TokenId> GetTokenIds(const std::string& text) override;
+        std::vector<TokenId> GetTokenIds(const std::string& text) override {
 
-        core::TokenSize GetTokenCount(const std::string& text) override;
+        }
 
-        core::TokenSize GetTokenCount(const core::MessageVariants& messages) override;
+        TokenSize GetTokenCount(const std::string& text) override {
+
+        }
+
+        TokenSize GetTokenCount(const Message& messages) override {
+
+        }
+
+    private:
+
+        LangaugeModelResult CallOllama(const MessageList& message_list) {
+            OllamaChatCompletionRequest request;
+            for (const auto& message: message_list.messages()) {
+                request.add_messages()->CopyFrom(message);
+            }
+            request.set_stream(false);
+            request.set_format("json");
+            request.set_model(configuration_->model_name());
+            request.mutable_options()->CopyFrom(configuration_->model_options());
+            auto response = client_.PostObject<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request);
+            return transform_raw_response(response);
+        }
 
 
 
-    protected:
-        core::ResultIterator<core::ChatGeneration>* StreamGenerate(const core::MessageVariants& messages,
-            const OllamaRuntimeOptions& runtime_options) override;
+        BatchedLangaugeModelResult Generate(const std::vector<MessageList>& messages) override {
+            BatchedLangaugeModelResult batched_langauge_model_result;
+            for (const auto& message_list: messages) {
+                batched_langauge_model_result.add_generations()->CopyFrom(CallOllama(message_list));
+            }
+            return batched_langauge_model_result;
+        }
 
-        core::ChatResult Generate(const std::vector<core::MessageVariants>& messages_batch,
-            const OllamaRuntimeOptions& runtime_options) override;
+        ResultIteratorPtr<LangaugeModelResult> StreamGenerate(const MessageList& message_list) override {
+            OllamaChatCompletionRequest request;
+            for (const auto& message: message_list.messages()) {
+                request.add_messages()->CopyFrom(message);
+            }
+            request.set_stream(true);
+            request.set_format("json");
+            request.set_model(configuration_->model_name());
+            request.mutable_options()->CopyFrom(configuration_->model_options());
+            auto chunk_itr = client_.StreamChunk<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request);
+
+            return create_result_itr_with_transform(transform_raw_response, chunk_itr);
+        }
+
+
     };
 
-
-    inline std::vector<core::TokenId> OllamaChat::GetTokenIds(const std::string& text) {
-        return {};
-    }
-
-    inline core::TokenSize OllamaChat::GetTokenCount(const std::string& text) {
-        return 0;
-    }
-
-    inline core::TokenSize OllamaChat::GetTokenCount(const core::MessageVariants& messages) {
-        return 0;
-    }
-
-    inline core::ResultIterator<core::ChatGeneration>* OllamaChat::StreamGenerate(const core::MessageVariants& messages,
-        const OllamaRuntimeOptions& runtime_options) {
-        auto ollama_messages = messages | std::views::transform([](const core::MessageVariant& m) {
-                return std::visit(conv_message_variant_to_ollama_message, m);
-            });
-
-        OllamaChatRequest request = {
-            runtime_options.model_name,
-            {ollama_messages.begin(), ollama_messages.end()},
-            true
-        };
-
-        auto* resposne_result = client_.StreamChunk<OllamaChatRequest, OllamaGenerateResponse>(OLLAMA_CHAT_PATH, request);
-        return create_transform([](const OllamaGenerateResponse& response) {
-            core::OptionDict option_dict = response;
-            return core::ChatGeneration {response.message.content,
-                option_dict,
-                core::ChatMessage {response.message.content, response.message.role},
-                };
-        }, resposne_result);
-    }
-
-    inline core::ChatResult OllamaChat::Generate(const std::vector<core::MessageVariants>& messages_batch,
-        const OllamaRuntimeOptions& runtime_options) {
-        core::ChatResult result;
-        for (const auto& messages: messages_batch) {
-            auto ollama_messages = messages | std::views::transform([](const core::MessageVariant& m) {
-                return std::visit(conv_message_variant_to_ollama_message, m);
-            });
-            OllamaChatRequest request = {
-                runtime_options.model_name,
-                {ollama_messages.begin(), ollama_messages.end()},
-                false
-            };
-            OllamaGenerateResponse response = client_.PostObject<OllamaChatRequest, OllamaGenerateResponse>(
-                OLLAMA_CHAT_PATH, request);
-            core::OptionDict option_dict = response;
-
-            std::vector<core::ChatGeneration> geneartions;
-            result.generations.push_back(core::ChatGeneration {
-                response.message.content,
-                option_dict,
-                core::ChatMessage {response.message.content, response.message.role},
-            });
-
-        }
-        return result;
-    }
 
 } // core
 // langchain

@@ -6,7 +6,7 @@
 
 
 #include "llm/OllamaLLM.hpp"
-#include "ModelGlobals.hpp"
+#include "LLMGlobals.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
 #include "prompt/StringPromptTemplate.hpp"
 

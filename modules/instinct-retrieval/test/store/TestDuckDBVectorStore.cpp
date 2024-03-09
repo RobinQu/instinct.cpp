@@ -31,7 +31,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         return embedding;
     }
 
-    class PesuodoEmbeddings final: public Embeddings {
+    class PesuodoEmbeddings final: public IEmbeddingModel {
         std::unordered_map<std::string, Embedding> caches_ = {};
     public:
         std::vector<Embedding> EmbedDocuments(const std::vector<std::string>& texts) override {

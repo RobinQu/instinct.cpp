@@ -6,7 +6,11 @@ set(CMAKE_CXX_STANDARD 20)
 #INCLUDE(FindProtobuf)
 find_package(Protobuf CONFIG REQUIRED)
 
-add_library(proto-objects ${CMAKE_CURRENT_LIST_DIR}/src/retrieval.proto)
+add_library(proto-objects
+        src/core.proto
+        src/retrieval.proto
+        src/llm.proto
+)
 
 add_library(instinct::proto
         ALIAS proto-objects)

@@ -5,7 +5,7 @@
 #ifndef TENSORUTILS_HPP
 #define TENSORUTILS_HPP
 #include "CoreGlobals.hpp"
-#include "model/BaseEmbeddingModel.hpp"
+#include "model/IEmbeddingModel.hpp"
 #include <iostream>
 
 namespace INSTINCT_CORE_NS {

@@ -46,7 +46,7 @@ namespace INSTINCT_CORE_NS {
             const HttpRequest& call
         );
 
-        HttpChunkResultIterator<std::string>* Stream(
+        HttpChunkResultIteratorPtr<std::string> Stream(
             const HttpRequest& call
         ) ;
 
@@ -123,13 +123,13 @@ namespace INSTINCT_CORE_NS {
         return response;
     }
 
-    inline HttpChunkResultIterator<std::string>* SimpleHttpClient::Stream(
+    inline HttpChunkResultIteratorPtr<std::string> SimpleHttpClient::Stream( // NOLINT(*-convert-member-functions-to-static)
             const HttpRequest& call
         )  {
-        return new HttpChunkResultIterator<std::string>{string_idenity_fn, [&,call]() {
-            auto stream = new beast::tcp_stream(ioc_);
+        return std::make_shared<HttpChunkResultIterator<std::string>> {string_idenity_fn, [&,call]() {
+            const auto stream = new beast::tcp_stream(ioc_);
             stream->connect(resolve_results_);
-            http::verb verb = parse_verb(call);
+            const http::verb verb = parse_verb(call);
             http::request<http::string_body> req{verb, call.target, 11};
             req.set(http::field::host, endpoint_.host);
             req.body() = call.body;

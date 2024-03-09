@@ -4,11 +4,27 @@ project(instinct_llm)
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
 set(${LIBRARY_TARGET_NAME}_HDR  src/All.hpp
-        src/ModelGlobals.hpp
+        src/LLMGlobals.hpp
+        src/chain/IChain.hpp
+        src/chain/LLMChain.hpp
+        src/llm/BaseLLM.hpp
+        src/chat_model/BaseChatModel.hpp
+        src/model/ILanguageModel.hpp
         src/commons/OllamaCommons.hpp
         src/llm/OllamaLLM.hpp
         src/chat_model/OllamaChat.hpp
         src/embedding_model/OllamaEmbedding.hpp
+        src/memory/IChatMemory.hpp
+        src/prompt/IPromptTemplate.hpp
+        src/prompt/IChatPromptTemplate.hpp
+        src/prompt/StringPromptTemplate.hpp
+        src/prompt/PlainPromptTemplate.hpp
+        src/prompt/PlainChatTemplate.hpp
+        src/prompt/FewShotPromptTemplate.hpp
+        src/prompt/IExampleSelector.hpp
+        src/prompt/MutableExampleSelector.hpp
+        src/prompt/PassthroughExampleSelector.hpp
+        src/prompt/LengthBasedExampleSelector.h
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

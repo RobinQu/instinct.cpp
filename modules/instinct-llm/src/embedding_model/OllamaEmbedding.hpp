@@ -4,58 +4,47 @@
 
 #ifndef OLLAMAEMBEDDING_H
 #define OLLAMAEMBEDDING_H
-#include "ModelGlobals.hpp"
+#include "LLMGlobals.hpp"
 #include "commons/OllamaCommons.hpp"
-#include "model/BaseEmbeddingModel.hpp"
+#include "model/IEmbeddingModel.hpp"
 #include "tools/HttpRestClient.hpp"
+#include "llm.pb.h"
 
 namespace INSTINCT_LLM_NS {
-    class OllamaEmbedding : public INSTINCT_CORE_NS::BaseEmbeddingModel<OllamaConfiguration, OllamaRuntimeOptions> {
-        core::HttpRestClient client_;
+    using namespace INSTINCT_CORE_NS;
+
+    class OllamaEmbedding final : public IEmbeddingModel {
+        HttpRestClient client_;
+        std::shared_ptr<OllamaConfiguration> configuration_;
 
     public:
-        explicit OllamaEmbedding(core::Endpoint endpoint = OLLAMA_ENDPOINT): client_(std::move(endpoint)) {
+        explicit OllamaEmbedding(const std::shared_ptr<OllamaConfiguration>& configuration): client_(configuration->endpoint_host(), configuration->endpoint_port()), configuration_(configuration) {
         }
 
-        std::vector<core::Embedding> EmbedDocuments(const std::vector<std::string>& texts,
-                                                    const OllamaRuntimeOptions& options) override;
-
-        core::Embedding EmbedQuery(const std::string& text, const OllamaRuntimeOptions& options) override;
-
-        std::vector<core::Embedding> EmbedDocuments(const std::vector<std::string>& texts) override {
-            return EmbedDocuments(texts, {});
+        std::vector<Embedding> EmbedDocuments(const std::vector<std::string>& texts) override {
+            std::vector<Embedding> result;
+            for (const auto& text: texts) {
+                OllamaEmbeddingRequest request;
+                request.set_model(configuration_->model_name());
+                request.set_prompt(text);
+                request.mutable_options()->CopyFrom(configuration_->model_options());
+                auto response = client_.PostObject<OllamaEmbeddingRequest, OllamaEmbeddingResponse>(
+                    OLLAMA_EMBEDDING_PATH, request);
+                result.emplace_back(response.embedding().begin(), response.embedding().end());
+            }
+            return result;
         }
 
-        core::Embedding EmbedQuery(const std::string& text) override {
-            return EmbedQuery(text, {});
+        Embedding EmbedQuery(const std::string& text) override {
+            OllamaEmbeddingRequest request;
+                request.set_model(configuration_->model_name());
+                request.set_prompt(text);
+                request.mutable_options()->CopyFrom(configuration_->model_options());
+            const auto response = client_.PostObject<OllamaEmbeddingRequest, OllamaEmbeddingResponse>(
+                OLLAMA_EMBEDDING_PATH, request);
+            return {response.embedding().begin(), response.embedding().end()};
         }
     };
-
-    inline std::vector<core::Embedding> OllamaEmbedding::EmbedDocuments(const std::vector<std::string>& texts,
-                                                                        const OllamaRuntimeOptions& options) {
-        std::vector<core::Embedding> result;
-        for (const auto& text: texts) {
-            auto&& [embedding] = client_.PostObject<OllamaEmbeddingRequest, OllamaEmbeddingResponse>(
-                OLLAMA_EMBEDDING_PATH, {
-                    options.model_name,
-                    text,
-                    {}
-                });
-            result.emplace_back(std::move(embedding));
-        }
-        return result;
-    }
-
-    inline core::Embedding
-    OllamaEmbedding::EmbedQuery(const std::string& text, const OllamaRuntimeOptions& options) {
-        auto&& [embedding] = client_.PostObject<OllamaEmbeddingRequest, OllamaEmbeddingResponse>(
-            OLLAMA_EMBEDDING_PATH, {
-                options.model_name,
-                text,
-                {}
-            });
-        return embedding;
-    }
 } // LC_MODEL_NS
 
 #endif //OLLAMAEMBEDDING_H

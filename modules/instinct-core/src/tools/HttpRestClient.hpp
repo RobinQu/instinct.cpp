@@ -5,6 +5,10 @@
 #ifndef HTTPRESTCLIENT_H
 #define HTTPRESTCLIENT_H
 
+#include <google/protobuf/message.h>
+#include <google/protobuf/util/json_util.h>
+
+#include "Assertions.hpp"
 #include "CoreGlobals.hpp"
 #include "CoreTypes.hpp"
 #include "HttpClientException.hpp"
@@ -17,44 +21,62 @@ class HttpRestClient final: public SimpleHttpClient {
 public:
     HttpRestClient() = delete;
 
-    explicit HttpRestClient(Endpoint endpoint)
-        : SimpleHttpClient(std::move(endpoint)) {
+    explicit HttpRestClient(const std::string& host, const int port)
+        : SimpleHttpClient({.host = host, .port = port}) {
     }
 
     template<typename Result>
+    requires is_pb_message<Result>
     Result GetObject(const std::string& uri) {
         const HttpRequest request = {GET, uri, {}, ""};
         const HttpResponse response = Execute(request);
         if(response.status_code >= 400) {
             throw HttpClientException(response.status_code, response.body);
         }
-        return nlohmann::json::parse(response.body);
+        Result result;
+        auto status = google::protobuf::util::JsonStringToMessage(response.body, &result);
+        assert_true(status.ok(), "failed to parse protobuf message from response body");
+        return result;
     }
+
     template<typename Param, typename Result>
+    requires is_pb_message<Result> && is_pb_message<Param>
     Result PostObject(const std::string& uri, const Param& param) {
-        const nlohmann::json json_object = param;
-        const HttpRequest request = {POST, uri, {}, json_object.dump()};
+        std::string param_string;
+        auto status = google::protobuf::util::MessageToJsonString(param, &param_string);
+        assert_true(status.ok(), "failed to dump parameters from protobuf message");
+
+        const HttpRequest request = {POST, uri, {}, param_string};
         // std::cout << "Request body: " <<  request.body << std::endl;
         const HttpResponse response = Execute(request);
         // std::cout << "Response body: " << response->body << std::endl;
         if(response.status_code >= 400) {
             throw HttpClientException(response.status_code, response.body);
         }
-        auto response_body_json = nlohmann::json::parse(response.body);
-        return response_body_json.get<Result>();
+
+        Result result;
+        status = google::protobuf::util::JsonStringToMessage(response.body, &result);
+        assert_true(status.ok(), "failed to parse protobuf message from response body");
+        return result;
     }
 
     template<typename Param, typename Result>
-    ResultIterator<Result>* StreamChunk(const std::string& uri, const Param& param) {
-        const nlohmann::json json_object = param;
-        const HttpRequest request = {POST, uri, {}, json_object.dump()};
-        return create_transform([](auto&& v) {
+    requires is_pb_message<Result> && is_pb_message<Param>
+    ResultIteratorPtr<Result> StreamChunk(const std::string& uri, const Param& param) {
+        std::string param_string;
+        auto status = google::protobuf::util::MessageToJsonString(param, &param_string);
+        assert_true(status.ok(), "failed to dump parameters from protobuf message");
+
+        const HttpRequest request = {POST, uri, {}, param_string};
+        return create_result_itr_with_transform([](auto&& v) {
             const auto trimed = StringUtils::Trim(v);
+            Result result;
             if(trimed.empty()) {
-                return Result {};
+                return result;
             }
-            auto response_body_json = nlohmann::json::parse(trimed);
-            return response_body_json.template get<Result>();
+            auto to_message_status = google::protobuf::util::JsonStringToMessage(trimed, &result);
+            assert_true(to_message_status.ok(), "failed to parse protobuf message from response body");
+            return result;
         }, Stream(request));
     }
 };

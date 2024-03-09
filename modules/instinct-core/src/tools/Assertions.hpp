@@ -6,6 +6,8 @@
 #define ASSERTIONS_HPP
 
 #include "CoreGlobals.hpp"
+#include "CoreTypes.hpp"
+// #include "StringUtils.hpp"
 
 
 namespace INSTINCT_CORE_NS {
@@ -104,6 +106,7 @@ namespace INSTINCT_CORE_NS {
             throw InstinctException(message);
         }
     }
+
 
 
 }
