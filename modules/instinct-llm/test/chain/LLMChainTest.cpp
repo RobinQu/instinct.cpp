@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 #include "LLMGlobals.hpp"
+#include "chain/ChainContextBuilder.hpp"
 #include "chain/LLMChain.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "llm/OllamaLLM.hpp"
@@ -24,10 +25,11 @@ namespace INSTINCT_LLM_NS {
             llm_ = std::make_shared<OllamaLLM>();
 
             auto builder = OllamaChat::CreateChatPromptTemplateBuilder();
-            builder->AddSystemMessage("You are a help asistant. Please answer user's question in one sentence.");
-            builder->AddHumanMessage("Question: {question}");
+            builder->AddHumanMessage("why is the sky blue?");
+            builder->AddAIMessage("due to rayleigh scattering.");
+            builder->AddHumanMessage("{question}");
             chat_prompt_template_ = builder->Build();
-            string_prompt_template_ = PlainPromptTemplate::CreateWithTemplate("Please answer following question in one sentence. \n Question: {question}");
+            string_prompt_template_ = PlainPromptTemplate::CreateWithTemplate(" {question}");
         }
         ChatModelPtr chat_model_;
         LLMPtr llm_;
@@ -37,17 +39,47 @@ namespace INSTINCT_LLM_NS {
     };
 
 
-    TEST_F(LLMChainTest, SimpleGenerate) {
+    TEST_F(LLMChainTest, GenerateWithLLM) {
         LLMChain chain { llm_, string_prompt_template_, string_parser_, nullptr};
         LLMChainContext context;
-
-        PrimitiveVariable v;
-        v.set_string_value("Why is sky blue?");
-        v.set_name("question");
-        context.mutable_values()
-        ->emplace("question", v);
-        const auto result = chain.Invoke(context);
+        auto builder = ChainContextBuilder::Create();
+        builder->Put("question", "Why is sky blue?");
+        auto result = chain.Invoke(builder->Build());
         std::cout << result << std::endl;
+
+        auto batch_result = chain.Batch({builder->Build()});
+        while (batch_result->HasNext()) {
+            std::cout << batch_result->Next() << std::endl;
+        }
+
+        auto chunk_result = chain.Stream(builder->Build());
+        std::string buf;
+        while (chunk_result->HasNext()) {
+            buf += chunk_result->Next();
+            std::cout << buf << std::endl;;
+        }
+    }
+
+    TEST_F(LLMChainTest, GenerateWithChatModel) {
+        auto builder = ChainContextBuilder::Create();
+        builder->Put("question", "how is that different than mie scattering?");
+        LLMChain chain {chat_model_, chat_prompt_template_, string_parser_, nullptr};
+        auto result = chain.Invoke(builder->Build());
+        std::cout << result << std::endl;
+
+        auto batch_result = chain.Batch({builder->Build()});
+        while (batch_result->HasNext()) {
+            std::cout << batch_result->Next() << std::endl;
+        }
+
+        auto chunk_result = chain.Stream(builder->Build());
+        std::string buf;
+        while (chunk_result->HasNext()) {
+            buf += chunk_result->Next();
+            std::cout << buf << std::endl;
+        }
+
+
     }
 
 }

@@ -42,8 +42,14 @@ namespace INSTINCT_LLM_NS {
         MessageList FormatMessages(const LLMChainContext& variables) override {
             MessageList message_list;
             for (const auto& message_like: messages_) {
-                auto list = std::visit(details::conv_message_alike_to_message_list, message_like);
-                message_list.MergeFrom(list);
+                if (std::holds_alternative<Message>(message_like)) {
+                    message_list.add_messages()->CopyFrom(std::get<Message>(message_like));
+                }
+                if (std::holds_alternative<ChatPromptTemplatePtr>(message_like)) {
+                    auto chat_prompt_template = std::get<ChatPromptTemplatePtr>(message_like);
+                    auto part_list = chat_prompt_template->FormatMessages(variables);
+                    message_list.MergeFrom(part_list);
+                }
             }
 
             // format content field of each message

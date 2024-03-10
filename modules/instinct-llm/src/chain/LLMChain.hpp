@@ -21,6 +21,7 @@ namespace
 INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
+    // to adapt both LLM and ChatModel
     using LanguageModelVariant = std::variant<LLMPtr, ChatModelPtr>;
 
     template<typename Result>
@@ -43,7 +44,6 @@ INSTINCT_LLM_NS {
 
         Result Invoke(const LLMChainContext& input) override {
             auto prompt_value = prompt_template_->FormatPrompt(input);
-
             if (std::holds_alternative<LLMPtr>(model_)) {
                 auto llm = std::get<LLMPtr>(model_);
                 return output_parser_->ParseResult(llm->Invoke(prompt_value));
@@ -90,7 +90,7 @@ INSTINCT_LLM_NS {
                 }, chunk_itr);
             }
 
-            if (std::holds_alternative<LLMPtr>(model_)) {
+            if (std::holds_alternative<ChatModelPtr>(model_)) {
                 auto chat_model = std::get<ChatModelPtr>(model_);
                 auto chunk_itr = chat_model->Stream(prompt_value);
                 return create_result_itr_with_transform([&](auto&& message) {

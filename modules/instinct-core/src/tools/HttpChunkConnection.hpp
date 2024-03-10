@@ -153,15 +153,6 @@ namespace INSTINCT_CORE_NS {
 
             break;
         }
-        // try {
-        //     cache_.emplace_back(chunk_converter_(
-        //         StringUtils::Trim(chunk_)
-        //     ));
-        // } catch (const std::runtime_error &e) {
-        //     throw InstinctException(e, "ChunkConverter error");
-        // } catch (const std::exception& e) {
-        //     throw InstinctException(e.what());
-        // }
 
         if(parser_.is_done()) {
             delete stream_;
@@ -169,6 +160,7 @@ namespace INSTINCT_CORE_NS {
             stream_ = nullptr;
         }
 
+        // std::cout << chunk_ << std::endl;
         return chunk_;
     }
 

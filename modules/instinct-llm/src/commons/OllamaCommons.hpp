@@ -90,7 +90,7 @@ namespace INSTINCT_LLM_NS {
 
     static const std::string OLLAMA_EMBEDDING_PATH = "/api/embeddings";
 
-    static const std::string OLLAMA_DEFUALT_MODEL_NAME = "llama2";
+    static const std::string OLLAMA_DEFUALT_MODEL_NAME = "llama2:latest";
 
     /**
      * runtime options for ollama. Using struct could in API other than protobuf generated classes makes it easier for users.

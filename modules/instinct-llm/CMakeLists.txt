@@ -35,6 +35,7 @@ set(${LIBRARY_TARGET_NAME}_HDR  src/All.hpp
         src/tokenizer/BPETokenRanksReader.hpp
         src/tokenizer/GPT2BPEFileReader.hpp
         src/tokenizer/TiktokenBPEFileReader.hpp
+        src/chain/ChainContextBuilder.hpp
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

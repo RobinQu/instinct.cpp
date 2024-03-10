@@ -16,6 +16,17 @@
 
 namespace INSTINCT_LLM_NS {
 
+
+    namespace details {
+        static LangaugeModelResult conv_raw_response_to_model_result(const OllamaCompletionResponse& response, bool chunk) {
+            LangaugeModelResult result;
+            auto* genertion = result.add_generations();
+            genertion->set_is_chunk(chunk);
+            genertion->set_text(response.response());
+            return result;
+        }
+    }
+
     class OllamaLLM final : public BaseLLM {
         HttpRestClient http_client_;
         OllamaConfiguration configuration_;
@@ -42,12 +53,8 @@ namespace INSTINCT_LLM_NS {
             request.set_stream(false);
             request.set_format("json");
             request.set_prompt(prompt);
-            auto response = http_client_.PostObject<OllamaCompletionRequest, OllamaCompletionResponse>(OLLAMA_GENERATE_PATH, request);
-            LangaugeModelResult result;
-            auto* genertion = result.add_generations();
-            genertion->set_is_chunk(false);
-            genertion->set_text(response.response());
-            return result;
+            const auto response = http_client_.PostObject<OllamaCompletionRequest, OllamaCompletionResponse>(OLLAMA_GENERATE_PATH, request);
+            return details::conv_raw_response_to_model_result(response, false);
         }
 
         BatchedLangaugeModelResult Generate(const std::vector<std::string>& prompts) override {
@@ -67,11 +74,8 @@ namespace INSTINCT_LLM_NS {
             request.set_prompt(prompt);
             auto chunk_itr = http_client_.StreamChunk<OllamaCompletionRequest, OllamaCompletionResponse>(OLLAMA_GENERATE_PATH, request);
             return create_result_itr_with_transform([](auto&& response) -> LangaugeModelResult {
-                LangaugeModelResult result;
-                auto* genertion = result.add_generations();
-                genertion->set_is_chunk(true);
-                genertion->set_text(response.response());
-            return result;
+                // std::cout << "\"" << response.response() << "\"" << std::endl;
+                return details::conv_raw_response_to_model_result(response, true);
             }, chunk_itr);
         }
     };

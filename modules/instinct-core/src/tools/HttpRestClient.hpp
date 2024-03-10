@@ -53,7 +53,7 @@ public:
         const HttpRequest request = {POST, uri, {}, param_string};
         // std::cout << "Request body: " <<  request.body << std::endl;
         const HttpResponse response = Execute(request);
-        // std::cout << "Response body: " << response->body << std::endl;
+        // std::cout << "Response body: " << response.body << std::endl;
         if(response.status_code >= 400) {
             throw HttpClientException(response.status_code, response.body);
         }
@@ -72,7 +72,9 @@ public:
         assert_true(status.ok(), "failed to dump parameters from protobuf message");
 
         const HttpRequest request = {POST, uri, {}, param_string};
+        // std::cout << "Request body: " <<  request.body << std::endl;
         return create_result_itr_with_transform([](const std::string& v)-> Result {
+            // std::cout << v << std::endl;
             const auto trimed = StringUtils::Trim(v);
             Result result;
             if(trimed.empty()) {
@@ -80,6 +82,7 @@ public:
             }
             auto to_message_status = google::protobuf::util::JsonStringToMessage(trimed, &result);
             assert_true(to_message_status.ok(), "failed to parse protobuf message from response body");
+            // std::cout << result.DebugString() << std::endl;
             return result;
         }, Stream(request));
     }

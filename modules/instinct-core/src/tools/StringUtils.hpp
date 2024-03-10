@@ -17,23 +17,24 @@
 #include "Assertions.hpp"
 
 
-namespace INSTINCT_CORE_NS {
-
+namespace
+INSTINCT_CORE_NS {
     namespace u32_utils {
         static U32String copies_of(int n, const U32String& text) {
             U32String result;
-            while(n-->0) {
+            while (n-- > 0) {
                 result += text;
             }
             return result;
         }
 
-        static void print_splits(const std::string& announce , const std::vector<U32String>& splits, std::ostream& stream = std::cout, const bool flush = true) {
-            std::cout << announce;
-            for(const auto& f: splits) {
+        static void print_splits(const std::string& announce, const std::vector<U32String>& splits,
+                                 std::ostream& stream = std::cout, const bool flush = true) {
+            stream << announce;
+            for (const auto& f: splits) {
                 stream << f << " | ";
             }
-            if(flush) {
+            if (flush) {
                 stream << std::endl;
             }
         }
@@ -48,31 +49,26 @@ namespace INSTINCT_CORE_NS {
         */
         static std::string uuid_v8() {
             uuid_t uuid;
-            uuid_generate_random ( uuid );
+            uuid_generate_random(uuid);
             char s[37];
-            uuid_unparse ( uuid, s );
+            uuid_unparse(uuid, s);
             return s;
         }
-
-
-
-
     }
 
 
     struct StringUtils final {
-
         static std::string CopiesOf(int n, const std::string& text) {
             std::string result;
-            while(n-->0) {
+            while (n-- > 0) {
                 result += text;
             }
             return result;
         }
 
 
-
-        static std::vector<std::string> Resplit(const std::string &s, const std::regex &sep_regex = std::regex{"\\s+"}) {
+        static std::vector<std::string>
+        Resplit(const std::string& s, const std::regex& sep_regex = std::regex{"\\s+"}) {
             std::sregex_token_iterator iter(s.begin(), s.end(), sep_regex, -1);
             std::sregex_token_iterator end;
             return {iter, end};
@@ -80,19 +76,19 @@ namespace INSTINCT_CORE_NS {
 
 
         static std::string ToLower(const std::string_view& data) {
-            auto parts =  data | std::views::transform([](auto const c) {return std::tolower(c);});
+            auto parts = data | std::views::transform([](auto const c) { return std::tolower(c); });
             return {parts.begin(), parts.end()};
         }
 
         static std::string ToUpper(const std::string_view& data) {
-            auto parts =  data | std::views::transform([](auto const c) {return std::toupper(c);});
+            auto parts = data | std::views::transform([](auto const c) { return std::toupper(c); });
             return {parts.begin(), parts.end()};
         }
 
 
         static std::string Join(const std::vector<std::string>& parts) {
             std::string buf;
-            for(const auto& part: parts) {
+            for (const auto& part: parts) {
                 buf += part;
             }
             return buf;
@@ -101,20 +97,25 @@ namespace INSTINCT_CORE_NS {
         static std::string JoinWith(const sized_range auto& parts, const std::string& sep) {
             std::string buf;
             const size_t len = std::ranges::size(parts);
-            for(int i=0; const auto& part: parts) {
-                buf+= part;
-                if(++i < len) {
-                    buf+= sep;
+            for (int i = 0; const auto& part: parts) {
+                buf += part;
+                if (++i < len) {
+                    buf += sep;
                 }
             }
             return buf;
         }
 
         static std::string Trim(const std::string& input) {
-            auto view = input | std::views::filter([](unsigned char c) {
-               return !std::isspace(c);
-            });
-            return std::string {view.begin(), view.end()};
+            auto s = input;
+            s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+                return !std::isspace(ch);
+            }));
+            s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+                return !std::isspace(ch);
+            }).base(), s.end());
+
+            return s;
         }
 
         static bool IsBlankString(const std::string& s) {
@@ -127,13 +128,7 @@ namespace INSTINCT_CORE_NS {
             }
             return value;
         }
-
-
-
-
     };
-
-
 }
 
 #endif //STRINGUTILS_H

@@ -13,7 +13,7 @@ namespace INSTINCT_CORE_NS {
 
 
         static void PrintEmbedding(const std::string& announce, const std::ranges::input_range auto& embedding,  std::ostream& stream = std::cout, const bool flush = true) {
-            std::cout << announce;
+            stream << announce;
             for(const auto& f: embedding) {
                 stream << f << ", ";
             }
