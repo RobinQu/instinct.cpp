@@ -24,13 +24,13 @@ namespace INSTINCT_LLM_NS {
     class FewShotPromptTemplate final : public StringPromptTemplate {
         ExmapleSelectorPtr example_selector_;
         PromptTemplatePtr example_prompt_template_;
-        std::shared_ptr<FewShotPromptTemplateConfiguration> configuration_;
+        std::string prefix_;
+        std::string suffix_;
+        std::string example_seperator_;
     public:
-        FewShotPromptTemplate(ExmapleSelectorPtr example_selector, PromptTemplatePtr example_prompt_template,
-            std::shared_ptr<FewShotPromptTemplateConfiguration> configuration)
+        FewShotPromptTemplate(ExmapleSelectorPtr example_selector, PromptTemplatePtr example_prompt_template)
             : example_selector_(std::move(example_selector)),
-              example_prompt_template_(std::move(example_prompt_template)),
-              configuration_(std::move(configuration)) {
+              example_prompt_template_(std::move(example_prompt_template)) {
         }
 
         std::string Format(const LLMChainContext& variables) override {
@@ -40,10 +40,10 @@ namespace INSTINCT_LLM_NS {
                 return example_prompt_template_->Format(context);
             });
             //
-            std::vector parts = {configuration_->prefix()};
+            std::vector parts = {prefix_};
             parts.insert(parts.end(), example_strings_view.begin(), example_strings_view.end());
-            parts.push_back(configuration_->suffix());
-            return StringUtils::JoinWith(parts, StringUtils::GetWithDefault(configuration_->example_seperator(), details::DEFAULT_EXAMPLE_SEPERATOR));
+            parts.push_back(suffix_);
+            return StringUtils::JoinWith(parts, StringUtils::GetWithDefault(example_seperator_, details::DEFAULT_EXAMPLE_SEPERATOR));
         }
     };
 }

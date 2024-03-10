@@ -9,6 +9,8 @@
 #include "LLMGlobals.hpp"
 #include <llm.pb.h>
 
+#include "PlainChatTemplate.hpp"
+
 namespace INSTINCT_LLM_NS {
     using namespace google::protobuf;
 
@@ -23,26 +25,40 @@ namespace INSTINCT_LLM_NS {
 
     using MessageRoleNameMapping = std::unordered_map<MessageRole, std::string>;
 
-    class ChatPromptBulider {
+
+    template<typename Impl>
+    class BaseChatPromptBulider {
+    protected:
         std::vector<std::pair<MessageRole,std::string>> values_;
         MessageRoleNameMapping role_name_mapping_;
     public:
-        explicit ChatPromptBulider(MessageRoleNameMapping role_name_mapping)
+        explicit BaseChatPromptBulider(MessageRoleNameMapping role_name_mapping)
             : role_name_mapping_(std::move(role_name_mapping)), values_() {
         }
 
-
-        ChatPromptBulider* AddChatMessage(MessageRole role, const std::string& msg) {
+        Impl* AddChatMessage(MessageRole role, const std::string& msg) {
             values_.emplace_back(role, msg);
-            return this;
+            // return dynamic_cast<Impl*>(this);
+            return static_cast<Impl*>(this);
         }
 
-        ChatPromptBulider* AddAIMessage(const std::string& msg) {
+        Impl* AddAIMessage(const std::string& msg) {
             return AddChatMessage(kAsistant, msg);
         }
 
-        ChatPromptBulider* AddHumanMessage(const std::string& msg) {
+        Impl* AddSystemMessage(const std::string& msg) {
+            return AddChatMessage(kSystem, msg);
+        }
+
+        Impl* AddHumanMessage(const std::string& msg) {
             return AddChatMessage(kHuman, msg);
+        }
+    };
+
+    class ChatPromptBulider: public BaseChatPromptBulider<ChatPromptBulider> {
+    public:
+        explicit ChatPromptBulider(MessageRoleNameMapping role_name_mapping)
+            : BaseChatPromptBulider<ChatPromptBulider>(std::move(role_name_mapping)) {
         }
 
         PromptValue Build() {
@@ -67,9 +83,28 @@ namespace INSTINCT_LLM_NS {
             }
             return pv;
         }
-
     };
+
+    class ChatPromptTemplateBulider: public BaseChatPromptBulider<ChatPromptTemplateBulider> {
+    public:
+        explicit ChatPromptTemplateBulider(MessageRoleNameMapping role_name_mapping)
+            : BaseChatPromptBulider<ChatPromptTemplateBulider>(std::move(role_name_mapping)) {
+        }
+
+        PromptTemplatePtr Build() {
+            std::vector<MessageLikeVariant> messages;
+            for(const auto& [role,content]: values_) {
+                Message message;
+                message.set_content(content);
+                message.set_role(role_name_mapping_[role]);
+                messages.emplace_back(message);
+            }
+            return std::make_shared<PlainChatTemplate>(messages);
+        }
+    };
+
     using ChatPromptBuliderPtr = std::shared_ptr<ChatPromptBulider>;
+    using ChatPromptTmeplateBuilderPtr = std::shared_ptr<ChatPromptTemplateBulider>;
 }
 
 #endif //CHATPROMPTBUILDER_HPP

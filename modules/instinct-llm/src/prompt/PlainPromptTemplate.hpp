@@ -5,11 +5,9 @@
 #ifndef PROMPTTEMPLATE_H
 #define PROMPTTEMPLATE_H
 #include "LLMGlobals.hpp"
-#include <fmt/format.h>
-#include <fmt/args.h>
 
 #include "StringPromptTemplate.hpp"
-
+#include "prompt/MessageUtils.hpp"
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
@@ -18,41 +16,16 @@ namespace INSTINCT_LLM_NS {
         std::string template_string_;
 
     public:
-        // static PlainPromptTemplate FromTemplate(const std::string& template_string);
+        static PromptTemplatePtr CreateWithTemplate(const std::string& template_string) {
+            return std::make_shared<PlainPromptTemplate>(template_string);
+        }
 
         explicit PlainPromptTemplate(std::string template_string)
             : StringPromptTemplate(), template_string_(std::move(template_string)) {
         }
 
         std::string Format(const LLMChainContext& variables) override {
-            fmt::dynamic_format_arg_store<fmt::format_context> store;
-            // assuming `variables` has depth of one
-
-            for(const auto& [k,v]: variables.values()) {
-                switch (v.value_case()) {
-                    case PrimitiveVariable::kIntValue:
-                        store.push_back(fmt::arg(k.c_str(), v.int_value()));
-                        break;
-                    case PrimitiveVariable::kLongValue:
-                        store.push_back(fmt::arg(k.c_str(), v.long_value()));
-                        break;
-                    case PrimitiveVariable::kFloatValue:
-                        store.push_back(fmt::arg(k.c_str(), v.float_value()));
-                        break;
-                    case PrimitiveVariable::kDoubleValue:
-                        store.push_back(fmt::arg(k.c_str(), v.double_value()));
-                        break;
-                    case PrimitiveVariable::kBoolValue:
-                        store.push_back(fmt::arg(k.c_str(), v.bool_value()));
-                        break;
-                    case PrimitiveVariable::kStringValue:
-                        store.push_back(fmt::arg(k.c_str(), v.string_value().c_str()));
-                        break;
-                    default:
-                        throw InstinctException("unknown value type for entry: " + k);
-                }
-            }
-            return fmt::vformat(this->template_string_, store);
+            return MessageUtils::FormatString(this->template_string_, variables);
         }
     };
 

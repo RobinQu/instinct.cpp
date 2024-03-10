@@ -10,6 +10,8 @@
 #include "commons/OllamaCommons.hpp"
 #include <llm.pb.h>
 
+#include "prompt/ChatPromptBuilder.hpp"
+
 
 namespace INSTINCT_LLM_NS {
     using namespace google::protobuf;
@@ -60,6 +62,12 @@ namespace INSTINCT_LLM_NS {
     //
     // };
 
+    static MessageRoleNameMapping OLLAMA_ROLE_NAME_MAPPING = {
+        {kAsistant, "assistant"},
+        {kSystem, "system"},
+        {kHuman, "user"},
+        {kFunction, "asistant"}
+    };
 
     static LangaugeModelResult transform_raw_response(const OllamaChatCompletionResponse& response) {
         LangaugeModelResult model_result;
@@ -74,11 +82,18 @@ namespace INSTINCT_LLM_NS {
 
     class OllamaChat final: public BaseChatModel {
         HttpRestClient client_;
-        // std::shared_ptr<OllamaConfiguration> configuration_;
         OllamaConfiguration configuration_;
     public:
 
         explicit OllamaChat(const OllamaConfiguration& ollama_configuration = {}): client_(ollama_configuration.endpoint) {
+        }
+
+        static ChatPromptBuliderPtr CreateChatPromptBuilder() {
+            return std::make_shared<ChatPromptBulider>(OLLAMA_ROLE_NAME_MAPPING);
+        }
+
+        static ChatPromptTmeplateBuilderPtr CreateChatPromptTemplateBuilder() {
+            return std::make_shared<ChatPromptTemplateBulider>(OLLAMA_ROLE_NAME_MAPPING);
         }
 
         std::vector<TokenId> GetTokenIds(const std::string& text) override {

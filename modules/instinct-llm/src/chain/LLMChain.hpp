@@ -21,7 +21,7 @@ namespace
 INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
-    using LanguageModelVariant = std::variant<std::monostate, LLMPtr, ChatModelPtr>;
+    using LanguageModelVariant = std::variant<LLMPtr, ChatModelPtr>;
 
     template<typename Result>
     class LLMChain : public IChain<Result> {
@@ -57,23 +57,23 @@ INSTINCT_LLM_NS {
 
         ResultIteratorPtr<Result> Batch(const std::vector<LLMChainContext>& input) override {
             auto prompt_value_view = input | std::views::transform([&](auto&& ctx) {
-                return prompt_template_->FormatPrompt(std::forward<LLMChainContext>(ctx));
+                return prompt_template_->FormatPrompt(ctx);
             });
 
             if (std::holds_alternative<LLMPtr>(model_)) {
                 auto llm = std::get<LLMPtr>(model_);
                 auto result_itr = llm->Batch({prompt_value_view.begin(), prompt_value_view.end()});
-                return create_result_itr_with_transform(result_itr, [&](auto&& model_result) {
+                return create_result_itr_with_transform([&](auto&& model_result) {
                     return output_parser_->ParseResult(model_result);
-                });
+                }, result_itr);
             }
 
             if (std::holds_alternative<ChatModelPtr>(model_)) {
                 auto chat_model = std::get<ChatModelPtr>(model_);
                 auto result_itr = chat_model->Batch({prompt_value_view.begin(), prompt_value_view.end()});
-                return create_result_itr_with_transform(result_itr, [&](auto&& mesage) {
+                return create_result_itr_with_transform( [&](auto&& mesage) {
                     return output_parser_->ParseResult(mesage.content());
-                });
+                }, result_itr);
             }
 
             throw InstinctException("invalid model pointer");
@@ -85,17 +85,17 @@ INSTINCT_LLM_NS {
             if (std::holds_alternative<LLMPtr>(model_)) {
                 auto llm = std::get<LLMPtr>(model_);
                 auto chunk_itr = llm->Stream(prompt_value);
-                return create_result_itr_with_transform(chunk_itr, [&](auto&& model_result) {
+                return create_result_itr_with_transform([&](auto&& model_result) {
                     return output_parser_->ParseResult(model_result);
-                });
+                }, chunk_itr);
             }
 
             if (std::holds_alternative<LLMPtr>(model_)) {
                 auto chat_model = std::get<ChatModelPtr>(model_);
                 auto chunk_itr = chat_model->Stream(prompt_value);
-                return create_result_itr_with_transform(chunk_itr, [&](auto&& message) {
+                return create_result_itr_with_transform([&](auto&& message) {
                    return message.content();
-                });
+                }, chunk_itr);
             }
 
             throw InstinctException("invalid model pointer");

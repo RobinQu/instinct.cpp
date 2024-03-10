@@ -28,11 +28,6 @@ namespace INSTINCT_LLM_NS {
 
 
 
-    namespace details {
-        MessageList conv_message_alike_to_message_list(const MessageLikeVariant& mlv) {
-
-        }
-    }
 
     class IChatPromptTemplate : public IPromptTemplate {
     public:
@@ -62,6 +57,12 @@ namespace INSTINCT_LLM_NS {
     //     return {message_view.begin(), message_view.end()};
     // }
 
+
+    namespace details {
+        MessageList conv_message_alike_to_message_list(const MessageLikeVariant& mlv) {
+
+        }
+    }
 
 } // core
 // langchain

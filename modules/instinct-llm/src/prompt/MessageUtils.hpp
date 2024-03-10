@@ -5,24 +5,18 @@
 #ifndef MESSAGEUTILS_HPP
 #define MESSAGEUTILS_HPP
 #include "LLMGlobals.hpp"
-#include "prompt/ChatPromptBuilder.hpp"
 #include "tools/StringUtils.hpp"
+#include <fmt/format.h>
+#include <fmt/args.h>
+
+
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
-    static MessageRoleNameMapping OLLAMA_ROLE_NAME_MAPPING = {
-        {kAsistant, "assistant"},
-        {kSystem, "system"},
-        {kHuman, "user"},
-        {kFunction, "asistant"}
-    };
 
     class MessageUtils {
     public:
-        static ChatPromptBuliderPtr CreateOllamaChatPromptBuilder() {
-            return std::make_shared<ChatPromptBulider>(OLLAMA_ROLE_NAME_MAPPING);
-        }
 
         static PromptValue CreateStringPrompt(const std::string& s) {
             PromptValue pv;
@@ -37,6 +31,39 @@ namespace INSTINCT_LLM_NS {
                 return fmt::format("{}: {}", m.role(), m.content());
             });
             return StringUtils::JoinWith(content_view, "\n");
+        }
+
+
+        static std::string FormatString(const std::string& msg, const LLMChainContext& context) {
+            fmt::dynamic_format_arg_store<fmt::format_context> store;
+            // assuming `variables` has depth of one
+
+            for(const auto& [k,v]: context.values()) {
+                switch (v.value_case()) {
+                    case PrimitiveVariable::kIntValue:
+                        store.push_back(fmt::arg(k.c_str(), v.int_value()));
+                    break;
+                    case PrimitiveVariable::kLongValue:
+                        store.push_back(fmt::arg(k.c_str(), v.long_value()));
+                    break;
+                    case PrimitiveVariable::kFloatValue:
+                        store.push_back(fmt::arg(k.c_str(), v.float_value()));
+                    break;
+                    case PrimitiveVariable::kDoubleValue:
+                        store.push_back(fmt::arg(k.c_str(), v.double_value()));
+                    break;
+                    case PrimitiveVariable::kBoolValue:
+                        store.push_back(fmt::arg(k.c_str(), v.bool_value()));
+                    break;
+                    case PrimitiveVariable::kStringValue:
+                        store.push_back(fmt::arg(k.c_str(), v.string_value().c_str()));
+                    break;
+                    default:
+                        throw InstinctException("unknown value type for entry: " + k);
+                }
+            }
+            return fmt::vformat(msg, store);
+
         }
     };
 }
