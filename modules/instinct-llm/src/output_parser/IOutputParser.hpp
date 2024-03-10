@@ -8,13 +8,11 @@
 
 #include <llm.pb.h>
 
-#include "RetrievalGlobals.hpp"
-
+#include "LLMGlobals.hpp"
 
 namespace INSTINCT_LLM_NS {
 
     template<typename T>
-    // requires is_pb_message<T>
     class IOutputParser {
     public:
         IOutputParser()=default;
@@ -23,7 +21,7 @@ namespace INSTINCT_LLM_NS {
         IOutputParser(const IOutputParser&)=delete;
 
         virtual T ParseResult(
-            const LangaugeModelOutput& model_output
+            const std::string& result
         ) = 0;
     };
 

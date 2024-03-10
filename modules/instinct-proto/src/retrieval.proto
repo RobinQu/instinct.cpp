@@ -1,9 +1,10 @@
 syntax = "proto3";
 
+//import "llm.proto";
+import "core.proto";
 
 package instinct.retrieval;
 
-import "llm.proto";
 
 
 enum MetadataFieldType {
@@ -31,7 +32,7 @@ message Document {
   string id = 1;
   string text = 2;
 //  repeated float vector = 3;
-  repeated llm.PrimitiveVariable metadata = 3;
+  repeated instinct.core.PrimitiveVariable metadata = 3;
 //  map<string, MetadataField> metadata = 4;
 }
 
@@ -42,7 +43,7 @@ message MetadataBoolQuery {
 }
 
 message MetadataTermQuery {
-  llm.PrimitiveVariable predicate = 1;
+  instinct.core.PrimitiveVariable predicate = 1;
 }
 
 message MetadataQuery {

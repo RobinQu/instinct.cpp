@@ -15,19 +15,22 @@ namespace INSTINCT_LLM_NS {
 
     class OllamaEmbedding final : public IEmbeddingModel {
         HttpRestClient client_;
-        std::shared_ptr<OllamaConfiguration> configuration_;
+        OllamaConfiguration configuration_;
 
     public:
-        explicit OllamaEmbedding(const std::shared_ptr<OllamaConfiguration>& configuration): client_(configuration->endpoint_host(), configuration->endpoint_port()), configuration_(configuration) {
+        explicit OllamaEmbedding(const OllamaConfiguration& configuration = {}):
+            client_(configuration_.endpoint),
+            configuration_(configuration) {
         }
 
         std::vector<Embedding> EmbedDocuments(const std::vector<std::string>& texts) override {
             std::vector<Embedding> result;
             for (const auto& text: texts) {
                 OllamaEmbeddingRequest request;
-                request.set_model(configuration_->model_name());
+                request.set_model(configuration_.model_name);
                 request.set_prompt(text);
-                request.mutable_options()->CopyFrom(configuration_->model_options());
+                // TODO handle model options
+                // request.mutable_options()->CopyFrom(configuration_->model_options());
                 auto response = client_.PostObject<OllamaEmbeddingRequest, OllamaEmbeddingResponse>(
                     OLLAMA_EMBEDDING_PATH, request);
                 result.emplace_back(response.embedding().begin(), response.embedding().end());
@@ -37,9 +40,10 @@ namespace INSTINCT_LLM_NS {
 
         Embedding EmbedQuery(const std::string& text) override {
             OllamaEmbeddingRequest request;
-                request.set_model(configuration_->model_name());
+                request.set_model(configuration_.model_name);
                 request.set_prompt(text);
-                request.mutable_options()->CopyFrom(configuration_->model_options());
+            // TODO handle model options
+                // request.mutable_options()->CopyFrom(configuration_->model_options());
             const auto response = client_.PostObject<OllamaEmbeddingRequest, OllamaEmbeddingResponse>(
                 OLLAMA_EMBEDDING_PATH, request);
             return {response.embedding().begin(), response.embedding().end()};

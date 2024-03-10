@@ -21,6 +21,8 @@ namespace INSTINCT_CORE_NS {
         virtual T& Next()  = 0;
     };
 
+    template<typename T>
+    using ResultIteratorPtr = std::shared_ptr<ResultIterator<T>>;
 
     /**
      * \brief Vector-based container conforming ResultIterator interface
@@ -55,15 +57,11 @@ namespace INSTINCT_CORE_NS {
     requires std::is_invocable_r_v<T, Fn, R>
     class TransofromResultView: public ResultIterator<T> {
         Fn fn_;
-        // owning pointer
-        ResultIterator<R>* base_;
+        ResultIteratorPtr<R> base_;
         std::vector<T> data_;
     public:
-        TransofromResultView(Fn fn, ResultIterator<R>* base): fn_(std::move(fn)), base_(base) {
+        TransofromResultView(Fn fn, ResultIteratorPtr<R> base): fn_(std::move(fn)), base_(base) {
 
-        }
-        ~TransofromResultView() override {
-            delete base_;
         }
 
         [[nodiscard]] bool HasNext() const override {
@@ -75,9 +73,6 @@ namespace INSTINCT_CORE_NS {
             return data_.back();
         }
     };
-
-    template<typename T>
-    using ResultIteratorPtr = std::shared_ptr<ResultIterator<T>>;
 
     template<typename R, typename Fn, typename T=std::invoke_result_t<Fn, R>>
     requires std::is_invocable_r_v<T, Fn, R>

@@ -15,6 +15,8 @@ namespace INSTINCT_LLM_NS {
     using namespace google::protobuf;
     using namespace INSTINCT_CORE_NS;
 
+
+
     //
     // struct message_variant_to_ollama_message_converter {
     //     using result_type = OllamaGenerateMessage*;
@@ -72,10 +74,11 @@ namespace INSTINCT_LLM_NS {
 
     class OllamaChat final: public BaseChatModel {
         HttpRestClient client_;
-        std::shared_ptr<OllamaConfiguration> configuration_;
+        // std::shared_ptr<OllamaConfiguration> configuration_;
+        OllamaConfiguration configuration_;
     public:
 
-        explicit OllamaChat(const std::shared_ptr<OllamaConfiguration>& configuration_): client_(configuration_->endpoint_host(), configuration_->endpoint_port()) {
+        explicit OllamaChat(const OllamaConfiguration& ollama_configuration = {}): client_(ollama_configuration.endpoint) {
         }
 
         std::vector<TokenId> GetTokenIds(const std::string& text) override {
@@ -99,13 +102,11 @@ namespace INSTINCT_LLM_NS {
             }
             request.set_stream(false);
             request.set_format("json");
-            request.set_model(configuration_->model_name());
-            request.mutable_options()->CopyFrom(configuration_->model_options());
+            request.set_model(configuration_.model_name);
+            // request.mutable_options()->CopyFrom(configuration_->model_options());
             auto response = client_.PostObject<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request);
             return transform_raw_response(response);
         }
-
-
 
         BatchedLangaugeModelResult Generate(const std::vector<MessageList>& messages) override {
             BatchedLangaugeModelResult batched_langauge_model_result;
@@ -122,8 +123,8 @@ namespace INSTINCT_LLM_NS {
             }
             request.set_stream(true);
             request.set_format("json");
-            request.set_model(configuration_->model_name());
-            request.mutable_options()->CopyFrom(configuration_->model_options());
+            request.set_model(configuration_.model_name);
+            // request.mutable_options()->CopyFrom(configuration_->model_options());
             auto chunk_itr = client_.StreamChunk<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request);
 
             return create_result_itr_with_transform(transform_raw_response, chunk_itr);

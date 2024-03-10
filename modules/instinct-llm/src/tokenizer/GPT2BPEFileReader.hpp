@@ -17,7 +17,8 @@
 
 
 
-namespace INSTINCT_CORE_NS {
+namespace INSTINCT_LLM_NS {
+    using namespace INSTINCT_CORE_NS;
     class GPT2BPEFileReader : public BPETokenRanksReader {
         std::filesystem::path vocab_bpe_file_path_;
         std::filesystem::path encoder_json_file_path_;

@@ -19,12 +19,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/tools/HttpChunkConnection.hpp
         src/tools/ResultIterator.hpp
         src/tools/HttpChunkResultIterator.hpp
-        src/tokenizer/Tokenizer.hpp
-        src/tokenizer/RegexTokenizer.hpp
-        src/tokenizer/TiktokenTokenizer.hpp
-        src/tokenizer/BPETokenRanksReader.hpp
-        src/tokenizer/GPT2BPEFileReader.hpp
-        src/tokenizer/TiktokenBPEFileReader.hpp
         src/tools/Assertions.hpp
         src/tools/ChronoUtils.hpp
 )

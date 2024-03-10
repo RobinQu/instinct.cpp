@@ -5,7 +5,7 @@
 #ifndef TOKENIZER_HPP
 #define TOKENIZER_HPP
 
-#include "CoreGlobals.hpp"
+#include "LLMGlobals.hpp"
 #include <map>
 #include <utility>
 #include <unicode/regex.h>
@@ -18,8 +18,8 @@
 #include <tsl/ordered_map.h>
 
 
-namespace INSTINCT_CORE_NS {
-
+namespace INSTINCT_LLM_NS {
+    using namespace INSTINCT_CORE_NS;
     using namespace U_ICU_NAMESPACE;
 
 

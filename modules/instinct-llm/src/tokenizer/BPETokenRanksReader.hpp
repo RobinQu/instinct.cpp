@@ -5,10 +5,9 @@
 #ifndef BPEFILEREADER_HPP
 #define BPEFILEREADER_HPP
 
-#include "CoreGlobals.hpp"
 #include "Tokenizer.hpp"
 
-namespace INSTINCT_CORE_NS {
+namespace INSTINCT_LLM_NS {
     class BPETokenRanksReader {
     public:
         BPETokenRanksReader()=default;

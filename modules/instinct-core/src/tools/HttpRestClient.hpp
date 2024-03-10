@@ -21,8 +21,12 @@ class HttpRestClient final: public SimpleHttpClient {
 public:
     HttpRestClient() = delete;
 
-    explicit HttpRestClient(const std::string& host, const int port)
+    HttpRestClient(const std::string& host, const int port)
         : SimpleHttpClient({.host = host, .port = port}) {
+    }
+
+    explicit HttpRestClient(Endpoint endpoint)
+        : SimpleHttpClient(std::move(endpoint)) {
     }
 
     template<typename Result>
@@ -68,7 +72,7 @@ public:
         assert_true(status.ok(), "failed to dump parameters from protobuf message");
 
         const HttpRequest request = {POST, uri, {}, param_string};
-        return create_result_itr_with_transform([](auto&& v) {
+        return create_result_itr_with_transform([](const std::string& v)-> Result {
             const auto trimed = StringUtils::Trim(v);
             Result result;
             if(trimed.empty()) {

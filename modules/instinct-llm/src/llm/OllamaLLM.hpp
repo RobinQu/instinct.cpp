@@ -18,10 +18,10 @@ namespace INSTINCT_LLM_NS {
 
     class OllamaLLM final : public BaseLLM {
         HttpRestClient http_client_;
-        std::shared_ptr<OllamaConfiguration> configuration_;
+        OllamaConfiguration configuration_;
     public:
-        OllamaLLM();
-        explicit OllamaLLM(const std::shared_ptr<OllamaConfiguration>& configuration);
+
+        explicit OllamaLLM(const OllamaConfiguration& configuration = {}): http_client_(configuration.endpoint), configuration_(configuration) {}
 
         std::vector<TokenId> GetTokenIds(const std::string& text) override {
 
@@ -38,7 +38,7 @@ namespace INSTINCT_LLM_NS {
     private:
         LangaugeModelResult CallOllama(const std::string& prompt) {
             OllamaCompletionRequest request;
-            request.set_model(configuration_->model_name());
+            request.set_model(configuration_.model_name);
             request.set_stream(false);
             request.set_format("json");
             request.set_prompt(prompt);
@@ -61,7 +61,7 @@ namespace INSTINCT_LLM_NS {
 
         ResultIteratorPtr<LangaugeModelResult> StreamGenerate(const std::string& prompt) override {
             OllamaCompletionRequest request;
-            request.set_model(configuration_->model_name());
+            request.set_model(configuration_.model_name);
             request.set_stream(true);
             request.set_format("json");
             request.set_prompt(prompt);

@@ -14,12 +14,7 @@
  * @see https://github.com/ollama/ollama/blob/main/docs/api.md
  */
 namespace INSTINCT_LLM_NS {
-    /**
-     * runtime options for ollama. Using struct could in API other than protobuf generated classes makes it easier for users.
-     */
-    struct OllamaRuntimeOptions {
-        std::string model_name = "llama2";
-    };
+
 
 
     // struct OllamaGenerateReuqestOption {
@@ -90,7 +85,7 @@ namespace INSTINCT_LLM_NS {
     // };
     // NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(OllamaEmbeddingResponse, embedding);
 
-    static const core::Endpoint OLLAMA_ENDPOINT {"localhost", 11434};
+    static const Endpoint OLLAMA_ENDPOINT {"localhost", 11434};
 
     static const std::string OLLAMA_GENERATE_PATH = "/api/generate";
 
@@ -99,6 +94,14 @@ namespace INSTINCT_LLM_NS {
     static const std::string OLLAMA_EMBEDDING_PATH = "/api/embeddings";
 
     static const std::string OLLAMA_DEFUALT_MODEL_NAME = "llama2";
+
+    /**
+     * runtime options for ollama. Using struct could in API other than protobuf generated classes makes it easier for users.
+     */
+    struct OllamaConfiguration {
+        std::string model_name = OLLAMA_DEFUALT_MODEL_NAME;
+        Endpoint endpoint = OLLAMA_ENDPOINT;
+    };
 
 
 }

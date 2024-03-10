@@ -11,7 +11,8 @@
 #include "tools/StringUtils.hpp"
 #include <base64.hpp>
 
-namespace INSTINCT_CORE_NS {
+namespace INSTINCT_LLM_NS {
+    using namespace INSTINCT_CORE_NS;
     class TiktokenBPEFileReader: public BPETokenRanksReader {
         std::filesystem::path bpe_file_path_;
 

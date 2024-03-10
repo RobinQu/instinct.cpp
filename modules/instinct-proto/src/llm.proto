@@ -1,86 +1,50 @@
 syntax = "proto3";
 //import "google/protobuf/any.proto";
-//import "core.proto";
+import "core.proto";
 
 package instinct.llm;
 
-message PrimitiveVariable {
-  string name = 1;
-  oneof value {
-    int32  int_value = 2;
-    int64 long_value = 3;
-    float float_value = 4;
-    double double_value = 5;
-    bool bool_value = 6;
-    string string_value = 7;
-    bytes bytes_value = 8;
-  }
-}
-
-
-//message FormattableVariables {
-//  repeated PrimitiveVariable values = 1;
-//}
-
-message LLMChainConfiguration {
-    LLMConfiguration llm_config = 1;
-}
-
-message LLMConfiguration {
-  oneof value {
-      OllamaConfiguration ollama = 1;
-  }
-}
-
-message ChatModelConfiguration {
-
-}
-
-message OllamaConfiguration {
-  string model_name = 1;
-  string endpoint_host = 2;
-  int32 endpoint_port = 3;
-  OllamaModelOptions model_options = 4;
-}
 
 message LLMChainContext {
   // make it a K-V structure so we can easily merge
-  map<string, PrimitiveVariable> values = 1;
+  map<string, instinct.core.PrimitiveVariable> values = 1;
 }
 
 message Message {
-  oneof value {
-    AIMessage ai = 1;
-    HumanMessage human = 2;
-    FunctionMessage function = 3;
-    SystemMessage system = 4;
-    ChatMessage chat = 5;
-  }
-}
-
-message AIMessage {
-  string content = 1;
-  bool example = 2;
-}
-
-message HumanMessage {
-  string content = 1;
-  bool example = 2;
-}
-
-message FunctionMessage {
-  string name = 1;
-  string content = 2;
-}
-
-message SystemMessage {
-  string content = 1;
-}
-
-message ChatMessage {
   string role = 1;
   string content = 2;
+//  oneof value {
+//    AIMessage ai = 1;
+//    HumanMessage human = 2;
+//    FunctionMessage function = 3;
+//    SystemMessage system = 4;
+//    ChatMessage chat = 5;
+//  }
 }
+
+//message AIMessage {
+//  string content = 1;
+//  bool example = 2;
+//}
+//
+//message HumanMessage {
+//  string content = 1;
+//  bool example = 2;
+//}
+//
+//message FunctionMessage {
+//  string name = 1;
+//  string content = 2;
+//}
+//
+//message SystemMessage {
+//  string content = 1;
+//}
+//
+//message ChatMessage {
+//  string role = 1;
+//  string content = 2;
+//}
 
 message PromptValue {
   oneof value {
@@ -102,7 +66,7 @@ message MessageList {
 }
 
 message PromptExample {
-  map<string, PrimitiveVariable> values = 1;
+  map<string, instinct.core.PrimitiveVariable> values = 1;
 }
 
 message PromptExamples {
@@ -113,7 +77,7 @@ message PromptExamples {
 
 message Generation {
   string text = 1;
-  optional ChatMessage message = 2;
+  optional Message message = 2;
   bool is_chunk = 3;
 }
 
@@ -141,7 +105,6 @@ message LangaugeModelResult {
   }
 }
 
-
 message BatchedLangaugeModelResult {
   //  LangaugeModelOutput won't contain valid `raw_response` in BatchedLangaugeModelOutput, read content of `raw_response` below
   repeated LangaugeModelResult generations = 1;
@@ -149,19 +112,6 @@ message BatchedLangaugeModelResult {
     OllamaCompletionResponse ollama_completion = 2;
     OllamaChatCompletionResponse ollama_chat = 3;
   }
-}
-
-
-message FewShotPromptTemplateConfiguration {
-  string prefix = 1;
-  string suffix = 2;
-  string example_seperator = 3;
-}
-
-
-
-message LengthBasedExampleSelectorConfiguration {
-  int32 max_length = 1;
 }
 
 message OllamaGenerateMessage {
@@ -231,3 +181,56 @@ message OllamaEmbeddingResponse {
 
 
 
+//message OllamaConfiguration {
+//  string model_name = 1;
+//  string endpoint_host = 2;
+//  int32 endpoint_port = 3;
+//  OllamaModelOptions model_options = 4;
+//}
+
+//message PromptExampleSelectorConfiguration {
+//  oneof value {
+//    PromptExamples passthrough = 1;
+//    LengthBasedExampleSelectorConfiguration length_based = 2;
+//  }
+//}
+//
+//message LengthBasedExampleSelectorConfiguration {
+//  int32 max_length = 1;
+//}
+//
+//message FewShotPromptTemplateConfiguration {
+//  string prefix = 1;
+//  string suffix = 2;
+//  string example_seperator = 3;
+//  PromptExampleSelectorConfiguration example_selector = 4;
+//}
+//
+//
+//message PromptTemplate {
+//  oneof value {
+//    string text = 1;
+//    MessageList chat = 2;
+//    FewShotPromptTemplateConfiguration few_shot = 3;
+//  }
+//}
+//
+//message LLMConfiguration {
+//  oneof value {
+//    OllamaConfiguration ollama_chat = 1;
+//    OllamaConfiguration ollama_llm = 2;
+//  }
+//}
+
+//
+//message OutputParserConfiguration {
+//  oneof value {
+//
+//  }
+//}
+//
+//
+//message LLMChainConfiguration {
+//  PromptTemplate prompt = 1;
+//  LLMConfiguration llm = 2;
+//}

@@ -5,7 +5,7 @@
 #ifndef GPT4TOKENIZER_HPP
 #define GPT4TOKENIZER_HPP
 
-#include "CoreGlobals.hpp"
+
 #include "Tokenizer.hpp"
 #include <ranges>
 #include <unordered_set>
@@ -14,7 +14,8 @@
 #include "tools/StringUtils.hpp"
 
 
-namespace INSTINCT_CORE_NS {
+namespace INSTINCT_LLM_NS {
+    using namespace INSTINCT_CORE_NS;
     enum AllowSpecialType {
         kUnspecified,
         kAll,
