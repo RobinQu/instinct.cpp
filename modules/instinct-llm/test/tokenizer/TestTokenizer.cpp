@@ -5,11 +5,11 @@
 
 #include <gtest/gtest.h>
 
-#include "document/tokenizer/Tokenizer.hpp"
+#include "tokenizer/Tokenizer.hpp"
 #include "tools/Assertions.hpp"
 
 
-namespace INSTINCT_CORE_NS {
+namespace INSTINCT_LLM_NS {
 
     TEST(TestTokenizer, merge_u32_ids) {
         std::vector<int32_t> ids1 = {32, 97};
@@ -33,10 +33,5 @@ namespace INSTINCT_CORE_NS {
         ASSERT_EQ(ids3.size(), 5);
         ASSERT_TRUE(check_equality(ids3, std::vector{220,86,269,75,67}));
     }
-
-
-
-
-
 
 }

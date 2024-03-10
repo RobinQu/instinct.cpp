@@ -4,9 +4,9 @@
 
 #include <gtest/gtest.h>
 #include "CoreGlobals.hpp"
-#include "document/tokenizer/GPT2BPEFileReader.hpp"
+#include "tokenizer/GPT2BPEFileReader.hpp"
 
-namespace INSTINCT_CORE_NS {
+namespace INSTINCT_LLM_NS {
     TEST(GPT2BPEFileReader, TestLoad) {
         const std::filesystem::path assets_dir = std::filesystem::current_path() / "./modules/instinct-core/test/_assets";
         GPT2BPEFileReader file_reader(

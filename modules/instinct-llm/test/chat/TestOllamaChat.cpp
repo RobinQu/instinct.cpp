@@ -47,7 +47,7 @@ blue bits all around so we can see them!)""")
 
     TEST_F(OllamaChatTest, SimpleTest) {
         OllamaChat ollama_chat;
-        auto result = ollama_chat.Invoke(MessageUtils::CreateStringPrompt("Why sky is blue?"));
+        auto result = ollama_chat.Invoke("Why sky is blue?");
         std::cout << result.DebugString() << std::endl;
     }
 

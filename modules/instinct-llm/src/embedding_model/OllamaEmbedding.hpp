@@ -19,7 +19,7 @@ namespace INSTINCT_LLM_NS {
 
     public:
         explicit OllamaEmbedding(const OllamaConfiguration& configuration = {}):
-            client_(configuration_.endpoint),
+            client_(configuration.endpoint),
             configuration_(configuration) {
         }
 

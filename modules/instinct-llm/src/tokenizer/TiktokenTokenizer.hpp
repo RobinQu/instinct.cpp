@@ -14,7 +14,7 @@
 
 
 namespace INSTINCT_LLM_NS {
-    using namespace
+
     using ByteShuffle = std::unordered_map<u_int8_t, u_int8_t>;
     // using ReversedByteShuffle = std::unordered_map<int32_t, u_int8_t>;
 

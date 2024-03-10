@@ -20,7 +20,7 @@ namespace INSTINCT_LLM_NS {
     };
 
 
-    TEST(TestOllamaLLM, SimpleGenerate) {
+    TEST(TestOllamaLLM, Invoke) {
         OllamaLLM ollama_llm;
         auto output = ollama_llm(prompts[0]);
         std::cout << output << std::endl;
@@ -36,7 +36,6 @@ namespace INSTINCT_LLM_NS {
         while(result->HasNext()) {
             std::cout << result->Next() << std::endl;
         }
-        delete result;
     }
 
     TEST(TestOllamaLLM, Stream) {
@@ -45,7 +44,6 @@ namespace INSTINCT_LLM_NS {
         while (result->HasNext()) {
             std::cout << result->Next() << std::endl;
         }
-        delete result;
     }
 }
 

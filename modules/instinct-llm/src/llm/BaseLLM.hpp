@@ -19,7 +19,7 @@ namespace INSTINCT_LLM_NS {
         std::string Invoke(
             const PromptValueVariant& input) override {
             const auto string_prompt = details::conv_prompt_value_variant_to_string(input);
-        if(const auto result = Generate({string_prompt}); !result.generations.empty()) {
+        if(const auto result = Generate({string_prompt}); !result.generations().empty()) {
             return details::conv_languange_result_to_string(result.generations(0));
         }
         throw InstinctException("Empty response");

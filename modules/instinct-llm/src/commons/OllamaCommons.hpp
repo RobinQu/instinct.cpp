@@ -4,9 +4,6 @@
 
 #ifndef OLLAMACOMMONS_H
 #define OLLAMACOMMONS_H
-
-#include <nlohmann/json.hpp>
-
 #include "CoreTypes.hpp"
 #include "LLMGlobals.hpp"
 
@@ -14,7 +11,7 @@
  * @see https://github.com/ollama/ollama/blob/main/docs/api.md
  */
 namespace INSTINCT_LLM_NS {
-
+    using namespace INSTINCT_CORE_NS;
 
 
     // struct OllamaGenerateReuqestOption {

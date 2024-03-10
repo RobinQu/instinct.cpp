@@ -21,10 +21,9 @@ namespace INSTINCT_CORE_NS {
         SimpleHttpClient client{{"localhost", 11434}};
         HttpRequest request = {POST, "/api/generate", {}, request_str};
 
-        auto* chunk_view = client.Stream(request);
+        auto chunk_view = client.Stream(request);
         while (chunk_view->HasNext()) {
             std::cout << chunk_view->Next() << std::endl;
         }
-        delete chunk_view;
     }
 }

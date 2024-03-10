@@ -98,7 +98,9 @@ namespace INSTINCT_LLM_NS {
         LangaugeModelResult CallOllama(const MessageList& message_list) {
             OllamaChatCompletionRequest request;
             for (const auto& message: message_list.messages()) {
-                request.add_messages()->CopyFrom(message);
+                auto ollama_msg = request.add_messages();
+                ollama_msg->set_content(message.content());
+                ollama_msg->set_role(message.role());
             }
             request.set_stream(false);
             request.set_format("json");
@@ -119,10 +121,13 @@ namespace INSTINCT_LLM_NS {
         ResultIteratorPtr<LangaugeModelResult> StreamGenerate(const MessageList& message_list) override {
             OllamaChatCompletionRequest request;
             for (const auto& message: message_list.messages()) {
-                request.add_messages()->CopyFrom(message);
+                auto ollama_msg = request.add_messages();
+                ollama_msg->set_content(message.content());
+                ollama_msg->set_role(message.role());
             }
             request.set_stream(true);
             request.set_format("json");
+
             request.set_model(configuration_.model_name);
             // request.mutable_options()->CopyFrom(configuration_->model_options());
             auto chunk_itr = client_.StreamChunk<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request);

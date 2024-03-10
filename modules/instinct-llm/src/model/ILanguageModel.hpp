@@ -57,7 +57,7 @@ namespace INSTINCT_LLM_NS {
                 MessageList message_list;
                 auto msg = message_list.add_messages();
                 msg->set_content(spv.text());
-                msg->set_role("human");
+                msg->set_role("user");
                 return message_list;
             },
             [](const ChatPromptValue& cpv) {
@@ -77,7 +77,7 @@ namespace INSTINCT_LLM_NS {
                 if (pv.has_string()) {
                     auto msg = message_list.add_messages();
                     msg->set_content(pv.string().text());
-                    msg->set_role("human");
+                    msg->set_role("user");
                 }
                 return message_list;
             },
@@ -96,7 +96,7 @@ namespace INSTINCT_LLM_NS {
                 MessageList message_list;
                 const auto msg = message_list.add_messages();
                 msg->set_content(str);
-                msg->set_role("human");
+                msg->set_role("user");
                 return  message_list;
             }
             // [](std::string&& str) {

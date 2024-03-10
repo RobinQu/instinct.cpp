@@ -5,10 +5,10 @@
 
 
 #include "CoreGlobals.hpp"
-#include "document/tokenizer/TiktokenBPEFileReader.hpp"
+#include "tokenizer/TiktokenBPEFileReader.hpp"
 #include "tools/ChronoUtils.hpp"
 
-namespace INSTINCT_CORE_NS {
+namespace INSTINCT_LLM_NS {
     TEST(BPETokenRanksFileReader, TestLoad) {
         const std::filesystem::path assets_dir = std::filesystem::current_path() / "./modules/instinct-core/test/_assets";
         auto t1 = ChronoUtils::GetCurrentTimeMillis();

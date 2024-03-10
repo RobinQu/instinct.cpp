@@ -2,11 +2,11 @@
 // Created by RobinQu on 2024/3/2.
 //
 #include <gtest/gtest.h>
-#include "document/tokenizer/TiktokenTokenizer.hpp"
+#include "tokenizer/TiktokenTokenizer.hpp"
 #include "tools/Assertions.hpp"
 #include "tools/ChronoUtils.hpp"
 
-namespace INSTINCT_CORE_NS {
+namespace INSTINCT_LLM_NS {
     using namespace  U_ICU_NAMESPACE;
 
     static UnicodeString text1 = R"(At age nine, Swift became interested in musical theater and performed in four Berks Youth Theatre Academy productions.[19] She also traveled regularly to New York City for vocal and acting lessons.[20] Swift later shifted her focus toward country music, inspired by Shania Twain's songs, which made her "want to just run around the block four times and daydream about everything".[21] She spent weekends performing at local festivals and events.)";
