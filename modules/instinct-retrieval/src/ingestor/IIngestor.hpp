@@ -15,9 +15,9 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     using namespace INSTINCT_CORE_NS;
 
-    class DocumentIngestor {
+    class IIngestor {
     public:
-        virtual ~DocumentIngestor()=default;
+        virtual ~IIngestor()=default;
         virtual ResultIterator<Document>* Load(TextSplitter* text_splitter) = 0;
 
     };

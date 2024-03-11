@@ -6,7 +6,8 @@
 #define DUCKDBVECTORSTORE_HPP
 
 #include <duckdb.hpp>
-#include "store/VectorStore.hpp"
+#include <retrieval.pb.h>
+#include "store/IVectorStore.hpp"
 #include "tools/Assertions.hpp"
 #include "tools/StringUtils.hpp"
 
@@ -82,22 +83,22 @@ namespace INSTINCT_RETRIEVAL_NS {
                 if (metadata_filter.has_term()) {
                     auto field = metadata_filter.term().predicate();
                     switch (field.value_case()) {
-                        case MetadataField::kIntValue:
+                        case PrimitiveVariable::kIntValue:
                             select_sql += (field.name() + "=" + std::to_string(field.int_value()));
                             break;
-                        case MetadataField::kLongValue:
+                        case PrimitiveVariable::kLongValue:
                             select_sql += (field.name() + "=" + std::to_string(field.long_value()));
                             break;
-                        case MetadataField::kFloatValue:
+                        case PrimitiveVariable::kFloatValue:
                             select_sql += (field.name() + "=" + std::to_string(field.float_value()));
                             break;
-                        case MetadataField::kDoubleValue:
+                        case PrimitiveVariable::kDoubleValue:
                             select_sql += (field.name() + "=" + std::to_string(field.double_value()));
                             break;
-                        case MetadataField::kBoolValue:
+                        case PrimitiveVariable::kBoolValue:
                             select_sql += (field.name() + "=" + std::to_string(field.bool_value()));
                             break;
-                        case MetadataField::kStringValue:
+                        case PrimitiveVariable::kStringValue:
                             select_sql += (field.name() + "=\"" + field.string_value() + "\"");
                             break;
                         default:
@@ -259,7 +260,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     }
 
 
-    class DuckDBVectorStore : public VectorStore {
+    class DuckDBVectorStore : public IVectorStore {
         std::string table_name_;
         DuckDB db_;
         size_t dimmension_;
@@ -285,7 +286,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             InitializeDB_();
         }
 
-        std::vector<std::string> AddDocuments(ResultIterator<Document>* documents_iterator) override {
+        std::vector<std::string> AddDocuments(const ResultIteratorPtr<Document>& documents_iterator) override {
             static size_t batch_size = 10;
             std::vector<std::string> ids;
             std::vector<Document> batch(batch_size);
@@ -330,7 +331,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             return result->GetValue<int32_t>(0, 0);
         }
 
-        ResultIterator<Document>* SearchDocuments(const SearchRequest& request) override {
+        ResultIteratorPtr<Document> SearchDocuments(const SearchRequest& request) override {
             const auto query_embedding = embeddings_->EmbedQuery(request.query());
 
             bool has_filter = request.has_metadata_filter() && (request.metadata_filter().has_bool_() || request.metadata_filter().has_term());
@@ -393,7 +394,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
                 docs.push_back(document);
             }
-            return create_from_range(docs);
+            return create_result_itr_from_range(docs);
         }
 
     private:
