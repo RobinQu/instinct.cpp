@@ -17,11 +17,11 @@ namespace INSTINCT_LLM_NS {
     public:
         virtual ~IPromptTemplate() = default;
 
-        virtual PromptValue FormatPrompt(const LLMChainContext& variables) = 0;
+        virtual PromptValue FormatPrompt(const ContextPtr& variables) = 0;
 
-        virtual std::string Format(const LLMChainContext& variables) = 0;
+        virtual std::string Format(const ContextPtr& variables) = 0;
 
-        virtual StringPromptValue FormatStringPrompt(const LLMChainContext& variables) = 0;
+        virtual StringPromptValue FormatStringPrompt(const ContextPtr& variables) = 0;
 
     };
 

@@ -12,6 +12,7 @@
 #include "IExampleSelector.hpp"
 #include "PlainPromptTemplate.hpp"
 #include "IPromptTemplate.hpp"
+#include "chain/IChain.hpp"
 #include "tools/StringUtils.hpp"
 
 
@@ -33,11 +34,10 @@ namespace INSTINCT_LLM_NS {
               example_prompt_template_(std::move(example_prompt_template)) {
         }
 
-        std::string Format(const LLMChainContext& variables) override {
+        std::string Format(const ContextPtr& variables) override {
             auto examples = example_selector_->SelectExamples(variables);
             auto example_strings_view = examples.values() | std::views::transform([&](const auto& v) -> std::string {
-                LLMChainContext context;
-                return example_prompt_template_->Format(context);
+                return example_prompt_template_->Format(variables);
             });
             //
             std::vector parts = {prefix_};

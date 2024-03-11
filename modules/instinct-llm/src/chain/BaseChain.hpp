@@ -30,16 +30,17 @@ namespace INSTINCT_LLM_NS {
             return options_;
         }
 
-        Output Invoke(const LLMChainContext& input) override = 0;
+        Output Invoke(const ContextPtr& input) override = 0;
 
-        std::shared_ptr<ResultIterator<Output>> Batch(const std::vector<LLMChainContext>& input) override {
+        std::shared_ptr<ResultIterator<Output>> Batch(const std::vector<ContextPtr>& input) override {
             auto view = input | std::views::transform([&](const auto& context) {
+                // auto copy = ContextMutataor::CreateCopyOf(context);
                 return Invoke(context);
             });
             return create_result_itr_from_range(view);
         }
 
-        std::shared_ptr<ResultIterator<Output>> Stream(const LLMChainContext& input) override {
+        std::shared_ptr<ResultIterator<Output>> Stream(const ContextPtr& input) override {
             return create_result_itr_from_range(std::vector{Invoke(input)});
         }
 

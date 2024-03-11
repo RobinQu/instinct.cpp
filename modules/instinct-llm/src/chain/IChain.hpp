@@ -15,7 +15,7 @@ namespace INSTINCT_LLM_NS {
     using ContextPtr = std::shared_ptr<LLMChainContext>;
 
     template<typename Output>
-    class IChain : public IRunnable<LLMChainContext, Output> {
+    class IChain : public IRunnable<ContextPtr, Output> {
 
     };
 }

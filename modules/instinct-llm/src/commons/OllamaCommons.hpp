@@ -98,6 +98,8 @@ namespace INSTINCT_LLM_NS {
     struct OllamaConfiguration {
         std::string model_name = OLLAMA_DEFUALT_MODEL_NAME;
         Endpoint endpoint = OLLAMA_ENDPOINT;
+        int temperature;
+        int seed;
     };
 
 

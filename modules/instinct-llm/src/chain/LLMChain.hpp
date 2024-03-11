@@ -46,17 +46,20 @@ INSTINCT_LLM_NS {
             assert_non_empty_range(this->GetOutputKeys(), "output keys cannot be empty");
         }
 
-        void EnhanceContext(const ChainContextBuilderPtr& context_builder) override {
+        void EnhanceContext(const ContextMutataorPtr& context_mutataor) override {
             if (chat_memory_) {
                 // add chat histroy
-                chat_memory_->EnhanceContext(context_builder);
+                chat_memory_->EnhanceContext(context_mutataor);
             }
             // add parser instruction
-            output_parser_->EnhanceContext(context_builder);
+            output_parser_->EnhanceContext(context_mutataor);
+
+            // commit
+            context_mutataor->Commit();
         }
 
-        Result Invoke(const LLMChainContext& input) override {
-            auto context_builder = ChainContextBuilder::Create(input);
+        Result Invoke(const ContextPtr& input) override {
+            auto context_builder = ContextMutataor::Create(input);
             this->EnhanceContext(context_builder);
             this->ValidateInput(input);
 
@@ -70,6 +73,7 @@ INSTINCT_LLM_NS {
                 if (chat_memory_) {
                     chat_memory_->SaveMemory(context_builder->Build());
                 }
+                context_builder->Commit();
                 return output_parser_->ParseResult(generation);
             }
             if (std::holds_alternative<ChatModelPtr>(model_)) {
@@ -82,6 +86,7 @@ INSTINCT_LLM_NS {
                 if (chat_memory_) {
                     chat_memory_->SaveMemory(context_builder->Build());
                 }
+                context_builder->Commit();
                 return output_parser_->ParseResult(generation);
             }
             throw InstinctException("invalid model pointer");

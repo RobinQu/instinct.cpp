@@ -23,9 +23,9 @@ namespace INSTINCT_LLM_NS {
 
     class IChatPromptTemplate : public IPromptTemplate {
     public:
-        virtual MessageList FormatMessages(const LLMChainContext& variables) = 0;
+        virtual MessageList FormatMessages(const ContextPtr& variables) = 0;
 
-        virtual ChatPromptValue FormtChatPrompt(const LLMChainContext& variables) = 0;
+        virtual ChatPromptValue FormtChatPrompt(const ContextPtr& variables) = 0;
 
     };
 

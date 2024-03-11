@@ -21,25 +21,25 @@ namespace INSTINCT_LLM_NS {
             : messages_(std::move(messages)) {
         }
 
-        PromptValue FormatPrompt(const LLMChainContext& variables) override {
+        PromptValue FormatPrompt(const ContextPtr& variables) override {
             PromptValue prompt_value;
             prompt_value.mutable_chat()->CopyFrom(FormtChatPrompt(variables));
             return prompt_value;
         }
 
-        std::string Format(const LLMChainContext& variables) override {
+        std::string Format(const ContextPtr& variables) override {
             const auto message_list = FormatMessages(variables);
             return MessageUtils::CombineMessages(message_list.messages());
         }
 
-        StringPromptValue FormatStringPrompt(const LLMChainContext& variables) override {
+        StringPromptValue FormatStringPrompt(const ContextPtr& variables) override {
             StringPromptValue spv;
             spv.set_text(Format(variables));
             return spv;
         }
 
 
-        MessageList FormatMessages(const LLMChainContext& variables) override {
+        MessageList FormatMessages(const ContextPtr& variables) override {
             MessageList message_list;
             for (const auto& message_like: messages_) {
                 if (std::holds_alternative<Message>(message_like)) {
@@ -60,7 +60,7 @@ namespace INSTINCT_LLM_NS {
             return message_list;
         }
 
-        ChatPromptValue FormtChatPrompt(const LLMChainContext& variables) override {
+        ChatPromptValue FormtChatPrompt(const ContextPtr& variables) override {
             ChatPromptValue cpv;
             auto message_list = FormatMessages(variables);
             for (const auto&msg: message_list.messages()) {

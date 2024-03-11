@@ -23,14 +23,14 @@ namespace INSTINCT_LLM_NS {
         // virtual void SaveMemory(const PromptValue& prompt_value, const Generation& generation) = 0;
 
 
-        virtual void SaveMemory(const LLMChainContext& context) = 0;
+        virtual void SaveMemory(const ContextPtr& context) = 0;
 
 
         // virtual void SaveMemory(const std::string& prompt, const std::string& answer);
 
         // virtual void SaveMemory(const MessageList& messages, const Message& answer);
 
-        virtual void LoadMemories(const ChainContextBuilderPtr& bulder) = 0;
+        virtual void LoadMemories(const ContextMutataorPtr& bulder) = 0;
 
 
     };

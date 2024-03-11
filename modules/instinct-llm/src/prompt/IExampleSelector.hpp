@@ -8,6 +8,8 @@
 #include "CoreTypes.hpp"
 #include <llm.pb.h>
 
+#include "chain/IChain.hpp"
+
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
@@ -17,7 +19,7 @@ namespace INSTINCT_LLM_NS {
 
         virtual void AddExample(const PromptExample& example) = 0;
 
-        virtual PromptExamples SelectExamples(const LLMChainContext& variables) = 0;
+        virtual PromptExamples SelectExamples(const ContextPtr& variables) = 0;
 
         [[nodiscard]] virtual const PromptExamples& GetAllExamples() = 0;
     };

@@ -16,15 +16,15 @@ namespace INSTINCT_LLM_NS {
 
     class StringPromptTemplate : public IPromptTemplate {
     public:
-        PromptValue FormatPrompt(const LLMChainContext& variables) override {
+        PromptValue FormatPrompt(const ContextPtr& variables) override {
             PromptValue pv;
             pv.mutable_string()->CopyFrom(FormatStringPrompt(variables));
             return pv;
         }
 
-        std::string Format(const LLMChainContext& variables) override = 0;
+        std::string Format(const ContextPtr& variables) override = 0;
 
-        StringPromptValue FormatStringPrompt(const LLMChainContext& variables) override {
+        StringPromptValue FormatStringPrompt(const ContextPtr& variables) override {
             StringPromptValue spv;
             spv.set_text(Format(variables));
             return spv;

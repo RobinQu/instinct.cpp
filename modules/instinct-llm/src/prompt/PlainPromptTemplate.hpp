@@ -24,7 +24,7 @@ namespace INSTINCT_LLM_NS {
             : StringPromptTemplate(), template_string_(std::move(template_string)) {
         }
 
-        std::string Format(const LLMChainContext& variables) override {
+        std::string Format(const ContextPtr& variables) override {
             return MessageUtils::FormatString(this->template_string_, variables);
         }
     };

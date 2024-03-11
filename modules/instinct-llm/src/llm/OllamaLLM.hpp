@@ -53,6 +53,8 @@ namespace INSTINCT_LLM_NS {
             request.set_stream(false);
             request.set_format("json");
             request.set_prompt(prompt);
+            request.mutable_options()->set_seed(configuration_.seed);
+            request.mutable_options()->set_temperature(configuration_.temperature);
             const auto response = http_client_.PostObject<OllamaCompletionRequest, OllamaCompletionResponse>(OLLAMA_GENERATE_PATH, request);
             return details::conv_raw_response_to_model_result(response, false);
         }
@@ -71,6 +73,8 @@ namespace INSTINCT_LLM_NS {
             request.set_model(configuration_.model_name);
             request.set_stream(true);
             request.set_format("json");
+            request.mutable_options()->set_seed(configuration_.seed);
+            request.mutable_options()->set_temperature(configuration_.temperature);
             request.set_prompt(prompt);
             auto chunk_itr = http_client_.StreamChunk<OllamaCompletionRequest, OllamaCompletionResponse>(OLLAMA_GENERATE_PATH, request);
             return create_result_itr_with_transform([](auto&& response) -> LangaugeModelResult {

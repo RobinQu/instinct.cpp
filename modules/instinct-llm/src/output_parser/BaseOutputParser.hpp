@@ -31,8 +31,9 @@ namespace INSTINCT_LLM_NS {
             return {};
         }
 
-        void EnhanceContext(const ChainContextBuilderPtr& builder) override {
+        void EnhanceContext(const ContextMutataorPtr& builder) override {
             builder->Put(instruction_key_, GetFormatInstruction());
+            builder->Commit();
         }
 
 

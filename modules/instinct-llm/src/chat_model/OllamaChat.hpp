@@ -42,7 +42,7 @@ namespace INSTINCT_LLM_NS {
         OllamaConfiguration configuration_;
     public:
 
-        explicit OllamaChat(const OllamaConfiguration& ollama_configuration = {}): client_(ollama_configuration.endpoint) {
+        explicit OllamaChat(const OllamaConfiguration& ollama_configuration = {}): client_(ollama_configuration.endpoint), configuration_(ollama_configuration) {
         }
 
         static ChatPromptBuliderPtr CreateChatPromptBuilder() {
@@ -78,6 +78,8 @@ namespace INSTINCT_LLM_NS {
             request.set_format("json");
             request.set_model(configuration_.model_name);
             // request.mutable_options()->CopyFrom(configuration_->model_options());
+            request.mutable_options()->set_seed(configuration_.seed);
+            request.mutable_options()->set_temperature(configuration_.temperature);
             auto response = client_.PostObject<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request);
             return transform_raw_response(response);
         }
@@ -99,8 +101,9 @@ namespace INSTINCT_LLM_NS {
             }
             request.set_stream(true);
             request.set_format("json");
-
             request.set_model(configuration_.model_name);
+            request.mutable_options()->set_seed(configuration_.seed);
+            request.mutable_options()->set_temperature(configuration_.temperature);
             // request.mutable_options()->CopyFrom(configuration_->model_options());
             auto chunk_itr = client_.StreamChunk<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request);
 

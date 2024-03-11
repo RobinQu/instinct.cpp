@@ -121,7 +121,7 @@ message OllamaGenerateMessage {
 }
 
 message OllamaModelOptions {
-  int32 temperature = 1;
+  optional int32 temperature = 1;
   int32 seed = 2;
 }
 
@@ -130,7 +130,7 @@ message OllamaCompletionRequest {
   string prompt = 2;
   optional bool stream = 3;
   string format = 4;
-  OllamaModelOptions options = 5;
+  optional OllamaModelOptions options = 5;
   optional bool raw = 6;
 }
 
@@ -174,7 +174,7 @@ message OllamaChatCompletionResponse {
 message OllamaEmbeddingRequest {
   string model = 1;
   string prompt = 2;
-  OllamaModelOptions options = 3;
+  optional OllamaModelOptions options = 3;
 }
 
 message OllamaEmbeddingResponse {

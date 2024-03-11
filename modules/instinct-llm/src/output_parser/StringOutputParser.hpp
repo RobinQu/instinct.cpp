@@ -23,7 +23,7 @@ namespace INSTINCT_LLM_NS {
 
         std::string GetFormatInstruction() override {
             // tend to instruct nothing
-            return "";
+            return "Please reply in plain text format.";
         }
 
     };

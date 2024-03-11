@@ -21,33 +21,32 @@ namespace INSTINCT_LLM_NS {
     }
 
     class LengthBasedExampleSelector : public MutableExampleSelector {
-        std::shared_ptr<LengthBasedExampleSelectorConfiguration> configuration_;
+        size_t max_length_;
         ExampleLengthFunction length_function_;
         std::vector<size_t> lengths_;
 
     public:
         LengthBasedExampleSelector(
             const PromptTemplatePtr& example_prompt_template,
-            std::shared_ptr<LengthBasedExampleSelectorConfiguration> configuration,
-            ExampleLengthFunction length_function = details::DEFAULT_LENGTH_BASE_FUNCTION
-
-            )
-            : MutableExampleSelector(example_prompt_template), configuration_(std::move(configuration)),
+            size_t max_length,
+            ExampleLengthFunction length_function = details::DEFAULT_LENGTH_BASE_FUNCTION)
+            : MutableExampleSelector(example_prompt_template),
+                max_length_(max_length),
               length_function_(std::move(length_function)),
               lengths_() {
         }
 
         void LengthBasedExampleSelector::AddExample(const PromptExample& example) override {
             MutableExampleSelector::AddExample(example);
-            LLMChainContext ctx;
+            const auto ctx = std::make_shared<LLMChainContext>();
             for (const auto& entry: example.values()) {
-                ctx.mutable_values()->insert(entry);
+                ctx->mutable_values()->insert(entry);
             }
             lengths_.push_back(length_function_(example_prompt_template_->Format(ctx)));
         }
 
-        PromptExamples LengthBasedExampleSelector::SelectExamples(const LLMChainContext& variables) override {
-            size_t remaining = configuration_->max_length();
+        PromptExamples LengthBasedExampleSelector::SelectExamples(const ContextPtr& variables) override {
+            size_t remaining = max_length_;
             int i = 0;
             const size_t size = examples_.values_size();
             PromptExamples prompt_examples;
@@ -56,6 +55,7 @@ namespace INSTINCT_LLM_NS {
                 if (len < 0) {
                     break;
                 }
+                remaining -= lengths_[i];
                 prompt_examples.add_values()
                         ->CopyFrom(examples_.values(i));
                 i++;

@@ -44,11 +44,11 @@ namespace INSTINCT_LLM_NS {
         }
 
 
-        static std::string FormatString(const std::string& msg, const LLMChainContext& context) {
+        static std::string FormatString(const std::string& msg, const ContextPtr& context) {
             fmt::dynamic_format_arg_store<fmt::format_context> store;
             // assuming `variables` has depth of one
 
-            for(const auto& [k,v]: context.values()) {
+            for(const auto& [k,v]: context->values()) {
                 switch (v.value_case()) {
                     case PrimitiveVariable::kIntValue:
                         store.push_back(fmt::arg(k.c_str(), v.int_value()));

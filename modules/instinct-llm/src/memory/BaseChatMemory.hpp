@@ -46,11 +46,12 @@ namespace INSTINCT_LLM_NS {
          * Add field of chat history to context
          * @param builder
          */
-        void EnhanceContext(const ChainContextBuilderPtr& builder) override {
+        void EnhanceContext(const ContextMutataorPtr& builder) override {
             LoadMemories(builder);
+            builder->Commit();
         }
 
-        void LoadMemories(const ChainContextBuilderPtr& bulder) override = 0;
+        void LoadMemories(const ContextMutataorPtr& bulder) override = 0;
     };
 
     using ChatMemoryPtr = std::shared_ptr<BaseChatMemory>;
