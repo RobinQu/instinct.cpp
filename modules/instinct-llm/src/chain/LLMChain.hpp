@@ -42,7 +42,8 @@ INSTINCT_LLM_NS {
               prompt_template_(prompt_template),
               output_parser_(output_parser),
               chat_memory_(chat_memory) {
-
+            assert_non_empty_range(this->GetInputKeys(), "input keys cannot be empty");
+            assert_non_empty_range(this->GetOutputKeys(), "output keys cannot be empty");
         }
 
         void EnhanceContext(const ChainContextBuilderPtr& context_builder) override {
@@ -50,25 +51,20 @@ INSTINCT_LLM_NS {
                 // add chat histroy
                 chat_memory_->EnhanceContext(context_builder);
             }
-
             // add parser instruction
             output_parser_->EnhanceContext(context_builder);
         }
 
-
         Result Invoke(const LLMChainContext& input) override {
             auto context_builder = ChainContextBuilder::Create(input);
-            EnhanceContext(context_builder);
+            this->EnhanceContext(context_builder);
+            this->ValidateInput(input);
 
             auto prompt_value = prompt_template_->FormatPrompt(context_builder->Build());
             if (std::holds_alternative<LLMPtr>(model_)) {
-                const auto llm = std::get<LLMPtr>(model_);
+                const auto& llm = std::get<LLMPtr>(model_);
                 auto text = llm->Invoke(prompt_value);
-
-                context_builder->Put(this->GetOptions().output_answer_content_key, text);
-                // TODO Role name normalization
-                context_builder->Put(this->GetOptions().output_ansewr_role_key, "human");
-
+                context_builder->Put(this->GetOutputKeys()[0], text);
                 Generation generation;
                 generation.set_text(text);
                 if (chat_memory_) {
@@ -77,25 +73,22 @@ INSTINCT_LLM_NS {
                 return output_parser_->ParseResult(generation);
             }
             if (std::holds_alternative<ChatModelPtr>(model_)) {
-                const auto chat_model = std::get<ChatModelPtr>(model_);
+                const auto& chat_model = std::get<ChatModelPtr>(model_);
                 Generation generation;
                 const auto message = chat_model->Invoke(prompt_value);
                 generation.mutable_message()->CopyFrom(message);
-                context_builder->Put(this->GetOptions().output_ansewr_role_key, message.role());
-                context_builder->Put(this->GetOptions().output_answer_content_key, message.content());
+                // always save answer with first output key
+                context_builder->Put(this->GetOutputKeys()[0], message.content());
                 if (chat_memory_) {
                     chat_memory_->SaveMemory(context_builder->Build());
                 }
-                return output_parser_->ParseResult();
+                return output_parser_->ParseResult(generation);
             }
             throw InstinctException("invalid model pointer");
         }
 
 
     };
-
-    template<typename T>
-    using LLMChainPtr = std::shared_ptr<LLMChain<T>>;
 
 
     // IRunnable<Input,Output>

@@ -44,6 +44,7 @@ set(${LIBRARY_TARGET_NAME}_HDR  src/All.hpp
         src/memory/BaseChatMemory.hpp
         src/model/ModelCallbackMixins.hpp
         src/chain/BaseChain.hpp
+        src/chain/ContextMutator.hpp
 
 )
 

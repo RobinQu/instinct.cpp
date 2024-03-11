@@ -19,6 +19,7 @@ namespace INSTINCT_CORE_NS {
         IEmbeddingModel(IEmbeddingModel&&)=delete;
         virtual std::vector<Embedding> EmbedDocuments(const std::vector<std::string>& texts) = 0;
         virtual Embedding EmbedQuery(const std::string& text) = 0;
+        // virtual size_t GetDimension() = 0;
     };
 
     using EmbeddingsPtr = std::shared_ptr<IEmbeddingModel>;

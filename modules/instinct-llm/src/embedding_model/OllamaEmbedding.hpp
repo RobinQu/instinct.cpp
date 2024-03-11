@@ -48,6 +48,7 @@ namespace INSTINCT_LLM_NS {
                 OLLAMA_EMBEDDING_PATH, request);
             return {response.embedding().begin(), response.embedding().end()};
         }
+
     };
 } // LC_MODEL_NS
 

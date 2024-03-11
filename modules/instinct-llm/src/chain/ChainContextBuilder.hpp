@@ -21,6 +21,9 @@ namespace INSTINCT_LLM_NS {
         using ContextValueVariantMap = std::unordered_map<std::string, ContextValueVariant>;
     }
 
+    static std::string DEFAULT_PROMPT_INPUT_KEY = "question";
+    static std::string DEFAULT_ANSWER_OUTPUT_KEY = "answer";
+
     class ChainContextBuilder {
         details::ContextValueVariantMap values;
     public:

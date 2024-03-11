@@ -11,9 +11,10 @@
 
 namespace INSTINCT_LLM_NS {
     struct ChainOptions {
-        std::string input_prompt_key = "question";
-        std::string output_answer_content_key = "answer_content";
-        std::string output_ansewr_role_key = "answer_role";
+        // std::string prompt_input_key = DEFAULT_PROMPT_INPUT_KEY;
+        // std::string answer_output_key = DEFAULT_ANSWER_OUTPUT_KEY;
+        std::vector<std::string> input_keys {DEFAULT_PROMPT_INPUT_KEY};
+        std::vector<std::string> output_keys  {DEFAULT_ANSWER_OUTPUT_KEY};
     };
 
     template<typename Output, typename Options=ChainOptions>
@@ -39,17 +40,20 @@ namespace INSTINCT_LLM_NS {
         }
 
         std::shared_ptr<ResultIterator<Output>> Stream(const LLMChainContext& input) override {
-            return create_result_itr_from_range({Invoke(input)});
+            return create_result_itr_from_range(std::vector{Invoke(input)});
         }
 
         std::vector<std::string> GetInputKeys() override {
-            return {options_.input_prompt_key};
+            return options_.input_keys;
         }
 
         std::vector<std::string> GetOutputKeys() override {
-            return {options_.output_ansewr_role_key, options_.output_answer_content_key};
+            return options_.output_keys;
         }
     };
+
+    template<typename T, typename Options = ChainOptions>
+    using ChainPtr = std::shared_ptr<BaseChain<T, Options>>;
 }
 
 #endif //BASECHAIN_HPP

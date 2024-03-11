@@ -36,7 +36,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         virtual ResultIteratorPtr<Document> SearchDocuments(const SearchRequest& request) = 0;
     };
 
-    using VectoreStorePtr = std::shared_ptr<IVectorStore>;
+    using VectorStorePtr = std::shared_ptr<IVectorStore>;
 
 
 }

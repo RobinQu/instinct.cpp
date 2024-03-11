@@ -12,7 +12,12 @@
 namespace INSTINCT_RETRIEVAL_NS {
     class DocumentUtils {
     public:
-        static std::string CombineDocuments(const core::ResultIteratorPtr<Document> doc_itr) {
+        static std::string CombineDocuments(const ResultIteratorPtr<Document>& doc_itr) {
+            std::string buf;
+            while (doc_itr->HasNext()) {
+
+            }
+            return buf;
 
         }
     };

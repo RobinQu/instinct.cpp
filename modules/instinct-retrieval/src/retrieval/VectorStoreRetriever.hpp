@@ -4,17 +4,25 @@
 
 #ifndef VECTORSTORERETRIEVER_HPP
 #define VECTORSTORERETRIEVER_HPP
+#include <utility>
+
 #include "retrieval/IRetriever.hpp"
 #include "store/IVectorStore.hpp"
+#include "store/duckdb/DuckDBVectorStore.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
     class VectorStoreRetriever: public IRetriever{
-        VectoreStorePtr vectore_store_;
+        VectorStorePtr vectore_store_;
         SearchRequest search_request_template_;
 
     public:
-        explicit VectorStoreRetriever(VectoreStorePtr vectore_store, const SearchRequest& search_request_template)
-            : vectore_store_(std::move(vectore_store)), search_request_template_(search_request_template){
+        explicit VectorStoreRetriever(VectorStorePtr vectore_store, SearchRequest  search_request_template = {})
+            : vectore_store_(std::move(vectore_store)), search_request_template_(std::move(search_request_template)){
+        }
+
+        static RetrieverPtr Create(const DuckDbVectoreStoreOptions& options) {
+            auto store = std::make_shared<DuckDBVectorStore>(options);
+            return std::make_shared<VectorStoreRetriever>(store);
         }
 
         ResultIteratorPtr<Document> Retrieve(const std::string& query) override {
