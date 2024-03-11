@@ -17,20 +17,20 @@ message PrimitiveVariable {
   }
 }
 
-message ObjectReference {
-  string name = 1;
-  string kind = 2;
-}
-
-message ObjectDefinition {
-  string name = 1;
-  string kind = 2;
-  oneof source {
-    google.protobuf.Any configuration = 3;
-    ObjectReference reference = 4;
-  }
-}
-
-message ObjectContainerDefinition {
-  repeated ObjectDefinition objects = 1;
-}
+//message ObjectReference {
+//  string name = 1;
+//  string kind = 2;
+//}
+//
+//message ObjectDefinition {
+//  string name = 1;
+//  string kind = 2;
+//  oneof source {
+//    google.protobuf.Any configuration = 3;
+//    ObjectReference reference = 4;
+//  }
+//}
+//
+//message ObjectContainerDefinition {
+//  repeated ObjectDefinition objects = 1;
+//}

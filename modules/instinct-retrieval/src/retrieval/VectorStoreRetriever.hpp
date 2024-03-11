@@ -4,16 +4,16 @@
 
 #ifndef VECTORSTORERETRIEVER_HPP
 #define VECTORSTORERETRIEVER_HPP
-#include "retrieval/DocumentRetriever.hpp"
+#include "retrieval/IRetriever.hpp"
 #include "store/VectorStore.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
-    class VectorStoreDocumentRetriever: public DocumentRetriever{
+    class VectorStoreRetriever: public IRetriever{
         VectoreStorePtr vectore_store_;
         SearchRequest search_request_template_;
 
     public:
-        explicit VectorStoreDocumentRetriever(VectoreStorePtr vectore_store, const SearchRequest& search_request_template)
+        explicit VectorStoreRetriever(VectoreStorePtr vectore_store, const SearchRequest& search_request_template)
             : vectore_store_(std::move(vectore_store)), search_request_template_(search_request_template){
         }
 

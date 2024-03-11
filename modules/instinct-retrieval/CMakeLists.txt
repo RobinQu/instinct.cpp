@@ -3,15 +3,16 @@ project(instinct_retrieval)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
-set(${LIBRARY_TARGET_NAME}_HDR src/ingestor/DocumentIngestor.hpp
-        src/retrieval/DocumentRetriever.hpp
+set(${LIBRARY_TARGET_NAME}_HDR
         src/RetrievalGlobals.hpp
+        src/ingestor/DocumentIngestor.hpp
+        src/retrieval/IRetriever.hpp
+        src/retrieval/VectorStoreRetriever.hpp
         src/store/VectorStore.hpp
         src/store/duckdb/DuckDBVectorStore.hpp
-        src/retrieval/VectorStoreDocumentRetriever.hpp
-        ../instinct-llm/src/chain/LLMChain.hpp
         src/chain/RAGChain.hpp
-
+        src/retrieval/DocumentUtils.hpp
+        src/retrieval/IBatchableRetriever.hpp
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

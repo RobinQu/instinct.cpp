@@ -102,6 +102,9 @@ INSTINCT_LLM_NS {
         }
     };
 
+    template<typename T>
+    using LLMChainPtr = std::shared_ptr<LLMChain<T>>;
+
 
     // IRunnable<Input,Output>
 
