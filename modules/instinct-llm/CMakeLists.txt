@@ -25,8 +25,10 @@ set(${LIBRARY_TARGET_NAME}_HDR  src/All.hpp
         src/prompt/MutableExampleSelector.hpp
         src/prompt/PassthroughExampleSelector.hpp
         src/prompt/LengthBasedExampleSelector.h
+        src/output_parser/IOutputParser.hpp
         src/output_parser/ProtobufMessageOutputParser.hpp
         src/output_parser/StringOutputParser.hpp
+        src/output_parser/BaseOutputParser.hpp
         src/prompt/MessageUtils.hpp
         src/prompt/ChatPromptBuilder.hpp
         src/tokenizer/Tokenizer.hpp
@@ -36,6 +38,13 @@ set(${LIBRARY_TARGET_NAME}_HDR  src/All.hpp
         src/tokenizer/GPT2BPEFileReader.hpp
         src/tokenizer/TiktokenBPEFileReader.hpp
         src/chain/ChainContextBuilder.hpp
+        src/memory/EphemeralChatMemory.hpp
+        src/chain/IChainContextAware.hpp
+        src/output_parser/BaseOutputParser.hpp
+        src/memory/BaseChatMemory.hpp
+        src/model/ModelCallbackMixins.hpp
+        src/chain/BaseChain.hpp
+
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

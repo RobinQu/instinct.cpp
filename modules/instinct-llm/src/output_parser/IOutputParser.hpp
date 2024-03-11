@@ -21,12 +21,11 @@ namespace INSTINCT_LLM_NS {
         IOutputParser(const IOutputParser&)=delete;
 
         virtual T ParseResult(
-            const std::string& result
+            const Generation& result
         ) = 0;
-    };
 
-    template<typename T>
-    using OutputParserPtr = std::shared_ptr<IOutputParser<T>>;
+        virtual std::string GetFormatInstruction() = 0;
+    };
 
 }
 

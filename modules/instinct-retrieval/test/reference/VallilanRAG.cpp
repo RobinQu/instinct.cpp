@@ -7,13 +7,15 @@
 
 
 #include "RetrievalGlobals.hpp"
-#include "tokenizer/Tokenizer.hpp"
+#include "chain/RAGChain.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
+
 
 
 }
 
 int main() {
+    instinct::retrieval::RAGChain<std::string> c;
     return 0;
 }

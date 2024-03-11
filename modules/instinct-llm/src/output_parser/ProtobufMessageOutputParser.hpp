@@ -18,9 +18,9 @@ namespace INSTINCT_LLM_NS {
     requires is_pb_message<T>
     class ProtobufMessageOutputParser : public IOutputParser<T> {
     public:
-        T ParseResult(const std::string& model_result) override { // NOLINT(*-convert-member-functions-to-static)
+        T ParseResult(const Generation& model_result) override { // NOLINT(*-convert-member-functions-to-static)
             T message;
-            auto status = google::protobuf::json::JsonStringToMessage(model_result, &message);
+            auto status = google::protobuf::json::JsonStringToMessage(model_result.has_message() ? model_result.message().content() : model_result.text(), &message);
             assert_true(status.ok());
             return message;
         }

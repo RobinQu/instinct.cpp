@@ -5,10 +5,10 @@ set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
 set(${LIBRARY_TARGET_NAME}_HDR
         src/RetrievalGlobals.hpp
-        src/ingestor/DocumentIngestor.hpp
+        src/ingestor/IIngestor.hpp
         src/retrieval/IRetriever.hpp
         src/retrieval/VectorStoreRetriever.hpp
-        src/store/VectorStore.hpp
+        src/store/IVectorStore.hpp
         src/store/duckdb/DuckDBVectorStore.hpp
         src/chain/RAGChain.hpp
         src/retrieval/DocumentUtils.hpp

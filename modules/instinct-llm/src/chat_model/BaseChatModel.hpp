@@ -6,13 +6,14 @@
 #define BASECHATMODEL_H
 #include "LLMGlobals.hpp"
 #include "model/ILanguageModel.hpp"
+#include "model/ModelCallbackMixins.hpp"
 #include "tools/Assertions.hpp"
 
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 ;
-    class BaseChatModel : public ILanguageModel<Message> {
+    class BaseChatModel : public ILanguageModel<Message>, public ChatModelCallbackMixins{
     private:
         virtual BatchedLangaugeModelResult Generate(
             const std::vector<MessageList>& messages

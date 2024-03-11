@@ -7,14 +7,14 @@
 
 #include <llm.pb.h>
 
+#include "BaseChain.hpp"
 #include "LLMGlobals.hpp"
-#include "chain//IChain.hpp"
 #include "model/ILanguageModel.hpp"
-#include "../llm/BaseLLM.hpp"
+#include "llm/BaseLLM.hpp"
 #include "chat_model/BaseChatModel.hpp"
-#include "output_parser/IOutputParser.hpp"
+#include "output_parser/BaseOutputParser.hpp"
 #include "prompt/IPromptTemplate.hpp"
-#include "memory/IChatMemory.hpp"
+#include "memory/BaseChatMemory.hpp"
 #include "tools/Assertions.hpp"
 
 namespace
@@ -25,81 +25,73 @@ INSTINCT_LLM_NS {
     using LanguageModelVariant = std::variant<LLMPtr, ChatModelPtr>;
 
     template<typename Result>
-    class LLMChain : public IChain<Result> {
+    class LLMChain final: public BaseChain<Result> {
         LanguageModelVariant model_{};
         PromptTemplatePtr prompt_template_{};
         OutputParserPtr<Result> output_parser_{};
-        IChatMemoryPtr chat_memory_{};
-
+        ChatMemoryPtr chat_memory_{};
     public:
         LLMChain(const LanguageModelVariant& model,
                  const PromptTemplatePtr& prompt_template,
                  const OutputParserPtr<Result>& output_parser,
-                 const IChatMemoryPtr& chat_memory)
-            : model_(model),
+                 const ChatMemoryPtr& chat_memory,
+                 ChainOptions options = {}
+                 )
+            : BaseChain<Result>(std::move(options)),
+                model_(model),
               prompt_template_(prompt_template),
               output_parser_(output_parser),
               chat_memory_(chat_memory) {
+
         }
+
+        void EnhanceContext(const ChainContextBuilderPtr& context_builder) override {
+            if (chat_memory_) {
+                // add chat histroy
+                chat_memory_->EnhanceContext(context_builder);
+            }
+
+            // add parser instruction
+            output_parser_->EnhanceContext(context_builder);
+        }
+
 
         Result Invoke(const LLMChainContext& input) override {
-            auto prompt_value = prompt_template_->FormatPrompt(input);
+            auto context_builder = ChainContextBuilder::Create(input);
+            EnhanceContext(context_builder);
+
+            auto prompt_value = prompt_template_->FormatPrompt(context_builder->Build());
             if (std::holds_alternative<LLMPtr>(model_)) {
-                auto llm = std::get<LLMPtr>(model_);
-                return output_parser_->ParseResult(llm->Invoke(prompt_value));
+                const auto llm = std::get<LLMPtr>(model_);
+                auto text = llm->Invoke(prompt_value);
+
+                context_builder->Put(this->GetOptions().output_answer_content_key, text);
+                // TODO Role name normalization
+                context_builder->Put(this->GetOptions().output_ansewr_role_key, "human");
+
+                Generation generation;
+                generation.set_text(text);
+                if (chat_memory_) {
+                    chat_memory_->SaveMemory(context_builder->Build());
+                }
+                return output_parser_->ParseResult(generation);
             }
             if (std::holds_alternative<ChatModelPtr>(model_)) {
-                auto chat_model = std::get<ChatModelPtr>(model_);
-                return output_parser_->ParseResult(chat_model->Invoke(prompt_value).content());
+                const auto chat_model = std::get<ChatModelPtr>(model_);
+                Generation generation;
+                const auto message = chat_model->Invoke(prompt_value);
+                generation.mutable_message()->CopyFrom(message);
+                context_builder->Put(this->GetOptions().output_ansewr_role_key, message.role());
+                context_builder->Put(this->GetOptions().output_answer_content_key, message.content());
+                if (chat_memory_) {
+                    chat_memory_->SaveMemory(context_builder->Build());
+                }
+                return output_parser_->ParseResult();
             }
             throw InstinctException("invalid model pointer");
         }
 
-        ResultIteratorPtr<Result> Batch(const std::vector<LLMChainContext>& input) override {
-            auto prompt_value_view = input | std::views::transform([&](auto&& ctx) {
-                return prompt_template_->FormatPrompt(ctx);
-            });
 
-            if (std::holds_alternative<LLMPtr>(model_)) {
-                auto llm = std::get<LLMPtr>(model_);
-                auto result_itr = llm->Batch({prompt_value_view.begin(), prompt_value_view.end()});
-                return create_result_itr_with_transform([&](auto&& model_result) {
-                    return output_parser_->ParseResult(model_result);
-                }, result_itr);
-            }
-
-            if (std::holds_alternative<ChatModelPtr>(model_)) {
-                auto chat_model = std::get<ChatModelPtr>(model_);
-                auto result_itr = chat_model->Batch({prompt_value_view.begin(), prompt_value_view.end()});
-                return create_result_itr_with_transform( [&](auto&& mesage) {
-                    return output_parser_->ParseResult(mesage.content());
-                }, result_itr);
-            }
-
-            throw InstinctException("invalid model pointer");
-        }
-
-        ResultIteratorPtr<Result> Stream(const LLMChainContext& input) override {
-            auto prompt_value = prompt_template_->FormatPrompt(input);
-
-            if (std::holds_alternative<LLMPtr>(model_)) {
-                auto llm = std::get<LLMPtr>(model_);
-                auto chunk_itr = llm->Stream(prompt_value);
-                return create_result_itr_with_transform([&](auto&& model_result) {
-                    return output_parser_->ParseResult(model_result);
-                }, chunk_itr);
-            }
-
-            if (std::holds_alternative<ChatModelPtr>(model_)) {
-                auto chat_model = std::get<ChatModelPtr>(model_);
-                auto chunk_itr = chat_model->Stream(prompt_value);
-                return create_result_itr_with_transform([&](auto&& message) {
-                   return message.content();
-                }, chunk_itr);
-            }
-
-            throw InstinctException("invalid model pointer");
-        }
     };
 
     template<typename T>

@@ -6,6 +6,7 @@
 #define BASELLM_H
 #include "model/ILanguageModel.hpp"
 #include "LLMGlobals.hpp"
+#include "model/ModelCallbackMixins.hpp"
 
 
 namespace
@@ -19,8 +20,10 @@ INSTINCT_LLM_NS {
         std::string Invoke(
             const PromptValueVariant& input) override {
             const auto string_prompt = details::conv_prompt_value_variant_to_string(input);
+            // FirePreGenerateCallbacks(string_prompt);
             if (const auto result = Generate({string_prompt}); !result.generations().empty()) {
-                return details::conv_languange_result_to_string(result.generations(0));
+                const auto answer = details::conv_languange_result_to_string(result.generations(0));
+                // FirePostGenerateCallback(string_prompt, answer);
             }
             throw InstinctException("Empty response");
         }

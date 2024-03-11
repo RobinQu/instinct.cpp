@@ -9,7 +9,10 @@
 #include "LLMGlobals.hpp"
 #include <llm.pb.h>
 
+#include "chain/IChainContextAware.hpp"
+
 namespace INSTINCT_LLM_NS {
+
     class IChatMemory {
     public:
         IChatMemory()=default;
@@ -17,11 +20,20 @@ namespace INSTINCT_LLM_NS {
         IChatMemory(const IChatMemory&)=delete;
         IChatMemory(IChatMemory&&)=delete;
 
-        virtual std::vector<std::string> GetMemoryKeys() = 0;
-        virtual LLMChainContext GetMemroyVariables() = 0;
-    };
+        // virtual void SaveMemory(const PromptValue& prompt_value, const Generation& generation) = 0;
 
-    using IChatMemoryPtr = std::shared_ptr<IChatMemory>;
+
+        virtual void SaveMemory(const LLMChainContext& context) = 0;
+
+
+        // virtual void SaveMemory(const std::string& prompt, const std::string& answer);
+
+        // virtual void SaveMemory(const MessageList& messages, const Message& answer);
+
+        virtual void LoadMemories(const ChainContextBuilderPtr& bulder) = 0;
+
+
+    };
 }
 
 #endif //CHATMEMORY_HPP

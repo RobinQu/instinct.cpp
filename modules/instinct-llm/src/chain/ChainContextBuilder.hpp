@@ -7,11 +7,14 @@
 
 
 #include <core.pb.h>
+#include <llm.pb.h>
 
-#include "LLMChain.hpp"
+#include "CoreTypes.hpp"
 #include "LLMGlobals.hpp"
 
+
 namespace INSTINCT_LLM_NS {
+    using namespace INSTINCT_CORE_NS;
 
     namespace details {
         using ContextValueVariant = std::variant<int32_t, int64_t, float, double, bool, std::string>;
@@ -120,6 +123,8 @@ namespace INSTINCT_LLM_NS {
         }
 
     };
+
+    using ChainContextBuilderPtr = std::shared_ptr<ChainContextBuilder>;
 }
 
 #endif //CHAINCONTEXTBUILDER_HPP

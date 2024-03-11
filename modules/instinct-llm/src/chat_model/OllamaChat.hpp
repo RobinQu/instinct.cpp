@@ -19,49 +19,6 @@ namespace INSTINCT_LLM_NS {
 
 
 
-    //
-    // struct message_variant_to_ollama_message_converter {
-    //     using result_type = OllamaGenerateMessage*;
-    //
-    //     OllamaChatCompletionRequest* request = nullptr;
-    //
-    //     result_type operator()(const AIMessage& v) const {
-    //         auto msg = request->add_messages();
-    //         msg->set_role("assistant");
-    //         msg->set_content(v.GetContent);
-    //         return msg;
-    //     }
-    //
-    //     result_type operator()(const SystemMessage& v) const {
-    //         auto msg = request->add_messages();
-    //           msg->set_role("system");
-    //           msg->set_content(v.GetContent);
-    //           return msg;
-    //     }
-    //
-    //     result_type operator()(const HumanMessage& v) const {
-    //         auto msg = request->add_messages();
-    //         msg->set_role("user");
-    //         msg->set_content(v.GetContent);
-    //         return msg;
-    //     }
-    //
-    //     result_type operator()(const FunctionMessage& v) const {
-    //         auto msg = request->add_messages();
-    //         msg->set_role("assistant");
-    //         msg->set_content(v.GetContent);
-    //         return msg;
-    //     }
-    //
-    //     result_type operator()(const ChatMessage& v) const {
-    //         auto msg = request->add_messages();
-    //         msg -> set_role(v.GetRole());
-    //         msg -> set_content(v.GetContent);
-    //         return msg;
-    //     }
-    //
-    // };
-
     static MessageRoleNameMapping OLLAMA_ROLE_NAME_MAPPING = {
         {kAsistant, "assistant"},
         {kSystem, "system"},

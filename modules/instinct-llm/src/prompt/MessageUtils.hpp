@@ -34,6 +34,16 @@ namespace INSTINCT_LLM_NS {
         }
 
 
+        static std::string FormatMessage(
+            const Message& message,
+            const std::string& template_string = "{role}: {content}") {
+            fmt::dynamic_format_arg_store<fmt::format_context> store;
+            store.push_back(fmt::arg("role", message.role()));
+            store.push_back(fmt::arg("contnet", message.content()));
+            return fmt::vformat(template_string, store);
+        }
+
+
         static std::string FormatString(const std::string& msg, const LLMChainContext& context) {
             fmt::dynamic_format_arg_store<fmt::format_context> store;
             // assuming `variables` has depth of one

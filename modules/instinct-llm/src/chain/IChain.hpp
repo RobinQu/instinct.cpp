@@ -10,9 +10,8 @@
 #include "LLMGlobals.hpp"
 
 namespace INSTINCT_LLM_NS {
-
-
     using namespace INSTINCT_CORE_NS;
+
     template<typename Output>
     // requires is_pb_message<std::remove_pointer_t<Output>>
     class IChain : public IRunnable<LLMChainContext, Output> {
