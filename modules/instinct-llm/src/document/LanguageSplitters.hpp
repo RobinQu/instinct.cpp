@@ -11,7 +11,7 @@
 #include "CoreGlobals.hpp"
 
 
-namespace INSTINCT_CORE_NS {
+namespace INSTINCT_LLM_NS {
     /**
      * COPIED FROM LANGCHIAN'S text_splitter.py
      */

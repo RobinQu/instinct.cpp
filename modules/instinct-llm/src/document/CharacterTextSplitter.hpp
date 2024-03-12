@@ -7,7 +7,7 @@
 
 #include "BaseTextSplitter.hpp"
 
-namespace INSTINCT_CORE_NS {
+namespace INSTINCT_LLM_NS {
 
     struct CharacterTextSplitterOptions {
         LengthFunction length_function = IdentityLengthFunction;

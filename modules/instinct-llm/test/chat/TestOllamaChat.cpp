@@ -13,8 +13,8 @@ namespace INSTINCT_LLM_NS {
     class OllamaChatTest: public testing::Test {
     protected:
         void SetUp() override {
-            dialog1 = MessageUtils::CreateOllamaChatPromptBuilder();
-            dialog2 = MessageUtils::CreateOllamaChatPromptBuilder();
+            dialog1 = OllamaChat::CreateChatPromptBuilder();
+            dialog2 = OllamaChat::CreateChatPromptBuilder();
 
             dialog1->AddHumanMessage("what's product of 2 and 4?")
             ->AddAIMessage("The product of 2 and 4 is 8.")

@@ -5,13 +5,10 @@
 #include <gtest/gtest.h>
 #include <unicode/regex.h>
 #include <unicode/ustream.h>
+#include "CoreTypes.hpp"
+#include "tokenizer/Tokenizer.hpp"
 
-#include "CoreGlobals.hpp"
-#include "document/tokenizer/Tokenizer.hpp"
-#include "prompt/FewShotPromptTemplate.hpp"
-#include "tools/TensorUtils.hpp"
-
-namespace INSTINCT_CORE_NS {
+namespace INSTINCT_LLM_NS {
     using namespace U_ICU_NAMESPACE;
 
     static UnicodeString text1 = "Note that, in this example, words is a local, or stack array of actual UnicodeString objects. No heap allocation is involved in initializing this array of empty strings (C++ is not Java!). Local UnicodeString arrays like this are a very good fit for use with split(); after extracting the fields, any values that need to be kept in some more permanent way can be copied to their ultimate destination.";

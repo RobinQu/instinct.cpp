@@ -6,13 +6,13 @@
 
 #include "CoreGlobals.hpp"
 #include "document/RecursiveCharacterTextSplitter.hpp"
-#include "document/tokenizer/TiktokenTokenizer.hpp"
-#include "document/tokenizer/Tokenizer.hpp"
+#include "tokenizer/TiktokenTokenizer.hpp"
+#include "tokenizer/Tokenizer.hpp"
 
 #include "Corpus.hpp"
 #include "tools/Assertions.hpp"
 
-namespace INSTINCT_CORE_NS {
+namespace INSTINCT_LLM_NS {
     TEST(RecursiveCharacterTextSplitter, split_text_with_seperator) {
         auto results = details::split_text_with_seperator(
         u32_utils::copies_of(5, "abcdef"),

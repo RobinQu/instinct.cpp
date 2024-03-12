@@ -13,9 +13,8 @@
 #include "tokenizer/TiktokenTokenizer.hpp"
 #include "tokenizer/Tokenizer.hpp"
 
-namespace INSTINCT_CORE_NS {
-
-    // using namespace U_ICU_NAMESPACE;
+namespace INSTINCT_LLM_NS {
+    using namespace U_ICU_NAMESPACE;
 
     static std::vector<UnicodeString> DEFAULT_SEPERATOR_FOR_TEXT_SPLITTER = {
         "\n\n",

@@ -5,7 +5,6 @@
 #include <gtest/gtest.h>
 
 #include "LLMGlobals.hpp"
-#include "chain/ChainContextBuilder.hpp"
 #include "chain/LLMChain.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "llm/OllamaLLM.hpp"
@@ -42,7 +41,7 @@ namespace INSTINCT_LLM_NS {
     TEST_F(LLMChainTest, GenerateWithLLM) {
         LLMChain chain { llm_, string_prompt_template_, string_parser_, nullptr};
         LLMChainContext context;
-        auto builder = ChainContextBuilder::Create();
+        auto builder = ContextMutataor::Create();
         builder->Put("question", "Why is sky blue?");
         auto result = chain.Invoke(builder->Build());
         std::cout << result << std::endl;
@@ -61,7 +60,7 @@ namespace INSTINCT_LLM_NS {
     }
 
     TEST_F(LLMChainTest, GenerateWithChatModel) {
-        auto builder = ChainContextBuilder::Create();
+        auto builder = ContextMutataor::Create();
         builder->Put("question", "how is that different than mie scattering?");
         LLMChain chain {chat_model_, chat_prompt_template_, string_parser_, nullptr};
         auto result = chain.Invoke(builder->Build());

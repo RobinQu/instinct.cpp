@@ -10,7 +10,7 @@
 #include "tools/StringUtils.hpp"
 
 
-namespace INSTINCT_CORE_NS {
+namespace INSTINCT_LLM_NS {
     TEST(CharacterTextSplitter, TestSimpleSplit) {
         auto* text_splitter = new CharacterTextSplitter({.chunk_size = 100});
         auto result = text_splitter->SplitText(corpus::text5);

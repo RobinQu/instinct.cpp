@@ -16,6 +16,6 @@ namespace INSTINCT_RETRIEVAL_NS {
 }
 
 int main() {
-    instinct::retrieval::RAGChain<std::string> c;
+    // instinct::retrieval::RAGChain<std::string> c;
     return 0;
 }

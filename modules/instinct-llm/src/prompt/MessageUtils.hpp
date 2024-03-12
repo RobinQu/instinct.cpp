@@ -8,7 +8,7 @@
 #include "tools/StringUtils.hpp"
 #include <fmt/format.h>
 #include <fmt/args.h>
-
+#include "chain/IChain.hpp"
 
 
 namespace INSTINCT_LLM_NS {

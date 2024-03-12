@@ -11,8 +11,6 @@
 
 namespace INSTINCT_LLM_NS {
     struct ChainOptions {
-        // std::string prompt_input_key = DEFAULT_PROMPT_INPUT_KEY;
-        // std::string answer_output_key = DEFAULT_ANSWER_OUTPUT_KEY;
         std::vector<std::string> input_keys {DEFAULT_PROMPT_INPUT_KEY};
         std::vector<std::string> output_keys  {DEFAULT_ANSWER_OUTPUT_KEY};
     };

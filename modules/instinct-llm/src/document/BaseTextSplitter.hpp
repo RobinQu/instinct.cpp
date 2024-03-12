@@ -7,7 +7,9 @@
 
 #include "TextSplitter.hpp"
 
-namespace INSTINCT_CORE_NS {
+
+namespace INSTINCT_LLM_NS {
+    using namespace U_ICU_NAMESPACE;
 
     using LengthFunction = std::function<size_t(const UnicodeString&)> ;
 

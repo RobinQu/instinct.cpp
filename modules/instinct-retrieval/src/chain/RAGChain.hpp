@@ -6,7 +6,6 @@
 #define RAGCHAIN_HPP
 
 #include "RetrievalGlobals.hpp"
-#include "chain/ChainContextBuilder.hpp"
 #include "chain/BaseChain.hpp"
 #include "chain/LLMChain.hpp"
 #include "retrieval/IRetriever.hpp"
@@ -19,6 +18,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     struct RAGChainOptions: ChainOptions {
         std::string context_output_key = "context";
         std::string condense_question_key = "standalone_question";
+        int top_k = 10;
     };
 
     template<typename Result>
@@ -65,7 +65,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 chat_memory_->EnhanceContext(ctx_builder);
             }
             const auto question_string = question_chain_->Invoke(ctx_builder->Build());
-            const auto doc_itr = retriever_->Retrieve(question_string);
+            const auto doc_itr = retriever_->Retrieve({.text = question_string, .top_k = this->GetOptions().top_k});
             std::string context_string = DocumentUtils::CombineDocuments(doc_itr);
             ctx_builder->Put(this->GetOptions().context_output_key, context_string);
             ctx_builder->Put(this->GetOptions().condense_question_key, question_string);

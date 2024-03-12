@@ -37,7 +37,6 @@ set(${LIBRARY_TARGET_NAME}_HDR  src/All.hpp
         src/tokenizer/BPETokenRanksReader.hpp
         src/tokenizer/GPT2BPEFileReader.hpp
         src/tokenizer/TiktokenBPEFileReader.hpp
-        src/chain/ChainContextBuilder.hpp
         src/memory/EphemeralChatMemory.hpp
         src/chain/IChainContextAware.hpp
         src/output_parser/BaseOutputParser.hpp
