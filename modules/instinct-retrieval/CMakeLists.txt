@@ -13,6 +13,16 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/chain/RAGChain.hpp
         src/retrieval/DocumentUtils.hpp
         src/retrieval/IBatchableRetriever.hpp
+        src/retrieval/IStatefulRetriever.hpp
+        src/store/IDocStore.hpp
+        src/retrieval/MultiVectorRetriever.hpp
+        src/retrieval/ChunkedMultiVectorRetriever.hpp
+        src/retrieval/AutoRetriever.hpp
+        src/retrieval/MultiQueryRetriever.hpp
+
+        src/output_parser/MultiLineTextOutputParser.hpp
+        src/output_parser/MetadataQueryOutputParser.hpp
+
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

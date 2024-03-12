@@ -10,7 +10,8 @@
 #include "CoreGlobals.hpp"
 #include "tokenizer/Tokenizer.hpp"
 
-namespace INSTINCT_CORE_NS {
+namespace INSTINCT_LLM_NS {
+    using namespace INSTINCT_CORE_NS;
 
     using namespace U_ICU_NAMESPACE;
 
@@ -22,8 +23,7 @@ namespace INSTINCT_CORE_NS {
         TextSplitter(const TextSplitter&)=delete;
         virtual std::vector<UnicodeString> SplitText(const UnicodeString& text) = 0;
     };
-
-
+    using TextSplitterPtr = std::shared_ptr<TextSplitter>;
 
 
 

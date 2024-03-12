@@ -14,8 +14,7 @@
 #include "tools/ChronoUtils.hpp"
 
 
-namespace
-INSTINCT_RETRIEVAL_NS {
+namespace  INSTINCT_RETRIEVAL_NS {
     class RAGChainTest : public testing::Test {
     protected:
         void SetUp() override {

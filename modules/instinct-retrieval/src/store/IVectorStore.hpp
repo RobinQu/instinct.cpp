@@ -8,7 +8,7 @@
 #include <retrieval.pb.h>
 #include "RetrievalGlobals.hpp"
 #include "model/IEmbeddingModel.hpp"
-#include "tools/ResultIterator.hpp"
+#include "store/IDocStore.hpp"
 
 
 namespace INSTINCT_RETRIEVAL_NS {
@@ -22,18 +22,12 @@ namespace INSTINCT_RETRIEVAL_NS {
      *
      * Building a full-fledged hybrid vector store isn't my primary goal, so `VectoreStore` classes will follow practices in other similar LLM tools.
      */
-    class IVectorStore {
+    class IVectorStore: public IDocStore {
     public:
-        IVectorStore()=default;
-        virtual ~IVectorStore() = default;
-        IVectorStore(IVectorStore&&)=delete;
-        IVectorStore(const IVectorStore&)=delete;
-
-        // [[nodiscard]] virtual Embeddings* GetEmbeddingModel() const = 0;
-        virtual std::vector<std::string> AddDocuments(const ResultIteratorPtr<Document>& documents_iterator) = 0;
-        virtual void AddDocuments(std::vector<Document>& records, std::vector<std::string>& id_result) = 0;
-        virtual size_t DeleteDocuments(const std::vector<std::string>& ids) = 0;
         virtual ResultIteratorPtr<Document> SearchDocuments(const SearchRequest& request) = 0;
+        virtual EmbeddingsPtr GetEmbeddingModel() = 0;
+
+
     };
 
     using VectorStorePtr = std::shared_ptr<IVectorStore>;

@@ -11,12 +11,12 @@
 #include "store/duckdb/DuckDBVectorStore.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
-    class VectorStoreRetriever: public IRetriever{
+    class VectorStoreRetriever: public ITextRetreiver {
         VectorStorePtr vectore_store_;
         SearchRequest search_request_template_;
 
     public:
-        explicit VectorStoreRetriever(VectorStorePtr vectore_store, SearchRequest  search_request_template = {})
+        explicit VectorStoreRetriever(VectorStorePtr vectore_store, SearchRequest search_request_template = {})
             : vectore_store_(std::move(vectore_store)), search_request_template_(std::move(search_request_template)){
         }
 
@@ -25,10 +25,11 @@ namespace INSTINCT_RETRIEVAL_NS {
             return std::make_shared<VectorStoreRetriever>(store);
         }
 
-        ResultIteratorPtr<Document> Retrieve(const std::string& query) override {
+        ResultIteratorPtr<Document> Retrieve(const TextQuery& query) override {
             SearchRequest search_request;
-            search_request.CopyFrom(search_request_template_);
-            search_request.set_query(query);
+            search_request.MergeFrom(search_request_template_);
+            search_request.set_query(query.text);
+            search_request.set_top_k(query.top_k);
             return vectore_store_->SearchDocuments(search_request);
         }
     };

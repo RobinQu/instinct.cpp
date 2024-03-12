@@ -9,8 +9,7 @@
 #include "model/ModelCallbackMixins.hpp"
 
 
-namespace
-INSTINCT_LLM_NS {
+namespace INSTINCT_LLM_NS {
     class BaseLLM : public ILanguageModel<std::string> {
         virtual BatchedLangaugeModelResult Generate(const std::vector<std::string>& prompts) = 0;
 

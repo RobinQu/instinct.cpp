@@ -55,6 +55,19 @@ namespace INSTINCT_LLM_NS {
 
     template<typename T, typename Options = ChainOptions>
     using ChainPtr = std::shared_ptr<BaseChain<T, Options>>;
+
+
+    /**
+     * A chain that genereates a free-formed string
+     */
+    using TextChainPtr = ChainPtr<std::string>;
+
+    /**
+     * A Chain that generates a multi-line text result
+     */
+    using MultilineTextChainPtr = ChainPtr<std::vector<std::string>>;
+
+
 }
 
 #endif //BASECHAIN_HPP

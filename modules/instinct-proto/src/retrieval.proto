@@ -63,5 +63,8 @@ message SearchResponse {
 
 }
 
-
-
+message UpdateResult {
+  int32 affected_rows = 1;
+  repeated string returned_ids = 2;
+  repeated Document failed_documents = 3;
+}

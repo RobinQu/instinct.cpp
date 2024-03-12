@@ -48,6 +48,22 @@ namespace INSTINCT_RETRIEVAL_NS {
             return select_sql;
         }
 
+        static std::string make_preapred_mget_sql (
+            const std::string& table_name,
+            const MetadataSchema& metadata_schema
+            ) {
+            std::string select_sql = "SELECT id, text";
+            auto name_view = metadata_schema.fields() | std::views::transform(
+                                             [](const MetadataFieldSchema& field)-> std::string {
+                                                 return field.name();
+                                             });
+            select_sql += name_view.empty() ? ""  : ", " + StringUtils::JoinWith(name_view, ", ");
+            select_sql += " FROM ";
+            select_sql += table_name;
+            select_sql += " WHERE id in ?";
+            return select_sql;
+        }
+
         static std::string make_search_sql(
             const std::string& table_name,
             const MetadataSchema& metadata_schema,
@@ -177,14 +193,16 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
 
-        static void append_row(const MetadataSchema& metadata_schema, Appender& appender, const Document& doc,
+        static void append_row(const MetadataSchema& metadata_schema, Appender& appender, Document& doc,
                                const Embedding& embedding,
-                               std::vector<std::string>& ids_out) {
+                               UpdateResult& update_result) {
             auto* schema = Document::GetDescriptor();
             appender.BeginRow();
             // column of id
-            ids_out.push_back(u8_utils::uuid_v8());
-            appender.Append<>(ids_out.back().c_str());
+            std::string new_id = u8_utils::uuid_v8();
+            update_result.add_returned_ids(new_id);
+            appender.Append<>(new_id.c_str());
+            doc.set_id(new_id);
 
             // column of text
             // TODO escape text chars in case of sql injection
@@ -257,10 +275,58 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_true(known_field_names.empty(), "Some metadata fields not set: " + StringUtils::JoinWith(known_field_names, ","));
             appender.EndRow();
         }
+
+        static ResultIteratorPtr<Document> conv_query_result_to_iterator(QueryResult* result, const MetadataSchema& metadata_schema_) {
+            std::vector<Document> docs;
+            for (const auto& row: *result) {
+                Document document;
+                document.set_id(row.GetValue<std::string>(0));
+                document.set_text(row.GetValue<std::string>(1));
+                // for (const Value vector_value = row.GetValue<Value>(2);
+                //     const auto& v: ArrayValue::GetChildren(vector_value)) {
+                //     document.add_vector(v.GetValue<float>());
+                // }
+                for (int i = 0; i < metadata_schema_.fields_size(); i++) {
+                    int column_idx = i + 2;
+                    auto& field_schema = metadata_schema_.fields(i);
+                    auto* metadata_field = document.add_metadata();
+                    metadata_field->set_name(field_schema.name());
+                    switch (field_schema.type()) {
+                        case INT32:
+                            metadata_field->set_int_value(row.GetValue<int32_t>(column_idx));
+                            break;
+                        case INT64:
+                            metadata_field->set_long_value(row.GetValue<int64_t>(column_idx));
+                            break;
+                        case FLOAT:
+                            metadata_field->set_float_value(row.GetValue<float>(column_idx));
+                            break;
+                        case DOUBLE:
+                            metadata_field->set_double_value(row.GetValue<double>(column_idx));
+                            break;
+                        case VARCHAR:
+                            metadata_field->set_string_value(row.GetValue<std::string>(column_idx));
+                            break;
+                        case BOOL:
+                            metadata_field->set_bool_value(row.GetValue<bool>(column_idx));
+                            break;
+                        default:
+                            throw InstinctException("unknown field type for field named " + field_schema.name());
+                    }
+                }
+
+                docs.push_back(document);
+            }
+            return create_result_itr_from_range(docs);
+
+        }
+
+
+
     }
 
 
-    class DuckDBVectorStore : public IVectorStore {
+    class DuckDBVectorStore final: public IVectorStore {
         std::string table_name_;
         DuckDB db_;
         size_t dimmension_;
@@ -269,16 +335,19 @@ namespace INSTINCT_RETRIEVAL_NS {
         Connection connection_;
         EmbeddingsPtr embeddings_;
         std::unique_ptr<PreparedStatement> prepared_search_statement_;
+        std::unique_ptr<PreparedStatement> prepared_mget_statement_;
 
     public:
         DuckDBVectorStore() = delete;
 
-        explicit DuckDBVectorStore(const DuckDbVectoreStoreOptions& options): table_name_(options.table_name),
-                                                                              db_(options.db_file_path),
-                                                                              metadata_schema_(options.metadata_schema),
-                                                                              dimmension_(options.dimmension),
-                                                                              connection_(db_),
-                                                                              embeddings_(options.embeddings) {
+        explicit DuckDBVectorStore(const DuckDbVectoreStoreOptions& options):
+            table_name_(options.table_name),
+            db_(options.db_file_path),
+            metadata_schema_(options.metadata_schema),
+            dimmension_(options.dimmension),
+            connection_(db_),
+            embeddings_(options.embeddings)
+        {
             assert_positive(dimmension_, "dimension should be positive");
             assert_lt(dimmension_, 10000, "dimension should be less than 10000");
             assert_true(embeddings_ != nullptr, "should provide embeddings object pointer");
@@ -286,7 +355,25 @@ namespace INSTINCT_RETRIEVAL_NS {
             InitializeDB_();
         }
 
-        std::vector<std::string> AddDocuments(const ResultIteratorPtr<Document>& documents_iterator) override {
+        const MetadataSchema& GetMetadataSchema() const override {
+            return metadata_schema_;
+        }
+
+        EmbeddingsPtr GetEmbeddingModel() override {
+            return embeddings_;
+        }
+
+        ResultIteratorPtr<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {
+            vector<Value> id_vector;
+            for(const auto& id: ids) {
+                id_vector.push_back(id);
+            }
+            const auto result = prepared_mget_statement_->Execute(id_vector);
+            details::assert_query_ok(result);
+            return details::conv_query_result_to_iterator(result.get(), metadata_schema_);
+        }
+
+        void AddDocuments(const ResultIteratorPtr<Document>& documents_iterator, UpdateResult& update_result) override {
             static size_t batch_size = 10;
             std::vector<std::string> ids;
             std::vector<Document> batch(batch_size);
@@ -294,17 +381,16 @@ namespace INSTINCT_RETRIEVAL_NS {
                 const auto doc = documents_iterator->Next();
                 batch.push_back(doc);
                 if (batch.size() == batch_size) {
-                    AddDocuments(batch, ids);
+                    AddDocuments(batch, update_result);
                     batch.clear();
                 }
             }
             if (!batch.empty()) {
-                AddDocuments(batch, ids);
+                AddDocuments(batch, update_result);
             }
-            return ids;
         }
 
-        void AddDocuments(std::vector<Document>& records, std::vector<std::string>& id_result) override {
+        void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
             Appender appender(connection_, table_name_);
             // std::vector<std::string> ids;
             auto text_view = records | std::views::transform([](auto&& record) -> std::string {
@@ -312,16 +398,27 @@ namespace INSTINCT_RETRIEVAL_NS {
             });
             auto embeddings = embeddings_->EmbedDocuments({text_view.begin(), text_view.end()});
             assert_equal_size(embeddings, records);
+            int affected_row = 0;
             for (int i = 0; i < records.size(); i++) {
                 try {
-                    details::append_row(metadata_schema_, appender, records[i], embeddings[i], id_result);
+                    details::append_row(metadata_schema_, appender, records[i], embeddings[i], update_result);
+                    affected_row++;
                 } catch (const InstinctException& e) {
+                    update_result.add_failed_documents()->CopyFrom(records[i]);
                     // TODO with better logging facilities
                     std::cerr << e.what() << std::endl;
                 }
             }
+            update_result.set_affected_rows(affected_row);
             appender.Close();
-            // return ids;
+        }
+
+        void AddDocument(Document& doc) override {
+            UpdateResult update_result;
+            Appender appender(connection_, table_name_);
+            const auto embeddings = embeddings_->EmbedDocuments({doc.text()});
+            details::append_row(metadata_schema_, appender, doc, embeddings[0], update_result);
+            appender.Close();
         }
 
         size_t DeleteDocuments(const std::vector<std::string>& ids) override {
@@ -354,47 +451,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 result = prepared_search_statement_->Execute(Value::ARRAY(LogicalType::FLOAT, vector_array), request.top_k());
             }
             details::assert_query_ok(result);
-            std::vector<Document> docs;
-            for (const auto& row: *result) {
-                Document document;
-                document.set_id(row.GetValue<std::string>(0));
-                document.set_text(row.GetValue<std::string>(1));
-                // for (const Value vector_value = row.GetValue<Value>(2);
-                //     const auto& v: ArrayValue::GetChildren(vector_value)) {
-                //     document.add_vector(v.GetValue<float>());
-                // }
-                for (int i = 0; i < metadata_schema_.fields_size(); i++) {
-                    int column_idx = i + 2;
-                    auto field_schema = metadata_schema_.fields(i);
-                    auto* metadata_field = document.add_metadata();
-                    metadata_field->set_name(field_schema.name());
-                    switch (field_schema.type()) {
-                        case INT32:
-                            metadata_field->set_int_value(row.GetValue<int32_t>(column_idx));
-                            break;
-                        case INT64:
-                            metadata_field->set_long_value(row.GetValue<int64_t>(column_idx));
-                            break;
-                        case FLOAT:
-                            metadata_field->set_float_value(row.GetValue<float>(column_idx));
-                            break;
-                        case DOUBLE:
-                            metadata_field->set_double_value(row.GetValue<double>(column_idx));
-                            break;
-                        case VARCHAR:
-                            metadata_field->set_string_value(row.GetValue<std::string>(column_idx));
-                            break;
-                        case BOOL:
-                            metadata_field->set_bool_value(row.GetValue<bool>(column_idx));
-                            break;
-                        default:
-                            throw InstinctException("unknown field type for field named " + field_schema.name());
-                    }
-                }
-
-                docs.push_back(document);
-            }
-            return create_result_itr_from_range(docs);
+            return details::conv_query_result_to_iterator(result.get(), metadata_schema_);
         }
 
     private:
@@ -403,6 +460,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto create_table_result = connection_.Query(sql);
             details::assert_query_ok(create_table_result);
             prepared_search_statement_ = connection_.Prepare(details::make_prepared_search_sql(table_name_, metadata_schema_));
+            prepared_mget_statement_ = connection_.Prepare(details::make_preapred_mget_sql(table_name_, metadata_schema_));
         }
     };
 }

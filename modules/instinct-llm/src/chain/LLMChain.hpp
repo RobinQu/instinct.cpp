@@ -34,7 +34,7 @@ INSTINCT_LLM_NS {
         LLMChain(const LanguageModelVariant& model,
                  const PromptTemplatePtr& prompt_template,
                  const OutputParserPtr<Result>& output_parser,
-                 const ChatMemoryPtr& chat_memory,
+                 const ChatMemoryPtr& chat_memory = nullptr,
                  ChainOptions options = {}
                  )
             : BaseChain<Result>(std::move(options)),
@@ -91,8 +91,6 @@ INSTINCT_LLM_NS {
             }
             throw InstinctException("invalid model pointer");
         }
-
-
     };
 
 

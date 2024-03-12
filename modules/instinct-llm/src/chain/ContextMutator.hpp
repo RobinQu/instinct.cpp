@@ -14,7 +14,6 @@
 #include "CoreTypes.hpp"
 
 namespace INSTINCT_LLM_NS {
-    // using namespace INSTINCT_LLM_NS;
     using namespace INSTINCT_CORE_NS;
     using namespace google::protobuf;
 
@@ -51,25 +50,10 @@ namespace INSTINCT_LLM_NS {
             return this;
         }
 
-
         ContextPtr Build() {
             Commit();
             return context_;
         }
-
-
-        //
-        // template<typename T>
-        // T Get(const std::string& name, T&& default_value) const {
-        //     if (cache_.contains(name)) {
-        //         return std::get<T>(cache_.at(name));
-        //     }
-        //     if (context_.values().contains(name)) {
-        //         context_.values().at(name)
-        //
-        //     }
-        //     return default_value;
-        // }
 
         void Rollback() {
             cache_.clear();
