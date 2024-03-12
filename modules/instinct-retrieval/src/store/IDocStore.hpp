@@ -9,12 +9,7 @@
 #include "tools/ResultIterator.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
-    //
-    // struct UpdateResult {
-    //     int affected_rows;
-    //     std::vector<std::string> retruned_ids;
-    //     std::vector<Document> failed_documents;
-    // };
+    using namespace INSTINCT_CORE_NS;
 
     class IDocStore {
     public:
