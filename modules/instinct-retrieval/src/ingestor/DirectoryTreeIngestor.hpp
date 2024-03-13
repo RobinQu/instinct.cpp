@@ -100,6 +100,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                     this->regex_matcher_->reset(absolute_path);
                     return this->regex_matcher_->find();
                 }
+                return true;
             }
             return false;
         }

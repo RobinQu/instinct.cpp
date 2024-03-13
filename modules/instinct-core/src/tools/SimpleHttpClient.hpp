@@ -82,11 +82,11 @@ namespace INSTINCT_CORE_NS {
     inline SimpleHttpClient::SimpleHttpClient(Endpoint endpoint, HttpClientOptions options): ioc_(),
         endpoint_(std::move(endpoint)), options_(options), resolve_results_() {
         assert_positive(endpoint_.port, "port number should be a positive integer");
-        assert_true(!StringUtils::IsBlankString(endpoint.host), "host cannnot be blank");
+        assert_true(!StringUtils::IsBlankString(endpoint_.host), "host cannnot be blank");
         tcp::resolver resolver(ioc_);
         resolve_results_ = resolver.resolve(
-            endpoint.host,
-            std::to_string(endpoint.port)
+            endpoint_.host,
+            std::to_string(endpoint_.port)
         );
     }
 

@@ -11,6 +11,7 @@
 #include "ingestor/DirectoryTreeIngestor.hpp"
 #include "retrieval/MultiQueryRetriever.hpp"
 #include "retrieval/MultiVectorRetriever.hpp"
+#include "store/duckdb/DuckDBDocStore.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
 #include "tools/ChronoUtils.hpp"
 
@@ -18,40 +19,39 @@ namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
 
 
-    class MultiqueryRetrieverTest: public testing::Test {
+    class MultiVectorRetrieverTest: public testing::Test {
     protected:
         void SetUp() override {
-            auto root_path = std::filesystem::temp_directory_path() / "instinct-test " / ChronoUtils::GetCurrentTimestampString();
+            auto root_path = std::filesystem::temp_directory_path() / "instinct-test" / std::to_string(ChronoUtils::GetCurrentTimeMillis());
             std::filesystem::create_directories(root_path);
 
+            std::cout << "MultiVectorRetrieverTest at " << root_path << std::endl;
+
+            OllamaConfiguration ollama_configuration = {.model_name = "phi"};
             llm_ = std::make_shared<OllamaChat>();
 
             size_t dimension = 4096;
 
             EmbeddingsPtr embedding_model = std::make_shared<OllamaEmbedding>();
-            DuckDbVectoreStoreOptions db_options = {
+            DuckDBStoreOptions db_options = {
                 .table_name = "document_table",
-                .db_file_path = root_path / "doc_store.db",
-                .dimmension = dimension,
-                .embeddings = embedding_model
+                .db_file_path = root_path / "doc_store.db"
             };
-            doc_store_ = std::make_shared<DuckDBVectorStore>(db_options);
+            doc_store_ = CreateDuckDBDocStore(db_options);
 
-            DuckDbVectoreStoreOptions summary_db_options = {
+            DuckDBStoreOptions summary_db_options = {
                 .table_name = "summaries_table",
                 .db_file_path = root_path / "summary_store.db",
                 .dimmension = dimension,
-                .embeddings = embedding_model
             };
-            summary_store_ = std::make_shared<DuckDBVectorStore>(summary_db_options);
+            summary_store_ = CreateDuckDBVectorStore(embedding_model, summary_db_options);
 
-            DuckDbVectoreStoreOptions query_db_options = {
+            DuckDBStoreOptions query_db_options = {
                 .table_name = "queries_table",
                 .db_file_path = root_path / "query_store.db",
-                .dimmension = dimension,
-                .embeddings = embedding_model
+                .dimmension = dimension
             };
-            hypothetical_quries_store_ = std::make_shared<DuckDBVectorStore>(query_db_options);
+            hypothetical_quries_store_ = CreateDuckDBVectorStore(embedding_model, query_db_options);
 
             asset_dir_ = std::filesystem::current_path() / "modules" / "instinct-retrieval" / "test" / "_assets";
         }
@@ -63,7 +63,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         VectorStorePtr hypothetical_quries_store_;
     };
 
-    TEST_F(MultiqueryRetrieverTest, TestReteiveWithSummary) {
+    TEST_F(MultiVectorRetrieverTest, TestReteiveWithSummary) {
         auto retriever = CreateSummaryGuidedRetriever(
             llm_,
             doc_store_,
@@ -71,7 +71,9 @@ namespace INSTINCT_RETRIEVAL_NS {
         );
 
         // load all recipes in folder
-        const auto ingestor = CreateDirectoryTreeIngestor(asset_dir_ / "docs" / "recipes");
+        const auto recipes_dir = asset_dir_ / "docs" / "recipes";
+        std::cout << "reading recipes from " << recipes_dir << std::endl;
+        const auto ingestor = CreateDirectoryTreeIngestor(recipes_dir);
         retriever->Ingest(ingestor->Load());
 
         const auto summary_count = summary_store_->CountDocuments();
@@ -84,7 +86,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
     }
 
-    TEST_F(MultiqueryRetrieverTest, TestReteiveWithHypotheticalQuries) {
+    TEST_F(MultiVectorRetrieverTest, TestReteiveWithHypotheticalQuries) {
 
 
 

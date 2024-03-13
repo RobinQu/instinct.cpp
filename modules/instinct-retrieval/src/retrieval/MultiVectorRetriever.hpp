@@ -38,6 +38,9 @@ namespace INSTINCT_RETRIEVAL_NS {
          */
         MultiVectorGuidance guidance_;
 
+        /**
+         * options for this retriever
+         */
         MultiVectorRetrieverOptions options_;
 
     public:
@@ -49,7 +52,7 @@ namespace INSTINCT_RETRIEVAL_NS {
               options_(std::move(options)) {
             assert_true(!!doc_store_, "should have doc store");
             assert_true(!!vector_store_, "should have doc store");
-            assert_true(typeid(*doc_store) != typeid(*vector_store), "cannot use a VectorStore both for doc and embedding.");
+            // assert_true(typeid(*doc_store_) != typeid(*vector_store_), "cannot use a VectorStore both for doc and embedding.");
         }
 
 
@@ -74,13 +77,13 @@ namespace INSTINCT_RETRIEVAL_NS {
                 doc_store_->AddDocument(parent_doc);
                 auto sub_docs = std::invoke(guidance_, parent_doc);
                 for (auto& sub_doc: sub_docs) {
-                    auto* field = parent_doc.add_metadata();
+                    auto* field = sub_doc.add_metadata();
                     field->set_name(options_.parent_doc_id_key);
                     field->set_string_value(parent_doc.id());
                 }
                 UpdateResult update_result;
                 vector_store_->AddDocuments(sub_docs, update_result);
-                assert_true(update_result.failed_documents_size()>0, "all sub docs should be inserted successfully");
+                assert_true(update_result.failed_documents_size()==0, "all sub docs should be inserted successfully");
             }
         }
     };
@@ -93,12 +96,15 @@ namespace INSTINCT_RETRIEVAL_NS {
         const MultiVectorRetrieverOptions& options = {}
         ) {
         TextOutputParserPtr output_parser = std::make_shared<StringOutputParser>();
+        ChainOptions chain_options = {.input_keys = {"doc"}};
         const TextChainPtr sumamry_chain = std::make_shared<TextLLMChain>(
             llm,
             // prompt is copied from langchian doc, which may not be the best choice
             // https://python.langchain.com/docs/modules/data_connection/retrievers/multi_vector#summary
             prompt_template == nullptr ? PlainPromptTemplate::CreateWithTemplate("Summarize the following document:\n\n{doc}") : prompt_template,
-            output_parser
+            output_parser,
+            nullptr,
+            chain_options
             );
         MultiVectorGuidance guidance = [&, sumamry_chain](const Document& doc) {
             assert_true(!StringUtils::IsBlankString(doc.id()), "should have valid doc id");

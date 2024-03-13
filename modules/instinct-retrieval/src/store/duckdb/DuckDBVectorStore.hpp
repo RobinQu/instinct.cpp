@@ -7,24 +7,22 @@
 
 #include <duckdb.hpp>
 #include <retrieval.pb.h>
+
+#include "DuckDBStoreInternal.hpp"
+#include "retrieval/IStatefulRetriever.hpp"
 #include "store/IVectorStore.hpp"
 #include "tools/Assertions.hpp"
 #include "tools/StringUtils.hpp"
+
 
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace duckdb;
     using namespace google::protobuf;
 
-    struct DuckDbVectoreStoreOptions {
-        std::string table_name;
-        std::string db_file_path;
-        size_t dimmension = 128;
-        MetadataSchema metadata_schema;
-        EmbeddingsPtr embeddings;
-    };
 
     namespace details {
+
         /**
          * make sql text for prepared statement, ignoring metadata filter
          * @param table_name
@@ -33,11 +31,11 @@ namespace INSTINCT_RETRIEVAL_NS {
          */
         static std::string make_prepared_search_sql(
             const std::string& table_name,
-            const MetadataSchema& metadata_schema
+            const std::shared_ptr<MetadataSchema>& metadata_schema
 
             ) {
             std::string select_sql = "SELECT id, text";
-            auto name_view = metadata_schema.fields() | std::views::transform(
+            auto name_view = metadata_schema->fields() | std::views::transform(
                                  [](const MetadataFieldSchema& field)-> std::string {
                                      return field.name();
                                  });
@@ -48,29 +46,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             return select_sql;
         }
 
-        static std::string make_preapred_mget_sql (
-            const std::string& table_name,
-            const MetadataSchema& metadata_schema
-            ) {
-            std::string select_sql = "SELECT id, text";
-            auto name_view = metadata_schema.fields() | std::views::transform(
-                                             [](const MetadataFieldSchema& field)-> std::string {
-                                                 return field.name();
-                                             });
-            select_sql += name_view.empty() ? ""  : ", " + StringUtils::JoinWith(name_view, ", ");
-            select_sql += " FROM ";
-            select_sql += table_name;
-            select_sql += " WHERE id in ?";
-            return select_sql;
-        }
-
-        static std::string make_prepared_count_sql (const std::string& table_name) {
-            return fmt::format("SELECT count(*) from {}", table_name);
-        }
 
         static std::string make_search_sql(
             const std::string& table_name,
-            const MetadataSchema& metadata_schema,
+            const std::shared_ptr<MetadataSchema>& metadata_schema,
             const std::vector<float>& query_vector,
             const MetadataQuery& metadata_filter,
             size_t limit = 10
@@ -80,7 +59,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
             // ommit vectro field to reduce payload size
             std::string select_sql = "SELECT id, text";
-            auto name_view = metadata_schema.fields() | std::views::transform(
+            auto name_view = metadata_schema->fields() | std::views::transform(
                                  [](const MetadataFieldSchema& field)-> std::string {
                                      return field.name();
                                  });
@@ -134,277 +113,55 @@ namespace INSTINCT_RETRIEVAL_NS {
             return select_sql;
         }
 
-        static std::string make_create_table_sql(
-            const std::string& table_name,
-            const size_t dimmension,
-            const MetadataSchema& metadata_schema
+
+
+        static void append_row(
+                const std::shared_ptr<MetadataSchema>& metadata_schema,
+                Appender& appender,
+                Document& doc,
+                const Embedding& embedding,
+                UpdateResult& update_result,
+                const bool bypass_unknown_fields
         ) {
-            auto create_table_sql = "CREATE OR REPLACE TABLE " + table_name + "(";
-            std::vector<std::string> parts;
-            parts.emplace_back("id VARCHAR PRIMARY KEY");
-            parts.emplace_back("text VARCHAR NOT NULL");
-            parts.emplace_back("vector FLOAT[" + std::to_string(dimmension) + "] NOT NULL");
-            for (const auto& field: metadata_schema.fields()) {
-                auto mfd = field.name() + " ";
-                switch (field.type()) {
-                    case INT32:
-                        mfd += "INTEGER";
-                        break;
-                    case INT64:
-                        mfd += "BIGINT";
-                        break;
-                    case FLOAT:
-                        mfd += "FLOAT";
-                        break;
-                    case DOUBLE:
-                        mfd += "DOUBLE";
-                        break;
-                    case VARCHAR:
-                        mfd += "VARCHAR";
-                        break;
-                    case BOOL:
-                        mfd += "BOOL";
-                        break;
-                    default:
-                        throw InstinctException("unknown field type :" + std::string(field.name()));
-                }
-                parts.push_back(mfd);
-            }
-            create_table_sql += StringUtils::JoinWith(parts, ", ");
-            create_table_sql += ");";
-            return create_table_sql;
-        }
-
-        static std::string make_delete_sql(const std::string& table_name, const std::vector<std::string>& ids) {
-            assert_non_empty_range(ids, "ids should not be empty");
-            std::string delete_sql = "DELETE FROM " + table_name + " WHERE id IN (";
-            delete_sql += StringUtils::JoinWith(ids, ", ");
-            delete_sql += ");";
-            return delete_sql;
-        }
-
-
-        static void assert_query_ok(const unique_ptr<MaterializedQueryResult>& result) {
-            if (const auto error = result->GetErrorObject(); error.HasError()) {
-                throw InstinctException(result->GetError());
-            }
-        }
-
-        static void assert_query_ok(const unique_ptr<QueryResult>& result) {
-            if (const auto error = result->GetErrorObject(); error.HasError()) {
-                throw InstinctException(result->GetError());
-            }
-        }
-
-
-        static void append_row(const MetadataSchema& metadata_schema, Appender& appender, Document& doc,
-                               const Embedding& embedding,
-                               UpdateResult& update_result) {
-            auto* schema = Document::GetDescriptor();
             appender.BeginRow();
-            // column of id
-            std::string new_id = u8_utils::uuid_v8();
-            update_result.add_returned_ids(new_id);
-            appender.Append<>(new_id.c_str());
-            doc.set_id(new_id);
 
-            // column of text
-            // TODO escape text chars in case of sql injection
-            appender.Append<>(doc.text().c_str());
+            // basic fields
+            append_row_basic_fields(appender, doc, update_result);
 
-            // column vector
+            // column of vector
             vector<Value> vector_value;
             for (const float& f: embedding) {
                 vector_value.push_back(Value::FLOAT(f));
             }
             appender.Append(Value::ARRAY(vector_value));
 
-            auto name_view = metadata_schema.fields() | std::views::transform(
-                                 [](const MetadataFieldSchema& field)-> std::string {
-                                     return field.name();
-                                 });
-            std::unordered_set<std::string> known_field_names{name_view.begin(), name_view.end()};
+            // metadata fields
+            append_row_metadata_fields(metadata_schema, appender, doc, bypass_unknown_fields);
 
-            // columns of metadata
-            auto* reflection = Document::GetReflection();
-            const auto* metadata_field = schema->FindFieldByName("metadata");
-            int metadata_size = reflection->FieldSize(doc, metadata_field);
-            for (int i = 0; i < metadata_size; i++) {
-                const auto& metadata_field_message = reflection->GetRepeatedMessage(
-                    doc,
-                    metadata_field,
-                    i);
-                auto metadata_field_descriptor = metadata_field_message.GetDescriptor();
-                auto* field_value_reflection = metadata_field_message.GetReflection();
-                auto name_field_desccriptor = metadata_field_descriptor->FindFieldByName("name");
-                auto name = field_value_reflection->GetString(metadata_field_message, name_field_desccriptor);
-
-                assert_true((known_field_names.contains(name)),
-                            "metadata cannot contains field not defined by schema. Field in question is " + name);
-                known_field_names.erase(name);
-
-                auto* value_descriptor = metadata_field_descriptor->FindOneofByName("value");
-                const auto* field_descriptor = field_value_reflection->GetOneofFieldDescriptor(doc, value_descriptor);
-
-                switch (field_descriptor->cpp_type()) {
-                    case FieldDescriptor::CPPTYPE_INT32:
-                        appender.Append<int32_t>(
-                            field_value_reflection->GetInt32(metadata_field_message, field_descriptor));
-                        break;
-                    case FieldDescriptor::CPPTYPE_INT64:
-                        appender.Append<int64_t>(
-                            field_value_reflection->GetInt64(metadata_field_message, field_descriptor));
-                        break;
-                    case FieldDescriptor::CPPTYPE_BOOL:
-                        appender.Append<
-                            bool>(field_value_reflection->GetBool(metadata_field_message, field_descriptor));
-                        break;
-                    case FieldDescriptor::CPPTYPE_STRING:
-                        appender.Append<>(
-                            field_value_reflection->GetString(metadata_field_message, field_descriptor).c_str());
-                        break;
-                    case FieldDescriptor::CPPTYPE_FLOAT:
-                        appender.Append<float>(
-                            field_value_reflection->GetFloat(metadata_field_message, field_descriptor));
-                        break;
-                    case FieldDescriptor::CPPTYPE_DOUBLE:
-                        appender.Append<double>(
-                            field_value_reflection->GetDouble(metadata_field_message, field_descriptor));
-                        break;
-                    default:
-                        throw InstinctException("unknown field type for appending: " + field_descriptor->name());
-                }
-            }
-
-            assert_true(known_field_names.empty(), "Some metadata fields not set: " + StringUtils::JoinWith(known_field_names, ","));
             appender.EndRow();
         }
 
-        static ResultIteratorPtr<Document> conv_query_result_to_iterator(QueryResult* result, const MetadataSchema& metadata_schema_) {
-            std::vector<Document> docs;
-            for (const auto& row: *result) {
-                Document document;
-                document.set_id(row.GetValue<std::string>(0));
-                document.set_text(row.GetValue<std::string>(1));
-                // for (const Value vector_value = row.GetValue<Value>(2);
-                //     const auto& v: ArrayValue::GetChildren(vector_value)) {
-                //     document.add_vector(v.GetValue<float>());
-                // }
-                for (int i = 0; i < metadata_schema_.fields_size(); i++) {
-                    int column_idx = i + 2;
-                    auto& field_schema = metadata_schema_.fields(i);
-                    auto* metadata_field = document.add_metadata();
-                    metadata_field->set_name(field_schema.name());
-                    switch (field_schema.type()) {
-                        case INT32:
-                            metadata_field->set_int_value(row.GetValue<int32_t>(column_idx));
-                            break;
-                        case INT64:
-                            metadata_field->set_long_value(row.GetValue<int64_t>(column_idx));
-                            break;
-                        case FLOAT:
-                            metadata_field->set_float_value(row.GetValue<float>(column_idx));
-                            break;
-                        case DOUBLE:
-                            metadata_field->set_double_value(row.GetValue<double>(column_idx));
-                            break;
-                        case VARCHAR:
-                            metadata_field->set_string_value(row.GetValue<std::string>(column_idx));
-                            break;
-                        case BOOL:
-                            metadata_field->set_bool_value(row.GetValue<bool>(column_idx));
-                            break;
-                        default:
-                            throw InstinctException("unknown field type for field named " + field_schema.name());
-                    }
-                }
-
-                docs.push_back(document);
-            }
-            return create_result_itr_from_range(docs);
-
-        }
-
-
-
     }
 
-
-    class DuckDBVectorStore final: public IVectorStore {
-        std::string table_name_;
-        DuckDB db_;
-        size_t dimmension_;
-        MetadataSchema metadata_schema_;
-        Connection connection_;
+    class DuckDBVectorStoreInternalAppender final: public DuckDBInternalAppender {
         EmbeddingsPtr embeddings_;
-        std::unique_ptr<PreparedStatement> prepared_search_statement_;
-        std::unique_ptr<PreparedStatement> prepared_mget_statement_;
-        std::unique_ptr<PreparedStatement> prepared_count_all_statement_;
+        std::shared_ptr<MetadataSchema> metadata_schema_;
+        bool bypass_unknonw_fields_;
 
     public:
-        DuckDBVectorStore() = delete;
-
-        explicit DuckDBVectorStore(const DuckDbVectoreStoreOptions& options):
-            table_name_(options.table_name),
-            db_(options.db_file_path),
-            metadata_schema_(options.metadata_schema),
-            dimmension_(options.dimmension),
-            connection_(db_),
-            embeddings_(options.embeddings)
-        {
-            assert_positive(dimmension_, "dimension should be positive");
-            assert_lt(dimmension_, 10000, "dimension should be less than 10000");
-            assert_true(embeddings_ != nullptr, "should provide embeddings object pointer");
-            assert_non_empty_range(table_name_, "table_name cannot be empty");
-            InitializeDB_();
+        DuckDBVectorStoreInternalAppender(EmbeddingsPtr embeddings, std::shared_ptr<MetadataSchema> metadata_schema,
+            const bool bypass_unknonw_fields)
+            : embeddings_(std::move(embeddings)),
+              metadata_schema_(std::move(metadata_schema)),
+              bypass_unknonw_fields_(bypass_unknonw_fields) {
         }
 
-        const MetadataSchema& GetMetadataSchema() const override {
-            return metadata_schema_;
+        void AppendRow(Appender& appender, Document& doc, UpdateResult& update_result) override {
+            const auto embeddings = embeddings_->EmbedDocuments({doc.text()});
+            details::append_row(metadata_schema_, appender, doc, embeddings[0], update_result, bypass_unknonw_fields_);
         }
 
-        EmbeddingsPtr GetEmbeddingModel() override {
-            return embeddings_;
-        }
-
-        ResultIteratorPtr<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {
-            vector<Value> id_vector;
-            for(const auto& id: ids) {
-                id_vector.push_back(id);
-            }
-            const auto result = prepared_mget_statement_->Execute(id_vector);
-            details::assert_query_ok(result);
-            return details::conv_query_result_to_iterator(result.get(), metadata_schema_);
-        }
-
-        size_t CountDocuments() override {
-            const auto result = prepared_count_all_statement_->Execute();
-            details::assert_query_ok(result);
-            for (const auto& row: *result) {
-                return  row.GetValue<size_t>(0);
-            }
-            throw InstinctException("Empty count result");
-        }
-
-        void AddDocuments(const ResultIteratorPtr<Document>& documents_iterator, UpdateResult& update_result) override {
-            static size_t batch_size = 10;
-            std::vector<std::string> ids;
-            std::vector<Document> batch(batch_size);
-            while (documents_iterator->HasNext()) {
-                const auto doc = documents_iterator->Next();
-                batch.push_back(doc);
-                if (batch.size() == batch_size) {
-                    AddDocuments(batch, update_result);
-                    batch.clear();
-                }
-            }
-            if (!batch.empty()) {
-                AddDocuments(batch, update_result);
-            }
-        }
-
-        void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
-            Appender appender(connection_, table_name_);
+        void AppendRows(Appender& appender, std::vector<Document>& records, UpdateResult& update_result) override {
             // std::vector<std::string> ids;
             auto text_view = records | std::views::transform([](auto&& record) -> std::string {
                 return record.text();
@@ -414,7 +171,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             int affected_row = 0;
             for (int i = 0; i < records.size(); i++) {
                 try {
-                    details::append_row(metadata_schema_, appender, records[i], embeddings[i], update_result);
+                    details::append_row(metadata_schema_, appender, records[i], embeddings[i], update_result, bypass_unknonw_fields_);
                     affected_row++;
                 } catch (const InstinctException& e) {
                     update_result.add_failed_documents()->CopyFrom(records[i]);
@@ -423,22 +180,35 @@ namespace INSTINCT_RETRIEVAL_NS {
                 }
             }
             update_result.set_affected_rows(affected_row);
-            appender.Close();
+        }
+    };
+
+    class DuckDBVectorStore final: public IVectorStore {
+        EmbeddingsPtr embeddings_;
+        std::unique_ptr<PreparedStatement> prepared_search_statement_;
+        std::shared_ptr<DuckDBStoreInternal> internal_;
+
+    public:
+        DuckDBVectorStore() = delete;
+
+        explicit DuckDBVectorStore(
+            const EmbeddingsPtr& embeddings_model,
+            const DuckDBStoreOptions& options,
+            const std::shared_ptr<MetadataSchema>& metadata_schema
+        ):
+            embeddings_(embeddings_model)
+        {
+            assert_gt(options.dimmension, 0);
+            assert_true(embeddings_ != nullptr, "should provide embeddings object pointer");
+            assert_true(!!metadata_schema, "should have provide valid metadata schema");
+            auto internal_appender = std::make_shared<DuckDBVectorStoreInternalAppender>(embeddings_model, metadata_schema, options.bypass_unknonw_fields);
+            internal_ = std::make_shared<DuckDBStoreInternal>(internal_appender, options, metadata_schema);
+            prepared_search_statement_ = internal_->GetConnection().Prepare(details::make_prepared_search_sql(options.table_name, metadata_schema));
         }
 
-        void AddDocument(Document& doc) override {
-            UpdateResult update_result;
-            Appender appender(connection_, table_name_);
-            const auto embeddings = embeddings_->EmbedDocuments({doc.text()});
-            details::append_row(metadata_schema_, appender, doc, embeddings[0], update_result);
-            appender.Close();
-        }
 
-        size_t DeleteDocuments(const std::vector<std::string>& ids) override {
-            const auto sql = details::make_delete_sql(table_name_, ids);
-            const auto result = connection_.Query(sql);
-            details::assert_query_ok(result);
-            return result->GetValue<int32_t>(0, 0);
+        EmbeddingsPtr GetEmbeddingModel() override {
+            return embeddings_;
         }
 
         ResultIteratorPtr<Document> SearchDocuments(const SearchRequest& request) override {
@@ -449,12 +219,12 @@ namespace INSTINCT_RETRIEVAL_NS {
             unique_ptr<QueryResult> result;
             if (has_filter) {
                 const auto search_sql = details::make_search_sql(
-                table_name_,
-                metadata_schema_,
+                internal_->GetOptions().table_name,
+                GetMetadataSchema(),
                 query_embedding,
                 request.metadata_filter(),
                 request.top_k());
-                result = connection_.Query(search_sql);
+                result = internal_->GetConnection().Query(search_sql);
             } else {
                 // use prepared statement for better performenace when no filter is actually given
                 vector<Value> vector_array;
@@ -464,19 +234,53 @@ namespace INSTINCT_RETRIEVAL_NS {
                 result = prepared_search_statement_->Execute(Value::ARRAY(LogicalType::FLOAT, vector_array), request.top_k());
             }
             details::assert_query_ok(result);
-            return details::conv_query_result_to_iterator(result.get(), metadata_schema_);
+            return details::conv_query_result_to_iterator(
+                    result.get(),
+                    GetMetadataSchema()
+            );
         }
 
-    private:
-        void InitializeDB_() {
-            const auto sql = details::make_create_table_sql(table_name_, dimmension_, metadata_schema_);
-            const auto create_table_result = connection_.Query(sql);
-            details::assert_query_ok(create_table_result);
-            prepared_search_statement_ = connection_.Prepare(details::make_prepared_search_sql(table_name_, metadata_schema_));
-            prepared_mget_statement_ = connection_.Prepare(details::make_preapred_mget_sql(table_name_, metadata_schema_));
-            prepared_count_all_statement_ = connection_.Prepare(details::make_prepared_count_sql(table_name_));
+        void AddDocuments(const ResultIteratorPtr<Document>& documents_iterator, UpdateResult& update_result) override {
+            internal_->AddDocuments(documents_iterator, update_result);
+        }
+
+        void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
+            internal_->AddDocuments(records, update_result);
+        }
+
+        void AddDocument(Document& doc) override {
+            internal_->AddDocument(doc);
+        }
+
+        size_t DeleteDocuments(const std::vector<std::string>& ids) override {
+            return internal_->DeleteDocuments(ids);
+        }
+
+        ResultIteratorPtr<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {
+            return internal_->MultiGetDocuments(ids);
+        }
+
+        [[nodiscard]] std::shared_ptr<MetadataSchema> GetMetadataSchema() const override {
+            return internal_->GetMetadataSchema();
+        }
+
+        size_t CountDocuments() override {
+            return internal_->CountDocuments();
         }
     };
+
+
+    static VectorStorePtr CreateDuckDBVectorStore(
+        const EmbeddingsPtr& embeddings_model,
+        const DuckDBStoreOptions& options,
+        const std::shared_ptr<MetadataSchema>& metadata_schema = details::EMPTY_METADATA_SCHEMA
+    ) {
+        return std::make_shared<DuckDBVectorStore>(
+            embeddings_model,
+            options,
+            metadata_schema
+        );
+    }
 }
 
 

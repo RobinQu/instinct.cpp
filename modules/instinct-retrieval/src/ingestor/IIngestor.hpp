@@ -16,10 +16,24 @@ namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_CORE_NS;
     using namespace INSTINCT_LLM_NS;
 
+    /**
+    * Interface for datasource of documents
+    */
     class IIngestor {
     public:
         virtual ~IIngestor()=default;
+
+        /**
+         *
+         * @return Iterator of loaded documents
+         */
         virtual ResultIteratorPtr<Document> Load() = 0;
+
+        /**
+         * Split loaded documents which are used to create chunked documents
+         * @param text_splitter spliiter to be used for each loaded document
+         * @return
+         */
         virtual ResultIteratorPtr<Document> LoadWithSpliter(const TextSplitterPtr& text_splitter) = 0;
 
     };

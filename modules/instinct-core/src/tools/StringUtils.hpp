@@ -119,7 +119,7 @@ INSTINCT_CORE_NS {
         }
 
         static bool IsBlankString(const std::string& s) {
-            return !s.empty() && !Trim(s).empty();
+            return s.empty() || Trim(s).empty();
         }
 
         static std::string GetWithDefault(const std::string& value, const std::string& fallback) {

@@ -17,21 +17,25 @@ namespace INSTINCT_RETRIEVAL_NS {
          * vector_store_ will be used both as doc store and embedding store
          */
         VectorStorePtr vectore_store_;
-        SearchRequest search_request_template_;
+
+        /**
+         * Template object that every search request objects will copied from
+         */
+        std::shared_ptr<SearchRequest> search_request_template_;
 
     public:
-        explicit VectorStoreRetriever(VectorStorePtr vectore_store, SearchRequest search_request_template = {})
+        explicit VectorStoreRetriever(
+            VectorStorePtr vectore_store,
+            std::shared_ptr<SearchRequest> search_request_template)
             : vectore_store_(std::move(vectore_store)), search_request_template_(std::move(search_request_template)){
         }
 
-        static StatefulRetrieverPtr Create(const DuckDbVectoreStoreOptions& options) {
-            auto store = std::make_shared<DuckDBVectorStore>(options);
-            return std::make_shared<VectorStoreRetriever>(store);
-        }
 
         ResultIteratorPtr<Document> Retrieve(const TextQuery& query) override {
             SearchRequest search_request;
-            search_request.MergeFrom(search_request_template_);
+            if (search_request_template_) {
+                search_request.MergeFrom(*search_request_template_);
+            }
             search_request.set_query(query.text);
             search_request.set_top_k(query.top_k);
             return vectore_store_->SearchDocuments(search_request);
@@ -43,6 +47,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_true(update_result.failed_documents_size() == 0, "should not have failed documents");
         }
     };
+
+    static StatefulRetrieverPtr CreateVectorStoreRetriever(const VectorStorePtr& vectore_store) {
+        return std::make_shared<VectorStoreRetriever>(vectore_store, nullptr);
+    }
 }
 
 

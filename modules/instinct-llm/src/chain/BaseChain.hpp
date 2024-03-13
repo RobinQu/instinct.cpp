@@ -39,7 +39,9 @@ namespace INSTINCT_LLM_NS {
         }
 
         std::shared_ptr<ResultIterator<Output>> Stream(const ContextPtr& input) override {
-            return create_result_itr_from_range(std::vector{Invoke(input)});
+            // std::vector output = {std::move(Invoke(input))};
+            // return create_result_itr_from_range(output);
+            return {};
         }
 
         std::vector<std::string> GetInputKeys() override {

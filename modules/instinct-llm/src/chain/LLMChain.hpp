@@ -9,7 +9,6 @@
 
 #include "BaseChain.hpp"
 #include "LLMGlobals.hpp"
-#include "../../../instinct-retrieval/src/output_parser/MultiLineTextOutputParser.hpp"
 #include "model/ILanguageModel.hpp"
 #include "llm/BaseLLM.hpp"
 #include "chat_model/BaseChatModel.hpp"

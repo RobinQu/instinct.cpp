@@ -61,18 +61,20 @@ namespace INSTINCT_RETRIEVAL_NS {
     class DuckDBVectorStoreTest: public testing::Test {
     protected:
         void SetUp() override {
-            auto* name_field = s1.add_fields();
+
+            s1 = std::make_shared<MetadataSchema>();
+            auto* name_field = s1->add_fields();
             name_field->set_name("name");
             name_field->set_type(VARCHAR);
-            auto* address_field = s1.add_fields();
+            auto* address_field = s1->add_fields();
             address_field->set_name("address");
             address_field->set_type(VARCHAR);
-            auto* age_field = s1.add_fields();
+            auto* age_field = s1->add_fields();
             age_field->set_name("age");
             age_field->set_type(INT32);
         }
 
-        MetadataSchema s1;
+        std::shared_ptr<MetadataSchema> s1;
     };
 
     TEST_F(DuckDBVectorStoreTest, make_create_table_sql) {
@@ -108,7 +110,11 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::filesystem::create_directories(db_file_path);
         db_file_path /= (u8_utils::uuid_v8() + ".db");
         auto embeddings = std::make_shared<PesuodoEmbeddings>();
-        DuckDBVectorStore store({.db_file_path = db_file_path, .dimmension = 128, .embeddings = embeddings, .table_name = "test_table_1"});
+
+        auto store = CreateDuckDBVectorStore(
+            embeddings,
+            {.db_file_path = db_file_path, .dimmension = 128, .table_name = "test_table_1"}
+            );
 
         std::vector<Document> docs;
         for (int i: std::views::iota (0,1000)) {
@@ -117,14 +123,14 @@ namespace INSTINCT_RETRIEVAL_NS {
             docs.push_back(document);
         }
         UpdateResult update_result;
-        store.AddDocuments(docs, update_result);
+        store->AddDocuments(docs, update_result);
 
         for(const auto& [text, embedding]: embeddings->get_caches()) {
             auto t1 = ChronoUtils::GetCurrentTimeMillis();
             SearchRequest search_request;
             search_request.set_query(text);
             search_request.set_top_k(5);
-            auto itr = store.SearchDocuments(search_request);
+            auto itr = store->SearchDocuments(search_request);
             std::cout << "search done in " << std::to_string(ChronoUtils::GetCurrentTimeMillis() - t1) << "ms" << std::endl;
             ASSERT_TRUE(itr->HasNext());
             auto doc = itr->Next();

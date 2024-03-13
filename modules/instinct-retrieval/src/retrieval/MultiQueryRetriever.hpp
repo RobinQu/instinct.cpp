@@ -28,7 +28,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             const PromptTemplatePtr& prompt_template
             ) {
             const auto output_parse = std::make_shared<MultiLineTextOutputParser>();
-            auto query_chain = std::make_shared<LLMChain<MultiLineText>>(
+            auto query_chain = std::make_shared<MultilineTextLLMChain>(
                 llm,
                 prompt_template,
                 output_parse,
@@ -45,7 +45,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         ResultIteratorPtr<Document> Retrieve(const TextQuery& query) override {
             const auto context_builder = ContextMutataor::Create();
             context_builder->Put(query_chain_->GetInputKeys()[0], query.text);
-            std::vector<std::string> queries = query_chain_->Invoke(context_builder->Build());
+            const auto queries = query_chain_->Invoke(context_builder->Build());
             assert_true(queries.size()>1, "should have multipe generated queries.");
 
             std::unordered_set<std::string> ids;

@@ -9,6 +9,7 @@
 
 #include "CoreGlobals.hpp"
 #include "tokenizer/Tokenizer.hpp"
+#include "tools/ResultIterator.hpp"
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
