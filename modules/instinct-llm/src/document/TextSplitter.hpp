@@ -22,6 +22,8 @@ namespace INSTINCT_LLM_NS {
         TextSplitter(TextSplitter&&)=delete;
         TextSplitter(const TextSplitter&)=delete;
         virtual std::vector<UnicodeString> SplitText(const UnicodeString& text) = 0;
+        virtual ResultIteratorPtr<Document> SplitDocuments(const ResultIteratorPtr<Document>& docs_itr) = 0;
+
     };
     using TextSplitterPtr = std::shared_ptr<TextSplitter>;
 

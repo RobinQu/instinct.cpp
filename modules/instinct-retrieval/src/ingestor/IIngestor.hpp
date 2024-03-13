@@ -14,11 +14,13 @@
 namespace INSTINCT_RETRIEVAL_NS {
 
     using namespace INSTINCT_CORE_NS;
+    using namespace INSTINCT_LLM_NS;
 
     class IIngestor {
     public:
         virtual ~IIngestor()=default;
-        virtual ResultIterator<Document>* Load(TextSplitter* text_splitter) = 0;
+        virtual ResultIteratorPtr<Document> Load() = 0;
+        virtual ResultIteratorPtr<Document> LoadWithSpliter(const TextSplitterPtr& text_splitter) = 0;
 
     };
 

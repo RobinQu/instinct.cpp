@@ -4,6 +4,7 @@
 
 #ifndef RESULTSET_HPP
 #define RESULTSET_HPP
+#include "Assertions.hpp"
 #include "CoreGlobals.hpp"
 
 
@@ -23,6 +24,23 @@ namespace INSTINCT_CORE_NS {
 
     template<typename T>
     using ResultIteratorPtr = std::shared_ptr<ResultIterator<T>>;
+
+
+    template<typename T, typename ItrType = typename std::vector<T>::iterator>
+    class LambdaSupplierIterator: public ResultIterator<T> {
+        ItrType cur_;
+        ItrType end_;
+
+    public:
+        [[nodiscard]] bool HasNext() const override {
+            return cur_ != end_;
+        }
+
+        T& Next() override {
+            ++cur_;
+            return *cur_;
+        }
+    };
 
     /**
      * \brief Vector-based container conforming ResultIterator interface
@@ -83,6 +101,15 @@ namespace INSTINCT_CORE_NS {
     auto create_result_itr_from_range(std::ranges::input_range auto && r) {
         return std::make_shared<ResultVecIterator<std::ranges::range_value_t<decltype(r)>>>(r);
     }
+    //
+    // template<typename R, typename Fn, typename T=std::invoke_result_t<Fn, R>>
+    // requires std::is_invocable_r_v<T, Fn, R>
+    // ResultIteratorPtr<T> create_result_itr_with_transform(Fn&& fn, const std::vector<R>& vec) {
+    //     return std::make_shared<TransofromResultView<R, Fn, T>>(
+    //         fn,
+    //         create_result_itr_from_range(vec)
+    //     );
+    // }
 
 }
 

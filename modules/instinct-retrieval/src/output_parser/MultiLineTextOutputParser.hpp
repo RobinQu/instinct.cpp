@@ -14,7 +14,7 @@
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
 
-    using MultiLineText = std::vector<std::string>;
+
 
     class MultiLineTextOutputParser final: public BaseOutputParser<MultiLineText> {
 

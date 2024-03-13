@@ -16,6 +16,8 @@ namespace INSTINCT_LLM_NS {
     class BaseOutputParser: public IOutputParser<T>, public IChainContextAware {
         std::string instruction_key_;
 
+
+
     public:
         explicit BaseOutputParser(std::string instruction_key = DEFAULT_FORMAT_INSTRUCTION_KEY)
             : instruction_key_(std::move(instruction_key)) {
@@ -24,7 +26,7 @@ namespace INSTINCT_LLM_NS {
         std::string GetFormatInstruction() override = 0;
 
         /**
-         * OtuputParser doesn't depend on any keys to output format instruction
+         * OtuputParser doesn't depend on any keys to output format instruction. Parsing relies on Generation from LLM output and doesn't read from context.
          * @return
          */
         std::vector<std::string> GetInputKeys() override {
@@ -45,6 +47,9 @@ namespace INSTINCT_LLM_NS {
 
     template<typename T>
     using OutputParserPtr = std::shared_ptr<BaseOutputParser<T>>;
+
+    using TextOutputParserPtr = OutputParserPtr<std::string>;
+    using MultilineTextOutputParserPtr = OutputParserPtr<MultiLineText>;
 
 }
 

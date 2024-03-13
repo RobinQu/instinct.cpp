@@ -107,6 +107,18 @@ namespace INSTINCT_CORE_NS {
         }
     }
 
+    static void assert_icu_status(UErrorCode status, const std::string& msg = "ICU operation failed") {
+        if(U_FAILURE(status)) {
+            throw InstinctException(msg);
+        }
+    }
+
+    static void assert_icu_status(UErrorCode status, const icu_74::UnicodeString& msg = "ICU operation failed") {
+        std::string msg_utf8;
+        msg.toUTF8String(msg_utf8);
+        assert_icu_status(status, msg_utf8);
+    }
+
 
 
 }

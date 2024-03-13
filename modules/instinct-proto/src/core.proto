@@ -17,6 +17,15 @@ message PrimitiveVariable {
   }
 }
 
+message Document {
+  string id = 1;
+  string text = 2;
+  //  repeated float vector = 3;
+  repeated instinct.core.PrimitiveVariable metadata = 3;
+  //  map<string, MetadataField> metadata = 4;
+}
+
+
 //message ObjectReference {
 //  string name = 1;
 //  string kind = 2;

@@ -56,7 +56,7 @@ namespace INSTINCT_LLM_NS {
 
 
     /**
-     * A chain that genereates a free-formed string
+     * Shared pointer to a TextChain
      */
     using TextChainPtr = ChainPtr<std::string>;
 

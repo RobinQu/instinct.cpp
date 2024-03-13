@@ -9,6 +9,7 @@
 
 #include "BaseChain.hpp"
 #include "LLMGlobals.hpp"
+#include "../../../instinct-retrieval/src/output_parser/MultiLineTextOutputParser.hpp"
 #include "model/ILanguageModel.hpp"
 #include "llm/BaseLLM.hpp"
 #include "chat_model/BaseChatModel.hpp"
@@ -92,6 +93,9 @@ INSTINCT_LLM_NS {
             throw InstinctException("invalid model pointer");
         }
     };
+
+    using TextLLMChain = LLMChain<std::string>;
+    using MultilineTextLLMChain = LLMChain<MultiLineText>;
 
 
     // IRunnable<Input,Output>

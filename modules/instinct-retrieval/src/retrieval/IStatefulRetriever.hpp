@@ -19,6 +19,8 @@ namespace INSTINCT_RETRIEVAL_NS {
     public:
         virtual void Ingest(const ResultIteratorPtr<Document>& input) = 0;
     };
+
+    using StatefulRetrieverPtr = std::shared_ptr<IStatefulRetriever<TextQuery>>;
 }
 
 #endif //ISTATEFULRETRIEVER_HPP

@@ -22,6 +22,9 @@ set(${LIBRARY_TARGET_NAME}_HDR
 
         src/output_parser/MultiLineTextOutputParser.hpp
         src/output_parser/MetadataQueryOutputParser.hpp
+        src/ingestor/BaseIngestor.hpp
+        src/ingestor/SingleFileIngestor.hpp
+        src/ingestor/DirectoryTreeIngestor.hpp
 
 )
 

@@ -28,13 +28,6 @@ message MetadataSchema {
   string description = 2;
 }
 
-message Document {
-  string id = 1;
-  string text = 2;
-//  repeated float vector = 3;
-  repeated instinct.core.PrimitiveVariable metadata = 3;
-//  map<string, MetadataField> metadata = 4;
-}
 
 message MetadataBoolQuery {
   repeated MetadataQuery must = 1;
@@ -66,5 +59,5 @@ message SearchResponse {
 message UpdateResult {
   int32 affected_rows = 1;
   repeated string returned_ids = 2;
-  repeated Document failed_documents = 3;
+  repeated instinct.core.Document failed_documents = 3;
 }

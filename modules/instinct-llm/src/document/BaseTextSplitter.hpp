@@ -5,7 +5,10 @@
 #ifndef BASETEXTSPLITTER_HPP
 #define BASETEXTSPLITTER_HPP
 
+#include <retrieval.pb.h>
+
 #include "TextSplitter.hpp"
+#include "tools/ResultIterator.hpp"
 
 
 namespace INSTINCT_LLM_NS {
@@ -17,6 +20,7 @@ namespace INSTINCT_LLM_NS {
         return s.length();
     };
 
+    static std::string CHUNK_DOC_PART_INDEX_KEY = "chunk_id";
 
     class BaseTextSplitter: public TextSplitter {
     protected:
@@ -35,6 +39,24 @@ namespace INSTINCT_LLM_NS {
               keep_sepeartor_(keep_sepeartor),
               strip_whitespace_(strip_whitespace),
               length_function_(std::move(length_function)) {
+        }
+
+        ResultIteratorPtr<Document> SplitDocuments(const ResultIteratorPtr<Document>& docs_itr) override {
+            std::vector<Document> chunked_docs;
+            while (docs_itr->HasNext()) {
+                auto& doc = docs_itr->Next();
+                auto chunks = SplitText(UnicodeString::fromUTF8(doc.text()));
+                for (int i=0;i<chunks.size();i++) {
+                    auto& chunk = chunks[i];
+                    Document document;
+                    chunk.toUTF8String(*document.mutable_text());
+                    chunked_docs.push_back(document);
+                    auto* chunk_id_field = document.add_metadata();
+                    chunk_id_field->set_name(CHUNK_DOC_PART_INDEX_KEY);
+                    chunk_id_field->set_int_value(i);
+                }
+            }
+            return create_result_itr_from_range(chunked_docs);
         }
 
     protected:

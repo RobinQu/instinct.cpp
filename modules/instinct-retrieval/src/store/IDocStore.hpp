@@ -41,6 +41,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         virtual ResultIteratorPtr<Document> MultiGetDocuments(const std::vector<std::string>& ids) = 0;
 
         [[nodiscard]] virtual const MetadataSchema& GetMetadataSchema() const = 0;
+
+        virtual size_t CountDocuments() = 0;
     };
 
     using DocStorePtr = std::shared_ptr<IDocStore>;

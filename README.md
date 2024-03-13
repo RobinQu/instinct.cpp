@@ -23,7 +23,7 @@ brew install instinct-all
 
 System Requirements:
 
-* OS: Debian X64, Linux X64, macOS arm64
+* Platform: linux/amd64, darwin/arm64, win64 (hopefully)
 * Preinstalled system libraries:
   * icu 72+
   * protobuf

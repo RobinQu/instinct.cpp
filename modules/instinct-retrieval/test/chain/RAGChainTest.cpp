@@ -87,14 +87,14 @@ Question: {standalone_question}
             };
             rag_chain_ = std::make_shared<RAGChain<std::string>>(
                 chat_memory_,
-                retriever_,
+                std::dynamic_pointer_cast<ITextRetreiver>(retriever_),
                 question_chain_,
                 answer_chain_
                 );
         }
 
         EmbeddingsPtr embedding_model_;
-        RetrieverPtr retriever_;
+        StatefulRetrieverPtr retriever_;
         ChatMemoryPtr chat_memory_;
         ChainPtr<std::string> question_chain_;
         ChainPtr<std::string> answer_chain_;

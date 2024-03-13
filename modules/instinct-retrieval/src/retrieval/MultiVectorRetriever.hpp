@@ -8,27 +8,18 @@
 
 #include "IStatefulRetriever.hpp"
 #include "chain/LLMChain.hpp"
+#include "output_parser/StringOutputParser.hpp"
+#include "prompt/PlainPromptTemplate.hpp"
 #include "store/IVectorStore.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
-
-    // class MultiVectorGuidance {
-    // public:
-    //     virtual ~MultiVectorGuidance() = default;
-    //     virtual ResultIteratorPtr<Document> GenerateGuidanceDocs(const Document& parent_doc) = 0;
-    // };
-    // using MultiVectorGuidancePtr = std::shared_ptr<MultiVectorGuidance>
 
     using MultiVectorGuidance = std::function<std::vector<Document>(const Document& parent_doc)>;
 
     struct MultiVectorRetrieverOptions {
         // metadata key for parent doc id
         std::string parent_doc_id_key = "parent_doc_id";
-
-        // options for ChunkedMultiVectorRetriever
-
-
     };
 
     class MultiVectorRetriever: public IStatefulRetriever<TextQuery> {
@@ -56,6 +47,9 @@ namespace INSTINCT_RETRIEVAL_NS {
               vector_store_(std::move(vector_store)),
               guidance_(std::move(guidance_chain)),
               options_(std::move(options)) {
+            assert_true(!!doc_store_, "should have doc store");
+            assert_true(!!vector_store_, "should have doc store");
+            assert_true(typeid(*doc_store) != typeid(*vector_store), "cannot use a VectorStore both for doc and embedding.");
         }
 
 
@@ -86,10 +80,85 @@ namespace INSTINCT_RETRIEVAL_NS {
                 }
                 UpdateResult update_result;
                 vector_store_->AddDocuments(sub_docs, update_result);
-                assert_true(update_result.failed_documents.empty(), "all sub docs should be inserted successfully");
+                assert_true(update_result.failed_documents_size()>0, "all sub docs should be inserted successfully");
             }
         }
     };
+
+    static StatefulRetrieverPtr CreateSummaryGuidedRetriever(
+        const ChatModelPtr& llm,
+        const DocStorePtr& doc_store,
+        const VectorStorePtr& vector_store,
+        const PromptTemplatePtr& prompt_template = nullptr,
+        const MultiVectorRetrieverOptions& options = {}
+        ) {
+        TextOutputParserPtr output_parser = std::make_shared<StringOutputParser>();
+        const TextChainPtr sumamry_chain = std::make_shared<TextLLMChain>(
+            llm,
+            // prompt is copied from langchian doc, which may not be the best choice
+            // https://python.langchain.com/docs/modules/data_connection/retrievers/multi_vector#summary
+            prompt_template == nullptr ? PlainPromptTemplate::CreateWithTemplate("Summarize the following document:\n\n{doc}") : prompt_template,
+            output_parser
+            );
+        MultiVectorGuidance guidance = [&, sumamry_chain](const Document& doc) {
+            assert_true(!StringUtils::IsBlankString(doc.id()), "should have valid doc id");
+            const auto context_builder = ContextMutataor::Create();
+            context_builder->Put(sumamry_chain->GetInputKeys()[0], doc.text());
+            const auto result = sumamry_chain->Invoke(context_builder->Build());
+            Document summary_doc;
+            summary_doc.set_text(result);
+            summary_doc.set_id(u8_utils::uuid_v8());
+            auto* parent_id_field = summary_doc.add_metadata();
+            parent_id_field->set_name(options.parent_doc_id_key);
+            parent_id_field->set_string_value(doc.id());
+            return std::vector {std::move(summary_doc)};
+        };
+
+        return std::make_shared<MultiVectorRetriever>(doc_store, vector_store, guidance, options);
+    }
+
+    static StatefulRetrieverPtr CreateHypotehticalQuriesGuidedRetriever(
+        const ChatModelPtr& llm,
+        const DocStorePtr& doc_store,
+        const VectorStorePtr& vector_store,
+        const PromptTemplatePtr& prompt_template = nullptr,
+        const MultiVectorRetrieverOptions& options = {}
+        ) {
+        auto output_parser = std::make_shared<MultiLineTextOutputParser>();
+
+        ChainOptions chain_options = {.input_keys = {"doc"}};
+        auto query_chain = std::make_shared<MultilineTextLLMChain>(
+            llm,
+            // prompt is copied from langchian doc, which may not be the best choice
+            // https://python.langchain.com/docs/modules/data_connection/retrievers/multi_vector#hypothetical-queries
+            prompt_template == nullptr ? PlainPromptTemplate::CreateWithTemplate("Generate a list of exactly 3 hypothetical questions that the below document could be used to answer:\n\n{doc}") : prompt_template,
+            output_parser,
+            nullptr,
+            chain_options
+            );
+
+        MultiVectorGuidance guidance = [&, query_chain](const Document& doc) {
+            assert_true(!StringUtils::IsBlankString(doc.id()), "should have valid doc id");
+            const auto context_builder = ContextMutataor::Create();
+            context_builder->Put(query_chain->GetInputKeys()[0], doc.text());
+            auto result = query_chain->Invoke(context_builder->Build());
+
+            auto queries_view = result | std::views::transform([&](const std::string& query) {
+                Document query_doc;
+                query_doc.set_id(u8_utils::uuid_v8());
+                query_doc.set_text(query);
+                auto* parent_id_field = query_doc.add_metadata();
+                parent_id_field->set_name(options.parent_doc_id_key);
+                parent_id_field->set_string_value(doc.id());
+                return query_doc;
+            });
+
+            return std::vector(queries_view.begin(), queries_view.end());
+        };
+        return std::make_shared<MultiVectorRetriever>(doc_store, vector_store, guidance,  options);
+    }
+
+
 }
 
 #endif //MULTIVECTORRETRIEVER_HPP

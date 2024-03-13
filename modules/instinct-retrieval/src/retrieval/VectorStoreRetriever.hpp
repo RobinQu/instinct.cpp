@@ -6,12 +6,16 @@
 #define VECTORSTORERETRIEVER_HPP
 #include <utility>
 
+#include "IStatefulRetriever.hpp"
 #include "retrieval/IRetriever.hpp"
 #include "store/IVectorStore.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
-    class VectorStoreRetriever: public ITextRetreiver {
+    class VectorStoreRetriever: public IStatefulRetriever<TextQuery> {
+        /**
+         * vector_store_ will be used both as doc store and embedding store
+         */
         VectorStorePtr vectore_store_;
         SearchRequest search_request_template_;
 
@@ -20,7 +24,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             : vectore_store_(std::move(vectore_store)), search_request_template_(std::move(search_request_template)){
         }
 
-        static RetrieverPtr Create(const DuckDbVectoreStoreOptions& options) {
+        static StatefulRetrieverPtr Create(const DuckDbVectoreStoreOptions& options) {
             auto store = std::make_shared<DuckDBVectorStore>(options);
             return std::make_shared<VectorStoreRetriever>(store);
         }
@@ -31,6 +35,12 @@ namespace INSTINCT_RETRIEVAL_NS {
             search_request.set_query(query.text);
             search_request.set_top_k(query.top_k);
             return vectore_store_->SearchDocuments(search_request);
+        }
+
+        void Ingest(const ResultIteratorPtr<Document>& input) override {
+            UpdateResult update_result;
+            vectore_store_->AddDocuments(input, update_result);
+            assert_true(update_result.failed_documents_size() == 0, "should not have failed documents");
         }
     };
 }

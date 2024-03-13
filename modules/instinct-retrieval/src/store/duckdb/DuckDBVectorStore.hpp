@@ -64,6 +64,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             return select_sql;
         }
 
+        static std::string make_prepared_count_sql (const std::string& table_name) {
+            return fmt::format("SELECT count(*) from {}", table_name);
+        }
+
         static std::string make_search_sql(
             const std::string& table_name,
             const MetadataSchema& metadata_schema,
@@ -330,12 +334,12 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::string table_name_;
         DuckDB db_;
         size_t dimmension_;
-        // non-owning pointer to message descriptor
         MetadataSchema metadata_schema_;
         Connection connection_;
         EmbeddingsPtr embeddings_;
         std::unique_ptr<PreparedStatement> prepared_search_statement_;
         std::unique_ptr<PreparedStatement> prepared_mget_statement_;
+        std::unique_ptr<PreparedStatement> prepared_count_all_statement_;
 
     public:
         DuckDBVectorStore() = delete;
@@ -371,6 +375,15 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto result = prepared_mget_statement_->Execute(id_vector);
             details::assert_query_ok(result);
             return details::conv_query_result_to_iterator(result.get(), metadata_schema_);
+        }
+
+        size_t CountDocuments() override {
+            const auto result = prepared_count_all_statement_->Execute();
+            details::assert_query_ok(result);
+            for (const auto& row: *result) {
+                return  row.GetValue<size_t>(0);
+            }
+            throw InstinctException("Empty count result");
         }
 
         void AddDocuments(const ResultIteratorPtr<Document>& documents_iterator, UpdateResult& update_result) override {
@@ -461,6 +474,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             details::assert_query_ok(create_table_result);
             prepared_search_statement_ = connection_.Prepare(details::make_prepared_search_sql(table_name_, metadata_schema_));
             prepared_mget_statement_ = connection_.Prepare(details::make_preapred_mget_sql(table_name_, metadata_schema_));
+            prepared_count_all_statement_ = connection_.Prepare(details::make_prepared_count_sql(table_name_));
         }
     };
 }
