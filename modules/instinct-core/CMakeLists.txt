@@ -18,6 +18,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/tools/ResultIterator.hpp
         src/tools/Assertions.hpp
         src/tools/ChronoUtils.hpp
+        src/functional/ReactiveFunctions.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

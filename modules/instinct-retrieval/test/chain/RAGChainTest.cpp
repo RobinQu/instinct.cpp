@@ -23,13 +23,14 @@ namespace  INSTINCT_RETRIEVAL_NS {
             const auto db_file_path = std::filesystem::temp_directory_path() / (
                                     ChronoUtils::GetCurrentTimestampString() + ".db");
 
-            retriever_ = VectorStoreRetriever::Create({
+
+            auto vector_store = CreateDuckDBVectorStore(embedding_model_, {
                 .table_name = "rag_test_table",
                 .db_file_path = db_file_path,
-                .embeddings = embedding_model_,
                 // llama2:7b-chat has dimensions of 4096
                 .dimmension = 4096
             });
+            retriever_ = CreateVectorStoreRetriever(vector_store);
             chat_memory_ = std::make_shared<EphemeralChatMemory>();
 
             ChatModelPtr chat_model = std::make_shared<OllamaChat>(ollama_configuration);

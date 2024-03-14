@@ -135,7 +135,8 @@ INSTINCT_CORE_NS {
     inline auto SimpleHttpClient::StreamChunk(
         const HttpRequest& call
     ) {
-        return rpp::source::create<std::string>([&](const auto& observer) {
+        // `call` has to be copied, as downstream may be executed in async way.
+        return rpp::source::create<std::string>([&, call](const auto& observer) {
             Request req;
             for (const auto& [k,v]: call.headers) {
                 req.set_header(k, v);
@@ -159,7 +160,7 @@ INSTINCT_CORE_NS {
             } else {
                 observer.on_completed();
             }
-        });
+        }).as_dynamic();
     }
 } // core
 // langchain

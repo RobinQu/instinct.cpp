@@ -53,20 +53,20 @@ blue bits all around so we can see them!)""")
 
     TEST_F(OllamaChatTest, TestBatch) {
         OllamaChat ollama_chat;
-        auto result = ollama_chat.Batch({
+        ollama_chat.Batch({
             dialog1->Build(),
             dialog2->Build()
+        }) | rpp::operators::subscribe([](const auto& s) {
+            std::cout << s.DebugString() << std::endl;
         });
-        while (result->HasNext()) {
-            std::cout << result->Next().DebugString() << std::endl;
-        }
+
     }
 
     TEST_F(OllamaChatTest, TestStream) {
         OllamaChat ollama_chat;
-        auto result = ollama_chat.Stream(dialog1->Build());
-        while (result->HasNext()) {
-            std::cout << result->Next().DebugString() << std::endl;
-        }
+        ollama_chat.Stream(dialog1->Build())
+            | rpp::operators::subscribe([](const auto& s) {
+                std::cout << s.DebugString() << std::endl;
+            });
     }
 }

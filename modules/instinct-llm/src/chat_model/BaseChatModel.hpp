@@ -19,7 +19,7 @@ namespace INSTINCT_LLM_NS {
             const std::vector<MessageList>& messages
         ) = 0;
 
-        virtual ResultIteratorPtr<LangaugeModelResult> StreamGenerate(const MessageList& messages) = 0;
+        virtual AsyncIterator<LangaugeModelResult> StreamGenerate(const MessageList& messages) = 0;
 
     public:
         Message Invoke(const PromptValueVariant& input) override {
@@ -29,15 +29,17 @@ namespace INSTINCT_LLM_NS {
             return details::conv_language_result_to_message(batched_result.generations(0));
         }
 
-        ResultIteratorPtr<Message> Batch(const std::vector<PromptValueVariant>& input) override {
+        AsyncIterator<Message> Batch(const std::vector<PromptValueVariant>& input) override {
             auto message_matrix = input | std::views::transform(details::conv_prompt_value_variant_to_message_list);
             auto batched_result = Generate({message_matrix.begin(), message_matrix.end()});
-            return create_result_itr_from_range(batched_result.generations() | std::views::transform(details::conv_language_result_to_message));
+            return rpp::source::from_iterable(batched_result.generations())
+                | rpp::operators::map(details::conv_language_result_to_message);
         }
 
-        ResultIteratorPtr<Message> Stream(const PromptValueVariant& input) override {
+        AsyncIterator<Message> Stream(const PromptValueVariant& input) override {
             auto messages = details::conv_prompt_value_variant_to_message_list(input);
-            return create_result_itr_with_transform(details::conv_language_result_to_message, StreamGenerate(messages));
+            return StreamGenerate(messages)
+                | rpp::operators::map(details::conv_language_result_to_message);
         }
 
     };

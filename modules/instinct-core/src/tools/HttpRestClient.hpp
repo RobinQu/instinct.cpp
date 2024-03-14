@@ -5,11 +5,12 @@
 #ifndef HTTPRESTCLIENT_H
 #define HTTPRESTCLIENT_H
 
-#include <google/protobuf/message.h>
+
 #include <google/protobuf/util/json_util.h>
 
 #include "Assertions.hpp"
 #include "CoreGlobals.hpp"
+#include "functional/ReactiveFunctions.hpp"
 
 #include "HttpClientException.hpp"
 #include "SimpleHttpClient.hpp"
@@ -19,7 +20,7 @@ namespace INSTINCT_CORE_NS {
 
 struct ProtobufHttpEntityConverter {
     template<typename T>
-    requires is_pb_message<Result>
+    requires is_pb_message<T>
     T Deserialize(const std::string& buf) {
         T result;
         auto status = google::protobuf::util::JsonStringToMessage(buf, &result);
@@ -28,7 +29,7 @@ struct ProtobufHttpEntityConverter {
     }
 
     template<typename T>
-    requires is_pb_message<Result>
+    requires is_pb_message<T>
     std::string Serialize(const T& obj) {
         std::string param_string;
         auto status = google::protobuf::util::MessageToJsonString(obj, &param_string);
@@ -47,33 +48,33 @@ public:
         : SimpleHttpClient(endpoint), converter_() {
     }
 
-    template<typename Result>
-    Result GetObject(const std::string& uri) {
+    template<typename ResponseEntity>
+    ResponseEntity GetObject(const std::string& uri) {
         const HttpRequest request = {kGET, uri, {}, ""};
         const HttpResponse response = Execute(request);
         if(response.status_code >= 400) {
             throw HttpClientException(response.status_code, response.body);
         }
-        return converter_.Deserialize<Result>(response.body);
+        return converter_.Deserialize<ResponseEntity>(response.body);
     }
 
-    template<typename Param, typename Result>
-    Result PostObject(const std::string& uri, const Param& param) {
+    template<typename RequestEntity, typename ResponseEntity>
+    ResponseEntity PostObject(const std::string& uri, const RequestEntity& param) {
         std::string param_string = converter_.Serialize(param);
         const HttpRequest request = {kPOST, uri, {}, param_string};
         const auto& [headers, body, status_code] = Execute(request);
         if(status_code >= 400) {
             throw HttpClientException(status_code, body);
         }
-        return converter_.Deserialize<Result>(body);
+        return converter_.Deserialize<ResponseEntity>(body);
     }
 
-    template<typename Param, typename Result>
-    auto StreamChunkObject(const std::string& uri, const Param& param) {
+    template<typename RequestEntity, typename ResponseEntity>
+    AsyncIterator<ResponseEntity> StreamChunkObject(const std::string& uri, const RequestEntity& param) {
         std::string param_string = converter_.Serialize(param);
         const HttpRequest request = {kPOST, uri, {}, param_string};
         return StreamChunk(request) | rpp::operators::map([&](const auto& chunk_string) {
-            return converter_.Deserialize<Result>(chunk_string);
+            return converter_.Deserialize<ResponseEntity>(chunk_string);
         });
     }
 };

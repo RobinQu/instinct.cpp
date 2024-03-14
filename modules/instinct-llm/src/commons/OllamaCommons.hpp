@@ -5,6 +5,7 @@
 #ifndef OLLAMACOMMONS_H
 #define OLLAMACOMMONS_H
 
+#include "tools/HttpUtils.hpp"
 #include "LLMGlobals.hpp"
 
 /**
@@ -82,7 +83,7 @@ namespace INSTINCT_LLM_NS {
     // };
     // NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(OllamaEmbeddingResponse, embedding);
 
-    static const Endpoint OLLAMA_ENDPOINT {"localhost", 11434};
+    static const Endpoint OLLAMA_ENDPOINT {kHTTP, "localhost", 11434};
 
     static const std::string OLLAMA_GENERATE_PATH = "/api/generate";
 

@@ -10,6 +10,8 @@
 #include "LLMGlobals.hpp"
 
 namespace INSTINCT_LLM_NS {
+    using namespace INSTINCT_CORE_NS;
+
     struct ChainOptions {
         std::vector<std::string> input_keys {DEFAULT_PROMPT_INPUT_KEY};
         std::vector<std::string> output_keys  {DEFAULT_ANSWER_OUTPUT_KEY};
@@ -30,18 +32,17 @@ namespace INSTINCT_LLM_NS {
 
         Output Invoke(const ContextPtr& input) override = 0;
 
-        std::shared_ptr<ResultIterator<Output>> Batch(const std::vector<ContextPtr>& input) override {
-            auto view = input | std::views::transform([&](const auto& context) {
-                // auto copy = ContextMutataor::CreateCopyOf(context);
-                return Invoke(context);
-            });
-            return create_result_itr_from_range(view);
+        AsyncIterator<Output> Batch(const std::vector<ContextPtr>& input) override {
+            return rpp::source::from_iterable(input)
+                | rpp::operators::map([&](const auto& context) {
+                    return Invoke(context);
+                });
         }
 
-        std::shared_ptr<ResultIterator<Output>> Stream(const ContextPtr& input) override {
-            // std::vector output = {std::move(Invoke(input))};
-            // return create_result_itr_from_range(output);
-            return {};
+        AsyncIterator<Output> Stream(const ContextPtr& input) override {
+            return rpp::source::from_callable([&]() {
+                return Invoke(input);
+            });
         }
 
         std::vector<std::string> GetInputKeys() override {

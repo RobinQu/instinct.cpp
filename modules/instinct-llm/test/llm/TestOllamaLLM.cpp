@@ -32,18 +32,15 @@ namespace INSTINCT_LLM_NS {
 
     TEST(TestOllamaLLM, Batch) {
         OllamaLLM ollama_llm;
-        auto result = ollama_llm.Batch(prompts);
-        while(result->HasNext()) {
-            std::cout << result->Next() << std::endl;
-        }
+
+        ollama_llm.Batch(prompts)
+            | rpp::operators::subscribe([](const auto& t) { LOG_INFO("answer: {}", t); });
     }
 
     TEST(TestOllamaLLM, Stream) {
         OllamaLLM ollama_llm;
-        auto result = ollama_llm.Stream(prompts[0]);
-        while (result->HasNext()) {
-            std::cout << result->Next() << std::endl;
-        }
+        ollama_llm.Stream(prompts[0])
+            | rpp::operators::subscribe([](const auto& t) { LOG_INFO("chunk: {}", t); });
     }
 }
 

@@ -46,15 +46,13 @@ namespace INSTINCT_LLM_NS {
         auto result = chain.Invoke(builder->Build());
         std::cout << result << std::endl;
 
-        auto batch_result = chain.Batch({builder->Build()});
-        while (batch_result->HasNext()) {
-            std::cout << batch_result->Next() << std::endl;
-        }
+        chain.Batch({builder->Build()})
+            | rpp::operators::subscribe(PrintingSubscriber<std::string>);
 
-        auto chunk_result = chain.Stream(builder->Build());
+        auto chunk_itr = chain.Stream(builder->Build());
         std::string buf;
-        while (chunk_result->HasNext()) {
-            buf += chunk_result->Next();
+        for (const auto& chunk_result: CollectVector(chunk_itr)) {
+            buf += chunk_result;
             std::cout << buf << std::endl;;
         }
     }
@@ -66,18 +64,16 @@ namespace INSTINCT_LLM_NS {
         auto result = chain.Invoke(builder->Build());
         std::cout << result << std::endl;
 
-        auto batch_result = chain.Batch({builder->Build()});
-        while (batch_result->HasNext()) {
-            std::cout << batch_result->Next() << std::endl;
-        }
 
-        auto chunk_result = chain.Stream(builder->Build());
+        chain.Batch({builder->Build()})
+            | rpp::operators::subscribe(PrintingSubscriber<std::string>);
+
+        auto chunk_itr = chain.Stream(builder->Build());
         std::string buf;
-        while (chunk_result->HasNext()) {
-            buf += chunk_result->Next();
-            std::cout << buf << std::endl;
+        for (const auto& chunk_result: CollectVector(chunk_itr)) {
+            buf += chunk_result;
+            std::cout << buf << std::endl;;
         }
-
 
     }
 

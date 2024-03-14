@@ -68,7 +68,7 @@ namespace INSTINCT_LLM_NS {
             return result;
         }
 
-        ResultIteratorPtr<LangaugeModelResult> StreamGenerate(const std::string& prompt) override {
+        AsyncIterator<LangaugeModelResult> StreamGenerate(const std::string& prompt) override {
             OllamaCompletionRequest request;
             request.set_model(configuration_.model_name);
             request.set_stream(true);
@@ -76,11 +76,10 @@ namespace INSTINCT_LLM_NS {
             request.mutable_options()->set_seed(configuration_.seed);
             request.mutable_options()->set_temperature(configuration_.temperature);
             request.set_prompt(prompt);
-            auto chunk_itr = http_client_.StreamChunk<OllamaCompletionRequest, OllamaCompletionResponse>(OLLAMA_GENERATE_PATH, request);
-            return create_result_itr_with_transform([](auto&& response) -> LangaugeModelResult {
-                // std::cout << "\"" << response.response() << "\"" << std::endl;
-                return details::conv_raw_response_to_model_result(response, true);
-            }, chunk_itr);
+            return http_client_.StreamChunkObject<OllamaCompletionRequest, OllamaCompletionResponse>(OLLAMA_GENERATE_PATH, request)
+                | rpp::operators::map([](const auto& response) {
+                    return details::conv_raw_response_to_model_result(response, true);
+                });
         }
     };
 

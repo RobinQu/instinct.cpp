@@ -92,7 +92,7 @@ namespace INSTINCT_LLM_NS {
             return batched_langauge_model_result;
         }
 
-        ResultIteratorPtr<LangaugeModelResult> StreamGenerate(const MessageList& message_list) override {
+        AsyncIterator<LangaugeModelResult> StreamGenerate(const MessageList& message_list) override {
             OllamaChatCompletionRequest request;
             for (const auto& message: message_list.messages()) {
                 auto ollama_msg = request.add_messages();
@@ -104,12 +104,10 @@ namespace INSTINCT_LLM_NS {
             request.set_model(configuration_.model_name);
             request.mutable_options()->set_seed(configuration_.seed);
             request.mutable_options()->set_temperature(configuration_.temperature);
-            // request.mutable_options()->CopyFrom(configuration_->model_options());
-            auto chunk_itr = client_.StreamChunk<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request);
 
-            return create_result_itr_with_transform(transform_raw_response, chunk_itr);
+            return  client_.StreamChunkObject<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request)
+                | rpp::operators::map(transform_raw_response);
         }
-
 
     };
 
