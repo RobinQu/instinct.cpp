@@ -127,6 +127,15 @@ set(ENABLE_SANITIZER FALSE)
 set(DISABLE_VPTR_SANITIZER TRUE)
 add_subdirectory(thirdparty/duckdb)
 
+## fmtlog
+#add_subdirectory(thirdparty/fmtlog)
+add_library(fmtlog INTERFACE thirdparty/fmtlog/fmtlog.h thirdparty/fmtlog/fmtlog-inl.h)
+target_include_directories(fmtlog
+        INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/fmtlog>
+        $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
 
 ## gtest
 if(BUILD_TESTING)

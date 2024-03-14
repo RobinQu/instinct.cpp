@@ -72,6 +72,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void Ingest(const ResultIteratorPtr<Document>& input) override {
+            std::vector<Document> guided_docs;
             while (input->HasNext()) {
                 auto& parent_doc = input->Next();
                 doc_store_->AddDocument(parent_doc);
@@ -81,10 +82,11 @@ namespace INSTINCT_RETRIEVAL_NS {
                     field->set_name(options_.parent_doc_id_key);
                     field->set_string_value(parent_doc.id());
                 }
-                UpdateResult update_result;
-                vector_store_->AddDocuments(sub_docs, update_result);
-                assert_true(update_result.failed_documents_size()==0, "all sub docs should be inserted successfully");
+                guided_docs.insert(guided_docs.end(), sub_docs.begin(), sub_docs.end());
             }
+            UpdateResult update_result;
+            vector_store_->AddDocuments(guided_docs, update_result);
+            assert_true(update_result.failed_documents_size()==0, "all sub docs should be inserted successfully");
         }
     };
 

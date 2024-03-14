@@ -10,7 +10,7 @@
 
 #include "Assertions.hpp"
 #include "CoreGlobals.hpp"
-#include "CoreTypes.hpp"
+
 #include "HttpClientException.hpp"
 #include "SimpleHttpClient.hpp"
 

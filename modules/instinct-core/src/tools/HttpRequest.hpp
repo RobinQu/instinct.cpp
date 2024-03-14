@@ -4,8 +4,9 @@
 
 #ifndef HTTPCALL_H
 #define HTTPCALL_H
-#include "CoreTypes.hpp"
+
 #include "HttpUtils.hpp"
+#include "CoreGlobals.hpp"
 
 
 namespace INSTINCT_CORE_NS {

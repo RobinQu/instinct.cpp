@@ -43,3 +43,6 @@
 [submodule "thirdparty/stduuid"]
 	path = thirdparty/stduuid
 	url = https://github.com/mariusbancila/stduuid.git
+[submodule "thirdparty/fmtlog"]
+	path = thirdparty/fmtlog
+	url = https://github.com/MengRao/fmtlog.git

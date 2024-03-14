@@ -4,7 +4,6 @@ project(instinct_core)
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 set(${LIBRARY_TARGET_NAME}_HDR
         src/ALL.hpp
-        src/CoreTypes.hpp
         src/tools/SimpleHttpClient.hpp
         src/tools/HttpRequest.hpp
         src/tools/StringUtils.hpp
@@ -49,6 +48,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         ICU::io
         base64
         tsl::ordered_map
+        fmtlog
 )
 
 #set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES

@@ -6,7 +6,8 @@
 #define SIMPLEHTTPCLIENT_H
 
 #include <boost/beast.hpp>
-#include "CoreTypes.hpp"
+
+#include "ChronoUtils.hpp"
 #include "HttpChunkResultIterator.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
@@ -20,6 +21,7 @@ namespace INSTINCT_CORE_NS {
     namespace http = beast::http; // from <boost/beast/http.hpp>
     namespace net = boost::asio; // from <boost/asio.hpp>
     using tcp = net::ip::tcp; // from <boost/asio/ip/tcp.hpp>
+
 
     struct HttpClientOptions {
         unsigned int timeout = 6;
@@ -97,26 +99,39 @@ namespace INSTINCT_CORE_NS {
         http::verb verb = parse_verb(call);
         http::request<http::string_body> req{verb, call.target, 11};
         req.set(http::field::host, endpoint_.host);
+
+        LOG_DEBUG("REQ: method={} path={} body={}", call.method, call.target, call.body);
+
         req.body() = call.body;
         req.prepare_payload();
         http::write(stream, req);
 
         beast::flat_buffer buffer;
         http::response<http::dynamic_body> res;
+
+        auto t1 = ChronoUtils::GetCurrentTimeMillis();
+
         http::read(stream, buffer, res);
-        // std::string body = res.body();
+
+
 
 
         HttpHeaders response_headers;
         for (auto& h: res.base()) {
             response_headers.emplace(h.name_string(), h.value());
         }
-        // HttpResponse response {res.result_int(), const_cast<HttpHeaders&>(response_headers), body_string};
         HttpResponse response{
             response_headers,
             buffers_to_string(res.body().data()),
             res.result_int()
         };
+        LOG_DEBUG("RESP: method={} path={} rt={} status_code={}, body={}",
+                    call.method,
+                    call.target,
+                    ChronoUtils::GetCurrentTimeMillis() - t1,
+                    response.status_code,
+                    response.body);
+
         beast::error_code ec;
         stream.socket().shutdown(tcp::socket::shutdown_both, ec);
         if (ec && ec != beast::errc::not_connected) {

@@ -4,7 +4,7 @@
 
 #ifndef HTTPRESPONSE_H
 #define HTTPRESPONSE_H
-#include "CoreTypes.hpp"
+
 
 
 namespace INSTINCT_CORE_NS {

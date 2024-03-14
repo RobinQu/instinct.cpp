@@ -22,6 +22,8 @@ namespace INSTINCT_RETRIEVAL_NS {
     class MultiVectorRetrieverTest: public testing::Test {
     protected:
         void SetUp() override {
+            SetupLogging();
+
             auto root_path = std::filesystem::temp_directory_path() / "instinct-test" / std::to_string(ChronoUtils::GetCurrentTimeMillis());
             std::filesystem::create_directories(root_path);
 
@@ -30,7 +32,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             OllamaConfiguration ollama_configuration = {.model_name = "phi"};
             llm_ = std::make_shared<OllamaChat>();
 
-            size_t dimension = 4096;
+            size_t dimension = 2560;
 
             EmbeddingsPtr embedding_model = std::make_shared<OllamaEmbedding>();
             DuckDBStoreOptions db_options = {

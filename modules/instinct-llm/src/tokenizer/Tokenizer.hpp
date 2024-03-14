@@ -10,7 +10,7 @@
 #include <utility>
 #include <unicode/regex.h>
 #include <unicode/unistr.h>
-#include "CoreTypes.hpp"
+
 #include "tools/TensorUtils.hpp"
 #include <unicode/ustream.h>
 #include <unicode/schriter.h>

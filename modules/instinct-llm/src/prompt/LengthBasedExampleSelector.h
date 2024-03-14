@@ -6,7 +6,7 @@
 #define LENGTHBASEDPROMPTSELECTOR_H
 
 #include "LLMGlobals.hpp"
-#include "CoreTypes.hpp"
+
 #include "MutableExampleSelector.hpp"
 #include "tools/StringUtils.hpp"
 

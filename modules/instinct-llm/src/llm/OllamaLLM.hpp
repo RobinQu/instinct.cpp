@@ -8,7 +8,7 @@
 #include "tools/HttpRestClient.hpp"
 #include <nlohmann/json.hpp>
 
-#include "CoreTypes.hpp"
+
 #include "BaseLLM.hpp"
 #include "LLMGlobals.hpp"
 #include "commons/OllamaCommons.hpp"

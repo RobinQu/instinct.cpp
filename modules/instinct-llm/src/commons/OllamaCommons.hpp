@@ -4,7 +4,7 @@
 
 #ifndef OLLAMACOMMONS_H
 #define OLLAMACOMMONS_H
-#include "CoreTypes.hpp"
+
 #include "LLMGlobals.hpp"
 
 /**

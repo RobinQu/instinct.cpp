@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 #include <unicode/regex.h>
 #include <unicode/ustream.h>
-#include "CoreTypes.hpp"
+
 #include "tokenizer/Tokenizer.hpp"
 
 namespace INSTINCT_LLM_NS {

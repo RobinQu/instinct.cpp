@@ -5,7 +5,7 @@
 #ifndef BASEEXMAPLESELECTOR_H
 #define BASEEXMAPLESELECTOR_H
 #include "LLMGlobals.hpp"
-#include "CoreTypes.hpp"
+
 #include <llm.pb.h>
 
 #include "chain/IChain.hpp"
