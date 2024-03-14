@@ -46,3 +46,6 @@
 [submodule "thirdparty/fmtlog"]
 	path = thirdparty/fmtlog
 	url = https://github.com/MengRao/fmtlog.git
+[submodule "thirdparty/cpp-httplib"]
+	path = thirdparty/cpp-httplib
+	url = https://github.com/yhirose/cpp-httplib.git

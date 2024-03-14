@@ -15,15 +15,16 @@ namespace INSTINCT_CORE_NS {
     TEST(SimpleHTTPCientTest, TestStream) {
         auto request_str = R"({
             "model": "llama2",
-            "prompt": "Why is the sky blue?"
+            "prompt": "Why is the sky blue?",
+            "stream": true
         }
         )";
-        SimpleHttpClient client{{"localhost", 11434}};
-        HttpRequest request = {POST, "/api/generate", {}, request_str};
+        SimpleHttpClient client{{.host = "localhost", .port=11434}};
+        HttpRequest request = {kPOST, "/api/generate", {}, request_str};
 
-        auto chunk_view = client.Stream(request);
-        while (chunk_view->HasNext()) {
-            std::cout << chunk_view->Next() << std::endl;
-        }
+        auto chunk_view = client.StreamChunk(request);
+        chunk_view | rpp::operators::subscribe([](const auto& chunk) {
+                std::cout << chunk << std::endl;
+            });
     }
 }

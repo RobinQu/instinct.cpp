@@ -15,9 +15,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/functional/IRunnable.hpp
         src/tools/TensorUtils.hpp
         src/tools/FunctionUtils.hpp
-        src/tools/HttpChunkConnection.hpp
         src/tools/ResultIterator.hpp
-        src/tools/HttpChunkResultIterator.hpp
         src/tools/Assertions.hpp
         src/tools/ChronoUtils.hpp
 )
@@ -35,14 +33,11 @@ add_library(instinct::core
         ALIAS ${LIBRARY_TARGET_NAME})
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::proto
+        RPP::rpp
         fmt::fmt
         nlohmann_json::nlohmann_json
-#        xtensor
-        Boost::beast
-        Boost::algorithm
-        Boost::url
+        httplib
         Taskflow
-#        RPP::rpp
         ICU::uc
         ICU::i18n
         ICU::io

@@ -9,58 +9,101 @@
 #include "CoreGlobals.hpp"
 #include <string>
 #include "fmt/ranges.h"
-
-
+#include <fmt/core.h>
 
 namespace INSTINCT_CORE_NS {
-    using namespace fmt::literals;
-
     typedef std::unordered_map<std::string, std::string> HttpHeaders;
 
     enum HttpMethod {
-        Unkown,
-        GET,
-        POST,
-        PUT,
-        DELETE,
-        HEAD
+        kUnspecifiedHttpMethod,
+        kGET,
+        kPOST,
+        kPUT,
+        kDELETE,
+        kHEAD
     };
 
+    enum HttpProtocol {
+        kSpecifiedProtocol,
+        kHTTP,
+        kHTTPS
+    };
 
     struct Endpoint {
+        HttpProtocol protocol = kHTTP;
         std::string host;
         int port;
-    };
-
-    struct HttpUtils {
-        static HttpMethod ParseMethod(const std::string& str) {
-            auto m = StringUtils::ToUpper(str);
-            if(m == "PUT") return HttpMethod::PUT;
-            if(m == "GET") return HttpMethod::GET;
-            if(m == "POST") return HttpMethod::POST;
-            if(m == "DELETE") return DELETE;
-            if(m == "HEAD") return HEAD;
-            return Unkown;
-        }
     };
 }
 
 
-template <> struct fmt::formatter<INSTINCT_CORE_NS::HttpMethod>: fmt::formatter<fmt::string_view> {
+template <> struct fmt::formatter<INSTINCT_CORE_NS::HttpMethod>: formatter<string_view> {
     template <typename FormatContext>
     auto format(INSTINCT_CORE_NS::HttpMethod c, FormatContext& ctx) {
-        fmt::string_view name = "unknown";
+        string_view name = "UNKNOWN";
         switch (c) {
-            case INSTINCT_CORE_NS::POST:   name = "POST"; break;
-            case INSTINCT_CORE_NS::GET: name = "GET"; break;
-            case INSTINCT_CORE_NS::PUT:  name = "PUT"; break;
-            case INSTINCT_CORE_NS::DELETE:  name = "DELETE"; break;
-            case INSTINCT_CORE_NS::HEAD:  name = "HEAD"; break;
-            case INSTINCT_CORE_NS::Unkown: name = "UNKNOWN"; break;
+            case INSTINCT_CORE_NS::kPOST:   name = "POST"; break;
+            case INSTINCT_CORE_NS::kGET: name = "GET"; break;
+            case INSTINCT_CORE_NS::kPUT:  name = "PUT"; break;
+            case INSTINCT_CORE_NS::kDELETE:  name = "DELETE"; break;
+            case INSTINCT_CORE_NS::kHEAD:  name = "HEAD"; break;
+            case INSTINCT_CORE_NS::kUnspecifiedHttpMethod: name = "UNKNOWN"; break;
         }
-        return formatter<fmt::string_view>::format(name, ctx);
+        return formatter<string_view>::format(name, ctx);
     }
 };
+
+
+template <> struct fmt::formatter<INSTINCT_CORE_NS::HttpProtocol>: formatter<string_view> {
+    template <typename FormatContext>
+    auto format(INSTINCT_CORE_NS::HttpProtocol c, FormatContext& ctx) {
+        string_view name = "";
+        switch (c) {
+            case INSTINCT_CORE_NS::kHTTP:   name = "http"; break;
+            case INSTINCT_CORE_NS::kHTTPS: name = "https"; break;
+            case INSTINCT_CORE_NS::kSpecifiedProtocol: name = ""; break;
+        }
+        return formatter<string_view>::format(name, ctx);
+    }
+};
+
+namespace INSTINCT_CORE_NS {
+    using namespace fmt::literals;
+
+
+    struct HttpUtils {
+        static HttpMethod ParseMethod(const std::string& str) {
+            auto m = StringUtils::ToUpper(str);
+            if(m == "PUT") return kPUT;
+            if(m == "GET") return kGET;
+            if(m == "POST") return kPOST;
+            if(m == "DELETE") return kDELETE;
+            if(m == "HEAD") return kHEAD;
+            return kUnspecifiedHttpMethod;
+        }
+
+        static std::string CreateConnectionString(const Endpoint& endpoint) {
+            return fmt::format("{}://{}:{}", endpoint.protocol, endpoint.host, endpoint.port);
+        }
+
+        static std::string GetHeaderValue(const std::string& name, const std::string& default_value, const HttpHeaders& headers) {
+            if (headers.contains(name)) {
+                return headers.at(name);
+            }
+            if (auto lowered_name = StringUtils::ToLower(name); headers.contains(lowered_name)) {
+                return headers.at(lowered_name);
+            }
+            if (auto upper_name = StringUtils::ToUpper(name); headers.contains(upper_name)) {
+                return headers.at(upper_name);
+            }
+            return default_value;
+        }
+    };
+
+
+}
+
+
 
 
 #endif //HTTPUTILS_H

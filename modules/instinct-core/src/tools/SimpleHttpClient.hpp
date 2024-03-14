@@ -5,23 +5,16 @@
 #ifndef SIMPLEHTTPCLIENT_H
 #define SIMPLEHTTPCLIENT_H
 
-#include <boost/beast.hpp>
-
 #include "ChronoUtils.hpp"
-#include "HttpChunkResultIterator.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
+#include <httplib.h>
+#include <rpp/rpp.hpp>
 
 
-using namespace boost::beast;
-
-
-namespace INSTINCT_CORE_NS {
-    namespace beast = boost::beast; // from <boost/beast.hpp>
-    namespace http = beast::http; // from <boost/beast/http.hpp>
-    namespace net = boost::asio; // from <boost/asio.hpp>
-    using tcp = net::ip::tcp; // from <boost/asio/ip/tcp.hpp>
-
+namespace
+INSTINCT_CORE_NS {
+    using namespace httplib;
 
     struct HttpClientOptions {
         unsigned int timeout = 6;
@@ -31,131 +24,143 @@ namespace INSTINCT_CORE_NS {
         return v;
     }
 
+    static HttpHeaders flatten_multi_map_headers(const Headers& headers) {
+        HttpHeaders http_headers;
+        for (const auto& [k,v]: headers) {
+            http_headers[k] = v;
+        }
+        return http_headers;
+    }
+
     class SimpleHttpClient {
-        net::io_context ioc_;
-        Endpoint endpoint_;
         HttpClientOptions options_;
-        tcp::resolver::results_type resolve_results_;
+        Client client_;
 
     public:
         SimpleHttpClient() = delete;
 
-        explicit SimpleHttpClient(Endpoint endpoint);
+        explicit SimpleHttpClient(const Endpoint& endpoint);
 
-        SimpleHttpClient(Endpoint endpoint, HttpClientOptions options);
+        SimpleHttpClient(const Endpoint& endpoint, const HttpClientOptions& options);
 
         HttpResponse Execute(
             const HttpRequest& call
         );
 
-        ResultIteratorPtr<std::string> Stream(
+        auto StreamChunk(
             const HttpRequest& call
-        ) ;
-
+        );
     };
 
-    static http::verb parse_verb(const HttpRequest& call) {
-        http::verb verb;
-        switch (call.method) {
-            case GET:
-                verb = http::verb::get;
-                break;
-            case POST:
-                verb = http::verb::post;
-                break;
-            case PUT:
-                verb = http::verb::put;
-                break;
-            case HEAD:
-                verb = http::verb::head;
-                break;
-            default:
-                verb = http::verb::unknown;
-        }
-        if (verb == http::verb::unknown) {
-            throw InstinctException("unknown http verb");
-        }
-        return verb;
+    inline SimpleHttpClient::SimpleHttpClient(const Endpoint& endpoint): SimpleHttpClient(endpoint, {}) {
     }
 
-    inline SimpleHttpClient::SimpleHttpClient(Endpoint endpoint): SimpleHttpClient(std::move(endpoint), {}) {
-    }
-
-    inline SimpleHttpClient::SimpleHttpClient(Endpoint endpoint, HttpClientOptions options): ioc_(),
-        endpoint_(std::move(endpoint)), options_(options), resolve_results_() {
-        assert_positive(endpoint_.port, "port number should be a positive integer");
-        assert_true(!StringUtils::IsBlankString(endpoint_.host), "host cannnot be blank");
-        tcp::resolver resolver(ioc_);
-        resolve_results_ = resolver.resolve(
-            endpoint_.host,
-            std::to_string(endpoint_.port)
-        );
+    inline SimpleHttpClient::SimpleHttpClient(
+        const Endpoint& endpoint,
+        const HttpClientOptions& options): options_(options),
+                                           client_(HttpUtils::CreateConnectionString(endpoint)) {
+        assert_positive(endpoint.port, "port number should be a positive integer");
+        assert_true(!StringUtils::IsBlankString(endpoint.host), "host cannnot be blank");
     }
 
 
     inline HttpResponse SimpleHttpClient::Execute(const HttpRequest& call) {
-        beast::tcp_stream stream(ioc_);
-        stream.connect(resolve_results_);
-        http::verb verb = parse_verb(call);
-        http::request<http::string_body> req{verb, call.target, 11};
-        req.set(http::field::host, endpoint_.host);
+        Headers headers;
+        for (const auto& [k,v]: call.headers) {
+            headers.emplace(k, v);
+        }
+
+        auto content_type = HttpUtils::GetHeaderValue("content-type", "application/json", call.headers);
 
         LOG_DEBUG("REQ: method={} path={} body={}", call.method, call.target, call.body);
 
-        req.body() = call.body;
-        req.prepare_payload();
-        http::write(stream, req);
-
-        beast::flat_buffer buffer;
-        http::response<http::dynamic_body> res;
-
+        HttpResponse response;
         auto t1 = ChronoUtils::GetCurrentTimeMillis();
+        switch (call.method) {
+            case kUnspecifiedHttpMethod: {
+                throw InstinctException("Unspecified http method");
+            }
 
-        http::read(stream, buffer, res);
+            case kGET: {
+                auto get_res = client_.Get(call.target, headers);
+                response.body = get_res->body;
+                response.headers = flatten_multi_map_headers(get_res->headers);
+                response.status_code = get_res->status;
+                break;
+            }
+
+            case kPOST: {
+                auto post_res = client_.Post(call.target, headers, call.body, content_type);
+                response.body = post_res->body;
+                response.headers = flatten_multi_map_headers(post_res->headers);
+                response.status_code = post_res->status;
+                break;
+            }
+
+            case kPUT: {
+                auto put_res = client_.Put(call.target, headers, call.body, content_type);
+                response.body = put_res->body;
+                response.headers = flatten_multi_map_headers(put_res->headers);
+                response.status_code = put_res->status;
+                break;
+            }
 
 
+            case kDELETE: {
+                auto delete_res = client_.Delete(call.target, headers);
+                response.body = delete_res->body;
+                response.headers = flatten_multi_map_headers(delete_res->headers);
+                response.status_code = delete_res->status;
+                break;
+            }
 
-
-        HttpHeaders response_headers;
-        for (auto& h: res.base()) {
-            response_headers.emplace(h.name_string(), h.value());
+            case kHEAD: {
+                auto head_res = client_.Head(call.target, headers);
+                response.body = head_res->body;
+                response.headers = flatten_multi_map_headers(head_res->headers);
+                response.status_code = head_res->status;
+                break;
+            }
         }
-        HttpResponse response{
-            response_headers,
-            buffers_to_string(res.body().data()),
-            res.result_int()
-        };
+
         LOG_DEBUG("RESP: method={} path={} rt={} status_code={}, body={}",
-                    call.method,
-                    call.target,
-                    ChronoUtils::GetCurrentTimeMillis() - t1,
-                    response.status_code,
-                    response.body);
-
-        beast::error_code ec;
-        stream.socket().shutdown(tcp::socket::shutdown_both, ec);
-        if (ec && ec != beast::errc::not_connected) {
-            throw InstinctException(fmt::format("TCP socket shutdown error: {}", ec.message()));
-        }
+                  call.method,
+                  call.target,
+                  ChronoUtils::GetCurrentTimeMillis() - t1,
+                  response.status_code,
+                  response.body);
         return response;
     }
 
-    inline ResultIteratorPtr<std::string> SimpleHttpClient::Stream(
-            const HttpRequest& call
-        )  {
-        return std::make_shared<HttpChunkResultIterator<std::string>> (string_idenity_fn, [&,call]() {
-            const auto stream = new beast::tcp_stream(ioc_);
-            stream->connect(resolve_results_);
-            const http::verb verb = parse_verb(call);
-            http::request<http::string_body> req{verb, call.target, 11};
-            req.set(http::field::host, endpoint_.host);
-            req.body() = call.body;
-            req.prepare_payload();
-            http::write(*stream, req);
-            return stream;
+    inline auto SimpleHttpClient::StreamChunk(
+        const HttpRequest& call
+    ) {
+        return rpp::source::create<std::string>([&](const auto& observer) {
+            Request req;
+            for (const auto& [k,v]: call.headers) {
+                req.set_header(k, v);
+            }
+            // TODO handle path params
+            req.path = call.target;
+            req.body = call.body;
+            req.method = fmt::format("{}", call.method);
+            req.content_receiver = [&](
+                const char* data,
+                size_t data_length,
+                uint64_t offset,
+                uint64_t total_length
+            ) {
+                        observer.on_next(std::string(data, data_length));
+                        return true;
+                    };
+            auto result = client_.send(req);
+            if(result->status >= 400) {
+                observer.on_error(std::make_exception_ptr(InstinctException("Failed to get chunked response failed with status code: " + std::to_string(result->status))));
+            } else {
+                observer.on_completed();
+            }
         });
     }
-
 } // core
 // langchain
 

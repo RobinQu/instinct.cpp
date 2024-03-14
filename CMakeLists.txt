@@ -72,24 +72,24 @@ add_subdirectory(thirdparty/nlohmann_json)
 #add_subdirectory(thirdparty/xtensor)
 
 
-## boost
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
+### boost
+#set(Boost_USE_STATIC_LIBS OFF)
+#set(Boost_USE_MULTITHREADED ON)
+#set(Boost_USE_STATIC_RUNTIME OFF)
 ## hack to prevent linkage error for icu
 #set(BOOST_LOCALE_ENABLE_ICU OFF)
 
-find_package(Boost 1.84.0)
+#find_package(Boost 1.84.0)
 
-if (NOT Boost_FOUND)
-    message(STATUS "add_subdirectory sub-directory of thirdparty/boost as Boost is not found")
-#    set(Boost_VERBOSE ON)
-#    set(BOOST_INCLUDE_LIBRARIES beast algorithm url)
-#    set(ENV{BOOST_ROOT} "${PROJECT_SOURCE_DIR}/thirdparty/boost")
-    add_subdirectory(thirdparty/boost EXCLUDE_FROM_ALL)
-else ()
-    message(STATUS "Boost version: ${Boost_VERSION}")
-endif ()
+#if (NOT Boost_FOUND)
+#    message(STATUS "add_subdirectory sub-directory of thirdparty/boost as Boost is not found")
+##    set(Boost_VERBOSE ON)
+##    set(BOOST_INCLUDE_LIBRARIES beast algorithm url)
+##    set(ENV{BOOST_ROOT} "${PROJECT_SOURCE_DIR}/thirdparty/boost")
+#    add_subdirectory(thirdparty/boost EXCLUDE_FROM_ALL)
+#else ()
+#    message(STATUS "Boost version: ${Boost_VERSION}")
+#endif ()
 
 ## taskflow
 set(TF_BUILD_TESTS OFF)
@@ -136,6 +136,8 @@ target_include_directories(fmtlog
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+## cpp-httplib
+add_subdirectory(thirdparty/cpp-httplib)
 
 ## gtest
 if(BUILD_TESTING)

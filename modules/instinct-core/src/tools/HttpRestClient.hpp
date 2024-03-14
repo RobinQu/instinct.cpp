@@ -17,74 +17,64 @@
 
 namespace INSTINCT_CORE_NS {
 
+struct ProtobufHttpEntityConverter {
+    template<typename T>
+    requires is_pb_message<Result>
+    T Deserialize(const std::string& buf) {
+        T result;
+        auto status = google::protobuf::util::JsonStringToMessage(buf, &result);
+        assert_true(status.ok(), "failed to parse protobuf message from response body");
+        return result;
+    }
+
+    template<typename T>
+    requires is_pb_message<Result>
+    std::string Serialize(const T& obj) {
+        std::string param_string;
+        auto status = google::protobuf::util::MessageToJsonString(obj, &param_string);
+        assert_true(status.ok(), "failed to dump parameters from protobuf message");
+        return param_string;
+    }
+};
+
+
 class HttpRestClient final: public SimpleHttpClient {
+    ProtobufHttpEntityConverter converter_;
 public:
     HttpRestClient() = delete;
 
-    HttpRestClient(const std::string& host, const int port)
-        : SimpleHttpClient({.host = host, .port = port}) {
-    }
-
-    explicit HttpRestClient(Endpoint endpoint)
-        : SimpleHttpClient(std::move(endpoint)) {
+    explicit HttpRestClient(const Endpoint& endpoint)
+        : SimpleHttpClient(endpoint), converter_() {
     }
 
     template<typename Result>
-    requires is_pb_message<Result>
     Result GetObject(const std::string& uri) {
-        const HttpRequest request = {GET, uri, {}, ""};
+        const HttpRequest request = {kGET, uri, {}, ""};
         const HttpResponse response = Execute(request);
         if(response.status_code >= 400) {
             throw HttpClientException(response.status_code, response.body);
         }
-        Result result;
-        auto status = google::protobuf::util::JsonStringToMessage(response.body, &result);
-        assert_true(status.ok(), "failed to parse protobuf message from response body");
-        return result;
+        return converter_.Deserialize<Result>(response.body);
     }
 
     template<typename Param, typename Result>
-    requires is_pb_message<Result> && is_pb_message<Param>
     Result PostObject(const std::string& uri, const Param& param) {
-        std::string param_string;
-        auto status = google::protobuf::util::MessageToJsonString(param, &param_string);
-        assert_true(status.ok(), "failed to dump parameters from protobuf message");
-
-        const HttpRequest request = {POST, uri, {}, param_string};
-        // std::cout << "Request body: " <<  request.body << std::endl;
-        const HttpResponse response = Execute(request);
-        // std::cout << "Response body: " << response.body << std::endl;
-        if(response.status_code >= 400) {
-            throw HttpClientException(response.status_code, response.body);
+        std::string param_string = converter_.Serialize(param);
+        const HttpRequest request = {kPOST, uri, {}, param_string};
+        const auto& [headers, body, status_code] = Execute(request);
+        if(status_code >= 400) {
+            throw HttpClientException(status_code, body);
         }
-
-        Result result;
-        status = google::protobuf::util::JsonStringToMessage(response.body, &result);
-        assert_true(status.ok(), "failed to parse protobuf message from response body");
-        return result;
+        return converter_.Deserialize<Result>(body);
     }
 
     template<typename Param, typename Result>
-    requires is_pb_message<Result> && is_pb_message<Param>
-    ResultIteratorPtr<Result> StreamChunk(const std::string& uri, const Param& param) {
-        std::string param_string;
-        auto status = google::protobuf::util::MessageToJsonString(param, &param_string);
-        assert_true(status.ok(), "failed to dump parameters from protobuf message");
-
-        const HttpRequest request = {POST, uri, {}, param_string};
-        // std::cout << "Request body: " <<  request.body << std::endl;
-        return create_result_itr_with_transform([](const std::string& v)-> Result {
-            // std::cout << v << std::endl;
-            const auto trimed = StringUtils::Trim(v);
-            Result result;
-            if(trimed.empty()) {
-                return result;
-            }
-            auto to_message_status = google::protobuf::util::JsonStringToMessage(trimed, &result);
-            assert_true(to_message_status.ok(), "failed to parse protobuf message from response body");
-            // std::cout << result.DebugString() << std::endl;
-            return result;
-        }, Stream(request));
+    auto StreamChunkObject(const std::string& uri, const Param& param) {
+        std::string param_string = converter_.Serialize(param);
+        const HttpRequest request = {kPOST, uri, {}, param_string};
+        return StreamChunk(request) | rpp::operators::map([&](const auto& chunk_string) {
+            return converter_.Deserialize<Result>(chunk_string);
+        });
     }
 };
 
