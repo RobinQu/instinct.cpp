@@ -33,22 +33,17 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
 
-        void Ingest(const ResultIteratorPtr<Document>& input) override {
+        void Ingest(const AsyncIterator<Document>& input) override {
             if (parent_splitter_) {
-                std::vector<Document> chunked_parent_docs;
-                while (input->HasNext()) {
-                    auto parts = parent_splitter_->SplitText(UnicodeString::fromUTF8(input->Next().text())) | std::views::transform([](const UnicodeString& str) {
+                auto chunked_input = input | rpp::operators::flat_map([&](const Document& doc) {
+                    auto parts = parent_splitter_->SplitText(UnicodeString::fromUTF8(doc.text())) | std::views::transform([](const UnicodeString& str) {
                         Document document;
                         str.toUTF8String(*document.mutable_text());
                         return document;
                     });
-                    chunked_parent_docs.insert(
-                        chunked_parent_docs.end(),
-                        parts.begin(),
-                        parts.end()
-                    );
-                }
-                MultiVectorRetriever::Ingest(create_result_itr_from_range(chunked_parent_docs));
+                    return rpp::source::from_iterable(parts).as_dynamic();
+                });
+                MultiVectorRetriever::Ingest(chunked_input);
                 return;
             }
             MultiVectorRetriever::Ingest(input);
@@ -61,7 +56,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 str.toUTF8String(*document.mutable_text());
                 return document;
             });
-            return std::vector (parts.begin(), parts.end());
+            return {parts.begin(), parts.end()};
 
         }
     };

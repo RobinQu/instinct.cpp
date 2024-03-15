@@ -8,6 +8,7 @@
 #include "store/duckdb/DuckDBVectorStore.hpp"
 #include "tools/ChronoUtils.hpp"
 
+
 namespace INSTINCT_RETRIEVAL_NS {
 
     static Embedding make_zero_vector(const size_t dim=128) {
@@ -33,26 +34,35 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     class PesuodoEmbeddings final: public IEmbeddingModel {
         std::unordered_map<std::string, Embedding> caches_ = {};
+        size_t dim_;
     public:
+        explicit PesuodoEmbeddings(const size_t dim = 512)
+            : dim_(dim) {
+        }
+
         std::vector<Embedding> EmbedDocuments(const std::vector<std::string>& texts) override {
             std::vector<Embedding> result;
             for(const auto& text: texts) {
                 if (!caches_.contains(text)) {
-                    caches_.emplace(text, make_random_vector());
+                    caches_.emplace(text, make_random_vector(dim_));
                 }
                 result.push_back(caches_.at(text));
             }
             return result;
         }
 
-        auto& get_caches()  const {
+        [[nodiscard]] auto& get_caches()  const {
             return caches_;
+        }
+
+        size_t GetDimension() override {
+            return dim_;
         }
 
 
         Embedding EmbedQuery(const std::string& text) override {
             if (!caches_.contains(text)) {
-                caches_.emplace(text, make_random_vector());
+                caches_.emplace(text, make_random_vector(dim_));
             }
             return caches_.at(text);
         }
@@ -132,9 +142,13 @@ namespace INSTINCT_RETRIEVAL_NS {
             search_request.set_top_k(5);
             auto itr = store->SearchDocuments(search_request);
             std::cout << "search done in " << std::to_string(ChronoUtils::GetCurrentTimeMillis() - t1) << "ms" << std::endl;
-            ASSERT_TRUE(itr->HasNext());
-            auto doc = itr->Next();
-            ASSERT_EQ(doc.text(), text);
+
+            itr
+                | rpp::operators::first()
+                | rpp::operators::subscribe([&](const Document& item) {
+                    ASSERT_EQ(item.text(), text);
+                });
+
         }
     }
 

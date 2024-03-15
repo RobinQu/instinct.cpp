@@ -54,7 +54,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_icu_status(status, "Failed to build RegexMatcher using string: " + regex_string);
         }
 
-        ResultIteratorPtr<Document> Load() override {
+        AsyncIterator<Document> Load() override {
             std::vector<std::filesystem::path> valid_files;
             if (recursive_) {
                 for (const auto& dir_entry: std::filesystem::recursive_directory_iterator{folder_path_}) {
@@ -71,24 +71,11 @@ namespace INSTINCT_RETRIEVAL_NS {
             }
 
             // TODO Do it in parallel
-            std::vector<Document> returned_docs;
-            for (const auto& entry: valid_files) {
-                auto ingestor = ingestor_factory_function_(entry);
-                auto doc_itr = ingestor->Load();
-                // ingestor is assumed to be SingleFileIngestor or its subclasses, so only first doc is accespted.
-                if (doc_itr->HasNext()) {
-                    returned_docs.push_back(doc_itr->Next());
-                }
-            }
-            return create_result_itr_from_range(returned_docs);
-            // return a lazy iterator
-            // return create_result_itr_with_transform([&](const auto& path) {
-            //     auto ingestor = ingestor_factory_function_(path);
-            //     auto doc_itr = ingestor->Load();
-            //     // ingestor is assumed to be SingleFileIngestor or its subclasses, so only first doc is accespted.
-            //     // downstream should filter out empty Documents.
-            //     return doc_itr->HasNext() ?  doc_itr->Next() : Document::default_instance();
-            // }, valid_files);
+            return rpp::source::from_iterable(valid_files)
+                | rpp::operators::flat_map([&](const std::filesystem::path& entry) {
+                    auto ingestor = ingestor_factory_function_(entry);
+                    return ingestor->Load();
+                });
         }
 
     private:

@@ -13,11 +13,11 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     class MetadataQueryOutputParser final: public BaseOutputParser<MetadataQuery> {
 
-        MetadataSchema metadata_schema_;
+        std::shared_ptr<MetadataSchema> metadata_schema_;
 
     public:
-        explicit MetadataQueryOutputParser(const MetadataSchema& metadata_schema)
-            : metadata_schema_(std::move(metadata_schema)) {
+        explicit MetadataQueryOutputParser(const std::shared_ptr<MetadataSchema>& metadata_schema)
+            : metadata_schema_(metadata_schema) {
         }
 
         MetadataQuery ParseResult(const Generation& result) override;

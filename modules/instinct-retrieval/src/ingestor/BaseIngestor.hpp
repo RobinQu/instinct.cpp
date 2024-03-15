@@ -13,12 +13,11 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     class BaseIngestor: public IIngestor {
     public:
-        ResultIteratorPtr<Document> Load() override = 0;
+        AsyncIterator<Document> Load() override = 0;
 
-        ResultIteratorPtr<Document> LoadWithSpliter(const TextSplitterPtr& text_splitter) override {
+        AsyncIterator<Document> LoadWithSplitter(const TextSplitterPtr& text_splitter) override {
             const auto docs_itr = Load();
             return text_splitter->SplitDocuments(docs_itr);
-
         }
     };
 

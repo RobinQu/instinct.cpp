@@ -7,18 +7,20 @@
 
 
 #include "RetrievalGlobals.hpp"
-#include "tools/ResultIterator.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
     class DocumentUtils {
     public:
-        static std::string CombineDocuments(const ResultIteratorPtr<Document>& doc_itr) {
+        static std::string CombineDocuments(const AsyncIterator<Document>& doc_itr) {
             std::string buf;
-            while (doc_itr->HasNext()) {
-
-            }
+            doc_itr
+                | rpp::operators::as_blocking()
+                | rpp::operators::subscribe([&](const Document& doc) {
+                    buf += doc.text();
+                    buf += "\n";
+                })
+            ;
             return buf;
-
         }
     };
 }

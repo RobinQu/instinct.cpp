@@ -7,7 +7,6 @@
 
 #include "RetrievalGlobals.hpp"
 #include "document/TextSplitter.hpp"
-#include "tools/ResultIterator.hpp"
 #include <retrieval.pb.h>
 
 
@@ -27,14 +26,14 @@ namespace INSTINCT_RETRIEVAL_NS {
          *
          * @return Iterator of loaded documents
          */
-        virtual ResultIteratorPtr<Document> Load() = 0;
+        virtual AsyncIterator<Document> Load() = 0;
 
         /**
          * Split loaded documents which are used to create chunked documents
          * @param text_splitter spliiter to be used for each loaded document
          * @return
          */
-        virtual ResultIteratorPtr<Document> LoadWithSpliter(const TextSplitterPtr& text_splitter) = 0;
+        virtual AsyncIterator<Document> LoadWithSplitter(const TextSplitterPtr& text_splitter) = 0;
 
     };
 

@@ -6,7 +6,6 @@
 #define DOCUMENTRETRIEVAL_HPP
 
 #include "RetrievalGlobals.hpp"
-#include "tools/ResultIterator.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_CORE_NS;
@@ -19,7 +18,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         IRetriever(const IRetriever&)=delete;
         IRetriever(IRetriever&&)=delete;
 
-        virtual ResultIteratorPtr<Document> Retrieve(const Query& query) = 0;
+        virtual AsyncIterator<Document> Retrieve(const Query& query) = 0;
     };
 
 
@@ -31,7 +30,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
 
     struct GuidedQuery {
-        ResultIteratorPtr<Document> guidance_docs_iterator;
+        AsyncIterator<Document> guidance_docs_iterator;
         TextQuery raw_query;
     };
     class IGuidedRetreiver : public IRetriever<GuidedQuery> {};

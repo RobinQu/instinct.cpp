@@ -6,7 +6,7 @@
 #define IDOCSTORE_HPP
 
 #include "RetrievalGlobals.hpp"
-#include "tools/ResultIterator.hpp"
+#include "functional/ReactiveFunctions.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_CORE_NS;
@@ -19,7 +19,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         virtual ~IDocStore()=default;
 
 
-        virtual void AddDocuments(const ResultIteratorPtr<Document>& documents_iterator, UpdateResult& update_result) = 0;
+        virtual void AddDocuments(const AsyncIterator<Document>& documents_iterator, UpdateResult& update_result) = 0;
 
         /**
          * 
@@ -38,7 +38,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         virtual size_t DeleteDocuments(const std::vector<std::string>& ids) = 0;
 
-        virtual ResultIteratorPtr<Document> MultiGetDocuments(const std::vector<std::string>& ids) = 0;
+        virtual AsyncIterator<Document> MultiGetDocuments(const std::vector<std::string>& ids) = 0;
 
         [[nodiscard]] virtual std::shared_ptr<MetadataSchema> GetMetadataSchema() const = 0;
 

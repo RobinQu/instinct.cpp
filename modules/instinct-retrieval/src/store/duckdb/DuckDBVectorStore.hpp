@@ -198,10 +198,10 @@ namespace INSTINCT_RETRIEVAL_NS {
         ):
             embeddings_(embeddings_model)
         {
-            assert_gt(options.dimmension, 0);
+            assert_gt(options.dimension, 0);
             assert_true(embeddings_ != nullptr, "should provide embeddings object pointer");
             assert_true(!!metadata_schema, "should have provide valid metadata schema");
-            auto internal_appender = std::make_shared<DuckDBVectorStoreInternalAppender>(embeddings_model, metadata_schema, options.bypass_unknonw_fields);
+            auto internal_appender = std::make_shared<DuckDBVectorStoreInternalAppender>(embeddings_model, metadata_schema, options.bypass_unknown_fields);
             internal_ = std::make_shared<DuckDBStoreInternal>(internal_appender, options, metadata_schema);
             prepared_search_statement_ = internal_->GetConnection().Prepare(details::make_prepared_search_sql(options.table_name, metadata_schema));
             details::assert_prepared_ok(prepared_search_statement_, "Failed to preppare search statement");
@@ -212,7 +212,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             return embeddings_;
         }
 
-        ResultIteratorPtr<Document> SearchDocuments(const SearchRequest& request) override {
+        AsyncIterator<Document> SearchDocuments(const SearchRequest& request) override {
             const auto query_embedding = embeddings_->EmbedQuery(request.query());
 
             bool has_filter = request.has_metadata_filter() && (request.metadata_filter().has_bool_() || request.metadata_filter().has_term());
@@ -241,7 +241,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             );
         }
 
-        void AddDocuments(const ResultIteratorPtr<Document>& documents_iterator, UpdateResult& update_result) override {
+        void AddDocuments(const AsyncIterator<Document>& documents_iterator, UpdateResult& update_result) override {
             internal_->AddDocuments(documents_iterator, update_result);
         }
 
@@ -257,7 +257,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             return internal_->DeleteDocuments(ids);
         }
 
-        ResultIteratorPtr<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {
+        AsyncIterator<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {
             return internal_->MultiGetDocuments(ids);
         }
 

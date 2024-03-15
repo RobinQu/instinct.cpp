@@ -46,7 +46,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 );
         }
 
-        ResultIteratorPtr<Document> Retrieve(const TextQuery& query) override {
+        AsyncIterator<Document> Retrieve(const TextQuery& query) override {
             const auto context_builder = ContextMutataor::Create();
             context_builder->Put(metadata_filter_chain_->GetInputKeys()[0], query.text);
             auto filter = metadata_filter_chain_->Invoke(context_builder->Build());

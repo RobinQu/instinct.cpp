@@ -15,7 +15,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/functional/IRunnable.hpp
         src/tools/TensorUtils.hpp
         src/tools/FunctionUtils.hpp
-        src/tools/ResultIterator.hpp
         src/tools/Assertions.hpp
         src/tools/ChronoUtils.hpp
         src/functional/ReactiveFunctions.hpp

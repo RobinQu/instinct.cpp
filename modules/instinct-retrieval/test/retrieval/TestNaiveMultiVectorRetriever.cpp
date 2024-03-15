@@ -7,7 +7,6 @@
 
 #include "LLMTestGlobals.hpp"
 #include "chat_model/OllamaChat.hpp"
-#include "embedding_model/OllamaEmbedding.hpp"
 #include "ingestor/BaseIngestor.hpp"
 #include "ingestor/DirectoryTreeIngestor.hpp"
 #include "retrieval/MultiQueryRetriever.hpp"
@@ -45,14 +44,14 @@ namespace INSTINCT_RETRIEVAL_NS {
             DuckDBStoreOptions summary_db_options = {
                 .table_name = "summaries_table",
                 .db_file_path = root_path / "summary_store.db",
-                .dimmension = dimension,
+                .dimension = dimension,
             };
             summary_store_ = CreateDuckDBVectorStore(embedding_model, summary_db_options);
 
             DuckDBStoreOptions query_db_options = {
                 .table_name = "queries_table",
                 .db_file_path = root_path / "query_store.db",
-                .dimmension = dimension
+                .dimension = dimension
             };
             hypothetical_quries_store_ = CreateDuckDBVectorStore(embedding_model, query_db_options);
 
@@ -84,9 +83,10 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         // use simple search
         const auto doc_itr = retriever->Retrieve({.text = "Shortcake", .top_k = 2});
-        while (doc_itr->HasNext()) {
-            std::cout << doc_itr->Next().text() << std::endl;
-        }
+
+        doc_itr.subscribe([](const auto& doc) {
+           std::cout << doc.text() << std::endl;
+        });
     }
 
     TEST_F(MultiVectorRetrieverTest, TestReteiveWithHypotheticalQuries) {

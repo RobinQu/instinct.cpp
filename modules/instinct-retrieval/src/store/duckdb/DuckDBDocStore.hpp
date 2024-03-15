@@ -79,12 +79,12 @@ namespace INSTINCT_RETRIEVAL_NS {
             const DuckDBStoreOptions& options,
             const std::shared_ptr<MetadataSchema>& metadata_schema)
             : DuckDBStoreInternal(
-                std::make_shared<DuckDBDocStoreInternalAppender>(metadata_schema, options.bypass_unknonw_fields),
+                std::make_shared<DuckDBDocStoreInternalAppender>(metadata_schema, options.bypass_unknown_fields),
                 options,
                 metadata_schema
             ) {
             assert_true(!!metadata_schema, "should have provide valid metadata schema");
-            assert_true(options.dimmension <=0);
+            assert_true(options.dimension <= 0);
         }
     };
 

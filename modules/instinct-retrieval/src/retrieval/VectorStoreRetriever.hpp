@@ -31,7 +31,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
 
-        ResultIteratorPtr<Document> Retrieve(const TextQuery& query) override {
+        AsyncIterator<Document> Retrieve(const TextQuery& query) override {
             SearchRequest search_request;
             if (search_request_template_) {
                 search_request.MergeFrom(*search_request_template_);
@@ -41,7 +41,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             return vectore_store_->SearchDocuments(search_request);
         }
 
-        void Ingest(const ResultIteratorPtr<Document>& input) override {
+        void Ingest(const AsyncIterator<Document>& input) override {
             UpdateResult update_result;
             vectore_store_->AddDocuments(input, update_result);
             assert_true(update_result.failed_documents_size() == 0, "should not have failed documents");

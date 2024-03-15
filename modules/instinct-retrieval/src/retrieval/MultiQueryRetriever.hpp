@@ -42,27 +42,28 @@ namespace INSTINCT_RETRIEVAL_NS {
               query_chain_(std::move(query_chain)) {
         }
 
-        ResultIteratorPtr<Document> Retrieve(const TextQuery& query) override {
+        AsyncIterator<Document> Retrieve(const TextQuery& query) override {
             const auto context_builder = ContextMutataor::Create();
             context_builder->Put(query_chain_->GetInputKeys()[0], query.text);
             const auto queries = query_chain_->Invoke(context_builder->Build());
             assert_true(queries.size()>1, "should have multipe generated queries.");
 
             std::unordered_set<std::string> ids;
-            std::vector<Document> docs;
-            for(const auto& q: queries) {
-                // TODO do it in parellel
-                TextQuery text_query = query;
-                text_query.text = q;
-                const auto doc_itr = base_retriever_->Retrieve(text_query);
-                while (doc_itr->HasNext()) {
-                    if (const auto& doc = doc_itr->Next(); !ids.contains(doc.id())) {
-                        ids.insert(doc.id());
-                        docs.push_back(doc);
+            return rpp::source::from_iterable(queries)
+                | rpp::operators::as_blocking()
+                | rpp::operators::flat_map([&](const std::string& q) {
+                    TextQuery text_query = query;
+                    text_query.text = q;
+                    return base_retriever_->Retrieve(text_query);
+                    //return rpp::source::empty<Document>();
+                })
+                | rpp::operators::filter([&](const Document& doc) {
+                    if (ids.contains(doc.id())) {
+                        return false;
                     }
-                }
-            }
-            return create_result_itr_from_range(docs);
+                    ids.insert(doc.id());
+                    return true;
+                });
         }
     };
 }

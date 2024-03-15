@@ -56,25 +56,24 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
 
-        ResultIteratorPtr<Document> Retrieve(const TextQuery& query) override {
+        AsyncIterator<Document> Retrieve(const TextQuery& query) override {
             SearchRequest search_request;
             search_request.set_query(query.text);
             search_request.set_top_k(query.top_k);
             const auto sub_doc_itr = vector_store_->SearchDocuments(search_request);
-            std::unordered_set<std::string> parent_ids;
-            while (sub_doc_itr->HasNext()) {
-                parent_ids.insert(sub_doc_itr->Next().id());
-            }
+            auto colleced_ids = CollectVector(sub_doc_itr) | std::views::transform([](const Document& doc) { return doc.id(); });
+            std::unordered_set<std::string> parent_ids (colleced_ids.begin(), colleced_ids.end());
             if (parent_ids.empty()) {
-                // TODO print warning
+                LOG_WARN("Retrieved empty result set");
             }
             return doc_store_->MultiGetDocuments({parent_ids.begin(), parent_ids.end()});
         }
 
-        void Ingest(const ResultIteratorPtr<Document>& input) override {
+        void Ingest(const AsyncIterator<Document>& input) override {
             std::vector<Document> guided_docs;
-            while (input->HasNext()) {
-                auto& parent_doc = input->Next();
+            auto parent_docs = CollectVector(input);
+            for (auto& parent_doc: parent_docs) {
+                // auto& parent_doc = input->Next();
                 doc_store_->AddDocument(parent_doc);
                 auto sub_docs = std::invoke(guidance_, parent_doc);
                 for (auto& sub_doc: sub_docs) {

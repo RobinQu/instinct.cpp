@@ -8,8 +8,8 @@
 #include <unicode/brkiter.h>
 
 #include "CoreGlobals.hpp"
+#include "functional/ReactiveFunctions.hpp"
 #include "tokenizer/Tokenizer.hpp"
-#include "tools/ResultIterator.hpp"
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
@@ -23,7 +23,7 @@ namespace INSTINCT_LLM_NS {
         TextSplitter(TextSplitter&&)=delete;
         TextSplitter(const TextSplitter&)=delete;
         virtual std::vector<UnicodeString> SplitText(const UnicodeString& text) = 0;
-        virtual ResultIteratorPtr<Document> SplitDocuments(const ResultIteratorPtr<Document>& docs_itr) = 0;
+        virtual AsyncIterator<Document> SplitDocuments(const AsyncIterator<Document>& docs_itr) = 0;
 
     };
     using TextSplitterPtr = std::shared_ptr<TextSplitter>;
