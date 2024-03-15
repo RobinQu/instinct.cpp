@@ -22,9 +22,11 @@ namespace INSTINCT_LLM_NS {
     public:
         explicit OpenAIEmbedding(OpenAIConfiguration configuration)
             : configuration_(std::move(configuration)), client_(configuration_.endpoint) {
+            assert_gt(configuration.dimension, 0, "dimension should be greater than zero");
         }
 
         std::vector<Embedding> EmbedDocuments(const std::vector<std::string>& texts) override {
+            assert_lte(texts.size(), 2048, "Number of given texts should be less than 2048");
             std::vector<Embedding> result;
             result.reserve(texts.size());
 
@@ -35,13 +37,15 @@ namespace INSTINCT_LLM_NS {
             req.set_model(configuration_.model_name);
             req.set_dimension(configuration_.dimension);
             auto res = client_.PostObject<OpenAIEmbeddingRequest, OpenAIEmbeddingResponse>(DEFAULT_OPENAI_EMBEDDING_ENDPOINT, req);
-            Embedding embedding;
-            embedding.reserve(configuration_.dimension);
+
             assert_true(res.data_size()>0, "should have at least one embedding returned");
             for(const auto&embedding_response: res.data()) {
+                Embedding embedding;
+                embedding.reserve(configuration_.dimension);
                 for (const auto& f: embedding_response.embedding()) {
                     embedding.push_back(f);
                 }
+                result.push_back(embedding);
             }
             return result;
         }
@@ -61,6 +65,9 @@ namespace INSTINCT_LLM_NS {
             return embedding;
         }
 
+        size_t GetDimension() override {
+            return configuration_.dimension;
+        }
     };
 
     static EmbeddingsPtr CreateOpenAIEmbeddingModel(const OpenAIConfiguration& configuration_) {

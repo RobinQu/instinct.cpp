@@ -47,6 +47,8 @@ set(${LIBRARY_TARGET_NAME}_HDR  src/All.hpp
         src/chat_model/OpenAIChat.hpp
         src/commons/OpenAICommons.hpp
         src/embedding_model/OpenAIEmbedding.hpp
+        src/LLMTestGlobals.hpp
+        src/llm/OpenAILLM.hpp
 
 )
 

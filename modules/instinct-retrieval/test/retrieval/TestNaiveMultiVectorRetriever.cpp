@@ -5,6 +5,7 @@
 
 #include <gtest/gtest.h>
 
+#include "LLMTestGlobals.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "embedding_model/OllamaEmbedding.hpp"
 #include "ingestor/BaseIngestor.hpp"
@@ -13,7 +14,8 @@
 #include "retrieval/MultiVectorRetriever.hpp"
 #include "store/duckdb/DuckDBDocStore.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
-#include "tools/ChronoUtils.hpp"
+
+
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
@@ -24,17 +26,16 @@ namespace INSTINCT_RETRIEVAL_NS {
         void SetUp() override {
             SetupLogging();
 
-            auto root_path = std::filesystem::temp_directory_path() / "instinct-test" / std::to_string(ChronoUtils::GetCurrentTimeMillis());
-            std::filesystem::create_directories(root_path);
+            auto root_path = test::ensure_random_temp_folder();
 
             std::cout << "MultiVectorRetrieverTest at " << root_path << std::endl;
 
-            OllamaConfiguration ollama_configuration = {.model_name = "phi"};
-            llm_ = std::make_shared<OllamaChat>();
 
-            size_t dimension = 2560;
+            llm_ = test::create_local_chat_model();
 
-            EmbeddingsPtr embedding_model = std::make_shared<OllamaEmbedding>();
+            size_t dimension = 4096;
+
+            EmbeddingsPtr embedding_model = test::create_local_embedding_model(dimension);
             DuckDBStoreOptions db_options = {
                 .table_name = "document_table",
                 .db_file_path = root_path / "doc_store.db"
@@ -82,7 +83,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         ASSERT_GT(summary_count, 0);
 
         // use simple search
-        const auto doc_itr = retriever->Retrieve({.text = "Shortcake"});
+        const auto doc_itr = retriever->Retrieve({.text = "Shortcake", .top_k = 2});
         while (doc_itr->HasNext()) {
             std::cout << doc_itr->Next().text() << std::endl;
         }

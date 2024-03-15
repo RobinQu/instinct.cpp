@@ -112,8 +112,8 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_true(!StringUtils::IsBlankString(doc.id()), "should have valid doc id");
             const auto context_builder = ContextMutataor::Create();
             context_builder->Put(sumamry_chain->GetInputKeys()[0], doc.text());
-            const auto result = sumamry_chain->Invoke(context_builder->Build());
             Document summary_doc;
+            const auto result = sumamry_chain->Invoke(context_builder->Build());
             summary_doc.set_text(result);
             summary_doc.set_id(u8_utils::uuid_v8());
             auto* parent_id_field = summary_doc.add_metadata();

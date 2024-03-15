@@ -185,7 +185,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     class DuckDBVectorStore final: public IVectorStore {
         EmbeddingsPtr embeddings_;
-        std::unique_ptr<PreparedStatement> prepared_search_statement_;
+        unique_ptr<PreparedStatement> prepared_search_statement_;
         std::shared_ptr<DuckDBStoreInternal> internal_;
 
     public:
@@ -204,6 +204,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             auto internal_appender = std::make_shared<DuckDBVectorStoreInternalAppender>(embeddings_model, metadata_schema, options.bypass_unknonw_fields);
             internal_ = std::make_shared<DuckDBStoreInternal>(internal_appender, options, metadata_schema);
             prepared_search_statement_ = internal_->GetConnection().Prepare(details::make_prepared_search_sql(options.table_name, metadata_schema));
+            details::assert_prepared_ok(prepared_search_statement_, "Failed to preppare search statement");
         }
 
 

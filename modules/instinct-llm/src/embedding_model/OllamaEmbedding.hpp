@@ -49,6 +49,11 @@ namespace INSTINCT_LLM_NS {
             return {response.embedding().begin(), response.embedding().end()};
         }
 
+        size_t GetDimension() override {
+            // Ollama embedding cannot be configured with dimension
+            // see https://github.com/ollama/ollama/issues/651
+            return 4096;
+        }
     };
 } // LC_MODEL_NS
 

@@ -37,9 +37,10 @@ namespace INSTINCT_RETRIEVAL_NS {
         static auto EMPTY_METADATA_SCHEMA = std::make_shared<MetadataSchema>();
 
 
-        static std::string make_preapred_mget_sql (
+        static std::string make_mget_sql (
             const std::string& table_name,
-            const std::shared_ptr<MetadataSchema>& metadata_schema
+            const std::shared_ptr<MetadataSchema>& metadata_schema,
+            const std::vector<std::string>& ids
             ) {
             std::string select_sql = "SELECT id, text";
             auto name_view = metadata_schema->fields() | std::views::transform(
@@ -49,8 +50,17 @@ namespace INSTINCT_RETRIEVAL_NS {
             select_sql += name_view.empty() ? ""  : ", " + StringUtils::JoinWith(name_view, ", ");
             select_sql += " FROM ";
             select_sql += table_name;
-            select_sql += " WHERE id in ?";
-            return select_sql;
+            select_sql += " WHERE id in (";
+            // select_sql += StringUtils::JoinWith(ids, ", ");
+            for(int i=0;i<ids.size();++i) {
+                select_sql += "'";
+                select_sql += ids[i];
+                select_sql += "'";
+                if(i<ids.size()) {
+                    select_sql += ",";
+                }
+            }
+            return select_sql + ");";
         }
 
         static std::string make_prepared_count_sql (const std::string& table_name) {
@@ -104,7 +114,16 @@ namespace INSTINCT_RETRIEVAL_NS {
         static std::string make_delete_sql(const std::string& table_name, const std::vector<std::string>& ids) {
             assert_non_empty_range(ids, "ids should not be empty");
             std::string delete_sql = "DELETE FROM " + table_name + " WHERE id IN (";
-            delete_sql += StringUtils::JoinWith(ids, ", ");
+            // delete_sql += StringUtils::JoinWith(ids, ", ");
+
+            for(int i=0;i<ids.size();++i) {
+                delete_sql += "'";
+                delete_sql += ids[i];
+                delete_sql += "'";
+                if(i<ids.size()) {
+                    delete_sql += ",";
+                }
+            }
             delete_sql += ");";
             return delete_sql;
         }
@@ -119,6 +138,12 @@ namespace INSTINCT_RETRIEVAL_NS {
         static void assert_query_ok(const unique_ptr<QueryResult>& result) {
             if (const auto error = result->GetErrorObject(); error.HasError()) {
                 throw InstinctException(result->GetError());
+            }
+        }
+
+        static void assert_prepared_ok(const unique_ptr<PreparedStatement>& result, const std::string& msg = "Failed to prepare statement") {
+            if (const auto error = result->GetErrorObject(); error.HasError()) {
+                throw InstinctException(msg + " " + result->GetError());
             }
         }
 
@@ -278,8 +303,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         DuckDB db_;
         std::shared_ptr<MetadataSchema> metadata_schema_;
         Connection connection_;
-        std::unique_ptr<PreparedStatement> prepared_mget_statement_;
-        std::unique_ptr<PreparedStatement> prepared_count_all_statement_;
+        // unique_ptr<PreparedStatement> prepared_mget_statement_;
+        unique_ptr<PreparedStatement> prepared_count_all_statement_;
         DuckDBInternalAppenderPt internal_appender_;
     public:
         explicit DuckDBStoreInternal(
@@ -298,12 +323,15 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_lt(options_.dimmension, 10000, "dimension should be less than 10000");
             assert_true(!StringUtils::IsBlankString(options_.table_name), "table_name cannot be blank");
 
-
             const auto sql = details::make_create_table_sql(options_.table_name, options_.dimmension, metadata_schema_);
             const auto create_table_result = connection_.Query(sql);
             details::assert_query_ok(create_table_result);
-            prepared_mget_statement_ = connection_.Prepare(details::make_preapred_mget_sql(options_.table_name, metadata_schema_));
+
+            // prepared_mget_statement_ = connection_.Prepare(details::make_preapred_mget_sql(options_.table_name, metadata_schema_));
+            // details::assert_prepared_ok(prepared_mget_statement_, "Failed to prepare mget statement");
+
             prepared_count_all_statement_ = connection_.Prepare(details::make_prepared_count_sql(options_.table_name));
+            details::assert_prepared_ok(prepared_count_all_statement_, "Failed to prepare count statement");
         }
 
 
@@ -320,12 +348,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         ResultIteratorPtr<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {
-            vector<Value> id_vector;
-            for(const auto& id: ids) {
-                id_vector.push_back(id);
-            }
-            const auto result = prepared_mget_statement_->Execute(id_vector);
-            details::assert_query_ok(result);
+            const auto result = connection_.Query(details::make_mget_sql(options_.table_name, metadata_schema_, ids));
             return details::conv_query_result_to_iterator(result.get(), metadata_schema_);
         }
 
@@ -357,25 +380,6 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
             Appender appender(connection_, options_.table_name);
-            // // std::vector<std::string> ids;
-            // auto text_view = records | std::views::transform([](auto&& record) -> std::string {
-            //     return record.text();
-            // });
-            // auto embeddings = embeddings_->EmbedDocuments({text_view.begin(), text_view.end()});
-            // assert_equal_size(embeddings, records);
-            // int affected_row = 0;
-            // for (int i = 0; i < records.size(); i++) {
-            //     try {
-            //         // details::append_row(metadata_schema_, appender, records[i], embeddings[i], update_result, options_.bypass_unknonw_fields);
-            //         affected_row++;
-            //     } catch (const InstinctException& e) {
-            //         update_result.add_failed_documents()->CopyFrom(records[i]);
-            //         // TODO with better logging facilities
-            //         std::cerr << e.what() << std::endl;
-            //     }
-            // }
-            // update_result.set_affected_rows(affected_row);
-
             internal_appender_->AppendRows(appender, records, update_result);
             appender.Close();
         }
@@ -383,8 +387,6 @@ namespace INSTINCT_RETRIEVAL_NS {
         void AddDocument(Document& doc) override {
             UpdateResult update_result;
             Appender appender(connection_, options_.table_name);
-            // const auto embeddings = embeddings_->EmbedDocuments({doc.text()});
-            // details::append_row(metadata_schema_, appender, doc, embeddings[0], update_result, options_.bypass_unknonw_fields);
             internal_appender_->AppendRow(appender, doc, update_result);
             appender.Close();
         }

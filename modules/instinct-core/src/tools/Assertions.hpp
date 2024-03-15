@@ -75,7 +75,7 @@ namespace INSTINCT_CORE_NS {
         return a >= b;
     }
 
-    static bool check_lte(const numberic auto & a, const numberic auto &&b) {
+    static bool check_lte(const numberic auto & a, const numberic auto &b) {
         return a<=b;
     }
 
@@ -97,6 +97,12 @@ namespace INSTINCT_CORE_NS {
 
     static void assert_lt(const numberic auto & a, const numberic auto & b, const std::string& message = "value should be less") {
         if(!check_lt(a,b)) {
+            throw InstinctException(message);
+        }
+    }
+
+    static void assert_lte(const numberic auto & a, const numberic auto & b, const std::string& message = "value should be less or equal") {
+        if(!check_lte(a,b)) {
             throw InstinctException(message);
         }
     }

@@ -17,7 +17,7 @@ namespace INSTINCT_LLM_NS {
         void SetUp() override {
             embedding_model_ = CreateOpenAIEmbeddingModel({
                 .endpoint = {.host = "localhost", .port = 3928},
-                .dimension = 1024,
+                .dimension = 4096,
                 .model_name = "local-model"
             });
         }
@@ -31,11 +31,14 @@ namespace INSTINCT_LLM_NS {
     }
 
     TEST_F(OpenAIembeddingTest, EmbedDocuments) {
-        auto result = embedding_model_->EmbedDocuments({
+        const std::vector<std::string> texts = {
             R"(**(Advanced)** In case of implementing operator via lift you can control disposable strategy via updated_disposable_strategy parameter. It accepts disposable strategy of upstream and returns disposable strategy for downstream. It needed only for optimization and reducing disposables handling cost and it is purely advanced thing. Not sure if anyone is going to use it by its own for now =))",
             R"(It seems that the ContentProviderResourceReleaser is not being called when the socket connection is closed from the client side. In fact, the Response destructor is never called. Any ideas how to detect connection issues and cleanup resources?)"
-        });
+        };
+        const auto result = embedding_model_->EmbedDocuments(texts);
+        ASSERT_EQ(result.size(), texts.size());
         for (const auto& item: result) {
+            ASSERT_EQ(item.size(), embedding_model_->GetDimension());
             std::cout << item << std::endl;
         }
     }

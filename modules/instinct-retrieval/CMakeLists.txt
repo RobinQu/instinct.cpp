@@ -26,6 +26,8 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/ingestor/SingleFileIngestor.hpp
         src/ingestor/DirectoryTreeIngestor.hpp
         src/store/duckdb/DuckDBDocStore.hpp
+
+        src/RetrievalTestGlobals.hpp
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC
