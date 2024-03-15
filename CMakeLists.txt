@@ -138,6 +138,7 @@ target_include_directories(fmtlog
 
 ## cpp-httplib
 add_subdirectory(thirdparty/cpp-httplib)
+target_compile_definitions(httplib INTERFACE CPPHTTPLIB_ALLOW_LF_AS_LINE_TERMINATOR)
 
 ## gtest
 if(BUILD_TESTING)

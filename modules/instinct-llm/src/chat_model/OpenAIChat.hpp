@@ -28,7 +28,7 @@ namespace INSTINCT_LLM_NS {
         }
 
         void CallOpenAI(const MessageList& message_list, BatchedLangaugeModelResult& batched_langauge_model_result) {
-            const auto req = BuildRequest_(message_list);
+            const auto req = BuildRequest_(message_list, false);
             const auto resp = client_.PostObject<OpenAIChatCompletionRequest, OpenAIChatCompletionResponse>(DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT, req);
 
             auto* langauge_model_result = batched_langauge_model_result.add_generations();
@@ -50,8 +50,8 @@ namespace INSTINCT_LLM_NS {
         }
 
         AsyncIterator<LangaugeModelResult> StreamGenerate(const MessageList& messages) override {
-            const auto req = BuildRequest_(messages);
-            const auto chunk_itr = client_.StreamChunkObject<OpenAIChatCompletionRequest, OpenAIChatCompletionChunk>(DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT, req);
+            const auto req = BuildRequest_(messages, true);
+            const auto chunk_itr = client_.StreamChunkObject<OpenAIChatCompletionRequest, OpenAIChatCompletionChunk>(DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT, req, true, {"[DONE]"});
             return chunk_itr | rpp::operators::map([](const OpenAIChatCompletionChunk& chunk) {
                 LangaugeModelResult langauge_model_result;
                 for (const auto& choice: chunk.choices()) {
@@ -65,7 +65,7 @@ namespace INSTINCT_LLM_NS {
         }
 
     private:
-        OpenAIChatCompletionRequest BuildRequest_(const MessageList& message_list) {
+        OpenAIChatCompletionRequest BuildRequest_(const MessageList& message_list, const bool stream) {
             OpenAIChatCompletionRequest req;
             for (const auto& msg: message_list.messages()) {
                 req.add_messages()->CopyFrom(msg);
@@ -77,7 +77,7 @@ namespace INSTINCT_LLM_NS {
             if (configuration_.json_object) {
                 req.mutable_response_format()->set_type("json_object");
             }
-            req.set_stream(false);
+            req.set_stream(stream);
             return req;
         }
 

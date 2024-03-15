@@ -364,23 +364,25 @@ message OpenAIChatCompletionResponse {
   /**
   Usage statistics for the completion request.
    */
-  OpenAIChatUsage usage = 9;
-  message OpenAIChatUsage {
-    /**
-    Number of tokens in the generated completion.
-     */
-    int32 completion_tokens = 1;
+  OpenAIUsageInResponse usage = 9;
 
-    /**
-    Number of tokens in the prompt.
-     */
-    int32 prompt_tokens = 2;
+}
 
-    /**
-    Total number of tokens used in the request (prompt + completion).
-     */
-    int32 total_tokens = 3;
-  }
+message OpenAIUsageInResponse {
+  /**
+  Number of tokens in the generated completion.
+   */
+  int32 completion_tokens = 1;
+
+  /**
+  Number of tokens in the prompt.
+   */
+  int32 prompt_tokens = 2;
+
+  /**
+  Total number of tokens used in the request (prompt + completion).
+   */
+  int32 total_tokens = 3;
 }
 
 message OpenAIChatCompletionLogProbs {
@@ -436,7 +438,7 @@ message OpenAIEmbeddingRequest {
   /**
   Input text to embed
    */
-  string input = 1;
+  repeated string input = 1;
 
   /**
   ID of the model to use. You can use the List models API to see all of your available models, or see our Model overview for descriptions of them.
@@ -460,7 +462,16 @@ message OpenAIEmbeddingRequest {
 }
 
 message OpenAIEmbeddingResponse {
-  int32 index = 1;
-  repeated float embedding = 2;
-  string object = 3;
+  string object = 1;
+
+  repeated OpenAIEmbedding data = 2;
+  message OpenAIEmbedding {
+    int32 index = 1;
+    repeated float embedding = 2;
+    string object = 3;
+  }
+
+  string model = 3;
+
+  OpenAIUsageInResponse usage = 4;
 }

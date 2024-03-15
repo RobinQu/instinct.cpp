@@ -18,29 +18,47 @@
 
 namespace INSTINCT_CORE_NS {
 
-struct ProtobufHttpEntityConverter {
-    template<typename T>
-    requires is_pb_message<T>
-    T Deserialize(const std::string& buf) {
-        T result;
-        auto status = google::protobuf::util::JsonStringToMessage(buf, &result);
-        assert_true(status.ok(), "failed to parse protobuf message from response body");
-        return result;
+
+    namespace details {
+        struct ProtobufHttpEntityConverter {
+            template<typename T>
+            requires is_pb_message<T>
+            T Deserialize(const std::string& buf) {
+                T result;
+                auto status = google::protobuf::util::JsonStringToMessage(buf, &result);
+                assert_true(status.ok(), "failed to parse protobuf message from response body");
+                return result;
+            }
+
+            template<typename T>
+            requires is_pb_message<T>
+            std::string Serialize(const T& obj) {
+                std::string param_string;
+                auto status = google::protobuf::util::MessageToJsonString(obj, &param_string);
+                assert_true(status.ok(), "failed to dump parameters from protobuf message");
+                return param_string;
+            }
+        };
+
+        static bool is_end_sentinels(const std::string& chunk_string, const std::vector<std::string>& end_sentinels) {
+            return std::ranges::any_of(end_sentinels.begin(), end_sentinels.end(), [&](const auto&item) {
+                return item == chunk_string;
+            });
+        }
+
+        static std::regex DATA_EVENT_PREFIX {"data:\\s+"};
+        static std::string strip_data_stream_prefix(const std::string& data_event) {
+            return std::regex_replace(data_event, DATA_EVENT_PREFIX, "");
+        }
+
     }
 
-    template<typename T>
-    requires is_pb_message<T>
-    std::string Serialize(const T& obj) {
-        std::string param_string;
-        auto status = google::protobuf::util::MessageToJsonString(obj, &param_string);
-        assert_true(status.ok(), "failed to dump parameters from protobuf message");
-        return param_string;
-    }
-};
+
 
 
 class HttpRestClient final: public SimpleHttpClient {
-    ProtobufHttpEntityConverter converter_;
+    details::ProtobufHttpEntityConverter converter_;
+
 public:
     HttpRestClient() = delete;
 
@@ -50,7 +68,9 @@ public:
 
     template<typename ResponseEntity>
     ResponseEntity GetObject(const std::string& uri) {
-        const HttpRequest request = {kGET, uri, {}, ""};
+        const HttpRequest request = {kGET, uri, {
+                {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON) }
+        }, ""};
         const HttpResponse response = Execute(request);
         if(response.status_code >= 400) {
             throw HttpClientException(response.status_code, response.body);
@@ -61,7 +81,9 @@ public:
     template<typename RequestEntity, typename ResponseEntity>
     ResponseEntity PostObject(const std::string& uri, const RequestEntity& param) {
         std::string param_string = converter_.Serialize(param);
-        const HttpRequest request = {kPOST, uri, {}, param_string};
+        const HttpRequest request = {kPOST, uri, {
+                {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON) }
+        }, param_string};
         const auto [headers, body, status_code] = Execute(request);
         if(status_code >= 400) {
             throw HttpClientException(status_code, body);
@@ -70,13 +92,40 @@ public:
     }
 
     template<typename RequestEntity, typename ResponseEntity>
-    AsyncIterator<ResponseEntity> StreamChunkObject(const std::string& uri, const RequestEntity& param) {
+    AsyncIterator<ResponseEntity> StreamChunkObject(
+        const std::string& uri,
+        const RequestEntity& param,
+        bool is_sse_event_stream = false,
+        const std::vector<std::string>& end_sentinels = {}
+    ) {
         std::string param_string = converter_.Serialize(param);
-        const HttpRequest request = {kPOST, uri, {}, param_string};
-        return StreamChunk(request) | rpp::operators::map([&](const auto& chunk_string) {
-            return converter_.Deserialize<ResponseEntity>(chunk_string);
-        });
+        const HttpRequest request = {
+            .method = kPOST,
+            .target =uri,
+            .headers = {
+                {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON) }
+            },
+            .body = param_string
+        };
+
+        if (is_sse_event_stream) {
+            return StreamChunk(request)
+                | rpp::operators::map(details::strip_data_stream_prefix)
+                | rpp::operators::take_while([&,end_sentinels](const auto& chunk_string) {
+                    return !details::is_end_sentinels(chunk_string, end_sentinels);
+                })
+                | rpp::operators::map([&](const auto& chunk_string) {
+                    std::cout << "chunk: " <<  chunk_string << std::endl;
+                    return converter_.Deserialize<ResponseEntity>(chunk_string);
+                });
+        }
+
+        return StreamChunk(request)
+            | rpp::operators::map([&](const auto& chunk_string) {
+                return converter_.Deserialize<ResponseEntity>(chunk_string);
+            });
     }
+
 };
 
 } // core

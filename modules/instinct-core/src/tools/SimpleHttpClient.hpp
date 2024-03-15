@@ -43,6 +43,8 @@ INSTINCT_CORE_NS {
         throw InstinctException("Failed HTTP request. Reason: " + to_string(http_lib_result.error()));
     }
 
+    static const std::string LF_LF_END_OF_LINE = "\n\n";
+
     class SimpleHttpClient {
         HttpClientOptions options_;
         Client client_;
@@ -155,17 +157,38 @@ INSTINCT_CORE_NS {
                 uint64_t offset,
                 uint64_t total_length
             ) {
-                        observer.on_next(std::string(data, data_length));
+                        if (const std::string original_chunk = std::string(data, data_length); original_chunk.find(
+                            LF_LF_END_OF_LINE)) {
+                            // non-standard line-breaker, used by many SSE impmementaion.
+                            for (const auto line: std::views::split(original_chunk, LF_LF_END_OF_LINE)) {
+                                auto part = std::string (line.begin(), line.end());
+                                if (!part.empty()) {
+                                    observer.on_next(part);
+                                }
+                            }
+                        } else {
+                            observer.on_next(original_chunk);
+                        }
                         return true;
                     };
             auto result = client_.send(req);
-            if(result->status >= 400) {
-                observer.on_error(std::make_exception_ptr(InstinctException("Failed to get chunked response failed with status code: " + std::to_string(result->status))));
+            if (result->status >= 400) {
+                observer.on_error(std::make_exception_ptr(
+                        InstinctException(
+                            fmt::format(
+                                "Failed to get chunked response. Status code: {}, reason: {}",
+                                result->status,
+                                result->body
+                            )
+                        )
+                    )
+                );
             } else {
                 observer.on_completed();
             }
         }).as_dynamic();
     }
+
     //
     // inline auto SimpleHttpClient::StremaServerSentEvent(const HttpRequest& call) {
     //     Request req;

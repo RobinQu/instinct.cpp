@@ -14,6 +14,16 @@
 namespace INSTINCT_CORE_NS {
     typedef std::unordered_map<std::string, std::string> HttpHeaders;
 
+    enum MIMEContentType {
+        kKnownContentType,
+        kJSON
+    };
+
+    static const std::unordered_map<MIMEContentType, std::string> HTTP_CONTENT_TYPES = {
+        {kJSON, "application/json"}
+    };
+    static const std::string HTTP_HEADER_CONTENT_TYPE_NAME = "Content-Type";
+
     enum HttpMethod {
         kUnspecifiedHttpMethod,
         kGET,

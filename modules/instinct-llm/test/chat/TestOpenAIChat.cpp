@@ -27,5 +27,17 @@ namespace INSTINCT_LLM_NS {
     TEST_F(OpenAIChatTest, SimpleGenerate) {
         const auto result = openai_chat->Invoke("why sky is blue?");
         std::cout << result << std::endl;
+
+        openai_chat->Batch({
+            "why sky is blue?",
+            "How many counties are in America?"
+        })
+        | rpp::operators::subscribe([](const auto& msg) {std::cout << msg << std::endl; });
+
+        openai_chat->Stream("What's captital city of France?")
+            // | rpp::operators::as_blocking()
+            | rpp::operators::subscribe([](const auto& m) { std::cout << m << std::endl; })
+        ;
     }
+
 }

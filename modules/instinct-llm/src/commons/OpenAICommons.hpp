@@ -41,7 +41,7 @@ namespace INSTINCT_LLM_NS {
 
     static const std::string DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT = "/v1/chat/completions";
 
-    static const std::string DEFAULT_OPENAI_EMBEDDING_ENDPOINT = "/v1/embedding";
+    static const std::string DEFAULT_OPENAI_EMBEDDING_ENDPOINT = "/v1/embeddings";
 }
 
 #endif //OPENAICOMMONS_HPP

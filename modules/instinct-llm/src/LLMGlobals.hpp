@@ -7,6 +7,7 @@
 
 #include "CoreGlobals.hpp"
 #include <llm.pb.h>
+#include <model/IEmbeddingModel.hpp>
 
 #define INSTINCT_LLM_NS instinct::llm
 
@@ -19,10 +20,20 @@ namespace INSTINCT_LLM_NS {
     static std::string DEFAULT_ANSWER_OUTPUT_KEY = "answer";
     using MultiLineText = std::vector<std::string>;
 
-    inline std::ostream& operator<<( std::ostream& ostrm, const Message& msg) {
+    inline std::ostream& operator<<(std::ostream& ostrm, const Message& msg) {
         ostrm << "Message[role=" << msg.role() << ", content=" << msg.content() << "]";
         return ostrm;
     }
+
+    inline std::ostream& operator<<(std::ostream& ostrm, const core::Embedding& embedding) {
+        ostrm << "Embedding[";
+        for (const auto& f: embedding) {
+            ostrm << f << ", ";
+        }
+        return ostrm << "]";
+    }
+
+
 
 }
 
