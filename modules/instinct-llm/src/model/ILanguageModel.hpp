@@ -30,9 +30,9 @@ namespace INSTINCT_LLM_NS {
     template<typename Output>
     class ILanguageModel: public IRunnable<PromptValueVariant, Output> {
     public:
-        virtual std::vector<TokenId> GetTokenIds(const std::string& text) = 0;
-        virtual TokenSize GetTokenCount(const std::string& text) = 0;
-        virtual TokenSize GetTokenCount(const Message& messages) = 0;
+        // virtual std::vector<TokenId> GetTokenIds(const std::string& text) = 0;
+        // virtual TokenSize GetTokenCount(const std::string& text) = 0;
+        // virtual TokenSize GetTokenCount(const Message& messages) = 0;
     };
 
     // using LanguageModelPtr = std::shared_ptr<ILanguageModel>;

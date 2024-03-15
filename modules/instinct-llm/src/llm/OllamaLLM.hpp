@@ -33,18 +33,18 @@ namespace INSTINCT_LLM_NS {
     public:
 
         explicit OllamaLLM(const OllamaConfiguration& configuration = {}): http_client_(configuration.endpoint), configuration_(configuration) {}
-
-        std::vector<TokenId> GetTokenIds(const std::string& text) override {
-
-        }
-
-        TokenSize GetTokenCount(const std::string& text) override {
-
-        }
-
-        TokenSize GetTokenCount(const Message& messages) override {
-
-        }
+        //
+        // std::vector<TokenId> GetTokenIds(const std::string& text) override {
+        //
+        // }
+        //
+        // TokenSize GetTokenCount(const std::string& text) override {
+        //
+        // }
+        //
+        // TokenSize GetTokenCount(const Message& messages) override {
+        //
+        // }
 
     private:
         LangaugeModelResult CallOllama(const std::string& prompt) {

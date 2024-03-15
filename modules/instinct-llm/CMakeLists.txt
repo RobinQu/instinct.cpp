@@ -44,6 +44,9 @@ set(${LIBRARY_TARGET_NAME}_HDR  src/All.hpp
         src/model/ModelCallbackMixins.hpp
         src/chain/BaseChain.hpp
         src/chain/ContextMutator.hpp
+        src/chat_model/OpenAIChat.hpp
+        src/commons/OpenAICommons.hpp
+        src/embedding_model/OpenAIEmbedding.hpp
 
 )
 

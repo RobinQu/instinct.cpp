@@ -6,6 +6,7 @@
 #define MODELGLOBALS_H
 
 #include "CoreGlobals.hpp"
+#include <llm.pb.h>
 
 #define INSTINCT_LLM_NS instinct::llm
 
@@ -18,6 +19,10 @@ namespace INSTINCT_LLM_NS {
     static std::string DEFAULT_ANSWER_OUTPUT_KEY = "answer";
     using MultiLineText = std::vector<std::string>;
 
+    inline std::ostream& operator<<( std::ostream& ostrm, const Message& msg) {
+        ostrm << "Message[role=" << msg.role() << ", content=" << msg.content() << "]";
+        return ostrm;
+    }
 
 }
 

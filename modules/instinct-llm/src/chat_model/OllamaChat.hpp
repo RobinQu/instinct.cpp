@@ -52,18 +52,18 @@ namespace INSTINCT_LLM_NS {
         static ChatPromptTmeplateBuilderPtr CreateChatPromptTemplateBuilder() {
             return std::make_shared<ChatPromptTemplateBulider>(OLLAMA_ROLE_NAME_MAPPING);
         }
-
-        std::vector<TokenId> GetTokenIds(const std::string& text) override {
-
-        }
-
-        TokenSize GetTokenCount(const std::string& text) override {
-
-        }
-
-        TokenSize GetTokenCount(const Message& messages) override {
-
-        }
+        //
+        // std::vector<TokenId> GetTokenIds(const std::string& text) override {
+        //
+        // }
+        //
+        // TokenSize GetTokenCount(const std::string& text) override {
+        //
+        // }
+        //
+        // TokenSize GetTokenCount(const Message& messages) override {
+        //
+        // }
 
     private:
 

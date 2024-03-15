@@ -62,7 +62,7 @@ public:
     ResponseEntity PostObject(const std::string& uri, const RequestEntity& param) {
         std::string param_string = converter_.Serialize(param);
         const HttpRequest request = {kPOST, uri, {}, param_string};
-        const auto& [headers, body, status_code] = Execute(request);
+        const auto [headers, body, status_code] = Execute(request);
         if(status_code >= 400) {
             throw HttpClientException(status_code, body);
         }

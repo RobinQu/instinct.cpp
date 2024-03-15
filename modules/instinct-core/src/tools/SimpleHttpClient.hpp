@@ -32,6 +32,17 @@ INSTINCT_CORE_NS {
         return http_headers;
     }
 
+    static HttpResponse conv_to_http_response(const httplib::Result& http_lib_result) {
+        if (http_lib_result) {
+            HttpResponse response;
+            response.body = http_lib_result->body;
+            response.headers = flatten_multi_map_headers(http_lib_result->headers);
+            response.status_code = http_lib_result->status;
+            return response;
+        }
+        throw InstinctException("Failed HTTP request. Reason: " + to_string(http_lib_result.error()));
+    }
+
     class SimpleHttpClient {
         HttpClientOptions options_;
         Client client_;
@@ -50,6 +61,8 @@ INSTINCT_CORE_NS {
         auto StreamChunk(
             const HttpRequest& call
         );
+
+        auto StremaServerSentEvent(const HttpRequest& call);
     };
 
     inline SimpleHttpClient::SimpleHttpClient(const Endpoint& endpoint): SimpleHttpClient(endpoint, {}) {
@@ -72,7 +85,8 @@ INSTINCT_CORE_NS {
 
         auto content_type = HttpUtils::GetHeaderValue("content-type", "application/json", call.headers);
 
-        LOG_DEBUG("REQ: method={} path={} body={}", call.method, call.target, call.body);
+        std::string requested_url = fmt::format("{}:{}{}", client_.host(), client_.port(), call.target);
+        LOG_DEBUG("{} {} : {}", call.method, requested_url, call.body);
 
         HttpResponse response;
         auto t1 = ChronoUtils::GetCurrentTimeMillis();
@@ -83,49 +97,39 @@ INSTINCT_CORE_NS {
 
             case kGET: {
                 auto get_res = client_.Get(call.target, headers);
-                response.body = get_res->body;
-                response.headers = flatten_multi_map_headers(get_res->headers);
-                response.status_code = get_res->status;
+                response = conv_to_http_response(get_res);
                 break;
             }
 
             case kPOST: {
                 auto post_res = client_.Post(call.target, headers, call.body, content_type);
-                response.body = post_res->body;
-                response.headers = flatten_multi_map_headers(post_res->headers);
-                response.status_code = post_res->status;
+                response = conv_to_http_response(post_res);
                 break;
             }
 
             case kPUT: {
                 auto put_res = client_.Put(call.target, headers, call.body, content_type);
-                response.body = put_res->body;
-                response.headers = flatten_multi_map_headers(put_res->headers);
-                response.status_code = put_res->status;
+                response = conv_to_http_response(put_res);
                 break;
             }
 
 
             case kDELETE: {
                 auto delete_res = client_.Delete(call.target, headers);
-                response.body = delete_res->body;
-                response.headers = flatten_multi_map_headers(delete_res->headers);
-                response.status_code = delete_res->status;
+                response = conv_to_http_response(delete_res);
                 break;
             }
 
             case kHEAD: {
                 auto head_res = client_.Head(call.target, headers);
-                response.body = head_res->body;
-                response.headers = flatten_multi_map_headers(head_res->headers);
-                response.status_code = head_res->status;
+                response = conv_to_http_response(head_res);
                 break;
             }
         }
 
-        LOG_DEBUG("RESP: method={} path={} rt={} status_code={}, body={}",
+        LOG_DEBUG("RESP: {} {}, rt={} status_code={}, body={}",
                   call.method,
-                  call.target,
+                  requested_url,
                   ChronoUtils::GetCurrentTimeMillis() - t1,
                   response.status_code,
                   response.body);
@@ -162,6 +166,13 @@ INSTINCT_CORE_NS {
             }
         }).as_dynamic();
     }
+    //
+    // inline auto SimpleHttpClient::StremaServerSentEvent(const HttpRequest& call) {
+    //     Request req;
+    //     req.path = call.target;
+    //     req.method = fmt::format("{}", call.method);
+    //
+    // }
 } // core
 // langchain
 

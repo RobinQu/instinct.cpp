@@ -47,7 +47,7 @@ namespace INSTINCT_LLM_NS {
         std::cout << result << std::endl;
 
         chain.Batch({builder->Build()})
-            | rpp::operators::subscribe(PrintingSubscriber<std::string>);
+            | rpp::operators::subscribe([](const auto& msg) { LOG_INFO("msg={}", msg); });
 
         auto chunk_itr = chain.Stream(builder->Build());
         std::string buf;
@@ -66,7 +66,7 @@ namespace INSTINCT_LLM_NS {
 
 
         chain.Batch({builder->Build()})
-            | rpp::operators::subscribe(PrintingSubscriber<std::string>);
+            | rpp::operators::subscribe([](const auto& msg) { LOG_INFO("msg={}", msg); });
 
         auto chunk_itr = chain.Stream(builder->Build());
         std::string buf;
