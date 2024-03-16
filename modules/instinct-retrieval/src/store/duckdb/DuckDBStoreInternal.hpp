@@ -327,6 +327,7 @@ namespace INSTINCT_RETRIEVAL_NS {
            metadata_schema_(metadata_schema),
            connection_(db_),
            internal_appender_(std::move(internal_appender)) {
+            LOG_DEBUG("Startup db at {}", options.db_file_path);
             assert_true(!!metadata_schema, "should provide shcema");
             // assert_positive(options_.dimension, "dimension should be positive");
             assert_lt(options_.dimension, 10000, "dimension should be less than 10000");
@@ -372,42 +373,48 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void AddDocuments(const AsyncIterator<Document>& documents_iterator, UpdateResult& update_result) override {
-            static size_t batch_size = 10;
-            std::vector<std::string> ids;
-            std::vector<Document> batch(batch_size);
-
-            documents_iterator
-            | rpp::operators::as_blocking()
-            | rpp::operators::subscribe([&](const auto& doc) {
-                batch.push_back(doc);
-                if (batch.size() == batch_size) {
-                    AddDocuments(batch, update_result);
-                    batch.clear();
-                }
-            });
-            if (!batch.empty()) {
-                AddDocuments(batch, update_result);
-            }
+            std::vector<Document> docs;
+            CollectVector(documents_iterator, docs);
+            AddDocuments(docs, update_result);
+//            static size_t batch_size = 10;
+//            documents_iterator
+//            | rpp::operators::as_blocking()
+//            | rpp::operators::window(batch_size)
+//            | rpp::operators::subscribe([&](const rpp::window_observable<Document>& batched_itr) {
+//                std::vector<Document> batched_docs;
+//                CollectVector(batched_itr, batched_docs);
+//                int n = update_result.affected_rows();
+//                UpdateResult batch_update_result;
+//                AddDocuments(batched_docs, batch_update_result);
+////                update_result.MergeFrom(batch_update_result);
+//                update_result.set_affected_rows(batch_update_result.affected_rows() + n);
+//            });
         }
 
         void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
+            connection_.Query("BEGIN TRANSACTION;");
             Appender appender(connection_, options_.table_name);
             internal_appender_->AppendRows(appender, records, update_result);
             appender.Close();
+            connection_.Query("COMMIT");
         }
 
         void AddDocument(Document& doc) override {
+            connection_.Query("BEGIN TRANSACTION;");
             UpdateResult update_result;
             Appender appender(connection_, options_.table_name);
             internal_appender_->AppendRow(appender, doc, update_result);
             appender.Close();
+            connection_.Query("COMMIT");
         }
 
-        size_t DeleteDocuments(const std::vector<std::string>& ids) override {
+        void DeleteDocuments(const std::vector<std::string>& ids, UpdateResult& update_result) override {
             const auto sql = details::make_delete_sql(options_.table_name, ids);
             const auto result = connection_.Query(sql);
             details::assert_query_ok(result);
-            return result->GetValue<int32_t>(0, 0);
+            auto xn = result->GetValue<int32_t>(0, 0);
+            update_result.set_affected_rows(xn);
+            update_result.mutable_returned_ids()->Add(ids.begin(), ids.end());
         }
 
         // using DuckDBStoreInternalPtr = std::shared_ptr<DuckDBStoreInternal>;

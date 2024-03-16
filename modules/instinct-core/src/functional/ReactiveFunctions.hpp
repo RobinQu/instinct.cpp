@@ -45,6 +45,17 @@ INSTINCT_CORE_NS {
         return result;
     }
 
+    template<typename T, typename OBV>
+    requires rpp::constraint::observable_of_type<OBV,T>
+    static void CollectVector(const OBV& async_iterator, std::vector<T>& result) {
+        async_iterator
+        | rpp::operators::as_blocking()
+        | rpp::operators::subscribe(
+                [&](auto&& t) { result.push_back(t); }
+        );
+    }
+
+
     template<typename T>
     static void PrintingSubscriber(const T& t) {
         LOG_INFO(t);

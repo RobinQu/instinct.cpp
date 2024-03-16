@@ -253,8 +253,8 @@ namespace INSTINCT_RETRIEVAL_NS {
             internal_->AddDocument(doc);
         }
 
-        size_t DeleteDocuments(const std::vector<std::string>& ids) override {
-            return internal_->DeleteDocuments(ids);
+        void DeleteDocuments(const std::vector<std::string>& ids, UpdateResult& update_result) override {
+            internal_->DeleteDocuments(ids, update_result);
         }
 
         AsyncIterator<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {
