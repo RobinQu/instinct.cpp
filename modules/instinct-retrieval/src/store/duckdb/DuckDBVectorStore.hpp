@@ -236,7 +236,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             }
             details::assert_query_ok(result);
             return details::conv_query_result_to_iterator(
-                    result.get(),
+                    std::move(result),
                     GetMetadataSchema()
             );
         }

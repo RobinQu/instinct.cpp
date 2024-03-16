@@ -30,11 +30,16 @@ namespace INSTINCT_RETRIEVAL_NS {
             std::cout << "MultiVectorRetrieverTest at " << root_path << std::endl;
 
 
-            llm_ = test::create_local_chat_model();
+            llm_ = test::create_pesudo_chat_model();
+//            llm_ = test::create_local_chat_model();
 
             size_t dimension = 4096;
 
-            EmbeddingsPtr embedding_model = test::create_local_embedding_model(dimension);
+            auto schema_builder = MetadataSchemaBuilder::Create();
+            schema_builder->DefineString("parent_doc_id");
+            auto meta_schema = schema_builder->Build();
+
+            EmbeddingsPtr embedding_model = test::create_pesudo_embedding_model(dimension);
             DuckDBStoreOptions db_options = {
                 .table_name = "document_table",
                 .db_file_path = root_path / "doc_store.db"
@@ -46,14 +51,14 @@ namespace INSTINCT_RETRIEVAL_NS {
                 .db_file_path = root_path / "summary_store.db",
                 .dimension = dimension,
             };
-            summary_store_ = CreateDuckDBVectorStore(embedding_model, summary_db_options);
+            summary_store_ = CreateDuckDBVectorStore(embedding_model, summary_db_options, meta_schema);
 
             DuckDBStoreOptions query_db_options = {
                 .table_name = "queries_table",
                 .db_file_path = root_path / "query_store.db",
                 .dimension = dimension
             };
-            hypothetical_quries_store_ = CreateDuckDBVectorStore(embedding_model, query_db_options);
+            hypothetical_queries_store_ = CreateDuckDBVectorStore(embedding_model, query_db_options, meta_schema);
 
             asset_dir_ = std::filesystem::current_path() / "modules" / "instinct-retrieval" / "test" / "_assets";
         }
@@ -62,14 +67,16 @@ namespace INSTINCT_RETRIEVAL_NS {
         ChatModelPtr llm_;
         DocStorePtr doc_store_;
         VectorStorePtr summary_store_;
-        VectorStorePtr hypothetical_quries_store_;
+        VectorStorePtr hypothetical_queries_store_;
     };
 
     TEST_F(MultiVectorRetrieverTest, TestReteiveWithSummary) {
         auto retriever = CreateSummaryGuidedRetriever(
             llm_,
             doc_store_,
-            summary_store_
+            summary_store_,
+            nullptr,
+            {.parent_doc_id_key = "parent_doc_id"}
         );
 
         // load all recipes in folder
@@ -84,14 +91,16 @@ namespace INSTINCT_RETRIEVAL_NS {
         // use simple search
         const auto doc_itr = retriever->Retrieve({.text = "Shortcake", .top_k = 2});
 
-        doc_itr.subscribe([](const auto& doc) {
-           std::cout << doc.text() << std::endl;
-        });
+        doc_itr
+            | rpp::operators::reduce(0, [](int && sum, const Document& doc) {
+                return sum+1;
+            })
+            | rpp::operators::subscribe([](const auto& sum) {
+                ASSERT_EQ(sum, 2);
+            });
     }
 
     TEST_F(MultiVectorRetrieverTest, TestReteiveWithHypotheticalQuries) {
-
-
 
     }
 

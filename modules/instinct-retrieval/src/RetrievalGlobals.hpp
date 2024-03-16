@@ -6,12 +6,40 @@
 #define RETRIEVALGLOBALS_HPP
 
 #include <retrieval.pb.h>
+
+#include <utility>
 #include "CoreGlobals.hpp"
 
 #define INSTINCT_RETRIEVAL_NS instinct::retrieval
 
 namespace INSTINCT_RETRIEVAL_NS {
+    using MetadataSchemaPtr = std::shared_ptr<MetadataSchema>;
 
+    class MetadataSchemaBuilder final {
+        MetadataSchemaPtr ptr_;
+    public:
+
+        static std::shared_ptr<MetadataSchemaBuilder> Create(const MetadataSchemaPtr &ptr = nullptr) {
+            if (ptr) {
+                return std::make_shared<MetadataSchemaBuilder>(ptr);
+            }
+            return std::make_shared<MetadataSchemaBuilder>(std::make_shared<MetadataSchema>());
+        }
+
+        explicit MetadataSchemaBuilder(MetadataSchemaPtr  ptr) : ptr_(std::move(ptr)) {}
+
+        auto DefineString(const std::string& name) {
+            auto field = ptr_->add_fields();
+            field->set_name(name);
+            field->set_type(VARCHAR);
+            return this;
+        }
+
+        [[nodiscard]] MetadataSchemaPtr Build() const {
+            return ptr_;
+        }
+
+    };
 }
 
 

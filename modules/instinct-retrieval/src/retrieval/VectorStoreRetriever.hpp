@@ -16,7 +16,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         /**
          * vector_store_ will be used both as doc store and embedding store
          */
-        VectorStorePtr vectore_store_;
+        VectorStorePtr vecstore_store_;
 
         /**
          * Template object that every search request objects will copied from
@@ -27,7 +27,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         explicit VectorStoreRetriever(
             VectorStorePtr vectore_store,
             std::shared_ptr<SearchRequest> search_request_template)
-            : vectore_store_(std::move(vectore_store)), search_request_template_(std::move(search_request_template)){
+            : vecstore_store_(std::move(vectore_store)), search_request_template_(std::move(search_request_template)){
         }
 
 
@@ -38,12 +38,12 @@ namespace INSTINCT_RETRIEVAL_NS {
             }
             search_request.set_query(query.text);
             search_request.set_top_k(query.top_k);
-            return vectore_store_->SearchDocuments(search_request);
+            return vecstore_store_->SearchDocuments(search_request);
         }
 
         void Ingest(const AsyncIterator<Document>& input) override {
             UpdateResult update_result;
-            vectore_store_->AddDocuments(input, update_result);
+            vecstore_store_->AddDocuments(input, update_result);
             assert_true(update_result.failed_documents_size() == 0, "should not have failed documents");
         }
     };

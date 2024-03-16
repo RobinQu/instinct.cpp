@@ -7,6 +7,7 @@
 
 #include "RetrievalGlobals.hpp"
 #include <duckdb.hpp>
+#include <utility>
 #include "tools/Assertions.hpp"
 
 #include "LLMGlobals.hpp"
@@ -41,6 +42,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             const std::shared_ptr<MetadataSchema>& metadata_schema,
             const std::vector<std::string>& ids
         ) {
+            assert_non_empty_range(ids, "ID list cannot be empty");
             std::string select_sql = "SELECT id, text";
             auto name_view = metadata_schema->fields() | std::views::transform(
                                  [](const MetadataFieldSchema& field)-> std::string {
@@ -147,50 +149,60 @@ namespace INSTINCT_RETRIEVAL_NS {
             }
         }
 
+        static void observe_query_result(QueryResult& query_result, const std::shared_ptr<MetadataSchema>& metadata_schema_, const auto& observer) {
+            for (const auto& row: query_result) {
+                Document document;
+                document.set_id(row.GetValue<std::string>(0));
+                document.set_text(row.GetValue<std::string>(1));
+                for (int i = 0; i < metadata_schema_->fields_size(); i++) {
+                    int column_idx = i + 2;
+                    auto& field_schema = metadata_schema_->fields(i);
+                    auto* metadata_field = document.add_metadata();
+                    metadata_field->set_name(field_schema.name());
+                    switch (field_schema.type()) {
+                        case INT32:
+                            metadata_field->set_int_value(row.GetValue<int32_t>(column_idx));
+                            break;
+                        case INT64:
+                            metadata_field->set_long_value(row.GetValue<int64_t>(column_idx));
+                            break;
+                        case FLOAT:
+                            metadata_field->set_float_value(row.GetValue<float>(column_idx));
+                            break;
+                        case DOUBLE:
+                            metadata_field->set_double_value(row.GetValue<double>(column_idx));
+                            break;
+                        case VARCHAR:
+                            metadata_field->set_string_value(row.GetValue<std::string>(column_idx));
+                            break;
+                        case BOOL:
+                            metadata_field->set_bool_value(row.GetValue<bool>(column_idx));
+                            break;
+                        default:
+                            throw InstinctException("unknown field type for field named " + field_schema.name());
+                    }
+                }
+
+                observer.on_next(document);
+            }
+            observer.on_completed();
+        }
 
         static AsyncIterator<Document> conv_query_result_to_iterator(
-            QueryResult* result,
+            duckdb::unique_ptr<QueryResult> result,
             const std::shared_ptr<MetadataSchema>& metadata_schema_) {
-            return rpp::source::create<Document>([&](const auto& observer) {
-                for (const auto& row: *result) {
-                    Document document;
-                    document.set_id(row.GetValue<std::string>(0));
-                    document.set_text(row.GetValue<std::string>(1));
-                    for (int i = 0; i < metadata_schema_->fields_size(); i++) {
-                        int column_idx = i + 2;
-                        auto& field_schema = metadata_schema_->fields(i);
-                        auto* metadata_field = document.add_metadata();
-                        metadata_field->set_name(field_schema.name());
-                        switch (field_schema.type()) {
-                            case INT32:
-                                metadata_field->set_int_value(row.GetValue<int32_t>(column_idx));
-                                break;
-                            case INT64:
-                                metadata_field->set_long_value(row.GetValue<int64_t>(column_idx));
-                                break;
-                            case FLOAT:
-                                metadata_field->set_float_value(row.GetValue<float>(column_idx));
-                                break;
-                            case DOUBLE:
-                                metadata_field->set_double_value(row.GetValue<double>(column_idx));
-                                break;
-                            case VARCHAR:
-                                metadata_field->set_string_value(row.GetValue<std::string>(column_idx));
-                                break;
-                            case BOOL:
-                                metadata_field->set_bool_value(row.GetValue<bool>(column_idx));
-                                break;
-                            default:
-                                throw InstinctException("unknown field type for field named " + field_schema.name());
-                        }
-                    }
-
-                    observer.on_next(document);
-                }
-                observer.on_completed();
+            return rpp::source::create<Document>([metadata_schema_, result_ptr = std::move(result)](const auto& observer) {
+                observe_query_result(*result_ptr, metadata_schema_, observer);
             });
         }
 
+        static AsyncIterator<Document> conv_query_result_to_iterator(
+                duckdb::unique_ptr<MaterializedQueryResult> result,
+                const std::shared_ptr<MetadataSchema>& metadata_schema_) {
+            return rpp::source::create<Document>([metadata_schema_, result_ptr = std::move(result)](const auto& observer) {
+                observe_query_result(*result_ptr, metadata_schema_, observer);
+            });
+        }
 
         static void append_row_basic_fields(
             Appender& appender,
@@ -307,14 +319,14 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     public:
         explicit DuckDBStoreInternal(
-            const DuckDBInternalAppenderPt& internal_appender,
+            DuckDBInternalAppenderPt  internal_appender,
             const DuckDBStoreOptions& options,
             const std::shared_ptr<MetadataSchema>& metadata_schema
         ): options_(options),
            db_(options.db_file_path),
            metadata_schema_(metadata_schema),
            connection_(db_),
-           internal_appender_(internal_appender) {
+           internal_appender_(std::move(internal_appender)) {
             assert_true(!!metadata_schema, "should provide shcema");
             // assert_positive(options_.dimension, "dimension should be positive");
             assert_lt(options_.dimension, 10000, "dimension should be less than 10000");
@@ -323,9 +335,6 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto sql = details::make_create_table_sql(options_.table_name, options_.dimension, metadata_schema_);
             const auto create_table_result = connection_.Query(sql);
             details::assert_query_ok(create_table_result);
-
-            // prepared_mget_statement_ = connection_.Prepare(details::make_preapred_mget_sql(options_.table_name, metadata_schema_));
-            // details::assert_prepared_ok(prepared_mget_statement_, "Failed to prepare mget statement");
 
             prepared_count_all_statement_ = connection_.Prepare(details::make_prepared_count_sql(options_.table_name));
             details::assert_prepared_ok(prepared_count_all_statement_, "Failed to prepare count statement");
@@ -345,8 +354,12 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         AsyncIterator<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {
-            const auto result = connection_.Query(details::make_mget_sql(options_.table_name, metadata_schema_, ids));
-            return details::conv_query_result_to_iterator(result.get(), metadata_schema_);
+            if (ids.empty()) {
+                return rpp::source::empty<Document>();
+            }
+            auto result = connection_.Query(details::make_mget_sql(options_.table_name, metadata_schema_, ids));
+            details::assert_query_ok(result);
+            return details::conv_query_result_to_iterator(std::move(result), metadata_schema_);
         }
 
         size_t CountDocuments() override {
@@ -397,7 +410,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             return result->GetValue<int32_t>(0, 0);
         }
 
-        using DuckDBStoreInternalPtr = std::shared_ptr<DuckDBStoreInternal>;
+        // using DuckDBStoreInternalPtr = std::shared_ptr<DuckDBStoreInternal>;
     };
 }
 

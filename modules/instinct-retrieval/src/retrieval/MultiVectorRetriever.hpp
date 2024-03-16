@@ -29,7 +29,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         DocStorePtr doc_store_;
 
         /**
-         * vector store for guidance docs, e.g. summary, chunked parts, hypothetical quries, etc. VectorStore should have document schema configured, containing the matching `parent_doc_id_key`.
+         * vector store for guidance docs, e.g. summary, chunked parts, hypothetical queries, etc. VectorStore should have document schema configured, containing the matching `parent_doc_id_key`.
          */
         VectorStorePtr vector_store_;
 
@@ -60,13 +60,22 @@ namespace INSTINCT_RETRIEVAL_NS {
             SearchRequest search_request;
             search_request.set_query(query.text);
             search_request.set_top_k(query.top_k);
-            const auto sub_doc_itr = vector_store_->SearchDocuments(search_request);
-            auto colleced_ids = CollectVector(sub_doc_itr) | std::views::transform([](const Document& doc) { return doc.id(); });
-            std::unordered_set<std::string> parent_ids (colleced_ids.begin(), colleced_ids.end());
-            if (parent_ids.empty()) {
-                LOG_WARN("Retrieved empty result set");
-            }
-            return doc_store_->MultiGetDocuments({parent_ids.begin(), parent_ids.end()});
+            return vector_store_->SearchDocuments(search_request)
+                | rpp::operators::scan(std::unordered_set<std::string> {}, [&](std::unordered_set<std::string>&& seed, const Document& doc) {
+                    // backtrace id of parent doc
+                    for(const auto& metadata_field: doc.metadata()) {
+                        if (metadata_field.name() == options_.parent_doc_id_key) {
+                            seed.insert(metadata_field.string_value());
+                        }
+                    }
+                    return std::move(seed);
+                })
+                | rpp::operators::flat_map([&](const std::unordered_set<std::string>& parent_ids) {
+                    if (parent_ids.empty()) {
+                        LOG_WARN("Retrieved empty result set with query ");
+                    }
+                    return doc_store_->MultiGetDocuments({parent_ids.begin(), parent_ids.end()});
+                });
         }
 
         void Ingest(const AsyncIterator<Document>& input) override {
@@ -98,21 +107,21 @@ namespace INSTINCT_RETRIEVAL_NS {
         ) {
         TextOutputParserPtr output_parser = std::make_shared<StringOutputParser>();
         ChainOptions chain_options = {.input_keys = {"doc"}};
-        const TextChainPtr sumamry_chain = std::make_shared<TextLLMChain>(
+        const TextChainPtr summary_chain = std::make_shared<TextLLMChain>(
             llm,
-            // prompt is copied from langchian doc, which may not be the best choice
+            // prompt is copied from langchain doc, which may not be the best choice
             // https://python.langchain.com/docs/modules/data_connection/retrievers/multi_vector#summary
             prompt_template == nullptr ? PlainPromptTemplate::CreateWithTemplate("Summarize the following document:\n\n{doc}") : prompt_template,
             output_parser,
             nullptr,
             chain_options
             );
-        MultiVectorGuidance guidance = [&, sumamry_chain](const Document& doc) {
+        MultiVectorGuidance guidance = [&, summary_chain](const Document& doc) {
             assert_true(!StringUtils::IsBlankString(doc.id()), "should have valid doc id");
             const auto context_builder = ContextMutataor::Create();
-            context_builder->Put(sumamry_chain->GetInputKeys()[0], doc.text());
+            context_builder->Put(summary_chain->GetInputKeys()[0], doc.text());
             Document summary_doc;
-            const auto result = sumamry_chain->Invoke(context_builder->Build());
+            const auto result = summary_chain->Invoke(context_builder->Build());
             summary_doc.set_text(result);
             summary_doc.set_id(u8_utils::uuid_v8());
             auto* parent_id_field = summary_doc.add_metadata();
@@ -124,7 +133,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         return std::make_shared<MultiVectorRetriever>(doc_store, vector_store, guidance, options);
     }
 
-    static StatefulRetrieverPtr CreateHypotehticalQuriesGuidedRetriever(
+    [[maybe_unused]] static StatefulRetrieverPtr CreateHypotheticalQueriesGuidedRetriever(
         const ChatModelPtr& llm,
         const DocStorePtr& doc_store,
         const VectorStorePtr& vector_store,

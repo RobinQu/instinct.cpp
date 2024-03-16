@@ -24,7 +24,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
 
     /**
-     * DirectoryTreeIngestor is capable of turning regular files in a directory into splitted documents.
+     * DirectoryTreeIngestor is capable of turning regular files in a directory into split documents.
      */
     class DirectoryTreeIngestor: public BaseIngestor {
         std::filesystem::path folder_path_;
