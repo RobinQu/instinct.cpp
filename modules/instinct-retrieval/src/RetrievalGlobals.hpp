@@ -35,6 +35,40 @@ namespace INSTINCT_RETRIEVAL_NS {
             return this;
         }
 
+        auto DefineInt32(const std::string& name) {
+            auto field = ptr_->add_fields();
+            field->set_name(name);
+            field->set_type(INT32);
+            return this;
+        }
+
+        auto DefineInt64(const std::string& name) {
+            auto field = ptr_->add_fields();
+            field->set_name(name);
+            field->set_type(INT64);
+            return this;
+        }
+
+        auto DefineFloat(const std::string& name) {
+            auto field = ptr_->add_fields();
+            field->set_name(name);
+            field->set_type(FLOAT);
+            return this;
+        }
+        auto DefineDouble(const std::string& name) {
+            auto field = ptr_->add_fields();
+            field->set_name(name);
+            field->set_type(DOUBLE);
+            return this;
+        }
+
+        auto DefineBool(const std::string& name) {
+            auto field = ptr_->add_fields();
+            field->set_name(name);
+            field->set_type(BOOL);
+            return this;
+        }
+
         [[nodiscard]] MetadataSchemaPtr Build() const {
             return ptr_;
         }

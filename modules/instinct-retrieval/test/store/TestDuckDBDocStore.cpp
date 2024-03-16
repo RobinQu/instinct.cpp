@@ -5,8 +5,11 @@
 #include "store/duckdb/DuckDBDocStore.hpp"
 #include "RetrievalTestGlobals.hpp"
 #include "RetrievalGlobals.hpp"
+#include "retrieval/DocumentUtils.hpp"
+#include "tools/TensorUtils.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
+    using namespace INSTINCT_CORE_NS;
 
     class DuckDBDocStoreTest : public ::testing::Test {
     protected:
@@ -90,7 +93,6 @@ namespace INSTINCT_RETRIEVAL_NS {
         ASSERT_EQ(update_result2.affected_rows(), j);
         ASSERT_EQ(update_result2.returned_ids_size(), j);
         for (int i = 0; i < j; ++i) {
-//            ASSERT_EQ(docs2[i].id(), update_result2.returned_ids(i));
             ASSERT_TRUE(!update_result2.returned_ids(i).empty());
         }
 
@@ -100,6 +102,48 @@ namespace INSTINCT_RETRIEVAL_NS {
     }
 
     TEST_F(DuckDBDocStoreTest, CRUDWithSchema) {
+        auto schema_builder = MetadataSchemaBuilder::Create();
+        schema_builder->DefineString("genus");
+        schema_builder->DefineInt32("age");
+        schema_builder->DefineInt32("sex");
+        auto schema = schema_builder->Build();
+        auto doc_store = CreateDuckDBDocStore({
+                                                      .table_name = "animal_table",
+                                                      .db_file_path = test::ensure_random_temp_folder() /
+                                                                      "doc_store_with_out_schema.db",
+                                              }, schema);
+
+        ASSERT_THROW({ // insert with document lacking some metadata
+            Document document;
+            document.set_text("trouble");
+            doc_store->AddDocument(document);
+        }, InstinctException);
+
+        ASSERT_NO_THROW({ // insert with document containing extra metadata, which is permitted by default. This can be toggled with `DuckDBStoreOptions::bypass_unknown_fields` option.
+            Document document;
+            document.set_text("Zebras are African equines with distinctive black-and-white striped coats. There are three living species: Grévy's zebra, the plains zebra, and the mountain zebra. Zebras share the genus Equus with horses and asses, the three groups being the only living members of the family Equidae. ");
+            DocumentMetadataMutator metadata_mutator  {&document};
+            metadata_mutator.SetString("genus", "Equus");
+            metadata_mutator.SetInt32("age", 8);
+            metadata_mutator.SetInt32("sex", 1);
+            metadata_mutator.SetString("origin", "North America");
+
+            doc_store->AddDocument(document);
+
+            // lookup
+            ASSERT_TRUE(!document.id().empty());
+            doc_store->MultiGetDocuments({document.id()})
+                | rpp::operators::as_blocking()
+                | rpp::operators::subscribe([&](const Document& doc) {
+                    auto violations = DocumentUtils::ValidateDocument(doc, schema);
+                    for(const auto& violation: violations) {
+                        LOG_INFO("field={}, msg={}", violation.field_name, violation.message);
+                    }
+                    ASSERT_TRUE(violations.empty());
+                })
+            ;
+        });
+
 
     }
 

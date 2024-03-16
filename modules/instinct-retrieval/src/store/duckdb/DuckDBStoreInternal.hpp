@@ -14,6 +14,7 @@
 #include "store/IDocStore.hpp"
 #include "tools/StringUtils.hpp"
 #include "functional/ReactiveFunctions.hpp"
+#include "retrieval/DocumentUtils.hpp"
 
 
 namespace INSTINCT_RETRIEVAL_NS {
@@ -31,10 +32,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
 
     namespace details {
-        /**
-         * Empty value for MetadataSchema
-         */
-        static auto EMPTY_METADATA_SCHEMA = std::make_shared<MetadataSchema>();
+
 
 
         static std::string make_mget_sql(
@@ -220,13 +218,47 @@ namespace INSTINCT_RETRIEVAL_NS {
             appender.Append<>(doc.text().c_str());
         }
 
+        static void append_row_column_value(Appender& appender, const Reflection* field_value_reflection, const FieldDescriptor* field_descriptor, const google::protobuf::Message& metadata_field_message) {
+
+            if (field_descriptor) {
+                switch (field_descriptor->cpp_type()) {
+                    case FieldDescriptor::CPPTYPE_INT32:
+                        appender.Append<int32_t>(
+                                field_value_reflection->GetInt32(metadata_field_message, field_descriptor));
+                        break;
+                    case FieldDescriptor::CPPTYPE_INT64:
+                        appender.Append<int64_t>(
+                                field_value_reflection->GetInt64(metadata_field_message, field_descriptor));
+                        break;
+                    case FieldDescriptor::CPPTYPE_BOOL:
+                        appender.Append<
+                                bool>(field_value_reflection->GetBool(metadata_field_message, field_descriptor));
+                        break;
+                    case FieldDescriptor::CPPTYPE_STRING:
+                        appender.Append<>(
+                                field_value_reflection->GetString(metadata_field_message, field_descriptor).c_str());
+                        break;
+                    case FieldDescriptor::CPPTYPE_FLOAT:
+                        appender.Append<float>(
+                                field_value_reflection->GetFloat(metadata_field_message, field_descriptor));
+                        break;
+                    case FieldDescriptor::CPPTYPE_DOUBLE:
+                        appender.Append<double>(
+                                field_value_reflection->GetDouble(metadata_field_message, field_descriptor));
+                        break;
+                    default:
+                        throw InstinctException("unknown field type for appending: " + field_descriptor->name());
+                }
+            }
+        }
+
         static void append_row_metadata_fields(
             const std::shared_ptr<MetadataSchema>& metadata_schema,
             Appender& appender,
             Document& doc,
             bool bypass_unknown_fields
         ) {
-            if (metadata_schema == EMPTY_METADATA_SCHEMA) {
+            if (!metadata_schema || metadata_schema == EMPTY_METADATA_SCHEMA || metadata_schema->fields_size() == 0) {
                 return;
             }
 
@@ -242,6 +274,15 @@ namespace INSTINCT_RETRIEVAL_NS {
             auto* reflection = Document::GetReflection();
             const auto* metadata_field = schema->FindFieldByName("metadata");
             int metadata_size = reflection->FieldSize(doc, metadata_field);
+            assert_gte(metadata_size, schema->field_count(), "Some metadata field(s) missing");
+
+
+            auto defined_field_schema_map = DocumentUtils::ConvertToMetadataSchemaMap(metadata_schema);
+            //std::unordered_map<std::string, const FieldDescriptor*> metadata_field_descriptor_map;
+
+
+            std::unordered_map<std::string, int> metadata_field_name_index_map;
+
             for (int i = 0; i < metadata_size; i++) {
                 const auto& metadata_field_message = reflection->GetRepeatedMessage(
                     doc,
@@ -249,50 +290,37 @@ namespace INSTINCT_RETRIEVAL_NS {
                     i);
                 auto metadata_field_descriptor = metadata_field_message.GetDescriptor();
                 auto* field_value_reflection = metadata_field_message.GetReflection();
-                auto name_field_desccriptor = metadata_field_descriptor->FindFieldByName("name");
-                auto name = field_value_reflection->GetString(metadata_field_message, name_field_desccriptor);
+                auto name_field_descriptor = metadata_field_descriptor->FindFieldByName("name");
+                auto name = field_value_reflection->GetString(metadata_field_message, name_field_descriptor);
+
+                metadata_field_name_index_map[name] = i;
 
                 if (!bypass_unknown_fields) {
                     assert_true((known_field_names.contains(name)),
                                 "Metadata cannot contain field not defined by schema. Problematic field is " + name);
                 }
                 known_field_names.erase(name);
-
-                auto* value_descriptor = metadata_field_descriptor->FindOneofByName("value");
-                const auto* field_descriptor = field_value_reflection->GetOneofFieldDescriptor(doc, value_descriptor);
-
-                switch (field_descriptor->cpp_type()) {
-                    case FieldDescriptor::CPPTYPE_INT32:
-                        appender.Append<int32_t>(
-                            field_value_reflection->GetInt32(metadata_field_message, field_descriptor));
-                        break;
-                    case FieldDescriptor::CPPTYPE_INT64:
-                        appender.Append<int64_t>(
-                            field_value_reflection->GetInt64(metadata_field_message, field_descriptor));
-                        break;
-                    case FieldDescriptor::CPPTYPE_BOOL:
-                        appender.Append<
-                            bool>(field_value_reflection->GetBool(metadata_field_message, field_descriptor));
-                        break;
-                    case FieldDescriptor::CPPTYPE_STRING:
-                        appender.Append<>(
-                            field_value_reflection->GetString(metadata_field_message, field_descriptor).c_str());
-                        break;
-                    case FieldDescriptor::CPPTYPE_FLOAT:
-                        appender.Append<float>(
-                            field_value_reflection->GetFloat(metadata_field_message, field_descriptor));
-                        break;
-                    case FieldDescriptor::CPPTYPE_DOUBLE:
-                        appender.Append<double>(
-                            field_value_reflection->GetDouble(metadata_field_message, field_descriptor));
-                        break;
-                    default:
-                        throw InstinctException("unknown field type for appending: " + field_descriptor->name());
-                }
             }
 
             assert_true(known_field_names.empty(),
                         "Some metadata fields not set: " + StringUtils::JoinWith(known_field_names, ","));
+
+
+            // append columns according to the order in metadata schema, or DuckDB will complain with SQL errors.
+            for (const auto& [k,v]: defined_field_schema_map) {
+                int i = metadata_field_name_index_map[k];
+                const auto& metadata_field_message = reflection->GetRepeatedMessage(
+                        doc,
+                        metadata_field,
+                        i);
+
+                auto metadata_field_descriptor = metadata_field_message.GetDescriptor();
+                auto* field_value_reflection = metadata_field_message.GetReflection();
+                auto* value_descriptor = metadata_field_descriptor->FindOneofByName("value");
+                auto* field_descriptor = value_descriptor->field(value_descriptor->index());
+                //auto* field_descriptor = field_value_reflection->GetOneofFieldDescriptor(doc, value_descriptor);
+                append_row_column_value(appender, field_value_reflection, field_descriptor, metadata_field_message);
+            }
         }
     }
 
@@ -328,12 +356,14 @@ namespace INSTINCT_RETRIEVAL_NS {
            connection_(db_),
            internal_appender_(std::move(internal_appender)) {
             LOG_DEBUG("Startup db at {}", options.db_file_path);
-            assert_true(!!metadata_schema, "should provide shcema");
+            assert_true(!!metadata_schema, "should provide schema");
             // assert_positive(options_.dimension, "dimension should be positive");
             assert_lt(options_.dimension, 10000, "dimension should be less than 10000");
             assert_true(!StringUtils::IsBlankString(options_.table_name), "table_name cannot be blank");
 
             const auto sql = details::make_create_table_sql(options_.table_name, options_.dimension, metadata_schema_);
+            LOG_DEBUG("create document table with SQL: {}", sql);
+
             const auto create_table_result = connection_.Query(sql);
             details::assert_query_ok(create_table_result);
 
@@ -392,20 +422,39 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
-            connection_.Query("BEGIN TRANSACTION;");
-            Appender appender(connection_, options_.table_name);
-            internal_appender_->AppendRows(appender, records, update_result);
-            appender.Close();
-            connection_.Query("COMMIT");
+            connection_.BeginTransaction();
+            try {
+                Appender appender(connection_, options_.table_name);
+                internal_appender_->AppendRows(appender, records, update_result);
+                appender.Close();
+                connection_.Commit();
+            } catch (const duckdb::Exception& e) {
+                connection_.Rollback();
+                LOG_ERROR("DuckDB Error, what()={}", e.what());
+                throw InstinctException(e, "Failed to AddDocument due to DuckDB error.");
+            } catch (...) {
+                connection_.Rollback();
+                std::rethrow_exception(std::current_exception());
+            }
         }
 
         void AddDocument(Document& doc) override {
-            connection_.Query("BEGIN TRANSACTION;");
-            UpdateResult update_result;
-            Appender appender(connection_, options_.table_name);
-            internal_appender_->AppendRow(appender, doc, update_result);
-            appender.Close();
-            connection_.Query("COMMIT");
+            connection_.BeginTransaction();
+            try {
+                UpdateResult update_result;
+                Appender appender(connection_, options_.table_name);
+                internal_appender_->AppendRow(appender, doc, update_result);
+                appender.Close();
+                connection_.Commit();
+            } catch (const duckdb::Exception& e) {
+                connection_.Rollback();
+                LOG_ERROR("DuckDB Error, what()={}", e.what());
+                throw InstinctException(e, "Failed to AddDocument due to DuckDB error.");
+            } catch (...) {
+                connection_.Rollback();
+                std::rethrow_exception(std::current_exception());
+            }
+
         }
 
         void DeleteDocuments(const std::vector<std::string>& ids, UpdateResult& update_result) override {

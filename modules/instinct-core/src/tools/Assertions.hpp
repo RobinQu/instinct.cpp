@@ -95,6 +95,12 @@ namespace INSTINCT_CORE_NS {
         }
     }
 
+    static void assert_gte(const numberic auto & a, const numberic auto & b, const std::string& message = "value should be greater or equal") {
+        if(!check_gte(a,b)) {
+            throw InstinctException(message);
+        }
+    }
+
     static void assert_lt(const numberic auto & a, const numberic auto & b, const std::string& message = "value should be less") {
         if(!check_lt(a,b)) {
             throw InstinctException(message);
