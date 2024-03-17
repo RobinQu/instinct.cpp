@@ -8,7 +8,7 @@
 #include "RetrievalGlobals.hpp"
 #include "chain/BaseChain.hpp"
 #include "chain/LLMChain.hpp"
-#include "retrieval/IRetriever.hpp"
+#include "retrieval/BaseRetriever.hpp"
 #include "retrieval/DocumentUtils.hpp"
 
 

@@ -12,7 +12,7 @@
 #include "output_parser/StringOutputParser.hpp"
 #include "retrieval/VectorStoreRetriever.hpp"
 #include "tools/ChronoUtils.hpp"
-
+#include "store/duckdb/DuckDBVectorStore.hpp"
 
 namespace  INSTINCT_RETRIEVAL_NS {
     class RAGChainTest : public testing::Test {
@@ -28,7 +28,7 @@ namespace  INSTINCT_RETRIEVAL_NS {
                 .table_name = "rag_test_table",
                 .db_file_path = db_file_path,
                 // llama2:7b-chat has dimensions of 4096
-                .dimmension = 4096
+                .dimension = 4096
             });
             retriever_ = CreateVectorStoreRetriever(vector_store);
             chat_memory_ = std::make_shared<EphemeralChatMemory>();
@@ -83,12 +83,12 @@ Question: {standalone_question}
                 );
 
             RAGChainOptions rag_chain_options = {
-                .condense_question_key = question_chain_options.output_keys[0],
                 .context_output_key = "context",
+                .condense_question_key = question_chain_options.output_keys[0],
             };
             rag_chain_ = std::make_shared<RAGChain<std::string>>(
                 chat_memory_,
-                std::dynamic_pointer_cast<ITextRetriever>(retriever_),
+                std::dynamic_pointer_cast<BaseRetriever>(retriever_),
                 question_chain_,
                 answer_chain_
                 );

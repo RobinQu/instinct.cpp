@@ -26,7 +26,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/store/duckdb/DuckDBDocStore.hpp
 
         src/RetrievalTestGlobals.hpp
-        src/retrieval/BaseRetriever.h
+        src/retrieval/BaseRetriever.hpp
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

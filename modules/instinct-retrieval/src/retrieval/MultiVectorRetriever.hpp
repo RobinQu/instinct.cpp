@@ -6,7 +6,7 @@
 #define MULTIVECTORRETRIEVER_HPP
 
 
-#include "BaseRetriever.h"
+#include "BaseRetriever.hpp"
 #include "chain/LLMChain.hpp"
 #include "output_parser/StringOutputParser.hpp"
 #include "prompt/PlainPromptTemplate.hpp"

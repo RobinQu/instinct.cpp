@@ -2,8 +2,8 @@
 // Created by RobinQu on 2024/3/17.
 //
 
-#ifndef INSTINCT_BASERETRIEVER_H
-#define INSTINCT_BASERETRIEVER_H
+#ifndef INSTINCT_BASERETRIEVER_HPP
+#define INSTINCT_BASERETRIEVER_HPP
 
 #include "retrieval/IRetriever.hpp"
 
@@ -27,4 +27,4 @@ namespace INSTINCT_RETRIEVAL_NS {
 }
 
 
-#endif //INSTINCT_BASERETRIEVER_H
+#endif //INSTINCT_BASERETRIEVER_HPP

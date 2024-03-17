@@ -6,7 +6,7 @@
 #define MULTIQUERYRETRIEVER_HPP
 
 
-#include "BaseRetriever.h"
+#include "BaseRetriever.hpp"
 #include "RetrievalGlobals.hpp"
 #include "chain/BaseChain.hpp"
 #include "chain/LLMChain.hpp"

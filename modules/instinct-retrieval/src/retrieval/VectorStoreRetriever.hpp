@@ -7,7 +7,7 @@
 #include <utility>
 
 
-#include "BaseRetriever.h"
+#include "BaseRetriever.hpp"
 #include "store/IVectorStore.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
 
