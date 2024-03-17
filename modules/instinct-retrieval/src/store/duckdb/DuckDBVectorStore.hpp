@@ -9,11 +9,9 @@
 #include <retrieval.pb.h>
 
 #include "DuckDBStoreInternal.hpp"
-#include "retrieval/IStatefulRetriever.hpp"
 #include "store/IVectorStore.hpp"
 #include "tools/Assertions.hpp"
 #include "tools/StringUtils.hpp"
-
 
 
 namespace INSTINCT_RETRIEVAL_NS {
@@ -112,8 +110,6 @@ namespace INSTINCT_RETRIEVAL_NS {
             select_sql += std::to_string(limit);
             return select_sql;
         }
-
-
 
         static void append_row(
                 const std::shared_ptr<MetadataSchema>& metadata_schema,

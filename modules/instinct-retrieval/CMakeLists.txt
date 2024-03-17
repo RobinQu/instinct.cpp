@@ -12,7 +12,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/store/duckdb/DuckDBVectorStore.hpp
         src/chain/RAGChain.hpp
         src/retrieval/DocumentUtils.hpp
-        src/retrieval/IStatefulRetriever.hpp
         src/store/IDocStore.hpp
         src/retrieval/MultiVectorRetriever.hpp
         src/retrieval/ChunkedMultiVectorRetriever.hpp
@@ -27,6 +26,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/store/duckdb/DuckDBDocStore.hpp
 
         src/RetrievalTestGlobals.hpp
+        src/retrieval/BaseRetriever.h
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

@@ -88,7 +88,7 @@ Question: {standalone_question}
             };
             rag_chain_ = std::make_shared<RAGChain<std::string>>(
                 chat_memory_,
-                std::dynamic_pointer_cast<ITextRetreiver>(retriever_),
+                std::dynamic_pointer_cast<ITextRetriever>(retriever_),
                 question_chain_,
                 answer_chain_
                 );

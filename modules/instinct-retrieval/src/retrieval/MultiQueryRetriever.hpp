@@ -6,17 +6,21 @@
 #define MULTIQUERYRETRIEVER_HPP
 
 
-#include "IRetriever.hpp"
+#include "BaseRetriever.h"
 #include "RetrievalGlobals.hpp"
 #include "chain/BaseChain.hpp"
 #include "chain/LLMChain.hpp"
 #include "llm/BaseLLM.hpp"
 #include "output_parser/MultiLineTextOutputParser.hpp"
+#include "prompt/PlainPromptTemplate.hpp"
+#include <unordered_set>
+#include "retrieval/DocumentUtils.hpp"
+
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
 
-    class MultiQueryRetriever: public ITextRetreiver {
+    class MultiQueryRetriever: public BaseRetriever {
         RetrieverPtr base_retriever_;
         MultilineTextChainPtr query_chain_{};
 
@@ -32,34 +36,34 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto queries = query_chain_->Invoke(context_builder->Build());
             assert_true(queries.size()>1, "should have multiple generated queries.");
 
-            // create set on heap, so it's still accessible in  async function.
-            auto ids = std::make_shared<std::unordered_set<std::string>>();
             return rpp::source::from_iterable(queries)
-                | rpp::operators::as_blocking()
                 | rpp::operators::flat_map([&](const std::string& q) {
                     TextQuery text_query = query;
                     text_query.text = q;
                     return base_retriever_->Retrieve(text_query);
                 })
-                | rpp::operators::filter([&,ids](const Document& doc) {
-                    if (ids->contains(doc.id())) {
-                        return false;
-                    }
-                    ids->insert(doc.id());
-                    return true;
-                });
+                // see following specializations for std::hash and std::equal_to
+                // modules/instinct-retrieval/src/retrieval/DocumentUtils.hpp:14
+                // modules/instinct-retrieval/src/retrieval/DocumentUtils.hpp:21
+                | rpp::operators::distinct();
         }
     };
 
     static RetrieverPtr CreateMultiQueryRetriever(
             const RetrieverPtr& base_retriever,
-            const LLMPtr& llm,
-            const PromptTemplatePtr& prompt_template
+            const ChatModelPtr & llm,
+            const PromptTemplatePtr& prompt_template = nullptr
     ) {
         const auto output_parse = std::make_shared<MultiLineTextOutputParser>();
         auto query_chain = std::make_shared<MultilineTextLLMChain>(
                 llm,
-                prompt_template,
+                prompt_template ? prompt_template : PlainPromptTemplate::CreateWithTemplate(R"(You are an AI language model assistant. Your task is
+    to generate 3 different versions of the given user
+    question to retrieve relevant documents from a vector  database.
+    By generating multiple perspectives on the user question,
+    your goal is to help the user overcome some of the limitations
+    of distance-based similarity search. Provide these alternative
+    questions separated by newlines. Original question: {question})"),
                 output_parse,
                 nullptr
         );

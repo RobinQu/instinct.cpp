@@ -20,7 +20,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     using MetadataFilterChainPtr = ChainPtr<MetadataQuery>;
 
-    class AutoRetriever final: public ITextRetreiver {
+    class AutoRetriever final: public ITextRetriever {
         /**
          * retriever to do actual search
          */

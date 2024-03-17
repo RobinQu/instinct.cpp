@@ -6,6 +6,7 @@
 #define DOCUMENTRETRIEVAL_HPP
 
 #include "RetrievalGlobals.hpp"
+#include "functional/ReactiveFunctions.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_CORE_NS;
@@ -26,17 +27,25 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::string text;
         int top_k = 10;
     };
-    class ITextRetreiver: public IRetriever<TextQuery> {};
+//    class ITextRetriever: public IRetriever<TextQuery> {
+//    public:
+//        virtual AsyncIterator<Document> Retrieve(const TextQuery &query) = 0;
+//    };
+    using ITextRetriever = IRetriever<TextQuery>;
 
 
     struct GuidedQuery {
         AsyncIterator<Document> guidance_docs_iterator;
         TextQuery raw_query;
     };
-    class IGuidedRetreiver : public IRetriever<GuidedQuery> {};
+    class IGuidedRetriever : public IRetriever<GuidedQuery> {};
+    using GuidedRetreiverPtr = std::shared_ptr<IGuidedRetriever>;
 
-    using RetrieverPtr = std::shared_ptr<ITextRetreiver>;
-    using GuidedRetreiverPtr = std::shared_ptr<IGuidedRetreiver>;
+
+    class IStatefulRetriever {
+    public:
+        virtual void Ingest(const AsyncIterator<Document>& input) = 0;
+    };
 
 }
 

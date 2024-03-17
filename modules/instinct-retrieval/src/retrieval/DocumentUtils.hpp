@@ -7,8 +7,36 @@
 
 
 #include "RetrievalGlobals.hpp"
+#include <google/protobuf/util/message_differencer.h>
+
+
+namespace std {
+    /**
+     * hash only using doc.id()
+     */
+    template <>
+    struct hash<INSTINCT_RETRIEVAL_NS::Document> {
+        size_t operator()(const INSTINCT_RETRIEVAL_NS::Document& doc) const {
+            return std::hash<std::string_view> {} (doc.id());
+        }
+    };
+
+    /**
+     * compare two documents using `Equivalent` sematics.
+     */
+    template<>
+    struct equal_to<INSTINCT_RETRIEVAL_NS::Document> {
+        bool operator()(const INSTINCT_RETRIEVAL_NS::Document& lhs, const INSTINCT_RETRIEVAL_NS::Document& rhs) const {
+            return google::protobuf::util::MessageDifferencer::Equivalent(lhs, rhs);
+        }
+    };
+
+}
 
 namespace INSTINCT_RETRIEVAL_NS {
+
+
+
     struct DocumentMetadataMutator {
         Document* document_;
 

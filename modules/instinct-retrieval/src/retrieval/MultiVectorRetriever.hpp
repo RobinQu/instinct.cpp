@@ -6,7 +6,7 @@
 #define MULTIVECTORRETRIEVER_HPP
 
 
-#include "IStatefulRetriever.hpp"
+#include "BaseRetriever.h"
 #include "chain/LLMChain.hpp"
 #include "output_parser/StringOutputParser.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
@@ -22,7 +22,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::string parent_doc_id_key = "parent_doc_id";
     };
 
-    class MultiVectorRetriever: public IStatefulRetriever<TextQuery> {
+    class MultiVectorRetriever: public BaseStatefulRetriever {
         /**
          * document store for original documents
          */

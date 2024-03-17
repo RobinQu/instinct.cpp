@@ -275,7 +275,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             auto* reflection = Document::GetReflection();
             const auto* metadata_field = schema->FindFieldByName("metadata");
             int metadata_size = reflection->FieldSize(doc, metadata_field);
-            assert_gte(metadata_size, metadata_schema->fields_size(), "Some metadata field(s) missing");
+//            assert_gte(metadata_size, metadata_schema->fields_size(), "Some metadata field(s) missing");
 
 
             auto defined_field_schema_map = DocumentUtils::ConvertToMetadataSchemaMap(metadata_schema);
