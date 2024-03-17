@@ -227,7 +227,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 request.top_k());
                 result = internal_->GetConnection().Query(search_sql);
             } else {
-                // use prepared statement for better performenace when no filter is actually given
+                // use prepared statement for better performance when no filter is actually given
                 vector<Value> vector_array;
                 for(const float& f: query_embedding) {
                     vector_array.push_back(Value::FLOAT(f));

@@ -52,19 +52,19 @@ namespace INSTINCT_RETRIEVAL_NS {
               options_(std::move(options)) {
             assert_true(!!doc_store_, "should have doc store");
             assert_true(!!vector_store_, "should have doc store");
-            // assert_true(typeid(*doc_store_) != typeid(*vector_store_), "cannot use a VectorStore both for doc and embedding.");
         }
-
 
         AsyncIterator<Document> Retrieve(const TextQuery& query) override {
             SearchRequest search_request;
             search_request.set_query(query.text);
             search_request.set_top_k(query.top_k);
+            // result can be less than `top_k`.
             return vector_store_->SearchDocuments(search_request)
                 | rpp::operators::reduce(std::unordered_set<std::string> {}, [&](std::unordered_set<std::string>&& seed, const Document& doc) {
                     // backtrace id of parent doc
                     for(const auto& metadata_field: doc.metadata()) {
                         if (metadata_field.name() == options_.parent_doc_id_key) {
+                            LOG_DEBUG("guidance doc found, id={}, parent_doc_id={}", doc.id(), metadata_field.string_value());
                             seed.insert(metadata_field.string_value());
                         }
                     }
@@ -73,6 +73,8 @@ namespace INSTINCT_RETRIEVAL_NS {
                 | rpp::operators::flat_map([&](const std::unordered_set<std::string>& parent_ids) {
                     if (parent_ids.empty()) {
                         LOG_WARN("Retrieved empty result set with query ");
+                    } else {
+                        LOG_DEBUG("backtrace parent doc ids: {}", parent_ids);
                     }
                     return doc_store_->MultiGetDocuments({parent_ids.begin(), parent_ids.end()});
                 });
@@ -85,6 +87,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 // auto& parent_doc = input->Next();
                 doc_store_->AddDocument(parent_doc);
                 auto sub_docs = std::invoke(guidance_, parent_doc);
+                LOG_DEBUG("found {} guidance docs for parent doc with id {}", sub_docs.size(), parent_doc.id());
                 for (auto& sub_doc: sub_docs) {
                     auto* field = sub_doc.add_metadata();
                     field->set_name(options_.parent_doc_id_key);

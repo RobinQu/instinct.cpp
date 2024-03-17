@@ -47,7 +47,13 @@ namespace INSTINCT_LLM_NS::test {
                 auto* gen =result->add_generations();
                 gen->set_text("talking non-sense");
                 auto* msg = gen->mutable_message();
-                msg->set_content("talking non-sense");
+                msg->set_content(R"(
+talking non-sense
+talking non-sense
+talking non-sense
+
+talking non-sense
+)");
                 msg->set_role("assistant");
             }
             return batched_model_result;

@@ -153,6 +153,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 document.set_id(row.GetValue<std::string>(0));
                 document.set_text(row.GetValue<std::string>(1));
                 for (int i = 0; i < metadata_schema_->fields_size(); i++) {
+                    // plus 2 means skipping first two columns of  id and text in table
                     int column_idx = i + 2;
                     auto& field_schema = metadata_schema_->fields(i);
                     auto* metadata_field = document.add_metadata();

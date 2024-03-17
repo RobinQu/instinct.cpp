@@ -26,7 +26,7 @@ struct HttpRequest {
     inline HttpRequest HttpRequest::FromReuqestLine(const std::string& request_line) {
         HttpRequest call;
         // parse request line
-        std::vector<std::string> parts = StringUtils::Resplit(request_line);
+        std::vector<std::string> parts = StringUtils::ReSplit(request_line);
         if(parts.size() != 2) {
             throw InstinctException(fmt::format("invalid request line: {}", request_line));
         }

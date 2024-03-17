@@ -61,6 +61,11 @@ namespace INSTINCT_RETRIEVAL_NS {
             hypothetical_queries_store_ = CreateDuckDBVectorStore(embedding_model, query_db_options, meta_schema);
 
             asset_dir_ = std::filesystem::current_path() / "modules" / "instinct-retrieval" / "test" / "_assets";
+
+            // load all recipes in folder
+            const auto recipes_dir = asset_dir_ / "docs" / "recipes";
+            std::cout << "reading recipes from " << recipes_dir << std::endl;
+            recipes_ingestor_ = CreateDirectoryTreeIngestor(recipes_dir);
         }
 
         std::filesystem::path asset_dir_;
@@ -68,6 +73,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         DocStorePtr doc_store_;
         VectorStorePtr summary_store_;
         VectorStorePtr hypothetical_queries_store_;
+        IngestorPtr recipes_ingestor_;
     };
 
     TEST_F(MultiVectorRetrieverTest, TestReteiveWithSummary) {
@@ -78,12 +84,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             nullptr,
             {.parent_doc_id_key = "parent_doc_id"}
         );
-
-        // load all recipes in folder
-        const auto recipes_dir = asset_dir_ / "docs" / "recipes";
-        std::cout << "reading recipes from " << recipes_dir << std::endl;
-        const auto ingestor = CreateDirectoryTreeIngestor(recipes_dir);
-        retriever->Ingest(ingestor->Load());
+        retriever->Ingest(recipes_ingestor_->Load());
 
         const auto summary_count = summary_store_->CountDocuments();
         ASSERT_GT(summary_count, 0);
@@ -95,8 +96,25 @@ namespace INSTINCT_RETRIEVAL_NS {
         ASSERT_EQ(doc_vec.size(), 2);
     }
 
-    TEST_F(MultiVectorRetrieverTest, TestReteiveWithHypotheticalQuries) {
+    TEST_F(MultiVectorRetrieverTest, TestRetrieverWithHypotheticalQueries) {
+        auto retriever = CreateHypotheticalQueriesGuidedRetriever(
+                llm_,
+                doc_store_,
+                hypothetical_queries_store_,
+                nullptr,
+                {.parent_doc_id_key = "parent_doc_id"}
+        );
+        retriever->Ingest(recipes_ingestor_->Load());
 
+        const auto queries_count = hypothetical_queries_store_->CountDocuments();
+        ASSERT_GT(queries_count, 0);
+
+        // simple search
+        const auto doc_itr = retriever->Retrieve({.text = "Shortcake", .top_k = 2});
+
+        auto doc_vec = CollectVector(doc_itr);
+        // first recall may contain duplicated docs which can be filtered away
+        ASSERT_TRUE(doc_vec.size() <= 2);
     }
 
 
