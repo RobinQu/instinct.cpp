@@ -73,7 +73,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         ) {
             auto create_table_sql = "CREATE OR REPLACE TABLE " + table_name + "(";
             std::vector<std::string> parts;
-            parts.emplace_back("id VARCHAR PRIMARY KEY");
+            parts.emplace_back("id UUID PRIMARY KEY");
             parts.emplace_back("text VARCHAR NOT NULL");
             if (dimmension > 0) {
                 parts.emplace_back("vector FLOAT[" + std::to_string(dimmension) + "] NOT NULL");
@@ -307,8 +307,8 @@ namespace INSTINCT_RETRIEVAL_NS {
 
 
             // append columns according to the order in metadata schema, or DuckDB will complain with SQL errors.
-            for (const auto& [k,v]: defined_field_schema_map) {
-                int i = metadata_field_name_index_map[k];
+            for (const auto& metadata_field_schema: metadata_schema->fields()) {
+                int i = metadata_field_name_index_map[metadata_field_schema.name()];
                 const auto& metadata_field_message = reflection->GetRepeatedMessage(
                         doc,
                         metadata_field,
@@ -317,9 +317,12 @@ namespace INSTINCT_RETRIEVAL_NS {
                 auto metadata_field_descriptor = metadata_field_message.GetDescriptor();
                 auto* field_value_reflection = metadata_field_message.GetReflection();
                 auto* value_descriptor = metadata_field_descriptor->FindOneofByName("value");
-                auto* field_descriptor = value_descriptor->field(value_descriptor->index());
+//                auto* field_descriptor = value_descriptor->field(value_descriptor->index());
                 //auto* field_descriptor = field_value_reflection->GetOneofFieldDescriptor(doc, value_descriptor);
-                append_row_column_value(appender, field_value_reflection, field_descriptor, metadata_field_message);
+
+                auto* value_field_descriptor = field_value_reflection->GetOneofFieldDescriptor(metadata_field_message, value_descriptor);
+
+                append_row_column_value(appender, field_value_reflection, value_field_descriptor, metadata_field_message);
             }
         }
     }

@@ -42,25 +42,25 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     class DuckDBDocStoreInternalAppender: public DuckDBInternalAppender {
         std::shared_ptr<MetadataSchema> metadata_schema_;
-        bool bypass_unknonw_fields_;
+        bool bypass_unknown_fields_;
 
     public:
         DuckDBDocStoreInternalAppender(std::shared_ptr<MetadataSchema> metadata_schema,
-            const bool bypass_unknonw_fields)
+            const bool bypass_unknown_fields)
             : metadata_schema_(std::move(metadata_schema)),
-              bypass_unknonw_fields_(bypass_unknonw_fields) {
+              bypass_unknown_fields_(bypass_unknown_fields) {
 
         }
 
         void AppendRow(Appender& appender, Document& doc, UpdateResult& update_result) override {
-            details::append_row(metadata_schema_, appender, doc, update_result, bypass_unknonw_fields_);
+            details::append_row(metadata_schema_, appender, doc, update_result, bypass_unknown_fields_);
         }
 
         void AppendRows(Appender& appender, std::vector<Document>& records, UpdateResult& update_result) override {
             int affected_row = 0;
             for (auto & record : records) {
                 try {
-                    details::append_row(metadata_schema_, appender, record, update_result, bypass_unknonw_fields_);
+                    details::append_row(metadata_schema_, appender, record, update_result, bypass_unknown_fields_);
                     affected_row++;
                 } catch (const InstinctException& e) {
                     update_result.add_failed_documents()->CopyFrom(record);

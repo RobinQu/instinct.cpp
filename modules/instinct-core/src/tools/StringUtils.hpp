@@ -52,6 +52,8 @@ INSTINCT_CORE_NS {
             uuid_generate_random(uuid);
             char s[37];
             uuid_unparse(uuid, s);
+
+            // TODO this returns uuid string in uppercase, which should be in lowercase
             return s;
         }
     }

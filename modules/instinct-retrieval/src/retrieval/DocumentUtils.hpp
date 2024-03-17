@@ -31,7 +31,6 @@ namespace INSTINCT_RETRIEVAL_NS {
     enum ConstraintViolationCategory {
         kUnknownViolation,
         kIllegalFieldValue,
-        kUnknownFieldFound,
         kIllegalMetadataFormat,
     };
 
@@ -91,79 +90,102 @@ namespace INSTINCT_RETRIEVAL_NS {
                         metadata_field,
                         i);
                 auto metadata_field_descriptor = metadata_field_message.GetDescriptor();
+
                 auto name_field_descriptor = metadata_field_descriptor->FindFieldByName("name");
                 auto* field_value_reflection = metadata_field_message.GetReflection();
                 auto name = field_value_reflection->GetString(metadata_field_message, name_field_descriptor);
 
+                // TODO keep following logs for debugging purpose
+
+//                for (int j = 0; j < metadata_field_descriptor->field_count(); ++j) {
+//                    auto * metadata_field_desc = metadata_field_descriptor->field(j);
+//                            LOG_DEBUG("name = {}", metadata_field_desc->name());
+//                            LOG_DEBUG("type = {}", metadata_field_desc->type_name());
+//
+//                    if(auto* oneof_desc = metadata_field_desc->containing_oneof()) {
+//                                LOG_DEBUG("oneof_desc->index() = {}", oneof_desc->index());
+//
+//                        auto index_in_oneof = metadata_field_desc->index_in_oneof();
+//                                LOG_DEBUG("index_in_oneof = {}", index_in_oneof);
+//                    }
+//                }
+
                 if (!bypass_unknown_fields) {
                     if (!field_schema_map.contains(name)) {
-                        violations.push_back({.category = kUnknownFieldFound, .field_name = name,.message="Metadata cannot contain field not defined by schema."});
+                        violations.push_back({.field_name = name,.message="Metadata cannot contain field not defined by schema."});
                         return violations;
                     }
                 }
 
                 // remove in names set to mark it as found
                 known_field_names.erase(name);
-
                 auto* value_descriptor = metadata_field_descriptor->FindOneofByName("value");
+
                 if (!value_descriptor) {
                     violations.push_back({.category=kIllegalFieldValue, .field_name=name, .message="Field value is not set."});
                     return violations;
                 }
 
-
                 if (metadata_schema->fields_size() > 0 && !field_value_reflection) {
                     violations.push_back({.category = kIllegalMetadataFormat, .message = "Metadata is not set"});
                     return violations;
                 }
-//
+
+
+
                 auto* field_schema = field_schema_map.at(name);
-                const auto* field_descriptor = value_descriptor->field(value_descriptor->index());
+                auto* value_field_descriptor = field_value_reflection->GetOneofFieldDescriptor(metadata_field_message, value_descriptor);
+
+                if(!value_field_descriptor) {
+                    violations.push_back({.category=kIllegalFieldValue, .field_name=name, .message="Field value is not set."});
+                    return violations;
+                }
+
                 switch (field_schema->type()) {
                     case VARCHAR: {
-                        if (field_descriptor->type() != google::protobuf::FieldDescriptor::TYPE_STRING) {
-                            violations.push_back({.category=kIllegalFieldValue, .field_name=name, .message=fmt::format("Field {} should have value of type string, but value of {} is given.", name, field_descriptor->type_name())});
+                        if (value_field_descriptor->type() != google::protobuf::FieldDescriptor::TYPE_STRING) {
+                            violations.push_back({.category=kIllegalFieldValue, .field_name=name, .message=fmt::format("Field {} should have value of type string, but value of {} is given.", name, value_field_descriptor->type_name())});
                             return violations;
                         }
                         break;
                     }
                     case INT32: {
-                        if (field_descriptor->type() != google::protobuf::FieldDescriptor::TYPE_INT32) {
-                            violations.push_back({.category=kIllegalFieldValue, .field_name=name, .message=fmt::format("Field {} should have value of type int32, but value of {} is given.", name, field_descriptor->type_name())});
+                        if (value_field_descriptor->type() != google::protobuf::FieldDescriptor::TYPE_INT32) {
+                            violations.push_back({.category=kIllegalFieldValue, .field_name=name, .message=fmt::format("Field {} should have value of type int32, but value of {} is given.", name, value_field_descriptor->type_name())});
                             return violations;
                         }
                         break;
                     }
                     case INT64: {
-                        if (field_descriptor->type() != google::protobuf::FieldDescriptor::TYPE_INT64) {
-                            violations.push_back({.category=kIllegalFieldValue, .field_name=name, .message=fmt::format("Field {} should have value of type int64, but value of {} is given.", name, field_descriptor->type_name())});
+                        if (value_field_descriptor->type() != google::protobuf::FieldDescriptor::TYPE_INT64) {
+                            violations.push_back({.category=kIllegalFieldValue, .field_name=name, .message=fmt::format("Field {} should have value of type int64, but value of {} is given.", name, value_field_descriptor->type_name())});
                             return violations;
                         }
                         break;
                     }
                     case FLOAT: {
-                        if (field_descriptor->type() != google::protobuf::FieldDescriptor::TYPE_FLOAT) {
-                            violations.push_back({.category=kIllegalFieldValue, .field_name=name, .message=fmt::format("Field {} should have value of type float, but value of {} is given.", name, field_descriptor->type_name())});
+                        if (value_field_descriptor->type() != google::protobuf::FieldDescriptor::TYPE_FLOAT) {
+                            violations.push_back({.category=kIllegalFieldValue, .field_name=name, .message=fmt::format("Field {} should have value of type float, but value of {} is given.", name, value_field_descriptor->type_name())});
                             return violations;
                         }
                         break;
                     }
                     case DOUBLE: {
-                        if (field_descriptor->type() != google::protobuf::FieldDescriptor::TYPE_DOUBLE) {
-                            violations.push_back({.category=kIllegalFieldValue, .field_name=name, .message=fmt::format("Field {} should have value of type double, but value of {} is given.", name, field_descriptor->type_name())});
+                        if (value_field_descriptor->type() != google::protobuf::FieldDescriptor::TYPE_DOUBLE) {
+                            violations.push_back({.category=kIllegalFieldValue, .field_name=name, .message=fmt::format("Field {} should have value of type double, but value of {} is given.", name, value_field_descriptor->type_name())});
                             return violations;
                         }
                         break;
                     }
                     case BOOL: {
-                        if (field_descriptor->type() != google::protobuf::FieldDescriptor::TYPE_BOOL) {
-                            violations.push_back({.category=kIllegalFieldValue, .field_name=name, .message=fmt::format("Field {} should have value of type bool, but value of {} is given.", name, field_descriptor->type_name())});
+                        if (value_field_descriptor->type() != google::protobuf::FieldDescriptor::TYPE_BOOL) {
+                            violations.push_back({.category=kIllegalFieldValue, .field_name=name, .message=fmt::format("Field {} should have value of type bool, but value of {} is given.", name, value_field_descriptor->type_name())});
                             return violations;
                         }
                         break;
                     }
                     default: {
-                        violations.push_back({.category = kUnknownFieldFound, .field_name = name, .message = "Field has unknown value type."});
+                        violations.push_back({.field_name = name, .message = "Field has unknown value type."});
                         return violations;
                     }
                 }

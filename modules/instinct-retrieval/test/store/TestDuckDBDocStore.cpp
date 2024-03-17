@@ -113,6 +113,8 @@ namespace INSTINCT_RETRIEVAL_NS {
                                                                       "doc_store_with_out_schema.db",
                                               }, schema);
 
+        LOG_INFO("schema = {}", schema->DebugString());
+
         ASSERT_THROW({ // insert with document lacking some metadata
             Document document;
             document.set_text("trouble");
@@ -129,6 +131,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             metadata_mutator.SetString("origin", "North America");
 
             doc_store->AddDocument(document);
+            LOG_INFO("returned doc id: {}", document.id());
 
             // lookup
             ASSERT_TRUE(!document.id().empty());
