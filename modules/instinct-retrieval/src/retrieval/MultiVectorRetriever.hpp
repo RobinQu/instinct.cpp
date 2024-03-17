@@ -11,6 +11,9 @@
 #include "output_parser/StringOutputParser.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
 #include "store/IVectorStore.hpp"
+#include "output_parser/MultiLineTextOutputParser.hpp"
+#include <fmt/ranges.h>
+
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
@@ -87,7 +90,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 // auto& parent_doc = input->Next();
                 doc_store_->AddDocument(parent_doc);
                 auto sub_docs = std::invoke(guidance_, parent_doc);
-                LOG_DEBUG("found {} guidance docs for parent doc with id {}", sub_docs.size(), parent_doc.id());
+                LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), parent_doc.id());
                 for (auto& sub_doc: sub_docs) {
                     auto* field = sub_doc.add_metadata();
                     field->set_name(options_.parent_doc_id_key);

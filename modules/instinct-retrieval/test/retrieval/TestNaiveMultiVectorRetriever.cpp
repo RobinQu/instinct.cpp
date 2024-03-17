@@ -24,12 +24,8 @@ namespace INSTINCT_RETRIEVAL_NS {
     protected:
         void SetUp() override {
             SetupLogging();
-
             auto root_path = test::ensure_random_temp_folder();
-
             std::cout << "MultiVectorRetrieverTest at " << root_path << std::endl;
-
-
             llm_ = test::create_pesudo_chat_model();
 //            llm_ = test::create_local_chat_model();
 
