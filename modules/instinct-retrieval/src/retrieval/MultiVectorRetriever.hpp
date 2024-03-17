@@ -61,7 +61,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             search_request.set_query(query.text);
             search_request.set_top_k(query.top_k);
             return vector_store_->SearchDocuments(search_request)
-                | rpp::operators::scan(std::unordered_set<std::string> {}, [&](std::unordered_set<std::string>&& seed, const Document& doc) {
+                | rpp::operators::reduce(std::unordered_set<std::string> {}, [&](std::unordered_set<std::string>&& seed, const Document& doc) {
                     // backtrace id of parent doc
                     for(const auto& metadata_field: doc.metadata()) {
                         if (metadata_field.name() == options_.parent_doc_id_key) {

@@ -91,13 +91,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         // use simple search
         const auto doc_itr = retriever->Retrieve({.text = "Shortcake", .top_k = 2});
 
-        doc_itr
-            | rpp::operators::reduce(0, [](int && sum, const Document& doc) {
-                return sum+1;
-            })
-            | rpp::operators::subscribe([](const auto& sum) {
-                ASSERT_EQ(sum, 2);
-            });
+        auto doc_vec = CollectVector(doc_itr);
+        ASSERT_EQ(doc_vec.size(), 2);
     }
 
     TEST_F(MultiVectorRetrieverTest, TestReteiveWithHypotheticalQuries) {

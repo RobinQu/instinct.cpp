@@ -274,7 +274,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     static VectorStorePtr CreateDuckDBVectorStore(
         const EmbeddingsPtr& embeddings_model,
         const DuckDBStoreOptions& options,
-        const std::shared_ptr<MetadataSchema>& metadata_schema = details::EMPTY_METADATA_SCHEMA
+        const std::shared_ptr<MetadataSchema>& metadata_schema = EMPTY_METADATA_SCHEMA
     ) {
         return std::make_shared<DuckDBVectorStore>(
             embeddings_model,
