@@ -18,6 +18,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/tools/ChronoUtils.hpp
         include/functional/ReactiveFunctions.hpp
         include/tools/CodecUtils.hpp
+        include/tools/http/IHttpClient.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
@@ -46,6 +47,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         tsl::ordered_map
         fmtlog::fmtlog
         crossguid::crossguid
+        CURL::libcurl
 )
 
 #set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES

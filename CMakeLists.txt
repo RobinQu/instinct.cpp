@@ -107,6 +107,9 @@ find_package(crossguid REQUIRED)
 add_subdirectory(thirdparty/cpp-httplib)
 target_compile_definitions(httplib INTERFACE CPPHTTPLIB_ALLOW_LF_AS_LINE_TERMINATOR)
 
+## libcurl
+find_package(CURL)
+
 ## gtest
 if(BUILD_TESTING)
     find_package(GTest REQUIRED)

@@ -16,6 +16,7 @@ class InstinctCppRecipe(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/3.27.9")
+
     def requirements(self):
         # self.tool_requires("cmake/3.27.8", build=True)
         self.requires("crossguid/0.2.2")
@@ -27,6 +28,7 @@ class InstinctCppRecipe(ConanFile):
         self.requires("fmtlog/2.2.1")
         self.requires("nlohmann_json/3.11.3")
         self.requires("base64/0.5.2")
+        self.requires("libcurl/8.6.0")
         # test deps
         self.requires("gtest/1.14.0")
 
