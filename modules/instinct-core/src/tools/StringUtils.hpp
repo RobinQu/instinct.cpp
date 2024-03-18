@@ -11,14 +11,14 @@
 #include <string>
 #include <iostream>
 #include <unicode/ustream.h>
-#include <uuid/uuid.h>
+//#include <uuid/uuid.h>
+#include <Guid.hpp>
 
 
 #include "Assertions.hpp"
 
 
-namespace
-INSTINCT_CORE_NS {
+namespace INSTINCT_CORE_NS {
     namespace u32_utils {
         static U32String copies_of(int n, const U32String& text) {
             U32String result;
@@ -48,13 +48,9 @@ INSTINCT_CORE_NS {
         *
         */
         static std::string uuid_v8() {
-            uuid_t uuid;
-            uuid_generate_random(uuid);
-            char s[37];
-            uuid_unparse(uuid, s);
-
+            auto g = xg::newGuid();
             // TODO this returns uuid string in uppercase, which should be in lowercase
-            return s;
+            return g.str();
         }
     }
 
@@ -67,7 +63,6 @@ INSTINCT_CORE_NS {
             }
             return result;
         }
-
 
         static std::vector<std::string> ReSplit(const std::string& s, const std::regex& sep_regex = std::regex{"\\s+"}) {
             std::sregex_token_iterator iter(s.begin(), s.end(), sep_regex, -1);

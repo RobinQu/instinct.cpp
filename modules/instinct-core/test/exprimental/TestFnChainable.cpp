@@ -20,7 +20,7 @@ namespace INSTINCT_CORE_NS::experimental::fn_chain {
         }
 
         template<typename Input, typename Output=std::invoke_result_t<Fn, Input>>
-Output Invoke(const Input& input) {
+        Output Invoke(const Input& input) {
             return fn_(input);
         }
 
@@ -41,7 +41,7 @@ Output Invoke(const Input& input) {
     }
 
     template<typename Fn1, typename Fn2>
-    auto operator|(Fn1&& fn1, Fn2 && fn2) {
+    auto operator|(Chainable<Fn1>&& fn1, Fn2 && fn2) {
         return Chainable([&](const auto& input) {
             return fn2(fn1(input));
         });

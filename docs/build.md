@@ -22,6 +22,7 @@ Initialize Cmake presets with conan:
 ```shell
 # detect profile
 conan profile detect --force
+# make sure compiler.cppstd=gnu20
 
 # install deps
 conan install conanfile.py --build=missing

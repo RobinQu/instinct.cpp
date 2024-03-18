@@ -25,9 +25,9 @@ include(CTest)
 # control where libraries and executables are placed during the build.
 # with the following settings executables are placed in <the top level of the
 # build tree>/bin and libraries/archives in <top level of the build tree>/lib.
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
-#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
 
 # build position independent code.
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -74,8 +74,8 @@ find_package(nlohmann_json)
 #add_subdirectory(thirdparty/taskflow)
 
 ## rpp
-#add_subdirectory(thirdparty/ReactivePlusPlus)
-find_package(RPP REQUIRED)
+add_subdirectory(thirdparty/ReactivePlusPlus)
+# find_package(RPP REQUIRED)
 
 ## icu
 # TODO embedd icu as submodule
@@ -96,9 +96,12 @@ set(DISABLE_VPTR_SANITIZER TRUE)
 set(BUILD_UNITTESTS FALSE)
 add_subdirectory(thirdparty/duckdb)
 
-## fmtlog
+## fmtlog and fmtlog
 find_package(fmt)
 find_package(fmtlog)
+
+## crossguid
+find_package(crossguid REQUIRED)
 
 ## cpp-httplib
 add_subdirectory(thirdparty/cpp-httplib)

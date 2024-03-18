@@ -17,6 +17,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/tools/Assertions.hpp
         src/tools/ChronoUtils.hpp
         src/functional/ReactiveFunctions.hpp
+        src/tools/CodecUtils.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
@@ -44,6 +45,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         aklomp::base64
         tsl::ordered_map
         fmtlog::fmtlog
+        crossguid::crossguid
 )
 
 #set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES

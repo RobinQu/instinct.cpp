@@ -15,8 +15,8 @@ namespace INSTINCT_LLM_NS {
         void SetUp() override {
             SetupLogging();
             openai_chat = CreateOpenAIChatModel({
-                .model_name = "local-model",
-                .endpoint = {.host = "localhost", .port = 3928}
+                                                        .endpoint = {.host = "localhost", .port = 3928},
+                                                        .model_name = "local-model",
             });
         }
 

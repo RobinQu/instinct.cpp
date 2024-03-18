@@ -17,6 +17,7 @@
 #include "retrieval/DocumentUtils.hpp"
 
 
+
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
 

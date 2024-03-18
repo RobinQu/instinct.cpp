@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 find_package(Protobuf CONFIG REQUIRED)
 
-add_library(proto-objects OBJECT
+add_library(proto-objects
         src/core.proto
         src/retrieval.proto
         src/llm.proto

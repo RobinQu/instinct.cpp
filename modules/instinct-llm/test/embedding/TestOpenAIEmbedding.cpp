@@ -16,9 +16,9 @@ namespace INSTINCT_LLM_NS {
     protected:
         void SetUp() override {
             embedding_model_ = CreateOpenAIEmbeddingModel({
-                .endpoint = {.host = "localhost", .port = 3928},
-                .dimension = 4096,
-                .model_name = "local-model"
+                                                                  .endpoint = {.host = "localhost", .port = 3928},
+                                                                  .model_name = "local-model",
+                                                                  .dimension = 4096,
             });
         }
         EmbeddingsPtr embedding_model_;

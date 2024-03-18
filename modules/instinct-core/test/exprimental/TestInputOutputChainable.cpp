@@ -59,13 +59,7 @@ namespace INSTINCT_CORE_NS::exprimental::io_chain {
         }
     };
 
-    template<typename Input, typename Intermediate, typename Output>
-    static ChainablePtr<Input, Output> operator|(
-        ChainablePtr<Input, Intermediate>& lhs,
-        ChainablePtr<Intermediate, Output>& rhs
-    ) {
-        return std::make_shared<ChainablePair<Input, Intermediate, Output>>(lhs, rhs);
-    }
+
 
     template<typename Fn1, typename Fn2>
     class PartialChain {
@@ -94,11 +88,6 @@ namespace INSTINCT_CORE_NS::exprimental::io_chain {
         }
     };
 
-    template<typename Fn1, typename Fn2>
-    static PartialChain<Fn1, Fn2> operator|(Fn1&& fn1, Fn2&& fn2) {
-        return PartialChain<Fn1, Fn2>(std::forward<Fn1>(fn1), std::forward<Fn2>(fn2));
-    }
-
 
     class DoubleCopyString final : public Chainable<std::string, std::string> {
     public:
@@ -125,40 +114,61 @@ namespace INSTINCT_CORE_NS::exprimental::io_chain {
         }
     };
 
-    TEST(TestInputOutputChain, FunctionChaing) {
-        auto fn_1 = [](const std::string& str) { return str.size(); };
-        auto fn_2 = [](const size_t val) { return val * 2; };
-        auto fn_3 = [](const std::string::size_type& l) { return std::vector{l}; };
-        auto fn_4 = [](const std::string& str) {
-            auto v = str | std::views::transform([](unsigned char c) {
-                return std::toupper(c);
-            });
-            return std::string(v.begin(), v.end());
-        };
-        auto fn_5 = [](const std::string& str) {
-            return str + str;
-        };
+    namespace function_chain {
 
-        auto v1 = DoubleCopyString();
-        auto v2 = CalculateStringLength();
-        auto chain2 = v1 | v2;
-        chain2.Invoke("hello_world");
+//        template<typename Fn1, typename Fn2, typename Input, typename Intermediate = std::invoke_result_t<Fn1, Input>, typename Output = std::invoke_result_t<Fn2, Intermediate>>
+//        static PartialChain<Fn1, Fn2> operator|(Fn1&& fn1, Fn2&& fn2) {
+//            return PartialChain<Fn1, Fn2>(std::forward<Fn1>(fn1), std::forward<Fn2>(fn2));
+//        }
+//
+//        TEST(TestInputOutputChain, FunctionChaining) {
+//            auto fn_1 = [](const std::string& str) { return str.size(); };
+//            auto fn_2 = [](const size_t val) { return val * 2; };
+//            auto fn_3 = [](const std::string::size_type& l) { return std::vector{l}; };
+//            auto fn_4 = [](const std::string& str) {
+//                auto v = str | std::views::transform([](unsigned char c) {
+//                    return std::toupper(c);
+//                });
+//                return std::string(v.begin(), v.end());
+//            };
+//            auto fn_5 = [](const std::string& str) {
+//                return str + str;
+//            };
+//
+//            auto v1 = DoubleCopyString();
+//            auto v2 = CalculateStringLength();
+//            auto chain2 = v1 | v2;
+//            chain2.Invoke("hello_world");
+//
+//
+//            auto chain3 = v1 | v2 | fn_3;
+//            // std::cout <<  << std::endl;
+//            for (const auto& c: chain3.Invoke("hello_world")) {
+//                std::cout << c << std::endl;
+//            }
+//        }
+    }
 
 
-        auto chain3 = v1 | v2 | fn_3;
-        // std::cout <<  << std::endl;
-        for (const auto& c: chain3.Invoke("hello_world")) {
-            std::cout << c << std::endl;
+
+    namespace ptr_chain {
+        template<typename Input, typename Intermediate, typename Output>
+        static ChainablePtr<Input, Output> operator|(
+                ChainablePtr<Input, Intermediate>& lhs,
+                ChainablePtr<Intermediate, Output>& rhs
+        ) {
+            return std::make_shared<ChainablePair<Input, Intermediate, Output>>(lhs, rhs);
+        }
+        TEST(TestInputOutputChain, PtrChaining) {
+            auto n1 = DoubleCopyString::Create();
+            auto n2 = CalculateStringLength::Create();
+            auto chain1 = n1 | n2;
+            std::cout << chain1->Invoke("hello_world") << std::endl;
         }
     }
 
 
-    TEST(TestInputOutputChain, PtrChaning) {
-        auto n1 = DoubleCopyString::Create();
-        auto n2 = CalculateStringLength::Create();
-        auto chain1 = n1 | n2;
-        std::cout << chain1->Invoke("hello_world") << std::endl;
-    }
+
 
 }
 

@@ -21,16 +21,7 @@ namespace INSTINCT_CORE_NS {
 
         static std::string GetCurrentTimestampString()
         {
-            auto currentTime = std::chrono::system_clock::now();
-            char buffer[80];
-            auto transformed = currentTime.time_since_epoch().count() / 1000000;
-            auto millis = transformed % 1000;
-            std::time_t tt;
-            tt = std::chrono::system_clock::to_time_t ( currentTime );
-            auto timeinfo = localtime (&tt);
-            strftime (buffer,80,"%F %H:%M:%S",timeinfo);
-            sprintf(buffer, "%s:%03d",buffer,(int)millis);
-            return {buffer};
+            return std::to_string(GetCurrentTimeMillis());
         }
 
     };
