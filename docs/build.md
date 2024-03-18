@@ -2,10 +2,28 @@
 
 ## ubuntu jammy
 
-icu 70.1
-protoc 3.12.4
-gtest 1.11.0
+Update to gcc 13 
 
 ```shell
-apt install libicu-dev libicu70 protobuf-compiler libprotobuf-dev libprotobuf23 libgtest-dev
+sudo apt install software-properties-common
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+sudo apt update
+sudo apt install gcc-12 g++-12 gcc-13 g++-13 -y
+
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 --slave /usr/bin/g++ g++ /usr/bin/g++-12
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /usr/bin/g++ g++ /usr/bin/g++-13
+
+
 ```
+
+
+Initialize Cmake presets with conan:
+
+```shell
+# detect profile
+conan profile detect --force
+
+# install deps
+conan install conanfile.py --build=missing
+```
+

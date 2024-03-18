@@ -3,3 +3,5 @@ cmake-*
 .DS_Store
 _assets
 __pycache__
+build
+CMakeUserPresets.json

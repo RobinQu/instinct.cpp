@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.26)
 project(instinct)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -16,6 +16,8 @@ ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 # defines CMAKE_INSTALL_LIBDIR, CMAKE_INSTALL_BINDIR and many other useful macros.
 # see https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html
 include(GNUInstallDirs)
+
+find_package(Threads REQUIRED)
 
 # add CTest
 include(CTest)
@@ -61,83 +63,42 @@ endif()
 
 # thirdparty dependencies
 
-## fmt
-add_subdirectory(thirdparty/fmt)
-find_package(fmt)
-
 ## json
-set(JSON_Install OFF CACHE INTERNAL "")
-add_subdirectory(thirdparty/nlohmann_json)
+#set(JSON_Install OFF CACHE INTERNAL "")
+find_package(nlohmann_json)
 
-
-## tensor
-#add_subdirectory(thirdparty/xtl)
-#add_subdirectory(thirdparty/xtensor)
-
-
-### boost
-#set(Boost_USE_STATIC_LIBS OFF)
-#set(Boost_USE_MULTITHREADED ON)
-#set(Boost_USE_STATIC_RUNTIME OFF)
-## hack to prevent linkage error for icu
-#set(BOOST_LOCALE_ENABLE_ICU OFF)
-
-#find_package(Boost 1.84.0)
-
-#if (NOT Boost_FOUND)
-#    message(STATUS "add_subdirectory sub-directory of thirdparty/boost as Boost is not found")
-##    set(Boost_VERBOSE ON)
-##    set(BOOST_INCLUDE_LIBRARIES beast algorithm url)
-##    set(ENV{BOOST_ROOT} "${PROJECT_SOURCE_DIR}/thirdparty/boost")
-#    add_subdirectory(thirdparty/boost EXCLUDE_FROM_ALL)
-#else ()
-#    message(STATUS "Boost version: ${Boost_VERSION}")
-#endif ()
 
 ## taskflow
-set(TF_BUILD_TESTS OFF)
-set(TF_BUILD_EXAMPLES OFF)
-add_subdirectory(thirdparty/taskflow)
+#set(TF_BUILD_TESTS OFF)
+#set(TF_BUILD_EXAMPLES OFF)
+#add_subdirectory(thirdparty/taskflow)
 
 ## rpp
-add_subdirectory(thirdparty/ReactivePlusPlus)
+#add_subdirectory(thirdparty/ReactivePlusPlus)
+find_package(RPP REQUIRED)
 
 ## icu
-# as prebuilt on mac arm64 is not available, we have to build from scratch
-#set(SYSTEM_ICU ON)
-#set(BUILD_ICU ON)
-#set(ICU_BUILD_VERSION 74.2)
-#add_subdirectory(thirdparty/icu-cmake)
 # TODO embedd icu as submodule
-find_package(ICU 70.1 COMPONENTS uc i18n io REQUIRED)
+find_package(ICU 74.2 COMPONENTS uc i18n io REQUIRED)
 
 ## base64
-## hand-written target rules to prevent conflicts in the original CMakelists.txt
-add_library(base64 INTERFACE thirdparty/base64/include/base64.hpp)
-target_include_directories(base64
-        INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/base64/include>
-        $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
-)
+find_package(base64)
 
 ## ordered-map
-add_subdirectory(thirdparty/ordered-map)
+#add_subdirectory(thirdparty/ordered-map)
+find_package(tsl-ordered-map REQUIRED)
 
 
 ## duckdb
 ## disable SANITIZER on M1 Macs
 set(ENABLE_SANITIZER FALSE)
 set(DISABLE_VPTR_SANITIZER TRUE)
+set(BUILD_UNITTESTS FALSE)
 add_subdirectory(thirdparty/duckdb)
 
 ## fmtlog
-#add_subdirectory(thirdparty/fmtlog)
-add_library(fmtlog INTERFACE thirdparty/fmtlog/fmtlog.h thirdparty/fmtlog/fmtlog-inl.h)
-target_include_directories(fmtlog
-        INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/fmtlog>
-        $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
-)
+find_package(fmt)
+find_package(fmtlog)
 
 ## cpp-httplib
 add_subdirectory(thirdparty/cpp-httplib)
@@ -145,14 +106,7 @@ target_compile_definitions(httplib INTERFACE CPPHTTPLIB_ALLOW_LF_AS_LINE_TERMINA
 
 ## gtest
 if(BUILD_TESTING)
-#    find_package(GTest)
-#    if(NOT GTEST_LIBRARIES)
-        message(STATUS "add sub-directory of thirdpart/googtest as GTest is not found and BUILD_TESTING is enabled")
-        set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-        add_subdirectory(thirdparty/googletest)
-#    else ()
-#        message(STATUS "Found GTest, version=" ${GTest_VERSION} ", GTest libraries=" ${GTEST_LIBRARIES})
-#    endif ()
+    find_package(GTest REQUIRED)
 endif ()
 
 

@@ -10,7 +10,8 @@
 #include <unicode/unistr.h>
 #include <unicode/uversion.h>
 #include <google/protobuf/message.h>
-#include <fmtlog-inl.h>
+#include <fmtlog/fmtlog.h>
+
 
 
 #define INSTINCT_CORE_NS instinct::core

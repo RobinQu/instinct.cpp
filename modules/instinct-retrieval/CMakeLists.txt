@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.26)
 project(instinct_retrieval)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})

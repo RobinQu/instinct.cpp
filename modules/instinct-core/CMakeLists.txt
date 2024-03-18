@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.26)
 project(instinct_core)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
@@ -31,18 +31,19 @@ add_library(
 add_library(instinct::core
         ALIAS ${LIBRARY_TARGET_NAME})
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
+        crossguid::crossguid
         instinct::proto
         RPP::rpp
         fmt::fmt
         nlohmann_json::nlohmann_json
         httplib
-        Taskflow
+        # Taskflow
         ICU::uc
         ICU::i18n
         ICU::io
-        base64
+        aklomp::base64
         tsl::ordered_map
-        fmtlog
+        fmtlog::fmtlog
 )
 
 #set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES
