@@ -1,51 +1,18 @@
-[submodule "thirdparty/fmt"]
-	path = thirdparty/fmt
-	url = https://github.com/fmtlib/fmt.git
-[submodule "thirdparty/nlohmann_json"]
-	path = thirdparty/nlohmann_json
-	url = https://github.com/nlohmann/json.git
-[submodule "thirdparty/googletest"]
-	path = thirdparty/googletest
-	url = https://github.com/google/googletest.git
 [submodule "thirdparty/httplib"]
 	path = thirdparty/httplib
 	url = https://github.com/yhirose/cpp-httplib.git
-[submodule "thirdparty/xtensor"]
-	path = thirdparty/xtensor
-	url = https://github.com/xtensor-stack/xtensor.git
-[submodule "thirdparty/xtl"]
-	path = thirdparty/xtl
-	url = https://github.com/xtensor-stack/xtl.git
-[submodule "thirdparty/boost"]
-	path = thirdparty/boost
-	url = https://github.com/boostorg/boost.git
-[submodule "thirdparty/uriparser"]
-	path = thirdparty/uriparser
-	url = https://github.com/uriparser/uriparser.git
 [submodule "thirdparty/taskflow"]
 	path = thirdparty/taskflow
 	url = https://github.com/taskflow/taskflow.git
 [submodule "thirdparty/ReactivePlusPlus"]
 	path = thirdparty/ReactivePlusPlus
 	url = git@github.com:victimsnino/ReactivePlusPlus.git
-[submodule "thirdparty/icu-cmake"]
-	path = thirdparty/icu-cmake
-	url = https://github.com/viaduck/icu-cmake.git
-[submodule "thirdparty/base64"]
-	path = thirdparty/base64
-	url = https://github.com/tobiaslocker/base64.git
 [submodule "thirdparty/ordered-map"]
 	path = thirdparty/ordered-map
 	url = https://github.com/Tessil/ordered-map.git
 [submodule "thirdparty/duckdb"]
 	path = thirdparty/duckdb
 	url = https://github.com/duckdb/duckdb.git
-[submodule "thirdparty/stduuid"]
-	path = thirdparty/stduuid
-	url = https://github.com/mariusbancila/stduuid.git
-[submodule "thirdparty/fmtlog"]
-	path = thirdparty/fmtlog
-	url = https://github.com/MengRao/fmtlog.git
 [submodule "thirdparty/cpp-httplib"]
 	path = thirdparty/cpp-httplib
 	url = https://github.com/yhirose/cpp-httplib.git

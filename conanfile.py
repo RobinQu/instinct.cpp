@@ -1,12 +1,21 @@
 from conan import ConanFile
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import cmake_layout
 
 
-class ExampleRecipe(ConanFile):
+class InstinctCppRecipe(ConanFile):
+    name = "instinct_cpp"
+    version = "0.1.0"
+    # exports_sources = "src/*"
+    # no_copy_source = True
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps", "CMakeToolchain"
 
+    def validate(self):
+        check_min_cppstd(self, 20)
+
     def requirements(self):
+        print("InstinctCppRecipe requirements")
         self.requires("crossguid/0.2.2")
         self.requires("protobuf/3.21.12")
         self.requires("reactiveplusplus/2.0.0")

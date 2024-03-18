@@ -17,7 +17,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         src/tools/Assertions.hpp
         src/tools/ChronoUtils.hpp
         src/functional/ReactiveFunctions.hpp
-        src/tools/CodecUtils.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

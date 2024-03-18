@@ -5,7 +5,7 @@ if(BUILD_TESTING)
     enable_testing()
 endif()
 
-include_directories(${GTEST_INCLUDE_DIRS})
+#include_directories(${GTEST_INCLUDE_DIRS})
 #if(NOT GTEST_LIBRARIES)
 #    message(WARNING "gtest not found, download the library, build it and run cmake once again.")
 #    return()

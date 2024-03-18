@@ -12,8 +12,7 @@
 #include <rpp/rpp.hpp>
 
 
-namespace
-INSTINCT_CORE_NS {
+namespace INSTINCT_CORE_NS {
     using namespace httplib;
 
     struct HttpClientOptions {
