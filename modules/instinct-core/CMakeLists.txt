@@ -3,20 +3,21 @@ project(instinct_core)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 set(${LIBRARY_TARGET_NAME}_HDR
-        src/tools/SimpleHttpClient.hpp
-        src/tools/HttpRequest.hpp
-        src/tools/StringUtils.hpp
-        src/tools/HttpUtils.hpp
-        src/tools/HttpResponse.hpp
-        src/tools/HttpRestClient.hpp
-        src/CoreGlobals.hpp
-        src/tools/HttpClientException.hpp
-        src/functional/IRunnable.hpp
-        src/tools/TensorUtils.hpp
-        src/tools/FunctionUtils.hpp
-        src/tools/Assertions.hpp
-        src/tools/ChronoUtils.hpp
-        src/functional/ReactiveFunctions.hpp
+        include/tools/SimpleHttpClient.hpp
+        include/tools/HttpRequest.hpp
+        include/tools/StringUtils.hpp
+        include/tools/HttpUtils.hpp
+        include/tools/HttpResponse.hpp
+        include/tools/HttpRestClient.hpp
+        include/CoreGlobals.hpp
+        include/tools/HttpClientException.hpp
+        include/functional/IRunnable.hpp
+        include/tools/TensorUtils.hpp
+        include/tools/FunctionUtils.hpp
+        include/tools/Assertions.hpp
+        include/tools/ChronoUtils.hpp
+        include/functional/ReactiveFunctions.hpp
+        include/tools/CodecUtils.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
@@ -27,9 +28,9 @@ add_library(
 #        ${${LIBRARY_TARGET_NAME}_SRC}
         ${${LIBRARY_TARGET_NAME}_HDR}
 )
-
 add_library(instinct::core
         ALIAS ${LIBRARY_TARGET_NAME})
+
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         crossguid::crossguid
         instinct::proto
@@ -54,7 +55,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
 
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
 install(TARGETS ${LIBRARY_TARGET_NAME}

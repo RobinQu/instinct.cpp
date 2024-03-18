@@ -5,11 +5,15 @@
 #ifndef TIKTOKENBPEFILEREADER_HPP
 #define TIKTOKENBPEFILEREADER_HPP
 
-#include "BPETokenRanksReader.hpp"
-#include <fstream>
 
-#include "tools/StringUtils.hpp"
+#include <fstream>
 #include <libbase64.h>
+
+#include "BPETokenRanksReader.hpp"
+#include "tools/StringUtils.hpp"
+#include "tools/CodecUtils.hpp"
+
+
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
@@ -24,8 +28,6 @@ namespace INSTINCT_LLM_NS {
     };
 
     inline BPETokenRanks TiktokenBPEFileReader::Fetch() {
-        static char base_64_out[2000];
-        static size_t base_64_out_len;
         std::ifstream bpe_file(bpe_file_path_);
         if (!bpe_file.is_open()) {
             throw InstinctException("failed to open bpe file at " + bpe_file_path_.string());
@@ -39,11 +41,7 @@ namespace INSTINCT_LLM_NS {
                 // TODO warn about invalid line
                 continue;
             }
-
-            if(!base64_decode(splits[0].data(), splits[0].size(), base_64_out, &base_64_out_len, 0)) {
-                throw InstinctException("base64 decode error");
-            }
-            auto key = std::string(base_64_out, base_64_out_len);
+            auto key = CodecUtils::DecodeBase64(splits[0]);
             bpe_token_ranks[key] = std::stoi(splits[1]);
         }
 

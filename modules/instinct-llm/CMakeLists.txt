@@ -3,52 +3,52 @@ project(instinct_llm)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
-set(${LIBRARY_TARGET_NAME}_HDR  src/All.hpp
-        src/LLMGlobals.hpp
-        src/chain/IChain.hpp
-        src/chain/LLMChain.hpp
-        src/llm/BaseLLM.hpp
-        src/chat_model/BaseChatModel.hpp
-        src/model/ILanguageModel.hpp
-        src/commons/OllamaCommons.hpp
-        src/llm/OllamaLLM.hpp
-        src/chat_model/OllamaChat.hpp
-        src/embedding_model/OllamaEmbedding.hpp
-        src/memory/IChatMemory.hpp
-        src/prompt/IPromptTemplate.hpp
-        src/prompt/IChatPromptTemplate.hpp
-        src/prompt/StringPromptTemplate.hpp
-        src/prompt/PlainPromptTemplate.hpp
-        src/prompt/PlainChatTemplate.hpp
-        src/prompt/FewShotPromptTemplate.hpp
-        src/prompt/IExampleSelector.hpp
-        src/prompt/MutableExampleSelector.hpp
-        src/prompt/PassthroughExampleSelector.hpp
-        src/prompt/LengthBasedExampleSelector.h
-        src/output_parser/IOutputParser.hpp
-        src/output_parser/ProtobufMessageOutputParser.hpp
-        src/output_parser/StringOutputParser.hpp
-        src/output_parser/BaseOutputParser.hpp
-        src/prompt/MessageUtils.hpp
-        src/prompt/ChatPromptBuilder.hpp
-        src/tokenizer/Tokenizer.hpp
-        src/tokenizer/RegexTokenizer.hpp
-        src/tokenizer/TiktokenTokenizer.hpp
-        src/tokenizer/BPETokenRanksReader.hpp
-        src/tokenizer/GPT2BPEFileReader.hpp
-        src/tokenizer/TiktokenBPEFileReader.hpp
-        src/memory/EphemeralChatMemory.hpp
-        src/chain/IChainContextAware.hpp
-        src/output_parser/BaseOutputParser.hpp
-        src/memory/BaseChatMemory.hpp
-        src/model/ModelCallbackMixins.hpp
-        src/chain/BaseChain.hpp
-        src/chain/ContextMutator.hpp
-        src/chat_model/OpenAIChat.hpp
-        src/commons/OpenAICommons.hpp
-        src/embedding_model/OpenAIEmbedding.hpp
-        src/LLMTestGlobals.hpp
-        src/llm/OpenAILLM.hpp
+set(${LIBRARY_TARGET_NAME}_HDR  include/All.hpp
+        include/LLMGlobals.hpp
+        include/chain/IChain.hpp
+        include/chain/LLMChain.hpp
+        include/llm/BaseLLM.hpp
+        include/chat_model/BaseChatModel.hpp
+        include/model/ILanguageModel.hpp
+        include/commons/OllamaCommons.hpp
+        include/llm/OllamaLLM.hpp
+        include/chat_model/OllamaChat.hpp
+        include/embedding_model/OllamaEmbedding.hpp
+        include/memory/IChatMemory.hpp
+        include/prompt/IPromptTemplate.hpp
+        include/prompt/IChatPromptTemplate.hpp
+        include/prompt/StringPromptTemplate.hpp
+        include/prompt/PlainPromptTemplate.hpp
+        include/prompt/PlainChatTemplate.hpp
+        include/prompt/FewShotPromptTemplate.hpp
+        include/prompt/IExampleSelector.hpp
+        include/prompt/MutableExampleSelector.hpp
+        include/prompt/PassthroughExampleSelector.hpp
+        include/prompt/LengthBasedExampleSelector.h
+        include/output_parser/IOutputParser.hpp
+        include/output_parser/ProtobufMessageOutputParser.hpp
+        include/output_parser/StringOutputParser.hpp
+        include/output_parser/BaseOutputParser.hpp
+        include/prompt/MessageUtils.hpp
+        include/prompt/ChatPromptBuilder.hpp
+        include/tokenizer/Tokenizer.hpp
+        include/tokenizer/RegexTokenizer.hpp
+        include/tokenizer/TiktokenTokenizer.hpp
+        include/tokenizer/BPETokenRanksReader.hpp
+        include/tokenizer/GPT2BPEFileReader.hpp
+        include/tokenizer/TiktokenBPEFileReader.hpp
+        include/memory/EphemeralChatMemory.hpp
+        include/chain/IChainContextAware.hpp
+        include/output_parser/BaseOutputParser.hpp
+        include/memory/BaseChatMemory.hpp
+        include/model/ModelCallbackMixins.hpp
+        include/chain/BaseChain.hpp
+        include/chain/ContextMutator.hpp
+        include/chat_model/OpenAIChat.hpp
+        include/commons/OpenAICommons.hpp
+        include/embedding_model/OpenAIEmbedding.hpp
+        include/LLMTestGlobals.hpp
+        include/llm/OpenAILLM.hpp
 
 )
 
@@ -75,7 +75,7 @@ add_library(instinct::llm
 
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::core)

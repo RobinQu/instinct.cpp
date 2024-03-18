@@ -4,29 +4,29 @@ project(instinct_retrieval)
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
 set(${LIBRARY_TARGET_NAME}_HDR
-        src/RetrievalGlobals.hpp
-        src/ingestor/IIngestor.hpp
-        src/retrieval/IRetriever.hpp
-        src/retrieval/VectorStoreRetriever.hpp
-        src/store/IVectorStore.hpp
-        src/store/duckdb/DuckDBVectorStore.hpp
-        src/chain/RAGChain.hpp
-        src/retrieval/DocumentUtils.hpp
-        src/store/IDocStore.hpp
-        src/retrieval/MultiVectorRetriever.hpp
-        src/retrieval/ChunkedMultiVectorRetriever.hpp
-        src/retrieval/AutoRetriever.hpp
-        src/retrieval/MultiQueryRetriever.hpp
+        include/RetrievalGlobals.hpp
+        include/ingestor/IIngestor.hpp
+        include/retrieval/IRetriever.hpp
+        include/retrieval/VectorStoreRetriever.hpp
+        include/store/IVectorStore.hpp
+        include/store/duckdb/DuckDBVectorStore.hpp
+        include/chain/RAGChain.hpp
+        include/retrieval/DocumentUtils.hpp
+        include/store/IDocStore.hpp
+        include/retrieval/MultiVectorRetriever.hpp
+        include/retrieval/ChunkedMultiVectorRetriever.hpp
+        include/retrieval/AutoRetriever.hpp
+        include/retrieval/MultiQueryRetriever.hpp
 
-        src/output_parser/MultiLineTextOutputParser.hpp
-        src/output_parser/MetadataQueryOutputParser.hpp
-        src/ingestor/BaseIngestor.hpp
-        src/ingestor/SingleFileIngestor.hpp
-        src/ingestor/DirectoryTreeIngestor.hpp
-        src/store/duckdb/DuckDBDocStore.hpp
+        include/output_parser/MultiLineTextOutputParser.hpp
+        include/output_parser/MetadataQueryOutputParser.hpp
+        include/ingestor/BaseIngestor.hpp
+        include/ingestor/SingleFileIngestor.hpp
+        include/ingestor/DirectoryTreeIngestor.hpp
+        include/store/duckdb/DuckDBDocStore.hpp
 
-        src/RetrievalTestGlobals.hpp
-        src/retrieval/BaseRetriever.hpp
+        include/RetrievalTestGlobals.hpp
+        include/retrieval/BaseRetriever.hpp
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC
@@ -52,7 +52,7 @@ add_library(instinct::retrieval
 
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE

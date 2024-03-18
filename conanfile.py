@@ -14,8 +14,10 @@ class InstinctCppRecipe(ConanFile):
     def validate(self):
         check_min_cppstd(self, 20)
 
+    def build_requirements(self):
+        self.tool_requires("cmake/3.27.9")
     def requirements(self):
-        print("InstinctCppRecipe requirements")
+        # self.tool_requires("cmake/3.27.8", build=True)
         self.requires("crossguid/0.2.2")
         self.requires("protobuf/3.21.12")
         self.requires("reactiveplusplus/2.0.0")
