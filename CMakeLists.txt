@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.25)
 project(instinct)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -109,7 +109,7 @@ add_subdirectory(thirdparty/ReactivePlusPlus)
 #set(ICU_BUILD_VERSION 74.2)
 #add_subdirectory(thirdparty/icu-cmake)
 # TODO embedd icu as submodule
-find_package(ICU 74.2 COMPONENTS uc i18n io REQUIRED)
+find_package(ICU 70.1 COMPONENTS uc i18n io REQUIRED)
 
 ## base64
 ## hand-written target rules to prevent conflicts in the original CMakelists.txt

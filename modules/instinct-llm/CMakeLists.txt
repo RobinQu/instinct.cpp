@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.25)
 project(instinct_llm)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})

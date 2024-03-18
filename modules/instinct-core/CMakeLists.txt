@@ -1,9 +1,8 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.25)
 project(instinct_core)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 set(${LIBRARY_TARGET_NAME}_HDR
-        src/ALL.hpp
         src/tools/SimpleHttpClient.hpp
         src/tools/HttpRequest.hpp
         src/tools/StringUtils.hpp
