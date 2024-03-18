@@ -4,10 +4,8 @@ project(instinct_core)
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 set(${LIBRARY_TARGET_NAME}_HDR
         include/tools/SimpleHttpClient.hpp
-        include/tools/HttpRequest.hpp
         include/tools/StringUtils.hpp
-        include/tools/HttpUtils.hpp
-        include/tools/HttpResponse.hpp
+        include/tools/http/HttpUtils.hpp
         include/tools/HttpRestClient.hpp
         include/CoreGlobals.hpp
         include/tools/HttpClientException.hpp
@@ -19,6 +17,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/functional/ReactiveFunctions.hpp
         include/tools/CodecUtils.hpp
         include/tools/http/IHttpClient.hpp
+        include/tools/http/CURLHttpClient.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

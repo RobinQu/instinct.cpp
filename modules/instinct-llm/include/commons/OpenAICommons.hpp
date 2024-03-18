@@ -6,7 +6,7 @@
 #define OPENAICOMMONS_HPP
 
 #include "LLMGlobals.hpp"
-#include "tools/HttpUtils.hpp"
+#include "tools/http/HttpUtils.hpp"
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

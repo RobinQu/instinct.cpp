@@ -5,7 +5,7 @@
 #ifndef OLLAMACOMMONS_H
 #define OLLAMACOMMONS_H
 
-#include "tools/HttpUtils.hpp"
+#include "tools/http/HttpUtils.hpp"
 #include "LLMGlobals.hpp"
 
 /**

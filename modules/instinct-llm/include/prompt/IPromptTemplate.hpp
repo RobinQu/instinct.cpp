@@ -45,6 +45,6 @@ namespace INSTINCT_LLM_NS {
     // MessagePromptTemplate extends ChatPromptTemplate
 
 } // model
-// langchain
+
 
 #endif //PROMPT_H
