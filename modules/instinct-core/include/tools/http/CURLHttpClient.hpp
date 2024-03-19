@@ -68,7 +68,7 @@ namespace INSTINCT_CORE_NS {
             curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);
         }
 
-        static int make_curl_request(
+        static CURLcode make_curl_request(
             const HttpRequest &request,
             HttpResponse& response
         ) {
@@ -120,7 +120,7 @@ namespace INSTINCT_CORE_NS {
 
         template<typename OB>
         requires rpp::constraint::observer_of_type<OB, std::string>
-        static int observe_curl_request(const HttpRequest &request, OB&& observer) {
+        static CURLcode observe_curl_request(const HttpRequest &request, OB&& observer) {
             initialize_curl();
             CURLcode ret;
             CURL *hnd;
@@ -155,7 +155,7 @@ namespace INSTINCT_CORE_NS {
             LOG_DEBUG("REQ: {} {}", call.method, url);
             auto code = details::make_curl_request(call, http_response);
             if (code != 0) {
-                throw HttpClientException(-1, "curl request failed with return code " + std::to_string(code));
+                throw HttpClientException(-1, "curl request failed with return code " + std::string(curl_easy_strerror(code)));
             }
             LOG_DEBUG("RESP: {} {}, status_code={}, body_length={}", call.method, url, http_response.status_code, http_response.body.size());
             return http_response;
@@ -169,9 +169,9 @@ namespace INSTINCT_CORE_NS {
         AsyncIterator<std::string> StreamChunk(const HttpRequest &call) override {
             return rpp::source::create<std::string>([&](auto&& observer) {
                 using OB_TYPE = decltype(observer);
-                int ret = details::observe_curl_request<OB_TYPE>(call, std::forward<OB_TYPE>(observer));
-                if (ret!=0) {
-                    observer.on_error(std::make_exception_ptr(HttpClientException(-1, "curl request failed with return code " + std::to_string(ret))));
+                auto code = details::observe_curl_request<OB_TYPE>(call, std::forward<OB_TYPE>(observer));
+                if (code!=0) {
+                    observer.on_error(std::make_exception_ptr(HttpClientException(-1, "curl request failed with return code " + std::string(curl_easy_strerror(code)))));
                 }
             });
         }

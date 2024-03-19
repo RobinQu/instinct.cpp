@@ -53,4 +53,28 @@ namespace INSTINCT_CORE_NS {
         ASSERT_EQ(HttpUtils::GetHeaderValue("Content-Type", "", resp5.headers), "application/json");
     }
 
+
+    /**
+     * This test relies on a locally running OpenAI-compatible API service. This extra dependency will be addressed in the future.
+     */
+    TEST_F(CURLHttpClientTest, ChunkedResponse) {
+        CURLHttpClient client;
+        auto req1 = HttpUtils::CreateRequest("POST http://192.168.0.107:1234/v1/chat/completions");
+        req1.headers[HTTP_HEADER_CONTENT_TYPE_NAME] = HTTP_CONTENT_TYPES.at(kJSON);
+        req1.body = R"({
+          "messages": [
+            { "role": "system", "content": "Always answer in rhymes." },
+            { "role": "user", "content": "Introduce yourself." }
+          ],
+          "temperature": 0.7,
+          "max_tokens": -1,
+          "stream": true
+        })";
+        client.StreamChunk(req1)
+            .subscribe([](const auto& chunk) {
+                LOG_INFO("chunk: {}", chunk);
+            });
+
+    }
+
 }
