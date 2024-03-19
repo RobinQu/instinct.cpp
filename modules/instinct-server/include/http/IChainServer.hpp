@@ -1,0 +1,8 @@
+//
+// Created by RobinQu on 2024/3/19.
+//
+
+#ifndef INSTINCT_ICHAINSERVER_HPP
+#define INSTINCT_ICHAINSERVER_HPP
+
+#endif //INSTINCT_ICHAINSERVER_HPP

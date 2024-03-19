@@ -109,6 +109,9 @@ find_package(uriparser REQUIRED)
 ## libcurl
 find_package(CURL)
 
+## http server
+find_package(httplib)
+
 ## gtest
 if(BUILD_TESTING)
     find_package(GTest REQUIRED)
@@ -120,3 +123,4 @@ add_subdirectory(modules/instinct-proto)
 add_subdirectory(modules/instinct-core)
 add_subdirectory(modules/instinct-llm)
 add_subdirectory(modules/instinct-retrieval)
+add_subdirectory(modules/instinct-server)

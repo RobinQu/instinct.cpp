@@ -42,7 +42,7 @@ namespace INSTINCT_LLM_NS {
         //     }
         // }
 
-        // NOTE: sadlly, u_isprint(i) is not equalivent to str.isprintable() in Python. Codepoint 166 in unicode is an example when `u_isprint` in C++ returns true but `str.isprintable` return false in Python.
+        // NOTE: sadly, u_isprint(i) is not equivalent to str.isprintable() in Python. Codepoint 166 in unicode is an example when `u_isprint` in C++ returns true but `str.isprintable` return false in Python.
         auto insert_fn = [&](u_int32_t a, u_int32_t b) {
             for(u_int32_t begin = a; begin<=b; begin++) {
                 rank_to_byte.push_back(begin);
@@ -51,7 +51,6 @@ namespace INSTINCT_LLM_NS {
         insert_fn(L'!', L'~');
         insert_fn(L'¡', L'¬');
         insert_fn(L'®', L'ÿ');
-
 
         tsl::ordered_map<UChar32, u_int8_t> data_gym_byte_to_byte;
         for (const auto& i: rank_to_byte) {

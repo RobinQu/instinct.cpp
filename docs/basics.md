@@ -41,3 +41,19 @@ RAG related utilities, including
   * RAGChain
   * ...
 
+
+## instinct-server
+
+## Composable Chain Server
+
+Process model: 
+
+```
+- DaemonProcess
+  |- LLM Provider 1
+  |- LLM Provider 2
+  |- ...
+  |- HTTP Server for instinct objects, like `Chain`s. 
+```
+
+* LLM Provider: inference process, e.g. nitro server.
