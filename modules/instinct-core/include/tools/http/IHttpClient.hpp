@@ -31,7 +31,7 @@ namespace INSTINCT_CORE_NS {
     };
 
     enum HttpProtocol {
-        kSpecifiedProtocol,
+        kUnspecifiedProtocol,
         kHTTP,
         kHTTPS
     };
@@ -39,10 +39,11 @@ namespace INSTINCT_CORE_NS {
     struct Endpoint {
         HttpProtocol protocol = kHTTP;
         std::string host;
-        int port;
+        int port = 80;
     };
 
     struct HttpRequest {
+        Endpoint endpoint;
         HttpMethod method = HttpMethod::kGET;
         std::string target;
         HttpHeaders headers;
@@ -62,6 +63,7 @@ namespace INSTINCT_CORE_NS {
         virtual ~IHttpClient() = default;
         IHttpClient(const IHttpClient&)=delete;
         IHttpClient(IHttpClient&&)=delete;
+        IHttpClient() = default;
 
         virtual HttpResponse Execute(
                 const HttpRequest& call
@@ -100,7 +102,7 @@ template <> struct fmt::formatter<INSTINCT_CORE_NS::HttpProtocol>: formatter<str
         switch (c) {
             case INSTINCT_CORE_NS::kHTTP:   name = "http"; break;
             case INSTINCT_CORE_NS::kHTTPS: name = "https"; break;
-            case INSTINCT_CORE_NS::kSpecifiedProtocol: name = ""; break;
+            case INSTINCT_CORE_NS::kUnspecifiedProtocol: name = ""; break;
         }
         return formatter<string_view>::format(name, ctx);
     }

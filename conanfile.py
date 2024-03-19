@@ -19,6 +19,7 @@ class InstinctCppRecipe(ConanFile):
 
     def requirements(self):
         # self.tool_requires("cmake/3.27.8", build=True)
+        self.requires("uriparser/0.9.7")
         self.requires("crossguid/0.2.2")
         self.requires("protobuf/3.21.12")
         self.requires("reactiveplusplus/2.0.0")

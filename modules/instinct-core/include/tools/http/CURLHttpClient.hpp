@@ -11,87 +11,137 @@
 #include "CoreGlobals.hpp"
 #include "IHttpClient.hpp"
 #include "HttpUtils.hpp"
+#include "HttpClientException.hpp"
 
 namespace INSTINCT_CORE_NS {
 
     namespace details {
-//
-//        struct curl_session_data {
-//            HttpRequest* request;
-//            HttpResponse* response;
-//        };
 
-
-        static void make_curl_headers(const HttpHeaders& headers, curl_slist **header_slist) {
-            for(const auto& [k,v]: headers) {
-                *header_slist = curl_slist_append(*header_slist, fmt::format("{}: {}", k, v).data());
+        static void initialize_curl() {
+            static bool CURL_INITIALIZED = false;
+            if(!CURL_INITIALIZED) {
+                curl_global_init(CURL_GLOBAL_ALL);
+                CURL_INITIALIZED = true;
             }
         }
 
-        static size_t curl_header_callback(char *ptr, size_t size, size_t nmemb,
-                               void *http_response) {
-            auto response = static_cast<HttpResponse*>(http_response);
-
-
-        }
 
         static size_t curl_write_callback(char *ptr, size_t size, size_t nmemb,
-                              void *http_response) {
-
+                                          HttpResponse *http_response) {
+            http_response->body += {ptr, size*nmemb};
+            return size * nmemb;
         }
 
-        static int make_post_request(
-            const HttpRequest &request,
-            HttpResponse& response
-        ) {
-            CURLcode ret;
-            CURL *hnd;
-            struct curl_slist *header_slist = nullptr;
-            make_curl_headers(request.headers, &header_slist);
+        static void configure_curl_request(
+                const HttpRequest &request,
+                CURL *hnd,
+                curl_slist *header_slist
+                ) {
 
-            hnd = curl_easy_init();
+            for(const auto& [k,v]: request.headers) {
+                header_slist = curl_slist_append(header_slist, fmt::format("{}: {}", k, v).data());
+            }
             curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
 
             auto url_string = HttpUtils::CreateUrlString(request);
             curl_easy_setopt(hnd, CURLOPT_URL, url_string.c_str());
             curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
-            curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, request.body.data());
-            curl_easy_setopt(hnd, CURLOPT_POSTFIELDSIZE_LARGE, (curl_off_t)request.body.size());
+
+            if (!request.body.empty() && (request.method == HttpMethod::kPOST || request.method == kPUT)) {
+                curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, request.body.data());
+                curl_easy_setopt(hnd, CURLOPT_POSTFIELDSIZE_LARGE, (curl_off_t)request.body.size());
+
+            }
+//            if (request.method == kPUT) {
+//                curl_easy_setopt(hnd, CURLOPT_UPLOAD, 1L);
+//            }
+
             curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, header_slist);
+            curl_easy_setopt(hnd, CURLOPT_ACCEPT_ENCODING, "");
             curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/8.4.0");
             curl_easy_setopt(hnd, CURLOPT_FOLLOWLOCATION, 1L);
             curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 5L);
             curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, (long)CURL_HTTP_VERSION_2TLS);
-            curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, fmt::format("{}", request.method).c_str());
             curl_easy_setopt(hnd, CURLOPT_FTP_SKIP_PASV_IP, 1L);
             curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
+            curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);
+        }
 
-            curl_easy_setopt(hnd, CURLOPT_HEADER, 1L);
-//            curl_easy_setopt(hnd, CURLOPT_HEADERFUNCTION, curl_header_callback);
-//            curl_easy_setopt(hnd, CURLOPT_HEADERDATA, &response);
+        static int make_curl_request(
+            const HttpRequest &request,
+            HttpResponse& response
+        ) {
+            initialize_curl();
+            CURLcode ret;
+            CURL *hnd;
+            hnd = curl_easy_init();
+            struct curl_slist *header_slist = nullptr;
 
-            { // dump headers to response
-                struct curl_header *h;
-                struct curl_header *prev = nullptr;
-                do {
-                    h = curl_easy_nextheader(hnd, CURLH_HEADER, -1, prev);
-                    if(h) {
-                        printf(" %s: %s (%u)\n", h->name, h->value, (int)h->amount);
-                        response.headers[h->name] = h->value;
-                    }
-
-                    prev = h;
-                } while(h);
-            }
+            configure_curl_request(request, hnd, header_slist);
 
             curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, curl_write_callback);
             curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &response);
 
             ret = curl_easy_perform(hnd);
+
+            if(ret==0) {
+                // get response code
+                curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &response.status_code);
+                { // dump headers to response
+                    struct curl_header *h;
+                    struct curl_header *prev = nullptr;
+                    do {
+                        h = curl_easy_nextheader(hnd, CURLH_HEADER, -1, prev);
+                        if(h) {
+//                            printf(" %s: %s (%u)\n", h->name, h->value, (int)h->amount);
+                            response.headers[h->name] = h->value;
+                        }
+
+                        prev = h;
+                    } while(h);
+                }
+            }
+
             curl_easy_cleanup(hnd);
-            hnd = nullptr;
             curl_slist_free_all(header_slist);
-            header_slist = nullptr;
+            return ret;
+        }
+
+
+        template<typename OB>
+        requires rpp::constraint::observer_of_type<OB, std::string>
+        static size_t curl_write_callback_with_observer(char *ptr, size_t size, size_t nmemb,
+                                                        OB *ob) {
+            std::string buf = {ptr, size * nmemb};
+            ob->on_next(buf);
+            return size * nmemb;
+        }
+
+        template<typename OB>
+        requires rpp::constraint::observer_of_type<OB, std::string>
+        static int observe_curl_request(const HttpRequest &request, OB&& observer) {
+            initialize_curl();
+            CURLcode ret;
+            CURL *hnd;
+            struct curl_slist *header_slist = nullptr;
+            hnd = curl_easy_init();
+
+            configure_curl_request(request, hnd, header_slist);
+            using OB_TYPE = std::decay_t<OB>;
+            curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, curl_write_callback_with_observer<OB_TYPE>);
+            curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &observer);
+
+            ret = curl_easy_perform(hnd);
+            if(ret==0) {
+                int status_code;
+                curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &status_code);
+                if (status_code >= 400) {
+                    observer.on_error(std::make_exception_ptr(HttpClientException(status_code, "Failed to get chunked response")));
+                }
+            }
+            curl_easy_cleanup(hnd);
+            curl_slist_free_all(header_slist);
             return ret;
         }
     }
@@ -100,11 +150,30 @@ namespace INSTINCT_CORE_NS {
 
     public:
         HttpResponse Execute(const HttpRequest &call) override {
-
+            HttpResponse http_response;
+            auto url = HttpUtils::CreateUrlString(call);
+            LOG_DEBUG("REQ: {} {}", call.method, url);
+            auto code = details::make_curl_request(call, http_response);
+            if (code != 0) {
+                throw HttpClientException(-1, "curl request failed with return code " + std::to_string(code));
+            }
+            LOG_DEBUG("RESP: {} {}, status_code={}, body_length={}", call.method, url, http_response.status_code, http_response.body.size());
+            return http_response;
         }
 
+        /**
+         *
+         * @param call `call` reference should persist during HTTP request
+         * @return
+         */
         AsyncIterator<std::string> StreamChunk(const HttpRequest &call) override {
-
+            return rpp::source::create<std::string>([&](auto&& observer) {
+                using OB_TYPE = decltype(observer);
+                int ret = details::observe_curl_request<OB_TYPE>(call, std::forward<OB_TYPE>(observer));
+                if (ret!=0) {
+                    observer.on_error(std::make_exception_ptr(HttpClientException(-1, "curl request failed with return code " + std::to_string(ret))));
+                }
+            });
         }
 
 

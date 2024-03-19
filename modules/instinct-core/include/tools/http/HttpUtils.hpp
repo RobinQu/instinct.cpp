@@ -11,6 +11,10 @@
 #include "fmt/ranges.h"
 #include "IHttpClient.hpp"
 #include <fmt/core.h>
+#include <fmt/format.h>
+#include <fmt/args.h>
+#include <uriparser/Uri.h>
+
 
 
 namespace INSTINCT_CORE_NS {
@@ -33,10 +37,15 @@ namespace INSTINCT_CORE_NS {
         }
 
         static std::string CreateUrlString(const HttpRequest& call) {
-
+            fmt::dynamic_format_arg_store<fmt::format_context> store;
+            store.push_back(fmt::arg("protocol", call.endpoint.protocol));
+            store.push_back(fmt::arg("host", call.endpoint.host));
+            store.push_back(fmt::arg("port", call.endpoint.port));
+            store.push_back(fmt::arg("target", call.target));
+            return fmt::vformat("{protocol}://{host}:{port}{target}", store);
         }
 
-        static HttpRequest FromRequestLine(const std::string& request_line) {
+        static HttpRequest CreateRequest(const std::string& request_line) {
             HttpRequest call;
             // parse request line
             std::vector<std::string> parts = StringUtils::ReSplit(request_line);
@@ -44,18 +53,38 @@ namespace INSTINCT_CORE_NS {
                 throw InstinctException(fmt::format("invalid request line: {}", request_line));
             }
             call.method = HttpUtils::ParseMethod(parts[0]);
-            call.target = parts[1];
-            // if(auto uri_result = boost::urls::parse_uri_reference(parts[1]); uri_result) {
-            //     boost::url url = *uri_result;
-            //     call.host = url.host();
-            //     call.port = url.port_number();
-            //     call.path = url.path();
-            //     call.query_string = url.query();
-            //     call.target = call.path + "?" + call.query_string;
-            // } else {
-            //     const boost::system::error_code e = uri_result.error();
-            //     throw InstinctException(fmt::format("invalid url: {}", e.to_string()));
-            // }
+            UriUriA  uri;
+            const char* error_pos;
+            if(uriParseSingleUriA(&uri, parts[1].data(), &error_pos) == URI_SUCCESS) {
+                auto scheme = std::string {uri.scheme.first, uri.scheme.afterLast};
+
+                auto port_text = std::string {uri.portText.first, uri.portText.afterLast};
+                if (scheme == "http") {
+                    call.endpoint.protocol = kHTTP;
+                    if(port_text.empty()) {
+                        call.endpoint.port = 80;
+                    }
+                } else if(scheme == "https") {
+                    call.endpoint.protocol = kHTTPS;
+                    if(port_text.empty()) {
+                        call.endpoint.port = 443;
+                    }
+                } else { // other protocols are not currently supported
+                    call.endpoint.protocol = kUnspecifiedProtocol;
+                }
+                if(!port_text.empty()) { // override port number if specifically defined
+                    call.endpoint.port = std::stoi(port_text);
+                }
+                call.endpoint.host = std::string {uri.hostText.first, uri.hostText.afterLast};
+
+                auto path_head = uri.pathHead;
+                while(path_head) {
+                    call.target += "/";
+                    call.target += {path_head->text.first, path_head->text.afterLast};
+                    path_head = path_head->next;
+                }
+            }
+            uriFreeUriMembersA(&uri);
             return call;
         }
 

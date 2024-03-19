@@ -1,18 +1,6 @@
-[submodule "thirdparty/httplib"]
-	path = thirdparty/httplib
-	url = https://github.com/yhirose/cpp-httplib.git
-[submodule "thirdparty/taskflow"]
-	path = thirdparty/taskflow
-	url = https://github.com/taskflow/taskflow.git
 [submodule "thirdparty/ReactivePlusPlus"]
 	path = thirdparty/ReactivePlusPlus
 	url = git@github.com:victimsnino/ReactivePlusPlus.git
-[submodule "thirdparty/ordered-map"]
-	path = thirdparty/ordered-map
-	url = https://github.com/Tessil/ordered-map.git
 [submodule "thirdparty/duckdb"]
 	path = thirdparty/duckdb
 	url = https://github.com/duckdb/duckdb.git
-[submodule "thirdparty/cpp-httplib"]
-	path = thirdparty/cpp-httplib
-	url = https://github.com/yhirose/cpp-httplib.git

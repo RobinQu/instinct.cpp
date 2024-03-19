@@ -4,6 +4,7 @@
 
 #ifndef HTTPCLIENTEXCEPTION_H
 #define HTTPCLIENTEXCEPTION_H
+
 #include "CoreGlobals.hpp"
 
 

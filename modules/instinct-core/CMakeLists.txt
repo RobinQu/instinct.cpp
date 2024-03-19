@@ -8,7 +8,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/tools/http/HttpUtils.hpp
         include/tools/HttpRestClient.hpp
         include/CoreGlobals.hpp
-        include/tools/HttpClientException.hpp
+        include/tools/http/HttpClientException.hpp
         include/functional/IRunnable.hpp
         include/tools/TensorUtils.hpp
         include/tools/FunctionUtils.hpp
@@ -37,8 +37,6 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         RPP::rpp
         fmt::fmt
         nlohmann_json::nlohmann_json
-        httplib
-        # Taskflow
         ICU::uc
         ICU::i18n
         ICU::io
@@ -47,6 +45,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         fmtlog::fmtlog
         crossguid::crossguid
         CURL::libcurl
+        uriparser::uriparser
 )
 
 #set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES

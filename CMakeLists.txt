@@ -103,9 +103,8 @@ find_package(fmtlog)
 ## crossguid
 find_package(crossguid REQUIRED)
 
-## cpp-httplib
-add_subdirectory(thirdparty/cpp-httplib)
-target_compile_definitions(httplib INTERFACE CPPHTTPLIB_ALLOW_LF_AS_LINE_TERMINATOR)
+## uriparser
+find_package(uriparser REQUIRED)
 
 ## libcurl
 find_package(CURL)

@@ -12,7 +12,7 @@
 #include "CoreGlobals.hpp"
 #include "functional/ReactiveFunctions.hpp"
 
-#include "HttpClientException.hpp"
+#include "tools/http/HttpClientException.hpp"
 #include "SimpleHttpClient.hpp"
 
 
