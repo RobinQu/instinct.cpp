@@ -19,6 +19,7 @@ namespace INSTINCT_LLM_NS {
     class LLMChainTest: public testing::Test {
     protected:
         void SetUp() override {
+            SetupLogging();
             string_parser_ = std::make_shared<StringOutputParser>();
             chat_model_ = std::make_shared<OllamaChat>();
             llm_ = std::make_shared<OllamaLLM>();

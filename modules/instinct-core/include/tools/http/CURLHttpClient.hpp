@@ -108,13 +108,24 @@ namespace INSTINCT_CORE_NS {
             return ret;
         }
 
+        static const std::string LF_LF_END_OF_LINE = "\n\n";
 
         template<typename OB>
         requires rpp::constraint::observer_of_type<OB, std::string>
         static size_t curl_write_callback_with_observer(char *ptr, size_t size, size_t nmemb,
                                                         OB *ob) {
-            std::string buf = {ptr, size * nmemb};
-            ob->on_next(buf);
+            if (const std::string original_chunk = {ptr, size * nmemb};original_chunk.find(
+                    LF_LF_END_OF_LINE)) {
+                // non-standard line-breaker, used by many SSE implementation.
+                for (const auto line: std::views::split(original_chunk, LF_LF_END_OF_LINE)) {
+                    auto part = std::string (line.begin(), line.end());
+                    if (!part.empty()) {
+                        ob->on_next(part);
+                    }
+                }
+            } else {
+                ob->on_next(original_chunk);
+            }
             return size * nmemb;
         }
 
@@ -167,7 +178,9 @@ namespace INSTINCT_CORE_NS {
          * @return
          */
         AsyncIterator<std::string> StreamChunk(const HttpRequest &call) override {
-            return rpp::source::create<std::string>([&](auto&& observer) {
+            HttpUtils::HttpUtils::AsertValidHttpRequest(call);
+            // TODO maybe stop copying `call` by using smart pointer
+            return rpp::source::create<std::string>([&, call](auto&& observer) {
                 using OB_TYPE = decltype(observer);
                 auto code = details::observe_curl_request<OB_TYPE>(call, std::forward<OB_TYPE>(observer));
                 if (code!=0) {

@@ -64,9 +64,11 @@ blue bits all around so we can see them!)""")
 
     TEST_F(OllamaChatTest, TestStream) {
         OllamaChat ollama_chat;
+        std::string buf;
         ollama_chat.Stream(dialog1->Build())
-            | rpp::operators::subscribe([](const auto& s) {
-                std::cout << s.DebugString() << std::endl;
+            | rpp::operators::subscribe([&](const auto& s) {
+                buf += s.content();
+                std::cout << buf << std::endl;
             });
     }
 }

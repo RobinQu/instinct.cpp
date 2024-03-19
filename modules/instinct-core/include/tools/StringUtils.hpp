@@ -11,10 +11,7 @@
 #include <string>
 #include <iostream>
 #include <unicode/ustream.h>
-//#include <uuid/uuid.h>
 #include <Guid.hpp>
-
-
 #include "Assertions.hpp"
 
 

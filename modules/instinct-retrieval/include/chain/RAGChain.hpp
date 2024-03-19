@@ -87,6 +87,22 @@ namespace INSTINCT_RETRIEVAL_NS {
     template<typename T>
     using RAGChainPtr = ChainPtr<T, RAGChainOptions>;
 
+    template<typename T>
+    static RAGChainPtr<T> CreateRAGChain(
+            ChatMemoryPtr chat_memory,
+            RetrieverPtr retriever,
+            ChainPtr<std::string> question_chain,
+            ChainPtr<T> answer_chain,
+            const RAGChainOptions& options = {}
+            ) {
+        return std::make_shared<RAGChain<std::string>>(
+                chat_memory,
+                retriever,
+                question_chain,
+                answer_chain
+        );
+    }
+
 }
 
 

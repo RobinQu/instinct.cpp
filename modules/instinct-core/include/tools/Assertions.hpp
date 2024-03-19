@@ -6,16 +6,12 @@
 #define ASSERTIONS_HPP
 
 #include "CoreGlobals.hpp"
+#include "tools/http/IHttpClient.hpp"
 
-// #include "StringUtils.hpp"
+ #include "StringUtils.hpp"
 
 
 namespace INSTINCT_CORE_NS {
-    template<typename R>
-    concept sized_range = std::ranges::input_range<R> && std::ranges::sized_range<R>;
-
-    template<typename T>
-    concept numberic = std::integral<T> || std::floating_point<T>;
 
     template <typename R1, typename R2>
     requires sized_range<R1> && sized_range<R2>
@@ -130,6 +126,8 @@ namespace INSTINCT_CORE_NS {
         msg.toUTF8String(msg_utf8);
         assert_icu_status(status, msg_utf8);
     }
+
+
 
 
 

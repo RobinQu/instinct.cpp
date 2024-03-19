@@ -34,10 +34,15 @@ namespace INSTINCT_LLM_NS {
         })
         | rpp::operators::subscribe([](const auto& msg) {std::cout << msg << std::endl; });
 
-        openai_chat->Stream("What's captital city of France?")
-            // | rpp::operators::as_blocking()
-            | rpp::operators::subscribe([](const auto& m) { std::cout << m << std::endl; })
-        ;
+
     }
+
+    TEST_F(OpenAIChatTest, StreamGenerate) {
+        openai_chat->Stream("What's capital city of France?")
+        // | rpp::operators::as_blocking()
+        | rpp::operators::subscribe([](const auto& m) { std::cout << "output message: " <<  m << std::endl; });
+    }
+
+
 
 }

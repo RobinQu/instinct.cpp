@@ -111,8 +111,9 @@ public:
     ) {
         std::string param_string = converter_.Serialize(param);
         const HttpRequest request = {
+            .endpoint = endpoint_,
             .method = kPOST,
-            .target =uri,
+            .target = uri,
             .headers = {
                 {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON) }
             },
@@ -126,7 +127,7 @@ public:
                     return !details::is_end_sentinels(chunk_string, end_sentinels);
                 })
                 | rpp::operators::map([&](const auto& chunk_string) {
-                    std::cout << "chunk: " <<  chunk_string << std::endl;
+//                    std::cout << "chunk: " <<  chunk_string << std::endl;
                     return converter_.Deserialize<ResponseEntity>(chunk_string);
                 });
         }

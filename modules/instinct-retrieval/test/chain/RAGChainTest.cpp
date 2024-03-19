@@ -13,13 +13,15 @@
 #include "retrieval/VectorStoreRetriever.hpp"
 #include "tools/ChronoUtils.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
+#include "LLMTestGlobals.hpp"
 
 namespace  INSTINCT_RETRIEVAL_NS {
     class RAGChainTest : public testing::Test {
     protected:
         void SetUp() override {
-            OllamaConfiguration ollama_configuration = {.model_name = "llama2:7b-chat"};
-            embedding_model_ = std::make_shared<OllamaEmbedding>(ollama_configuration);
+            SetupLogging();
+
+            embedding_model_ = test::create_local_embedding_model();
             const auto db_file_path = std::filesystem::temp_directory_path() / (
                                     ChronoUtils::GetCurrentTimestampString() + ".db");
 
@@ -33,8 +35,7 @@ namespace  INSTINCT_RETRIEVAL_NS {
             retriever_ = CreateVectorStoreRetriever(vector_store);
             chat_memory_ = std::make_shared<EphemeralChatMemory>();
 
-            ChatModelPtr chat_model = std::make_shared<OllamaChat>(ollama_configuration);
-
+            ChatModelPtr chat_model = test::create_local_chat_model();
 
             PromptTemplatePtr question_prompt_template = OllamaChat::CreateChatPromptTemplateBuilder()
                     ->AddHumanMessage(R"(
@@ -47,11 +48,11 @@ Standalone question:)")
 
             OutputParserPtr<std::string> string_output_parser = std::make_shared<StringOutputParser>();
 
-
             ChainOptions question_chain_options = {
                 .input_keys = {"question"},
                 .output_keys = {"standalone_question"}
             };
+
             question_chain_ = std::make_shared<LLMChain<std::string>>(
                 chat_model,
                 question_prompt_template,
@@ -74,19 +75,19 @@ Question: {standalone_question}
                 .input_keys  = {"standalone_question", "context"},
                 .output_keys = {"answer"}
             };
-            answer_chain_ = std::make_shared<LLMChain<std::string>>(
+            answer_chain_ = CreateTextLLMChain(
                 chat_model,
                 answer_prompt_template,
                 string_output_parser,
                 nullptr,
                 answer_chain_options
-                );
+            );
 
             RAGChainOptions rag_chain_options = {
                 .context_output_key = "context",
                 .condense_question_key = question_chain_options.output_keys[0],
             };
-            rag_chain_ = std::make_shared<RAGChain<std::string>>(
+            rag_chain_ = CreateRAGChain(
                 chat_memory_,
                 std::dynamic_pointer_cast<BaseRetriever>(retriever_),
                 question_chain_,

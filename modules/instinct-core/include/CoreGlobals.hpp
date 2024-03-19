@@ -30,6 +30,12 @@ namespace INSTINCT_CORE_NS {
         fmtlog::startPollingThread();
     }
 
+    template<typename R>
+    concept sized_range = std::ranges::input_range<R> && std::ranges::sized_range<R>;
+
+    template<typename T>
+    concept numberic = std::integral<T> || std::floating_point<T>;
+
     template<class>
     inline constexpr bool always_false_v = false;
 

@@ -35,7 +35,7 @@ INSTINCT_LLM_NS {
                  const PromptTemplatePtr& prompt_template,
                  const OutputParserPtr<Result>& output_parser,
                  const ChatMemoryPtr& chat_memory = nullptr,
-                 ChainOptions options = {}
+                 const ChainOptions& options = {}
                  )
             : BaseChain<Result>(std::move(options)),
                 model_(model),
@@ -48,7 +48,7 @@ INSTINCT_LLM_NS {
 
         void EnhanceContext(const ContextMutataorPtr& context_mutataor) override {
             if (chat_memory_) {
-                // add chat histroy
+                // add chat history
                 chat_memory_->EnhanceContext(context_mutataor);
             }
             // add parser instruction
@@ -96,6 +96,21 @@ INSTINCT_LLM_NS {
     using TextLLMChain = LLMChain<std::string>;
     using MultilineTextLLMChain = LLMChain<MultiLineText>;
 
+    static TextChainPtr CreateTextLLMChain(
+            const LanguageModelVariant& model,
+            const PromptTemplatePtr& prompt_template,
+            const TextOutputParserPtr & output_parser,
+            const ChatMemoryPtr& chat_memory = nullptr,
+            const ChainOptions& options = {}
+            ) {
+        return std::make_shared<TextLLMChain>(
+                model,
+                prompt_template,
+                output_parser,
+                nullptr,
+                options
+        );
+    }
 
     // IRunnable<Input,Output>
 
