@@ -8,17 +8,18 @@
 
 #include <google/protobuf/util/json_util.h>
 
+#include <utility>
+
 #include "Assertions.hpp"
 #include "CoreGlobals.hpp"
 #include "functional/ReactiveFunctions.hpp"
 
 #include "tools/http/HttpClientException.hpp"
-#include "SimpleHttpClient.hpp"
+#include "tools/http/IHttpClient.hpp"
+#include "tools/http/CURLHttpClient.hpp"
 
 
 namespace INSTINCT_CORE_NS {
-
-
     namespace details {
         struct ProtobufHttpEntityConverter {
             template<typename T>
@@ -53,25 +54,30 @@ namespace INSTINCT_CORE_NS {
 
     }
 
-
-
-
-class HttpRestClient final: public SimpleHttpClient {
+class HttpRestClient final {
     details::ProtobufHttpEntityConverter converter_;
+    Endpoint endpoint_;
+    HttpClientPtr http_client_;
 
 public:
     HttpRestClient() = delete;
 
-    explicit HttpRestClient(const Endpoint& endpoint)
-        : SimpleHttpClient(endpoint), converter_() {
+    explicit HttpRestClient(Endpoint  endpoint)
+        : endpoint_(std::move(endpoint)), converter_() {
+        http_client_ = CreateCURLHttpClient();
     }
 
     template<typename ResponseEntity>
     ResponseEntity GetObject(const std::string& uri) {
-        const HttpRequest request = {kGET, uri, {
+        const HttpRequest request = {
+                endpoint_,
+                kGET,
+                uri,
+                {
                 {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON) }
-        }, ""};
-        const HttpResponse response = Execute(request);
+                }
+        };
+        const HttpResponse response = http_client_->Execute(request);
         if(response.status_code >= 400) {
             throw HttpClientException(response.status_code, response.body);
         }
@@ -81,10 +87,15 @@ public:
     template<typename RequestEntity, typename ResponseEntity>
     ResponseEntity PostObject(const std::string& uri, const RequestEntity& param) {
         std::string param_string = converter_.Serialize(param);
-        const HttpRequest request = {kPOST, uri, {
-                {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON) }
+        const HttpRequest request = {
+                endpoint_,
+                kPOST,
+                uri,
+                {
+                    {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON)
+                    }
         }, param_string};
-        const auto [headers, body, status_code] = Execute(request);
+        const auto [headers, body, status_code] = http_client_->Execute(request);
         if(status_code >= 400) {
             throw HttpClientException(status_code, body);
         }
@@ -109,7 +120,7 @@ public:
         };
 
         if (is_sse_event_stream) {
-            return StreamChunk(request)
+            return http_client_->StreamChunk(request)
                 | rpp::operators::map(details::strip_data_stream_prefix)
                 | rpp::operators::take_while([&,end_sentinels](const auto& chunk_string) {
                     return !details::is_end_sentinels(chunk_string, end_sentinels);
@@ -120,7 +131,7 @@ public:
                 });
         }
 
-        return StreamChunk(request)
+        return http_client_->StreamChunk(request)
             | rpp::operators::map([&](const auto& chunk_string) {
                 return converter_.Deserialize<ResponseEntity>(chunk_string);
             });

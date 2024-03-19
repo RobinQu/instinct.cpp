@@ -72,9 +72,8 @@ namespace INSTINCT_CORE_NS {
         virtual AsyncIterator<std::string> StreamChunk(
                 const HttpRequest& call
         ) = 0;
-
-
     };
+    using HttpClientPtr = std::shared_ptr<IHttpClient>;
 }
 
 

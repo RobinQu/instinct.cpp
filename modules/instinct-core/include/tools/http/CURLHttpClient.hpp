@@ -176,8 +176,11 @@ namespace INSTINCT_CORE_NS {
             });
         }
 
-
     };
+
+    static HttpClientPtr CreateCURLHttpClient() {
+        return std::make_shared<CURLHttpClient>();
+    }
 }
 
 #endif //INSTINCT_CURLHTTPCLIENT_HPP

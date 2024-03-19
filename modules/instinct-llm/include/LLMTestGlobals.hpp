@@ -4,7 +4,7 @@
 
 #ifndef LLMTESTGLOBALS_HPP
 #define LLMTESTGLOBALS_HPP
-
+#include <random>
 
 #include "RetrievalGlobals.hpp"
 #include "chat_model/BaseChatModel.hpp"

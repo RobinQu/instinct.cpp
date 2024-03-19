@@ -3,7 +3,6 @@ project(instinct_core)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 set(${LIBRARY_TARGET_NAME}_HDR
-        include/tools/SimpleHttpClient.hpp
         include/tools/StringUtils.hpp
         include/tools/http/HttpUtils.hpp
         include/tools/HttpRestClient.hpp

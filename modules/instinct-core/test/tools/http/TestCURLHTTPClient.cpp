@@ -59,7 +59,7 @@ namespace INSTINCT_CORE_NS {
      */
     TEST_F(CURLHttpClientTest, ChunkedResponse) {
         CURLHttpClient client;
-        auto req1 = HttpUtils::CreateRequest("POST http://192.168.0.107:1234/v1/chat/completions");
+        auto req1 = HttpUtils::CreateRequest("POST http://localhost:3928/v1/chat/completions");
         req1.headers[HTTP_HEADER_CONTENT_TYPE_NAME] = HTTP_CONTENT_TYPES.at(kJSON);
         req1.body = R"({
           "messages": [
