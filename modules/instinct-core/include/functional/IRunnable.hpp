@@ -10,8 +10,6 @@
 #include "functional/ReactiveFunctions.hpp"
 
 namespace INSTINCT_CORE_NS {
-
-
     template<
         typename Input,
         typename Output,

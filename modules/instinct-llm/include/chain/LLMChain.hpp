@@ -17,8 +17,7 @@
 #include "memory/BaseChatMemory.hpp"
 #include "tools/Assertions.hpp"
 
-namespace
-INSTINCT_LLM_NS {
+namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
     // to adapt both LLM and ChatModel

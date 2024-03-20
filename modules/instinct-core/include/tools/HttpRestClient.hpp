@@ -54,6 +54,7 @@ namespace INSTINCT_CORE_NS {
 
     }
 
+
 class HttpRestClient final {
     details::ProtobufHttpEntityConverter converter_;
     Endpoint endpoint_;
@@ -62,7 +63,7 @@ class HttpRestClient final {
 public:
     HttpRestClient() = delete;
 
-    explicit HttpRestClient(Endpoint  endpoint)
+    explicit HttpRestClient(Endpoint endpoint)
         : endpoint_(std::move(endpoint)), converter_() {
         http_client_ = CreateCURLHttpClient();
     }

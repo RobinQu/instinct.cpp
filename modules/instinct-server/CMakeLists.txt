@@ -4,8 +4,9 @@ project(instinct-server)
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
 set(${LIBRARY_TARGET_NAME}_HDR
-    include/ServerGlobals.hpp
+        include/ServerGlobals.hpp
         include/http/IChainServer.hpp
+        include/http/PlainChainServer.hpp
 )
 
 add_library(
@@ -23,7 +24,7 @@ target_include_directories(${LIBRARY_TARGET_NAME}
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
-        instinct::retriever
+        instinct::retrieval
         httplib::httplib
 )
 
