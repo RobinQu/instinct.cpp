@@ -21,30 +21,44 @@ namespace INSTINCT_LLM_NS {
     public:
         explicit EphemeralChatMemory(const ChatMemoryOptions& chat_memory_options = {}): BaseChatMemory(chat_memory_options) {}
 
-        void SaveMemory(const ContextPtr& context) override {
+        void SaveMemory(const JSONContextPtr& context) override {
             auto& options = GetOptions();
-            auto& input_key = options.input_prompt_variable_key;
-            auto& output_key = options.input_answer_variable_key;
-            assert_true(context->values().contains(input_key), "input prompt should be present in context with key :" + input_key);
-            assert_true(context->values().contains(output_key), "output answer should be present in context with key: " + output_key);
 
-            auto& prompt_value = context->values().at(input_key);
-            assert_true(prompt_value.has_string_value(), "field " + input_key + " should be string value");
-            auto* msg = message_list_.add_messages();
-            msg->set_content(prompt_value.string_value());
-            // TODO role name normalization
-            msg->set_role("human");
+            auto input_key = options.input_prompt_variable_key;
+            auto output_key = options.input_answer_variable_key;
 
-            auto& ansewr_value = context->values().at(output_key);
-            msg = message_list_.add_messages();
-            msg->set_content(ansewr_value.string_value());
-            // TODO role name normalization
-            msg->set_role("assistant");
+            if (context->Contains(input_key) && context->Contains(output_key)) {
+                auto prompt_value = context->RequirePrimitive<std::string>(input_key);
+                auto answer_value = context->RequirePrimitive<std::string>(output_key);
+
+                auto* msg = message_list_.add_messages();
+                msg->set_content(prompt_value);
+                // TODO role name normalization
+                msg->set_role("human");
+                msg = message_list_.add_messages();
+                msg->set_content(answer_value);
+                // TODO role name normalization
+                msg->set_role("assistant");
+
+                return;
+            }
+
+            input_key = options.input_messages_list_variable_key;
+            output_key = options.output_message_variable_key;
+            if (context->Contains(input_key) && context->Contains(output_key)) {
+                auto message_list = context->RequireMessage<MessageList>(input_key);
+                message_list_.MergeFrom(message_list);
+                auto message = context->RequireMessage<Message>(output_key);
+                message_list_.add_messages()->CopyFrom(message);
+                return;
+            }
+
+            throw InstinctException("Neither answer/prompt pair nor messages are present in context");
         }
 
-        void LoadMemories(const ContextMutataorPtr& builder) override {
+        void LoadMemories(const JSONContextPtr& context) override {
             auto buffer = MessageUtils::CombineMessages(message_list_.messages());
-            builder->Put(GetOptions().output_memory_key, buffer);
+            context->PutPrimitive(GetOptions().output_memory_key, buffer);
         }
 
     };

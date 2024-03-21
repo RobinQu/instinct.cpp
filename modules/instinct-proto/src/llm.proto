@@ -79,13 +79,13 @@ message MessageList {
   repeated Message messages = 1;
 }
 
-message PromptExample {
-  map<string, instinct.core.PrimitiveVariable> values = 1;
-}
-
-message PromptExamples {
-  repeated PromptExample values = 1;
-}
+//message PromptExample {
+//  map<string, instinct.core.PrimitiveVariable> values = 1;
+//}
+//
+//message PromptExamples {
+//  repeated PromptExample values = 1;
+//}
 
 message Generation {
   string text = 1;

@@ -21,11 +21,11 @@ namespace INSTINCT_LLM_NS {
     using MessageLikeVariant = std::variant<Message, ChatPromptTemplatePtr>;
 
 
-    class IChatPromptTemplate : public IPromptTemplate {
+    class IChatPromptTemplate {
     public:
-        virtual MessageList FormatMessages(const ContextPtr& variables) = 0;
+        virtual MessageList FormatMessages(const JSONContextPtr& variables) = 0;
 
-        virtual ChatPromptValue FormtChatPrompt(const ContextPtr& variables) = 0;
+        virtual ChatPromptValue FormatChatPrompt(const JSONContextPtr& variables) = 0;
 
     };
 

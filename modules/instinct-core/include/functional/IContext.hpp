@@ -17,11 +17,8 @@ namespace INSTINCT_CORE_NS {
 
     template<typename ContextPolicy>
     class IContext final {
-
-//        ContextPolicy::ManagerType manager_;
         ContextPolicy::PayloadType payload_;
     public:
-
         IContext(IContext&& context)  noexcept {
             this->payload_ = std::move(context.payload_);
         }
@@ -34,36 +31,50 @@ namespace INSTINCT_CORE_NS {
 
         }
 
+        const ContextPolicy::PayloadType& GetPayload() const {
+            return payload_;
+        }
+
         template<typename T>
         T RequirePrimitive(const std::string& name) const {
-            return ContextPolicy::ManagerType::RequirePrimitive(payload_, name);
+            return ContextPolicy::ManagerType::template RequirePrimitive<T>(payload_, name);
+        }
+
+        template<typename T>
+        T RequireMessage(const std::string& name) const {
+            return {};
+        }
+
+        template<typename T>
+        void PutMessage(const std::string& name, T&& message) {
+
+        }
+
+        [[nodiscard]] bool Contains(const std::string& name) const {
+            return ContextPolicy::ManagerType::Contains(payload_, name);
         }
 
         template<typename T>
         T RequirePrimitiveAt(const std::string& data_path) const {
-            return ContextPolicy::ManagerType::RequirePrimitiveAt(payload_, data_path);
+            return ContextPolicy::ManagerType::template RequirePrimitiveAt<T>(payload_, data_path);
         }
 
         template<typename T>
-        IContext* PutPrimitive(const std::string& name, T&& value) {
-            ContextPolicy::ManagerType::PutPrimitive(payload_, name, std::forward<T>(value));
-            return this;
+        void PutPrimitive(const std::string& name, T&& value) {
+            ContextPolicy::ManagerType::template PutPrimitive<T>(payload_, name, std::forward<T>(value));
         }
 
         template<typename T>
-        IContext* PutPrimitiveAt(const std::string& data_path, T&& value) {
-            ContextPolicy::ManagerType::PutPrimitiveAt(payload_, data_path, std::forward<T>(value));
-            return this;
+        void PutPrimitiveAt(const std::string& data_path, T&& value) {
+            ContextPolicy::ManagerType::template PutPrimitiveAt<T>(payload_, data_path, std::forward<T>(value));
         }
 
-        IContext* PutContext(const std::string& name, const IContext<ContextPolicy>& child_context) {
+        void PutContext(const std::string& name, const IContext<ContextPolicy>& child_context) {
             ContextPolicy::ManagerType::PutObject(payload_, name, child_context.payload_);
-            return this;
         }
 
-        IContext* MergeContext(const IContext<ContextPolicy>& child_context) {
+        void MergeContext(const IContext<ContextPolicy>& child_context) {
             ContextPolicy::ManagerType::MergeObject(payload_, child_context.payload_);
-            return this;
         }
 
     };

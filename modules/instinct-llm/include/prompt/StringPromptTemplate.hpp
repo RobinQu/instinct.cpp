@@ -8,27 +8,32 @@
 
 #include <unicode/format.h>
 
-#include "IPromptTemplate.hpp"
+#include "BasePromptTemplate.hpp"
 #include "LLMGlobals.hpp"
+
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
-    class StringPromptTemplate : public IPromptTemplate {
+    class StringPromptTemplate : public BasePromptTemplate {
     public:
-        PromptValue FormatPrompt(const ContextPtr& variables) override {
+        explicit StringPromptTemplate(const PromptTemplateOptions &options) : BasePromptTemplate(options) {}
+
+        PromptValue FormatPrompt(const JSONContextPtr& variables) override {
             PromptValue pv;
             pv.mutable_string()->CopyFrom(FormatStringPrompt(variables));
             return pv;
         }
 
-        std::string Format(const ContextPtr& variables) override = 0;
+        std::string Format(const JSONContextPtr& variables) override = 0;
 
-        StringPromptValue FormatStringPrompt(const ContextPtr& variables) override {
+        StringPromptValue FormatStringPrompt(const JSONContextPtr& variables) override {
             StringPromptValue spv;
             spv.set_text(Format(variables));
             return spv;
         }
+
+
     };
 
 

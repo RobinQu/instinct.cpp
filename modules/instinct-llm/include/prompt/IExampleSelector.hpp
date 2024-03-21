@@ -6,12 +6,13 @@
 #define BASEEXMAPLESELECTOR_H
 #include "LLMGlobals.hpp"
 
-#include <llm.pb.h>
-
-#include "chain/IChain.hpp"
+#include "functional/JSONContextPolicy.hpp"
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
+
+    using PromptExample = nlohmann::json;
+    using PromptExamples = std::vector<PromptExample>;
 
     class IExampleSelector {
     public:
@@ -19,7 +20,7 @@ namespace INSTINCT_LLM_NS {
 
         virtual void AddExample(const PromptExample& example) = 0;
 
-        virtual PromptExamples SelectExamples(const ContextPtr& variables) = 0;
+        virtual PromptExamples SelectExamples(const JSONContextPtr& variables) = 0;
 
         [[nodiscard]] virtual const PromptExamples& GetAllExamples() = 0;
     };

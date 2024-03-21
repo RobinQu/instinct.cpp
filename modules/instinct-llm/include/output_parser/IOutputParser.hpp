@@ -13,7 +13,7 @@
 namespace INSTINCT_LLM_NS {
 
     template<typename T>
-    class IOutputParser {
+    class IOutputParser{
     public:
         IOutputParser()=default;
         virtual ~IOutputParser()=default;

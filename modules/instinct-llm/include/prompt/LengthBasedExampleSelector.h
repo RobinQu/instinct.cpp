@@ -9,6 +9,7 @@
 
 #include "MutableExampleSelector.hpp"
 #include "tools/StringUtils.hpp"
+#include "functional/JSONContextPolicy.hpp"
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
@@ -36,16 +37,16 @@ namespace INSTINCT_LLM_NS {
               lengths_() {
         }
 
-        void LengthBasedExampleSelector::AddExample(const PromptExample& example) override {
+        void AddExample(const PromptExample& example) override {
             MutableExampleSelector::AddExample(example);
-            const auto ctx = std::make_shared<LLMChainContext>();
+            auto ctx = CreateJSONContext();
             for (const auto& entry: example.values()) {
                 ctx->mutable_values()->insert(entry);
             }
             lengths_.push_back(length_function_(example_prompt_template_->Format(ctx)));
         }
 
-        PromptExamples LengthBasedExampleSelector::SelectExamples(const ContextPtr& variables) override {
+        PromptExamples SelectExamples(const JSONContextPtr & variables) override {
             size_t remaining = max_length_;
             int i = 0;
             const size_t size = examples_.values_size();

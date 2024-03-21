@@ -16,7 +16,7 @@ namespace INSTINCT_LLM_NS {
 
     enum MessageRole {
         kUnknown = 0,
-        kAsistant,
+        kAsisstant,
         kHuman,
         kSystem,
         kFunction,
@@ -43,7 +43,7 @@ namespace INSTINCT_LLM_NS {
         }
 
         Impl* AddAIMessage(const std::string& msg) {
-            return AddChatMessage(kAsistant, msg);
+            return AddChatMessage(kAsisstant, msg);
         }
 
         Impl* AddSystemMessage(const std::string& msg) {

@@ -8,12 +8,13 @@
 #include "model/ILanguageModel.hpp"
 #include "model/ModelCallbackMixins.hpp"
 #include "tools/Assertions.hpp"
+#include "functional/StepFunctions.hpp"
 
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 ;
-    class BaseChatModel : public ILanguageModel<Message>, public ChatModelCallbackMixins{
+    class BaseChatModel : public ILanguageModel<Message>, public BaseStepFunction {
     private:
         virtual BatchedLangaugeModelResult Generate(
             const std::vector<MessageList>& messages
@@ -42,6 +43,45 @@ namespace INSTINCT_LLM_NS {
                 | rpp::operators::map(details::conv_language_result_to_message);
         }
 
+        [[nodiscard]] std::vector<std::string> GetInputKeys() const override {
+            return {DEFAULT_MESSAGE_LIST_INPUT_KEY};
+        }
+
+        [[nodiscard]] std::vector<std::string> GetOutputKeys() const override {
+            return {DEFAULT_ANSWER_OUTPUT_KEY};
+        }
+
+        JSONContextPtr Invoke(const JSONContextPtr &input) override {
+            // TODO fetch MessageList from input
+            auto message_list = input->RequireMessage<MessageList>(DEFAULT_MESSAGE_LIST_INPUT_KEY);
+            auto result = Invoke(message_list);
+        }
+
+        AsyncIterator<instinct::core::JSONContextPtr> Batch(const std::vector<JSONContextPtr> &input) override {
+            auto message_matrix_view = input | std::views::transform([](const auto& ctx) {
+                auto message_list = ctx->template RequireMessage<MessageList>(DEFAULT_MESSAGE_LIST_INPUT_KEY);
+                return PromptValueVariant  {message_list};
+            });
+
+            const std::vector<PromptValueVariant> message_matrix {message_matrix_view.begin(), message_matrix_view.end()};
+
+            return Batch(message_matrix)
+                | rpp::operators::map([&](const auto& message) {
+                    auto ctx = CreateJSONContext();
+                    ctx->PutMessage(DEFAULT_MESSAGE_OUTPUT_KEY, message);
+                    return ctx;
+                });
+        }
+
+        AsyncIterator<instinct::core::JSONContextPtr> Stream(const JSONContextPtr &input) override {
+            auto message_list = input->RequireMessage<MessageList>(DEFAULT_MESSAGE_LIST_INPUT_KEY);
+            return Stream(message_list)
+                | rpp::operators::map([&](const auto& message) {
+                    auto ctx = CreateJSONContext();
+                    ctx->PutMessage(DEFAULT_MESSAGE_OUTPUT_KEY, message);
+                    return ctx;
+                });
+        }
     };
 
     using ChatModelPtr = std::shared_ptr<BaseChatModel>;

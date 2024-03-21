@@ -4,11 +4,14 @@
 
 #ifndef MESSAGEUTILS_HPP
 #define MESSAGEUTILS_HPP
-#include "LLMGlobals.hpp"
-#include "tools/StringUtils.hpp"
+
 #include <fmt/format.h>
 #include <fmt/args.h>
-#include "chain/IChain.hpp"
+
+
+#include "functional/JSONContextPolicy.hpp"
+#include "LLMGlobals.hpp"
+#include "tools/StringUtils.hpp"
 
 
 namespace INSTINCT_LLM_NS {
@@ -44,36 +47,26 @@ namespace INSTINCT_LLM_NS {
         }
 
 
-        static std::string FormatString(const std::string& msg, const ContextPtr& context) {
+        static std::string FormatString(
+                const std::string& msg,
+                const JSONContextPtr & context) {
             fmt::dynamic_format_arg_store<fmt::format_context> store;
-            // assuming `variables` has depth of one
-
-            for(const auto& [k,v]: context->values()) {
-                switch (v.value_case()) {
-                    case PrimitiveVariable::kIntValue:
-                        store.push_back(fmt::arg(k.c_str(), v.int_value()));
-                    break;
-                    case PrimitiveVariable::kLongValue:
-                        store.push_back(fmt::arg(k.c_str(), v.long_value()));
-                    break;
-                    case PrimitiveVariable::kFloatValue:
-                        store.push_back(fmt::arg(k.c_str(), v.float_value()));
-                    break;
-                    case PrimitiveVariable::kDoubleValue:
-                        store.push_back(fmt::arg(k.c_str(), v.double_value()));
-                    break;
-                    case PrimitiveVariable::kBoolValue:
-                        store.push_back(fmt::arg(k.c_str(), v.bool_value()));
-                    break;
-                    case PrimitiveVariable::kStringValue:
-                        store.push_back(fmt::arg(k.c_str(), v.string_value().c_str()));
-                    break;
-                    default:
-                        throw InstinctException("unknown value type for entry: " + k);
+            // assuming `context` has depth of one
+            for(const auto& [k,v]: context->GetPayload().items()) {
+                if (v.is_number_integer()) {
+                    store.push_back(fmt::arg(k.c_str(), v.get<long>()));
+                }
+                if(v.is_number_float()) {
+                    store.push_back(fmt::arg(k.c_str(), v.get<double>()));
+                }
+                if(v.is_string()) {
+                    store.push_back(fmt::arg(k.c_str(), v.get<std::string>().c_str()));
+                }
+                if(v.is_boolean()) {
+                    store.push_back(fmt::arg(k.c_str(), v.get<bool>()));
                 }
             }
             return fmt::vformat(msg, store);
-
         }
     };
 }

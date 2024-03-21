@@ -17,9 +17,11 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/tools/CodecUtils.hpp
         include/tools/http/IHttpClient.hpp
         include/tools/http/CURLHttpClient.hpp
-        include/functional/IStepFunction.hpp
+        include/functional/StepFunctions.hpp
         include/functional/IContext.hpp
         include/functional/JSONContextPolicy.hpp
+        include/functional/RunnableChain.hpp
+        include/functional/BaseRunnable.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

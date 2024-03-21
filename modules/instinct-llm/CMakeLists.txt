@@ -3,9 +3,8 @@ project(instinct_llm)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
-set(${LIBRARY_TARGET_NAME}_HDR  include/All.hpp
+set(${LIBRARY_TARGET_NAME}_HDR
         include/LLMGlobals.hpp
-        include/chain/IChain.hpp
         include/chain/LLMChain.hpp
         include/llm/BaseLLM.hpp
         include/chat_model/BaseChatModel.hpp
@@ -42,13 +41,14 @@ set(${LIBRARY_TARGET_NAME}_HDR  include/All.hpp
         include/output_parser/BaseOutputParser.hpp
         include/memory/BaseChatMemory.hpp
         include/model/ModelCallbackMixins.hpp
-        include/chain/BaseChain.hpp
         include/chain/ContextMutator.hpp
         include/chat_model/OpenAIChat.hpp
         include/commons/OpenAICommons.hpp
         include/embedding_model/OpenAIEmbedding.hpp
         include/LLMTestGlobals.hpp
         include/llm/OpenAILLM.hpp
+        include/prompt/BasePromptTemplate.hpp
+        include/prompt/BaseChatPromptTemplate.hpp
 
 )
 

@@ -25,8 +25,13 @@ namespace INSTINCT_CORE_NS {
             }
 
             template<typename T>
-            static void PutPrimitiveAt(const PayloadType& payload, const std::string& data_path, T&& value) {
+            static void PutPrimitiveAt(PayloadType& payload, const std::string& data_path, T&& value) {
                 payload.at(nlohmann::json::json_pointer {data_path}) = value;
+            }
+
+            template<typename T>
+            static void PutPrimitive(PayloadType& payload, const std::string& name, T&& value) {
+                payload.at(name) = value;
             }
 
             static void PutObject(PayloadType& payload, const std::string& name, const PayloadType& child_object) {
@@ -35,6 +40,10 @@ namespace INSTINCT_CORE_NS {
 
             static void MergeContext(PayloadType& payload, const PayloadType& child_context) {
                 payload.merge_patch(child_context);
+            }
+
+            static bool Contains(const PayloadType& payload, const std::string& name) {
+                return payload.contains(name);
             }
 
         };

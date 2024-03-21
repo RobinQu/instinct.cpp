@@ -24,7 +24,7 @@ namespace INSTINCT_LLM_NS {
         }
 
         void AddExample(const PromptExample& example) override {
-            examples_.add_values()->CopyFrom(example);
+            examples_.push_back(example);
         }
 
         [[nodiscard]] const PromptExamples& GetAllExamples() override {

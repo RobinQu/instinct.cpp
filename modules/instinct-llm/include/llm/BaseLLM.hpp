@@ -7,10 +7,11 @@
 #include "model/ILanguageModel.hpp"
 #include "LLMGlobals.hpp"
 #include "model/ModelCallbackMixins.hpp"
+#include "functional/StepFunctions.hpp"
 
 
 namespace INSTINCT_LLM_NS {
-    class BaseLLM : public ILanguageModel<std::string> {
+    class BaseLLM : public ILanguageModel<std::string>, public BaseStepFunction {
         virtual BatchedLangaugeModelResult Generate(const std::vector<std::string>& prompts) = 0;
 
         virtual AsyncIterator<LangaugeModelResult> StreamGenerate(const std::string& prompt) = 0;
@@ -42,6 +43,49 @@ namespace INSTINCT_LLM_NS {
             const auto string_prompt = details::conv_prompt_value_variant_to_string(input);
             return StreamGenerate(string_prompt)
                 | rpp::operators::map(details::conv_languange_result_to_string);
+        }
+
+        JSONContextPtr Invoke(const JSONContextPtr &input) override {
+            auto prompt = input->RequirePrimitive<std::string>(DEFAULT_PROMPT_INPUT_KEY);
+            auto answer = Invoke(prompt);
+            JSONContextPtr result = input;
+            result->PutPrimitive(DEFAULT_ANSWER_OUTPUT_KEY, answer);
+            return result;
+        }
+
+        AsyncIterator<instinct::core::JSONContextPtr> Batch(const std::vector<JSONContextPtr> &input) override {
+            auto prompts_view = input | std::views::transform([&](const auto& ctx) {
+                auto prompt = ctx->template RequirePrimitive<std::string>(DEFAULT_PROMPT_INPUT_KEY);
+                return PromptValueVariant  {prompt};
+            });
+
+
+
+            return Batch(std::vector<PromptValueVariant> {prompts_view.begin(), prompts_view.end()})
+                | rpp::operators::map([](const std::string& answer) {
+                    auto ctx = CreateJSONContext();
+                    ctx->PutPrimitive(DEFAULT_ANSWER_OUTPUT_KEY, answer);
+                    return ctx;
+                });
+            ;
+        }
+
+        AsyncIterator<instinct::core::JSONContextPtr> Stream(const JSONContextPtr &input) override {
+            auto prompt = input->RequirePrimitive<std::string>(DEFAULT_PROMPT_INPUT_KEY);
+            return Stream(prompt)
+                | rpp::operators::map([&](const auto& answer) {
+                    auto ctx = CreateJSONContext();
+                    ctx->PutPrimitive(DEFAULT_ANSWER_OUTPUT_KEY, answer);
+                    return ctx;
+                });
+        }
+
+        [[nodiscard]] std::vector<std::string> GetInputKeys() const override {
+            return {DEFAULT_PROMPT_INPUT_KEY};
+        }
+
+        [[nodiscard]] std::vector<std::string> GetOutputKeys() const override {
+            return {DEFAULT_ANSWER_OUTPUT_KEY};
         }
     };
 

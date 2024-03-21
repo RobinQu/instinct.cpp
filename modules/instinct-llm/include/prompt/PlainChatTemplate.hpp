@@ -5,41 +5,25 @@
 #ifndef PLAINCHATTEMPLATE_HPP
 #define PLAINCHATTEMPLATE_HPP
 
-#include "IChatPromptTemplate.hpp"
+#include "BaseChatPromptTemplate.hpp"
 #include "LLMGlobals.hpp"
 #include "prompt/MessageUtils.hpp"
+#include "functional/JSONContextPolicy.hpp"
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
 
-    class PlainChatTemplate: public IChatPromptTemplate {
+    class PlainChatTemplate final: public BaseChatPromptTemplate {
         std::vector<MessageLikeVariant> messages_;
 
     public:
-        explicit PlainChatTemplate(std::vector<MessageLikeVariant> messages)
-            : messages_(std::move(messages)) {
-        }
-
-        PromptValue FormatPrompt(const ContextPtr& variables) override {
-            PromptValue prompt_value;
-            prompt_value.mutable_chat()->CopyFrom(FormtChatPrompt(variables));
-            return prompt_value;
-        }
-
-        std::string Format(const ContextPtr& variables) override {
-            const auto message_list = FormatMessages(variables);
-            return MessageUtils::CombineMessages(message_list.messages());
-        }
-
-        StringPromptValue FormatStringPrompt(const ContextPtr& variables) override {
-            StringPromptValue spv;
-            spv.set_text(Format(variables));
-            return spv;
-        }
+        explicit PlainChatTemplate(const std::vector<MessageLikeVariant> &messages,
+                          const PromptTemplateOptions &options = {})
+                : BaseChatPromptTemplate(options), messages_(messages) {}
 
 
-        MessageList FormatMessages(const ContextPtr& variables) override {
+        MessageList FormatMessages(const JSONContextPtr& variables) override {
             MessageList message_list;
             for (const auto& message_like: messages_) {
                 if (std::holds_alternative<Message>(message_like)) {
@@ -60,14 +44,7 @@ namespace INSTINCT_LLM_NS {
             return message_list;
         }
 
-        ChatPromptValue FormtChatPrompt(const ContextPtr& variables) override {
-            ChatPromptValue cpv;
-            auto message_list = FormatMessages(variables);
-            for (const auto&msg: message_list.messages()) {
-                cpv.add_messages()->MergeFrom(msg);
-            }
-            return cpv;
-        }
+
     };
 }
 

@@ -7,6 +7,7 @@
 
 #include "LLMGlobals.hpp"
 #include "MutableExampleSelector.hpp"
+#include "functional/JSONContextPolicy.hpp"
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
@@ -16,7 +17,7 @@ namespace INSTINCT_LLM_NS {
             : MutableExampleSelector(std::move(example_prompt_template)) {
         }
 
-        PromptExamples SelectExamples(const ContextPtr& variables) override {
+        PromptExamples SelectExamples(const JSONContextPtr & variables) override {
             return GetAllExamples();
         }
     };
