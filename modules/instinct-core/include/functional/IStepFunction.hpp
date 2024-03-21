@@ -1,0 +1,11 @@
+//
+// Created by RobinQu on 3/21/24.
+//
+
+#ifndef INSTINCT_ISTEPFUNCTION_HPP
+#define INSTINCT_ISTEPFUNCTION_HPP
+
+
+
+
+#endif //INSTINCT_ISTEPFUNCTION_HPP

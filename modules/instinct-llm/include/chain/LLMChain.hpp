@@ -7,6 +7,8 @@
 
 #include <llm.pb.h>
 
+#include <utility>
+
 #include "BaseChain.hpp"
 #include "LLMGlobals.hpp"
 #include "model/ILanguageModel.hpp"
@@ -30,17 +32,17 @@ namespace INSTINCT_LLM_NS {
         OutputParserPtr<Result> output_parser_{};
         ChatMemoryPtr chat_memory_{};
     public:
-        LLMChain(const LanguageModelVariant& model,
-                 const PromptTemplatePtr& prompt_template,
+        LLMChain(LanguageModelVariant  model,
+                 PromptTemplatePtr  prompt_template,
                  const OutputParserPtr<Result>& output_parser,
-                 const ChatMemoryPtr& chat_memory = nullptr,
+                 ChatMemoryPtr  chat_memory = nullptr,
                  const ChainOptions& options = {}
                  )
-            : BaseChain<Result>(std::move(options)),
-                model_(model),
-              prompt_template_(prompt_template),
+            : BaseChain<Result>(options),
+                model_(std::move(model)),
+              prompt_template_(std::move(prompt_template)),
               output_parser_(output_parser),
-              chat_memory_(chat_memory) {
+              chat_memory_(std::move(chat_memory)) {
             assert_non_empty_range(this->GetInputKeys(), "input keys cannot be empty");
             assert_non_empty_range(this->GetOutputKeys(), "output keys cannot be empty");
         }
@@ -99,16 +101,18 @@ namespace INSTINCT_LLM_NS {
             const LanguageModelVariant& model,
             const PromptTemplatePtr& prompt_template,
             const TextOutputParserPtr & output_parser,
-            const ChatMemoryPtr& chat_memory = nullptr,
+            const ChatMemoryPtr&chat_memory  = nullptr,
             const ChainOptions& options = {}
             ) {
+
         return std::make_shared<TextLLMChain>(
                 model,
                 prompt_template,
                 output_parser,
-                nullptr,
+                chat_memory,
                 options
         );
+
     }
 
     // IRunnable<Input,Output>

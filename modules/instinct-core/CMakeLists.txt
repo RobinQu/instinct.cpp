@@ -17,6 +17,9 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/tools/CodecUtils.hpp
         include/tools/http/IHttpClient.hpp
         include/tools/http/CURLHttpClient.hpp
+        include/functional/IStepFunction.hpp
+        include/functional/IContext.hpp
+        include/functional/JSONContextPolicy.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
