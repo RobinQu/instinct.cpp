@@ -12,10 +12,9 @@
 #include "output_parser/BaseOutputParser.hpp"
 
 namespace INSTINCT_LLM_NS {
+
+
     using namespace INSTINCT_CORE_NS;
-
-
-
     template<
             typename Output,
             typename Input = JSONContextPtr,
@@ -53,11 +52,8 @@ namespace INSTINCT_LLM_NS {
     };
 
 
-    template<
-            typename Input,
-            typename Output
-    >
-    using MessageChainPtr = std::shared_ptr<RunnableChain<Input, Output>>;
+    template<typename Output>
+    using MessageChainPtr = std::shared_ptr<MessageChain<Output>>;
 }
 
 

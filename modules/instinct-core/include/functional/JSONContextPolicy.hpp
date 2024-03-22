@@ -76,16 +76,32 @@ namespace INSTINCT_CORE_NS {
     using JSONContextPtr = ContextPtr<JSONContextPolicy>;
 
 
+
     static JSONContextPtr CreateJSONContext(const nlohmann::json& json_object = {}) {
         return std::make_shared<IContext<JSONContextPolicy>>(json_object);
     }
 
-//    static JSONContextPtr CreateJSONContext(const std::string& json_string = "") {
-//        nlohmann::json json_obj = json_string.empty() ?
-//                nlohmann::json {} :
-//                nlohmann::json::parse(json_string);
-//        return std::make_shared<IContext<JSONContextPolicy>>(json_obj);
-//    }
+    static JSONContextPtr CreateJSONContextWithString(const std::string& json_string = "") {
+        nlohmann::json json_obj = json_string.empty() ?
+                nlohmann::json {} :
+                nlohmann::json::parse(json_string);
+        return std::make_shared<IContext<JSONContextPolicy>>(json_obj);
+    }
+
+    static std::vector<JSONContextPtr> CreateBatchJSONContextWithString(const std::string& json_string = "") {
+        nlohmann::json json_obj = json_string.empty() ?
+                                  nlohmann::json::parse("[]") :
+                                  nlohmann::json::parse(json_string);
+        if (!json_obj.is_array()) {
+            json_obj = nlohmann::json { json_obj };
+        }
+        std::vector<JSONContextPtr> result;
+        result.reserve(json_obj.size());
+        for(auto& item: json_obj) {
+            result.push_back(CreateJSONContext(item));
+        }
+        return result;
+    }
 }
 
 

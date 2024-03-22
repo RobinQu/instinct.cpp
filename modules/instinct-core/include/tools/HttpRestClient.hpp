@@ -21,26 +21,6 @@
 
 namespace INSTINCT_CORE_NS {
     namespace details {
-        struct ProtobufHttpEntityConverter {
-            template<typename T>
-            requires is_pb_message<T>
-            T Deserialize(const std::string& buf) {
-                T result;
-                auto status = google::protobuf::util::JsonStringToMessage(buf, &result);
-                assert_true(status.ok(), "failed to parse protobuf message from response body");
-                return result;
-            }
-
-            template<typename T>
-            requires is_pb_message<T>
-            std::string Serialize(const T& obj) {
-                std::string param_string;
-                auto status = google::protobuf::util::MessageToJsonString(obj, &param_string);
-                assert_true(status.ok(), "failed to dump parameters from protobuf message");
-                return param_string;
-            }
-        };
-
         static bool is_end_sentinels(const std::string& chunk_string, const std::vector<std::string>& end_sentinels) {
             return std::ranges::any_of(end_sentinels.begin(), end_sentinels.end(), [&](const auto&item) {
                 return item == chunk_string;
@@ -53,10 +33,29 @@ namespace INSTINCT_CORE_NS {
         }
 
     }
+    struct ProtobufHttpEntityConverter {
+        template<typename T>
+        requires is_pb_message<T>
+        T Deserialize(const std::string& buf) {
+            T result;
+            auto status = google::protobuf::util::JsonStringToMessage(buf, &result);
+            assert_true(status.ok(), "failed to parse protobuf message from response body");
+            return result;
+        }
+
+        template<typename T>
+        requires is_pb_message<T>
+        std::string Serialize(const T& obj) {
+            std::string param_string;
+            auto status = google::protobuf::util::MessageToJsonString(obj, &param_string);
+            assert_true(status.ok(), "failed to dump parameters from protobuf message");
+            return param_string;
+        }
+    };
 
 
 class HttpRestClient final {
-    details::ProtobufHttpEntityConverter converter_;
+    ProtobufHttpEntityConverter converter_;
     Endpoint endpoint_;
     HttpClientPtr http_client_;
 

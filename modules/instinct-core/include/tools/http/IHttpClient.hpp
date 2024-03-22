@@ -13,11 +13,15 @@ namespace INSTINCT_CORE_NS {
 
     enum MIMEContentType {
         kKnownContentType,
-        kJSON
+        kJSON,
+        kEventStream,
+        kPlainText
     };
 
     static const std::unordered_map<MIMEContentType, std::string> HTTP_CONTENT_TYPES = {
-            {kJSON, "application/json"}
+            {kJSON, "application/json"},
+            {kEventStream, "text/event-stream"},
+            {kPlainText, "text/plain"}
     };
     static const std::string HTTP_HEADER_CONTENT_TYPE_NAME = "Content-Type";
 
