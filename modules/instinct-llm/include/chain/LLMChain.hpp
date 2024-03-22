@@ -29,10 +29,6 @@ namespace INSTINCT_LLM_NS {
     using LanguageModelVariant = std::variant<LLMPtr, ChatModelPtr>;
 
 
-
-
-
-
     template<typename Output>
     class LLMChain final : public MessageChain<Output> {
         LanguageModelVariant model_{};
@@ -73,9 +69,15 @@ namespace INSTINCT_LLM_NS {
                    | model_function;
         }
 
+        [[nodiscard]] std::vector<std::string> GetRequiredKeys() const override {
+            return prompt_template_->GetInputKeys();
+        }
+
     };
 
 
+    template<typename T>
+    using LLMChainPtr = std::shared_ptr<LLMChain<T>>;
     using TextChain = LLMChain<Generation>;
     using TextChainPtr = std::shared_ptr<TextChain>;
     using MultilineChain = LLMChain<MultilineGeneration>;

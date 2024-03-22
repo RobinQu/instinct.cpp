@@ -29,28 +29,28 @@ namespace INSTINCT_LLM_NS {
 
             if (context->Contains(input_key) && context->Contains(output_key)) {
                 auto prompt_value = context->RequireMessage<PromptValue>(input_key);
+                auto answer_value = context->RequireMessage<Generation>(output_key);
 
-                auto answer_value = context->RequireMessage<std::string>(output_key);
 
-                auto* msg = message_list_.add_messages();
-                msg->set_content(prompt_value);
-                // TODO role name normalization
-                msg->set_role("human");
-                msg = message_list_.add_messages();
-                msg->set_content(answer_value);
-                // TODO role name normalization
-                msg->set_role("assistant");
+                if (prompt_value.has_chat()) {
+                    for(const auto& msg: prompt_value.chat().messages()) {
+                        message_list_.add_messages()->CopyFrom(msg);
+                    }
+                } else if(prompt_value.has_string()) {
+                    auto* msg = message_list_.add_messages();
+                    msg->set_content(prompt_value.string().text());
+                    // TODO role name normalization
+                    msg->set_role("human");
+                }
 
-                return;
-            }
-
-            input_key = options.answer_variable_key;
-            output_key = options.output_message_variable_key;
-            if (context->Contains(input_key) && context->Contains(output_key)) {
-                auto message_list = context->RequireMessage<MessageList>(input_key);
-                message_list_.MergeFrom(message_list);
-                auto message = context->RequireMessage<Message>(output_key);
-                message_list_.add_messages()->CopyFrom(message);
+                if (answer_value.has_message()) {
+                    message_list_.add_messages()->CopyFrom(answer_value.message());
+                } else {
+                    auto* msg = message_list_.add_messages();
+                    msg->set_content(answer_value.text());
+                    // TODO role name normalization
+                    msg->set_role("assistant");
+                }
                 return;
             }
 

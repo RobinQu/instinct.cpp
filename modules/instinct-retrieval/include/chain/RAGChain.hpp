@@ -20,7 +20,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     template<typename Result>
     class RAGChain;
     template<typename T>
-    using RAGChainPtr = RAGChain<T>;
+    using RAGChainPtr = std::shared_ptr<RAGChain<T>>;
 
     template<typename Result>
     class RAGChain final : public MessageChain<Result> {
@@ -42,7 +42,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         /**
          * to answer final question with context. this chain doesn't need memory
          */
-        MessageChainPtr<PromptValue, Result> answer_chain_;
+        LLMChainPtr<Result> answer_chain_;
 
         /**
          * RAG related options
@@ -54,11 +54,11 @@ namespace INSTINCT_RETRIEVAL_NS {
                 ChatMemoryPtr chat_memory,
                 RetrieverPtr retriever,
                 TextChainPtr question_chain,
-                MessageChainPtr<PromptValue, Result> answer_chain,
+                LLMChainPtr<Result> answer_chain,
                 RAGChainOptions options = {}
         ) : MessageChain<Result>(
                 answer_chain->GetOutputParser(),
-                options
+                options.base_options
         ),
             chat_memory_(std::move(chat_memory)),
             retriever_(std::move(retriever)),
@@ -74,22 +74,30 @@ namespace INSTINCT_RETRIEVAL_NS {
                 | chat_memory_->AsSaveMemoryFunction();
         }
 
-        static RAGChainPtr<Result> CreateRAGChain(
-                RetrieverPtr retriever,
-                TextChainPtr question_chain,
-                MessageChainPtr<PromptValue, Result> answer_chain,
-                ChatMemoryPtr chat_memory = nullptr,
-                const RAGChainOptions &options = {}
-        ) {
-            return std::make_shared<RAGChain<std::string>>(
-                    chat_memory,
-                    retriever,
-                    question_chain,
-                    answer_chain
-            );
+
+
+        [[nodiscard]] std::vector<std::string> GetRequiredKeys() const override {
+            return question_chain_->GetRequiredKeys();
         }
 
     };
+
+    template<typename Result>
+    static RAGChainPtr<Result> CreateRAGChain(
+            RetrieverPtr retriever,
+            TextChainPtr question_chain,
+            LLMChainPtr<Result> answer_chain,
+            ChatMemoryPtr chat_memory = nullptr,
+            const RAGChainOptions &options = {}
+    ) {
+        return std::make_shared<RAGChain<Result>>(
+                chat_memory,
+                retriever,
+                question_chain,
+                answer_chain,
+                options
+        );
+    }
 
 
 

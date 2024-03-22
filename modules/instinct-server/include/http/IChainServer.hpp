@@ -7,7 +7,6 @@
 #include <string>
 
 #include "ServerGlobals.hpp"
-#include "chain/BaseChain.hpp"
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_LLM_NS;

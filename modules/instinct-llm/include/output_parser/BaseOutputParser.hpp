@@ -14,7 +14,6 @@
 namespace INSTINCT_LLM_NS {
     static std::string DEFAULT_FORMAT_INSTRUCTION_KEY = "format_instruction";
 
-
     struct OutputParserOptions {
         std::string format_instruction_output_key = DEFAULT_FORMAT_INSTRUCTION_KEY;
         std::string generation_input_key = DEFAULT_ANSWER_OUTPUT_KEY;
@@ -48,10 +47,6 @@ namespace INSTINCT_LLM_NS {
         [[nodiscard]] const OutputParserOptions& GetOptions() const {
             return options_;
         }
-
-//        std::string GetFormatInstruction() override = 0;
-
-//        T ParseResult(const JSONContextPtr &result) override = 0;
 
         T Invoke(const JSONContextPtr &input) override {
             return this->ParseResult(input);

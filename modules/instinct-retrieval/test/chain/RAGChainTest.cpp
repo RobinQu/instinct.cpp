@@ -46,18 +46,15 @@ Follow Up Input: {question}
 Standalone question:)")
             ->Build();
 
-            OutputParserPtr<std::string> string_output_parser = std::make_shared<GenerationOutputParser>();
 
             ChainOptions question_chain_options = {
-                .input_keys = {"question"},
-                .output_keys = {"standalone_question"}
+//                .input_keys = {"question"},
+//                .output_keys = {"standalone_question"}
             };
 
-            question_chain_ = std::make_shared<LLMChain<std::string>>(
+            question_chain_ = CreateTextChain(
                 chat_model,
                 question_prompt_template,
-                string_output_parser,
-                nullptr,
                 question_chain_options
             );
 
@@ -72,62 +69,50 @@ Question: {standalone_question}
             ->Build();
 
             ChainOptions answer_chain_options = {
-                .input_keys  = {"standalone_question", "context"},
-                .output_keys = {"answer"}
+//                .input_keys  = {"standalone_question", "context"},
+//                .output_keys = {"answer"}
             };
-            answer_chain_ = CreateTextLLMChain(
+            answer_chain_ = CreateTextChain(
                 chat_model,
                 answer_prompt_template,
-                string_output_parser,
-                nullptr,
                 answer_chain_options
             );
 
             RAGChainOptions rag_chain_options = {
                 .context_output_key = "context",
-                .condense_question_key = question_chain_options.output_keys[0],
+                .condense_question_key = "standalone_question",
             };
-            rag_chain_ = CreateRAGChain(
-                chat_memory_,
-                std::dynamic_pointer_cast<BaseRetriever>(retriever_),
+            rag_chain_ = CreateRAGChain<Generation>(
+                retriever_,
                 question_chain_,
-                answer_chain_
+                answer_chain_,
+                chat_memory_
                 );
         }
 
         EmbeddingsPtr embedding_model_;
         StatefulRetrieverPtr retriever_;
         ChatMemoryPtr chat_memory_;
-        ChainPtr<std::string> question_chain_;
-        ChainPtr<std::string> answer_chain_;
-        RAGChainPtr<std::string> rag_chain_;
+        TextChainPtr question_chain_;
+        TextChainPtr answer_chain_;
+        RAGChainPtr<Generation> rag_chain_;
     };
 
     TEST_F(RAGChainTest, SimpleQAChat) {
         // run with empty docs
-        const auto ctx1 = ContextMutataor::Create()
-        ->Put("question", "why sea is blue?")
-        ->Build();
+        auto output = rag_chain_->Invoke(CreateJSONContext({"question", "why sea is blue?"}));
+        std::cout << "output = " << output.DebugString() << std::endl;
 
-        auto output = rag_chain_->Invoke(ctx1);
-        std::cout << "output = " << output << std::endl;
-
-        // invoke again to verify chat_histroy
-        const auto ctx2 = ContextMutataor::Create()
-        ->Put("question", "Can you explain in a way that even 6-year child could understand?")
-        ->Build();
-        output = rag_chain_->Invoke(ctx2);
-        std::cout << "output = " << output << std::endl;
+        // invoke again to verify chat_history
+        output = rag_chain_->Invoke(CreateJSONContext({"question", "Can you explain in a way that even 6-year child could understand?"}));
+        std::cout << "output = " << output.DebugString() << std::endl;
 
         // create a new context and verify
-        auto ctx_builder = ContextMutataor::Create();
-        chat_memory_->LoadMemories(ctx_builder);
-        auto ctx3 = ctx_builder->Build();
-        auto memory_key = chat_memory_->GetOutputKeys()[0];
-        ASSERT_TRUE(ctx3->values().contains(memory_key));
-        ASSERT_TRUE(ctx3->values().at(memory_key).has_string_value());
-        std::cout << ctx3->values().at(memory_key).string_value() << std::endl;
-        ASSERT_TRUE(ctx3->values().at(memory_key).string_value().find("why sea is blue?") != std::string::npos);
-
+        auto context = CreateJSONContext();
+        chat_memory_->LoadMemories(context);
+        auto memory_key = chat_memory_->AsLoadMemoryFunction()->GetOutputKeys()[0];
+        ASSERT_TRUE(context->Contains(memory_key));
+        std::cout << context->RequirePrimitive<std::string>(memory_key) << std::endl;
+        ASSERT_TRUE(context->RequirePrimitive<std::string>(memory_key).find("why sea is blue?") != std::string::npos);
     }
 }

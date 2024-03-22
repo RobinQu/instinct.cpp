@@ -11,7 +11,6 @@
 #include "output_parser/GenerationOutputParser.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
 #include "store/IVectorStore.hpp"
-#include "output_parser/MultiLineTextOutputParser.hpp"
 #include <fmt/ranges.h>
 
 
@@ -147,8 +146,6 @@ namespace INSTINCT_RETRIEVAL_NS {
         const PromptTemplatePtr& prompt_template = nullptr,
         const MultiVectorRetrieverOptions& options = {}
         ) {
-        auto output_parser = std::make_shared<MultiLineTextOutputParser>();
-
         auto query_chain = CreateMultilineChain(
             llm,
             // prompt is copied from langchain doc, which may not be the best choice

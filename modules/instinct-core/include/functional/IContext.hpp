@@ -42,17 +42,17 @@ namespace INSTINCT_CORE_NS {
 
         template<typename T>
         T RequireMessage(const std::string& name) const {
-            return {};
+            return ContextPolicy::ManagerType::template RequireMessage<T>(payload_, name);
         }
 
-        template<typename T>
-        void PutMessage(const std::string& name, T&& message) {
-
-        }
+//        template<typename T>
+//        void PutMessage(const std::string& name, T&& message) {
+//
+//        }
 
         template<typename T>
         void PutMessage(const std::string& name, const T& message) {
-
+            return ContextPolicy::ManagerType::template PutMessage<T>(payload_, name, message);
         }
 
         [[nodiscard]] bool Contains(const std::string& name) const {

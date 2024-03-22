@@ -17,6 +17,9 @@ namespace INSTINCT_LLM_NS {
     using TokenSize = unsigned long;
     using TokenId = unsigned long;
 
+    struct ChainOptions {
+    };
+
 
     /**
      * this should refer to a Generation

@@ -40,6 +40,10 @@ namespace INSTINCT_LLM_NS::test {
     }
 
     class PesudoChatModel : public BaseChatModel {
+    public:
+        explicit PesudoChatModel(const ModelOptions &options = {}) : BaseChatModel(options) {}
+
+    private:
         BatchedLangaugeModelResult Generate(const std::vector<MessageList> &messages) override {
             BatchedLangaugeModelResult batched_model_result;
             for(const auto& message_list: messages) {
@@ -63,6 +67,8 @@ talking non-sense
             LangaugeModelResult model_result;
             return rpp::source::just(model_result);
         }
+
+
     };
 
 

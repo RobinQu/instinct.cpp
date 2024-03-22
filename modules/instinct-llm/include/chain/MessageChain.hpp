@@ -14,8 +14,7 @@
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
-    struct ChainOptions {
-    };
+
 
     template<
             typename Output,
@@ -38,9 +37,11 @@ namespace INSTINCT_LLM_NS {
             return options_;
         }
 
+        [[nodiscard]] virtual std::vector<std::string> GetRequiredKeys() const = 0;
+
         virtual StepFunctionPtr GetStepFunction() = 0;
 
-        OutputParserPtr<Output> GetOutputParser() {
+        OutputParserPtr<Output> GetOutputParser() const {
             return output_converter_;
         }
 

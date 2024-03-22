@@ -16,6 +16,7 @@
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
     struct RAGChainOptions {
+        ChainOptions base_options = {};
         std::string context_output_key = DEFAULT_CONTEXT_OUTPUT_KEY;
         std::string condense_question_key = DEFAULT_STANDALONE_QUESTION_INPUT_KEY;
         int top_k = 10;

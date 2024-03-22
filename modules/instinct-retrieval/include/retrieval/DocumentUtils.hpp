@@ -8,6 +8,7 @@
 
 #include "RetrievalGlobals.hpp"
 #include <google/protobuf/util/message_differencer.h>
+#include "tools/StringUtils.hpp"
 
 
 namespace std {
@@ -34,8 +35,7 @@ namespace std {
 }
 
 namespace INSTINCT_RETRIEVAL_NS {
-
-
+    using namespace INSTINCT_CORE_NS;
 
     struct DocumentMetadataMutator {
         Document* document_;

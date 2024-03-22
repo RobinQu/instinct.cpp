@@ -7,8 +7,11 @@
 
 #include "CoreGlobals.hpp"
 #include "IContext.hpp"
+#include <google/protobuf/util/json_util.h>
+#include "tools/Assertions.hpp"
 
 namespace INSTINCT_CORE_NS {
+    using namespace google::protobuf;
     class JSONContextPolicy {
     public:
         using PayloadType = nlohmann::json;
@@ -31,7 +34,7 @@ namespace INSTINCT_CORE_NS {
 
             template<typename T>
             static void PutPrimitive(PayloadType& payload, const std::string& name, T&& value) {
-                payload.at(name) = value;
+                payload[name] = value;
             }
 
             static void PutObject(PayloadType& payload, const std::string& name, const PayloadType& child_object) {
@@ -45,6 +48,26 @@ namespace INSTINCT_CORE_NS {
             static bool Contains(const PayloadType& payload, const std::string& name) {
                 return payload.contains(name);
             }
+
+            template<typename T>
+            static T RequireMessage(const PayloadType& payload, const std::string& name) {
+                // TODO use reflection instead
+                auto str = payload[name].dump();
+                T result;
+                auto status = util::JsonStringToMessage(str, &result);
+                assert_true(status.ok());
+                return result;
+            }
+
+            template<typename T>
+            static void PutMessage(PayloadType& payload, const std::string& name, const T& message) {
+                // TODO use reflection instead
+                std::string buf;
+                auto status = util::MessageToJsonString(message, &buf);
+                assert_true(status.ok());
+                payload[name] = buf;
+            }
+
 
         };
         using ManagerType = Manager;

@@ -7,6 +7,7 @@
 
 #include "retrieval/IRetriever.hpp"
 #include "retrieval/DocumentUtils.hpp"
+#include "functional/StepFunctions.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;

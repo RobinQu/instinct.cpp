@@ -8,7 +8,6 @@
 #include "IRetriever.hpp"
 #include "LLMGlobals.hpp"
 #include "RetrievalGlobals.hpp"
-#include "chain/BaseChain.hpp"
 #include "chain/LLMChain.hpp"
 #include "llm/BaseLLM.hpp"
 #include "output_parser/BaseOutputParser.hpp"

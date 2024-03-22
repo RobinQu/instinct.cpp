@@ -17,9 +17,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/retrieval/ChunkedMultiVectorRetriever.hpp
         include/retrieval/AutoRetriever.hpp
         include/retrieval/MultiQueryRetriever.hpp
-
-        include/output_parser/MultiLineTextOutputParser.hpp
-        include/output_parser/MetadataQueryOutputParser.hpp
         include/ingestor/BaseIngestor.hpp
         include/ingestor/SingleFileIngestor.hpp
         include/ingestor/DirectoryTreeIngestor.hpp

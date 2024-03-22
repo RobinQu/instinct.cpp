@@ -5,15 +5,13 @@
 #ifndef MULTIQUERYRETRIEVER_HPP
 #define MULTIQUERYRETRIEVER_HPP
 
+#include <unordered_set>
+
 
 #include "BaseRetriever.hpp"
 #include "RetrievalGlobals.hpp"
-#include "chain/BaseChain.hpp"
 #include "chain/LLMChain.hpp"
-#include "llm/BaseLLM.hpp"
-#include "output_parser/MultiLineTextOutputParser.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
-#include <unordered_set>
 #include "retrieval/DocumentUtils.hpp"
 
 
@@ -23,21 +21,21 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     class MultiQueryRetriever: public BaseRetriever {
         RetrieverPtr base_retriever_;
-        MultilineTextChainPtr query_chain_{};
+        MultilineChainPtr query_chain_{};
 
     public:
-        MultiQueryRetriever(RetrieverPtr base_retriever, MultilineTextChainPtr query_chain)
+        MultiQueryRetriever(RetrieverPtr base_retriever, MultilineChainPtr query_chain)
             : base_retriever_(std::move(base_retriever)),
               query_chain_(std::move(query_chain)) {
         }
 
-        AsyncIterator<Document> Retrieve(const TextQuery& query) override {
-            const auto context_builder = ContextMutataor::Create();
-            context_builder->Put(query_chain_->GetInputKeys()[0], query.text);
-            const auto queries = query_chain_->Invoke(context_builder->Build());
-            assert_true(queries.size()>1, "should have multiple generated queries.");
+        [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery& query) const override {
+            const auto queries = query_chain_->Invoke(CreateJSONContext({
+                query_chain_->GetRequiredKeys()[0], query.text
+            }));
+            assert_true(queries.lines_size() > 1, "should have multiple generated queries.");
 
-            return rpp::source::from_iterable(queries)
+            return rpp::source::from_iterable(queries.lines())
                 | rpp::operators::flat_map([&](const std::string& q) {
                     TextQuery text_query = query;
                     text_query.text = q;
@@ -55,8 +53,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             const ChatModelPtr & llm,
             const PromptTemplatePtr& prompt_template = nullptr
     ) {
-        const auto output_parse = std::make_shared<MultiLineTextOutputParser>();
-        auto query_chain = std::make_shared<MultilineTextLLMChain>(
+        auto query_chain = CreateMultilineChain(
                 llm,
                 prompt_template ? prompt_template : PlainPromptTemplate::CreateWithTemplate(R"(You are an AI language model assistant. Your task is
     to generate 3 different versions of the given user
@@ -64,9 +61,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     By generating multiple perspectives on the user question,
     your goal is to help the user overcome some of the limitations
     of distance-based similarity search. Provide these alternative
-    questions separated by newlines. Original question: {question})"),
-                output_parse,
-                nullptr
+    questions separated by newlines. Original question: {question})")
         );
         return std::make_shared<MultiQueryRetriever>(base_retriever, query_chain);
     }
