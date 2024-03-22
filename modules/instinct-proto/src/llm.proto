@@ -79,13 +79,6 @@ message MessageList {
   repeated Message messages = 1;
 }
 
-//message PromptExample {
-//  map<string, instinct.core.PrimitiveVariable> values = 1;
-//}
-//
-//message PromptExamples {
-//  repeated PromptExample values = 1;
-//}
 
 message Generation {
   string text = 1;
@@ -113,6 +106,39 @@ message BatchedLangaugeModelResult {
     OllamaChatCompletionResponse ollama_chat = 3;
   }
 }
+
+
+message MultilineGeneration {
+  repeated string lines = 1;
+}
+
+message StructuredGeneration {
+
+  repeated StructuredBlock blocks = 1;
+  Generation raw_generation = 2;
+
+  message StructuredBlock {
+    oneof value {
+      TextBlock text = 1;
+      TabularBlock table = 2;
+      TabularBlock image = 3;
+    }
+  }
+
+  message TextBlock {
+
+  }
+
+  message TabularBlock {
+
+  }
+
+  message ImageBlock {
+
+  }
+
+}
+
 
 message OllamaGenerateMessage {
   string role = 1;

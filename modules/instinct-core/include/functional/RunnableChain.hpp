@@ -20,7 +20,7 @@ namespace INSTINCT_CORE_NS {
             typename InputConverter = RunnablePtr<Input, Context>,
             typename OutputConverter = RunnablePtr<Context, Output>
     >
-    class RunnableChain final: public IRunnable<Input, Output> {
+    class RunnableChain final: public BaseRunnable<Input, Output> {
         InputConverter input_converter_;
         OutputConverter output_converter_;
         StepFunctionPtr step_function_{};
@@ -42,11 +42,7 @@ namespace INSTINCT_CORE_NS {
         }
     };
 
-//    template<
-//            typename Input,
-//            typename Output
-//    >
-//    using ChainPtr = std::shared_ptr<RunnableChain<Input, Output>>;
+
 }
 
 #endif //INSTINCT_RUNNABLECHAIN_HPP

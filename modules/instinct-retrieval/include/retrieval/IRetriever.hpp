@@ -19,7 +19,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         IRetriever(const IRetriever&)=delete;
         IRetriever(IRetriever&&)=delete;
 
-        virtual AsyncIterator<Document> Retrieve(const Query& query) = 0;
+        [[nodiscard]] virtual AsyncIterator<Document> Retrieve(const Query& query) const = 0;
     };
 
 

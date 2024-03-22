@@ -31,11 +31,7 @@ namespace INSTINCT_CORE_NS {
         virtual Output operator()(const Input& input) { return Invoke(input); }
     };
 
-    template<
-        typename Input,
-        typename Output
-    >
-    using RunnablePtr = std::shared_ptr<IRunnable<Input, Output>>;
+
 }
 
 

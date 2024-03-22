@@ -11,7 +11,7 @@
 
 
 namespace INSTINCT_LLM_NS {
-    class BaseLLM : public ILanguageModel<std::string>, public BaseStepFunction {
+    class BaseLLM : public virtual ILanguageModel, public BaseStepFunction, public BaseRunnable<PromptValueVariant, std::string> {
         virtual BatchedLangaugeModelResult Generate(const std::vector<std::string>& prompts) = 0;
 
         virtual AsyncIterator<LangaugeModelResult> StreamGenerate(const std::string& prompt) = 0;

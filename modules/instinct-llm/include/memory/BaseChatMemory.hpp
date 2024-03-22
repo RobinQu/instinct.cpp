@@ -8,7 +8,6 @@
 
 #include "IChatMemory.hpp"
 #include "LLMGlobals.hpp"
-#include "chain/IChainContextAware.hpp"
 
 namespace INSTINCT_LLM_NS {
 
@@ -17,43 +16,48 @@ namespace INSTINCT_LLM_NS {
     struct ChatMemoryOptions {
         std::string input_prompt_variable_key = DEFAULT_PROMPT_INPUT_KEY;
         std::string input_answer_variable_key = DEFAULT_ANSWER_OUTPUT_KEY;
-        std::string input_messages_list_variable_key = DEFAULT_MESSAGE_LIST_INPUT_KEY;
-        std::string output_message_variable_key = DEFAULT_MESSAGE_OUTPUT_KEY;
+//        std::string input_messages_list_variable_key = DEFAULT_MESSAGE_LIST_INPUT_KEY;
+//        std::string output_message_variable_key = DEFAULT_MESSAGE_OUTPUT_KEY;
         std::string output_memory_key = DEFAULT_CHAT_HISTORY_KEY;
     };
 
-    class BaseChatMemory: public BaseStepFunction, public virtual IChatMemory {
+    class BaseChatMemory : public virtual IChatMemory {
         ChatMemoryOptions options_;
+        StepFunctionPtr load_memory_function_;
+        StepFunctionPtr save_memory_function_;
     public:
-        BaseChatMemory()=delete;
-        explicit BaseChatMemory(ChatMemoryOptions  options={})
-            : options_(std::move(options)) {
+        BaseChatMemory() = delete;
+
+        explicit BaseChatMemory(ChatMemoryOptions options = {})
+                : options_(std::move(options)) {
+            load_memory_function_ = std::make_shared<LambdaStepFunction>(
+                    [&](const JSONContextPtr &context) {
+                        LoadMemories(context);
+                        return context;
+                    },
+                    std::vector<std::string> {},
+                    std::vector<std::string> {options_.output_memory_key});
+
+            save_memory_function_ = std::make_shared<LambdaStepFunction>([&](const JSONContextPtr &context) {
+                this->SaveMemory(context);
+                return context;
+            });
         }
 
-        const ChatMemoryOptions& GetOptions() {
+        const ChatMemoryOptions &GetOptions() {
             return options_;
         }
 
-        /**
-         * ChatMemory depends nothing when enhancing context. However, prompt and answer are required before SaveMemory, where extra validations are needed.
-         * @return
-         */
-        [[nodiscard]] std::vector<std::string> GetInputKeys() const override {
-            // return {options_.input_answer_variable_key, options_.input_prompt_variable_key};
-            return  {};
+        [[nodiscard]] StepFunctionPtr AsLoadMemoryFunction() const {
+            return load_memory_function_;
         }
 
-        [[nodiscard]] std::vector<std::string> GetOutputKeys() const override {
-            return {options_.output_memory_key};
+        [[nodiscard]] StepFunctionPtr  AsSaveMemoryFunction() const {
+            return save_memory_function_;
         }
 
-        JSONContextPtr Invoke(const JSONContextPtr &input) override {
-            auto result = CreateJSONContext();
-            LoadMemories(result);
-            return result;
-        }
+        void LoadMemories(const JSONContextPtr &context) override = 0;
 
-        void LoadMemories(const JSONContextPtr& context) override = 0;
     };
 
     using ChatMemoryPtr = std::shared_ptr<BaseChatMemory>;

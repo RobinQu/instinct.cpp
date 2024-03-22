@@ -70,11 +70,11 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
     static StatefulRetrieverPtr CreateChunkedMultiVectorRetriever(
-            DocStorePtr doc_store,
-            VectorStorePtr vector_store,
-            TextSplitterPtr child_splitter,
-            TextSplitterPtr parent_splitter = nullptr,
-            MultiVectorRetrieverOptions options = {}
+            const DocStorePtr& doc_store,
+            const VectorStorePtr& vector_store,
+            const TextSplitterPtr& child_splitter,
+            const TextSplitterPtr& parent_splitter = nullptr,
+            const MultiVectorRetrieverOptions& options = {}
     ) {
         return std::make_shared<ChunkedMultiVectorRetriever>(
                 doc_store,

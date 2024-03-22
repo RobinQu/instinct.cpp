@@ -10,36 +10,20 @@
 #include "IRunnable.hpp"
 #include "JSONContextPolicy.hpp"
 #include "tools/Assertions.hpp"
+#include "BaseRunnable.hpp"
 
 namespace INSTINCT_CORE_NS {
 
-    class IStepFunction: public virtual IRunnable<JSONContextPtr , JSONContextPtr> {
+    class IStepFunction {
     public:
         [[nodiscard]] virtual std::vector<std::string> GetInputKeys() const = 0;
         [[nodiscard]] virtual std::vector<std::string> GetOutputKeys() const = 0;
         virtual void ValidateInput(const JSONContextPtr& input) = 0;
     };
 
-    using StepFunctionPtr = std::shared_ptr<IStepFunction>;
-
-    class BaseStepFunction: public virtual IStepFunction {
+    class BaseStepFunction: public virtual IStepFunction, public BaseRunnable<JSONContextPtr,JSONContextPtr> {
 
     public:
-        JSONContextPtr Invoke(const JSONContextPtr &input) override = 0;
-
-        AsyncIterator<JSONContextPtr> Batch(const std::vector<JSONContextPtr> &input) override {
-            return rpp::source::from_iterable(input)
-                   | rpp::operators::map([&](const auto& ctx) {
-                return Invoke(ctx);
-            });
-        }
-
-        AsyncIterator<JSONContextPtr> Stream(const JSONContextPtr &input) override {
-            return rpp::source::from_callable([&]() {
-                return Invoke(input);
-            });
-        }
-
         void ValidateInput(const JSONContextPtr &input) override {
             for (const auto& k: this->GetInputKeys()) {
                 assert_true(input->Contains(k), "context should contain key " + k);
@@ -47,13 +31,23 @@ namespace INSTINCT_CORE_NS {
         }
     };
 
+    using StepFunctionPtr = std::shared_ptr<BaseStepFunction>;
+
     class SequenceStepFunction final: public BaseStepFunction {
         std::vector<StepFunctionPtr> steps_;
 
     public:
         explicit SequenceStepFunction(const std::vector<StepFunctionPtr> &steps) : steps_(steps) {
+            erase_if(steps_, [](const auto& step) {
+               return step == nullptr;
+            });
             assert_true(!steps_.empty(), "Steps cannot be empty");
         }
+
+        [[nodiscard]] const std::vector<StepFunctionPtr>& GetSteps() const {
+            return steps_;
+        }
+
 
         JSONContextPtr Invoke(const JSONContextPtr &input) override {
             JSONContextPtr continuous_input = input;
@@ -71,8 +65,9 @@ namespace INSTINCT_CORE_NS {
             return steps_.front()->GetOutputKeys();
         }
 
-
     };
+
+
 
     class MappingStepFunction final: public BaseStepFunction {
         std::unordered_map<std::string, StepFunctionPtr> steps_{};
@@ -113,11 +108,11 @@ namespace INSTINCT_CORE_NS {
         std::vector<std::string> output_keys_;
     public:
         explicit LambdaStepFunction(StepLambda fn,
-                                    const std::vector<std::string>& input_keys = {},
-                                    const std::vector<std::string>& output_keys = {}) :
+                                    std::vector<std::string> input_keys = {},
+                                    std::vector<std::string> output_keys = {}) :
                             fn_(std::move(fn)),
-                            input_keys_(input_keys),
-                            output_keys_(output_keys) {}
+                            input_keys_(std::move(input_keys)),
+                            output_keys_(std::move(output_keys)) {}
 
         [[nodiscard]] std::vector<std::string> GetInputKeys() const override {
             return input_keys_;
@@ -131,6 +126,48 @@ namespace INSTINCT_CORE_NS {
             return std::invoke(fn_, input);
         }
     };
+
+    class EmptyStepFunction: public BaseStepFunction {
+    public:
+        [[nodiscard]] std::vector<std::string> GetInputKeys() const override {
+            return {};
+        }
+
+        [[nodiscard]] std::vector<std::string> GetOutputKeys() const override {
+            return {};
+        }
+
+        JSONContextPtr Invoke(const JSONContextPtr &input) override {
+            return input;
+        }
+    };
+
+
+    StepFunctionPtr operator|(const StepFunctionPtr& first, const StepFunctionPtr& second) {
+        std::vector<StepFunctionPtr> steps;
+        if (auto first_as_steps = std::dynamic_pointer_cast<SequenceStepFunction>(first)) {
+            // try to collapse first as SequenceStepFunction
+            steps.insert(steps.end(), first_as_steps->GetSteps().begin(), first_as_steps->GetSteps().end());
+        } else if(first != nullptr) {
+            steps.push_back(first);
+        }
+
+        // try to collapse second as SequenceStepFunction
+        if(auto second_as_steps = std::dynamic_pointer_cast<SequenceStepFunction>(second)) {
+            steps.insert(steps.end(), second_as_steps->GetSteps().begin(), second_as_steps->GetSteps().end());
+        } else if(second != nullptr) {
+            steps.push_back(second);
+        }
+        if(steps.empty()) {
+            return std::make_shared<EmptyStepFunction>();
+        }
+        return std::make_shared<SequenceStepFunction>(steps);
+    }
+
+    StepFunctionPtr operator|(const StepFunctionPtr& first, const StepLambda& step_lambda) {
+        return first | std::make_shared<LambdaStepFunction>(step_lambda);
+    }
+
 
 }
 

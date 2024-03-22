@@ -27,8 +27,7 @@ namespace INSTINCT_LLM_NS {
         std::string
     >;
 
-    template<typename Output>
-    class ILanguageModel: public virtual IRunnable<PromptValueVariant, Output> {
+    class ILanguageModel {
     public:
         // virtual std::vector<TokenId> GetTokenIds(const std::string& text) = 0;
         // virtual TokenSize GetTokenCount(const std::string& text) = 0;

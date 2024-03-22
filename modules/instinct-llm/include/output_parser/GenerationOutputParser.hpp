@@ -15,18 +15,24 @@
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
-    class StringOutputParser final: public BaseOutputParser<std::string> {
+    class GenerationOutputParser final : public BaseOutputParser<Generation> {
     public:
-        std::string ParseResult(const Generation& result) override {
-            return result.has_message() ? MessageUtils::FormatMessage(result.message()) : result.text();
+        explicit GenerationOutputParser(const OutputParserOptions &options = {}) :
+                BaseOutputParser<Generation>(options) {}
+
+        /**
+         * passthrough implementation
+         * @param result
+         * @return
+         */
+        Generation ParseResult(const JSONContextPtr &result) override {
+            return result->RequireMessage<Generation>(GetOptions().generation_input_key);
         }
 
         std::string GetFormatInstruction() override {
             // tend to instruct nothing
-            return "Please reply in plain text format.";
+            return "";
         }
-
-
 
     };
 

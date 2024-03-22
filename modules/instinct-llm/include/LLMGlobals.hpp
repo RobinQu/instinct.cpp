@@ -18,11 +18,27 @@ namespace INSTINCT_LLM_NS {
     using TokenId = unsigned long;
 
 
-    static std::string DEFAULT_PROMPT_INPUT_KEY = "question";
-    static std::string DEFAULT_ANSWER_OUTPUT_KEY = "answer";
-    static std::string DEFAULT_MESSAGE_LIST_INPUT_KEY = "messages";
-    static std::string DEFAULT_MESSAGE_OUTPUT_KEY = "message";
-    using MultiLineText = std::vector<std::string>;
+    /**
+     * this should refer to a PromptValue
+     */
+    static const std::string DEFAULT_PROMPT_INPUT_KEY = "prompt";
+
+    /**
+     * this should refer to a Generation
+     */
+    static const std::string DEFAULT_ANSWER_OUTPUT_KEY = "answer";
+
+
+    /**
+     * this should refer to a string describing a question for retriever
+     */
+    static const std::string DEFAULT_QUESTION_INPUT_KEY = "question";
+
+    /**
+     * this should refer to a string containing contextual information returned by retriever
+     */
+    static const std::string DEFAULT_CONTEXT_OUTPUT_KEY = "context";
+
 
     inline std::ostream& operator<<(std::ostream& ostrm, const Message& msg) {
         ostrm << "Message[role=" << msg.role() << ", content=" << msg.content() << "]";

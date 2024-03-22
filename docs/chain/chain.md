@@ -30,5 +30,5 @@ components:
   - name: ollama_model
     type: OllamaChat
   - name: parser
-    type: StringOutputParser
+    type: GenerationOutputParser
 ```

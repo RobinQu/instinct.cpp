@@ -109,7 +109,8 @@ namespace INSTINCT_CORE_NS {
         }
     }
 
-    static void assert_true(const bool& v, const std::string& message = "assertion failed") {
+    template<typename T>
+    static void assert_true(T&& v, const std::string& message = "assertion failed") {
         if (!v) {
             throw InstinctException(message);
         }

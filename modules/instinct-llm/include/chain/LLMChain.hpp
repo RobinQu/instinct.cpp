@@ -9,7 +9,7 @@
 
 #include <utility>
 
-#include "BaseChain.hpp"
+#include "MessageChain.hpp"
 #include "LLMGlobals.hpp"
 #include "model/ILanguageModel.hpp"
 #include "llm/BaseLLM.hpp"
@@ -18,6 +18,9 @@
 #include "prompt/IPromptTemplate.hpp"
 #include "memory/BaseChatMemory.hpp"
 #include "tools/Assertions.hpp"
+#include "input_parser/PromptValueInputParser.hpp"
+#include "output_parser/GenerationOutputParser.hpp"
+#include "output_parser/MultilineGenerationOutputParser.hpp"
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
@@ -25,132 +28,110 @@ namespace INSTINCT_LLM_NS {
     // to adapt both LLM and ChatModel
     using LanguageModelVariant = std::variant<LLMPtr, ChatModelPtr>;
 
-    template<typename Result>
-    class LLMChain final: public BaseChain<Result> {
+    template<typename Input, typename Output>
+    class LLMChain;
+
+    using TextChain = LLMChain<PromptValue, Generation>;
+    using TextChainPtr = std::shared_ptr<TextChain>;
+    using MultilineChain = LLMChain<PromptValue,MultilineGeneration>;
+    using MultilineChainPtr = std::shared_ptr<MultilineChain>;
+
+    using StructuredChain = LLMChain<PromptValue, StructuredGeneration>;
+    using StructuredChainPtr = std::shared_ptr<StructuredChain>;
+
+
+
+
+    template<typename Input, typename Output>
+    class LLMChain final : public MessageChain<Input, Output> {
         LanguageModelVariant model_{};
         PromptTemplatePtr prompt_template_{};
-        OutputParserPtr<Result> output_parser_{};
         ChatMemoryPtr chat_memory_{};
+
     public:
-        LLMChain(LanguageModelVariant  model,
-                 PromptTemplatePtr  prompt_template,
-                 const OutputParserPtr<Result>& output_parser,
-                 ChatMemoryPtr  chat_memory = nullptr,
-                 const ChainOptions& options = {}
-                 )
-            : BaseChain<Result>(options),
+
+        LLMChain(const InputParserPtr<Input> &inputConverter,
+                 const OutputParserPtr<Output> &outputConverter,
+                 LanguageModelVariant model,
+                 PromptTemplatePtr promptTemplate,
+                 ChatMemoryPtr chatMemory,
+                 const ChainOptions& options) :
+                MessageChain<Input, Output>(inputConverter, outputConverter, options),
                 model_(std::move(model)),
-              prompt_template_(std::move(prompt_template)),
-              output_parser_(output_parser),
-              chat_memory_(std::move(chat_memory)) {
-            assert_non_empty_range(this->GetInputKeys(), "input keys cannot be empty");
-            assert_non_empty_range(this->GetOutputKeys(), "output keys cannot be empty");
-        }
+                prompt_template_(std::move(promptTemplate)),
+                chat_memory_(std::move(chatMemory)) {}
 
-        void EnhanceContext(const ContextMutataorPtr& context_mutataor) override {
-            if (chat_memory_) {
-                // add chat history
-                chat_memory_->EnhanceContext(context_mutataor);
-            }
-            // add parser instruction
-            output_parser_->EnhanceContext(context_mutataor);
-
-            // commit
-            context_mutataor->Commit();
-        }
-
-        Result Invoke(const ContextPtr& input) override {
-            auto context_builder = ContextMutataor::Create(input);
-            this->EnhanceContext(context_builder);
-            this->ValidateInput(input);
-
-            auto prompt_value = prompt_template_->FormatPrompt(context_builder->Build());
+        StepFunctionPtr GetStepFunction() override {
             if (std::holds_alternative<LLMPtr>(model_)) {
-                const auto& llm = std::get<LLMPtr>(model_);
-                auto text = llm->Invoke(prompt_value);
-                context_builder->Put(this->GetOutputKeys()[0], text);
-                Generation generation;
-                generation.set_text(text);
-                if (chat_memory_) {
-                    chat_memory_->SaveMemory(context_builder->Build());
-                }
-                context_builder->Commit();
-                return output_parser_->ParseResult(generation);
+                return this->output_converter_->AsInstructorFunction()
+                       | chat_memory_->AsLoadMemoryFunction()
+                       | prompt_template_
+                       | std::get<LLMPtr>(model_)
+                       | chat_memory_->AsSaveMemoryFunction();
             }
             if (std::holds_alternative<ChatModelPtr>(model_)) {
-                const auto& chat_model = std::get<ChatModelPtr>(model_);
-                Generation generation;
-                const auto message = chat_model->Invoke(prompt_value);
-                generation.mutable_message()->CopyFrom(message);
-                // always save answer with first output key
-                context_builder->Put(this->GetOutputKeys()[0], message.content());
-                if (chat_memory_) {
-                    chat_memory_->SaveMemory(context_builder->Build());
-                }
-                context_builder->Commit();
-                return output_parser_->ParseResult(generation);
+                return this->output_converter_->AsInstructorFunction()
+                       | chat_memory_->AsLoadMemoryFunction()
+                       | prompt_template_
+                       | std::get<ChatModelPtr>(model_)
+                       | chat_memory_->AsSaveMemoryFunction();
             }
-            throw InstinctException("invalid model pointer");
+            throw InstinctException("invalid model given to LLMChain");
         }
+
+
     };
 
-    using TextLLMChain = LLMChain<std::string>;
-    using MultilineTextLLMChain = LLMChain<MultiLineText>;
-
-    static TextChainPtr CreateTextLLMChain(
-            const LanguageModelVariant& model,
-            const PromptTemplatePtr& prompt_template,
-            const TextOutputParserPtr & output_parser,
-            const ChatMemoryPtr&chat_memory  = nullptr,
-            const ChainOptions& options = {}
+    static MultilineChainPtr CreateMultilineChain(
+            const LanguageModelVariant &model,
+            const PromptTemplatePtr& prompt_template = nullptr,
+            const ChainOptions& options = {},
+            const ChatMemoryPtr& chat_memory = nullptr,
+            InputParserPtr<PromptValue> input_parser = nullptr,
+            OutputParserPtr<MultilineGeneration> output_parser = nullptr
             ) {
-
-        return std::make_shared<TextLLMChain>(
+        if (!input_parser) {
+            input_parser = std::make_shared<PromptValueInputParser>();
+        }
+        if (!output_parser) {
+            output_parser = std::make_shared<MultilineGenerationOutputParse>();
+        }
+        return std::make_shared<TextChain>(
+                input_parser,
+                output_parser,
                 model,
                 prompt_template,
-                output_parser,
                 chat_memory,
                 options
         );
-
     }
 
-    // IRunnable<Input,Output>
 
-    // ILangaugeModel<Input,Output> extends IRunnable<Input,Output>
-    // ILLM<LLMInputVariant, std::string>
-    // ChatModel<ChatModelInputVariant, Message>
+    static TextChainPtr CreateTextChain(
+            const LanguageModelVariant &model,
+            const PromptTemplatePtr& prompt_template = nullptr,
+            const ChainOptions& options = {},
+            const ChatMemoryPtr& chat_memory = nullptr,
+            InputParserPtr<PromptValue> input_parser = nullptr,
+            OutputParserPtr<Generation> output_parser = nullptr
+    ) {
+        if (!input_parser) {
+            input_parser = std::make_shared<PromptValueInputParser>();
+        }
+        if (!output_parser) {
+            output_parser = std::make_shared<GenerationOutputParser>();
+        }
+        return std::make_shared<TextChain>(
+                input_parser,
+                output_parser,
+                model,
+                prompt_template,
+                chat_memory,
+                options
+        );
+    }
 
-    // IChain<ResultMessage> extends IRunnable<LLMChainContext, ResultMessage>
-    // LLMChain<T> implments IChain<T>
 
-    // # LLMChain<T>
-    // LLMChainContext -> (prompt_template.Format) -> StringPromptValue
-    // StringPromptValue -> (LM.Invoke) -> LangaugeModelOutput
-    // LangaugeModelOutput -> (OutputParser.Invoke) -> T
-
-    // std::vector<FormattableVariables> -> (prompt_template.Batch) -> ResultItr<StringPromptValue>*
-    // ResultItr<StringPromptValue>* -> BatchedLanguageModelInput -> (LM.Batch) -> BatchedLangaugeModelOutput
-    // BatchedLangaugeModelOutput -> (OutputParser.Batch) -> ResultItr<T>*
-
-    // LLMChainContext -> (prompt_template.Invoke) -> StringPromptValue
-    // StringPromptValue -> (LM.Stream) -> ResultItr<LangaugeModelOutput>*
-    // ResultItr<LangaugeModelOutput>* -> loop with (OutputParser.Invoke) -> ResultItr<LLMChainResponse>*
-
-
-    // # VallilanRAGChain<T>
-    // LLMChainContext -> (DocumentRetriever.Retreive) -> ResultItr<Document>*;
-    // ResultItr<Document>* combined to LLMChainContext['context']
-    // LLMChainContext -> (prompt_template.Invoke) -> StringPromptValue
-    // StringPromptValue -> (LM.Invoke) -> LangaugeModelOutput
-    // LangaugeModelOutput -> (OutputParser.Invoke) -> T
-
-    // ConvsersationalRAGChain<T> , with QuestionChain<PrimitiveVariable> as q_c, VallilanRAGChain<AnswerMessage> as vallilan_rag
-    // LLMChainContext -> (ChatMemory.Invoke) -> ChatMessageHistory
-    // combine ChatMessageHistory to string, and set into LLMChainContext['chat_history']
-    // LLMChainContext -> (q_c.Invoke) -> std::string
-    // merged returned variable to LLMChainContext
-    // LLMChainContext -> (vallilan_rag.Invoke) -> AnswerMessage
 }
 
 

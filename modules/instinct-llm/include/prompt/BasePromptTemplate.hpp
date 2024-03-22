@@ -43,6 +43,8 @@ namespace INSTINCT_LLM_NS {
         }
 
     };
+
+    using PromptTemplatePtr = std::shared_ptr<BasePromptTemplate>;
 }
 
 #endif //INSTINCT_BASEPROMPTTEMPLATE_HPP

@@ -25,13 +25,13 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     public:
         explicit VectorStoreRetriever(
-            VectorStorePtr vectore_store,
+            VectorStorePtr vector_store,
             std::shared_ptr<SearchRequest> search_request_template)
-            : vecstore_store_(std::move(vectore_store)), search_request_template_(std::move(search_request_template)){
+            : vecstore_store_(std::move(vector_store)), search_request_template_(std::move(search_request_template)){
         }
 
 
-        AsyncIterator<Document> Retrieve(const TextQuery& query) override {
+        [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery& query) const override {
             SearchRequest search_request;
             if (search_request_template_) {
                 search_request.MergeFrom(*search_request_template_);

@@ -9,10 +9,18 @@
 
 #include <utility>
 #include "CoreGlobals.hpp"
+#include "LLMGlobals.hpp"
 
 #define INSTINCT_RETRIEVAL_NS instinct::retrieval
 
 namespace INSTINCT_RETRIEVAL_NS {
+    using namespace INSTINCT_LLM_NS;
+    struct RAGChainOptions {
+        std::string context_output_key = DEFAULT_CONTEXT_OUTPUT_KEY;
+        std::string condense_question_key = DEFAULT_QUESTION_INPUT_KEY;
+        int top_k = 10;
+    };
+
     using MetadataSchemaPtr = std::shared_ptr<MetadataSchema>;
 
     class MetadataSchemaBuilder final {

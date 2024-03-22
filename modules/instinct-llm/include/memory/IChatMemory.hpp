@@ -9,7 +9,6 @@
 #include "LLMGlobals.hpp"
 #include <llm.pb.h>
 
-#include "chain/IChainContextAware.hpp"
 
 namespace INSTINCT_LLM_NS {
 

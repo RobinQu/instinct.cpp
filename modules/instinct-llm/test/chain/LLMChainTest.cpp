@@ -8,7 +8,7 @@
 #include "chain/LLMChain.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "llm/OllamaLLM.hpp"
-#include "output_parser/StringOutputParser.hpp"
+#include "output_parser/GenerationOutputParser.hpp"
 #include "prompt/PlainChatTemplate.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
 
@@ -20,7 +20,8 @@ namespace INSTINCT_LLM_NS {
     protected:
         void SetUp() override {
             SetupLogging();
-            string_parser_ = std::make_shared<StringOutputParser>();
+            input_parser_ = std::make_shared<PromptValueInputParser>();
+            output_parser_ = std::make_shared<GenerationOutputParser>();
             chat_model_ = std::make_shared<OllamaChat>();
             llm_ = std::make_shared<OllamaLLM>();
 
@@ -35,44 +36,55 @@ namespace INSTINCT_LLM_NS {
         LLMPtr llm_;
         PromptTemplatePtr chat_prompt_template_;
         PromptTemplatePtr string_prompt_template_;
-        OutputParserPtr<std::string> string_parser_;
+        InputParserPtr<PromptValue> input_parser_;
+        OutputParserPtr<Generation> output_parser_;
     };
 
 
     TEST_F(LLMChainTest, GenerateWithLLM) {
-        LLMChain chain { llm_, string_prompt_template_, string_parser_, nullptr};
-        LLMChainContext context;
-        auto builder = ContextMutataor::Create();
-        builder->Put("question", "Why is sky blue?");
-        auto result = chain.Invoke(builder->Build());
-        std::cout << result << std::endl;
+        TextChain chain  {
+            input_parser_,
+            output_parser_,
+            llm_,
+            string_prompt_template_,
+            nullptr,
+            {}
+        };
 
-        chain.Batch({builder->Build()})
-            | rpp::operators::subscribe([](const auto& msg) { LOG_INFO("msg={}", msg); });
+        PromptValue pv;
+        pv.mutable_string()->set_text("Why is sky blue?");
+        auto result = chain.Invoke(pv);
+        std::cout << result.DebugString() << std::endl;
 
-        auto chunk_itr = chain.Stream(builder->Build());
+        chain.Batch({pv})
+            | rpp::operators::subscribe([](const auto& msg) { LOG_INFO("msg={}", msg.DebugString()); });
+
+        auto chunk_itr = chain.Stream(pv);
         std::string buf;
         for (const auto& chunk_result: CollectVector(chunk_itr)) {
-            buf += chunk_result;
+            buf += chunk_result.text();
             std::cout << buf << std::endl;;
         }
     }
 
     TEST_F(LLMChainTest, GenerateWithChatModel) {
-        auto builder = ContextMutataor::Create();
-        builder->Put("question", "how is that different than mie scattering?");
-        LLMChain chain {chat_model_, chat_prompt_template_, string_parser_, nullptr};
-        auto result = chain.Invoke(builder->Build());
-        std::cout << result << std::endl;
+        PromptValue pv;
+        auto* msg = pv.mutable_chat()->add_messages();
+        msg->set_content("how is that different than mie scattering?");
+        msg->set_role("human");
 
+        TextChain chain {input_parser_, output_parser_, chat_model_, chat_prompt_template_, nullptr, {}};
 
-        chain.Batch({builder->Build()})
-            | rpp::operators::subscribe([](const auto& msg) { LOG_INFO("msg={}", msg); });
+        auto result = chain.Invoke(pv);
+        std::cout << result.DebugString() << std::endl;
 
-        auto chunk_itr = chain.Stream(builder->Build());
+        chain.Batch({pv})
+            | rpp::operators::subscribe([](const auto& msg) { LOG_INFO("msg={}", msg.DebugString()); });
+
+        auto chunk_itr = chain.Stream(pv);
         std::string buf;
         for (const auto& chunk_result: CollectVector(chunk_itr)) {
-            buf += chunk_result;
+            buf += chunk_result.message().content();
             std::cout << buf << std::endl;;
         }
 

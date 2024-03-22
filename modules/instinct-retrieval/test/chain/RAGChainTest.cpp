@@ -9,7 +9,7 @@
 #include "chat_model/OllamaChat.hpp"
 #include "embedding_model/OllamaEmbedding.hpp"
 #include "memory/EphemeralChatMemory.hpp"
-#include "output_parser/StringOutputParser.hpp"
+#include "output_parser/GenerationOutputParser.hpp"
 #include "retrieval/VectorStoreRetriever.hpp"
 #include "tools/ChronoUtils.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
@@ -46,7 +46,7 @@ Follow Up Input: {question}
 Standalone question:)")
             ->Build();
 
-            OutputParserPtr<std::string> string_output_parser = std::make_shared<StringOutputParser>();
+            OutputParserPtr<std::string> string_output_parser = std::make_shared<GenerationOutputParser>();
 
             ChainOptions question_chain_options = {
                 .input_keys = {"question"},

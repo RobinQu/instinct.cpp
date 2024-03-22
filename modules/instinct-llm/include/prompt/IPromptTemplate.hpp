@@ -25,7 +25,7 @@ namespace INSTINCT_LLM_NS {
 
     };
 
-    using PromptTemplatePtr = std::shared_ptr<IPromptTemplate>;
+
 
 }
 

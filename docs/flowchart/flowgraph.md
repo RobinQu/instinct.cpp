@@ -86,7 +86,7 @@ index.yaml
         - name: model
           value: llama2
     - name: output_parser
-      type: StringOutputParser
+      type: GenerationOutputParser
   connections: 
     - [prompt1, model]
     - [model, output_parser]

@@ -25,8 +25,8 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/prompt/PassthroughExampleSelector.hpp
         include/prompt/LengthBasedExampleSelector.h
         include/output_parser/IOutputParser.hpp
-        include/output_parser/ProtobufMessageOutputParser.hpp
-        include/output_parser/StringOutputParser.hpp
+        include/output_parser/StructuredGenerationOutputParser.hpp
+        include/output_parser/GenerationOutputParser.hpp
         include/output_parser/BaseOutputParser.hpp
         include/prompt/MessageUtils.hpp
         include/prompt/ChatPromptBuilder.hpp
@@ -37,11 +37,9 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/tokenizer/GPT2BPEFileReader.hpp
         include/tokenizer/TiktokenBPEFileReader.hpp
         include/memory/EphemeralChatMemory.hpp
-        include/chain/IChainContextAware.hpp
         include/output_parser/BaseOutputParser.hpp
         include/memory/BaseChatMemory.hpp
         include/model/ModelCallbackMixins.hpp
-        include/chain/ContextMutator.hpp
         include/chat_model/OpenAIChat.hpp
         include/commons/OpenAICommons.hpp
         include/embedding_model/OpenAIEmbedding.hpp
@@ -49,6 +47,12 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/llm/OpenAILLM.hpp
         include/prompt/BasePromptTemplate.hpp
         include/prompt/BaseChatPromptTemplate.hpp
+        include/input_parser/IInputParser.hpp
+        include/input_parser/BaseInputParser.hpp
+        include/input_parser/PromptValueInputParser.hpp
+        include/chain/MessageChain.hpp
+        include/output_parser/ProtobufMessageOutputParser.hpp
+        include/output_parser/MultilineGenerationOutputParser.hpp
 
 )
 

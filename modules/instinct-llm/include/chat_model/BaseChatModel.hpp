@@ -14,7 +14,7 @@
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 ;
-    class BaseChatModel : public ILanguageModel<Message>, public BaseStepFunction {
+    class BaseChatModel : public virtual ILanguageModel, public BaseStepFunction, public BaseRunnable<PromptValueVariant,Message> {
     private:
         virtual BatchedLangaugeModelResult Generate(
             const std::vector<MessageList>& messages
