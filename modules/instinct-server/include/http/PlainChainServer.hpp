@@ -33,7 +33,9 @@ namespace INSTINCT_SERVER_NS {
         Server server_;
     public:
 
-        explicit PlainChainServer(ServerOptions options = {}) : options_(std::move(options)) {}
+        explicit PlainChainServer(ServerOptions options = {}) : options_(std::move(options)) {
+            InitServer();
+        }
 
         template<class T>
         bool AddNamedChain(const std::string &chain_name, const MessageChainPtr<T> &chain) {
@@ -94,6 +96,7 @@ namespace INSTINCT_SERVER_NS {
         }
 
         void InitServer() {
+            LOG_INFO("InitServer...");
             server_.Get("/health", [](const Request& req, Response& resp) {
                 resp.set_content("ok", HTTP_CONTENT_TYPES.at(kPlainText));
                 return true;
