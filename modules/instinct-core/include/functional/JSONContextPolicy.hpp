@@ -52,12 +52,17 @@ namespace INSTINCT_CORE_NS {
 
     using JSONContextPtr = ContextPtr<JSONContextPolicy>;
 
-    static JSONContextPtr CreateJSONContext(const std::string& json_string = "") {
-        nlohmann::json json_obj = json_string.empty() ?
-                nlohmann::json {} :
-                nlohmann::json::parse(json_string);
-        return std::make_shared<IContext<JSONContextPolicy>>(json_obj);
+
+    static JSONContextPtr CreateJSONContext(const nlohmann::json& json_object = {}) {
+        return std::make_shared<IContext<JSONContextPolicy>>(json_object);
     }
+
+//    static JSONContextPtr CreateJSONContext(const std::string& json_string = "") {
+//        nlohmann::json json_obj = json_string.empty() ?
+//                nlohmann::json {} :
+//                nlohmann::json::parse(json_string);
+//        return std::make_shared<IContext<JSONContextPolicy>>(json_obj);
+//    }
 }
 
 

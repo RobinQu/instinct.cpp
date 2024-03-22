@@ -24,7 +24,7 @@ namespace INSTINCT_LLM_NS {
 
     public:
         explicit OpenAIChat(OpenAIConfiguration configuration)
-            : configuration_(std::move(configuration)), client_(configuration_.endpoint) {
+            : BaseChatModel(configuration.base_options), configuration_(std::move(configuration)), client_(configuration_.endpoint) {
         }
 
         void CallOpenAI(const MessageList& message_list, BatchedLangaugeModelResult& batched_langauge_model_result) {

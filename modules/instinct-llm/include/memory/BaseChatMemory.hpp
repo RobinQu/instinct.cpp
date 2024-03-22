@@ -14,10 +14,8 @@ namespace INSTINCT_LLM_NS {
     static const std::string DEFAULT_CHAT_HISTORY_KEY = "chat_history";
 
     struct ChatMemoryOptions {
-        std::string input_prompt_variable_key = DEFAULT_PROMPT_INPUT_KEY;
-        std::string input_answer_variable_key = DEFAULT_ANSWER_OUTPUT_KEY;
-//        std::string input_messages_list_variable_key = DEFAULT_MESSAGE_LIST_INPUT_KEY;
-//        std::string output_message_variable_key = DEFAULT_MESSAGE_OUTPUT_KEY;
+        std::string prompt_variable_key = DEFAULT_QUESTION_INPUT_OUTPUT_KEY;
+        std::string answer_variable_key = DEFAULT_ANSWER_OUTPUT_KEY;
         std::string output_memory_key = DEFAULT_CHAT_HISTORY_KEY;
     };
 

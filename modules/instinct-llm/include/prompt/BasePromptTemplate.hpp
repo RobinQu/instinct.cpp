@@ -18,7 +18,7 @@ namespace INSTINCT_LLM_NS {
 
     struct PromptTemplateOptions {
         std::vector<std::string> input_keys = {};
-        std::vector<std::string> output_keys = {DEFAULT_PROMPT_INPUT_KEY};
+        std::vector<std::string> output_keys = {DEFAULT_QUESTION_INPUT_OUTPUT_KEY};
 
     };
 
@@ -30,7 +30,7 @@ namespace INSTINCT_LLM_NS {
     public:
         JSONContextPtr Invoke(const JSONContextPtr &input) override {
             auto prompt_value = FormatPrompt(input);
-            input->PutMessage(DEFAULT_PROMPT_INPUT_KEY, prompt_value);
+            input->PutMessage(options_.output_keys[0], prompt_value);
             return input;
         }
 

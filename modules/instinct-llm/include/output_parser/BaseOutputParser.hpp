@@ -28,7 +28,6 @@ namespace INSTINCT_LLM_NS {
 
     public:
 
-
         explicit BaseOutputParser(OutputParserOptions options)
                 : options_(std::move(options)) {
 
@@ -41,8 +40,8 @@ namespace INSTINCT_LLM_NS {
                                 );
                         return context;
                     },
-                    {},
-                    {options_.format_instruction_output_key});
+                    std::vector<std::string> {},
+                    std::vector<std::string> {options_.format_instruction_output_key});
         }
 
 

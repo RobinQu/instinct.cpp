@@ -20,9 +20,9 @@ namespace INSTINCT_LLM_NS {
     namespace details {
         static LangaugeModelResult conv_raw_response_to_model_result(const OllamaCompletionResponse& response, bool chunk) {
             LangaugeModelResult result;
-            auto* genertion = result.add_generations();
-            genertion->set_is_chunk(chunk);
-            genertion->set_text(response.response());
+            auto* generation = result.add_generations();
+            generation->set_is_chunk(chunk);
+            generation->set_text(response.response());
             return result;
         }
     }
@@ -32,7 +32,9 @@ namespace INSTINCT_LLM_NS {
         OllamaConfiguration configuration_;
     public:
 
-        explicit OllamaLLM(const OllamaConfiguration& configuration = {}): http_client_(configuration.endpoint), configuration_(configuration) {}
+        explicit OllamaLLM(const OllamaConfiguration& configuration = {}):
+                BaseLLM(configuration.base_options),
+                http_client_(configuration.endpoint), configuration_(configuration) {}
         //
         // std::vector<TokenId> GetTokenIds(const std::string& text) override {
         //

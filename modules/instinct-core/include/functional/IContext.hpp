@@ -50,6 +50,11 @@ namespace INSTINCT_CORE_NS {
 
         }
 
+        template<typename T>
+        void PutMessage(const std::string& name, const T& message) {
+
+        }
+
         [[nodiscard]] bool Contains(const std::string& name) const {
             return ContextPolicy::ManagerType::Contains(payload_, name);
         }

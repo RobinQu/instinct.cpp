@@ -28,7 +28,7 @@ namespace INSTINCT_LLM_NS {
         const auto result = openai_chat->Invoke("why sky is blue?");
         std::cout << result << std::endl;
 
-        openai_chat->Batch({
+        openai_chat->Batch(std::vector<PromptValueVariant> {
             "why sky is blue?",
             "How many counties are in America?"
         })

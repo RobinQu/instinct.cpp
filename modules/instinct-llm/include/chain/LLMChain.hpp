@@ -28,79 +28,77 @@ namespace INSTINCT_LLM_NS {
     // to adapt both LLM and ChatModel
     using LanguageModelVariant = std::variant<LLMPtr, ChatModelPtr>;
 
-    template<typename Input, typename Output>
-    class LLMChain;
-
-    using TextChain = LLMChain<PromptValue, Generation>;
-    using TextChainPtr = std::shared_ptr<TextChain>;
-    using MultilineChain = LLMChain<PromptValue,MultilineGeneration>;
-    using MultilineChainPtr = std::shared_ptr<MultilineChain>;
-
-    using StructuredChain = LLMChain<PromptValue, StructuredGeneration>;
-    using StructuredChainPtr = std::shared_ptr<StructuredChain>;
 
 
 
 
-    template<typename Input, typename Output>
-    class LLMChain final : public MessageChain<Input, Output> {
+
+    template<typename Output>
+    class LLMChain final : public MessageChain<Output> {
         LanguageModelVariant model_{};
         PromptTemplatePtr prompt_template_{};
         ChatMemoryPtr chat_memory_{};
 
     public:
 
-        LLMChain(const InputParserPtr<Input> &inputConverter,
-                 const OutputParserPtr<Output> &outputConverter,
+        LLMChain(PromptTemplatePtr promptTemplate,
                  LanguageModelVariant model,
-                 PromptTemplatePtr promptTemplate,
+                 const OutputParserPtr<Output> &outputConverter,
                  ChatMemoryPtr chatMemory,
                  const ChainOptions& options) :
-                MessageChain<Input, Output>(inputConverter, outputConverter, options),
+                MessageChain<Output>(outputConverter, options),
                 model_(std::move(model)),
                 prompt_template_(std::move(promptTemplate)),
                 chat_memory_(std::move(chatMemory)) {}
 
         StepFunctionPtr GetStepFunction() override {
+            StepFunctionPtr model_function;
             if (std::holds_alternative<LLMPtr>(model_)) {
-                return this->output_converter_->AsInstructorFunction()
-                       | chat_memory_->AsLoadMemoryFunction()
-                       | prompt_template_
-                       | std::get<LLMPtr>(model_)
-                       | chat_memory_->AsSaveMemoryFunction();
+                model_function = std::get<LLMPtr>(model_)->AsModelFunction();
             }
             if (std::holds_alternative<ChatModelPtr>(model_)) {
-                return this->output_converter_->AsInstructorFunction()
-                       | chat_memory_->AsLoadMemoryFunction()
-                       | prompt_template_
-                       | std::get<ChatModelPtr>(model_)
-                       | chat_memory_->AsSaveMemoryFunction();
+                model_function = std::get<ChatModelPtr>(model_)->AsModelfunction();
             }
-            throw InstinctException("invalid model given to LLMChain");
+            assert_true(model_function, "should contain model function");
+
+            if (chat_memory_) {
+                return this->output_converter_->AsInstructorFunction()
+                          | chat_memory_->AsLoadMemoryFunction()
+                          | prompt_template_
+                          | model_function
+                          | chat_memory_->AsSaveMemoryFunction();
+            }
+            return this->output_converter_->AsInstructorFunction()
+                   | prompt_template_
+                   | model_function;
         }
 
-
     };
+
+
+    using TextChain = LLMChain<Generation>;
+    using TextChainPtr = std::shared_ptr<TextChain>;
+    using MultilineChain = LLMChain<MultilineGeneration>;
+    using MultilineChainPtr = std::shared_ptr<MultilineChain>;
+
+    using StructuredChain = LLMChain<StructuredGeneration>;
+    using StructuredChainPtr = std::shared_ptr<StructuredChain>;
+
 
     static MultilineChainPtr CreateMultilineChain(
             const LanguageModelVariant &model,
             const PromptTemplatePtr& prompt_template = nullptr,
             const ChainOptions& options = {},
             const ChatMemoryPtr& chat_memory = nullptr,
-            InputParserPtr<PromptValue> input_parser = nullptr,
             OutputParserPtr<MultilineGeneration> output_parser = nullptr
             ) {
-        if (!input_parser) {
-            input_parser = std::make_shared<PromptValueInputParser>();
-        }
         if (!output_parser) {
             output_parser = std::make_shared<MultilineGenerationOutputParse>();
         }
-        return std::make_shared<TextChain>(
-                input_parser,
-                output_parser,
-                model,
+        return std::make_shared<MultilineChain>(
                 prompt_template,
+                model,
+                output_parser,
                 chat_memory,
                 options
         );
@@ -112,20 +110,15 @@ namespace INSTINCT_LLM_NS {
             const PromptTemplatePtr& prompt_template = nullptr,
             const ChainOptions& options = {},
             const ChatMemoryPtr& chat_memory = nullptr,
-            InputParserPtr<PromptValue> input_parser = nullptr,
             OutputParserPtr<Generation> output_parser = nullptr
     ) {
-        if (!input_parser) {
-            input_parser = std::make_shared<PromptValueInputParser>();
-        }
         if (!output_parser) {
             output_parser = std::make_shared<GenerationOutputParser>();
         }
         return std::make_shared<TextChain>(
-                input_parser,
-                output_parser,
-                model,
                 prompt_template,
+                model,
+                output_parser,
                 chat_memory,
                 options
         );

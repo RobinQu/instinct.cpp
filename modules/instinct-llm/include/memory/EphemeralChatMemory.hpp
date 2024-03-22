@@ -24,12 +24,13 @@ namespace INSTINCT_LLM_NS {
         void SaveMemory(const JSONContextPtr& context) override {
             auto& options = GetOptions();
 
-            auto input_key = options.input_prompt_variable_key;
-            auto output_key = options.input_answer_variable_key;
+            auto input_key = options.prompt_variable_key;
+            auto output_key = options.answer_variable_key;
 
             if (context->Contains(input_key) && context->Contains(output_key)) {
-                auto prompt_value = context->RequirePrimitive<std::string>(input_key);
-                auto answer_value = context->RequirePrimitive<std::string>(output_key);
+                auto prompt_value = context->RequireMessage<PromptValue>(input_key);
+
+                auto answer_value = context->RequireMessage<std::string>(output_key);
 
                 auto* msg = message_list_.add_messages();
                 msg->set_content(prompt_value);
@@ -43,7 +44,7 @@ namespace INSTINCT_LLM_NS {
                 return;
             }
 
-            input_key = options.input_messages_list_variable_key;
+            input_key = options.answer_variable_key;
             output_key = options.output_message_variable_key;
             if (context->Contains(input_key) && context->Contains(output_key)) {
                 auto message_list = context->RequireMessage<MessageList>(input_key);

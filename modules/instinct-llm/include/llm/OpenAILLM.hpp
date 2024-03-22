@@ -20,7 +20,7 @@ namespace INSTINCT_LLM_NS {
 
     public:
         explicit OpenAILLM(OpenAIConfiguration configuration)
-            : chat_(std::move(configuration)) {
+            : BaseLLM(configuration.base_options), chat_(std::move(configuration)) {
         }
 
     private:

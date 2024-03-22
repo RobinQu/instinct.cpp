@@ -41,8 +41,10 @@ namespace INSTINCT_LLM_NS {
         HttpRestClient client_;
         OllamaConfiguration configuration_;
     public:
-
-        explicit OllamaChat(const OllamaConfiguration& ollama_configuration = {}): client_(ollama_configuration.endpoint), configuration_(ollama_configuration) {
+        explicit OllamaChat(const OllamaConfiguration& ollama_configuration = {}):
+                BaseChatModel(ollama_configuration.base_options),
+                client_(ollama_configuration.endpoint),
+                configuration_(ollama_configuration) {
         }
 
         static ChatPromptBuliderPtr CreateChatPromptBuilder() {

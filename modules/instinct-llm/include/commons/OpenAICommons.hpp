@@ -12,6 +12,11 @@ namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
     struct  OpenAIConfiguration {
         /**
+         * options for base class
+         */
+        ModelOptions base_options = {};
+
+        /**
          * HTTP Endpoint
          */
         Endpoint endpoint;
@@ -37,6 +42,7 @@ namespace INSTINCT_LLM_NS {
          * only used in embedding API
          */
         size_t dimension;
+
     };
 
     static const std::string DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT = "/v1/chat/completions";

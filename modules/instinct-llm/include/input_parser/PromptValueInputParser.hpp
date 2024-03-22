@@ -19,9 +19,10 @@ namespace INSTINCT_LLM_NS {
          * @return
          */
         JSONContextPtr ParseInput(const PromptValue &input) override {
-            auto context = CreateJSONContext();
-            context->PutMessage(DEFAULT_PROMPT_INPUT_KEY, input);
-            return context;
+//            auto context = CreateJSONContext();
+//            context->PutMessage(DEFAULT_PROMPT_INPUT_KEY, input);
+//            return context;
+            return {};
         }
     };
 }

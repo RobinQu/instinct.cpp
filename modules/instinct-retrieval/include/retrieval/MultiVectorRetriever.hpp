@@ -119,14 +119,14 @@ namespace INSTINCT_RETRIEVAL_NS {
             llm,
             // prompt is copied from langchain doc, which may not be the best choice
             // https://python.langchain.com/docs/modules/data_connection/retrievers/multi_vector#summary
-            prompt_template == nullptr ? PlainPromptTemplate::CreateWithTemplate("Summarize the following document:\n\n{doc}") : prompt_template,
-            {.input_prompt_variable_key = "doc"}
+            prompt_template == nullptr ? PlainPromptTemplate::CreateWithTemplate("Summarize the following document:\n\n{doc}", {.input_keys = {"doc"}}) : prompt_template
             );
         MultiVectorGuidance guidance = [&, summary_chain](const Document& doc) {
             assert_true(!StringUtils::IsBlankString(doc.id()), "should have valid doc id");
-            PromptValue pv;
-            pv.mutable_string()->set_text(doc.text());
-            auto generation = summary_chain->Invoke(pv);
+
+            auto generation = summary_chain->Invoke(
+                    CreateJSONContext({"doc", doc.text()})
+            );
 
             Document summary_doc;
             summary_doc.set_text(generation.has_message() ? generation.message().content() : generation.text());
@@ -149,19 +149,18 @@ namespace INSTINCT_RETRIEVAL_NS {
         ) {
         auto output_parser = std::make_shared<MultiLineTextOutputParser>();
 
-        ChainOptions chain_options = {.input_prompt_variable_key = {"doc"}};
         auto query_chain = CreateMultilineChain(
             llm,
-            // prompt is copied from langchian doc, which may not be the best choice
+            // prompt is copied from langchain doc, which may not be the best choice
             // https://python.langchain.com/docs/modules/data_connection/retrievers/multi_vector#hypothetical-queries
-            prompt_template == nullptr ? PlainPromptTemplate::CreateWithTemplate("Generate a list of exactly 3 hypothetical questions that the below document could be used to answer:\n\n{doc}") : prompt_template
+            prompt_template == nullptr ? PlainPromptTemplate::CreateWithTemplate(
+                    "Generate a list of exactly 3 hypothetical questions that the below document could be used to answer:\n\n{doc}",
+                    {.input_keys = {"doc"}}) : prompt_template
             );
 
         MultiVectorGuidance guidance = [&, query_chain](const Document& doc) {
             assert_true(!StringUtils::IsBlankString(doc.id()), "should have valid doc id");
-            PromptValue pv;
-            pv.mutable_string()->set_text(doc.text());
-            auto result = query_chain->Invoke(pv);
+            auto result = query_chain->Invoke(CreateJSONContext({"doc", doc.text()}));
             std::vector<Document> final_queries;
             for(const auto& query: result.lines()) {
                 Document query_doc;

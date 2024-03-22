@@ -19,11 +19,6 @@ namespace INSTINCT_LLM_NS {
 
 
     /**
-     * this should refer to a PromptValue
-     */
-    static const std::string DEFAULT_PROMPT_INPUT_KEY = "prompt";
-
-    /**
      * this should refer to a Generation
      */
     static const std::string DEFAULT_ANSWER_OUTPUT_KEY = "answer";
@@ -32,12 +27,17 @@ namespace INSTINCT_LLM_NS {
     /**
      * this should refer to a string describing a question for retriever
      */
-    static const std::string DEFAULT_QUESTION_INPUT_KEY = "question";
+    static const std::string DEFAULT_QUESTION_INPUT_OUTPUT_KEY = "question";
 
     /**
      * this should refer to a string containing contextual information returned by retriever
      */
     static const std::string DEFAULT_CONTEXT_OUTPUT_KEY = "context";
+
+
+    static const std::string DEFAULT_STANDALONE_QUESTION_INPUT_KEY = "standalone_question";
+
+
 
 
     inline std::ostream& operator<<(std::ostream& ostrm, const Message& msg) {
@@ -52,6 +52,12 @@ namespace INSTINCT_LLM_NS {
         }
         return ostrm << "]";
     }
+
+
+    struct ModelOptions {
+        std::string input_prompt_variable_key = DEFAULT_QUESTION_INPUT_OUTPUT_KEY;
+        std::string output_answer_variable_key = DEFAULT_ANSWER_OUTPUT_KEY;
+    };
 
 
 

@@ -23,7 +23,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     using RAGChainPtr = RAGChain<T>;
 
     template<typename Result>
-    class RAGChain final : public MessageChain<PromptValue, Result> {
+    class RAGChain final : public MessageChain<Result> {
         /**
          * conversation memory
          */
@@ -56,13 +56,13 @@ namespace INSTINCT_RETRIEVAL_NS {
                 TextChainPtr question_chain,
                 MessageChainPtr<PromptValue, Result> answer_chain,
                 RAGChainOptions options = {}
-        ) : MessageChain<PromptValue, Result>(
-                question_chain->GetInputParser(),
-                answer_chain->GetOutputParser()
+        ) : MessageChain<Result>(
+                answer_chain->GetOutputParser(),
+                options
         ),
             chat_memory_(std::move(chat_memory)),
             retriever_(std::move(retriever)),
-            question_chain_(question_chain),
+            question_chain_(std::move(question_chain)),
             answer_chain_(answer_chain),
             options_(std::move(options)) {}
 

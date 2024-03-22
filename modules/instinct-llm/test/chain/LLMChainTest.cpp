@@ -20,7 +20,7 @@ namespace INSTINCT_LLM_NS {
     protected:
         void SetUp() override {
             SetupLogging();
-            input_parser_ = std::make_shared<PromptValueInputParser>();
+//            input_parser_ = std::make_shared<PromptValueInputParser>();
             output_parser_ = std::make_shared<GenerationOutputParser>();
             chat_model_ = std::make_shared<OllamaChat>();
             llm_ = std::make_shared<OllamaLLM>();
@@ -36,23 +36,21 @@ namespace INSTINCT_LLM_NS {
         LLMPtr llm_;
         PromptTemplatePtr chat_prompt_template_;
         PromptTemplatePtr string_prompt_template_;
-        InputParserPtr<PromptValue> input_parser_;
+//        InputParserPtr<PromptValue> input_parser_;
         OutputParserPtr<Generation> output_parser_;
     };
 
 
     TEST_F(LLMChainTest, GenerateWithLLM) {
         TextChain chain  {
-            input_parser_,
-            output_parser_,
-            llm_,
             string_prompt_template_,
+            llm_,
+            output_parser_,
             nullptr,
             {}
         };
 
-        PromptValue pv;
-        pv.mutable_string()->set_text("Why is sky blue?");
+        auto pv = CreateJSONContext({"question", "Why sky is blue?"});
         auto result = chain.Invoke(pv);
         std::cout << result.DebugString() << std::endl;
 
@@ -68,13 +66,8 @@ namespace INSTINCT_LLM_NS {
     }
 
     TEST_F(LLMChainTest, GenerateWithChatModel) {
-        PromptValue pv;
-        auto* msg = pv.mutable_chat()->add_messages();
-        msg->set_content("how is that different than mie scattering?");
-        msg->set_role("human");
-
-        TextChain chain {input_parser_, output_parser_, chat_model_, chat_prompt_template_, nullptr, {}};
-
+        auto pv = CreateJSONContext({"question", "how is that different than mie scattering?"});
+        TextChain chain { chat_prompt_template_, chat_model_, output_parser_, nullptr, {}};
         auto result = chain.Invoke(pv);
         std::cout << result.DebugString() << std::endl;
 
@@ -87,7 +80,6 @@ namespace INSTINCT_LLM_NS {
             buf += chunk_result.message().content();
             std::cout << buf << std::endl;;
         }
-
     }
 
 }
