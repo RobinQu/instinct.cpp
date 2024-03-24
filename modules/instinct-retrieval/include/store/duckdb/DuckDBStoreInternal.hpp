@@ -119,7 +119,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 delete_sql += "'";
                 delete_sql += ids[i];
                 delete_sql += "'";
-                if (i < ids.size()) {
+                if (i < ids.size()-1) {
                     delete_sql += ",";
                 }
             }

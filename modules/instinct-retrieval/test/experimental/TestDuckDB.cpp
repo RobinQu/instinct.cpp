@@ -189,13 +189,13 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
         };
 
 //        size_t expected_number = 10000 * 10;
-        size_t expected_number = nt;
+        size_t expected_number = 10000 * 5;
         auto count_result = con.Query(DML[1]);
 
         if(const auto count = count_result->GetValue(0, 0).GetValue<u_int32_t>(); count != expected_number) {
 //            import_with_insert_statement(con, expected_number, d, xt);
 //            import_with_appender(con, expected_number, d, xt);
-            concurrent_import_with_appender(db, std::thread::hardware_concurrency(), 10000, nt, d, xt);
+            concurrent_import_with_appender(db, std::thread::hardware_concurrency(), 10000, expected_number, d, xt);
         }
 
         std::cout << "Print random 20 records: " << std::endl;
