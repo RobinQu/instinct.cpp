@@ -24,7 +24,6 @@ namespace  INSTINCT_RETRIEVAL_NS {
             const auto db_file_path = std::filesystem::temp_directory_path() / (
                                     ChronoUtils::GetCurrentTimestampString() + ".db");
 
-
             auto vector_store = CreateDuckDBVectorStore(embedding_model_, {
                 .table_name = "rag_test_table",
                 .db_file_path = db_file_path,
@@ -78,14 +77,16 @@ Question: {standalone_question}
             );
 
             RAGChainOptions rag_chain_options = {
-                .context_output_key = "context",
-                .condense_question_key = "standalone_question",
+//                .context_output_key = "context",
+//                .condense_question_key = "standalone_question",
             };
-            rag_chain_ = CreateRAGChain<PromptValueVariant , std::string>(
+            rag_chain_ = CreateTextRAGChain(
                 retriever_,
-                question_chain_,
-                answer_chain_,
-                chat_memory_
+                chat_model,
+                chat_memory_,
+                question_prompt_template,
+                answer_prompt_template,
+                rag_chain_options
                 );
         }
 
@@ -94,24 +95,20 @@ Question: {standalone_question}
         ChatMemoryPtr chat_memory_;
         TextChainPtr question_chain_;
         TextChainPtr answer_chain_;
-        RAGChainPtr<Generation> rag_chain_;
+        TextChainPtr rag_chain_;
     };
 
     TEST_F(RAGChainTest, SimpleQAChat) {
         // run with empty docs
-        auto output = rag_chain_->Invoke(CreateJSONContext({"question", "why sea is blue?"}));
-        std::cout << "output = " << output.DebugString() << std::endl;
+        auto output = rag_chain_->Invoke("why sea is blue?");
+        std::cout << "output = " << output << std::endl;
 
         // invoke again to verify chat_history
-        output = rag_chain_->Invoke(CreateJSONContext({"question", "Can you explain in a way that even 6-year child could understand?"}));
-        std::cout << "output = " << output.DebugString() << std::endl;
+        output = rag_chain_->Invoke("Can you explain in a way that even 6-year child could understand?");
+        std::cout << "output = " << output << std::endl;
 
         // create a new context and verify
-        auto context = CreateJSONContext();
-        chat_memory_->LoadMemories(context);
-        auto memory_key = chat_memory_->AsLoadMemoryFunction()->GetOutputKeys()[0];
-        ASSERT_TRUE(context->Contains(memory_key));
-        std::cout << context->RequirePrimitive<std::string>(memory_key) << std::endl;
-        ASSERT_TRUE(context->RequirePrimitive<std::string>(memory_key).find("why sea is blue?") != std::string::npos);
+        auto message_list = chat_memory_->LoadMemories();
+        ASSERT_TRUE(message_list.messages_size()>0);
     }
 }

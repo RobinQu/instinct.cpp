@@ -15,6 +15,8 @@ namespace INSTINCT_CORE_NS {
     template<typename ContextPolicy>
     using ContextPtr = std::shared_ptr<IContext<ContextPolicy>>;
 
+    static const std::string RETURN_VALUE_VARIABLE_KEY = "__return_value__";
+
     template<typename ContextPolicy>
     class IContext final {
         ContextPolicy::PayloadType payload_;
@@ -46,12 +48,12 @@ namespace INSTINCT_CORE_NS {
 
         template<typename T>
         T RequireMessage() {
-
+            return RequireMessage<T>(RETURN_VALUE_VARIABLE_KEY);
         }
 
         template<typename T>
         void ProduceMessage(const T& message) {
-
+            return PutMessage<T>(RETURN_VALUE_VARIABLE_KEY, message);
         }
 
         template<typename T>

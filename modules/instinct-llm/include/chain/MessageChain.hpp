@@ -76,15 +76,16 @@ namespace INSTINCT_LLM_NS {
     class FunctionalMessageChain final : public MessageChain<Input, Output> {
         StepFunctionPtr step_function_;
     public:
-        FunctionalMessageChain(const InputParserPtr<Input> &input_parser,
-                           const OutputParserPtr<Output> &output_parser,
-                           StepFunctionPtr  stepFunction,
-                           const ChainOptions &options
+        FunctionalMessageChain(
+                const InputParserPtr<Input> &input_parser,
+                const OutputParserPtr<Output> &output_parser,
+                StepFunctionPtr  step_function,
+                const ChainOptions &options
                            ) :
                 MessageChain<Input,Output>(input_parser,
                                            output_parser,
                                            options),
-                step_function_(std::move(stepFunction)) {}
+                step_function_(std::move(step_function)) {}
 
         [[nodiscard]] StepFunctionPtr GetStepFunction() const override {
             return step_function_;
@@ -96,6 +97,16 @@ namespace INSTINCT_LLM_NS {
      */
     template<typename Input, typename Output>
     using MessageChainPtr = std::shared_ptr<MessageChain<Input, Output>>;
+
+    template<typename Input, typename Output>
+    MessageChainPtr<Input,Output> CreateFunctionalChain(
+            const InputParserPtr<Input>& input_parser,
+            const OutputParserPtr<Output>& output_parser,
+            StepFunctionPtr step_function,
+            const ChainOptions &options = {}
+            ) {
+        return std::make_shared<FunctionalMessageChain<Input,Output>>(input_parser, output_parser, step_function, options);
+    }
 
     /**
      *  simple chain with variant input and string output

@@ -76,9 +76,6 @@ namespace INSTINCT_CORE_NS {
     using JSONContextPtr = ContextPtr<JSONContextPolicy>;
 
 
-
-
-
     static JSONContextPtr CreateJSONContext(const nlohmann::json& json_object = {}) {
         return std::make_shared<IContext<JSONContextPolicy>>(json_object);
     }
@@ -103,6 +100,11 @@ namespace INSTINCT_CORE_NS {
             result.push_back(CreateJSONContext(item));
         }
         return result;
+    }
+
+    static std::string DumpJSONContext(const JSONContextPtr& context) {
+        return context->GetPayload().dump();
+
     }
 }
 

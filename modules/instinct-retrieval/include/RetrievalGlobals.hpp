@@ -23,9 +23,9 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     struct RAGChainOptions {
         ChainOptions base_options = {};
-        std::string context_variable_key = DEFAULT_CONTEXT_OUTPUT_KEY;
-        std::string standalone_question_variable_key = DEFAULT_STANDALONE_QUESTION_INPUT_KEY;
-        int top_k = 10;
+//        std::string context_variable_key = DEFAULT_CONTEXT_OUTPUT_KEY;
+//        std::string standalone_question_variable_key = DEFAULT_STANDALONE_QUESTION_INPUT_KEY;
+//        int top_k = 10;
     };
 
     using MetadataSchemaPtr = std::shared_ptr<MetadataSchema>;

@@ -28,7 +28,7 @@ namespace INSTINCT_LLM_NS {
             builder->AddAIMessage("due to rayleigh scattering.");
             builder->AddHumanMessage("{question}");
             chat_prompt_template_ = builder->Build();
-            string_prompt_template_ = PlainPromptTemplate::CreateWithTemplate(" {question}");
+            string_prompt_template_ = CreatePlainPromptTemplate("{question}");
         }
         ChatModelPtr chat_model_;
         LLMPtr llm_;

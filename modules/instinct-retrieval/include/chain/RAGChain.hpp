@@ -18,6 +18,7 @@
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
+    using namespace INSTINCT_CORE_NS;
 
     /**
      *
@@ -28,7 +29,7 @@ namespace INSTINCT_RETRIEVAL_NS {
      * @param options RAG related options
      * @return
      */
-    static GenericChainPtr CreateConversationalRAG(
+    static StepFunctionPtr CreateConversationalRAG(
             const RetrieverPtr &retriever,
             const ChatModelPtr &model,
             const ChatMemoryPtr &chat_memory,
@@ -62,7 +63,7 @@ Question: {standalone_question}
                 "standalone_question", xn::reducers::return_value(xn::steps::mapping({
                     {"question",     xn::reducers::selection("question")},
                     {"chat_history", xn::reducers::return_value(chat_memory->AsLoadMemoryFunction())}
-                }) | question_prompt_template | model->AsModelfunction() | xn::operators::stringfy_generation)
+                }) | question_prompt_template | model->AsModelfunction() | xn::ops::stringify_generation())
             }
         });
 
@@ -87,9 +88,26 @@ Question: {standalone_question}
                | context_fn
                | answer_fn
                | chat_memory->AsSaveMemoryFunction(
-                {.prompt_variable_key = "question", .answer_variable_key = "answer"});
+                {.prompt_variable_key = "question", .answer_variable_key = "answer"})
+                | xn::steps::reducer("answer");
+    }
 
-
+    static TextChainPtr CreateTextRAGChain(
+            const RetrieverPtr &retriever,
+            const ChatModelPtr &model,
+            const ChatMemoryPtr &chat_memory,
+            const PromptTemplatePtr& question_prompt_template = nullptr,
+            const PromptTemplatePtr& answer_prompt_template = nullptr,
+            const RAGChainOptions &options = {}
+            ) {
+        auto fn = CreateConversationalRAG(retriever, model, chat_memory, question_prompt_template, answer_prompt_template, options);
+        InputParserOptions input_parser_options = {.question_variable_key="question"};
+        return CreateFunctionalChain<PromptValueVariant,std::string>(
+                std::make_shared<PromptValueVariantInputParser>(input_parser_options),
+                std::make_shared<StringOutputParser>(),
+                fn,
+                options.base_options
+                );
     }
 
 

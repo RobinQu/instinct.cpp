@@ -92,7 +92,7 @@ namespace INSTINCT_LLM_NS {
             | model_function;
         }
 
-        return std::make_shared<FunctionalMessageChain<Input,Output>>(
+        return CreateFunctionalChain(
                 input_parser,
                 output_parser,
                 step_function,

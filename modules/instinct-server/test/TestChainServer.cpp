@@ -17,17 +17,16 @@ namespace INSTINCT_SERVER_NS {
         void SetUp() override {
             SetupLogging();
             auto llm = CreateOpenAIChatModel(test::DEFAULT_NITRO_SERVER_CONFIGURATION);
-
-            chain1_ = CreatePassthroughChain(llm);
+            chain1_ = CreateTextChain(llm);
         }
-        PassthroughChainPtr chain1_;
+        TextChainPtr chain1_;
 
     };
 
 
     TEST_F(PlainChainServerTest, Lifecycle) {
         MultiChainServer server;
-        server.AddNamedChain("chain1", chain1_);
+        server.AddNamedChain("chain1", chain1_->GetStepFunction());
         server.Start();
         server.Shutdown();
     }

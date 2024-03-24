@@ -75,7 +75,7 @@ namespace INSTINCT_CORE_NS {
     };
 
 
-    static const std::string RETURN_VALUE_VARIABLE_KEY = "__return_value__";
+
 
 
     class FunctionReducer {
@@ -159,9 +159,13 @@ namespace INSTINCT_CORE_NS {
             return CreateJSONContext(input->GetPayload().at(variable_name_));
         }
 
-        [[nodiscard]] std::vector<std::string> GetInputKeys() const override;
+        [[nodiscard]] std::vector<std::string> GetInputKeys() const override {
+            return  {};
+        }
 
-        [[nodiscard]] std::vector<std::string> GetOutputKeys() const override;
+        [[nodiscard]] std::vector<std::string> GetOutputKeys() const override {
+            return {};
+        }
     };
 
 
