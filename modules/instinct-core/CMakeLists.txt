@@ -25,6 +25,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/tools/ProtobufUtils.hpp
         include/functional/IConfigurable.hpp
         include/functional/Xn.hpp
+        include/CoreTestGlobals.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
@@ -44,9 +45,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         RPP::rpp
         fmt::fmt
         nlohmann_json::nlohmann_json
-        ICU::uc
-        ICU::i18n
-        ICU::io
+        icu::icu
         aklomp::base64
         tsl::ordered_map
         fmtlog::fmtlog

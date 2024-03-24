@@ -27,9 +27,9 @@ include(CTest)
 # control where libraries and executables are placed during the build.
 # with the following settings executables are placed in <the top level of the
 # build tree>/bin and libraries/archives in <top level of the build tree>/lib.
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
+#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
 
 # build position independent code.
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -81,7 +81,7 @@ add_subdirectory(thirdparty/ReactivePlusPlus)
 
 ## icu
 # TODO embedd icu as submodule
-find_package(ICU 74.2 COMPONENTS uc i18n io REQUIRED)
+find_package(ICU 74.2 REQUIRED)
 
 ## base64
 find_package(base64)

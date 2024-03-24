@@ -13,7 +13,17 @@
 #include "tools/Assertions.hpp"
 
 namespace INSTINCT_LLM_NS {
-    TEST(RecursiveCharacterTextSplitter, split_text_with_seperator) {
+
+
+    class RecursiveCharacterTextSplitterTest : public ::testing::Test {
+
+    protected:
+        virtual void SetUp() {
+            SetupLogging();
+        }
+    };
+
+    TEST_F(RecursiveCharacterTextSplitterTest, split_text_with_seperator) {
         auto results = details::split_text_with_seperator(
         u32_utils::copies_of(5, "abcdef"),
         "",true);
@@ -21,7 +31,7 @@ namespace INSTINCT_LLM_NS {
         ASSERT_EQ(results[29].char32At(0), UChar32{'f'});
     }
 
-    TEST(RecursiveCharacterTextSplitter, TestSimpleSplit) {
+    TEST_F(RecursiveCharacterTextSplitterTest, SimpleSplit) {
         auto* text_splitter = new RecursiveCharacterTextSplitter({.chunk_size = 15});
         auto result = text_splitter->SplitText(u32_utils::copies_of(5, "abcdef"));
         u32_utils::print_splits("splits: ", result);
@@ -36,18 +46,18 @@ namespace INSTINCT_LLM_NS {
         delete text_splitter;
     }
 
-    TEST(RecursiveCharacterTextSplitter, TestSplitWithNonEnglishText) {
+    TEST_F(RecursiveCharacterTextSplitterTest, SplitWithNonEnglishText) {
         auto* text_splitter = new RecursiveCharacterTextSplitter({.chunk_size = 20});
         auto result = text_splitter->SplitText(corpus::text6);
         u32_utils::print_splits("splits: ", result);
         delete text_splitter;
     }
 
-    TEST(RecursiveCharacterTextSplitter, TestSplitWithTokenizer) {
+    TEST_F(RecursiveCharacterTextSplitterTest, SplitWithTokenizer) {
         const std::filesystem::path assets_dir =
-                std::filesystem::current_path() / "./modules/instinct-core/test/_assets";
+                std::filesystem::current_path() / "_assets";
         auto* tokenizer =
-                TiktokenTokenizer::MakeGPT4Tokenizer(assets_dir / "cl100k_base" / "cl100k_base.tiktoken");
+                TiktokenTokenizer::MakeGPT4Tokenizer(assets_dir / "bpe_ranks" / "cl100k_base.tiktoken");
 
         auto* text_splitter = RecursiveCharacterTextSplitter::FromTiktokenTokenizer(tokenizer, { .chunk_size = 20});
         auto splits = text_splitter->SplitText(corpus::text3);

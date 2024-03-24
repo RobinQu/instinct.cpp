@@ -10,12 +10,12 @@
 
 namespace INSTINCT_LLM_NS {
     TEST(BPETokenRanksFileReader, TestLoad) {
-        const std::filesystem::path assets_dir = std::filesystem::current_path() / "./modules/instinct-core/test/_assets";
+        const std::filesystem::path assets_dir = std::filesystem::current_path() / "_assets";
         auto t1 = ChronoUtils::GetCurrentTimeMillis();
-        TiktokenBPEFileReader reader (assets_dir / "cl100k_base/cl100k_base.tiktoken");
+        TiktokenBPEFileReader reader (assets_dir / "bpe_ranks/cl100k_base.tiktoken");
         auto bpe_ranks = reader.Fetch();
         std::cout << "bpe loaded in " << ChronoUtils::GetCurrentTimeMillis()-t1 << "ms" << std::endl;
-        std::cout << "item_cout=" << bpe_ranks.size() << std::endl;
+        std::cout << "item_count=" << bpe_ranks.size() << std::endl;
         ASSERT_EQ(bpe_ranks.size(), 100256);
      }
 }

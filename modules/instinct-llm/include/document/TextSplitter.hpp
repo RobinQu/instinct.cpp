@@ -56,11 +56,13 @@ namespace INSTINCT_LLM_NS {
                 }
             } else { // it's empty seperator, so we have to split into a sequence of chars.
                 UErrorCode status = U_ZERO_ERROR;
-                auto itr = BreakIterator::createCharacterInstance(Locale::getDefault(), status);
-                itr->setText(text);
+                auto locale = Locale::getDefault();
+                LOG_DEBUG("Build BreakIterator with locale: {}", locale.getLanguage());
+                auto itr = BreakIterator::createCharacterInstance(locale, status);
                 if(U_FAILURE(status)) {
-                    throw InstinctException("Failed to createCharacterInstance");
+                    throw InstinctException("Failed to createCharacterInstance: " + std::string(u_errorName(status)));
                 }
+                itr->setText(text);
                 // see example at: https://github.com/unicode-org/icu/blob/main/icu4c/source/samples/break/break.cpp
                 // copy each *grapheme* not code point into result
                 int32_t start = itr->first();

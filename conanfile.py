@@ -22,7 +22,7 @@ class InstinctCppRecipe(ConanFile):
         self.requires("crossguid/0.2.2")
         self.requires("protobuf/3.21.12")
         self.requires("reactiveplusplus/2.0.0")
-        self.requires("icu/74.2")
+        self.requires("icu/74.2", options={"with_extras": True, "data_packaging": "static"})
         self.requires("tsl-ordered-map/1.1.0")
         self.requires("fmt/10.2.1")
         self.requires("fmtlog/2.2.1")

@@ -35,11 +35,11 @@ namespace INSTINCT_CORE_NS {
         static void configure_curl_request(
                 const HttpRequest &request,
                 CURL *hnd,
-                curl_slist *header_slist
+                curl_slist **header_slist
                 ) {
 
             for(const auto& [k,v]: request.headers) {
-                header_slist = curl_slist_append(header_slist, fmt::format("{}: {}", k, v).data());
+                *header_slist = curl_slist_append(*header_slist, fmt::format("{}: {}", k, v).data());
             }
             curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
 
@@ -56,7 +56,7 @@ namespace INSTINCT_CORE_NS {
 //                curl_easy_setopt(hnd, CURLOPT_UPLOAD, 1L);
 //            }
 
-            curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, header_slist);
+            curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, *header_slist);
             curl_easy_setopt(hnd, CURLOPT_ACCEPT_ENCODING, "");
             curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/8.4.0");
             curl_easy_setopt(hnd, CURLOPT_FOLLOWLOCATION, 1L);
@@ -78,7 +78,7 @@ namespace INSTINCT_CORE_NS {
             hnd = curl_easy_init();
             struct curl_slist *header_slist = nullptr;
 
-            configure_curl_request(request, hnd, header_slist);
+            configure_curl_request(request, hnd, &header_slist);
 
             curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, curl_write_callback);
             curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &response);
@@ -138,7 +138,7 @@ namespace INSTINCT_CORE_NS {
             struct curl_slist *header_slist = nullptr;
             hnd = curl_easy_init();
 
-            configure_curl_request(request, hnd, header_slist);
+            configure_curl_request(request, hnd, &header_slist);
             using OB_TYPE = std::decay_t<OB>;
             curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, curl_write_callback_with_observer<OB_TYPE>);
             curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &observer);
@@ -180,12 +180,16 @@ namespace INSTINCT_CORE_NS {
         AsyncIterator<std::string> StreamChunk(const HttpRequest &call) override {
             HttpUtils::HttpUtils::AsertValidHttpRequest(call);
             // TODO maybe stop copying `call` by using smart pointer
+            auto url = HttpUtils::CreateUrlString(call);
+            LOG_DEBUG("REQ: {} {}", call.method, url);
             return rpp::source::create<std::string>([&, call](auto&& observer) {
                 using OB_TYPE = decltype(observer);
                 auto code = details::observe_curl_request<OB_TYPE>(call, std::forward<OB_TYPE>(observer));
                 if (code!=0) {
-                    observer.on_error(std::make_exception_ptr(HttpClientException(-1, "curl request failed with return code " + std::string(curl_easy_strerror(code)))));
+                    observer.on_error(std::make_exception_ptr(InstinctException("curl request failed with reason: " + std::string(curl_easy_strerror(code)))));
                 }
+            }) | rpp::ops::tap({}, {}, [&]() {
+                LOG_DEBUG("RESP: {} {}", call.method, url);
             });
         }
 
