@@ -12,19 +12,26 @@
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
 
+    struct RetrieverFunctionOptions {
+        std::string text_query_variable_key = "query";
+    };
+
     class BaseRetriever : public ITextRetriever {
     public:
 
         [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery &query) const override = 0;
 
-        [[nodiscard]] StepFunctionPtr AsContextRetrieverFunction(const RAGChainOptions& options) const {
+        [[nodiscard]] StepFunctionPtr AsContextRetrieverFunction(const RetrieverFunctionOptions& options = {}) const {
             return std::make_shared<LambdaStepFunction>([&](const JSONContextPtr &ctx) {
-                const auto question_string = ctx->RequirePrimitive<std::string>(options.condense_question_key);
-                const auto doc_itr = Retrieve({.text = question_string, .top_k = options.top_k});
-                std::string context_string = DocumentUtils::CombineDocuments(doc_itr);
-                ctx->PutPrimitive(options.context_output_key, context_string);
-                return ctx;
-            }, std::vector{options.context_output_key}, std::vector {options.context_output_key});
+                    const auto question_string = ctx->RequirePrimitive<std::string>(options.condense_question_key);
+                    const auto doc_itr = Retrieve({.text = question_string, .top_k = options.top_k});
+                    std::string context_string = DocumentUtils::CombineDocuments(doc_itr);
+                    ctx->PutPrimitive(options.context_output_key, context_string);
+                    return ctx;
+                },
+                std::vector {options.context_output_key},
+                std::vector {options.context_output_key}
+            );
         }
 
     };

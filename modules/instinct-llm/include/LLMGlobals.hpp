@@ -18,6 +18,7 @@ namespace INSTINCT_LLM_NS {
     using TokenId = unsigned long;
 
     struct ChainOptions {
+
     };
 
 
@@ -25,6 +26,12 @@ namespace INSTINCT_LLM_NS {
      * this should refer to a Generation
      */
     static const std::string DEFAULT_ANSWER_OUTPUT_KEY = "answer";
+
+
+    /**
+     * this should refer to a PromptValue
+     */
+    static const std::string DEFAULT_PROMPT_VARIABLE_KEY = "prompt";
 
 
     /**

@@ -21,7 +21,7 @@ namespace INSTINCT_LLM_NS {
         IOutputParser(const IOutputParser&)=delete;
 
         virtual T ParseResult(
-            const JSONContextPtr & context
+            const Generation& context
         ) = 0;
 
         virtual std::string GetFormatInstruction() = 0;

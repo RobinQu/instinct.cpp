@@ -124,11 +124,11 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_true(!StringUtils::IsBlankString(doc.id()), "should have valid doc id");
 
             auto generation = summary_chain->Invoke(
-                    CreateJSONContext({"doc", doc.text()})
+                    doc.text()
             );
 
             Document summary_doc;
-            summary_doc.set_text(generation.has_message() ? generation.message().content() : generation.text());
+            summary_doc.set_text(generation);
             summary_doc.set_id(u8_utils::uuid_v8());
             auto* parent_id_field = summary_doc.add_metadata();
             parent_id_field->set_name(options.parent_doc_id_key);
@@ -157,7 +157,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         MultiVectorGuidance guidance = [&, query_chain](const Document& doc) {
             assert_true(!StringUtils::IsBlankString(doc.id()), "should have valid doc id");
-            auto result = query_chain->Invoke(CreateJSONContext({"doc", doc.text()}));
+            auto result = query_chain->Invoke(doc.text());
             std::vector<Document> final_queries;
             for(const auto& query: result.lines()) {
                 Document query_doc;

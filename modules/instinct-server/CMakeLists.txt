@@ -6,7 +6,7 @@ set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 set(${LIBRARY_TARGET_NAME}_HDR
         include/ServerGlobals.hpp
         include/http/IChainServer.hpp
-        include/http/PlainChainServer.hpp
+        include/http/MultiChainServer.hpp
 )
 
 add_library(

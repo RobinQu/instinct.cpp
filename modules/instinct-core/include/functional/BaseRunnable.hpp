@@ -7,6 +7,7 @@
 
 #include "CoreGlobals.hpp"
 #include "IRunnable.hpp"
+#include "IConfigurable.hpp"
 
 namespace INSTINCT_CORE_NS {
 

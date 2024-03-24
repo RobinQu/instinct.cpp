@@ -19,8 +19,8 @@ namespace INSTINCT_LLM_NS {
         IChatMemory(const IChatMemory&)=delete;
         IChatMemory(IChatMemory&&)=delete;
 
-        virtual void SaveMemory(const JSONContextPtr& context) = 0;
-        virtual void LoadMemories(const JSONContextPtr& context) = 0;
+        virtual void SaveMemory(const PromptValue& prompt_value, const Generation& generation) = 0;
+        [[nodiscard]] virtual MessageList LoadMemories() const = 0;
     };
 }
 

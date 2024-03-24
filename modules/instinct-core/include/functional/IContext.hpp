@@ -35,6 +35,30 @@ namespace INSTINCT_CORE_NS {
             return payload_;
         }
 
+        ContextPolicy::PayloadType& GetPayload() {
+            return payload_;
+        }
+
+        template<typename T>
+        T RequirePrimitive() {
+
+        }
+
+        template<typename T>
+        T RequireMessage() {
+
+        }
+
+        template<typename T>
+        void ProduceMessage(const T& message) {
+
+        }
+
+        template<typename T>
+        void ProducePrimitive(const T& value) {
+
+        }
+
         template<typename T>
         T RequirePrimitive(const std::string& name) const {
             return ContextPolicy::ManagerType::template RequirePrimitive<T>(payload_, name);

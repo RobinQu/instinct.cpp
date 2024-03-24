@@ -82,7 +82,7 @@ Question: {standalone_question}
                 .context_output_key = "context",
                 .condense_question_key = "standalone_question",
             };
-            rag_chain_ = CreateRAGChain<Generation>(
+            rag_chain_ = CreateRAGChain<PromptValueVariant , std::string>(
                 retriever_,
                 question_chain_,
                 answer_chain_,

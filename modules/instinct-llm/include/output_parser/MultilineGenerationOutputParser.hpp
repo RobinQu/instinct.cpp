@@ -22,7 +22,6 @@ namespace INSTINCT_LLM_NS {
 
 
         MultilineGeneration ParseResult(const JSONContextPtr &context) override {
-//            return
             MultilineGeneration multiline;
             return multiline;
         }

@@ -37,6 +37,7 @@ namespace INSTINCT_LLM_NS {
 
     class BaseLLM
             : public virtual ILanguageModel,
+              public virtual IConfigurable<ModelOptions>,
               public BaseRunnable<PromptValueVariant, std::string>,
               public std::enable_shared_from_this<BaseLLM> {
         friend LLMStepFunction;
@@ -51,6 +52,10 @@ namespace INSTINCT_LLM_NS {
     public:
         explicit BaseLLM(ModelOptions options) : options_(std::move(options)) {
 //            model_function_ = std::make_shared<LLMStepFunction>(shared_from_this());
+        }
+
+        void Configure(const ModelOptions &options) override {
+            options_ = options;
         }
 
         std::string Invoke(

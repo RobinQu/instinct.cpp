@@ -2,8 +2,8 @@
 // Created by RobinQu on 3/19/24.
 //
 
-#ifndef INSTINCT_PLAINCHAINSERVER_HPP
-#define INSTINCT_PLAINCHAINSERVER_HPP
+#ifndef INSTINCT_MULTICHAINSERVER_HPP
+#define INSTINCT_MULTICHAINSERVER_HPP
 
 #include <string>
 #include <utility>
@@ -26,19 +26,19 @@ namespace INSTINCT_SERVER_NS {
     };
 
     template<typename HttpEntityConverter = ProtobufHttpEntityConverter>
-    class PlainChainServer {
+    class MultiChainServer {
         std::unordered_set<std::string> chain_names_;
         HttpEntityConverter converter_;
         ServerOptions options_;
         Server server_;
     public:
 
-        explicit PlainChainServer(ServerOptions options = {}) : options_(std::move(options)) {
+        explicit MultiChainServer(ServerOptions options = {}) : options_(std::move(options)) {
             InitServer();
         }
 
-        template<class T>
-        bool AddNamedChain(const std::string &chain_name, const MessageChainPtr<T> &chain) {
+        template<typename Input, typename Output>
+        bool AddNamedChain(const std::string &chain_name, const MessageChainPtr<Input,Output> &chain) {
             if (chain_names_.contains(chain_name)) {
                 return false;
             }
@@ -46,8 +46,9 @@ namespace INSTINCT_SERVER_NS {
             LOG_INFO("AddNamedChain: name={}", chain_name);
             server_.Post(fmt::format("/chains/{}/invoke", chain_name), [&, chain](const Request &req, Response &resp) {
                 LOG_DEBUG("POST /chains/{}/invoke -->", chain_name);
-                auto context = CreateJSONContextWithString(req.body);
-                auto result = chain->Invoke(context);
+//                auto context = CreateJSONContextWithString(req.body);
+                Input input = converter_.template Deserialize<Input>(req.body);
+                auto result = chain->Invoke(input);
 
                 resp.set_content(
                         converter_.Serialize(result),
@@ -55,31 +56,34 @@ namespace INSTINCT_SERVER_NS {
                 );
             });
 
-            server_.Post(fmt::format("/chains/{}/batch", chain_name), [&, chain](const Request &req, Response &resp) {
-                LOG_DEBUG("POST /chains/{}/batch -->", chain_name);
-                auto batch_context = CreateBatchJSONContextWithString(req.body);
-                std::vector<std::string> parts;
-                chain->Batch(batch_context)
-                    | rpp::operators::as_blocking()
-                    | rpp::operators::map([&](const auto& item) {
-                        return converter_.Serialize(item);
-                    })
-                    | rpp::operators::subscribe([&](const std::string& line) {
-                        parts.push_back(line);
-                    });
-                resp.set_content(
-                        "[" + StringUtils::JoinWith(parts, ", ") + "]",
-                        HTTP_CONTENT_TYPES.at(kJSON)
-                );
-            });
+//            server_.Post(fmt::format("/chains/{}/batch", chain_name), [&, chain](const Request &req, Response &resp) {
+//                LOG_DEBUG("POST /chains/{}/batch -->", chain_name);
+////                auto batch_context = CreateBatchJSONContextWithString(req.body);
+//
+//                auto json_array = JSON
+//
+//                std::vector<std::string> parts;
+//                chain->Batch(batch_context)
+//                    | rpp::operators::as_blocking()
+//                    | rpp::operators::map([&](const auto& item) {
+//                        return converter_.Serialize(item);
+//                    })
+//                    | rpp::operators::subscribe([&](const std::string& line) {
+//                        parts.push_back(line);
+//                    });
+//                resp.set_content(
+//                        "[" + StringUtils::JoinWith(parts, ", ") + "]",
+//                        HTTP_CONTENT_TYPES.at(kJSON)
+//                );
+//            });
 
             server_.Post(fmt::format("/chains/{}/stream", chain_name), [&,chain](const Request& req, Response& resp) {
                 LOG_DEBUG("POST /chains/{}/stream -->", chain_name);
-                auto context = CreateJSONContextWithString(req.body);
-                AsyncIterator<T> itr = chain->Stream(context);
+                Input input = converter_.template Deserialize<Input>(req.body);
+                AsyncIterator<Output> itr = chain->Stream(input);
                 resp.set_chunked_content_provider(HTTP_CONTENT_TYPES.at(kEventStream), [&, chain] (size_t offset, DataSink &sink) {
                     itr.subscribe(
-                            [&](const T &item) {// on_next
+                            [&](const Output &item) {// on_next
                                 std::string buf = converter_.Serialize(item);
                                 sink.write(buf.data(), buf.size());
                             },
@@ -132,4 +136,4 @@ namespace INSTINCT_SERVER_NS {
 }
 
 
-#endif //INSTINCT_PLAINCHAINSERVER_HPP
+#endif //INSTINCT_MULTICHAINSERVER_HPP

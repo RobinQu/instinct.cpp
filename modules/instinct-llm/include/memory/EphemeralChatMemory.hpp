@@ -21,45 +21,32 @@ namespace INSTINCT_LLM_NS {
     public:
         explicit EphemeralChatMemory(const ChatMemoryOptions& chat_memory_options = {}): BaseChatMemory(chat_memory_options) {}
 
-        void SaveMemory(const JSONContextPtr& context) override {
-            auto& options = GetOptions();
-
-            auto input_key = options.prompt_variable_key;
-            auto output_key = options.answer_variable_key;
-
-            if (context->Contains(input_key) && context->Contains(output_key)) {
-                auto prompt_value = context->RequireMessage<PromptValue>(input_key);
-                auto answer_value = context->RequireMessage<Generation>(output_key);
-
-
-                if (prompt_value.has_chat()) {
-                    for(const auto& msg: prompt_value.chat().messages()) {
-                        message_list_.add_messages()->CopyFrom(msg);
-                    }
-                } else if(prompt_value.has_string()) {
-                    auto* msg = message_list_.add_messages();
-                    msg->set_content(prompt_value.string().text());
-                    // TODO role name normalization
-                    msg->set_role("human");
+        void SaveMemory(const PromptValue& prompt_value, const Generation& generation) override {
+            if (prompt_value.has_chat()) {
+                for(const auto& msg: prompt_value.chat().messages()) {
+                    message_list_.add_messages()->CopyFrom(msg);
                 }
-
-                if (answer_value.has_message()) {
-                    message_list_.add_messages()->CopyFrom(answer_value.message());
-                } else {
-                    auto* msg = message_list_.add_messages();
-                    msg->set_content(answer_value.text());
-                    // TODO role name normalization
-                    msg->set_role("assistant");
-                }
-                return;
+            } else if(prompt_value.has_string()) {
+                auto* msg = message_list_.add_messages();
+                msg->set_content(prompt_value.string().text());
+                // TODO role name normalization
+                msg->set_role("human");
             }
 
-            throw InstinctException("Neither answer/prompt pair nor messages are present in context");
+            if (generation.has_message()) {
+                message_list_.add_messages()->CopyFrom(generation.message());
+            } else {
+                auto* msg = message_list_.add_messages();
+                msg->set_content(generation.text());
+                // TODO role name normalization
+                msg->set_role("assistant");
+            }
         }
 
-        void LoadMemories(const JSONContextPtr& context) override {
-            auto buffer = MessageUtils::CombineMessages(message_list_.messages());
-            context->PutPrimitive(GetOptions().output_memory_key, buffer);
+        MessageList LoadMemories() const override {
+//            auto buffer = MessageUtils::CombineMessages(message_list_.messages());
+//            context->PutPrimitive(GetOptions().output_memory_key, buffer);
+            return message_list_;
         }
 
     };

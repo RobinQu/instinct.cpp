@@ -53,6 +53,8 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/chain/MessageChain.hpp
         include/output_parser/ProtobufMessageOutputParser.hpp
         include/output_parser/MultilineGenerationOutputParser.hpp
+        include/input_parser/PromptValueVariantInputParser.hpp
+        include/output_parser/StringOutputParser.hpp
 
 )
 

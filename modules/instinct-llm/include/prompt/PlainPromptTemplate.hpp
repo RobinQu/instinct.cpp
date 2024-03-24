@@ -18,10 +18,6 @@ namespace INSTINCT_LLM_NS {
         std::string template_string_;
 
     public:
-        static PromptTemplatePtr CreateWithTemplate(const std::string& template_string, const PromptTemplateOptions &options = {}) {
-            return std::make_shared<PlainPromptTemplate>(template_string, options);
-        }
-
         PlainPromptTemplate(std::string templateString, const PromptTemplateOptions &options)
                 : StringPromptTemplate(options), template_string_(std::move(templateString)) {}
 
@@ -30,6 +26,10 @@ namespace INSTINCT_LLM_NS {
             return MessageUtils::FormatString(this->template_string_, variables);
         }
     };
+
+    static PromptTemplatePtr CreatePlainPromptTemplate(const std::string& template_string, const PromptTemplateOptions &options = {}) {
+        return std::make_shared<PlainPromptTemplate>(template_string, options);
+    }
 
 
 } // namespace INSTINCT_CORE_NS

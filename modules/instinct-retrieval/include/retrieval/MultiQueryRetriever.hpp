@@ -30,9 +30,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery& query) const override {
-            const auto queries = query_chain_->Invoke(CreateJSONContext({
-                query_chain_->GetRequiredKeys()[0], query.text
-            }));
+            const auto queries = query_chain_->Invoke(query.text);
             assert_true(queries.lines_size() > 1, "should have multiple generated queries.");
 
             return rpp::source::from_iterable(queries.lines())
@@ -55,7 +53,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     ) {
         auto query_chain = CreateMultilineChain(
                 llm,
-                prompt_template ? prompt_template : PlainPromptTemplate::CreateWithTemplate(R"(You are an AI language model assistant. Your task is
+                prompt_template ? prompt_template : CreatePlainPromptTemplate(R"(You are an AI language model assistant. Your task is
     to generate 3 different versions of the given user
     question to retrieve relevant documents from a vector  database.
     By generating multiple perspectives on the user question,

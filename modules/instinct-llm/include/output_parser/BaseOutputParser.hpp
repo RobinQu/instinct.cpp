@@ -10,8 +10,11 @@
 #include "IOutputParser.hpp"
 #include "LLMGlobals.hpp"
 #include "functional/StepFunctions.hpp"
+#include "functional/JSONContextPolicy.hpp"
 
 namespace INSTINCT_LLM_NS {
+    using namespace INSTINCT_CORE_NS;
+
     static std::string DEFAULT_FORMAT_INSTRUCTION_KEY = "format_instruction";
 
     struct OutputParserOptions {
@@ -20,10 +23,14 @@ namespace INSTINCT_LLM_NS {
     };
 
     template<typename T>
-    class BaseOutputParser: public BaseRunnable<JSONContextPtr, T>, public virtual IOutputParser<T> {
+    class BaseOutputParser:
+            public BaseRunnable<JSONContextPtr, T>,
+            public IConfigurable<OutputParserOptions>,
+                    public virtual IOutputParser<T> {
         OutputParserOptions options_;
 
         StepFunctionPtr instruction_function_;
+//        StepFunctionPtr transform_function_;
 
     public:
 
@@ -33,28 +40,35 @@ namespace INSTINCT_LLM_NS {
             // instruction function doesn't depend on any keys to output format instruction.
             instruction_function_ = std::make_shared<LambdaStepFunction>(
                     [&](const JSONContextPtr &context) {
-                        context->PutPrimitive(
-                                options_.format_instruction_output_key,
+                        context->ProducePrimitive(
                                 this->GetFormatInstruction()
-                                );
+                        );
                         return context;
-                    },
-                    std::vector<std::string> {},
-                    std::vector<std::string> {options_.format_instruction_output_key});
+                    });
+//            transform_function_ = std::make_shared<LambdaStepFunction>([&](const JSONContextPtr &context) {
+//                auto generation = context->RequireMessage<Generation>();
+//                this->ParseResult(generation);
+//            });
         }
 
+
+        void Configure(const OutputParserOptions &options) override {
+            options_ = options;
+        }
 
         [[nodiscard]] const OutputParserOptions& GetOptions() const {
             return options_;
         }
 
         T Invoke(const JSONContextPtr &input) override {
-            return this->ParseResult(input);
+            auto generation = input->RequireMessage<Generation>();
+            return this->ParseResult(generation);
         }
 
         [[nodiscard]] StepFunctionPtr AsInstructorFunction() const {
             return instruction_function_;
         }
+
     };
 
     template<typename T>

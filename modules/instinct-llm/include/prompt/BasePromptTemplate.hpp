@@ -22,7 +22,9 @@ namespace INSTINCT_LLM_NS {
 
     };
 
-    class BasePromptTemplate: public virtual IPromptTemplate, public BaseStepFunction {
+    class BasePromptTemplate:
+            public virtual IPromptTemplate,
+            public BaseStepFunction {
         PromptTemplateOptions options_;
     public:
         explicit BasePromptTemplate(PromptTemplateOptions options) : options_(std::move(options)) {}

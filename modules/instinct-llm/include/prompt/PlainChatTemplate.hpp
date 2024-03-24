@@ -34,6 +34,7 @@ namespace INSTINCT_LLM_NS {
                     auto part_list = chat_prompt_template->FormatMessages(variables);
                     message_list.MergeFrom(part_list);
                 }
+                // if message is history_placeholder, copy history messages from context variables
             }
 
             // format content field of each message
@@ -44,8 +45,9 @@ namespace INSTINCT_LLM_NS {
             return message_list;
         }
 
-
     };
+
+
 }
 
 

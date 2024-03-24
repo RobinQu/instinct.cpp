@@ -2,7 +2,7 @@
 // Created by RobinQu on 3/19/24.
 //
 #include <gtest/gtest.h>
-#include "http/PlainChainServer.hpp"
+#include "http/MultiChainServer.hpp"
 #include "chain/LLMChain.hpp"
 #include "chat_model/OpenAIChat.hpp"
 #include "LLMTestGlobals.hpp"
@@ -17,16 +17,17 @@ namespace INSTINCT_SERVER_NS {
         void SetUp() override {
             SetupLogging();
             auto llm = CreateOpenAIChatModel(test::DEFAULT_NITRO_SERVER_CONFIGURATION);
-            chain1_ = CreateTextChain(llm);
+
+            chain1_ = CreatePassthroughChain(llm);
         }
-        TextChainPtr chain1_;
+        PassthroughChainPtr chain1_;
 
     };
 
 
     TEST_F(PlainChainServerTest, Lifecycle) {
-        PlainChainServer server;
-        server.AddNamedChain<Generation>("chain1", chain1_);
+        MultiChainServer server;
+        server.AddNamedChain("chain1", chain1_);
         server.Start();
         server.Shutdown();
     }
