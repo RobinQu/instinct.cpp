@@ -13,7 +13,7 @@ namespace INSTINCT_CORE_NS {
 
     namespace xn {
         namespace steps {
-            static StepFunctionPtr sqeuence(const std::vector<StepFunctionPtr> &steps) {
+            static StepFunctionPtr sequence(const std::vector<StepFunctionPtr> &steps) {
                 return std::make_shared<SequenceStepFunction>(steps);
             }
 
@@ -40,21 +40,6 @@ namespace INSTINCT_CORE_NS {
             }
         }
     }
-
-
-    class GenerationToStringFunction final: public BaseStepFunction {
-    public:
-        std::vector<std::string> GetInputKeys() const override {
-            return {};
-        }
-
-        std::vector<std::string> GetOutputKeys() const override {
-            return {};
-        }
-
-
-
-
 
     inline StepFunctionPtr operator|(const StepFunctionPtr &first, const StepFunctionPtr &second) {
         std::vector<StepFunctionPtr> steps;

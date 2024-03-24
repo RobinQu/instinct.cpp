@@ -14,10 +14,10 @@ namespace INSTINCT_LLM_NS {
         explicit StringOutputParser(const OutputParserOptions &options = {}) : BaseOutputParser(options) {}
 
     public:
-        std::string ParseResult(const JSONContextPtr &context) override {
-            auto generation = context->RequireMessage<Generation>(
-                    GetOptions().generation_input_key
-            );
+        std::string ParseResult(const Generation &generation) override {
+//            auto generation = context->RequireMessage<Generation>(
+//                    GetOptions().generation_input_key
+//            );
             if (generation.has_message()) {
                 return generation.message().content();
             }

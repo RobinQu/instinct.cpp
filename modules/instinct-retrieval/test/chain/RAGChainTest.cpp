@@ -9,7 +9,6 @@
 #include "chat_model/OllamaChat.hpp"
 #include "embedding_model/OllamaEmbedding.hpp"
 #include "memory/EphemeralChatMemory.hpp"
-#include "output_parser/GenerationOutputParser.hpp"
 #include "retrieval/VectorStoreRetriever.hpp"
 #include "tools/ChronoUtils.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"

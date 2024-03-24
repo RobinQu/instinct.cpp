@@ -18,12 +18,12 @@
 #include "prompt/IPromptTemplate.hpp"
 #include "memory/BaseChatMemory.hpp"
 #include "tools/Assertions.hpp"
-#include "output_parser/GenerationOutputParser.hpp"
 #include "output_parser/MultilineGenerationOutputParser.hpp"
 #include "input_parser/PromptValueVariantInputParser.hpp"
 #include "output_parser/StringOutputParser.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
 #include "functional/Xn.hpp"
+#include "CoreGlobals.hpp"
 
 
 namespace INSTINCT_LLM_NS {
@@ -83,10 +83,11 @@ namespace INSTINCT_LLM_NS {
              | xn::steps::reducer("answer");
 
         } else {
-            step_function = xn::steps::mapping(
-                {"format_instruction", output_parser->AsInstructorFunction()},
-                {"question", xn::reducers::selection("question")}
-            )
+            step_function = xn::steps::mapping({
+                                                       {"format_instruction", xn::reducers::return_value(
+                                                               output_parser->AsInstructorFunction())},
+                                                       {"question",           xn::reducers::selection("question")}
+                                               })
             | prompt_template
             | model_function;
         }

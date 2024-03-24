@@ -35,24 +35,14 @@ namespace INSTINCT_LLM_NS {
     public:
         explicit BaseInputParser(InputParserOptions options) : options_(std::move(options)) {}
 
-        const InputParserOptions& GetOptions() const  {
+        [[nodiscard]] const InputParserOptions& GetOptions() const  {
             return options_;
         }
     public:
         JSONContextPtr Invoke(const T &input) override {
-            return ParseInput(input);
+            return this->ParseInput(input);
         }
 
-//        JSONContextPtr ParseInput(const T &input) override {
-//            auto context = CreateJSONContext();
-//            context->PutMessage<PromptValue>(options_.prompt_value_variable_key,
-//                                             ParsePromptValue(input));
-//            context->PutPrimitive<std::string>(options_.question_variable_key, ParsePromptString(input));
-//        }
-//
-//        virtual PromptValue ParsePromptValue(const T &input) = 0;
-//
-//        virtual std::string ParsePromptString(const T &input) = 0;
 
         void Configure(const InputParserOptions &options) override {
             options_ = options;
