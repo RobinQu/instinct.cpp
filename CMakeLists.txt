@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.26)
 project(instinct)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 
 # force cache value to update when building with submodules
 # https://cmake.org/cmake/help/latest/policy/CMP0077.html

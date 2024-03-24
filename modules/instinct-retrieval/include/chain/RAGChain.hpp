@@ -12,7 +12,9 @@
 #include "chain/LLMChain.hpp"
 #include "retrieval/BaseRetriever.hpp"
 #include "retrieval/DocumentUtils.hpp"
-
+#include "functional/Xn.hpp"
+#include "functional/Op.hpp"
+#include "prompt/PlainPromptTemplate.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
@@ -22,13 +24,11 @@ namespace INSTINCT_RETRIEVAL_NS {
      * @tparam Input
      * @tparam Output
      * @param retriever to fetch external knowledge (or documents)
-     * @param question_chain to augmented question prompt. this chain doesn't need memory
-     * @param answer_chain to answer final question with context. this chain doesn't need memory
      * @param chat_memory conversation memory
      * @param options RAG related options
      * @return
      */
-    static StepFunctionPtr CreateConversationalRAG(
+    static GenericChainPtr CreateConversationalRAG(
             const RetrieverPtr &retriever,
             const ChatModelPtr &model,
             const ChatMemoryPtr &chat_memory,
@@ -57,31 +57,29 @@ Question: {standalone_question}
 {format_instruction}
 )", {.input_keys= {"context", "standalone_question", "format_instruction"}});
         }
-
-        auto stringify_generation = std::make_shared<GenerationToStringFunction>();
-        auto question_fn = CreateMappingStepFunction({
+        auto question_fn = xn::steps::mapping({
             {
-                "standalone_question", FunctionReducer(CreateMappingStepFunction({
-                    {"question",     GetterReducer("question")},
-                    {"chat_history", FunctionReducer(chat_memory->AsLoadMemoryFunction())}
-                }) | question_prompt_template | model->AsModelfunction() | stringify_generation)
+                "standalone_question", xn::reducers::return_value(xn::steps::mapping({
+                    {"question",     xn::reducers::selection("question")},
+                    {"chat_history", xn::reducers::return_value(chat_memory->AsLoadMemoryFunction())}
+                }) | question_prompt_template | model->AsModelfunction() | xn::operators::stringfy_generation)
             }
         });
 
-        auto context_fn = CreateMappingStepFunction({
-                                                            {"context",             FunctionReducer(
+        auto context_fn = xn::steps::mapping({
+                                                            {"context",             xn::reducers::return_value(
                                                                     retriever->AsContextRetrieverFunction(
                                                                             {.text_query_variable_key = "standalone_question"}))},
-                                                            {"standalone_question", GetterReducer(
+                                                            {"standalone_question", xn::reducers::selection(
                                                                     "standalone_question")},
-                                                            {"question",            GetterReducer("question")}
+                                                            {"question",            xn::reducers::selection("question")}
                                                     });
 
 
-        auto answer_fn = CreateMappingStepFunction({
-                                                           {"answer",   FunctionReducer(
+        auto answer_fn = xn::steps::mapping({
+                                                           {"answer",   xn::reducers::return_value(
                                                                    answer_prompt_template | model->AsModelfunction())},
-                                                           {"question", GetterReducer("question")}
+                                                           {"question", xn::reducers::selection("question")}
                                                    });
 
 

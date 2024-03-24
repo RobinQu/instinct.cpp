@@ -8,13 +8,11 @@
 #include "chain/LLMChain.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "llm/OllamaLLM.hpp"
-#include "output_parser/GenerationOutputParser.hpp"
 #include "prompt/PlainChatTemplate.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
 
 
 namespace INSTINCT_LLM_NS {
-
 
     class LLMChainTest: public testing::Test {
     protected:

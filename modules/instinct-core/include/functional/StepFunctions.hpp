@@ -17,6 +17,8 @@ namespace INSTINCT_CORE_NS {
 
     class IStepFunction {
     public:
+        virtual ~IStepFunction()=default;
+
         [[nodiscard]] virtual std::vector<std::string> GetInputKeys() const = 0;
 
         [[nodiscard]] virtual std::vector<std::string> GetOutputKeys() const = 0;
@@ -24,7 +26,10 @@ namespace INSTINCT_CORE_NS {
         virtual void ValidateInput(const JSONContextPtr &input) = 0;
     };
 
-    class BaseStepFunction : public virtual IStepFunction, public BaseRunnable<JSONContextPtr, JSONContextPtr> {
+    using GenericChain = BaseRunnable<JSONContextPtr, JSONContextPtr>;
+    using GenericChainPtr = RunnablePtr<JSONContextPtr, JSONContextPtr>;
+
+    class BaseStepFunction : public virtual IStepFunction, public GenericChain {
 
     public:
         void ValidateInput(const JSONContextPtr &input) override {
@@ -67,7 +72,6 @@ namespace INSTINCT_CORE_NS {
         [[nodiscard]] std::vector<std::string> GetOutputKeys() const override {
             return steps_.front()->GetOutputKeys();
         }
-
     };
 
 
@@ -103,7 +107,6 @@ namespace INSTINCT_CORE_NS {
         nlohmann::json operator()(const JSONContextPtr &ctx) const {
             return reduce(ctx);
         }
-
     };
 
     using JSONContextReducer = std::function<nlohmann::json(const JSONContextPtr &)>;
@@ -139,9 +142,28 @@ namespace INSTINCT_CORE_NS {
         }
     };
 
-    static StepFunctionPtr CreateMappingStepFunction(const std::unordered_map<std::string, JSONContextReducer>& steps) {
-        return std::make_shared<MappingStepFunction>(steps);
-    }
+
+    class PickingStepFunction: public BaseStepFunction {
+
+    };
+
+    class ReducerStepFunction final: public BaseStepFunction {
+        std::string variable_name_;
+
+    public:
+        explicit ReducerStepFunction(std::string variable_name)
+            : variable_name_(std::move(variable_name)) {
+        }
+
+        JSONContextPtr Invoke(const std::shared_ptr<IContext<JSONContextPolicy>>& input) override {
+            return CreateJSONContext(input->GetPayload().at(variable_name_));
+        }
+
+        [[nodiscard]] std::vector<std::string> GetInputKeys() const override;
+
+        [[nodiscard]] std::vector<std::string> GetOutputKeys() const override;
+    };
+
 
 
     using StepLambda = std::function<JSONContextPtr(const JSONContextPtr &context)>;
@@ -185,32 +207,6 @@ namespace INSTINCT_CORE_NS {
             return input;
         }
     };
-
-
-    StepFunctionPtr operator|(const StepFunctionPtr &first, const StepFunctionPtr &second) {
-        std::vector<StepFunctionPtr> steps;
-        if (auto first_as_steps = std::dynamic_pointer_cast<SequenceStepFunction>(first)) {
-            // try to collapse first as SequenceStepFunction
-            steps.insert(steps.end(), first_as_steps->GetSteps().begin(), first_as_steps->GetSteps().end());
-        } else if (first != nullptr) {
-            steps.push_back(first);
-        }
-
-        // try to collapse second as SequenceStepFunction
-        if (auto second_as_steps = std::dynamic_pointer_cast<SequenceStepFunction>(second)) {
-            steps.insert(steps.end(), second_as_steps->GetSteps().begin(), second_as_steps->GetSteps().end());
-        } else if (second != nullptr) {
-            steps.push_back(second);
-        }
-        if (steps.empty()) {
-            return std::make_shared<EmptyStepFunction>();
-        }
-        return std::make_shared<SequenceStepFunction>(steps);
-    }
-
-    StepFunctionPtr operator|(const StepFunctionPtr &first, const StepLambda &step_lambda) {
-        return first | std::make_shared<LambdaStepFunction>(step_lambda);
-    }
 
 
 }

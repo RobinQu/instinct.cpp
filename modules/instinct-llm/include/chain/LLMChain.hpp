@@ -23,6 +23,7 @@
 #include "input_parser/PromptValueVariantInputParser.hpp"
 #include "output_parser/StringOutputParser.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
+#include "functional/Xn.hpp"
 
 
 namespace INSTINCT_LLM_NS {
@@ -44,7 +45,7 @@ namespace INSTINCT_LLM_NS {
      * @return
      */
     template<typename Input,typename Output>
-    static StepFunctionPtr CreateLLMChain(
+    static MessageChainPtr<Input,Output> CreateLLMChain(
             const InputParserPtr<Input>& input_parser,
             const LanguageModelVariant& model,
             const OutputParserPtr<Output>& output_parser,
@@ -67,24 +68,27 @@ namespace INSTINCT_LLM_NS {
 
         StepFunctionPtr step_function;
         if (chat_memory) {
-            auto context_fn = CreateMappingStepFunction({
-                {"format_instruction", FunctionReducer(output_parser->AsInstructorFunction())},
-                {"chat_history", FunctionReducer(chat_memory->AsLoadMemoryFunction())},
-                {"question", GetterReducer("question")}
+            auto context_fn = xn::steps::mapping({
+                {"format_instruction", xn::reducers::return_value(output_parser->AsInstructorFunction())},
+                {"chat_history", xn::reducers::return_value(chat_memory->AsLoadMemoryFunction())},
+                {"question", xn::reducers::selection("question")}
             });
 
 
-            return CreateMappingStepFunction({
-              {"answer", FunctionReducer(context_fn | prompt_template | model_function)},
-              {"question", GetterReducer("question")}
+            step_function =  xn::steps::mapping({
+              {"answer", xn::reducers::return_value(context_fn | prompt_template | model_function)},
+              {"question", xn::reducers::selection("question")}
             })
             | chat_memory->AsSaveMemoryFunction({.prompt_variable_key="question", .answer_variable_key="answer"})
-             // | CreateGetterReducer("answer");
+             | xn::steps::reducer("answer");
 
         } else {
-            step_function = output_parser->AsInstructorFunction()
-                            | prompt_template
-                            | model_function;
+            step_function = xn::steps::mapping(
+                {"format_instruction", output_parser->AsInstructorFunction()},
+                {"question", xn::reducers::selection("question")}
+            )
+            | prompt_template
+            | model_function;
         }
 
         return std::make_shared<FunctionalMessageChain<Input,Output>>(

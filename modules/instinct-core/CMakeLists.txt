@@ -24,6 +24,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/functional/BaseRunnable.hpp
         include/tools/ProtobufUtils.hpp
         include/functional/IConfigurable.hpp
+        include/functional/Xn.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

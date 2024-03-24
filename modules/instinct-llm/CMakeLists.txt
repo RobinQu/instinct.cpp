@@ -26,7 +26,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/prompt/LengthBasedExampleSelector.h
         include/output_parser/IOutputParser.hpp
         include/output_parser/StructuredGenerationOutputParser.hpp
-        include/output_parser/GenerationOutputParser.hpp
         include/output_parser/BaseOutputParser.hpp
         include/prompt/MessageUtils.hpp
         include/prompt/ChatPromptBuilder.hpp
@@ -49,12 +48,12 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/prompt/BaseChatPromptTemplate.hpp
         include/input_parser/IInputParser.hpp
         include/input_parser/BaseInputParser.hpp
-        include/input_parser/PromptValueInputParser.hpp
         include/chain/MessageChain.hpp
         include/output_parser/ProtobufMessageOutputParser.hpp
         include/output_parser/MultilineGenerationOutputParser.hpp
         include/input_parser/PromptValueVariantInputParser.hpp
         include/output_parser/StringOutputParser.hpp
+        include/functional/Op.hpp
 
 )
 

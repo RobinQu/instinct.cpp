@@ -21,7 +21,7 @@ namespace INSTINCT_LLM_NS {
         explicit MultilineGenerationOutputParse(const OutputParserOptions &options = {}) : BaseOutputParser<MultilineGeneration>(options) {}
 
 
-        MultilineGeneration ParseResult(const JSONContextPtr &context) override {
+        MultilineGeneration ParseResult(const Generation &generation) override {
             MultilineGeneration multiline;
             return multiline;
         }
