@@ -229,7 +229,7 @@ namespace INSTINCT_LLM_NS {
             auto text_to_be_split = text;
             // std::cout << "input=" << text_to_be_split << std::endl;
             do {
-                // TODO: fix needed! sometimes last chunk of remianing split is ill-formed resulting incomplete text return.
+                // TODO: fix needed! sometimes last chunk of remaining split is ill-formed resulting incomplete text return.
                 splits_size = matcher.split(text_to_be_split, parts, max_split_size, status);
                 // for(int i=0;i<splits_size;i++) {
                 //     std::cout << "len=" << parts[i].length() << ": "<<  parts[i] << std::endl;
@@ -237,8 +237,10 @@ namespace INSTINCT_LLM_NS {
                 if(U_FAILURE(status)) {
                     throw InstinctException("Failed to split text with seperator regex");
                 }
-                result.insert(result.end(), parts, parts+splits_size-1);
-                text_to_be_split = parts[splits_size-1];
+                if (splits_size>0) {
+                    result.insert(result.end(), parts, parts+splits_size-1);
+                    text_to_be_split = parts[splits_size-1];
+                }
             } while(max_split_size == splits_size);
 
             result.push_back(parts[splits_size-1]);

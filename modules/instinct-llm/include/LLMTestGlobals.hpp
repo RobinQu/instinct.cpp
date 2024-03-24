@@ -14,9 +14,9 @@
 #include "llm/OpenAILLM.hpp"
 #include "tools/ChronoUtils.hpp"
 
-namespace INSTINCT_LLM_NS::test {
+namespace instinct::test {
     using namespace INSTINCT_CORE_NS;
-
+    using namespace INSTINCT_LLM_NS;
 
     static Embedding make_zero_vector(const size_t dim=128) {
         Embedding embedding (dim);

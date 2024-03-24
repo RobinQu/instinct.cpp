@@ -8,6 +8,7 @@
 
 #include "RetrievalGlobals.hpp"
 #include "tools/TensorUtils.hpp"
+#include "LLMTestGlobals.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS::experimental {
     using namespace duckdb;
@@ -63,7 +64,8 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
 
     void import_with_insert_statement(Connection& con, const size_t n, const size_t d, const float* xt) {
         auto prepared_statement = con.Prepare("insert into sift_1m (vector) values ($1)");
-        std::cout << "insert started" << std::endl;
+        std::cout << "insert started, n=" << n << std::endl;
+        long t1 = ChronoUtils::GetCurrentTimeMillis();
         for(int i=0;i<n;i++) {
             vector<Value> vector_list_value;
             for(int j=0;j<d;j++) {
@@ -75,17 +77,68 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
                 std::cout << error.Message() << std::endl;
             }
         }
-        std::cout << "insert done" << std::endl;
+        std::cout << "insert done, elapsed=" << (ChronoUtils::GetCurrentTimeMillis()-t1) << std::endl;
+    }
+
+
+    void import_range_with_appender(Connection& con, const size_t start, const size_t end, const size_t d, const float* xt) {
+        std::cout << "--> Appender started, start=" << start << ", end=" << end << std::endl;
+
+        long t1 = ChronoUtils::GetCurrentTimeMillis();
+        Appender appender(con, "sift_1m");
+        for(size_t i=start;i<end;i++) {
+//            if (i==2000) break;
+            appender.BeginRow();
+            // appender.Append<std::nullptr_t>(nullptr);
+//            appender.Append(++id_value);
+            appender.Append<long>(i+1);
+            vector<Value> vector_list_value;
+            vector_list_value.reserve(d);
+            for(int j=0;j<d;j++) {
+                vector_list_value.push_back(Value::FLOAT(xt[i*d+j]));
+            }
+            auto array_value = Value::ARRAY(LogicalType::FLOAT, vector_list_value);
+            appender.Append(array_value);
+            appender.EndRow();
+        }
+        appender.Close();
+        std::cout << "--> Appender finished, elapsed=" << (ChronoUtils::GetCurrentTimeMillis() - t1) << std::endl;
+    }
+
+    void concurrent_import_with_appender(DuckDB& db, const unsigned int concurrency, const size_t batch_size, const size_t nt, const size_t d, const float* xt) {
+        std::cout << "Import begins; n= " << nt << std::endl;
+        long t1 = ChronoUtils::GetCurrentTimeMillis();
+        auto batch_num = (nt / batch_size) + 1;
+        std::queue<std::thread> threads;
+        for(int i=0;i<batch_num;i++) {
+            threads.emplace([&,i]() {
+                Connection con(db);
+                import_range_with_appender(con, i*batch_size, std::min(nt, (i+1)*batch_size), d, xt);
+            });
+            if (threads.size() == concurrency) {
+                threads.front().join();
+                threads.pop();
+            }
+        }
+        while(!threads.empty()) {
+            threads.front().join();
+            threads.pop();
+        }
+        std::cout << "Import finished, elapsed=" << (ChronoUtils::GetCurrentTimeMillis() - t1) << std::endl;
     }
 
     void import_with_appender(Connection& con, const size_t nt, const size_t d, const float* xt) {
+//        static long id_value = 0;
         // TODO Appender API is not suitable right now
-        std::cout << "Appender started" << std::endl;
+        std::cout << "Appender started, n=" << nt << std::endl;
+
+        long t1 = ChronoUtils::GetCurrentTimeMillis();
         Appender appender(con, "sift_1m");
         for(int i=0;i<nt;i++) {
-            if (i==2000) break;
+//            if (i==2000) break;
             appender.BeginRow();
             // appender.Append<std::nullptr_t>(nullptr);
+//            appender.Append(++id_value);
             appender.Append<int>(i+1);
             vector<Value> vector_list_value;
             vector_list_value.reserve(d);
@@ -97,14 +150,15 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
             appender.EndRow();
         }
         appender.Close();
-        std::cout << "Appender finished!" << std::endl;
+        std::cout << "Appender finished, elapsed=" << (ChronoUtils::GetCurrentTimeMillis() - t1) << std::endl;
     }
 
     TEST(DuckDB, TestBatchImport) {
-        auto asset_dir_path = std::filesystem::current_path() /"modules/instinct-retrieval/test/_assets";
+        auto asset_dir_path = std::filesystem::current_path() / "_assets";
 
         // init db
-            auto db_path =  asset_dir_path / "duckdb_test.db";
+        auto db_path =  instinct::test::ensure_random_temp_folder() / "duckdb_test.db";
+        std::cout << "test db at " << db_path << std::endl;
         DuckDB db(db_path.string());
         Connection con(db);
         std::vector<std::string> DSL = {
@@ -120,7 +174,7 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
 
         // read from sift1m
 
-        auto sift_base_file = asset_dir_path/ "./sift1m/sift_base.fvecs";
+        auto sift_base_file = asset_dir_path/ "sift1m/sift_base.fvecs";
         std::cout << "Reading SIFT-1M base from " << sift_base_file << std::endl;
 
         size_t d;
@@ -134,11 +188,14 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
             "select id, list_cosine_similarity(vector, $1) as similarity from sift_1m order by similarity desc limit $2"
         };
 
-        size_t exepcted_number = 2000;
+//        size_t expected_number = 10000 * 10;
+        size_t expected_number = nt;
         auto count_result = con.Query(DML[1]);
 
-        if(const auto count = count_result->GetValue(0, 0).GetValue<u_int32_t>(); count != exepcted_number) {
-            import_with_insert_statement(con, exepcted_number, d, xt);
+        if(const auto count = count_result->GetValue(0, 0).GetValue<u_int32_t>(); count != expected_number) {
+//            import_with_insert_statement(con, expected_number, d, xt);
+//            import_with_appender(con, expected_number, d, xt);
+            concurrent_import_with_appender(db, std::thread::hardware_concurrency(), 10000, nt, d, xt);
         }
 
         std::cout << "Print random 20 records: " << std::endl;
@@ -155,10 +212,12 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
 
             // do topK recall
             auto search_statement = con.Prepare(DML[2]);
+            long t1 = ChronoUtils::GetCurrentTimeMillis();
             auto search_result = search_statement->Execute(vector_value, 10);
             if (auto error=search_statement->GetErrorObject(); error.HasError()) {
                 error.Throw("recall search failed");
             }
+            std::cout << "recall done, elapsed=" << (ChronoUtils::GetCurrentTimeMillis()-t1) << std::endl;
 
             // print recall
             for(auto row: *search_result) {

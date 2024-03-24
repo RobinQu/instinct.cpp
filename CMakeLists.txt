@@ -9,6 +9,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # https://cmake.org/cmake/help/latest/policy/CMP0077.html
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+# show progress
+Set(FETCHCONTENT_QUIET FALSE)
 
 # specify default install location
 IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)

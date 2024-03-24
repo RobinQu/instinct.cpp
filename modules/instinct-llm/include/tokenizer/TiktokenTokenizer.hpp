@@ -49,7 +49,7 @@ namespace INSTINCT_LLM_NS {
 
             // init vocab
             Vocab vocab;
-            for(const auto i: std::ranges::iota_view {0, 256}) {
+            for(int i: std::ranges::iota_view {0, 256}) {
                 vocab[i] = Bytes{static_cast<char>(i)};
             }
             for(const auto& [pair, id]: bpe_ranks) {

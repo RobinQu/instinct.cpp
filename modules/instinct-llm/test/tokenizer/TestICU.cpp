@@ -7,6 +7,7 @@
 #include <unicode/ustream.h>
 
 #include "tokenizer/Tokenizer.hpp"
+#include "tools/StringUtils.hpp"
 
 namespace INSTINCT_LLM_NS {
     using namespace U_ICU_NAMESPACE;
@@ -113,7 +114,9 @@ The ancestors of llamas are thought to have originated from the Great Plains of 
         UnicodeString pattern_str = "(" + details::join_with_seperator("|", specials_unicode) + ")";
         std::cout << "pattern string: " << pattern_str << std::endl;
         details::split_text_with_regex(text3, pattern_str, result);
-        TensorUtils::PrintEmbedding("result=", result);
+//        TensorUtils::PrintEmbedding("result=", result);
+        u32_utils::print_splits("split text3: ", result);
+
     }
 
     TEST(TestICU, find_all_with_regex) {

@@ -16,6 +16,25 @@ find_package(GTest REQUIRED)
 
 file(GLOB_RECURSE TEST_SRC_FILES *.cpp)
 
+include(FetchContent)
+set(ASSETS_DIR "${CMAKE_CURRENT_BINARY_DIR}/_assets")
+FetchContent_Declare(
+        sift_base
+        URL https://huggingface.co/datasets/qbo-odp/sift1m/resolve/main/sift_base.fvecs
+        URL_HASH    SHA256=21f66e2975057b5728ba56de1c825bac4f4d89d596609ae985741c6242631816
+        DOWNLOAD_DIR ${ASSETS_DIR}/sift1m/
+        DOWNLOAD_NO_EXTRACT TRUE
+)
+FetchContent_Declare(
+        sift_query
+        URL https://huggingface.co/datasets/qbo-odp/sift1m/resolve/main/sift_query.fvecs
+        URL_HASH    SHA256=f7fc9be140accdfd64116c2fa2365ecdb69b8f084970c6b0532db5ff79ac8fdc
+        DOWNLOAD_DIR ${ASSETS_DIR}/sift1m/
+        DOWNLOAD_NO_EXTRACT TRUE
+)
+FetchContent_MakeAvailable(sift_base sift_query)
+
+
 
 # from list of files we'll create tests test_name.cpp -> test_name
 foreach(_test_file ${TEST_SRC_FILES})
@@ -24,5 +43,5 @@ foreach(_test_file ${TEST_SRC_FILES})
     target_link_libraries(${_test_name} GTest::gtest GTest::gtest_main)
     target_link_libraries(${_test_name} ${LIBRARY_TARGET_NAME})
     add_test(${_test_name} ${_test_name})
-    set_tests_properties(${_test_name} PROPERTIES TIMEOUT 5)
+    set_tests_properties(${_test_name} PROPERTIES TIMEOUT 30)
 endforeach()

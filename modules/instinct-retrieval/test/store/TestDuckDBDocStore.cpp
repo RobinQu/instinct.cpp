@@ -21,7 +21,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     TEST_F(DuckDBDocStoreTest, CRUDWithoutSchema) {
         auto doc_store = CreateDuckDBDocStore({
                                                       .table_name = "animal_table",
-                                                      .db_file_path = test::ensure_random_temp_folder() /
+                                                      .db_file_path = instinct::test::ensure_random_temp_folder() /
                                                                       "doc_store_with_out_schema.db",
                                               });
 
@@ -109,7 +109,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         auto schema = schema_builder->Build();
         auto doc_store = CreateDuckDBDocStore({
                                                       .table_name = "animal_table",
-                                                      .db_file_path = test::ensure_random_temp_folder() /
+                                                      .db_file_path = instinct::test::ensure_random_temp_folder() /
                                                                       "doc_store_with_out_schema.db",
                                               }, schema);
 

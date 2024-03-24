@@ -24,10 +24,10 @@ namespace INSTINCT_RETRIEVAL_NS {
     protected:
         void SetUp() override {
             SetupLogging();
-            auto root_path = test::ensure_random_temp_folder();
+            auto root_path = instinct::test::ensure_random_temp_folder();
             std::cout << "MultiVectorRetrieverTest at " << root_path << std::endl;
-            llm_ = test::create_pesudo_chat_model();
-//            llm_ = test::create_local_chat_model();
+            llm_ = instinct::test::create_pesudo_chat_model();
+//            llm_ = instinct::test::create_local_chat_model();
 
             size_t dimension = 4096;
 
@@ -35,7 +35,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             schema_builder->DefineString("parent_doc_id");
             auto meta_schema = schema_builder->Build();
 
-            EmbeddingsPtr embedding_model = test::create_pesudo_embedding_model(dimension);
+            EmbeddingsPtr embedding_model = instinct::test::create_pesudo_embedding_model(dimension);
             DuckDBStoreOptions db_options = {
                 .table_name = "document_table",
                 .db_file_path = root_path / "doc_store.db"

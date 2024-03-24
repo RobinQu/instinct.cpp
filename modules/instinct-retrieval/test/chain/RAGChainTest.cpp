@@ -20,7 +20,7 @@ namespace  INSTINCT_RETRIEVAL_NS {
         void SetUp() override {
             SetupLogging();
 
-            embedding_model_ = test::create_local_embedding_model();
+            embedding_model_ = instinct::test::create_local_embedding_model();
             const auto db_file_path = std::filesystem::temp_directory_path() / (
                                     ChronoUtils::GetCurrentTimestampString() + ".db");
 
@@ -33,7 +33,7 @@ namespace  INSTINCT_RETRIEVAL_NS {
             retriever_ = CreateVectorStoreRetriever(vector_store);
             chat_memory_ = std::make_shared<EphemeralChatMemory>();
 
-            ChatModelPtr chat_model = test::create_local_chat_model();
+            ChatModelPtr chat_model = instinct::test::create_local_chat_model();
 
             PromptTemplatePtr question_prompt_template = OllamaChat::CreateChatPromptTemplateBuilder()
                     ->AddHumanMessage(R"(
