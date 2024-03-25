@@ -21,7 +21,8 @@ namespace INSTINCT_RETRIEVAL_NS {
             SetupLogging();
 
             auto root_path = instinct::test::ensure_random_temp_folder();
-            asset_dir_ = std::filesystem::current_path() / "modules" / "instinct-retrieval" / "test" / "_assets";
+            // corpus data is copied to build tree in CMakeLists.txt
+            asset_dir_ = std::filesystem::current_path() / "_corpus";
 
             std::cout << "MultiQueryRetrieverTest at " << root_path << std::endl;
 
@@ -44,7 +45,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
             base_retriever_ = CreateVectorStoreRetriever(vector_store);
 
-            const auto recipes_dir = asset_dir_ / "docs" / "recipes";
+            const auto recipes_dir = asset_dir_ / "recipes";
             std::cout << "reading recipes from " << recipes_dir << std::endl;
             recipes_ingestor_ = CreateDirectoryTreeIngestor(recipes_dir);
         }

@@ -43,10 +43,11 @@ namespace INSTINCT_RETRIEVAL_NS {
             child_splitter_ = CreateRecursiveCharacterTextSplitter({.chunk_size = 100});
             parent_splitter_ = CreateRecursiveCharacterTextSplitter({.chunk_size = 300});
 
-            asset_dir_ = std::filesystem::current_path() / "modules" / "instinct-retrieval" / "test" / "_assets";
+            // corpus data is copied to build tree in CMakeLists.txt
+            asset_dir_ = std::filesystem::current_path() / "_corpus";
 
             // load all recipes in folder
-            const auto recipes_dir = asset_dir_ / "docs" / "recipes";
+            const auto recipes_dir = asset_dir_  / "recipes";
             std::cout << "reading recipes from " << recipes_dir << std::endl;
             recipes_ingestor_ = CreateDirectoryTreeIngestor(recipes_dir);
         }

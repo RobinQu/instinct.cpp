@@ -109,14 +109,14 @@ namespace INSTINCT_CORE_NS {
         return CreateJSONContext(ctx->GetValue());
     }
 
-    static JSONContextPtr CreateJSONContextWithString(const std::string& json_string = "") {
+    static JSONContextPtr CreateJSONContextWithString(const std::string& json_string = "{}") {
         nlohmann::json json_obj = json_string.empty() ?
-                nlohmann::json {} :
+                nlohmann::json::parse("{}") :
                 nlohmann::json::parse(json_string);
         return CreateJSONContext(json_obj);
     }
 
-    static std::vector<JSONContextPtr> CreateBatchJSONContextWithString(const std::string& json_string = "") {
+    static std::vector<JSONContextPtr> CreateBatchJSONContextWithString(const std::string& json_string = "[]") {
         nlohmann::json json_obj = json_string.empty() ?
                                   nlohmann::json::parse("[]") :
                                   nlohmann::json::parse(json_string);
@@ -131,7 +131,7 @@ namespace INSTINCT_CORE_NS {
         return result;
     }
 
-    static JSONObject SanitizeJSONContext(const JSONContextPtr& context) {
+    static JSONObject SanitizeJSONContext(const JSONContextPtr& context) { // NOLINT(*-no-recursion)
         if (context->IsMessage()) {
             return nlohmann::json::parse(context->GetValue().at(MESSAGE_WRAPPER_DATA_KEY).template get<std::string>());
         }

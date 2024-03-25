@@ -56,10 +56,11 @@ namespace INSTINCT_RETRIEVAL_NS {
             };
             hypothetical_queries_store_ = CreateDuckDBVectorStore(embedding_model, query_db_options, meta_schema);
 
-            asset_dir_ = std::filesystem::current_path() / "modules" / "instinct-retrieval" / "test" / "_assets";
+            // corpus data is copied to build tree in CMakeLists.txt
+            asset_dir_ = std::filesystem::current_path() / "_corpus";
 
             // load all recipes in folder
-            const auto recipes_dir = asset_dir_ / "docs" / "recipes";
+            const auto recipes_dir = asset_dir_ / "recipes";
             std::cout << "reading recipes from " << recipes_dir << std::endl;
             recipes_ingestor_ = CreateDirectoryTreeIngestor(recipes_dir);
         }

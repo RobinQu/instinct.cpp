@@ -36,6 +36,7 @@ FetchContent_MakeAvailable(sift_base sift_query)
 
 
 
+
 # from list of files we'll create tests test_name.cpp -> test_name
 foreach(_test_file ${TEST_SRC_FILES})
     get_filename_component(_test_name ${_test_file} NAME_WE)
@@ -44,4 +45,10 @@ foreach(_test_file ${TEST_SRC_FILES})
     target_link_libraries(${_test_name} ${LIBRARY_TARGET_NAME})
     add_test(${_test_name} ${_test_name})
     set_tests_properties(${_test_name} PROPERTIES TIMEOUT 120)
+
+    # copy corpus test data to build tree
+    add_custom_command(TARGET ${_test_name} PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+            ${CMAKE_CURRENT_SOURCE_DIR}/_corpus/ $<TARGET_FILE_DIR:${_test_name}>/_corpus)
+
 endforeach()
