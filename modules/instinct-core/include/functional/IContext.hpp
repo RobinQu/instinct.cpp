@@ -43,7 +43,7 @@ namespace INSTINCT_CORE_NS {
 
         template<typename T>
         T RequirePrimitive() {
-
+            return RequirePrimitive<T>(RETURN_VALUE_VARIABLE_KEY);
         }
 
         template<typename T>
@@ -57,8 +57,8 @@ namespace INSTINCT_CORE_NS {
         }
 
         template<typename T>
-        void ProducePrimitive(const T& value) {
-
+        void ProducePrimitive(T&& value) {
+            return PutPrimitive<T>(RETURN_VALUE_VARIABLE_KEY, std::forward<T>(value));
         }
 
         template<typename T>

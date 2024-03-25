@@ -32,9 +32,6 @@ namespace INSTINCT_RETRIEVAL_NS {
 
 
     namespace details {
-
-
-
         static std::string make_mget_sql(
             const std::string& table_name,
             const std::shared_ptr<MetadataSchema>& metadata_schema,

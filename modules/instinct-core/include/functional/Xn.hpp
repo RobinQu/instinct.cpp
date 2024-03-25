@@ -11,13 +11,13 @@
 
 namespace xn {
     using namespace INSTINCT_CORE_NS;
-
+    using context_reducer_map = std::unordered_map<std::string, JSONContextReducer>;
     namespace steps {
         static StepFunctionPtr sequence(const std::vector<StepFunctionPtr> &steps) {
             return std::make_shared<SequenceStepFunction>(steps);
         }
 
-        static StepFunctionPtr mapping(const std::unordered_map<std::string, JSONContextReducer>& steps) {
+        static StepFunctionPtr mapping(const context_reducer_map& steps) {
             return std::make_shared<MappingStepFunction>(steps);
         }
 
@@ -27,6 +27,10 @@ namespace xn {
 
         static StepFunctionPtr empty() {
             return std::make_shared<EmptyStepFunction>();
+        }
+
+        static StepFunctionPtr lambda(const StepLambda& lambda) {
+            return std::make_shared<LambdaStepFunction>(lambda);
         }
 
     }
@@ -42,6 +46,12 @@ namespace xn {
 
 }
 
+/**
+ * pipe operator for two StepFuncitonPtr
+ * @param first
+ * @param second
+ * @return
+ */
 inline INSTINCT_CORE_NS::StepFunctionPtr operator|(const INSTINCT_CORE_NS::StepFunctionPtr &first, const INSTINCT_CORE_NS::StepFunctionPtr &second) {
     std::vector<INSTINCT_CORE_NS::StepFunctionPtr> steps;
     if (auto first_as_steps = std::dynamic_pointer_cast<INSTINCT_CORE_NS::SequenceStepFunction>(first)) {
@@ -63,12 +73,18 @@ inline INSTINCT_CORE_NS::StepFunctionPtr operator|(const INSTINCT_CORE_NS::StepF
     return std::make_shared<INSTINCT_CORE_NS::SequenceStepFunction>(steps);
 }
 
+/**
+ * Pipe operator for StepLambda on right hand
+ * @param first
+ * @param step_lambda
+ * @return
+ */
 inline INSTINCT_CORE_NS::StepFunctionPtr operator|(const INSTINCT_CORE_NS::StepFunctionPtr &first, const INSTINCT_CORE_NS::StepLambda &step_lambda) {
     return first | std::make_shared<INSTINCT_CORE_NS::LambdaStepFunction>(step_lambda);
 }
 
 inline INSTINCT_CORE_NS::StepFunctionPtr operator|(
-        std::initializer_list<std::pair<const std::string, INSTINCT_CORE_NS::JSONContextReducer>>&& first,
+        const xn::context_reducer_map& first,
         const INSTINCT_CORE_NS::StepFunctionPtr &second
 ) {
     const auto mapping = std::make_shared<INSTINCT_CORE_NS::MappingStepFunction>(first);
@@ -77,7 +93,7 @@ inline INSTINCT_CORE_NS::StepFunctionPtr operator|(
 
 inline INSTINCT_CORE_NS::StepFunctionPtr operator|(
         const INSTINCT_CORE_NS::StepFunctionPtr &first,
-        std::initializer_list<std::pair<const std::string, INSTINCT_CORE_NS::JSONContextReducer>>&& second
+        const xn::context_reducer_map& second
 ) {
     const auto mapping = std::make_shared<INSTINCT_CORE_NS::MappingStepFunction>(second);
     return first | mapping;

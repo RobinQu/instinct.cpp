@@ -122,7 +122,8 @@ namespace INSTINCT_CORE_NS {
         JSONContextPtr Invoke(const JSONContextPtr &input) override {
             auto output_context = CreateJSONContext();
             for (const auto &[k, v]: steps_) {
-                output_context->GetPayload()[k] = v(input);
+                JSONContextPtr new_ctx = CreateJSONContext(input->GetPayload());
+                output_context->GetPayload()[k] = v(new_ctx);
             }
             return output_context;
         }
