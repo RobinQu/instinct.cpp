@@ -117,7 +117,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             llm,
             // prompt is copied from langchain doc, which may not be the best choice
             // https://python.langchain.com/docs/modules/data_connection/retrievers/multi_vector#summary
-            prompt_template == nullptr ? CreatePlainPromptTemplate("Summarize the following document:\n\n{doc}", {.input_keys = {"doc"}}) : prompt_template
+            prompt_template == nullptr ? CreatePlainPromptTemplate("Summarize the following document:\n\n{question}", {.input_keys = {"question"}}) : prompt_template
             );
         MultiVectorGuidance guidance = [&, summary_chain](const Document& doc) {
             assert_true(!StringUtils::IsBlankString(doc.id()), "should have valid doc id");
@@ -150,8 +150,8 @@ namespace INSTINCT_RETRIEVAL_NS {
             // prompt is copied from langchain doc, which may not be the best choice
             // https://python.langchain.com/docs/modules/data_connection/retrievers/multi_vector#hypothetical-queries
             prompt_template == nullptr ? CreatePlainPromptTemplate(
-                    "Generate a list of exactly 3 hypothetical questions that the below document could be used to answer:\n\n{doc}",
-                    {.input_keys = {"doc"}}) : prompt_template
+                    "Generate a list of exactly 3 hypothetical questions that the below document could be used to answer:\n\n{question}",
+                    {.input_keys = {"question"}}) : prompt_template
             );
 
         MultiVectorGuidance guidance = [&, query_chain](const Document& doc) {

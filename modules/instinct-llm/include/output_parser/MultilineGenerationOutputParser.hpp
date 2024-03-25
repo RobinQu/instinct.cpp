@@ -23,12 +23,15 @@ namespace INSTINCT_LLM_NS {
 
         MultilineGeneration ParseResult(const Generation &generation) override {
             MultilineGeneration multiline;
+            auto text = MessageUtils::StringifyGeneration(generation);
+            for(const auto& line: StringUtils::ReSplit(text)) {
+                *multiline.mutable_lines()->Add() = line;
+            }
             return multiline;
         }
 
         std::string GetFormatInstruction() override {
-            // TODO give instruction
-            return "";
+            return "Please reply in a list seperated with new line separator strictly without any leading number items.";
         }
 
     };
