@@ -50,7 +50,7 @@ namespace INSTINCT_LLM_NS {
         virtual AsyncIterator<LangaugeModelResult> StreamGenerate(const std::string &prompt) = 0;
 
     public:
-        explicit BaseLLM(ModelOptions options) : options_(std::move(options)) {
+        explicit BaseLLM(ModelOptions options) : options_(options) {
 //            model_function_ = std::make_shared<LLMStepFunction>(shared_from_this());
         }
 
@@ -95,22 +95,20 @@ namespace INSTINCT_LLM_NS {
 
 
     JSONContextPtr LLMStepFunction::Invoke(const JSONContextPtr &input) {
-        auto prompt_value = input->RequireMessage<PromptValue>(model_->options_.input_prompt_variable_key);
+        auto prompt_value = input->RequireMessage<PromptValue>();
         const auto string_prompt = details::conv_prompt_value_variant_to_string(prompt_value);
 
         auto batched_result = model_->Generate({string_prompt});
         assert_non_empty_range(batched_result.generations(), "Empty Response");
         assert_non_empty_range(batched_result.generations(0).generations(), "Empty Response in first model output");
 
-        input->PutMessage(model_->options_.output_answer_variable_key,
-                          batched_result.generations(0).generations(0)
-        );
+        input->ProduceMessage(batched_result.generations(0).generations(0));
         return input;
     }
 
     AsyncIterator<instinct::core::JSONContextPtr> LLMStepFunction::Batch(const std::vector<JSONContextPtr> &input) {
         auto prompts_view = input | std::views::transform([&](const auto &ctx) {
-            auto prompt = ctx->template RequirePrimitive<std::string>(model_->options_.input_prompt_variable_key);
+            auto prompt = ctx->template RequirePrimitive<std::string>();
             return details::conv_prompt_value_variant_to_string(prompt);
         });
 
@@ -120,27 +118,28 @@ namespace INSTINCT_LLM_NS {
                | rpp::operators::map([&](const std::tuple<LangaugeModelResult, JSONContextPtr> &tuple) {
             auto ctx = std::get<1>(tuple);
             LangaugeModelResult answer = std::get<0>(tuple);
-            ctx->PutMessage(model_->options_.output_answer_variable_key, answer.generations(0));
+            ctx->ProduceMessage(answer.generations(0));
             return ctx;
         });
     }
 
     AsyncIterator<instinct::core::JSONContextPtr> LLMStepFunction::Stream(const JSONContextPtr &input) {
-        auto prompt = input->RequireMessage<PromptValue>(model_->options_.input_prompt_variable_key);
-        return model_->Stream(prompt)
-               | rpp::operators::map([&](const auto &answer) {
+        auto prompt_value = input->RequireMessage<PromptValue>();
+        const auto string_prompt = details::conv_prompt_value_variant_to_string(prompt_value);
+        return model_->StreamGenerate(string_prompt)
+               | rpp::operators::map([&](const LangaugeModelResult &answer) {
             auto ctx = CreateJSONContext();
-            ctx->PutPrimitive(model_->options_.output_answer_variable_key, answer);
+            ctx->ProduceMessage(answer.generations(0));
             return ctx;
         });
     }
 
     [[nodiscard]] std::vector<std::string> LLMStepFunction::GetInputKeys() const {
-        return {model_->options_.input_prompt_variable_key};
+        return {};
     }
 
     [[nodiscard]] std::vector<std::string> LLMStepFunction::GetOutputKeys() const {
-        return {model_->options_.output_answer_variable_key};
+        return {};
     }
 
 

@@ -357,7 +357,7 @@ namespace INSTINCT_RETRIEVAL_NS {
            connection_(db_),
            internal_appender_(std::move(internal_appender)) {
             LOG_DEBUG("Startup db at {}", options.db_file_path);
-            assert_true(!!metadata_schema, "should provide schema");
+            assert_true(metadata_schema, "should provide schema");
             // assert_positive(options_.dimension, "dimension should be positive");
             assert_lt(options_.dimension, 10000, "dimension should be less than 10000");
             assert_true(!StringUtils::IsBlankString(options_.table_name), "table_name cannot be blank");

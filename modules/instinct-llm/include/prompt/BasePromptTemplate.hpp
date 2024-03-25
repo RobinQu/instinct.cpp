@@ -18,7 +18,7 @@ namespace INSTINCT_LLM_NS {
 
     struct PromptTemplateOptions {
         std::vector<std::string> input_keys = {};
-        std::vector<std::string> output_keys = {DEFAULT_QUESTION_INPUT_OUTPUT_KEY};
+//        std::vector<std::string> output_keys = {DEFAULT_QUESTION_INPUT_OUTPUT_KEY};
 
     };
 
@@ -27,12 +27,13 @@ namespace INSTINCT_LLM_NS {
             public BaseStepFunction {
         PromptTemplateOptions options_;
     public:
-        explicit BasePromptTemplate(PromptTemplateOptions options) : options_(std::move(options)) {}
+        explicit BasePromptTemplate(PromptTemplateOptions options) : options_(options) {}
 
     public:
         JSONContextPtr Invoke(const JSONContextPtr &input) override {
             auto prompt_value = FormatPrompt(input);
-            input->PutMessage(options_.output_keys[0], prompt_value);
+//            input->PutMessage(options_.output_keys[0], prompt_value);
+            input->ProduceMessage(prompt_value);
             return input;
         }
 
@@ -41,7 +42,7 @@ namespace INSTINCT_LLM_NS {
         }
 
         [[nodiscard]] std::vector<std::string> GetOutputKeys() const override {
-            return options_.output_keys;
+            return {};
         }
 
     };

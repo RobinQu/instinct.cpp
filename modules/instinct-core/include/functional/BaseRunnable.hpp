@@ -24,9 +24,7 @@ namespace INSTINCT_CORE_NS {
         }
 
         AsyncIterator<Output> Stream(const Input &input) override {
-            return rpp::source::from_callable([&]() {
-                return this->Invoke(input);
-            });
+            return rpp::source::just(this->Invoke(input));
         }
     };
 

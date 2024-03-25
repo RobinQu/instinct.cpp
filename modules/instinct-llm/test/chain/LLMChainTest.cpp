@@ -10,6 +10,7 @@
 #include "llm/OllamaLLM.hpp"
 #include "prompt/PlainChatTemplate.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
+#include "LLMTestGlobals.hpp"
 
 
 namespace INSTINCT_LLM_NS {
@@ -20,8 +21,8 @@ namespace INSTINCT_LLM_NS {
             SetupLogging();
 //            input_parser_ = std::make_shared<PromptValueInputParser>();
 //            output_parser_ = std::make_shared<GenerationOutputParser>();
-            chat_model_ = std::make_shared<OllamaChat>();
-            llm_ = std::make_shared<OllamaLLM>();
+            chat_model_ = instinct::test::create_pesudo_chat_model();
+            llm_ = instinct::test::create_pesudo_llm();
 
             auto builder = OllamaChat::CreateChatPromptTemplateBuilder();
             builder->AddHumanMessage("why is the sky blue?");

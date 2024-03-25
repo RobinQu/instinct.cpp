@@ -6,7 +6,6 @@
 #define LLMTESTGLOBALS_HPP
 #include <random>
 
-#include "RetrievalGlobals.hpp"
 #include "chat_model/BaseChatModel.hpp"
 #include "chat_model/OpenAIChat.hpp"
 #include "embedding_model/OpenAIEmbedding.hpp"
@@ -38,6 +37,38 @@ namespace instinct::test {
         }
         return embedding;
     }
+
+    class PesudoLLM final: public BaseLLM {
+
+    public:
+        explicit PesudoLLM(const ModelOptions &options = {}) : BaseLLM(options) {}
+
+    private:
+        BatchedLangaugeModelResult Generate(const std::vector<std::string> &prompts) override {
+            BatchedLangaugeModelResult batched;
+            for(const auto& prompt: prompts) {
+                auto* model_result = batched.add_generations();
+                auto* gen = model_result->add_generations();
+                gen->set_text("You are right!");
+                gen->set_is_chunk(false);
+                gen->mutable_message()->set_content("You are right!");
+                gen->mutable_message()->set_role("assistant");
+            }
+            return batched;
+        }
+
+        AsyncIterator<LangaugeModelResult> StreamGenerate(const std::string &prompt) override {
+            std::vector<LangaugeModelResult> outputs;
+            int n = 4;
+            while (n-->0) {
+                LangaugeModelResult result;
+                auto *gen = result.add_generations();
+                gen->mutable_message()->set_content(std::to_string(n));
+                gen->mutable_message()->set_role("assistant");
+            }
+            return rpp::source::from_iterable(outputs);
+        }
+    };
 
     class PesudoChatModel : public BaseChatModel {
     public:
@@ -110,6 +141,10 @@ talking non-sense
 
     static ChatModelPtr create_pesudo_chat_model() {
         return std::make_shared<PesudoChatModel>();
+    }
+
+    static LLMPtr  create_pesudo_llm() {
+        return std::make_shared<PesudoLLM>();
     }
 
     static std::shared_ptr<PesuodoEmbeddings> create_pesudo_embedding_model(size_t dim = 512) {

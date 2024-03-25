@@ -38,7 +38,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                                      return field.name();
                                  });
             select_sql += name_view.empty() ? ""  : ", " + StringUtils::JoinWith(name_view, ", ");
-            select_sql += ", array_cosine_similarity(vector, ?) AS similarity FROM  ";
+            select_sql += ", array_cosine_similarity(vector, ?) AS similarity FROM ";
             select_sql += table_name;
             select_sql += " ORDER BY similarity DESC LIMIT ?";
             return select_sql;
@@ -142,19 +142,19 @@ namespace INSTINCT_RETRIEVAL_NS {
     class DuckDBVectorStoreInternalAppender final: public DuckDBInternalAppender {
         EmbeddingsPtr embeddings_;
         std::shared_ptr<MetadataSchema> metadata_schema_;
-        bool bypass_unknonw_fields_;
+        bool bypass_unknown_fields_;
 
     public:
         DuckDBVectorStoreInternalAppender(EmbeddingsPtr embeddings, std::shared_ptr<MetadataSchema> metadata_schema,
-            const bool bypass_unknonw_fields)
+            const bool bypass_unknown_fields)
             : embeddings_(std::move(embeddings)),
               metadata_schema_(std::move(metadata_schema)),
-              bypass_unknonw_fields_(bypass_unknonw_fields) {
+              bypass_unknown_fields_(bypass_unknown_fields) {
         }
 
         void AppendRow(Appender& appender, Document& doc, UpdateResult& update_result) override {
             const auto embeddings = embeddings_->EmbedDocuments({doc.text()});
-            details::append_row(metadata_schema_, appender, doc, embeddings[0], update_result, bypass_unknonw_fields_);
+            details::append_row(metadata_schema_, appender, doc, embeddings[0], update_result, bypass_unknown_fields_);
         }
 
         void AppendRows(Appender& appender, std::vector<Document>& records, UpdateResult& update_result) override {
@@ -167,7 +167,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             int affected_row = 0;
             for (int i = 0; i < records.size(); i++) {
                 try {
-                    details::append_row(metadata_schema_, appender, records[i], embeddings[i], update_result, bypass_unknonw_fields_);
+                    details::append_row(metadata_schema_, appender, records[i], embeddings[i], update_result, bypass_unknown_fields_);
                     affected_row++;
                 } catch (const InstinctException& e) {
                     update_result.add_failed_documents()->CopyFrom(records[i]);
@@ -196,11 +196,14 @@ namespace INSTINCT_RETRIEVAL_NS {
         {
             assert_gt(options.dimension, 0);
             assert_true(embeddings_ != nullptr, "should provide embeddings object pointer");
-            assert_true(!!metadata_schema, "should have provide valid metadata schema");
+            assert_true(metadata_schema, "should have provide valid metadata schema");
             auto internal_appender = std::make_shared<DuckDBVectorStoreInternalAppender>(embeddings_model, metadata_schema, options.bypass_unknown_fields);
             internal_ = std::make_shared<DuckDBStoreInternal>(internal_appender, options, metadata_schema);
-            prepared_search_statement_ = internal_->GetConnection().Prepare(details::make_prepared_search_sql(options.table_name, metadata_schema));
-            details::assert_prepared_ok(prepared_search_statement_, "Failed to preppare search statement");
+
+            auto search_sql = details::make_prepared_search_sql(options.table_name, metadata_schema);
+            LOG_DEBUG("prepare search sql: {}", search_sql);
+            prepared_search_statement_ = internal_->GetConnection().Prepare(search_sql);
+            details::assert_prepared_ok(prepared_search_statement_, "Failed to prepare search statement");
         }
 
 

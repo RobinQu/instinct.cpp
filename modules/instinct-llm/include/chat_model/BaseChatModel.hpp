@@ -90,15 +90,14 @@ namespace INSTINCT_LLM_NS {
     };
 
     JSONContextPtr ChatModelFunction::Invoke(const JSONContextPtr &input) {
-        auto prompt_value = input->RequireMessage<PromptValue>(model_->options_.input_prompt_variable_key);
+        auto prompt_value = input->RequireMessage<PromptValue>();
         auto messages = details::conv_prompt_value_variant_to_message_list(prompt_value);
         auto batched_result = model_->Generate({messages});
 
         assert_non_empty_range(batched_result.generations(), "Empty response");
         assert_non_empty_range(batched_result.generations(0).generations(), "Empty response of first output");
 
-        input->PutMessage<Generation>(
-                model_->options_.output_answer_variable_key,
+        input->ProduceMessage<Generation>(
                 batched_result.generations(0).generations(0)
         );
         return input;
@@ -106,7 +105,7 @@ namespace INSTINCT_LLM_NS {
 
     AsyncIterator<JSONContextPtr> ChatModelFunction::Batch(const std::vector<JSONContextPtr> &input) {
         auto message_matrix_view = input | std::views::transform([&](const auto &ctx) {
-            auto prompt_value = ctx->template RequireMessage<PromptValue>(model_->options_.input_prompt_variable_key);
+            auto prompt_value = ctx->template RequireMessage<PromptValue>();
             return details::conv_prompt_value_variant_to_message_list(prompt_value);
         });
 
@@ -117,28 +116,28 @@ namespace INSTINCT_LLM_NS {
                | rpp::operators::map([&](const std::tuple<LangaugeModelResult, JSONContextPtr> &tuple) {
             JSONContextPtr output = std::get<1>(tuple);
             LangaugeModelResult mode_result = std::get<0>(tuple);
-            output->PutMessage(model_->options_.output_answer_variable_key, mode_result.generations(0));
+            output->ProduceMessage(mode_result.generations(0));
             return output;
         });
     }
 
     AsyncIterator<JSONContextPtr> ChatModelFunction::Stream(const JSONContextPtr &input) {
-        auto prompt_value = input->RequireMessage<PromptValue>(model_->options_.input_prompt_variable_key);
+        auto prompt_value = input->RequireMessage<PromptValue>();
         auto message_list = details::conv_prompt_value_variant_to_message_list(prompt_value);
 
         return model_->StreamGenerate(message_list)
                | rpp::operators::map([&](const LangaugeModelResult &result) {
-            input->PutMessage(model_->options_.output_answer_variable_key, result.generations(0));
+            input->ProduceMessage(result.generations(0));
             return input;
         });
     }
 
     std::vector<std::string> ChatModelFunction::GetInputKeys() const {
-        return {model_->options_.input_prompt_variable_key};
+        return {};
     }
 
     std::vector<std::string> ChatModelFunction::GetOutputKeys() const {
-        return {model_->options_.output_answer_variable_key};
+        return {};
     }
 
     ChatModelFunction::ChatModelFunction(ChatModelPtr model) : model_(std::move(model)) {}

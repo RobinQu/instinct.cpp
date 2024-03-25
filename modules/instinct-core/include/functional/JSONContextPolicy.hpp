@@ -19,6 +19,7 @@ namespace INSTINCT_CORE_NS {
         public:
             template<typename T>
             static T RequirePrimitive(const PayloadType& payload, const std::string& name) {
+                assert_true(payload.contains(name), fmt::format("key {} not found in payload", name));
                 return payload.at(name).get<T>();
             }
 
@@ -52,10 +53,11 @@ namespace INSTINCT_CORE_NS {
             template<typename T>
             static T RequireMessage(const PayloadType& payload, const std::string& name) {
                 // TODO use reflection instead
-                auto str = payload[name].dump();
+                assert_true(payload.contains(name), fmt::format("key {} not found in payload", name));
+                auto str = payload[name];
                 T result;
                 auto status = util::JsonStringToMessage(str, &result);
-                assert_true(status.ok());
+                assert_true(status.ok(), "message deserialization failed: " + status.message().ToString());
                 return result;
             }
 
@@ -64,7 +66,7 @@ namespace INSTINCT_CORE_NS {
                 // TODO use reflection instead
                 std::string buf;
                 auto status = util::MessageToJsonString(message, &buf);
-                assert_true(status.ok());
+                assert_true(status.ok(), "message serialization failed: " + status.message().ToString());
                 payload[name] = buf;
             }
 

@@ -45,7 +45,7 @@ Chat History:
 Follow Up Input: {question}
 Standalone question:)", {
                     .input_keys = {"chat_history", "question"},
-                    .output_keys = {"question"}
+//                    .output_keys = {"question"}
             });
         }
 

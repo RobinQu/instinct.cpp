@@ -3,9 +3,11 @@
 //
 #include <gtest/gtest.h>
 #include <unordered_map>
+#include <core.pb.h>
 #include "functional/Xn.hpp"
 
 namespace INSTINCT_CORE_NS  {
+
     class XnChainingTest : public ::testing::Test {
 
     protected:
@@ -39,6 +41,26 @@ namespace INSTINCT_CORE_NS  {
                 ctx->ProducePrimitive(i - i);
                 return ctx;
             });
+
+
+            fn6 = xn::steps::lambda([](const JSONContextPtr& ctx) {
+                Document doc;
+                doc.set_text("hello");
+                doc.set_id("1111");
+                ctx->ProduceMessage(doc);
+                return ctx;
+            });
+
+
+            fn7 = xn::steps::lambda([](const JSONContextPtr& ctx) {
+                auto doc = ctx->RequireMessage<Document>();
+                ctx->ProducePrimitive(doc.text());
+                return ctx;
+            });
+
+            fn8 = xn::steps::lambda([](const JSONContextPtr& ctx) {
+                return ctx;
+            });
         }
 
         StepFunctionPtr fn1;
@@ -46,6 +68,9 @@ namespace INSTINCT_CORE_NS  {
         StepFunctionPtr fn3;
         StepFunctionPtr fn4;
         StepFunctionPtr fn5;
+        StepFunctionPtr fn6;
+        StepFunctionPtr fn7;
+        StepFunctionPtr fn8;
     };
 
     TEST_F(XnChainingTest, TestSequenceChaining) {
@@ -100,5 +125,12 @@ namespace INSTINCT_CORE_NS  {
         ctx3->ProducePrimitive(2);
         auto result3 = xn4->Invoke(ctx3);
         ASSERT_EQ(result3->RequirePrimitive<int>(), 9);
+    }
+
+    TEST_F(XnChainingTest, TestWithMessages) {
+        auto xn1 = fn6 | fn7;
+        auto result1 = xn1->Invoke(CreateJSONContext());
+        ASSERT_EQ(result1->RequirePrimitive<std::string>(), "hello");
+
     }
 }

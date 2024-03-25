@@ -33,7 +33,7 @@ namespace  INSTINCT_RETRIEVAL_NS {
             retriever_ = CreateVectorStoreRetriever(vector_store);
             chat_memory_ = std::make_shared<EphemeralChatMemory>();
 
-            ChatModelPtr chat_model = instinct::test::create_local_chat_model();
+            ChatModelPtr chat_model = instinct::test::create_pesudo_chat_model();
 
             PromptTemplatePtr question_prompt_template = OllamaChat::CreateChatPromptTemplateBuilder()
                     ->AddHumanMessage(R"(
@@ -46,7 +46,7 @@ Standalone question:)")
 
 
             ChainOptions question_chain_options = {
-//                .input_keys = {"question"},
+//                .input_keys = {"question", "chat_history"},
 //                .output_keys = {"standalone_question"}
             };
 

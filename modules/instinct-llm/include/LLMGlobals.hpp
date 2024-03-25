@@ -65,8 +65,8 @@ namespace INSTINCT_LLM_NS {
 
 
     struct ModelOptions {
-        std::string input_prompt_variable_key = DEFAULT_QUESTION_INPUT_OUTPUT_KEY;
-        std::string output_answer_variable_key = DEFAULT_ANSWER_OUTPUT_KEY;
+//        std::string input_prompt_variable_key = DEFAULT_QUESTION_INPUT_OUTPUT_KEY;
+//        std::string output_answer_variable_key = DEFAULT_ANSWER_OUTPUT_KEY;
     };
 
 
