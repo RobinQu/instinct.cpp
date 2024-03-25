@@ -18,14 +18,10 @@ namespace INSTINCT_LLM_NS {
         }
 
         JSONContextPtr ParseInput(const PromptValueVariant &input) override {
-            return CreateJSONContext({
-                {
-                    GetOptions().question_variable_key,
-                    details::conv_prompt_value_variant_to_string(input)
-                }
-             });
+            auto ctx = CreateJSONContext();
+            ctx->ProducePrimitive(details::conv_prompt_value_variant_to_string(input));
+            return ctx;
         }
-
 
     };
 }

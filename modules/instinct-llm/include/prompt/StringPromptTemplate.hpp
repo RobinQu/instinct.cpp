@@ -19,15 +19,15 @@ namespace INSTINCT_LLM_NS {
     public:
         explicit StringPromptTemplate(const PromptTemplateOptions &options) : BasePromptTemplate(options) {}
 
-        PromptValue FormatPrompt(const JSONContextPtr& variables) override {
+        PromptValue FormatPrompt(const TemplateVariablesPtr& variables) override {
             PromptValue pv;
             pv.mutable_string()->CopyFrom(FormatStringPrompt(variables));
             return pv;
         }
 
-        std::string Format(const JSONContextPtr& variables) override = 0;
+        std::string Format(const TemplateVariablesPtr& variables) override = 0;
 
-        StringPromptValue FormatStringPrompt(const JSONContextPtr& variables) override {
+        StringPromptValue FormatStringPrompt(const TemplateVariablesPtr& variables) override {
             StringPromptValue spv;
             spv.set_text(Format(variables));
             return spv;

@@ -20,7 +20,8 @@ namespace  INSTINCT_RETRIEVAL_NS {
         void SetUp() override {
             SetupLogging();
 
-            embedding_model_ = instinct::test::create_local_embedding_model();
+            size_t dim = 4096;
+            embedding_model_ = instinct::test::create_pesudo_embedding_model(dim);
             const auto db_file_path = std::filesystem::temp_directory_path() / (
                                     ChronoUtils::GetCurrentTimestampString() + ".db");
 
@@ -28,7 +29,7 @@ namespace  INSTINCT_RETRIEVAL_NS {
                 .table_name = "rag_test_table",
                 .db_file_path = db_file_path,
                 // llama2:7b-chat has dimensions of 4096
-                .dimension = 4096
+                .dimension = dim
             });
             retriever_ = CreateVectorStoreRetriever(vector_store);
             chat_memory_ = std::make_shared<EphemeralChatMemory>();
@@ -61,8 +62,6 @@ Standalone question:)")
 {context}
 
 Question: {standalone_question}
-
-{format_instruction}
 )")
             ->Build();
 

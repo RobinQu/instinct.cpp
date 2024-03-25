@@ -23,7 +23,7 @@ namespace INSTINCT_LLM_NS {
                 : BaseChatPromptTemplate(options), messages_(messages) {}
 
 
-        MessageList FormatMessages(const JSONContextPtr& variables) override {
+        MessageList FormatMessages(const TemplateVariablesPtr& variables) override {
             MessageList message_list;
             for (const auto& message_like: messages_) {
                 if (std::holds_alternative<Message>(message_like)) {

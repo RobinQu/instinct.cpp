@@ -19,7 +19,6 @@ namespace INSTINCT_LLM_NS {
     struct PromptTemplateOptions {
         std::vector<std::string> input_keys = {};
 //        std::vector<std::string> output_keys = {DEFAULT_QUESTION_INPUT_OUTPUT_KEY};
-
     };
 
     class BasePromptTemplate:
@@ -31,18 +30,20 @@ namespace INSTINCT_LLM_NS {
 
     public:
         JSONContextPtr Invoke(const JSONContextPtr &input) override {
-            auto prompt_value = FormatPrompt(input);
-//            input->PutMessage(options_.output_keys[0], prompt_value);
+            auto mapping_data = input->RequireMappingData();
+            TemplateVariablesPtr variables = CreateTemplateVariable();
+
+            // only accepting primitive values
+            for(const auto& [k,v]: mapping_data) {
+                if(v->IsPrimitive()) {
+                    variables->emplace(k, v->GetValue());
+                } else {
+                    LOG_WARN("discard data with key {} as it's non-primitive value", k);
+                }
+            }
+            auto prompt_value = FormatPrompt(variables);
             input->ProduceMessage(prompt_value);
             return input;
-        }
-
-        [[nodiscard]] std::vector<std::string> GetInputKeys() const override {
-            return options_.input_keys;
-        }
-
-        [[nodiscard]] std::vector<std::string> GetOutputKeys() const override {
-            return {};
         }
 
     };

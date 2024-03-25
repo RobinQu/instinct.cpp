@@ -20,6 +20,7 @@ namespace INSTINCT_LLM_NS {
     };
 
     struct SaveMemoryFunctionOptions {
+        bool is_question_string;
         std::string prompt_variable_key = DEFAULT_QUESTION_INPUT_OUTPUT_KEY;
         std::string answer_variable_key = DEFAULT_ANSWER_OUTPUT_KEY;
     };
@@ -28,8 +29,8 @@ namespace INSTINCT_LLM_NS {
                            public virtual IConfigurable<ChatMemoryOptions>
             {
         ChatMemoryOptions options_;
-        StepFunctionPtr load_memory_function_;
-        StepFunctionPtr save_memory_function_;
+        StepFunctionPtr load_memory_function_{};
+        StepFunctionPtr save_memory_function_{};
     public:
         BaseChatMemory() = delete;
 
@@ -57,11 +58,19 @@ namespace INSTINCT_LLM_NS {
             return load_memory_function_;
         }
 
-        [[nodiscard]] StepFunctionPtr  AsSaveMemoryFunction(const SaveMemoryFunctionOptions& options) {
-            return std::make_shared<LambdaStepFunction>([&](const JSONContextPtr &context) {
-                auto generation = context->RequireMessage<Generation>(options.answer_variable_key);
-                auto prompt = context->RequireMessage<PromptValue>(options.prompt_variable_key);
-                this->SaveMemory(prompt, generation);
+        [[nodiscard]] StepFunctionPtr AsSaveMemoryFunction(const SaveMemoryFunctionOptions& options) {
+            return std::make_shared<LambdaStepFunction>([&, options](const JSONContextPtr &context) {
+                auto mapping_data = context->RequireMappingData();
+                auto generation = mapping_data.at(options.answer_variable_key)->RequireMessage<Generation>();
+                if(options.is_question_string) {
+                    auto question = mapping_data.at(options.prompt_variable_key)->RequirePrimitive<std::string>();
+                    PromptValue pv;
+                    pv.mutable_string()->set_text(question);
+                    this->SaveMemory(pv, generation);
+                } else {
+                    auto question = mapping_data.at(options.prompt_variable_key)->RequireMessage<PromptValue>();
+                    this->SaveMemory(question, generation);
+                }
                 return context;
             });
         }

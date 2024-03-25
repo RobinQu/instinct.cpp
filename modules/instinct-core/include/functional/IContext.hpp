@@ -7,6 +7,9 @@
 
 #include <memory>
 #include "CoreGlobals.hpp"
+#include "tools/Assertions.hpp"
+
+
 
 namespace INSTINCT_CORE_NS {
     template<typename ContextPolicy>
@@ -15,97 +18,64 @@ namespace INSTINCT_CORE_NS {
     template<typename ContextPolicy>
     using ContextPtr = std::shared_ptr<IContext<ContextPolicy>>;
 
-    static const std::string RETURN_VALUE_VARIABLE_KEY = "__return_value__";
+
+    template<typename ContextPolicy>
+    using MappingContext = std::unordered_map<std::string, ContextPtr<ContextPolicy>>;
 
     template<typename ContextPolicy>
     class IContext final {
-        ContextPolicy::PayloadType payload_;
+        ContextPolicy policy_;
     public:
-        IContext(IContext&& context)  noexcept {
-            this->payload_ = std::move(context.payload_);
-        }
 
-        IContext(const IContext& context) {
-            this->payload_ = context.payload_;
-        }
+        explicit IContext(ContextPolicy policy) : policy_(policy) {}
 
-        explicit IContext(ContextPolicy::PayloadType payload) : payload_(std::move(payload)) {
-
-        }
-
-        const ContextPolicy::PayloadType& GetPayload() const {
-            return payload_;
-        }
-
-        ContextPolicy::PayloadType& GetPayload() {
-            return payload_;
+        const ContextPolicy::ValueType& GetValue() const {
+            return policy_.GetValue();
         }
 
         template<typename T>
         T RequirePrimitive() {
-            return RequirePrimitive<T>(RETURN_VALUE_VARIABLE_KEY);
-        }
-
-        template<typename T>
-        T RequireMessage() {
-            return RequireMessage<T>(RETURN_VALUE_VARIABLE_KEY);
-        }
-
-        template<typename T>
-        void ProduceMessage(const T& message) {
-            return PutMessage<T>(RETURN_VALUE_VARIABLE_KEY, message);
+            return policy_.template RequirePrimitive<T>();
         }
 
         template<typename T>
         void ProducePrimitive(T&& value) {
-            return PutPrimitive<T>(RETURN_VALUE_VARIABLE_KEY, std::forward<T>(value));
+            policy_.template PutValue<T>(std::forward<T>(value));
         }
 
         template<typename T>
-        T RequirePrimitive(const std::string& name) const {
-            return ContextPolicy::ManagerType::template RequirePrimitive<T>(payload_, name);
+        [[nodiscard]] T RequireMessage() const {
+            return policy_.template RequireMessage<T>();
         }
 
         template<typename T>
-        T RequireMessage(const std::string& name) const {
-            return ContextPolicy::ManagerType::template RequireMessage<T>(payload_, name);
-        }
-
-//        template<typename T>
-//        void PutMessage(const std::string& name, T&& message) {
-//
-//        }
-
-        template<typename T>
-        void PutMessage(const std::string& name, const T& message) {
-            return ContextPolicy::ManagerType::template PutMessage<T>(payload_, name, message);
-        }
-
-        [[nodiscard]] bool Contains(const std::string& name) const {
-            return ContextPolicy::ManagerType::Contains(payload_, name);
+        void ProduceMessage(T&& message) {
+            policy_.PutMessage(std::forward<T>(message));
         }
 
         template<typename T>
-        T RequirePrimitiveAt(const std::string& data_path) const {
-            return ContextPolicy::ManagerType::template RequirePrimitiveAt<T>(payload_, data_path);
+        void ProduceMessage(const T& message) {
+            policy_.PutMessage(message);
         }
 
-        template<typename T>
-        void PutPrimitive(const std::string& name, T&& value) {
-            ContextPolicy::ManagerType::template PutPrimitive<T>(payload_, name, std::forward<T>(value));
+        void ProduceMappingData(const MappingContext<ContextPolicy>& mapping_data) {
+            policy_.PutMappingObject(mapping_data);
         }
 
-        template<typename T>
-        void PutPrimitiveAt(const std::string& data_path, T&& value) {
-            ContextPolicy::ManagerType::template PutPrimitiveAt<T>(payload_, data_path, std::forward<T>(value));
+        [[nodiscard]] MappingContext<ContextPolicy> RequireMappingData() const {
+            return policy_.GetMappingObject();
         }
 
-        void PutContext(const std::string& name, const IContext<ContextPolicy>& child_context) {
-            ContextPolicy::ManagerType::PutObject(payload_, name, child_context.payload_);
+        [[nodiscard]] bool IsPrimitive() const {
+            return policy_.IsPrimitive();
         }
 
-        void MergeContext(const IContext<ContextPolicy>& child_context) {
-            ContextPolicy::ManagerType::MergeObject(payload_, child_context.payload_);
+        [[nodiscard]] bool IsMessage() const {
+            return policy_.IsMessage();
+        }
+
+        [[nodiscard]] bool IsMappingObject() const {
+            return policy_.IsMappingObject();
         }
 
     };

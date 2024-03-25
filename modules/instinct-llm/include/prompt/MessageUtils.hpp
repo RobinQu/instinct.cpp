@@ -49,10 +49,11 @@ namespace INSTINCT_LLM_NS {
 
         static std::string FormatString(
                 const std::string& msg,
-                const JSONContextPtr & context) {
+                const TemplateVariablesPtr & context) {
+            LOG_DEBUG("FormatPrompt {} with variables: {}", msg, context->dump());
             fmt::dynamic_format_arg_store<fmt::format_context> store;
             // assuming `context` has depth of one
-            for(const auto& [k,v]: context->GetPayload().items()) {
+            for(const auto& [k,v]: context->items()) {
                 if (v.is_number_integer()) {
                     store.push_back(fmt::arg(k.c_str(), v.get<long>()));
                 }

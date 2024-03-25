@@ -140,4 +140,36 @@ namespace INSTINCT_LLM_NS {
 }
 
 
+namespace xn::steps {
+    using namespace INSTINCT_CORE_NS;
+    using namespace INSTINCT_LLM_NS;
+
+    class GenerationToStringFunction final: public BaseStepFunction {
+    public:
+        JSONContextPtr Invoke(const JSONContextPtr &input) override {
+            auto generation = input->RequireMessage<Generation>();
+            input->ProducePrimitive(generation.has_message() ? generation.message().content() : generation.text());
+            return input;
+        }
+    };
+
+    class CombineMessageList final: public BaseStepFunction {
+    public:
+        JSONContextPtr Invoke(const JSONContextPtr &input) override {
+            auto message_list = input->RequireMessage<MessageList>();
+            input->ProducePrimitive(MessageUtils::CombineMessages(message_list.messages()));
+            return input;
+        }
+    };
+
+    static StepFunctionPtr stringify_generation() {
+        return std::make_shared<GenerationToStringFunction>();
+    }
+
+    static StepFunctionPtr combine_chat_history() {
+        return std::make_shared<CombineMessageList>();
+    }
+}
+
+
 #endif //INSTINCT_MESSAGECHAIN_HPP

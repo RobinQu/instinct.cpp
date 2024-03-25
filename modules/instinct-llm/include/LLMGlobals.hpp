@@ -48,6 +48,16 @@ namespace INSTINCT_LLM_NS {
     static const std::string DEFAULT_STANDALONE_QUESTION_INPUT_KEY = "standalone_question";
 
 
+    using TemplateVariables = nlohmann::json;
+    using TemplateVariablesPtr = std::shared_ptr<TemplateVariables>;
+
+    using PromptExample = nlohmann::json;
+    using PromptExamples = std::vector<PromptExample>;
+
+    static TemplateVariablesPtr CreateTemplateVariable() {
+        return std::make_shared<TemplateVariables>(nlohmann::json::parse("{}"));
+    }
+
 
 
     inline std::ostream& operator<<(std::ostream& ostrm, const Message& msg) {

@@ -69,25 +69,25 @@ namespace INSTINCT_LLM_NS {
         StepFunctionPtr step_function;
         if (chat_memory) {
             auto context_fn = xn::steps::mapping({
-                {"format_instruction", xn::reducers::return_value(output_parser->AsInstructorFunction())},
-                {"chat_history", xn::reducers::return_value(chat_memory->AsLoadMemoryFunction())},
-                {"question", xn::reducers::selection("question")}
+                {"format_instruction", output_parser->AsInstructorFunction()},
+                {"chat_history", chat_memory->AsLoadMemoryFunction()},
+                {"question", xn::steps::passthrough()}
             });
-
-
             step_function =  xn::steps::mapping({
-              {"answer", xn::reducers::return_value(context_fn | prompt_template | model_function)},
-              {"question", xn::reducers::selection("question")}
+              {"answer", context_fn | prompt_template | model_function},
+              {"question", xn::steps::selection("question")}
             })
-            | chat_memory->AsSaveMemoryFunction({.prompt_variable_key="question", .answer_variable_key="answer"})
-             | xn::steps::reducer("answer");
+            | chat_memory->AsSaveMemoryFunction({.is_question_string=true, .prompt_variable_key="question", .answer_variable_key="answer"})
+            | xn::steps::selection("answer");
 
         } else {
-            step_function = xn::steps::mapping({
-                                                       {"format_instruction", xn::reducers::return_value(
-                                                               output_parser->AsInstructorFunction())},
-                                                       {"question",           xn::reducers::selection("question")}
-                                               })
+            step_function = xn::steps::mapping(
+                    {
+                       {"format_instruction",
+                               output_parser->AsInstructorFunction()},
+                       {"question",           xn::steps::passthrough()}
+
+                    })
             | prompt_template
             | model_function;
         }

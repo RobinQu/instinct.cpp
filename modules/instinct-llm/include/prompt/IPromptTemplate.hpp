@@ -13,15 +13,18 @@
 
 
 namespace INSTINCT_LLM_NS {
+
+
+
     class IPromptTemplate {
     public:
         virtual ~IPromptTemplate() = default;
 
-        virtual PromptValue FormatPrompt(const JSONContextPtr& variables) = 0;
+        virtual PromptValue FormatPrompt(const TemplateVariablesPtr& variables) = 0;
 
-        virtual std::string Format(const JSONContextPtr& variables) = 0;
+        virtual std::string Format(const TemplateVariablesPtr& variables) = 0;
 
-        virtual StringPromptValue FormatStringPrompt(const JSONContextPtr& variables) = 0;
+        virtual StringPromptValue FormatStringPrompt(const TemplateVariablesPtr& variables) = 0;
 
     };
 

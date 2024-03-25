@@ -21,8 +21,7 @@ namespace INSTINCT_LLM_NS {
         PlainPromptTemplate(std::string templateString, const PromptTemplateOptions &options)
                 : StringPromptTemplate(options), template_string_(std::move(templateString)) {}
 
-
-        std::string Format(const JSONContextPtr & variables) override {
+        std::string Format(const TemplateVariablesPtr & variables) override {
             return MessageUtils::FormatString(this->template_string_, variables);
         }
     };

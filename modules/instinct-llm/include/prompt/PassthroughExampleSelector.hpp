@@ -17,7 +17,7 @@ namespace INSTINCT_LLM_NS {
             : MutableExampleSelector(std::move(example_prompt_template)) {
         }
 
-        PromptExamples SelectExamples(const JSONContextPtr & variables) override {
+        PromptExamples SelectExamples(const TemplateVariablesPtr & variables) override {
             return GetAllExamples();
         }
     };

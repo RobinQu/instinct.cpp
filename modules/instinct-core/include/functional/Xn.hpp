@@ -11,22 +11,22 @@
 
 namespace xn {
     using namespace INSTINCT_CORE_NS;
-    using context_reducer_map = std::unordered_map<std::string, JSONContextReducer>;
+    using context_function_map = std::unordered_map<std::string, StepFunctionPtr>;
     namespace steps {
         static StepFunctionPtr sequence(const std::vector<StepFunctionPtr> &steps) {
             return std::make_shared<SequenceStepFunction>(steps);
         }
 
-        static StepFunctionPtr mapping(const context_reducer_map& steps) {
+        static StepFunctionPtr mapping(const context_function_map& steps) {
             return std::make_shared<MappingStepFunction>(steps);
         }
 
-        static StepFunctionPtr reducer(const std::string& name) {
-            return std::make_shared<ReducerStepFunction>(name);
+        static StepFunctionPtr selection(const std::string& name) {
+            return std::make_shared<SelectionStepFunction>(name);
         }
 
-        static StepFunctionPtr empty() {
-            return std::make_shared<EmptyStepFunction>();
+        static StepFunctionPtr passthrough() {
+            return std::make_shared<PassthroughStepFunction>();
         }
 
         static StepFunctionPtr lambda(const StepLambda& lambda) {
@@ -34,16 +34,6 @@ namespace xn {
         }
 
     }
-    namespace reducers {
-        static JSONContextReducer return_value(const StepFunctionPtr& step_function) {
-            return FunctionReducer(step_function);
-        }
-
-        static JSONContextReducer selection(const std::string& name) {
-            return GetterReducer(name);
-        }
-    }
-
 }
 
 /**
@@ -68,7 +58,7 @@ inline INSTINCT_CORE_NS::StepFunctionPtr operator|(const INSTINCT_CORE_NS::StepF
         steps.push_back(second);
     }
     if (steps.empty()) {
-        return std::make_shared<INSTINCT_CORE_NS::EmptyStepFunction>();
+        return std::make_shared<INSTINCT_CORE_NS::PassthroughStepFunction>();
     }
     return std::make_shared<INSTINCT_CORE_NS::SequenceStepFunction>(steps);
 }
@@ -84,7 +74,7 @@ inline INSTINCT_CORE_NS::StepFunctionPtr operator|(const INSTINCT_CORE_NS::StepF
 }
 
 inline INSTINCT_CORE_NS::StepFunctionPtr operator|(
-        const xn::context_reducer_map& first,
+        const xn::context_function_map& first,
         const INSTINCT_CORE_NS::StepFunctionPtr &second
 ) {
     const auto mapping = std::make_shared<INSTINCT_CORE_NS::MappingStepFunction>(first);
@@ -93,7 +83,7 @@ inline INSTINCT_CORE_NS::StepFunctionPtr operator|(
 
 inline INSTINCT_CORE_NS::StepFunctionPtr operator|(
         const INSTINCT_CORE_NS::StepFunctionPtr &first,
-        const xn::context_reducer_map& second
+        const xn::context_function_map& second
 ) {
     const auto mapping = std::make_shared<INSTINCT_CORE_NS::MappingStepFunction>(second);
     return first | mapping;

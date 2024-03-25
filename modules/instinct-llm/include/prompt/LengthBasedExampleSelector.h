@@ -21,7 +21,7 @@ namespace INSTINCT_LLM_NS {
         static int DEFAULT_MAX_LENGTH = 25;
     }
 
-    class LengthBasedExampleSelector : public MutableExampleSelector {
+    class LengthBasedExampleSelector final: public MutableExampleSelector {
         size_t max_length_;
         ExampleLengthFunction length_function_;
         std::vector<size_t> lengths_;
@@ -39,26 +39,21 @@ namespace INSTINCT_LLM_NS {
 
         void AddExample(const PromptExample& example) override {
             MutableExampleSelector::AddExample(example);
-            auto ctx = CreateJSONContext();
-            for (const auto& entry: example.values()) {
-                ctx->mutable_values()->insert(entry);
-            }
-            lengths_.push_back(length_function_(example_prompt_template_->Format(ctx)));
+            TemplateVariablesPtr variables = std::make_shared<TemplateVariables>(example);
+            lengths_.push_back(length_function_(example_prompt_template_->Format(variables)));
         }
 
-        PromptExamples SelectExamples(const JSONContextPtr & variables) override {
+        PromptExamples SelectExamples(const TemplateVariablesPtr & variables) override {
             size_t remaining = max_length_;
             int i = 0;
-            const size_t size = examples_.values_size();
+            const size_t size = examples_.size();
             PromptExamples prompt_examples;
             while (remaining > 0 and i < size) {
-                size_t len = remaining - lengths_[i];
-                if (len < 0) {
+                if (remaining - lengths_[i] < 0) {
                     break;
                 }
                 remaining -= lengths_[i];
-                prompt_examples.add_values()
-                        ->CopyFrom(examples_.values(i));
+                prompt_examples.push_back(examples_[i]);
                 i++;
             }
             return prompt_examples;

@@ -46,9 +46,9 @@ namespace INSTINCT_LLM_NS {
                 suffix_(options.suffix)
                 {}
 
-        std::string Format(const JSONContextPtr & variables) override {
+        std::string Format(const TemplateVariablesPtr & variables) override {
             auto examples = example_selector_->SelectExamples(variables);
-            auto example_strings_view = examples.values() | std::views::transform([&](const auto& v) -> std::string {
+            auto example_strings_view = examples | std::views::transform([&](const auto& v) -> std::string {
                 return example_prompt_template_->Format(variables);
             });
             std::vector parts = {prefix_};

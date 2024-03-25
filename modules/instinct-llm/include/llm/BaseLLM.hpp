@@ -29,9 +29,9 @@ namespace INSTINCT_LLM_NS {
 
         AsyncIterator<JSONContextPtr> Stream(const JSONContextPtr &input) override;
 
-        [[nodiscard]] std::vector<std::string> GetInputKeys() const override;
-
-        [[nodiscard]] std::vector<std::string> GetOutputKeys() const override;
+//        [[nodiscard]] std::vector<std::string> GetInputKeys() const override;
+//
+//        [[nodiscard]] std::vector<std::string> GetOutputKeys() const override;
     };
 
 
@@ -87,7 +87,6 @@ namespace INSTINCT_LLM_NS {
         }
 
         StepFunctionPtr AsModelFunction()  {
-//            return model_function_;
             return std::make_shared<LLMStepFunction>(shared_from_this());;
         }
 
@@ -107,7 +106,7 @@ namespace INSTINCT_LLM_NS {
     }
 
     AsyncIterator<instinct::core::JSONContextPtr> LLMStepFunction::Batch(const std::vector<JSONContextPtr> &input) {
-        auto prompts_view = input | std::views::transform([&](const auto &ctx) {
+        auto prompts_view = input | std::views::transform([&](const JSONContextPtr &ctx) {
             auto prompt = ctx->template RequirePrimitive<std::string>();
             return details::conv_prompt_value_variant_to_string(prompt);
         });
@@ -134,13 +133,6 @@ namespace INSTINCT_LLM_NS {
         });
     }
 
-    [[nodiscard]] std::vector<std::string> LLMStepFunction::GetInputKeys() const {
-        return {};
-    }
-
-    [[nodiscard]] std::vector<std::string> LLMStepFunction::GetOutputKeys() const {
-        return {};
-    }
 
 
 }

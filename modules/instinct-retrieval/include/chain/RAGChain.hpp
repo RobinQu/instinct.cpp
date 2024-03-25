@@ -13,7 +13,6 @@
 #include "retrieval/BaseRetriever.hpp"
 #include "retrieval/DocumentUtils.hpp"
 #include "functional/Xn.hpp"
-#include "functional/Op.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
@@ -29,14 +28,15 @@ namespace INSTINCT_RETRIEVAL_NS {
      * @param options RAG related options
      * @return
      */
-    static StepFunctionPtr CreateConversationalRAG(
+    static TextChainPtr CreateTextRAGChain(
             const RetrieverPtr &retriever,
             const ChatModelPtr &model,
             const ChatMemoryPtr &chat_memory,
             PromptTemplatePtr question_prompt_template = nullptr,
             PromptTemplatePtr answer_prompt_template = nullptr,
             const RAGChainOptions &options = {}
-    ) {
+            ) {
+
         if (!question_prompt_template) {
             question_prompt_template = CreatePlainPromptTemplate(R"(
 Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
@@ -55,56 +55,45 @@ Standalone question:)", {
 
 Question: {standalone_question}
 
-{format_instruction}
-)", {.input_keys= {"context", "standalone_question", "format_instruction"}});
+)", {.input_keys= {"context", "standalone_question"}});
         }
+        auto input_parser = std::make_shared<PromptValueVariantInputParser>();
+        auto output_parser = std::make_shared<StringOutputParser>();
+
         auto question_fn = xn::steps::mapping({
-            {
-                "standalone_question", xn::reducers::return_value(xn::steps::mapping({
-                    {"question",     xn::reducers::selection("question")},
-                    {"chat_history", xn::reducers::return_value(chat_memory->AsLoadMemoryFunction())}
-                }) | question_prompt_template | model->AsModelfunction() | xn::ops::stringify_generation())
-            }
-        });
+                                                      {
+                                                              "standalone_question", xn::steps::mapping({
+                                                                                                                {"question",     xn::steps::passthrough()},
+                                                                                                                {"chat_history", chat_memory->AsLoadMemoryFunction() | xn::steps::combine_chat_history()}
+                                                                                                        }) | question_prompt_template | model->AsModelfunction() | xn::steps::stringify_generation()
+                                                      },
+                                                      {
+                                                              "question", xn::steps::passthrough()
+                                                      }
+                                              });
 
         auto context_fn = xn::steps::mapping({
-                                                            {"context",             xn::reducers::return_value(
-                                                                    retriever->AsContextRetrieverFunction(
-                                                                            {.text_query_variable_key = "standalone_question"}))},
-                                                            {"standalone_question", xn::reducers::selection(
-                                                                    "standalone_question")},
-                                                            {"question",            xn::reducers::selection("question")}
-                                                    });
-
+                                                     {"context", xn::steps::selection("question") | retriever->AsContextRetrieverFunction()},
+                                                     {"standalone_question", xn::steps::selection("standalone_question")},
+                                                     {"question",            xn::steps::selection("question")},
+                                             });
 
         auto answer_fn = xn::steps::mapping({
-                                                           {"answer",   xn::reducers::return_value(
-                                                                   answer_prompt_template | model->AsModelfunction())},
-                                                           {"question", xn::reducers::selection("question")}
-                                                   });
+                                                    {"answer",   answer_prompt_template | model->AsModelfunction()},
+                                                    {"question", xn::steps::selection("question")}
+                                            });
 
-
-        return question_fn
+        auto fn = question_fn
                | context_fn
                | answer_fn
                | chat_memory->AsSaveMemoryFunction(
-                {.prompt_variable_key = "question", .answer_variable_key = "answer"})
-                | xn::steps::reducer("answer");
-    }
+                {.is_question_string = true, .prompt_variable_key = "question", .answer_variable_key = "answer"})
+               | xn::steps::selection("answer");
 
-    static TextChainPtr CreateTextRAGChain(
-            const RetrieverPtr &retriever,
-            const ChatModelPtr &model,
-            const ChatMemoryPtr &chat_memory,
-            const PromptTemplatePtr& question_prompt_template = nullptr,
-            const PromptTemplatePtr& answer_prompt_template = nullptr,
-            const RAGChainOptions &options = {}
-            ) {
-        auto fn = CreateConversationalRAG(retriever, model, chat_memory, question_prompt_template, answer_prompt_template, options);
-        InputParserOptions input_parser_options = {.question_variable_key="question"};
+
         return CreateFunctionalChain<PromptValueVariant,std::string>(
-                std::make_shared<PromptValueVariantInputParser>(input_parser_options),
-                std::make_shared<StringOutputParser>(),
+                input_parser,
+                output_parser,
                 fn,
                 options.base_options
                 );

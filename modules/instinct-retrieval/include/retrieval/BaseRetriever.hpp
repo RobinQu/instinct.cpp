@@ -13,7 +13,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
 
     struct RetrieverFunctionOptions {
-        std::string text_query_variable_key = "query";
+//        std::string text_query_variable_key = "query";
         int top_k = 10;
     };
 
@@ -24,7 +24,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         [[nodiscard]] StepFunctionPtr AsContextRetrieverFunction(const RetrieverFunctionOptions& options = {}) const {
             return std::make_shared<LambdaStepFunction>([&](const JSONContextPtr &ctx) {
-                    const auto question_string = ctx->RequirePrimitive<std::string>(options.text_query_variable_key);
+                    const auto question_string = ctx->RequirePrimitive<std::string>();
                     const auto doc_itr = Retrieve({.text = question_string, .top_k = options.top_k});
                     std::string context_string = DocumentUtils::CombineDocuments(doc_itr);
                     ctx->ProducePrimitive(context_string);

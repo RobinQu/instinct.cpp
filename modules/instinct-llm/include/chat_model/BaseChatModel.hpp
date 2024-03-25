@@ -32,9 +32,6 @@ namespace INSTINCT_LLM_NS {
 
         AsyncIterator<JSONContextPtr> Stream(const JSONContextPtr &input) override;
 
-        [[nodiscard]] std::vector<std::string> GetInputKeys() const override;
-
-        [[nodiscard]] std::vector<std::string> GetOutputKeys() const override;
     };
 
 
@@ -132,13 +129,7 @@ namespace INSTINCT_LLM_NS {
         });
     }
 
-    std::vector<std::string> ChatModelFunction::GetInputKeys() const {
-        return {};
-    }
 
-    std::vector<std::string> ChatModelFunction::GetOutputKeys() const {
-        return {};
-    }
 
     ChatModelFunction::ChatModelFunction(ChatModelPtr model) : model_(std::move(model)) {}
 
