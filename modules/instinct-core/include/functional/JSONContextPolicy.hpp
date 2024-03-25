@@ -53,7 +53,7 @@ namespace INSTINCT_CORE_NS {
             // TODO use reflection instead
             assert_true(IsMessage(), "expecting a message wrapper type");
             T result;
-            auto status = util::JsonStringToMessage(data_.at(MESSAGE_WRAPPER_DATA_KEY), &result);
+            auto status = util::JsonStringToMessage(data_.at(MESSAGE_WRAPPER_DATA_KEY).template get<std::string>(), &result);
             assert_true(status.ok(), "message deserialization failed: " + status.message().ToString());
             return result;
         }
@@ -130,17 +130,26 @@ namespace INSTINCT_CORE_NS {
         }
         return result;
     }
-//
-//    static std::string DumpJSONContext(const JSONContextPtr& context) {
-//        return context->GetPayload().dump();
-//    }
-//
-//
-//    JSONContextPolicy::PayloadType CreateMappingObject() {
-//        return nlohmann::json{};
-//    }
 
+    static JSONObject SanitizeJSONContext(const JSONContextPtr& context) {
+        if (context->IsMessage()) {
+            return nlohmann::json::parse(context->GetValue().at(MESSAGE_WRAPPER_DATA_KEY).template get<std::string>());
+        }
+        if(context->IsMappingObject()) {
+            JSONObject sanitized;
+            auto mapping_data = context->RequireMappingData();
+            for(const auto &[k,v]: mapping_data) {
+                sanitized[k] = SanitizeJSONContext(v);
+            }
+            return sanitized;
+        }
+        // primitive
+        return context->GetValue();
+    }
 
+    static std::string DumpJSONContext(const JSONContextPtr& context) {
+        return SanitizeJSONContext(context).dump();
+    }
 
 }
 

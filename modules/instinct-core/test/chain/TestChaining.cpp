@@ -88,36 +88,37 @@ namespace INSTINCT_CORE_NS  {
     TEST_F(XnChainingTest, TestMappingChaining) {
         // using explict construction
         auto xn1 = xn::steps::mapping({
-            {"fn2", xn::reducers::return_value(fn2) },
-            {"fn3", xn::reducers::return_value(fn3)},
-            {"fn4", xn::reducers::return_value(fn4)}
+            {"fn2", fn2 },
+            {"fn3", fn3},
+            {"fn4", fn4}
         });
         auto xn2 = xn::steps::sequence({fn1, xn1});
         auto result1 = xn2->Invoke(CreateJSONContext());
-        ASSERT_EQ(result1->RequirePrimitive<int>("fn2"), 1);
-        ASSERT_EQ(result1->RequirePrimitive<int>("fn3"), 2);
-        ASSERT_EQ(result1->RequirePrimitive<int>("fn4"), 1);
+        ASSERT_EQ(result1->RequireMappingData().at("fn2")->RequirePrimitive<int>(), 1);
+        ASSERT_EQ(result1->RequireMappingData().at("fn3")->RequirePrimitive<int>(), 2);
+        ASSERT_EQ(result1->RequireMappingData().at("fn4")->RequirePrimitive<int>(), 1);
 
         // using | operator on right-hand side
-        auto xn3 = (fn1 | xn::context_reducer_map {
-                {"fn2", xn::reducers::return_value(fn2) },
-                {"fn3", xn::reducers::return_value(fn3)},
-                {"fn4", xn::reducers::return_value(fn4)}
+        auto xn3 = fn1 | xn::steps::mapping( {
+                {"fn2", fn2 },
+                {"fn3", fn3},
+                {"fn4", fn4}
         });
         auto result2 = xn3->Invoke(CreateJSONContext());
 
-        ASSERT_EQ(result1->GetPayload().dump(), result2->GetPayload().dump());
+        ASSERT_EQ(result1->GetValue().dump(), result2->GetValue().dump());
 
 
         // using | operator on left-hand side
-        auto xn4 = xn::context_reducer_map {
-                {"fn2", xn::reducers::return_value(fn2) },
-                {"fn3", xn::reducers::return_value(fn3)},
-                {"fn4", xn::reducers::return_value(fn4)}
-        } | xn::steps::lambda([](const JSONContextPtr& ctx) {
-            int i = ctx->RequirePrimitive<int>("fn2") // 4
-                        + ctx->RequirePrimitive<int>("fn3") //  4
-                            + ctx->RequirePrimitive<int>("fn4"); // 1
+        auto xn4 = xn::steps::mapping( {
+                {"fn2", fn2 },
+                {"fn3", fn3},
+                {"fn4", fn4}
+        }) | xn::steps::lambda([](const JSONContextPtr& ctx) {
+            auto mapping_data = ctx->RequireMappingData();
+            int i = mapping_data.at("fn2")->RequirePrimitive<int>() // 4
+                        + mapping_data.at("fn3")->RequirePrimitive<int>() //  4
+                            + mapping_data.at("fn4")->RequirePrimitive<int>(); // 1
             ctx->ProducePrimitive(i);
             return ctx;
         });
