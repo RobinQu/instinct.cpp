@@ -128,3 +128,7 @@ add_subdirectory(modules/instinct-core)
 add_subdirectory(modules/instinct-llm)
 add_subdirectory(modules/instinct-retrieval)
 add_subdirectory(modules/instinct-server)
+
+# examples
+add_subdirectory(modules/instinct-examples/chat-doc)
+

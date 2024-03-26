@@ -5,8 +5,9 @@ set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
 set(${LIBRARY_TARGET_NAME}_HDR
         include/ServerGlobals.hpp
-        include/http/IChainServer.hpp
+        include/http/IManagedServer.hpp
         include/http/MultiChainServer.hpp
+        include/http/HttpLibServer.hpp
 )
 
 add_library(
@@ -24,7 +25,7 @@ target_include_directories(${LIBRARY_TARGET_NAME}
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
-        instinct::retrieval
+        instinct::core
         httplib::httplib
 )
 
