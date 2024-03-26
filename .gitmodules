@@ -1,6 +1,3 @@
 [submodule "thirdparty/ReactivePlusPlus"]
 	path = thirdparty/ReactivePlusPlus
 	url = git@github.com:victimsnino/ReactivePlusPlus.git
-[submodule "thirdparty/duckdb"]
-	path = thirdparty/duckdb
-	url = https://github.com/duckdb/duckdb.git
