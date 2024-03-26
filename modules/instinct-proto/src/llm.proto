@@ -332,6 +332,9 @@ message OpenAIChatCompletionRequest {
 }
 
 
+/**
+https://platform.openai.com/docs/api-reference/chat/object
+ */
 message OpenAIChatCompletionResponse {
   /**
   A unique identifier for the chat completion.
@@ -361,7 +364,7 @@ message OpenAIChatCompletionResponse {
     /**
     Log probability information for the choice.
      */
-    repeated OpenAIChatCompletionLogProbs logprobs = 4;
+    OpenAIChatCompletionLogProbs logprobs = 4;
 
   }
 
@@ -415,7 +418,7 @@ message OpenAIChatCompletionLogProbs {
   /**
   A list of message content tokens with log probability information.
    */
-  OpenAIChatCompletionLogProbItem content = 1;
+  repeated OpenAIChatCompletionLogProbItem content = 1;
   message OpenAIChatCompletionLogProbItem {
     /**
     The token

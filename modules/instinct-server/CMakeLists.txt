@@ -8,6 +8,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/http/IManagedServer.hpp
         include/http/MultiChainServer.hpp
         include/http/HttpLibServer.hpp
+        include/http/OpenAICompatibleAPIServer.hpp
 )
 
 add_library(
