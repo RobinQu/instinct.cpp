@@ -75,6 +75,11 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
 
+    static IngestorPtr CreateDOCXFileIngestor(const std::filesystem::path& file_path) {
+        return std::make_shared<DOCXFileIngestor>(file_path);
+    }
+
+
 
 }
 

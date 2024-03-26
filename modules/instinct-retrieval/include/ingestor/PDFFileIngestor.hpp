@@ -164,6 +164,10 @@ INSTINCT_RETRIEVAL_NS {
             });
         }
     };
+
+    static IngestorPtr CreatePDFFileIngestor(const std::filesystem::path& file_path, const std::string& password = "") {
+        return std::make_shared<PDFFileIngestor>(file_path, password);
+    }
 }
 
 

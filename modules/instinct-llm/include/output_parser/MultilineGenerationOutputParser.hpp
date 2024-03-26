@@ -18,8 +18,6 @@ namespace INSTINCT_LLM_NS {
     class MultilineGenerationOutputParse final: public BaseOutputParser<MultilineGeneration> {
 
     public:
-        explicit MultilineGenerationOutputParse(const OutputParserOptions &options = {}) : BaseOutputParser<MultilineGeneration>(options) {}
-
 
         MultilineGeneration ParseResult(const Generation &generation) override {
             MultilineGeneration multiline;

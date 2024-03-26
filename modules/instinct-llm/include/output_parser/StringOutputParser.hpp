@@ -10,8 +10,6 @@
 
 namespace INSTINCT_LLM_NS {
     class StringOutputParser: public BaseOutputParser<std::string> {
-    public:
-        explicit StringOutputParser(const OutputParserOptions &options = {}) : BaseOutputParser(options) {}
 
     public:
         std::string ParseResult(const Generation &generation) override {

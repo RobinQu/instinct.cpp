@@ -6,10 +6,15 @@
 #define OPENAICOMPATIBLEAPISERVER_HPP
 
 
+#include <utility>
+
 #include "HttpLibServer.hpp"
 #include "ServerGlobals.hpp"
+#include "chain/LLMChain.hpp"
 #include "chain/MessageChain.hpp"
 #include "chat_model/OpenAIChat.hpp"
+#include "input_parser/OpenAIChatCompletionRequestInputParser.hpp"
+#include "output_parser/OpenAIChatCompletionResponseOutputParser.hpp"
 #include "tools/ChronoUtils.hpp"
 
 namespace INSTINCT_SERVER_NS {
@@ -37,15 +42,20 @@ namespace INSTINCT_SERVER_NS {
         }
     }
 
+    using OpenAIChainPtr = MessageChainPtr<OpenAIChatCompletionRequest,OpenAIChatCompletionResponse>;
+
     class OpenAICompatibleAPIServer final: public HttpLibServer {
-        using OpenAIChainPtr = MessageChainPtr<OpenAIChatCompletionRequest, OpenAIChatCompletionResponse>;
-
+        ServerOptions server_options_;
         OpenAIChainPtr chain_;
-
     public:
-        OpenAICompatibleAPIServer(ServerOptions options, OpenAIChainPtr chain)
-            : HttpLibServer(std::move(options)),
-              chain_(std::move(chain)) {
+
+        explicit OpenAICompatibleAPIServer(OpenAIChainPtr openai_chain, ServerOptions options = {})
+            : HttpLibServer(std::move(options)), chain_(std::move(openai_chain)) {
+            AddRoutes_();
+        }
+
+    private:
+        void AddRoutes_() {
             GetHttpLibServer().Post("/v1/chat/completions", [&](const Request& req, Response& resp) {
                 long t1 = ChronoUtils::GetCurrentTimeMillis();
                 LOG_DEBUG("--> REQ /v1/chat/completions, req={}", req.body);
@@ -61,6 +71,16 @@ namespace INSTINCT_SERVER_NS {
             });
         }
     };
+
+    static OpenAIChainPtr CreateOpenAIServerChain(const StepFunctionPtr& fn, const OpenAIChatCompletionInputParserOptions& options = {}) {
+        return CreateFunctionalChain<OpenAIChatCompletionRequest, OpenAIChatCompletionResponse>(
+            std::make_shared<OpenAIChatCompletionRequestInputParser>(options),
+            std::make_shared<OpenAIChatCompletionResponseOutputParser>(),
+            fn
+        );
+    }
+
+
 
 }
 

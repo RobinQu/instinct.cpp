@@ -15,11 +15,11 @@
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
-    static std::string DEFAULT_FORMAT_INSTRUCTION_KEY = "format_instruction";
+    // static std::string DEFAULT_FORMAT_INSTRUCTION_KEY = "format_instruction";
 
     struct OutputParserOptions {
-        std::string format_instruction_output_key = DEFAULT_FORMAT_INSTRUCTION_KEY;
-        std::string generation_input_key = DEFAULT_ANSWER_OUTPUT_KEY;
+        // std::string format_instruction_output_key = DEFAULT_FORMAT_INSTRUCTION_KEY;
+        // std::string generation_input_key = DEFAULT_ANSWER_OUTPUT_KEY;
     };
 
     template<typename T>
@@ -34,8 +34,8 @@ namespace INSTINCT_LLM_NS {
 
     public:
 
-        explicit BaseOutputParser(OutputParserOptions options)
-                : options_(std::move(options)) {
+        explicit BaseOutputParser(OutputParserOptions options = {})
+                : options_(options) {
 
             // instruction function doesn't depend on any keys to output format instruction.
             instruction_function_ = std::make_shared<LambdaStepFunction>(

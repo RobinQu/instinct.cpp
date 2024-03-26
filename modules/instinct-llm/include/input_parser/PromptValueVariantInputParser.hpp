@@ -13,9 +13,6 @@ namespace INSTINCT_LLM_NS {
 
     class PromptValueVariantInputParser final: public BaseInputParser<PromptValueVariant> {
     public:
-        explicit PromptValueVariantInputParser(InputParserOptions options = {})
-            : BaseInputParser<PromptValueVariant>(std::move(options)) {
-        }
 
         JSONContextPtr ParseInput(const PromptValueVariant &input) override {
             auto ctx = CreateJSONContext();

@@ -20,7 +20,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     struct MultiVectorRetrieverOptions {
         // metadata key for parent doc id
-        std::string parent_doc_id_key = "parent_doc_id";
+        std::string parent_doc_id_key = METADATA_SCHEMA_PARENT_DOC_ID_KEY;
     };
 
     class MultiVectorRetriever: public BaseStatefulRetriever {

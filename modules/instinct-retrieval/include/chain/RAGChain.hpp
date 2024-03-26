@@ -19,23 +19,14 @@ namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
     using namespace INSTINCT_CORE_NS;
 
-    /**
-     *
-     * @tparam Input
-     * @tparam Output
-     * @param retriever to fetch external knowledge (or documents)
-     * @param chat_memory conversation memory
-     * @param options RAG related options
-     * @return
-     */
-    static TextChainPtr CreateTextRAGChain(
-        const RetrieverPtr& retriever,
-        const ChatModelPtr& model,
-        const ChatMemoryPtr& chat_memory,
-        PromptTemplatePtr question_prompt_template = nullptr,
-        PromptTemplatePtr answer_prompt_template = nullptr,
-        const RAGChainOptions& options = {}
-    ) {
+    static StepFunctionPtr CreateConversationalRAGFunction(
+            const RetrieverPtr& retriever,
+            const ChatModelPtr& model,
+            const ChatMemoryPtr& chat_memory,
+            PromptTemplatePtr question_prompt_template = nullptr,
+            PromptTemplatePtr answer_prompt_template = nullptr,
+            const RAGChainOptions& options = {}
+        ) {
         if (!question_prompt_template) {
             question_prompt_template = CreatePlainPromptTemplate(R"(
 Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
@@ -57,8 +48,7 @@ Question: {standalone_question}
 
 )", {.input_keys = {"context", "standalone_question"}});
         }
-        auto input_parser = std::make_shared<PromptValueVariantInputParser>();
-        auto output_parser = std::make_shared<StringOutputParser>();
+
 
         auto question_fn = xn::steps::mapping({
             {
@@ -87,14 +77,27 @@ Question: {standalone_question}
             {"question", xn::steps::selection("question")}
         });
 
-        auto fn = question_fn
+        return  question_fn
                   | context_fn
                   | answer_fn
                   | chat_memory->AsSaveMemoryFunction(
                       {.is_question_string = true, .prompt_variable_key = "question", .answer_variable_key = "answer"})
                   | xn::steps::selection("answer");
+    }
 
 
+
+    static TextChainPtr CreateTextRAGChain(
+        const RetrieverPtr& retriever,
+        const ChatModelPtr& model,
+        const ChatMemoryPtr& chat_memory,
+        const PromptTemplatePtr& question_prompt_template = nullptr,
+        const PromptTemplatePtr& answer_prompt_template = nullptr,
+        const RAGChainOptions& options = {}
+    ) {
+        const auto input_parser = std::make_shared<PromptValueVariantInputParser>();
+        const auto output_parser = std::make_shared<StringOutputParser>();
+        const auto fn = CreateConversationalRAGFunction(retriever, model, chat_memory, question_prompt_template, answer_prompt_template, options);
         return CreateFunctionalChain<PromptValueVariant, std::string>(
             input_parser,
             output_parser,

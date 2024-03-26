@@ -401,17 +401,17 @@ message OpenAIUsageInResponse {
   /**
   Number of tokens in the generated completion.
    */
-  int32 completion_tokens = 1;
+  optional int32 completion_tokens = 1;
 
   /**
   Number of tokens in the prompt.
    */
-  int32 prompt_tokens = 2;
+  optional int32 prompt_tokens = 2;
 
   /**
   Total number of tokens used in the request (prompt + completion).
    */
-  int32 total_tokens = 3;
+  optional int32 total_tokens = 3;
 }
 
 message OpenAIChatCompletionLogProbs {
@@ -451,7 +451,7 @@ message OpenAIChatCompletionChunk {
     Message delta = 1;
     OpenAIChatCompletionLogProbs logprobs = 2;
     string finish_reason = 3;
-    int32 index = 4;
+    optional int32 index = 4;
   }
 
   int64 created = 5;

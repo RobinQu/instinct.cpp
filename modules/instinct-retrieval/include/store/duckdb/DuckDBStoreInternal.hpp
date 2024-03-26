@@ -28,6 +28,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::string db_file_path;
         size_t dimension = 0;
         bool bypass_unknown_fields = true;
+        bool in_memory = false;
     };
 
 

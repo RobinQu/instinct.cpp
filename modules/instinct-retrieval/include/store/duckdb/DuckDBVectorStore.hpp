@@ -12,6 +12,7 @@
 #include "store/IVectorStore.hpp"
 #include "tools/Assertions.hpp"
 #include "tools/StringUtils.hpp"
+#include "tools/MetadataSchemaBuilder.hpp"
 
 
 namespace INSTINCT_RETRIEVAL_NS {
@@ -273,8 +274,11 @@ namespace INSTINCT_RETRIEVAL_NS {
     static VectorStorePtr CreateDuckDBVectorStore(
         const EmbeddingsPtr& embeddings_model,
         const DuckDBStoreOptions& options,
-        const std::shared_ptr<MetadataSchema>& metadata_schema = EMPTY_METADATA_SCHEMA
+        MetadataSchemaPtr metadata_schema = nullptr
     ) {
+        if (!metadata_schema) {
+            metadata_schema = CreatePresetMetdataSchema();
+        }
         return std::make_shared<DuckDBVectorStore>(
             embeddings_model,
             options,

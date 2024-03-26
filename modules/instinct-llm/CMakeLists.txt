@@ -53,7 +53,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/output_parser/MultilineGenerationOutputParser.hpp
         include/input_parser/PromptValueVariantInputParser.hpp
         include/output_parser/StringOutputParser.hpp
-
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

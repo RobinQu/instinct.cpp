@@ -15,7 +15,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     /**
      * Datasource for single file. Current implementation will parse file at `file_path` as plain text file. Subclasses are welcomed to impmenent custom parsing.
      */
-    class SingleFileIngestor: public BaseIngestor {
+    class SingleFileIngestor final: public BaseIngestor {
         std::filesystem::path file_path_;
     public:
         explicit SingleFileIngestor(std::filesystem::path file_path)
@@ -35,6 +35,10 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         }
     };
+
+    static IngestorPtr CreatePlainTextFileIngestor(const std::filesystem::path& file_path) {
+        return std::make_shared<SingleFileIngestor>(file_path);
+    }
 }
 
 #endif //TEXTFILEINGESTOR_HPP
