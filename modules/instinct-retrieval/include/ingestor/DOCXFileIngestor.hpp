@@ -1,0 +1,8 @@
+//
+// Created by RobinQu on 2024/3/26.
+//
+
+#ifndef DOCXFILEINGESTOR_HPP
+#define DOCXFILEINGESTOR_HPP
+
+#endif //DOCXFILEINGESTOR_HPP

@@ -83,7 +83,7 @@ add_subdirectory(thirdparty/ReactivePlusPlus)
 
 ## icu
 # TODO embedd icu as submodule
-find_package(ICU 74.2 REQUIRED)
+find_package(ICU 74.1 REQUIRED)
 
 ## base64
 find_package(base64)
@@ -95,10 +95,11 @@ find_package(tsl-ordered-map REQUIRED)
 
 ## duckdb
 ## disable SANITIZER on M1 Macs
-set(ENABLE_SANITIZER FALSE)
-set(DISABLE_VPTR_SANITIZER TRUE)
-set(BUILD_UNITTESTS FALSE)
-add_subdirectory(thirdparty/duckdb)
+#set(ENABLE_SANITIZER FALSE)
+#set(DISABLE_VPTR_SANITIZER TRUE)
+#set(BUILD_UNITTESTS FALSE)
+#add_subdirectory(thirdparty/duckdb)
+find_package(duckdb REQUIRED)
 
 ## fmtlog and fmtlog
 find_package(fmt)
@@ -115,6 +116,12 @@ find_package(CURL)
 
 ## http server
 find_package(httplib)
+
+## pdfium
+find_package(pdfium REQUIRED)
+
+## Tesseract
+find_package(Tesseract REQUIRED)
 
 ## gtest
 if(BUILD_TESTING)

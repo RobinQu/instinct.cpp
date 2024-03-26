@@ -24,6 +24,8 @@ set(${LIBRARY_TARGET_NAME}_HDR
 
         include/RetrievalTestGlobals.hpp
         include/retrieval/BaseRetriever.hpp
+        include/ingestor/PDFFileIngestor.hpp
+        include/ingestor/DOCXFileIngestor.hpp
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC
@@ -56,7 +58,10 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::proto
         instinct::core
         instinct::llm
-        duckdb
+        duckdb::duckdb
+        pdfium::pdfium
+        icu::icu
+        Tesseract::libtesseract
 )
 
 install(TARGETS ${LIBRARY_TARGET_NAME}
