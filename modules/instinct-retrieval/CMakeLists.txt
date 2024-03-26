@@ -61,6 +61,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         duckdb::duckdb
         pdfium::pdfium
         icu::icu
+        duckx::duckx
         Tesseract::libtesseract
 )
 

@@ -125,6 +125,10 @@ INSTINCT_RETRIEVAL_NS {
 
     static PDFIUMConfig GLOBAL_CONFIG;
 
+
+    /**
+    * Parsing PDF files using PDFium library
+    */
     class PDFFileIngestor final : public BaseIngestor {
         std::filesystem::path file_path_{};
         const std::string password_;

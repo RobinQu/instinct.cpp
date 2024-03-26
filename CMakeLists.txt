@@ -117,11 +117,15 @@ find_package(CURL)
 ## http server
 find_package(httplib)
 
-## pdfium
+## pdfium for PDF parsing
 find_package(pdfium REQUIRED)
 
-## Tesseract
+## Tesseract for OCR
 find_package(Tesseract REQUIRED)
+
+## duckx for DOCX parsing
+find_package(duckx REQUIRED)
+
 
 ## gtest
 if(BUILD_TESTING)

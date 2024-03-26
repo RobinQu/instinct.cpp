@@ -23,7 +23,6 @@ namespace INSTINCT_RETRIEVAL_NS {
     TEST_F(TestPDFIngestor, LoadDocuments) {
         PDFFileIngestor ingestor { corpus_dir / "papers/attention_is_all_you_need.pdf"};
         auto doc_itr = ingestor.Load()
-        // | rpp::operators::as_blocking()
         | rpp::operators::tap([](const Document& doc) {
             ASSERT_EQ(doc.metadata_size(), 2);// expecting page_no and source
             LOG_INFO("doc = {}", doc.DebugString());
