@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
     serve_command
         ->add_option("-t,--type", command.type, "File format of assigned document. Supported types are PDF,TXT,MD,DOCX")
         ->default_val("PDF")
-        ->check(IsMember{"PDF", "DOCX", "MD", "TXT"});
+        ->check(IsMember({"PDF", "DOCX", "MD", "TXT"}));
     serve_command->add_option("-p,--port", command.port_number, "Port number which API server will listen");
     auto embedding_options = serve_command->add_option_group("embedding_api", "Options for embedding API");
     embedding_options->add_option("-o,--provider", "Provider type");

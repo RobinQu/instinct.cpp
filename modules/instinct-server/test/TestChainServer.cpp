@@ -2,7 +2,7 @@
 // Created by RobinQu on 3/19/24.
 //
 #include <gtest/gtest.h>
-#include "http/MultiChainServer.hpp"
+#include "tools/http/MultiChainServer.hpp"
 #include "chain/LLMChain.hpp"
 #include "chat_model/OpenAIChat.hpp"
 #include "LLMTestGlobals.hpp"
