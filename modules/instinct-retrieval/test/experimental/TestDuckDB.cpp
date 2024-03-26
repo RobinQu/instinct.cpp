@@ -91,7 +91,7 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
             appender.BeginRow();
             // appender.Append<std::nullptr_t>(nullptr);
 //            appender.Append(++id_value);
-            appender.Append<long>(i+1);
+            appender.Append<uint64_t>(i+1);
             vector<Value> vector_list_value;
             vector_list_value.reserve(d);
             for(int j=0;j<d;j++) {
@@ -106,7 +106,7 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
     }
 
     void concurrent_import_with_appender(DuckDB& db, const unsigned int concurrency, const size_t batch_size, const size_t nt, const size_t d, const float* xt) {
-        std::cout << "Import begins; n= " << nt << std::endl;
+        std::cout << "Import begins; n= " << nt << ",c=" << concurrency << ",batch_size=" << batch_size << std::endl;
         long t1 = ChronoUtils::GetCurrentTimeMillis();
         auto batch_num = (nt / batch_size) + 1;
         std::queue<std::thread> threads;

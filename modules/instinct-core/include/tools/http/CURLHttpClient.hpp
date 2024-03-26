@@ -73,17 +73,15 @@ namespace INSTINCT_CORE_NS {
             HttpResponse& response
         ) {
             initialize_curl();
-            CURLcode ret;
-            CURL *hnd;
-            hnd = curl_easy_init();
-            struct curl_slist *header_slist = nullptr;
+            CURL *hnd = curl_easy_init();
+            curl_slist *header_slist = nullptr;
 
             configure_curl_request(request, hnd, &header_slist);
 
             curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, curl_write_callback);
             curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &response);
 
-            ret = curl_easy_perform(hnd);
+            const CURLcode ret = curl_easy_perform(hnd);
 
             if(ret==0) {
                 // get response code
@@ -112,9 +110,8 @@ namespace INSTINCT_CORE_NS {
 
         template<typename OB>
         requires rpp::constraint::observer_of_type<OB, std::string>
-        static size_t curl_write_callback_with_observer(char *ptr, size_t size, size_t nmemb,
-                                                        OB *ob) {
-            if (const std::string original_chunk = {ptr, size * nmemb};original_chunk.find(
+        static size_t curl_write_callback_with_observer(char *ptr, size_t size, size_t nmemb, OB *ob) {
+            if (const std::string original_chunk = {ptr, size * nmemb}; original_chunk.find(
                     LF_LF_END_OF_LINE)) {
                 // non-standard line-breaker, used by many SSE implementation.
                 for (const auto line: std::views::split(original_chunk, LF_LF_END_OF_LINE)) {
@@ -133,19 +130,17 @@ namespace INSTINCT_CORE_NS {
         requires rpp::constraint::observer_of_type<OB, std::string>
         static CURLcode observe_curl_request(const HttpRequest &request, OB&& observer) {
             initialize_curl();
-            CURLcode ret;
-            CURL *hnd;
-            struct curl_slist *header_slist = nullptr;
-            hnd = curl_easy_init();
+            curl_slist *header_slist = nullptr;
+            CURL *hnd = curl_easy_init();
 
             configure_curl_request(request, hnd, &header_slist);
             using OB_TYPE = std::decay_t<OB>;
             curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, curl_write_callback_with_observer<OB_TYPE>);
             curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &observer);
 
-            ret = curl_easy_perform(hnd);
+            const CURLcode ret = curl_easy_perform(hnd);
             if(ret==0) {
-                int status_code;
+                int status_code = 0;
                 curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &status_code);
                 if (status_code >= 400) {
                     observer.on_error(std::make_exception_ptr(HttpClientException(status_code, "Failed to get chunked response")));
@@ -164,7 +159,7 @@ namespace INSTINCT_CORE_NS {
             HttpResponse http_response;
             auto url = HttpUtils::CreateUrlString(call);
             LOG_DEBUG("REQ: {} {}", call.method, url);
-            auto code = details::make_curl_request(call, http_response);
+            const auto code = details::make_curl_request(call, http_response);
             if (code != 0) {
                 throw HttpClientException(-1, "curl request failed with return code " + std::string(curl_easy_strerror(code)));
             }
