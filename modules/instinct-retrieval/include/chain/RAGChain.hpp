@@ -11,7 +11,7 @@
 #include "chain/MessageChain.hpp"
 #include "chain/LLMChain.hpp"
 #include "retrieval/BaseRetriever.hpp"
-#include "retrieval/DocumentUtils.hpp"
+#include "../../../instinct-core/include/tools/DocumentUtils.hpp"
 #include "functional/Xn.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
 

@@ -13,7 +13,6 @@
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
-
     using namespace U_ICU_NAMESPACE;
 
     class TextSplitter {
@@ -42,17 +41,9 @@ namespace INSTINCT_LLM_NS {
                     UnicodeString grouped_sepeartor = "(";
                     grouped_sepeartor.append(seperator);
                     grouped_sepeartor.append(")");
-                    // std::vector<UnicodeString> splits_temp;
-                    details::split_text_with_regex(text, grouped_sepeartor, result);
-                    // result.push_back(splits_temp[0]);
-                    // for(int i=1;i<splits_temp.size();i+=2) {
-                    //     result.push_back(splits_temp[i] + splits_temp[i+1]);
-                    // }
-                    // if (splits_temp.size()%2==0) {
-                    //     result.push_back(splits_temp.back());
-                    // }
+                    split_text_with_regex(text, grouped_sepeartor, result);
                 }  else {
-                    details::split_text_with_regex(text, seperator, result);
+                    split_text_with_regex(text, seperator, result);
                 }
             } else { // it's empty seperator, so we have to split into a sequence of chars.
                 UErrorCode status = U_ZERO_ERROR;
@@ -70,11 +61,6 @@ namespace INSTINCT_LLM_NS {
                     result.emplace_back(text, start, end-start);
                 }
                 delete itr;
-
-                // StringCharacterIterator itr(text);
-                // while (itr.hasNext()) {
-                //     result.push_back(itr.next32PostInc());
-                // }
             }
             auto parts_view = result | std::views::filter([](const UnicodeString& v) {
                 return v.length() > 0;

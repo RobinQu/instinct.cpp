@@ -11,7 +11,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/store/IVectorStore.hpp
         include/store/duckdb/DuckDBVectorStore.hpp
         include/chain/RAGChain.hpp
-        include/retrieval/DocumentUtils.hpp
         include/store/IDocStore.hpp
         include/retrieval/MultiVectorRetriever.hpp
         include/retrieval/ChunkedMultiVectorRetriever.hpp
@@ -26,7 +25,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/retrieval/BaseRetriever.hpp
         include/ingestor/PDFFileIngestor.hpp
         include/ingestor/DOCXFileIngestor.hpp
-        include/tools/MetadataSchemaBuilder.hpp
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

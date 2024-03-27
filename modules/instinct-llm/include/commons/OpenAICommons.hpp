@@ -10,7 +10,13 @@
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
+
+    static Endpoint OPENAI_DEFAULT_ENDPOINT {.protocol = kHTTPS, .host = "api.openai.com", .port = 443};
+
     struct  OpenAIConfiguration {
+        /**
+        * API key for OpenAI service that will be used as bearer token in header
+        */
         std::string api_key;
 
         /**
@@ -21,7 +27,7 @@ namespace INSTINCT_LLM_NS {
         /**
          * HTTP Endpoint
          */
-        Endpoint endpoint;
+        Endpoint endpoint = OPENAI_DEFAULT_ENDPOINT;
 
         /**
          * Modle name
@@ -39,12 +45,10 @@ namespace INSTINCT_LLM_NS {
 
         bool json_object;
 
-
         /**
          * only used in embedding API
          */
         size_t dimension;
-
     };
 
     static const std::string DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT = "/v1/chat/completions";

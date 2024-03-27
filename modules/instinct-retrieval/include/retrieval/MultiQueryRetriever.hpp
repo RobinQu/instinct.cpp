@@ -12,7 +12,7 @@
 #include "RetrievalGlobals.hpp"
 #include "chain/LLMChain.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
-#include "retrieval/DocumentUtils.hpp"
+#include "../../../instinct-core/include/tools/DocumentUtils.hpp"
 
 
 

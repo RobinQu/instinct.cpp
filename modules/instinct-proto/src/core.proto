@@ -26,20 +26,23 @@ message Document {
 }
 
 
-//message ObjectReference {
-//  string name = 1;
-//  string kind = 2;
-//}
-//
-//message ObjectDefinition {
-//  string name = 1;
-//  string kind = 2;
-//  oneof source {
-//    google.protobuf.Any configuration = 3;
-//    ObjectReference reference = 4;
-//  }
-//}
-//
-//message ObjectContainerDefinition {
-//  repeated ObjectDefinition objects = 1;
-//}
+enum MetadataFieldType {
+  Unknown = 0;
+  INT32 = 1;
+  INT64 = 2;
+  FLOAT = 3;
+  DOUBLE = 4;
+  BOOL = 5;
+  VARCHAR = 6;
+}
+
+message MetadataFieldSchema {
+  string name = 1;
+  MetadataFieldType type = 2;
+  string description = 3;
+}
+
+message MetadataSchema {
+  repeated MetadataFieldSchema fields = 1;
+  string description = 2;
+}

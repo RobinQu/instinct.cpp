@@ -12,7 +12,7 @@
 #include "store/IVectorStore.hpp"
 #include "tools/Assertions.hpp"
 #include "tools/StringUtils.hpp"
-#include "tools/MetadataSchemaBuilder.hpp"
+#include "../../../../instinct-core/include/tools/MetadataSchemaBuilder.hpp"
 
 
 namespace INSTINCT_RETRIEVAL_NS {
@@ -271,14 +271,21 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
 
+    /**
+     * Create VectorStore using duckdb implementation
+     * @param embeddings_model
+     * @param options
+     * @param metadata_schema Schema for vector table. Typically empty schema will do.
+     * @return
+     */
     static VectorStorePtr CreateDuckDBVectorStore(
         const EmbeddingsPtr& embeddings_model,
         const DuckDBStoreOptions& options,
-        MetadataSchemaPtr metadata_schema = nullptr
+        const MetadataSchemaPtr& metadata_schema = EMPTY_METADATA_SCHEMA
     ) {
-        if (!metadata_schema) {
-            metadata_schema = CreatePresetMetdataSchema();
-        }
+        // if (!metadata_schema) {
+        //     metadata_schema = CreatePresetMetdataSchema();
+        // }
         return std::make_shared<DuckDBVectorStore>(
             embeddings_model,
             options,

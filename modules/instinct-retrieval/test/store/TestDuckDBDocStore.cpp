@@ -5,8 +5,8 @@
 #include "store/duckdb/DuckDBDocStore.hpp"
 #include "RetrievalTestGlobals.hpp"
 #include "RetrievalGlobals.hpp"
-#include "retrieval/DocumentUtils.hpp"
-#include "tools/MetadataSchemaBuilder.hpp"
+#include "../../../instinct-core/include/tools/DocumentUtils.hpp"
+#include "../../../instinct-core/include/tools/MetadataSchemaBuilder.hpp"
 #include "tools/TensorUtils.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {

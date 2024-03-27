@@ -5,9 +5,10 @@
 #ifndef DOCXFILEINGESTOR_HPP
 #define DOCXFILEINGESTOR_HPP
 
-#include "BaseIngestor.hpp"
 #include <duckx.hpp>
 
+#include "BaseIngestor.hpp"
+#include "tools/DocumentUtils.hpp"
 #include "tools/Assertions.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
@@ -64,12 +65,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         Document ProduceDoc_(const std::string& text, const int idx) {
             Document document;
             document.set_text(text);
-            auto* page_idx = document.add_metadata();
-            page_idx->set_name("page_no");
-            page_idx->set_int_value(idx);
-            auto* source = document.add_metadata();
-            source->set_name("source");
-            source->set_string_value(file_path_.string());
+            DocumentUtils::AddPresetMetadataFileds(document, ROOT_DOC_ID, idx, file_path_.string());
             return document;
         }
     };

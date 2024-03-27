@@ -6,7 +6,7 @@
 #define INSTINCT_BASERETRIEVER_HPP
 
 #include "retrieval/IRetriever.hpp"
-#include "retrieval/DocumentUtils.hpp"
+#include "../../../instinct-core/include/tools/DocumentUtils.hpp"
 #include "functional/StepFunctions.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {

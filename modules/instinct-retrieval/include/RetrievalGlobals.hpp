@@ -21,9 +21,6 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::string output_variable_key = DEFAULT_ANSWER_OUTPUT_KEY;
     };
 
-    static const std::string METADATA_SCHEMA_PARENT_DOC_ID_KEY = "parent_doc_id";
-    static const std::string METADATA_SCHEMA_PAGE_NO_KEY = "page_no";
-    static const std::string METADATA_SCHEMA_FILE_SOURCE_KEY = "file_source";
 
     struct RAGChainOptions {
         ChainOptions base_options = {};
@@ -32,7 +29,6 @@ namespace INSTINCT_RETRIEVAL_NS {
 //        int top_k = 10;
     };
 
-    using MetadataSchemaPtr = std::shared_ptr<MetadataSchema>;
 
 }
 

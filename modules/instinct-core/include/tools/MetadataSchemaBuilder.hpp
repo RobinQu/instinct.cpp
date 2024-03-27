@@ -4,10 +4,11 @@
 
 #ifndef METADATASCHEMABUILDER_HPP
 #define METADATASCHEMABUILDER_HPP
+#include "CoreGlobals.hpp"
 
-#include "RetrievalGlobals.hpp"
 
-namespace INSTINCT_RETRIEVAL_NS {
+namespace INSTINCT_CORE_NS {
+
     class MetadataSchemaBuilder final {
         MetadataSchemaPtr ptr_;
     public:

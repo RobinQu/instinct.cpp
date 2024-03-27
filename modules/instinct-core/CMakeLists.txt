@@ -26,6 +26,8 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/functional/IConfigurable.hpp
         include/functional/Xn.hpp
         include/CoreTestGlobals.hpp
+        include/tools/DocumentUtils.hpp
+        include/tools/MetadataSchemaBuilder.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

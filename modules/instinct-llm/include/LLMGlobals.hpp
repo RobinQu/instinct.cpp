@@ -7,15 +7,17 @@
 
 #include "CoreGlobals.hpp"
 #include <llm.pb.h>
-#include <model/IEmbeddingModel.hpp>
+
 
 #define INSTINCT_LLM_NS instinct::llm
 
 namespace INSTINCT_LLM_NS {
-
+    using namespace INSTINCT_CORE_NS;
 
     using TokenSize = unsigned long;
     using TokenId = unsigned long;
+
+    using Embedding = std::vector<float>;
 
     struct ChainOptions {
 
@@ -65,7 +67,7 @@ namespace INSTINCT_LLM_NS {
         return ostrm;
     }
 
-    inline std::ostream& operator<<(std::ostream& ostrm, const core::Embedding& embedding) {
+    inline std::ostream& operator<<(std::ostream& ostrm, const Embedding& embedding) {
         ostrm << "Embedding[";
         for (const auto& f: embedding) {
             ostrm << f << ", ";

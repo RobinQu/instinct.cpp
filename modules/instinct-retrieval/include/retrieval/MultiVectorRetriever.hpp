@@ -91,9 +91,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 auto sub_docs = std::invoke(guidance_, parent_doc);
                 LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), parent_doc.id());
                 for (auto& sub_doc: sub_docs) {
-                    auto* field = sub_doc.add_metadata();
-                    field->set_name(options_.parent_doc_id_key);
-                    field->set_string_value(parent_doc.id());
+                    DocumentUtils::AddPresetMetadataFileds(sub_doc, parent_doc.id());
                 }
                 guided_docs.insert(guided_docs.end(), sub_docs.begin(), sub_docs.end());
             }
@@ -126,13 +124,13 @@ namespace INSTINCT_RETRIEVAL_NS {
             auto generation = summary_chain->Invoke(
                     doc.text()
             );
-
             Document summary_doc;
             summary_doc.set_text(generation);
             summary_doc.set_id(u8_utils::uuid_v8());
-            auto* parent_id_field = summary_doc.add_metadata();
-            parent_id_field->set_name(options.parent_doc_id_key);
-            parent_id_field->set_string_value(doc.id());
+            DocumentUtils::AddPresetMetadataFileds(
+                summary_doc,
+                doc.id()
+            );
             return std::vector {std::move(summary_doc)};
         };
 
@@ -163,9 +161,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 Document query_doc;
                 query_doc.set_id(u8_utils::uuid_v8());
                 query_doc.set_text(query);
-                auto* parent_id_field = query_doc.add_metadata();
-                parent_id_field->set_name(options.parent_doc_id_key);
-                parent_id_field->set_string_value(doc.id());
+                DocumentUtils::AddPresetMetadataFileds(query_doc, doc.id());
                 final_queries.push_back(query_doc);
             }
             return final_queries;

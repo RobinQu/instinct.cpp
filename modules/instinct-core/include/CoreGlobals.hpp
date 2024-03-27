@@ -5,13 +5,13 @@
 #ifndef COREGLOBALS_H
 #define COREGLOBALS_H
 
+#include <core.pb.h>
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
 #include <unicode/unistr.h>
 #include <unicode/uversion.h>
 #include <google/protobuf/message.h>
 #include <fmtlog/fmtlog.h>
-
 
 
 #define INSTINCT_CORE_NS instinct::core
@@ -76,8 +76,13 @@ namespace INSTINCT_CORE_NS {
         }
     };
 
+    static const std::string METADATA_SCHEMA_PARENT_DOC_ID_KEY = "parent_doc_id";
 
+    static const std::string METADATA_SCHEMA_PAGE_NO_KEY = "page_no";
 
+    static const std::string METADATA_SCHEMA_FILE_SOURCE_KEY = "file_source";
+
+    using MetadataSchemaPtr = std::shared_ptr<MetadataSchema>;
 
 }
 

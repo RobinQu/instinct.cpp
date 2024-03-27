@@ -11,6 +11,7 @@
 #include "RetrievalGlobals.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
+
     /**
      * Parent-child retriever patterns
      */
@@ -42,12 +43,14 @@ namespace INSTINCT_RETRIEVAL_NS {
             if (parent_splitter_) {
                 auto chunked_input = input
                  | rpp::operators::flat_map([&](const Document &doc) {
+                     int i = 0;
                     auto parts = parent_splitter_->SplitText(UnicodeString::fromUTF8(doc.text())) |
-                                 std::views::transform([](const UnicodeString &str) {
-                                     Document document;
-                                     str.toUTF8String(*document.mutable_text());
-                                     return document;
-                                 });
+                         std::views::transform([&](const UnicodeString &str) {
+                             Document document;
+                             str.toUTF8String(*document.mutable_text());
+                             DocumentUtils::AddPresetMetadataFileds(document, doc.id(), ++i);
+                             return document;
+                         });
                     return rpp::source::from_iterable(std::vector<Document> {parts.begin(), parts.end()});
                 });
                 MultiVectorRetriever::Ingest(chunked_input);
@@ -59,14 +62,15 @@ namespace INSTINCT_RETRIEVAL_NS {
     private:
         [[nodiscard]] std::vector<Document>
         SplitChildDoc_(const Document &parent_doc) const { // NOLINT(*-convert-member-functions-to-static)
+            int i = 0;
             auto parts = child_splitter_->SplitText(UnicodeString::fromUTF8(parent_doc.text())) |
-                         std::views::transform([](const UnicodeString &str) {
+                         std::views::transform([&](const UnicodeString &str) {
                              Document document;
                              str.toUTF8String(*document.mutable_text());
+                             DocumentUtils::AddPresetMetadataFileds(document, ROOT_DOC_ID, ++i);
                              return document;
                          });
             return {parts.begin(), parts.end()};
-
         }
     };
 

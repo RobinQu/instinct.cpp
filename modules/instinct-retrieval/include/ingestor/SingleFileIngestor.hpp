@@ -10,6 +10,8 @@
 #include <filesystem>
 #include <fstream>
 
+#include "retrieval/ChunkedMultiVectorRetriever.hpp"
+
 
 namespace INSTINCT_RETRIEVAL_NS {
     /**
@@ -30,6 +32,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             std::stringstream buffer;
             buffer << t.rdbuf();
             Document document;
+            DocumentUtils::AddPresetMetadataFileds(document, ROOT_DOC_ID);
             document.mutable_text()->assign(buffer.str());
             return rpp::source::just(document);
 

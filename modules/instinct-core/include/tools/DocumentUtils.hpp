@@ -6,9 +6,8 @@
 #define DOCUMENTUTILS_HPP
 
 
-#include "RetrievalGlobals.hpp"
 #include <google/protobuf/util/message_differencer.h>
-#include "tools/StringUtils.hpp"
+#include "StringUtils.hpp"
 
 
 namespace std {
@@ -16,8 +15,8 @@ namespace std {
      * hash only using doc.id()
      */
     template <>
-    struct hash<INSTINCT_RETRIEVAL_NS::Document> {
-        size_t operator()(const INSTINCT_RETRIEVAL_NS::Document& doc) const {
+    struct hash<INSTINCT_CORE_NS::Document> {
+        size_t operator()(const INSTINCT_CORE_NS::Document& doc) const noexcept {
             return std::hash<std::string_view> {} (doc.id());
         }
     };
@@ -26,16 +25,16 @@ namespace std {
      * compare two documents using `Equivalent` sematics.
      */
     template<>
-    struct equal_to<INSTINCT_RETRIEVAL_NS::Document> {
-        bool operator()(const INSTINCT_RETRIEVAL_NS::Document& lhs, const INSTINCT_RETRIEVAL_NS::Document& rhs) const {
+    struct equal_to<INSTINCT_CORE_NS::Document> {
+        bool operator()(const INSTINCT_CORE_NS::Document& lhs, const INSTINCT_CORE_NS::Document& rhs) const {
             return google::protobuf::util::MessageDifferencer::Equivalent(lhs, rhs);
         }
     };
 
 }
 
-namespace INSTINCT_RETRIEVAL_NS {
-    using namespace INSTINCT_CORE_NS;
+namespace INSTINCT_CORE_NS {
+    const static std::string ROOT_DOC_ID = "49915DBE-434A-4E3E-9E0A-791D2F69D386";
 
     struct DocumentMetadataMutator {
         Document* document_;
@@ -86,6 +85,26 @@ namespace INSTINCT_RETRIEVAL_NS {
                 })
             ;
             return buf;
+        }
+
+        static void AddPresetMetadataFileds(
+            Document& document,
+            const std::string& parent_doc_id,
+            const int page_no = 1,
+            const std::string& source = "",
+            const std::string& parent_doc_id_key = METADATA_SCHEMA_PARENT_DOC_ID_KEY,
+            const std::string& page_no_key = METADATA_SCHEMA_PAGE_NO_KEY,
+            const std::string& source_key = METADATA_SCHEMA_FILE_SOURCE_KEY
+            ) {
+            auto* parent_id_field = document.add_metadata();
+            parent_id_field->set_name(parent_doc_id_key);
+            parent_id_field->set_string_value(parent_doc_id);
+            auto *page_no_field = document.add_metadata();
+            page_no_field->set_name(page_no_key);
+            page_no_field->set_int_value(page_no);
+            auto *source_field = document.add_metadata();
+            source_field->set_name(source_key);
+            source_field->set_string_value(source);
         }
 
         static std::vector<ConstraintViolation> ValidateDocument(const Document& doc, const MetadataSchemaPtr& metadata_schema, bool bypass_unknown_fields = true) {

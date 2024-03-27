@@ -54,10 +54,10 @@ namespace insintct::exmaples::chat_doc {
 
     static EmbeddingsPtr CreateEmbeddingModel(const LLMProviderOptions& options) {
         if (options.provider_name == "ollama") {
-            return  CreateOllamaEmbedding(options.ollama);
+            return CreateOllamaEmbedding(options.ollama);
         }
         if (options.provider_name == "openai") {
-            return  CreateOpenAIEmbeddingModel(options.openai);
+            return CreateOpenAIEmbeddingModel(options.openai);
         }
         // if (options.llm_provider.provider_name == "pesudo") {
         //     embedding_model =  instinct::test::create_pesudo_embedding_model();
@@ -77,15 +77,15 @@ namespace insintct::exmaples::chat_doc {
 
     static void BuildCommand(const BuildCommandOptions& options) {
         IngestorPtr ingestor;
-        if(options.file_type == "PDF") {
+        if (options.file_type == "PDF") {
             ingestor = CreatePDFFileIngestor(options.filename);
-        } else if(options.file_type == "DOCX") {
+        } else if (options.file_type == "DOCX") {
             ingestor = CreateDOCXFileIngestor(options.filename);
         } else {
             ingestor = CreatePlainTextFileIngestor(options.filename);
         }
 
-        const auto doc_store = CreateDuckDBDocStore(options.doc_store);
+        const auto doc_store = CreateDuckDBDocStore(options.doc_store, CreatePresetMetdataSchema());
 
         EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.llm_provider);
         assert_true(embedding_model, "should have assigned correct embedding model");
@@ -98,7 +98,7 @@ namespace insintct::exmaples::chat_doc {
             doc_store,
             vectore_store,
             child_spliter
-            );
+        );
         retriever->Ingest(ingestor->Load());
         LOG_INFO("Database is built successfully!");
     }
@@ -115,7 +115,7 @@ namespace insintct::exmaples::chat_doc {
             doc_store,
             vectore_store,
             child_spliter
-            );
+        );
 
 
         const auto chat_model = CreateChatModel(options.llm_provider);
@@ -127,11 +127,11 @@ Chat History:
 {chat_history}
 Follow Up Input: {question}
 Standalone question:)",
-             {
-                 .input_keys = {"chat_history", "question"},
-             });
+                                                                        {
+                                                                            .input_keys = {"chat_history", "question"},
+                                                                        });
         const auto answer_prompt_template = CreatePlainPromptTemplate(
-                R"(Answer the question based only on the following context:
+            R"(Answer the question based only on the following context:
 {context}
 
 Question: {standalone_question}
@@ -170,66 +170,89 @@ Question: {standalone_question}
         server.StartAndWait();
     }
 
-}
 
+    static void build_docstore_ogroup(CLI::Option_group* doc_store_ogroup,
+                                      DuckDBStoreOptions& duck_db_options) {
+        doc_store_ogroup
+                ->add_option("--doc_db_path", duck_db_options.db_file_path, "File path to database file. Will be created if given file doesn't exist.");
+        doc_store_ogroup
+                ->add_option("--doc_table_name", duck_db_options.table_name, "Table name for documents")
+                ->default_val("doc_table");
+    }
 
-static void build_docstore_ogroup(CLI::Option_group* doc_store_ogroup, instinct::retrieval::DuckDBStoreOptions& duck_db_options) {
-    doc_store_ogroup->add_option("-p,--db_path",  duck_db_options.db_file_path, "File path to database file");
-    doc_store_ogroup->add_option("-t,--table_name",  duck_db_options.table_name, "Table name for documents")->default_str("doc_table");
+    static void build_vecstore_ogroup(CLI::Option_group* vec_store_ogroup,
+                                      DuckDBStoreOptions& duck_db_options) {
+        vec_store_ogroup
+                ->add_option("--vector_db_path", duck_db_options.db_file_path, "File path to database file. Will be created if given file doesn't exist.");
+        vec_store_ogroup
+                ->add_option("--vector_table_dimension", duck_db_options.dimension, "Dimension of embedding vector.")
+                ->required();
+        vec_store_ogroup
+                ->add_option("--vector_table_name", duck_db_options.table_name, "Table name for embedding table.")
+                ->default_val("embedding_table");
+    }
 
-    // doc_store_ogroup->add_flag("-m,--memory", duck_db_options.in_memory, "Flag to indicate use build in-memory DB instantce");
-}
+    static void build_llm_provider_ogroup(CLI::Option_group* llm_provider_ogroup,
+                                          LLMProviderOptions& provider_options) {
+        llm_provider_ogroup->add_option("--llm_provider", provider_options.provider_name,
+                                        "Specify LLM to use for both embedding and chat completion. Ollama, OpenAI API, or any OpenAI API compatible servers are supported.")
+                ->check(CLI::IsMember({"ollama", "openai"}, CLI::ignore_case))
+                ->required();
 
-static void build_vecstore_ogroup(CLI::Option_group* vec_store_ogroup, instinct::retrieval::DuckDBStoreOptions& duck_db_options) {
-    vec_store_ogroup->add_option("-p,--db_path",  duck_db_options.db_file_path, "File path to database file")->check(CLI::ExistingFile);
-    vec_store_ogroup->add_option("-d,--dimension", duck_db_options.dimension, "Dimension of embedding vector");
-    vec_store_ogroup->add_option("-t,--table_name",  duck_db_options.table_name, "Table name for embedding table")->default_str("embedding_table");
-}
+        const std::map<std::string, HttpProtocol> protocol_map{
+            {"http", kHTTP},
+            {"https", kHTTPS}
+        };
+        const auto openai_ogroup = llm_provider_ogroup->add_option_group("openai");
+        openai_ogroup->add_option("--openai_api_key", provider_options.openai.api_key);
+        openai_ogroup->add_option("--openai_host", provider_options.openai.endpoint.host)
+                ->default_val(OPENAI_DEFAULT_ENDPOINT.host);
+        openai_ogroup->add_option("--openai_port", provider_options.openai.endpoint.port)
+                ->default_val(OPENAI_DEFAULT_ENDPOINT.port);
+        openai_ogroup->add_option("--openai_protocol", provider_options.openai.endpoint.protocol)
+                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
+                ->default_val(OPENAI_DEFAULT_ENDPOINT.protocol);
 
-static void build_llm_provider_ogroup(CLI::Option_group* llm_provider_ogroup, insintct::exmaples::chat_doc::LLMProviderOptions& provider_options) {
-    llm_provider_ogroup->add_option("-p,--provider_name", provider_options.provider_name, "Specify LLM to use for both embedding and chat completion. Ollama, OpenAI API, or any OpenAI API compatible servers are supported.")
-    ->check(CLI::IsMember({"ollama", "openai"}, CLI::ignore_case));
-    llm_provider_ogroup->add_option("--api_key", provider_options.api_key, "API key for service provider.");
-    llm_provider_ogroup->add_option("--host", provider_options.host, "Host for API service, without trailing slash, e.g. https://api.openai.com");
-    llm_provider_ogroup->add_option("--port", provider_options.port)->default_val(80);
-    llm_provider_ogroup->parse_complete_callback([&]() {
-        // merge similar options and copy those options respectively
-        if (provider_options.provider_name == "ollama") {
-            provider_options.ollama.endpoint.host = provider_options.host;
-            provider_options.ollama.endpoint.port = provider_options.port;
-        }
-        if (provider_options.provider_name == "openai") {
-            provider_options.openai.endpoint.host = provider_options.host;
-            provider_options.openai.endpoint.port = provider_options.port;
-            provider_options.openai.api_key = provider_options.api_key;
-        }
-    });
+        const auto ollama_ogroup = llm_provider_ogroup->add_option_group("ollama");
+        ollama_ogroup->add_option("--ollama_host", provider_options.ollama.endpoint.host)
+                ->default_val(OLLAMA_ENDPOINT.host);
+        ollama_ogroup->add_option("--ollama_port", provider_options.ollama.endpoint.port)
+                ->default_val(OLLAMA_ENDPOINT.port);
+        ollama_ogroup->add_option("--ollama_protocol", provider_options.ollama.endpoint.protocol)
+                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
+                ->default_val(OLLAMA_ENDPOINT.protocol);
+    }
 }
 
 
 int main(int argc, char** argv) {
     using namespace CLI;
     using namespace insintct::exmaples::chat_doc;
-    App app {"ChatDoc: Chat with your documents. It's a privacy-first application that won't interact with cloud services."};
+    App app{
+        "😊 ChatDoc: Chat with your documents locally with privacy. "
+    };
     argv = app.ensure_utf8(argv);
+    app.set_help_all_flag("--help-all", "Expand all help");
 
     // requires at least one sub-command
-    app.require_subcommand();
+    app.require_subcommand(1);
 
     // llm_provider_options for both chat model and embedding model
     LLMProviderOptions llm_provider_options;
-    build_llm_provider_ogroup(app.add_option_group("llm_provider"), llm_provider_options);
+    build_llm_provider_ogroup(app.add_option_group("LLM"), llm_provider_options);
 
     // build command
     BuildCommandOptions build_command_options;
-    const auto build_command = app.add_subcommand("build", "Anaylize a single document and build database of learned context data");
+    const auto build_command = app.add_subcommand(
+        "build", "💼 Anaylize a single document and build database of learned context data");
     build_command->add_option("-f,--file", build_command_options.filename, "Path to the document you want analyze")
-        ->required()
-        ->check(ExistingFile);
+            ->required()
+            ->check(ExistingFile);
     build_command
-        ->add_option("-t,--type", build_command_options.file_type, "File format of assigned document. Supported types are PDF,TXT,MD,DOCX")
-        ->default_val("TXT")
-        ->check(IsMember({"PDF", "DOCX", "MD", "TXT"}, CLI::ignore_case));
+            ->add_option("-t,--type", build_command_options.file_type,
+                         "File format of assigned document. Supported types are PDF,TXT,MD,DOCX")
+            ->default_val("TXT")
+            ->check(IsMember({"PDF", "DOCX", "MD", "TXT"}, CLI::ignore_case));
     build_docstore_ogroup(
         build_command->add_option_group("docstore"),
         build_command_options.doc_store);
@@ -238,15 +261,15 @@ int main(int argc, char** argv) {
         build_command_options.vector_store);
     build_command->final_callback([&]() {
         build_command_options.llm_provider = llm_provider_options;
-        BuildCommand(build_command_options);
     });
 
     // serve command
     ServeCommandOptions serve_command_options;
-    const auto serve_command = app.add_subcommand("serve", "Start a OpenAI API compatible server with database of learned context");
+    const auto serve_command = app.add_subcommand(
+        "serve", "💃 Start a OpenAI API compatible server with database of learned context");
     serve_command
-        ->add_option("-p,--port", serve_command_options.server.port, "Port number which API server will listen")
-        ->default_val("9090");
+            ->add_option("-p,--port", serve_command_options.server.port, "Port number which API server will listen")
+            ->default_val("9090");
     build_docstore_ogroup(
         serve_command->add_option_group("docstore"),
         build_command_options.doc_store);
@@ -256,9 +279,33 @@ int main(int argc, char** argv) {
 
     build_command->final_callback([&]() {
         serve_command_options.llm_provider = llm_provider_options;
-        ServeCommand(serve_command_options);
     });
 
+    // log level
+    bool enable_verbose_log;
+    app.add_flag("-v,--verbose", enable_verbose_log, "A flag to enable verbose log");
+
+    // parse input
     CLI11_PARSE(app, argc, argv);
+
+    // setup logging
+    if(enable_verbose_log) {
+        fmtlog::setLogLevel(fmtlog::DBG);
+        LOG_INFO("Verbose logging is enabled.");
+    } else {
+        LOG_INFO("Logging level is default to INFO");
+    }
+    fmtlog::startPollingThread();
+
+    for(const auto* sub_command: app.get_subcommands()) {
+        if (sub_command->get_name() == "build") {
+            BuildCommand(build_command_options);
+        }
+        if(sub_command->get_name() == "serve") {
+            ServeCommand(serve_command_options);
+        }
+    }
+
+
     return 0;
 }

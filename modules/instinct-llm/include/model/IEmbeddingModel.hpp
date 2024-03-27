@@ -6,11 +6,11 @@
 #define EMBEDDINGS_HPP
 
 
-#include "CoreGlobals.hpp"
+#include "LLMGlobals.hpp"
 
+namespace INSTINCT_LLM_NS {
+    using namespace INSTINCT_CORE_NS;
 
-namespace INSTINCT_CORE_NS {
-    using Embedding = std::vector<float>;
     class IEmbeddingModel {
     public:
         IEmbeddingModel()=default;

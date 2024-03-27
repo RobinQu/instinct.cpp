@@ -85,13 +85,13 @@ namespace INSTINCT_CORE_NS {
         }
     }
 
-    static void assert_gt(const numberic auto & a, const numberic auto & b, const std::string& message = "value should be greater") {
+    static void assert_gt(const numberic auto & a, const numberic auto & b, const std::string& message = "value is not large enough") {
         if(!check_gt(a,b)) {
             throw InstinctException(message);
         }
     }
 
-    static void assert_gte(const numberic auto & a, const numberic auto & b, const std::string& message = "value should be greater or equal") {
+    static void assert_gte(const numberic auto & a, const numberic auto & b, const std::string& message = "value is not small enough") {
         if(!check_gte(a,b)) {
             throw InstinctException(message);
         }

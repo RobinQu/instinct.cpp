@@ -6,20 +6,19 @@
 #define BASETEXTSPLITTER_HPP
 
 #include <retrieval.pb.h>
-
+#include "tools/DocumentUtils.hpp"
 #include "TextSplitter.hpp"
 
 
 namespace  INSTINCT_LLM_NS {
     using namespace U_ICU_NAMESPACE;
+    using namespace INSTINCT_CORE_NS;
 
     using LengthFunction = std::function<size_t(const UnicodeString&)>;
 
     static LengthFunction IdentityLengthFunction = [](const UnicodeString& s) {
         return s.length();
     };
-
-    static std::string CHUNK_DOC_PART_INDEX_KEY = "chunk_id";
 
     class BaseTextSplitter : public TextSplitter {
     protected:
@@ -49,10 +48,10 @@ namespace  INSTINCT_LLM_NS {
                         auto& chunk = chunks[i];
                         Document document;
                         chunk.toUTF8String(*document.mutable_text());
-                        // chunked_docs.push_back(document);
-                        auto* chunk_id_field = document.add_metadata();
-                        chunk_id_field->set_name(CHUNK_DOC_PART_INDEX_KEY);
-                        chunk_id_field->set_int_value(i);
+                        // auto* chunk_id_field = document.add_metadata();
+                        // chunk_id_field->set_name(CHUNK_DOC_PART_INDEX_KEY);
+                        // chunk_id_field->set_int_value(i);
+                        DocumentUtils::AddPresetMetadataFileds(document, doc.id(), i+1);
                         observer.on_next(document);
                     }
                 }, [&](const std::exception_ptr& e) {

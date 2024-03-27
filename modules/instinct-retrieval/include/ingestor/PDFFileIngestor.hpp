@@ -5,17 +5,16 @@
 #ifndef PDFFILEINGESTOR_HPP
 #define PDFFILEINGESTOR_HPP
 
-#include "BaseIngestor.hpp"
-#include "RetrievalGlobals.hpp"
 #include <fpdfview.h>
 #include <fpdf_text.h>
 #include <unicode/unistr.h>
-
 #include "tools/Assertions.hpp"
+#include "BaseIngestor.hpp"
+#include "RetrievalGlobals.hpp"
+#include "tools/DocumentUtils.hpp"
 
 
-namespace
-INSTINCT_RETRIEVAL_NS {
+namespace INSTINCT_RETRIEVAL_NS {
     class PDFIUMConfig {
     public:
         PDFIUMConfig() {
@@ -148,13 +147,14 @@ INSTINCT_RETRIEVAL_NS {
                     for (int i = 0; i < count; i++) {
                         auto text = pdf_doc.LoadPage(i).ExtractPageText();
                         Document doc;
+                        DocumentUtils::AddPresetMetadataFileds(doc, ROOT_DOC_ID, i+1, file_path_.string());
                         text.toUTF8String(*doc.mutable_text());
-                        auto* page_idx = doc.add_metadata();
-                        page_idx->set_name("page_no");
-                        page_idx->set_int_value(i+1);
-                        auto* source = doc.add_metadata();
-                        source->set_name("source");
-                        source->set_string_value(file_path_.string());
+                        // auto* page_idx = doc.add_metadata();
+                        // page_idx->set_name("page_no");
+                        // page_idx->set_int_value(i+1);
+                        // auto* source = doc.add_metadata();
+                        // source->set_name("source");
+                        // source->set_string_value(file_path_.string());
                         observer.on_next(doc);
                     }
                     observer.on_completed();
