@@ -147,7 +147,7 @@ message OllamaGenerateMessage {
 }
 
 message OllamaModelOptions {
-  int32 temperature = 1;
+  float temperature = 1;
   int32 seed = 2;
 }
 

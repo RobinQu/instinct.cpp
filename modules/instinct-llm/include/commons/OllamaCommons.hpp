@@ -102,8 +102,9 @@ namespace INSTINCT_LLM_NS {
         ModelOptions base_options = {};
         std::string model_name = OLLAMA_DEFUALT_MODEL_NAME;
         Endpoint endpoint = OLLAMA_ENDPOINT;
-        int temperature;
-        int seed;
+        float temperature = 0.8f;
+        int seed = 0;
+        bool json_mode = false;
     };
 
 

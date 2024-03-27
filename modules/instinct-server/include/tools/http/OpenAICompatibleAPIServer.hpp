@@ -56,7 +56,19 @@ namespace INSTINCT_SERVER_NS {
 
     private:
         void AddRoutes_() {
-            GetHttpLibServer().Post("/v1/chat/completions", [&](const Request& req, Response& resp) {
+            auto& server = GetHttpLibServer();
+            server.set_exception_handler([](const auto& req, auto& res, std::exception_ptr ep) {
+                JSONObject error_response;
+                try {
+                    std::rethrow_exception(ep);
+                } catch (const std::exception& ex) {
+                    error_response["message"] = ex.what();
+                } catch (...) {
+                    error_response["message"] = "unkown exception occured.";
+                }
+                res.set_content(error_response.dump(), HTTP_CONTENT_TYPES.at(kJSON));
+            });
+            server.Post("/v1/chat/completions", [&](const Request& req, Response& resp) {
                 long t1 = ChronoUtils::GetCurrentTimeMillis();
                 LOG_DEBUG("--> REQ /v1/chat/completions, req={}", req.body);
                 const auto openai_req = ProtobufUtils::Deserialize<OpenAIChatCompletionRequest>(req.body);

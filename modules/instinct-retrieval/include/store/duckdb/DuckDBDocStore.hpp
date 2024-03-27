@@ -12,6 +12,7 @@
 #include "LLMGlobals.hpp"
 #include "RetrievalGlobals.hpp"
 #include "store/IDocStore.hpp"
+#include "tools/MetadataSchemaBuilder.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
@@ -89,7 +90,10 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
     static DocStorePtr CreateDuckDBDocStore(const DuckDBStoreOptions& options,
-            const std::shared_ptr<MetadataSchema>& metadata_schema = EMPTY_METADATA_SCHEMA) {
+            std::shared_ptr<MetadataSchema> metadata_schema = nullptr) {
+        if (!metadata_schema) {
+            metadata_schema = CreateDocStorePresetMetdataSchema();
+        }
         return std::make_shared<DuckDBDocStore>(options, metadata_schema);
     }
 

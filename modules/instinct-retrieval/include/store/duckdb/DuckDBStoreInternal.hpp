@@ -69,7 +69,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             const size_t dimmension,
             const std::shared_ptr<MetadataSchema>& metadata_schema
         ) {
-            auto create_table_sql = "CREATE OR REPLACE TABLE " + table_name + "(";
+            auto create_table_sql = "CREATE TABLE IF NOT EXISTS " + table_name + "(";
             std::vector<std::string> parts;
             parts.emplace_back("id UUID PRIMARY KEY");
             parts.emplace_back("text VARCHAR NOT NULL");
@@ -146,6 +146,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         static void observe_query_result(QueryResult& query_result, const std::shared_ptr<MetadataSchema>& metadata_schema_, const auto& observer) {
+            int count = 0;
             for (const auto& row: query_result) {
                 Document document;
                 document.set_id(row.GetValue<std::string>(0));
@@ -179,15 +180,16 @@ namespace INSTINCT_RETRIEVAL_NS {
                             throw InstinctException("unknown field type for field named " + field_schema.name());
                     }
                 }
-
+                count++;
                 observer.on_next(document);
             }
+            LOG_DEBUG("{} docs recalled", count);
             observer.on_completed();
         }
 
         static AsyncIterator<Document> conv_query_result_to_iterator(
             duckdb::unique_ptr<QueryResult> result,
-            const std::shared_ptr<MetadataSchema>& metadata_schema_) {
+            const MetadataSchemaPtr& metadata_schema_) {
             return rpp::source::create<Document>([metadata_schema_, result_ptr = std::move(result)](const auto& observer) {
                 observe_query_result(*result_ptr, metadata_schema_, observer);
             });
@@ -195,7 +197,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         static AsyncIterator<Document> conv_query_result_to_iterator(
                 duckdb::unique_ptr<MaterializedQueryResult> result,
-                const std::shared_ptr<MetadataSchema>& metadata_schema_) {
+                const MetadataSchemaPtr& metadata_schema_) {
             return rpp::source::create<Document>([metadata_schema_, result_ptr = std::move(result)](const auto& observer) {
                 observe_query_result(*result_ptr, metadata_schema_, observer);
             });

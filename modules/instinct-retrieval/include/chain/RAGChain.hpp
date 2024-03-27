@@ -58,7 +58,7 @@ Question: {standalone_question}
                                                "chat_history",
                                                chat_memory->AsLoadMemoryFunction() | xn::steps::combine_chat_history()
                                            }
-                                       }) | question_prompt_template | model->AsModelfunction() |
+                                       }) | question_prompt_template | model->AsModelFunction() |
                                        xn::steps::stringify_generation()
             },
             {
@@ -73,7 +73,7 @@ Question: {standalone_question}
         });
 
         auto answer_fn = xn::steps::mapping({
-            {"answer", answer_prompt_template | model->AsModelfunction()},
+            {"answer", answer_prompt_template | model->AsModelFunction()},
             {"question", xn::steps::selection("question")}
         });
 

@@ -36,7 +36,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     TEST_F(DuckDBVectorStoreTest, make_create_table_sql) {
         const auto sql = details::make_create_table_sql("test_tb1", 128, s1);
         std::cout << sql << std::endl;
-        ASSERT_EQ(sql, "CREATE OR REPLACE TABLE test_tb1(id UUID PRIMARY KEY, text VARCHAR NOT NULL, vector FLOAT[128] NOT NULL, name VARCHAR, address VARCHAR, age INTEGER);");
+        ASSERT_EQ(sql, "CREATE TABLE IF NOT EXISTS test_tb1(id UUID PRIMARY KEY, text VARCHAR NOT NULL, vector FLOAT[128] NOT NULL, name VARCHAR, address VARCHAR, age INTEGER);");
     }
 
     TEST_F(DuckDBVectorStoreTest, make_search_sql) {

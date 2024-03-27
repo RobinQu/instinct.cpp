@@ -13,6 +13,7 @@
 #include "tools/Assertions.hpp"
 #include "tools/StringUtils.hpp"
 #include "../../../../instinct-core/include/tools/MetadataSchemaBuilder.hpp"
+#include "tools/ChronoUtils.hpp"
 
 
 namespace INSTINCT_RETRIEVAL_NS {
@@ -213,6 +214,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         AsyncIterator<Document> SearchDocuments(const SearchRequest& request) override {
+            LOG_DEBUG("Search started: query={}, top_k={}", request.query(), request.top_k());
+            long t1 = ChronoUtils::GetCurrentTimeMillis();
             const auto query_embedding = embeddings_->EmbedQuery(request.query());
 
             bool has_filter = request.has_metadata_filter() && (request.metadata_filter().has_bool_() || request.metadata_filter().has_term());
@@ -238,7 +241,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             return details::conv_query_result_to_iterator(
                     std::move(result),
                     GetMetadataSchema()
-            );
+            )
+            | rpp::operators::tap({}, {}, [t1]() {
+                LOG_INFO("Search done, rt={}ms", ChronoUtils::GetCurrentTimeMillis()-t1);
+            });
         }
 
         void AddDocuments(const AsyncIterator<Document>& documents_iterator, UpdateResult& update_result) override {
@@ -281,11 +287,11 @@ namespace INSTINCT_RETRIEVAL_NS {
     static VectorStorePtr CreateDuckDBVectorStore(
         const EmbeddingsPtr& embeddings_model,
         const DuckDBStoreOptions& options,
-        const MetadataSchemaPtr& metadata_schema = EMPTY_METADATA_SCHEMA
+        MetadataSchemaPtr metadata_schema = nullptr
     ) {
-        // if (!metadata_schema) {
-        //     metadata_schema = CreatePresetMetdataSchema();
-        // }
+        if (!metadata_schema) {
+            metadata_schema = CreateVectorStorePresetMetdataSchema();
+        }
         return std::make_shared<DuckDBVectorStore>(
             embeddings_model,
             options,

@@ -77,7 +77,9 @@ namespace INSTINCT_LLM_NS {
                 ollama_msg->set_role(message.role());
             }
             request.set_stream(false);
-            request.set_format("json");
+            if (configuration_.json_mode) {
+                request.set_format("json");
+            }
             request.set_model(configuration_.model_name);
             // request.mutable_options()->CopyFrom(configuration_->model_options());
             request.mutable_options()->set_seed(configuration_.seed);
@@ -102,7 +104,9 @@ namespace INSTINCT_LLM_NS {
                 ollama_msg->set_role(message.role());
             }
             request.set_stream(true);
-            request.set_format("json");
+            if (configuration_.json_mode) {
+                request.set_format("json");
+            }
             request.set_model(configuration_.model_name);
             request.mutable_options()->set_seed(configuration_.seed);
             request.mutable_options()->set_temperature(configuration_.temperature);

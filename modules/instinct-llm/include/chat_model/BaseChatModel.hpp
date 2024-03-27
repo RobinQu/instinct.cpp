@@ -80,13 +80,13 @@ namespace INSTINCT_LLM_NS {
                    | rpp::operators::map(details::conv_language_result_to_message);
         }
 
-        StepFunctionPtr AsModelfunction() {
+        StepFunctionPtr AsModelFunction() {
             return std::make_shared<ChatModelFunction>(shared_from_this());;
         }
 
     };
 
-    JSONContextPtr ChatModelFunction::Invoke(const JSONContextPtr &input) {
+    inline JSONContextPtr ChatModelFunction::Invoke(const JSONContextPtr &input) {
         auto prompt_value = input->RequireMessage<PromptValue>();
         auto messages = details::conv_prompt_value_variant_to_message_list(prompt_value);
         auto batched_result = model_->Generate({messages});
@@ -100,7 +100,7 @@ namespace INSTINCT_LLM_NS {
         return input;
     }
 
-    AsyncIterator<JSONContextPtr> ChatModelFunction::Batch(const std::vector<JSONContextPtr> &input) {
+    inline AsyncIterator<JSONContextPtr> ChatModelFunction::Batch(const std::vector<JSONContextPtr> &input) {
         auto message_matrix_view = input | std::views::transform([&](const auto &ctx) {
             auto prompt_value = ctx->template RequireMessage<PromptValue>();
             return details::conv_prompt_value_variant_to_message_list(prompt_value);
@@ -118,7 +118,7 @@ namespace INSTINCT_LLM_NS {
         });
     }
 
-    AsyncIterator<JSONContextPtr> ChatModelFunction::Stream(const JSONContextPtr &input) {
+    inline AsyncIterator<JSONContextPtr> ChatModelFunction::Stream(const JSONContextPtr &input) {
         auto prompt_value = input->RequireMessage<PromptValue>();
         auto message_list = details::conv_prompt_value_variant_to_message_list(prompt_value);
 

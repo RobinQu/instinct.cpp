@@ -73,6 +73,14 @@ namespace insintct::exmaples::chat_doc {
         return nullptr;
     }
 
+    static void PrintDatabaseSummary(const DocStorePtr& doc_store, const VectorStorePtr& vectore_store) {
+        auto doc_count = doc_store->CountDocuments();
+        auto vector_count = vectore_store->CountDocuments();
+        LOG_INFO("DocStore: {} docs", doc_count);
+        LOG_INFO("VectorStore: {} embeddings", vector_count);
+    }
+
+
     static void BuildCommand(const BuildCommandOptions& options) {
         IngestorPtr ingestor;
         if (options.file_type == "PDF") {
@@ -86,18 +94,20 @@ namespace insintct::exmaples::chat_doc {
         // force rebuild
         if (options.force_rebuild) {
             LOG_INFO("Force rebuild is enabled.");
-            if(std::filesystem::remove(options.doc_store.db_file_path)) {
+            if (std::filesystem::remove(options.doc_store.db_file_path)) {
                 LOG_INFO("DocStore file at {} is deleted", options.doc_store.db_file_path);
             }
             if (std::filesystem::remove(options.vector_store.db_file_path)) {
                 LOG_INFO("VectorStore file at {} is deleted", options.vector_store.db_file_path);
             }
         } else {
-            assert_true(!std::filesystem::exists(options.doc_store.db_file_path), "DocStore file already exists. Abort to prevent data corruption.");
-            assert_true(!std::filesystem::exists(options.vector_store.db_file_path), "VectorStore file already exists. Abort to prevent data corruption.");
+            assert_true(!std::filesystem::exists(options.doc_store.db_file_path),
+                        "DocStore file already exists. Abort to prevent data corruption.");
+            assert_true(!std::filesystem::exists(options.vector_store.db_file_path),
+                        "VectorStore file already exists. Abort to prevent data corruption.");
         }
 
-        const auto doc_store = CreateDuckDBDocStore(options.doc_store, CreatePresetMetdataSchema());
+        const auto doc_store = CreateDuckDBDocStore(options.doc_store);
 
         EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.llm_provider);
         assert_true(embedding_model, "should have assigned correct embedding model");
@@ -112,8 +122,11 @@ namespace insintct::exmaples::chat_doc {
             child_spliter
         );
         retriever->Ingest(ingestor->Load());
+
         LOG_INFO("Database is built successfully!");
+        PrintDatabaseSummary(doc_store, vectore_store);
     }
+
 
     static void ServeCommand(const ServeCommandOptions& options) {
         EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.llm_provider);
@@ -121,6 +134,8 @@ namespace insintct::exmaples::chat_doc {
 
         const auto doc_store = CreateDuckDBDocStore(options.doc_store);
         const auto vectore_store = CreateDuckDBVectorStore(embedding_model, options.vector_store);
+        LOG_INFO("VectorStore and DocStore loaded: ");
+        PrintDatabaseSummary(doc_store, vectore_store);
 
         const auto child_spliter = CreateRecursiveCharacterTextSplitter();
         const auto retriever = CreateChunkedMultiVectorRetriever(
@@ -153,13 +168,14 @@ Question: {standalone_question}
         const auto question_fn = xn::steps::mapping({
             {
                 "standalone_question", xn::steps::mapping({
-                                           {"question", xn::steps::passthrough()},
+                                           // expecting `question` from input of `MappingData`
+                                           {"question", xn::steps::selection("question")},
                                            {
                                                "chat_history",
                                                // expecting `chat_history` from input of `MappingData`.
                                                xn::steps::selection("chat_history") | xn::steps::combine_chat_history()
                                            }
-                                       }) | question_prompt_template | chat_model->AsModelfunction() |
+                                       }) | question_prompt_template | chat_model->AsModelFunction() |
                                        xn::steps::stringify_generation()
             },
             {
@@ -170,11 +186,10 @@ Question: {standalone_question}
 
         const auto context_fn = xn::steps::mapping({
             {"context", xn::steps::selection("question") | retriever->AsContextRetrieverFunction()},
-            {"standalone_question", xn::steps::selection("standalone_question")},
-            {"question", xn::steps::selection("question")},
+            {"standalone_question", xn::steps::selection("standalone_question")}
         });
 
-        const auto rag_chain = question_fn | context_fn | answer_prompt_template | chat_model->AsModelfunction();
+        const auto rag_chain = question_fn | context_fn | answer_prompt_template | chat_model->AsModelFunction();
 
         const auto server_chain = CreateOpenAIServerChain(rag_chain);
 
@@ -184,18 +199,20 @@ Question: {standalone_question}
 
 
     static void BuildDocstoreOptionGroup(CLI::Option_group* doc_store_ogroup,
-                                      DuckDBStoreOptions& duck_db_options) {
+                                         DuckDBStoreOptions& duck_db_options) {
         doc_store_ogroup
-                ->add_option("--doc_db_path", duck_db_options.db_file_path, "File path to database file, which will be created if given file doesn't exist.");
+                ->add_option("--doc_db_path", duck_db_options.db_file_path,
+                             "File path to database file, which will be created if given file doesn't exist.");
         doc_store_ogroup
                 ->add_option("--doc_table_name", duck_db_options.table_name, "Table name for documents")
                 ->default_val("doc_table");
     }
 
     static void BuildVecstoreOptiongroup(CLI::Option_group* vec_store_ogroup,
-                                      DuckDBStoreOptions& duck_db_options) {
+                                         DuckDBStoreOptions& duck_db_options) {
         vec_store_ogroup
-                ->add_option("--vector_db_path", duck_db_options.db_file_path, "File path to database file, which will be created if given file doesn't exist.");
+                ->add_option("--vector_db_path", duck_db_options.db_file_path,
+                             "File path to database file, which will be created if given file doesn't exist.");
         vec_store_ogroup
                 ->add_option("--vector_table_dimension", duck_db_options.dimension, "Dimension of embedding vector.")
                 ->required();
@@ -205,7 +222,7 @@ Question: {standalone_question}
     }
 
     static void BuildLLMProviderOptionGroup(CLI::Option_group* llm_provider_ogroup,
-                                          LLMProviderOptions& provider_options) {
+                                            LLMProviderOptions& provider_options) {
         llm_provider_ogroup->add_option("--llm_provider", provider_options.provider_name,
                                         "Specify LLM to use for both embedding and chat completion. Ollama, OpenAI API, or any OpenAI API compatible servers are supported.")
                 ->check(CLI::IsMember({"ollama", "openai"}, CLI::ignore_case))
@@ -257,7 +274,8 @@ int main(int argc, char** argv) {
     BuildCommandOptions build_command_options;
     const auto build_command = app.add_subcommand(
         "build", "💼 Anaylize a single document and build database of learned context data");
-    build_command->add_flag("--force", build_command_options.force_rebuild, "A flag to force rebuild of database, which means existing db files will be deleted. Use this option with caution!");
+    build_command->add_flag("--force", build_command_options.force_rebuild,
+                            "A flag to force rebuild of database, which means existing db files will be deleted. Use this option with caution!");
     build_command->add_option("-f,--file", build_command_options.filename, "Path to the document you want analyze")
             ->required()
             ->check(ExistingFile);
@@ -302,7 +320,7 @@ int main(int argc, char** argv) {
     CLI11_PARSE(app, argc, argv);
 
     // setup logging
-    if(enable_verbose_log) {
+    if (enable_verbose_log) {
         fmtlog::setLogLevel(fmtlog::DBG);
         LOG_INFO("Verbose logging is enabled.");
     } else {
@@ -311,16 +329,17 @@ int main(int argc, char** argv) {
     fmtlog::startPollingThread();
 
     // trigger sub-command
-    for(const auto* sub_command: app.get_subcommands()) {
+    for (const auto* sub_command: app.get_subcommands()) {
         try {
             if (sub_command->get_name() == "build") {
                 BuildCommand(build_command_options);
             }
-            if(sub_command->get_name() == "serve") {
+            if (sub_command->get_name() == "serve") {
                 ServeCommand(serve_command_options);
             }
         } catch (const std::runtime_error& err) {
-            LOG_ERROR("Failed to execute sub-command {} due to exception. Possible reason: {}", sub_command->get_name(), err.what());
+            LOG_ERROR("Failed to execute sub-command {} due to exception. Possible reason: {}", sub_command->get_name(),
+                      err.what());
         }
     }
 

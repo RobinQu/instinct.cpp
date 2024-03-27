@@ -62,7 +62,7 @@ namespace INSTINCT_LLM_NS {
             model_function = std::get<LLMPtr>(model)->AsModelFunction();
         }
         if (std::holds_alternative<ChatModelPtr>(model)) {
-            model_function = std::get<ChatModelPtr>(model)->AsModelfunction();
+            model_function = std::get<ChatModelPtr>(model)->AsModelFunction();
         }
         assert_true(model_function, "should contain model function");
 

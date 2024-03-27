@@ -33,7 +33,9 @@ namespace INSTINCT_CORE_NS {
         requires is_pb_message<T>
         static std::string Serialize(const T& obj) {
             std::string param_string;
-            auto status = google::protobuf::util::MessageToJsonString(obj, &param_string);
+            google::protobuf::util::JsonPrintOptions json_print_options;
+            json_print_options.preserve_proto_field_names = true;
+            auto status = google::protobuf::util::MessageToJsonString(obj, &param_string, json_print_options);
             assert_true(status.ok(), "failed to dump parameters from protobuf message");
             return param_string;
         }

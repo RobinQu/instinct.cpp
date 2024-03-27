@@ -53,7 +53,9 @@ namespace INSTINCT_LLM_NS {
             OllamaCompletionRequest request;
             request.set_model(configuration_.model_name);
             request.set_stream(false);
-            request.set_format("json");
+            if (configuration_.json_mode) {
+                request.set_format("json");
+            }
             request.set_prompt(prompt);
             request.mutable_options()->set_seed(configuration_.seed);
             request.mutable_options()->set_temperature(configuration_.temperature);
@@ -74,7 +76,9 @@ namespace INSTINCT_LLM_NS {
             OllamaCompletionRequest request;
             request.set_model(configuration_.model_name);
             request.set_stream(true);
-            request.set_format("json");
+            if (configuration_.json_mode) {
+                request.set_format("json");
+            }
             request.mutable_options()->set_seed(configuration_.seed);
             request.mutable_options()->set_temperature(configuration_.temperature);
             request.set_prompt(prompt);

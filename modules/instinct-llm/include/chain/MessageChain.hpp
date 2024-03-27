@@ -147,7 +147,7 @@ namespace xn::steps {
     class GenerationToStringFunction final: public BaseStepFunction {
     public:
         JSONContextPtr Invoke(const JSONContextPtr &input) override {
-            auto generation = input->RequireMessage<Generation>();
+            const auto generation = input->RequireMessage<Generation>();
             input->ProducePrimitive(generation.has_message() ? generation.message().content() : generation.text());
             return input;
         }

@@ -36,12 +36,14 @@ namespace INSTINCT_SERVER_NS {
             JSONMappingContext mapping_data;
             // treat last message as latest user input
             const auto question_ctx = CreateJSONContext();
-            question_ctx->ProducePrimitive(input.messages().end()->content());
+            const int n = input.messages_size();
+            assert_gt(n, 0, "should provide at least one message");
+            question_ctx->ProducePrimitive(input.messages(n-1).content());
             mapping_data[options_.question_variable_key] = question_ctx;
 
             // treat first n-1 messages as chat_history
             MessageList message_list;
-            for(int i=0;i<input.messages_size()-1;++i) {
+            for(int i=0;i<n-1;++i) {
                 message_list.add_messages()->CopyFrom(input.messages(i));
             }
             const auto msg_list_ctx = CreateJSONContext();
