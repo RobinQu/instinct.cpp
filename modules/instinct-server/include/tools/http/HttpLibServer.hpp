@@ -37,7 +37,6 @@ namespace INSTINCT_SERVER_NS {
         }
 
         void InitServer() {
-            LOG_INFO("InitServer...");
             server_.Get("/health", [](const Request& req, Response& resp) {
                 resp.set_content("ok", HTTP_CONTENT_TYPES.at(kPlainText));
                 return true;
@@ -52,11 +51,12 @@ namespace INSTINCT_SERVER_NS {
             } else {
                 port = server_.bind_to_any_port(options_.host);
             }
+            LOG_INFO("Server is up and running at port {}", port);
             return port;
         }
 
         void Shutdown() override {
-            LOG_INFO("ChainServer is shutting down");
+            LOG_INFO("Server is shutting down");
             server_.stop();
         }
 

@@ -285,10 +285,10 @@ int main(int argc, char** argv) {
             ->default_val("9090");
     BuildDocstoreOptionGroup(
         serve_command->add_option_group("docstore"),
-        build_command_options.doc_store);
+        serve_command_options.doc_store);
     BuildVecstoreOptiongroup(
         serve_command->add_option_group("vecstore"),
-        build_command_options.vector_store);
+        serve_command_options.vector_store);
 
     build_command->final_callback([&]() {
         serve_command_options.llm_provider = llm_provider_options;
