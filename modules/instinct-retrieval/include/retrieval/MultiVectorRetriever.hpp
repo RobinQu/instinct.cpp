@@ -53,6 +53,7 @@ namespace INSTINCT_RETRIEVAL_NS {
               options_(std::move(options)) {
             assert_true(doc_store_, "should have doc store");
             assert_true(vector_store_, "should have doc store");
+            assert_true(guidance_, "should have guidance");
         }
 
         [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery& query) const override {

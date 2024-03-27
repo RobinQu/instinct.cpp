@@ -113,6 +113,10 @@ namespace INSTINCT_LLM_NS {
 
     };
 
+    static ChatModelPtr CreateOllamaChatModel(const OllamaConfiguration& configuration = {}) {
+        return std::make_shared<OllamaChat>(configuration);
+    }
+
 
 } // core
 

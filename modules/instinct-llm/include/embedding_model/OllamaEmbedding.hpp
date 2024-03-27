@@ -55,6 +55,11 @@ namespace INSTINCT_LLM_NS {
             return 4096;
         }
     };
+
+
+    static EmbeddingsPtr CreateOllamaEmbedding(const OllamaConfiguration& ollama_configuration = {}) {
+        return std::make_shared<OllamaEmbedding>(ollama_configuration);
+    }
 } // LC_MODEL_NS
 
 #endif //OLLAMAEMBEDDING_H

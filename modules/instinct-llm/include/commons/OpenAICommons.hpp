@@ -11,6 +11,8 @@
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
     struct  OpenAIConfiguration {
+        std::string api_key;
+
         /**
          * options for base class
          */

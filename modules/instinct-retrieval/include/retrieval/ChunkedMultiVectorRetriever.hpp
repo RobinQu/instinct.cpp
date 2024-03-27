@@ -34,6 +34,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 std::move(options)),
                   child_splitter_(std::move(child_splitter)),
                   parent_splitter_(std::move(parent_splitter)) {
+            assert_true(child_splitter_, "should provide child_splitter");
         }
 
 
