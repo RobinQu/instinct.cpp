@@ -5,7 +5,6 @@
 #include <CLI/CLI.hpp>
 #include <document/RecursiveCharacterTextSplitter.hpp>
 
-#include "LLMTestGlobals.hpp"
 #include "chain/RAGChain.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "commons/OllamaCommons.hpp"
@@ -18,6 +17,7 @@
 #include "store/duckdb/DuckDBDocStore.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
 #include "tools/http/OpenAICompatibleAPIServer.hpp"
+#include "tools/Assertions.hpp"
 
 
 namespace insintct::exmaples::chat_doc {
@@ -42,6 +42,7 @@ namespace insintct::exmaples::chat_doc {
         DuckDBStoreOptions doc_store;
         DuckDBStoreOptions vector_store;
         LLMProviderOptions llm_provider;
+        bool force_rebuild = false;
     };
 
     struct ServeCommandOptions {
@@ -59,9 +60,6 @@ namespace insintct::exmaples::chat_doc {
         if (options.provider_name == "openai") {
             return CreateOpenAIEmbeddingModel(options.openai);
         }
-        // if (options.llm_provider.provider_name == "pesudo") {
-        //     embedding_model =  instinct::test::create_pesudo_embedding_model();
-        // }
         return nullptr;
     }
 
@@ -83,6 +81,20 @@ namespace insintct::exmaples::chat_doc {
             ingestor = CreateDOCXFileIngestor(options.filename);
         } else {
             ingestor = CreatePlainTextFileIngestor(options.filename);
+        }
+
+        // force rebuild
+        if (options.force_rebuild) {
+            LOG_INFO("Force rebuild is enabled.");
+            if(std::filesystem::remove(options.doc_store.db_file_path)) {
+                LOG_INFO("DocStore file at {} is deleted", options.doc_store.db_file_path);
+            }
+            if (std::filesystem::remove(options.vector_store.db_file_path)) {
+                LOG_INFO("VectorStore file at {} is deleted", options.vector_store.db_file_path);
+            }
+        } else {
+            assert_true(!std::filesystem::exists(options.doc_store.db_file_path), "DocStore file already exists. Abort to prevent data corruption.");
+            assert_true(!std::filesystem::exists(options.vector_store.db_file_path), "VectorStore file already exists. Abort to prevent data corruption.");
         }
 
         const auto doc_store = CreateDuckDBDocStore(options.doc_store, CreatePresetMetdataSchema());
@@ -171,19 +183,19 @@ Question: {standalone_question}
     }
 
 
-    static void build_docstore_ogroup(CLI::Option_group* doc_store_ogroup,
+    static void BuildDocstoreOptionGroup(CLI::Option_group* doc_store_ogroup,
                                       DuckDBStoreOptions& duck_db_options) {
         doc_store_ogroup
-                ->add_option("--doc_db_path", duck_db_options.db_file_path, "File path to database file. Will be created if given file doesn't exist.");
+                ->add_option("--doc_db_path", duck_db_options.db_file_path, "File path to database file, which will be created if given file doesn't exist.");
         doc_store_ogroup
                 ->add_option("--doc_table_name", duck_db_options.table_name, "Table name for documents")
                 ->default_val("doc_table");
     }
 
-    static void build_vecstore_ogroup(CLI::Option_group* vec_store_ogroup,
+    static void BuildVecstoreOptiongroup(CLI::Option_group* vec_store_ogroup,
                                       DuckDBStoreOptions& duck_db_options) {
         vec_store_ogroup
-                ->add_option("--vector_db_path", duck_db_options.db_file_path, "File path to database file. Will be created if given file doesn't exist.");
+                ->add_option("--vector_db_path", duck_db_options.db_file_path, "File path to database file, which will be created if given file doesn't exist.");
         vec_store_ogroup
                 ->add_option("--vector_table_dimension", duck_db_options.dimension, "Dimension of embedding vector.")
                 ->required();
@@ -192,7 +204,7 @@ Question: {standalone_question}
                 ->default_val("embedding_table");
     }
 
-    static void build_llm_provider_ogroup(CLI::Option_group* llm_provider_ogroup,
+    static void BuildLLMProviderOptionGroup(CLI::Option_group* llm_provider_ogroup,
                                           LLMProviderOptions& provider_options) {
         llm_provider_ogroup->add_option("--llm_provider", provider_options.provider_name,
                                         "Specify LLM to use for both embedding and chat completion. Ollama, OpenAI API, or any OpenAI API compatible servers are supported.")
@@ -239,12 +251,13 @@ int main(int argc, char** argv) {
 
     // llm_provider_options for both chat model and embedding model
     LLMProviderOptions llm_provider_options;
-    build_llm_provider_ogroup(app.add_option_group("LLM"), llm_provider_options);
+    BuildLLMProviderOptionGroup(app.add_option_group("LLM"), llm_provider_options);
 
     // build command
     BuildCommandOptions build_command_options;
     const auto build_command = app.add_subcommand(
         "build", "💼 Anaylize a single document and build database of learned context data");
+    build_command->add_flag("--force", build_command_options.force_rebuild, "A flag to force rebuild of database, which means existing db files will be deleted. Use this option with caution!");
     build_command->add_option("-f,--file", build_command_options.filename, "Path to the document you want analyze")
             ->required()
             ->check(ExistingFile);
@@ -253,10 +266,10 @@ int main(int argc, char** argv) {
                          "File format of assigned document. Supported types are PDF,TXT,MD,DOCX")
             ->default_val("TXT")
             ->check(IsMember({"PDF", "DOCX", "MD", "TXT"}, CLI::ignore_case));
-    build_docstore_ogroup(
+    BuildDocstoreOptionGroup(
         build_command->add_option_group("docstore"),
         build_command_options.doc_store);
-    build_vecstore_ogroup(
+    BuildVecstoreOptiongroup(
         build_command->add_option_group("vecstore"),
         build_command_options.vector_store);
     build_command->final_callback([&]() {
@@ -270,10 +283,10 @@ int main(int argc, char** argv) {
     serve_command
             ->add_option("-p,--port", serve_command_options.server.port, "Port number which API server will listen")
             ->default_val("9090");
-    build_docstore_ogroup(
+    BuildDocstoreOptionGroup(
         serve_command->add_option_group("docstore"),
         build_command_options.doc_store);
-    build_vecstore_ogroup(
+    BuildVecstoreOptiongroup(
         serve_command->add_option_group("vecstore"),
         build_command_options.vector_store);
 
@@ -297,15 +310,19 @@ int main(int argc, char** argv) {
     }
     fmtlog::startPollingThread();
 
+    // trigger sub-command
     for(const auto* sub_command: app.get_subcommands()) {
-        if (sub_command->get_name() == "build") {
-            BuildCommand(build_command_options);
-        }
-        if(sub_command->get_name() == "serve") {
-            ServeCommand(serve_command_options);
+        try {
+            if (sub_command->get_name() == "build") {
+                BuildCommand(build_command_options);
+            }
+            if(sub_command->get_name() == "serve") {
+                ServeCommand(serve_command_options);
+            }
+        } catch (const std::runtime_error& err) {
+            LOG_ERROR("Failed to execute sub-command {} due to exception. Possible reason: {}", sub_command->get_name(), err.what());
         }
     }
-
 
     return 0;
 }
