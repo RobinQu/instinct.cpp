@@ -6,7 +6,7 @@
 #define INSTINCT_BASERETRIEVER_HPP
 
 #include "retrieval/IRetriever.hpp"
-#include "../../../instinct-core/include/tools/DocumentUtils.hpp"
+#include "tools/DocumentUtils.hpp"
 #include "functional/StepFunctions.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
@@ -23,7 +23,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery &query) const override = 0;
 
         [[nodiscard]] StepFunctionPtr AsContextRetrieverFunction(const RetrieverFunctionOptions& options = {}) const {
-            return std::make_shared<LambdaStepFunction>([&](const JSONContextPtr &ctx) {
+            return std::make_shared<LambdaStepFunction>([&, options](const JSONContextPtr &ctx) {
                     const auto question_string = ctx->RequirePrimitive<std::string>();
                     const auto doc_itr = Retrieve({.text = question_string, .top_k = options.top_k});
                     std::string context_string = DocumentUtils::CombineDocuments(doc_itr);

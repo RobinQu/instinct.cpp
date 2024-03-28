@@ -67,7 +67,8 @@ namespace INSTINCT_RETRIEVAL_NS {
                          std::views::transform([&](const UnicodeString &str) {
                              Document document;
                              str.toUTF8String(*document.mutable_text());
-                             DocumentUtils::AddPresetMetadataFileds(document, ROOT_DOC_ID, ++i);
+                             DocumentUtils::AddPresetMetadataFileds(document, parent_doc.id(), ++i);
+                             LOG_DEBUG("chunked doc: size={}, parent_id={}", document.text().size(), parent_doc.id());
                              return document;
                          });
             return {parts.begin(), parts.end()};

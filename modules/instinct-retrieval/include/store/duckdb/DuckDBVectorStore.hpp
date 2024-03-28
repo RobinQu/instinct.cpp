@@ -131,7 +131,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             for (const float& f: embedding) {
                 vector_value.push_back(Value::FLOAT(f));
             }
-            appender.Append(Value::ARRAY(vector_value));
+            appender.Append(Value::ARRAY(LogicalType::FLOAT, vector_value));
 
             // metadata fields
             append_row_metadata_fields(metadata_schema, appender, doc, bypass_unknown_fields);

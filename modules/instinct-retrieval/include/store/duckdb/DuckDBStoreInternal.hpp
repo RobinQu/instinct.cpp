@@ -14,7 +14,7 @@
 #include "store/IDocStore.hpp"
 #include "tools/StringUtils.hpp"
 #include "functional/ReactiveFunctions.hpp"
-#include "../../../../instinct-core/include/tools/DocumentUtils.hpp"
+#include "tools/DocumentUtils.hpp"
 
 
 namespace INSTINCT_RETRIEVAL_NS {

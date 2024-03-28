@@ -45,12 +45,15 @@ namespace INSTINCT_RETRIEVAL_NS {
         MultiVectorRetrieverOptions options_;
 
     public:
-        MultiVectorRetriever(DocStorePtr doc_store, VectorStorePtr vector_store, MultiVectorGuidance guidance_chain,
-            MultiVectorRetrieverOptions options)
+        MultiVectorRetriever(
+            DocStorePtr doc_store,
+            VectorStorePtr vector_store,
+            MultiVectorGuidance guidance_chain,
+            const MultiVectorRetrieverOptions& options)
             : doc_store_(std::move(doc_store)),
               vector_store_(std::move(vector_store)),
               guidance_(std::move(guidance_chain)),
-              options_(std::move(options)) {
+              options_(options) {
             assert_true(doc_store_, "should have doc store");
             assert_true(vector_store_, "should have doc store");
             assert_true(guidance_, "should have guidance");
@@ -90,9 +93,9 @@ namespace INSTINCT_RETRIEVAL_NS {
                 doc_store_->AddDocument(parent_doc);
                 auto sub_docs = std::invoke(guidance_, parent_doc);
                 LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), parent_doc.id());
-                for (auto& sub_doc: sub_docs) {
-                    DocumentUtils::AddPresetMetadataFileds(sub_doc, parent_doc.id());
-                }
+                // for (auto& sub_doc: sub_docs) {
+                //     DocumentUtils::AddPresetMetadataFileds(sub_doc, parent_doc.id());
+                // }
                 guided_docs.insert(guided_docs.end(), sub_docs.begin(), sub_docs.end());
             }
             UpdateResult update_result;
@@ -120,10 +123,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             );
         MultiVectorGuidance guidance = [&, summary_chain](const Document& doc) {
             assert_true(!StringUtils::IsBlankString(doc.id()), "should have valid doc id");
-
             auto generation = summary_chain->Invoke(
                     doc.text()
             );
+            LOG_DEBUG("Genearted summary: {}", generation);
             Document summary_doc;
             summary_doc.set_text(generation);
             summary_doc.set_id(u8_utils::uuid_v8());
@@ -155,8 +158,9 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         MultiVectorGuidance guidance = [&, query_chain](const Document& doc) {
             assert_true(!StringUtils::IsBlankString(doc.id()), "should have valid doc id");
-            auto result = query_chain->Invoke(doc.text());
+            const auto result = query_chain->Invoke(doc.text());
             std::vector<Document> final_queries;
+            LOG_DEBUG("Genearted queries: {}", result.ShortDebugString());
             for(const auto& query: result.lines()) {
                 Document query_doc;
                 query_doc.set_id(u8_utils::uuid_v8());

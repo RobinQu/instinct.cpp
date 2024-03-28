@@ -43,7 +43,7 @@ namespace insintct::exmaples::chat_doc {
     struct RetrieverOptions {
         bool summary_guided_retriever = false;
         bool hypothectical_queries_guided_retriever = false;
-        bool chunked_multi_vector_retriever = true;
+        bool chunked_multi_vector_retriever = false;
         bool multi_query_retriever = false;
         bool auto_retriever = false;
     };
@@ -101,15 +101,65 @@ namespace insintct::exmaples::chat_doc {
         return nullptr;
     }
 
-    static void PrintDatabaseSummary(const DocStorePtr& doc_store, const VectorStorePtr& vectore_store) {
+    static void PrintDatabaseSummary(const std::string& announcment, const DocStorePtr& doc_store, const VectorStorePtr& vectore_store) {
         auto doc_count = doc_store->CountDocuments();
         auto vector_count = vectore_store->CountDocuments();
-        LOG_INFO("DocStore: {} docs", doc_count);
-        LOG_INFO("VectorStore: {} embeddings", vector_count);
+        LOG_INFO("{}: DocStore{} docs, VectorStore {} embeddings", announcment, doc_count, vector_count);
     }
 
+    static StatefulRetrieverPtr CreateBaseRetriever(
+        const RetrieverOptions& retriever_options,
+        const DocStorePtr& doc_store,
+        const VectorStorePtr& vector_store,
+        const ChatModelPtr& chat_model
+    ) {
+
+        if(retriever_options.chunked_multi_vector_retriever) {
+            LOG_INFO("CreateChunkedMultiVectorRetriever");
+            const auto child_spliter = CreateRecursiveCharacterTextSplitter();
+            return CreateChunkedMultiVectorRetriever(
+                doc_store,
+                vector_store,
+                child_spliter
+            );
+        }
+
+        if(retriever_options.hypothectical_queries_guided_retriever) {
+            LOG_INFO("CreateHypotheticalQueriesGuidedRetriever");
+            return CreateHypotheticalQueriesGuidedRetriever(
+                chat_model,
+                doc_store,
+                vector_store
+            );
+        }
+
+        if (retriever_options.summary_guided_retriever) {
+            LOG_INFO("CreateSummaryGuidedRetriever");
+            return CreateSummaryGuidedRetriever(
+                chat_model,
+                doc_store,
+                vector_store
+            );
+        }
+        return nullptr;
+    }
+
+    static RetrieverPtr CreateAdaptorRetriever(
+        const RetrieverOptions& retriever_options,
+        const StatefulRetrieverPtr& base_retriever,
+        const ChatModelPtr& chat_model
+    ) {
+        if (retriever_options.multi_query_retriever) {
+            LOG_INFO("CreateMultiQueryRetriever");
+            return CreateMultiQueryRetriever(base_retriever, chat_model);
+        }
+
+        // if no adaptor retriever is required, return base retirever instead
+        return base_retriever;
+    }
 
     static void BuildCommand(const BuildCommandOptions& options) {
+        // create ingestor
         IngestorPtr ingestor;
         if (options.file_type == "PDF") {
             ingestor = CreatePDFFileIngestor(options.filename);
@@ -135,65 +185,34 @@ namespace insintct::exmaples::chat_doc {
                         "VectorStore file already exists. Abort to prevent data corruption.");
         }
 
+        // doc store
         const auto doc_store = CreateDuckDBDocStore(options.doc_store);
 
+        // embedding model
         EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.embedding_provider);
         assert_true(embedding_model, "should have assigned correct embedding model");
 
+        // chat model
+        const auto chat_model = CreateChatModel(options.chat_model_provider);
+        assert_true(chat_model, "should have assigned correct chat model");
+
+        // vector model
         const auto vectore_store = CreateDuckDBVectorStore(embedding_model, options.vector_store);
 
-        const auto child_spliter = CreateRecursiveCharacterTextSplitter({.chunk_size = 1000});
-
-        const auto retriever = CreateChunkedMultiVectorRetriever(
+        // base retriever is enough for data ingestion
+        const auto retriever = CreateBaseRetriever(
+            options.retriever,
             doc_store,
             vectore_store,
-            child_spliter
+            chat_model
         );
+        assert_true(retriever, "Should have assigned correct retriever");
+
+        // ingest data
         retriever->Ingest(ingestor->Load());
 
-        LOG_INFO("Database is built successfully!");
-        PrintDatabaseSummary(doc_store, vectore_store);
+        PrintDatabaseSummary("Database is built successfully: ", doc_store, vectore_store);
     }
-
-    static RetrieverPtr CreateRetriever(
-        const RetrieverOptions& retriever_options,
-        const DocStorePtr& doc_store, const VectorStorePtr& vector_store,
-        const ChatModelPtr& chat_model
-    ) {
-        RetrieverPtr base_retriever;
-
-        if(retriever_options.chunked_multi_vector_retriever) {
-            const auto child_spliter = CreateRecursiveCharacterTextSplitter();
-            base_retriever = CreateChunkedMultiVectorRetriever(
-                doc_store,
-                vector_store,
-                child_spliter
-            );
-        }
-
-        if(retriever_options.hypothectical_queries_guided_retriever) {
-            base_retriever = CreateHypotheticalQueriesGuidedRetriever(
-                chat_model,
-                doc_store,
-                vector_store
-            );
-        }
-
-        if (retriever_options.summary_guided_retriever) {
-            base_retriever = CreateSummaryGuidedRetriever(
-                chat_model,
-                doc_store,
-                vector_store
-            );
-        }
-
-        if (retriever_options.multi_query_retriever) {
-            return CreateMultiQueryRetriever(base_retriever, chat_model);
-        }
-
-        return base_retriever;
-    }
-
 
     static void ServeCommand(const ServeCommandOptions& options) {
         EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.embedding_provider);
@@ -204,11 +223,11 @@ namespace insintct::exmaples::chat_doc {
 
         const auto doc_store = CreateDuckDBDocStore(options.doc_store);
         const auto vector_store = CreateDuckDBVectorStore(embedding_model, options.vector_store);
-        LOG_INFO("VectorStore and DocStore loaded: ");
-        PrintDatabaseSummary(doc_store, vector_store);
+        PrintDatabaseSummary("VectorStore and DocStore loaded: ", doc_store, vector_store);
 
-        const auto retriever = CreateRetriever(options.retriever, doc_store, vector_store, chat_model);
-        assert_true(retriever, "Should have assigned correct retriever");
+        const auto base_retriever = CreateBaseRetriever(options.retriever, doc_store, vector_store, chat_model);
+        assert_true(base_retriever, "Should have assigned correct retriever");
+        const auto retriever = CreateAdaptorRetriever(options.retriever, base_retriever, chat_model);
 
         const auto question_prompt_template = CreatePlainPromptTemplate(R"(
 Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
@@ -270,7 +289,7 @@ Question: {standalone_question}
                 ->default_val("doc_table");
     }
 
-    static void BuildVecstoreOptiongroup(CLI::Option_group* vec_store_ogroup,
+    static void BuildVecstoreOptionGroup(CLI::Option_group* vec_store_ogroup,
                                          DuckDBStoreOptions& duck_db_options) {
         vec_store_ogroup
                 ->add_option("--vector_db_path", duck_db_options.db_file_path,
@@ -376,10 +395,9 @@ int main(int argc, char** argv) {
     RetrieverOptions retriever_options;
     BuildRetrieverOptions(app.add_option_group("🔍 Retriever", "Options for building retriever"), retriever_options);
 
-
     // vector store options
     DuckDBStoreOptions vector_store_options;
-    BuildVecstoreOptiongroup(
+    BuildVecstoreOptionGroup(
     app.add_option_group("🔢 VectorStore"), vector_store_options);
 
     // doc store options
@@ -407,6 +425,7 @@ int main(int argc, char** argv) {
         build_command_options.embedding_provider = embedding_model_provider_options;
         build_command_options.doc_store = doc_store_options;
         build_command_options.vector_store = vector_store_options;
+        build_command_options.retriever = retriever_options;
     });
 
     // serve command
@@ -421,6 +440,7 @@ int main(int argc, char** argv) {
         serve_command_options.embedding_provider = embedding_model_provider_options;
         serve_command_options.doc_store = doc_store_options;
         serve_command_options.vector_store = vector_store_options;
+        serve_command_options.retriever = retriever_options;
     });
 
     // log level

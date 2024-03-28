@@ -12,7 +12,7 @@
 #include "RetrievalGlobals.hpp"
 #include "chain/LLMChain.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
-#include "../../../instinct-core/include/tools/DocumentUtils.hpp"
+#include "tools/DocumentUtils.hpp"
 
 
 
@@ -32,7 +32,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery& query) const override {
             const auto queries = query_chain_->Invoke(query.text);
             assert_true(queries.lines_size() > 1, "should have multiple generated queries.");
-
+            LOG_DEBUG("orignal query: {}, rewrite queries: {}", query.text, queries.ShortDebugString());
             return rpp::source::from_iterable(queries.lines())
                 | rpp::operators::flat_map([&](const std::string& q) {
                     TextQuery text_query = query;
@@ -40,8 +40,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                     return base_retriever_->Retrieve(text_query);
                 })
                 // see following specializations for std::hash and std::equal_to
-                // modules/instinct-retrieval/src/retrieval/DocumentUtils.hpp:14
-                // modules/instinct-retrieval/src/retrieval/DocumentUtils.hpp:21
+                // modules/instinct-core/src/tools/DocumentUtils.hpp
                 | rpp::operators::distinct();
         }
     };

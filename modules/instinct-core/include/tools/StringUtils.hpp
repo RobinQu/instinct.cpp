@@ -115,6 +115,10 @@ namespace INSTINCT_CORE_NS {
             return s.empty() || Trim(s).empty();
         }
 
+        static bool IsNotBlankString(const std::string& s) {
+            return !IsBlankString(s);
+        }
+
         static std::string GetWithDefault(const std::string& value, const std::string& fallback) {
             if (IsBlankString(value)) {
                 return fallback;
