@@ -20,7 +20,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     struct MultiVectorRetrieverOptions {
         // metadata key for parent doc id
-        std::string parent_doc_id_key = METADATA_SCHEMA_PARENT_DOC_ID_KEY;
+        // std::string parent_doc_id_key = METADATA_SCHEMA_PARENT_DOC_ID_KEY;
     };
 
     class MultiVectorRetriever: public BaseStatefulRetriever {
@@ -65,7 +65,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 | rpp::operators::reduce(std::unordered_set<std::string> {}, [&](std::unordered_set<std::string>&& seed, const Document& doc) {
                     // backtrace id of parent doc
                     for(const auto& metadata_field: doc.metadata()) {
-                        if (metadata_field.name() == options_.parent_doc_id_key) {
+                        if (metadata_field.name() == METADATA_SCHEMA_PARENT_DOC_ID_KEY) {
                             LOG_DEBUG("guidance doc found, id={}, parent_doc_id={}", doc.id(), metadata_field.string_value());
                             seed.insert(metadata_field.string_value());
                         }

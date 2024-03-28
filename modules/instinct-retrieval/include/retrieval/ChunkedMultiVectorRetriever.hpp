@@ -32,7 +32,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 std::move(doc_store),
                 std::move(vector_store),
                 [this](const Document &doc) { return SplitChildDoc_(doc); },
-                std::move(options)),
+                options),
                   child_splitter_(std::move(child_splitter)),
                   parent_splitter_(std::move(parent_splitter)) {
             assert_true(child_splitter_, "should provide child_splitter");

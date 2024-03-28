@@ -19,7 +19,7 @@
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
 
-    class MultiQueryRetriever: public BaseRetriever {
+    class MultiQueryRetriever final: public BaseRetriever {
         RetrieverPtr base_retriever_;
         MultilineChainPtr query_chain_{};
 

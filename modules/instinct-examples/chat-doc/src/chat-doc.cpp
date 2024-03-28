@@ -3,8 +3,8 @@
 //
 
 #include <CLI/CLI.hpp>
-#include <document/RecursiveCharacterTextSplitter.hpp>
 
+#include "document/RecursiveCharacterTextSplitter.hpp"
 #include "chain/RAGChain.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "commons/OllamaCommons.hpp"
@@ -14,6 +14,7 @@
 #include "ingestor/PDFFileIngestor.hpp"
 #include "ingestor/DOCXFileIngestor.hpp"
 #include "retrieval/ChunkedMultiVectorRetriever.hpp"
+#include "retrieval/MultiQueryRetriever.hpp"
 #include "store/duckdb/DuckDBDocStore.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
 #include "tools/http/OpenAICompatibleAPIServer.hpp"
@@ -36,6 +37,55 @@ namespace insintct::exmaples::chat_doc {
         OllamaConfiguration ollama;
     };
 
+    enum RetrieverType {
+        UnspecifiedRetrieverType = 0,
+
+        /**
+         * @see instinct::retrieval::CreateSummaryGuidedRetriever
+         */
+        kSummaryGuidedRetriever,
+
+        /**
+         * @see instinct::retrieval::CreateHypotheticalQueriesGuidedRetriever
+         */
+        kHypotheticalQueriesGuidedRetriever,
+
+        /**
+         * @see instinct::retrieval::ChunkedMultiVectorRetriever
+         */
+        kChunkedMultiVectorRetriever,
+
+        /**
+         * @see instinct::retrieval::MultiQueryRetriever
+         */
+        kMultiQueryRetriver,
+
+        /**
+         * @see instinct::retrieval::AutoRetriever
+         */
+        kAutoRetriever
+    };
+
+
+    struct RetrieverOptions {
+
+        bool summary_guided_retriever = false;
+        bool hypothectical_queries_guided_retriever = false;
+        bool chunked_multi_vector_retriever = true;
+        bool multi_query_retriever = false;
+        bool auto_retriever = false;
+        //
+        // /**
+        //  * Adaptor retrievers that rewrites original query.
+        //  */
+        // RetrieverType query_rewriter = UnspecifiedRetrieverType;
+        //
+        // /**
+        //  * A must-to-have base retriever that handles original documents.
+        //  */
+        // RetrieverType base_retriever = ChunkedMultiVectorRetriever;
+    };
+
     struct BuildCommandOptions {
         std::string filename;
         std::string file_type = "TXT";
@@ -43,6 +93,7 @@ namespace insintct::exmaples::chat_doc {
         DuckDBStoreOptions vector_store;
         LLMProviderOptions llm_provider;
         bool force_rebuild = false;
+        RetrieverOptions retriever;
     };
 
     struct ServeCommandOptions {
@@ -51,6 +102,7 @@ namespace insintct::exmaples::chat_doc {
         DuckDBStoreOptions doc_store;
         DuckDBStoreOptions vector_store;
         ServerOptions server;
+        RetrieverOptions retriever;
     };
 
     static EmbeddingsPtr CreateEmbeddingModel(const LLMProviderOptions& options) {
@@ -127,26 +179,60 @@ namespace insintct::exmaples::chat_doc {
         PrintDatabaseSummary(doc_store, vectore_store);
     }
 
+    static RetrieverPtr CreateRetriever(
+        const RetrieverOptions& retriever_options,
+        const DocStorePtr& doc_store, const VectorStorePtr& vector_store,
+        const ChatModelPtr& chat_model
+    ) {
+        RetrieverPtr base_retriever;
+
+        if(retriever_options.chunked_multi_vector_retriever) {
+            const auto child_spliter = CreateRecursiveCharacterTextSplitter();
+            base_retriever = CreateChunkedMultiVectorRetriever(
+                doc_store,
+                vector_store,
+                child_spliter
+            );
+        }
+
+        if(retriever_options.hypothectical_queries_guided_retriever) {
+            base_retriever = CreateHypotheticalQueriesGuidedRetriever(
+                chat_model,
+                doc_store,
+                vector_store
+            );
+        }
+
+        if (retriever_options.summary_guided_retriever) {
+            base_retriever = CreateSummaryGuidedRetriever(
+                chat_model,
+                doc_store,
+                vector_store
+            );
+        }
+
+        if (retriever_options.multi_query_retriever) {
+            return CreateMultiQueryRetriever(base_retriever, chat_model);
+        }
+
+        return base_retriever;
+    }
+
 
     static void ServeCommand(const ServeCommandOptions& options) {
         EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.llm_provider);
         assert_true(embedding_model, "should have assigned correct embedding model");
 
-        const auto doc_store = CreateDuckDBDocStore(options.doc_store);
-        const auto vectore_store = CreateDuckDBVectorStore(embedding_model, options.vector_store);
-        LOG_INFO("VectorStore and DocStore loaded: ");
-        PrintDatabaseSummary(doc_store, vectore_store);
-
-        const auto child_spliter = CreateRecursiveCharacterTextSplitter();
-        const auto retriever = CreateChunkedMultiVectorRetriever(
-            doc_store,
-            vectore_store,
-            child_spliter
-        );
-
-
         const auto chat_model = CreateChatModel(options.llm_provider);
         assert_true(chat_model, "should have assigned correct chat model");
+
+        const auto doc_store = CreateDuckDBDocStore(options.doc_store);
+        const auto vector_store = CreateDuckDBVectorStore(embedding_model, options.vector_store);
+        LOG_INFO("VectorStore and DocStore loaded: ");
+        PrintDatabaseSummary(doc_store, vector_store);
+
+        const auto retriever = CreateRetriever(options.retriever, doc_store, vector_store, chat_model);
+        assert_true(retriever, "Should have assigned correct retriever");
 
         const auto question_prompt_template = CreatePlainPromptTemplate(R"(
 Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
@@ -251,6 +337,31 @@ Question: {standalone_question}
                 ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
                 ->default_val(OLLAMA_ENDPOINT.protocol);
     }
+
+    void BuildRetrieverOptions(CLI::Option_group* retriever_option_group, RetrieverOptions& options) {
+        //
+        // const std::map<std::string, RetrieverType> base_retrivers_map = {
+        //     ""
+        // };
+        //
+        // retriever_option_group->add_option("--base_retriever", options.base_retriever)
+        // ->transform()
+        //
+
+        // limited to one query_rewriter and one base_retriever
+        const auto base_retriever_ogroup = retriever_option_group->add_option_group("base_retriever", "A must-to-have base retriever that handles original documents.");
+        base_retriever_ogroup
+            ->add_flag("--parent_child", options.chunked_multi_vector_retriever, "Enable ChunkedMultiVectorRetriever.");
+        base_retriever_ogroup->add_flag("--summary_guided", options.summary_guided_retriever, "Enable MultiVectorGuidance with summary guidance.");
+        base_retriever_ogroup->add_flag("--hypothetical_quries_guided", options.hypothectical_queries_guided_retriever, "Enable MultiVectorGuidance with hypothetical queries.");
+        // one base retriever is required
+        base_retriever_ogroup->require_option(1, 1);
+
+        const auto query_rerwier_ogorup = retriever_option_group->add_option_group("query_rewriter", "Adaptor retrievers that rewrites original query.");
+        query_rerwier_ogorup->add_flag("--multi_query",  options.multi_query_retriever, "Enable MultiQueryRetriever.");
+        // at most one query_retriever is specified
+        query_rerwier_ogorup->require_option(-1);
+    }
 }
 
 
@@ -269,6 +380,10 @@ int main(int argc, char** argv) {
     // llm_provider_options for both chat model and embedding model
     LLMProviderOptions llm_provider_options;
     BuildLLMProviderOptionGroup(app.add_option_group("LLM"), llm_provider_options);
+
+    // retriever options
+    RetrieverOptions retriever_options;
+    BuildRetrieverOptions(app.add_option_group("retriever", "Options for building retriever"), retriever_options);
 
     // build command
     BuildCommandOptions build_command_options;
