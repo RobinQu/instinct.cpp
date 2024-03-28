@@ -169,7 +169,7 @@ message OllamaCompletionResponse {
   uint64 total_duration = 7;
   uint64 load_duration = 8;
   int32 prompt_eval_count = 9;
-  uint32 prompt_eval_duration = 10;
+  uint64 prompt_eval_duration = 10;
   int32 eval_count = 11;
   uint64 eval_duration = 12;
 }
@@ -186,15 +186,15 @@ message OllamaChatCompletionRequest {
 message OllamaChatCompletionResponse {
   string model = 1;
   string created_at = 2;
-  repeated int32 context = 3;
+  repeated int64 context = 3;
   OllamaGenerateMessage message = 5;
   bool done = 6;
-  uint64 total_duration = 7;
-  uint64 load_duration = 8;
-  int32 prompt_eval_count = 9;
-  uint32 prompt_eval_duration = 10;
-  int32 eval_count = 11;
-  uint64 eval_duration = 12;
+  int64 total_duration = 7;
+  int64 load_duration = 8;
+  int64 prompt_eval_count = 9;
+  int64 prompt_eval_duration = 10;
+  int64 eval_count = 11;
+  int64 eval_duration = 12;
 }
 
 message OllamaEmbeddingRequest {
