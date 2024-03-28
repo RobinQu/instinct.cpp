@@ -29,8 +29,14 @@ namespace insintct::exmaples::chat_doc {
 
     struct LLMProviderOptions {
         std::string provider_name = "ollama";
-        OpenAIConfiguration openai;
-        OllamaConfiguration ollama;
+        // OpenAIConfiguration openai;
+        // OllamaConfiguration ollama;
+
+        std::string host;
+        int port = 0;
+        HttpProtocol protocol = kHTTPS;
+        std::string model_name;
+        std::string api_key;
     };
 
 
@@ -47,13 +53,15 @@ namespace insintct::exmaples::chat_doc {
         std::string file_type = "TXT";
         DuckDBStoreOptions doc_store;
         DuckDBStoreOptions vector_store;
-        LLMProviderOptions llm_provider;
+        LLMProviderOptions chat_model_provider;
+        LLMProviderOptions embedding_provider;
         bool force_rebuild = false;
         RetrieverOptions retriever;
     };
 
     struct ServeCommandOptions {
-        LLMProviderOptions llm_provider;
+        LLMProviderOptions chat_model_provider;
+        LLMProviderOptions embedding_provider;
         // TODO DBStore refactoring to make it possible to share duckdb instantce.
         DuckDBStoreOptions doc_store;
         DuckDBStoreOptions vector_store;
@@ -63,20 +71,32 @@ namespace insintct::exmaples::chat_doc {
 
     static EmbeddingsPtr CreateEmbeddingModel(const LLMProviderOptions& options) {
         if (options.provider_name == "ollama") {
-            return CreateOllamaEmbedding(options.ollama);
+            return CreateOllamaEmbedding({
+                .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
+                .model_name = options.model_name
+            });
         }
         if (options.provider_name == "openai") {
-            return CreateOpenAIEmbeddingModel(options.openai);
+            return CreateOpenAIEmbeddingModel({
+                .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
+                .model_name = options.model_name
+            });
         }
         return nullptr;
     }
 
     static ChatModelPtr CreateChatModel(const LLMProviderOptions& options) {
         if (options.provider_name == "ollama") {
-            return CreateOllamaChatModel(options.ollama);
+            return CreateOllamaChatModel({
+                .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
+                .model_name = options.model_name
+            });
         }
         if (options.provider_name == "openai") {
-            return CreateOpenAIChatModel(options.openai);
+            return CreateOpenAIChatModel({
+                .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
+                .model_name = options.model_name
+            });
         }
         return nullptr;
     }
@@ -117,7 +137,7 @@ namespace insintct::exmaples::chat_doc {
 
         const auto doc_store = CreateDuckDBDocStore(options.doc_store);
 
-        EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.llm_provider);
+        EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.embedding_provider);
         assert_true(embedding_model, "should have assigned correct embedding model");
 
         const auto vectore_store = CreateDuckDBVectorStore(embedding_model, options.vector_store);
@@ -176,10 +196,10 @@ namespace insintct::exmaples::chat_doc {
 
 
     static void ServeCommand(const ServeCommandOptions& options) {
-        EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.llm_provider);
+        EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.embedding_provider);
         assert_true(embedding_model, "should have assigned correct embedding model");
 
-        const auto chat_model = CreateChatModel(options.llm_provider);
+        const auto chat_model = CreateChatModel(options.chat_model_provider);
         assert_true(chat_model, "should have assigned correct chat model");
 
         const auto doc_store = CreateDuckDBDocStore(options.doc_store);
@@ -257,8 +277,6 @@ Question: {standalone_question}
                              "File path to database file, which will be created if given file doesn't exist.");
         vec_store_ogroup
                 ->add_option("--vector_table_dimension", duck_db_options.dimension, "Dimension of embedding vector.")
-                ->check(CLI::PositiveNumber)
-                ->check(CLI::TypeValidator<unsigned int>())
                 ->check(CLI::Bound(1, 8192))
                 ->required();
         vec_store_ogroup
@@ -266,38 +284,54 @@ Question: {standalone_question}
                 ->default_val("embedding_table");
     }
 
-    static void BuildLLMProviderOptionGroup(CLI::Option_group* llm_provider_ogroup,
+    static void BuildEmbeddingProviderOptionGroup(CLI::Option_group* llm_provider_ogroup,
                                             LLMProviderOptions& provider_options) {
-        llm_provider_ogroup->add_option("--llm_provider", provider_options.provider_name,
-                                        "Specify LLM to use for both embedding and chat completion. Ollama, OpenAI API, or any OpenAI API compatible servers are supported.")
+
+        llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported. Defautlts to a local running Ollama service using llama2:latest model.");
+        llm_provider_ogroup->add_option("--embedding_model_provider", provider_options.provider_name,
+                                        "Specify embedding model to use. ")
                 ->check(CLI::IsMember({"ollama", "openai"}, CLI::ignore_case))
-                ->required();
+                ->default_val("ollama");
 
         const std::map<std::string, HttpProtocol> protocol_map{
             {"http", kHTTP},
             {"https", kHTTPS}
         };
-        const auto openai_ogroup = llm_provider_ogroup->add_option_group("openai");
-        openai_ogroup->add_option("--openai_api_key", provider_options.openai.api_key);
-        openai_ogroup->add_option("--openai_host", provider_options.openai.endpoint.host)
-                ->default_val(OPENAI_DEFAULT_ENDPOINT.host);
-        openai_ogroup->add_option("--openai_port", provider_options.openai.endpoint.port)
-                ->default_val(OPENAI_DEFAULT_ENDPOINT.port);
-        openai_ogroup->add_option("--openai_protocol", provider_options.openai.endpoint.protocol)
-                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
-                ->default_val(OPENAI_DEFAULT_ENDPOINT.protocol);
-        openai_ogroup->add_option("--openai_model_name", provider_options.openai.model_name)
-                ->default_val(OPENAI_DEFAULT_MODEL_NAME);
-
-        const auto ollama_ogroup = llm_provider_ogroup->add_option_group("ollama");
-        ollama_ogroup->add_option("--ollama_host", provider_options.ollama.endpoint.host)
+        llm_provider_ogroup->add_option("--embedding_model_api_key", provider_options.api_key, "API key for comercial services like OpenAI. Leave blank for services without ACL.");
+        llm_provider_ogroup->add_option("--embedding_model_host", provider_options.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.")
                 ->default_val(OLLAMA_ENDPOINT.host);
-        ollama_ogroup->add_option("--ollama_port", provider_options.ollama.endpoint.port)
+        llm_provider_ogroup->add_option("--embedding_model_port", provider_options.port, "Port number for API service.")
                 ->default_val(OLLAMA_ENDPOINT.port);
-        ollama_ogroup->add_option("--ollama_protocol", provider_options.ollama.endpoint.protocol)
+        llm_provider_ogroup->add_option("--embedding_model_protocol", provider_options.protocol, "HTTP protocol for API service.")
                 ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
                 ->default_val(OLLAMA_ENDPOINT.protocol);
-        ollama_ogroup->add_option("--ollama_model_name", provider_options.ollama.model_name)
+        llm_provider_ogroup->add_option("--embedding_model_model_name", provider_options.model_name, "Specify name of the model to be used.")
+                ->default_val(OLLAMA_DEFUALT_MODEL_NAME);
+    }
+
+    static void BuildChatModelProviderOptionGroup(
+        CLI::Option_group* llm_provider_ogroup,
+        LLMProviderOptions& provider_options) {
+        llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported. Defautlts to a local running Ollama service using llama2:latest model.");
+        llm_provider_ogroup->add_option("--chat_model_provider", provider_options.provider_name,
+                                        "Specify chat model to use for chat completion. ")
+                ->check(CLI::IsMember({"ollama", "openai"}, CLI::ignore_case))
+                ->default_val("ollama");
+
+        const std::map<std::string, HttpProtocol> protocol_map{
+            {"http", kHTTP},
+            {"https", kHTTPS}
+        };
+
+        llm_provider_ogroup->add_option("--chat_model_api_key", provider_options.api_key, "API key for comercial services like OpenAI. Leave blank for services without ACL.");
+        llm_provider_ogroup->add_option("--chat_model_host", provider_options.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.")
+                ->default_val(OLLAMA_ENDPOINT.host);
+        llm_provider_ogroup->add_option("--chat_model_port", provider_options.port, "Port number for API service.")
+                ->default_val(OLLAMA_ENDPOINT.port);
+        llm_provider_ogroup->add_option("--chat_model_protocol", provider_options.protocol, "HTTP protocol for API service.")
+                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
+                ->default_val(OLLAMA_ENDPOINT.protocol);
+        llm_provider_ogroup->add_option("--chat_model_model_name", provider_options.model_name, "Specify name of the model to be used.")
                 ->default_val(OLLAMA_DEFUALT_MODEL_NAME);
     }
 
@@ -332,8 +366,11 @@ int main(int argc, char** argv) {
     app.require_subcommand();
 
     // llm_provider_options for both chat model and embedding model
-    LLMProviderOptions llm_provider_options;
-    BuildLLMProviderOptionGroup(app.add_option_group("🧠 LLM"), llm_provider_options);
+    LLMProviderOptions chat_model_provider_options;
+    BuildChatModelProviderOptionGroup(app.add_option_group("🧠 Provider for embedding model"), chat_model_provider_options);
+
+    LLMProviderOptions embedding_model_provider_options;
+    BuildEmbeddingProviderOptionGroup(app.add_option_group("🧠 Provider for chat model"), embedding_model_provider_options);
 
     // retriever options
     RetrieverOptions retriever_options;
@@ -353,7 +390,7 @@ int main(int argc, char** argv) {
     // build command
     BuildCommandOptions build_command_options;
     const auto build_command = app.add_subcommand(
-        "build", "💼 Anaylize a single document and build database of learned context data");
+        "build", "💼 Anaylize a single document and build database of learned context data. Proper values should be offered for Embedding model, Chat model, DocStore, VecStore and Retriever mentioned above.");
     build_command->add_flag("--force", build_command_options.force_rebuild,
                             "A flag to force rebuild of database, which means existing db files will be deleted. Use this option with caution!");
     build_command->add_option("-f,--file", build_command_options.filename, "Path to the document you want analyze")
@@ -366,7 +403,8 @@ int main(int argc, char** argv) {
             ->check(IsMember({"PDF", "DOCX", "MD", "TXT"}, CLI::ignore_case));
 
     build_command->final_callback([&]() {
-        build_command_options.llm_provider = llm_provider_options;
+        build_command_options.chat_model_provider = chat_model_provider_options;
+        build_command_options.embedding_provider = embedding_model_provider_options;
         build_command_options.doc_store = doc_store_options;
         build_command_options.vector_store = vector_store_options;
     });
@@ -374,12 +412,13 @@ int main(int argc, char** argv) {
     // serve command
     ServeCommandOptions serve_command_options;
     const auto serve_command = app.add_subcommand(
-        "serve", "💃 Start a OpenAI API compatible server with database of learned context");
+        "serve", "💃 Start a OpenAI API compatible server with database of learned context. Proper values should be offered for Chat model, DocStore, VecStore and Retriever mentioned above.");
     serve_command
             ->add_option("-p,--port", serve_command_options.server.port, "Port number which API server will listen")
             ->default_val("9090");
     serve_command->final_callback([&]() {
-        serve_command_options.llm_provider = llm_provider_options;
+        serve_command_options.chat_model_provider = chat_model_provider_options;
+        serve_command_options.embedding_provider = embedding_model_provider_options;
         serve_command_options.doc_store = doc_store_options;
         serve_command_options.vector_store = vector_store_options;
     });
