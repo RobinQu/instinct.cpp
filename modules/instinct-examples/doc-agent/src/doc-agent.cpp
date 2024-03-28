@@ -301,6 +301,9 @@ Question: {standalone_question}
                              "File path to database file, which will be created if given file doesn't exist.");
         vec_store_ogroup
                 ->add_option("--vector_table_dimension", duck_db_options.dimension, "Dimension of embedding vector.")
+                ->check(CLI::PositiveNumber)
+                ->check(CLI::TypeValidator<unsigned int>())
+                ->check(CLI::Bound(1, 8192))
                 ->required();
         vec_store_ogroup
                 ->add_option("--vector_table_name", duck_db_options.table_name, "Table name for embedding table.")
@@ -351,14 +354,14 @@ Question: {standalone_question}
         // limited to one query_rewriter and one base_retriever
         const auto base_retriever_ogroup = retriever_option_group->add_option_group("base_retriever", "A must-to-have base retriever that handles original documents.");
         base_retriever_ogroup
-            ->add_flag("--parent_child", options.chunked_multi_vector_retriever, "Enable ChunkedMultiVectorRetriever.");
-        base_retriever_ogroup->add_flag("--summary_guided", options.summary_guided_retriever, "Enable MultiVectorGuidance with summary guidance.");
-        base_retriever_ogroup->add_flag("--hypothetical_quries_guided", options.hypothectical_queries_guided_retriever, "Enable MultiVectorGuidance with hypothetical queries.");
+            ->add_flag("--parent_child_retriever", options.chunked_multi_vector_retriever, "Enable ChunkedMultiVectorRetriever.");
+        base_retriever_ogroup->add_flag("--summary_guided_retriever", options.summary_guided_retriever, "Enable MultiVectorGuidance with summary guidance.");
+        base_retriever_ogroup->add_flag("--hypothetical_quries_guided_retriever", options.hypothectical_queries_guided_retriever, "Enable MultiVectorGuidance with hypothetical queries.");
         // one base retriever is required
         base_retriever_ogroup->require_option(1, 1);
 
         const auto query_rerwier_ogorup = retriever_option_group->add_option_group("query_rewriter", "Adaptor retrievers that rewrites original query.");
-        query_rerwier_ogorup->add_flag("--multi_query",  options.multi_query_retriever, "Enable MultiQueryRetriever.");
+        query_rerwier_ogorup->add_flag("--multi_query_retriever",  options.multi_query_retriever, "Enable MultiQueryRetriever.");
         // at most one query_retriever is specified
         query_rerwier_ogorup->require_option(-1);
     }
@@ -369,21 +372,32 @@ int main(int argc, char** argv) {
     using namespace CLI;
     using namespace insintct::exmaples::chat_doc;
     App app{
-        "😊 ChatDoc: Chat with your documents locally with privacy. "
+        "🤖 DocAgent: Chat with your documents locally with privacy. "
     };
     argv = app.ensure_utf8(argv);
     app.set_help_all_flag("--help-all", "Expand all help");
 
     // requires at least one sub-command
-    app.require_subcommand(1);
+    app.require_subcommand();
 
     // llm_provider_options for both chat model and embedding model
     LLMProviderOptions llm_provider_options;
-    BuildLLMProviderOptionGroup(app.add_option_group("LLM"), llm_provider_options);
+    BuildLLMProviderOptionGroup(app.add_option_group("🧠 LLM"), llm_provider_options);
 
     // retriever options
     RetrieverOptions retriever_options;
-    BuildRetrieverOptions(app.add_option_group("retriever", "Options for building retriever"), retriever_options);
+    BuildRetrieverOptions(app.add_option_group("🔍 Retriever", "Options for building retriever"), retriever_options);
+
+
+    // vector store options
+    DuckDBStoreOptions vector_store_options;
+    BuildVecstoreOptiongroup(
+    app.add_option_group("🔢 VectorStore"), vector_store_options);
+
+    // doc store options
+    DuckDBStoreOptions doc_store_options;
+    BuildDocstoreOptionGroup(
+    app.add_option_group("📖 DocStore"), doc_store_options);
 
     // build command
     BuildCommandOptions build_command_options;
@@ -399,14 +413,11 @@ int main(int argc, char** argv) {
                          "File format of assigned document. Supported types are PDF,TXT,MD,DOCX")
             ->default_val("TXT")
             ->check(IsMember({"PDF", "DOCX", "MD", "TXT"}, CLI::ignore_case));
-    BuildDocstoreOptionGroup(
-        build_command->add_option_group("docstore"),
-        build_command_options.doc_store);
-    BuildVecstoreOptiongroup(
-        build_command->add_option_group("vecstore"),
-        build_command_options.vector_store);
+
     build_command->final_callback([&]() {
         build_command_options.llm_provider = llm_provider_options;
+        build_command_options.doc_store = doc_store_options;
+        build_command_options.vector_store = vector_store_options;
     });
 
     // serve command
@@ -416,15 +427,10 @@ int main(int argc, char** argv) {
     serve_command
             ->add_option("-p,--port", serve_command_options.server.port, "Port number which API server will listen")
             ->default_val("9090");
-    BuildDocstoreOptionGroup(
-        serve_command->add_option_group("docstore"),
-        serve_command_options.doc_store);
-    BuildVecstoreOptiongroup(
-        serve_command->add_option_group("vecstore"),
-        serve_command_options.vector_store);
-
     build_command->final_callback([&]() {
         serve_command_options.llm_provider = llm_provider_options;
+        serve_command_options.doc_store = doc_store_options;
+        serve_command_options.vector_store = vector_store_options;
     });
 
     // log level

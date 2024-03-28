@@ -141,5 +141,5 @@ add_subdirectory(modules/instinct-retrieval)
 add_subdirectory(modules/instinct-server)
 
 # examples
-add_subdirectory(modules/instinct-examples/chat-doc)
+add_subdirectory(modules/instinct-examples/doc-agent)
 
