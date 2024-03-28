@@ -306,7 +306,7 @@ Question: {standalone_question}
     static void BuildEmbeddingProviderOptionGroup(CLI::Option_group* llm_provider_ogroup,
                                             LLMProviderOptions& provider_options) {
 
-        llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported. Defautlts to a local running Ollama service using llama2:latest model.");
+        llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported. Defaults to a local running Ollama service using llama2:latest model.");
         llm_provider_ogroup->add_option("--embedding_model_provider", provider_options.provider_name,
                                         "Specify embedding model to use. ")
                 ->check(CLI::IsMember({"ollama", "openai"}, CLI::ignore_case))
@@ -331,7 +331,7 @@ Question: {standalone_question}
     static void BuildChatModelProviderOptionGroup(
         CLI::Option_group* llm_provider_ogroup,
         LLMProviderOptions& provider_options) {
-        llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported. Defautlts to a local running Ollama service using llama2:latest model.");
+        llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported. Defaults to a local running Ollama service using llama2:latest model.");
         llm_provider_ogroup->add_option("--chat_model_provider", provider_options.provider_name,
                                         "Specify chat model to use for chat completion. ")
                 ->check(CLI::IsMember({"ollama", "openai"}, CLI::ignore_case))
