@@ -12,6 +12,7 @@ namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
     static Endpoint OPENAI_DEFAULT_ENDPOINT {.protocol = kHTTPS, .host = "api.openai.com", .port = 443};
+    static const std::string OPENAI_DEFAULT_MODEL_NAME = "gpt-3.5-turbo";
 
     struct  OpenAIConfiguration {
         /**
@@ -32,7 +33,7 @@ namespace INSTINCT_LLM_NS {
         /**
          * Modle name
          */
-        std::string model_name;
+        std::string model_name = OPENAI_DEFAULT_MODEL_NAME;
 
         /**
          * API Token for OpenAI API

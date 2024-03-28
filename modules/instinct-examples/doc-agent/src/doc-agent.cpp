@@ -29,61 +29,17 @@ namespace insintct::exmaples::chat_doc {
 
     struct LLMProviderOptions {
         std::string provider_name = "ollama";
-        std::string host;
-        int port = 0;
-        std::string api_key;
-
         OpenAIConfiguration openai;
         OllamaConfiguration ollama;
     };
 
-    enum RetrieverType {
-        UnspecifiedRetrieverType = 0,
-
-        /**
-         * @see instinct::retrieval::CreateSummaryGuidedRetriever
-         */
-        kSummaryGuidedRetriever,
-
-        /**
-         * @see instinct::retrieval::CreateHypotheticalQueriesGuidedRetriever
-         */
-        kHypotheticalQueriesGuidedRetriever,
-
-        /**
-         * @see instinct::retrieval::ChunkedMultiVectorRetriever
-         */
-        kChunkedMultiVectorRetriever,
-
-        /**
-         * @see instinct::retrieval::MultiQueryRetriever
-         */
-        kMultiQueryRetriver,
-
-        /**
-         * @see instinct::retrieval::AutoRetriever
-         */
-        kAutoRetriever
-    };
-
 
     struct RetrieverOptions {
-
         bool summary_guided_retriever = false;
         bool hypothectical_queries_guided_retriever = false;
         bool chunked_multi_vector_retriever = true;
         bool multi_query_retriever = false;
         bool auto_retriever = false;
-        //
-        // /**
-        //  * Adaptor retrievers that rewrites original query.
-        //  */
-        // RetrieverType query_rewriter = UnspecifiedRetrieverType;
-        //
-        // /**
-        //  * A must-to-have base retriever that handles original documents.
-        //  */
-        // RetrieverType base_retriever = ChunkedMultiVectorRetriever;
     };
 
     struct BuildCommandOptions {
@@ -166,7 +122,7 @@ namespace insintct::exmaples::chat_doc {
 
         const auto vectore_store = CreateDuckDBVectorStore(embedding_model, options.vector_store);
 
-        const auto child_spliter = CreateRecursiveCharacterTextSplitter();
+        const auto child_spliter = CreateRecursiveCharacterTextSplitter({.chunk_size = 1000});
 
         const auto retriever = CreateChunkedMultiVectorRetriever(
             doc_store,
@@ -330,6 +286,8 @@ Question: {standalone_question}
         openai_ogroup->add_option("--openai_protocol", provider_options.openai.endpoint.protocol)
                 ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
                 ->default_val(OPENAI_DEFAULT_ENDPOINT.protocol);
+        openai_ogroup->add_option("--openai_model_name", provider_options.openai.model_name)
+                ->default_val(OPENAI_DEFAULT_MODEL_NAME);
 
         const auto ollama_ogroup = llm_provider_ogroup->add_option_group("ollama");
         ollama_ogroup->add_option("--ollama_host", provider_options.ollama.endpoint.host)
@@ -339,18 +297,11 @@ Question: {standalone_question}
         ollama_ogroup->add_option("--ollama_protocol", provider_options.ollama.endpoint.protocol)
                 ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
                 ->default_val(OLLAMA_ENDPOINT.protocol);
+        ollama_ogroup->add_option("--ollama_model_name", provider_options.ollama.model_name)
+                ->default_val(OLLAMA_DEFUALT_MODEL_NAME);
     }
 
     void BuildRetrieverOptions(CLI::Option_group* retriever_option_group, RetrieverOptions& options) {
-        //
-        // const std::map<std::string, RetrieverType> base_retrivers_map = {
-        //     ""
-        // };
-        //
-        // retriever_option_group->add_option("--base_retriever", options.base_retriever)
-        // ->transform()
-        //
-
         // limited to one query_rewriter and one base_retriever
         const auto base_retriever_ogroup = retriever_option_group->add_option_group("base_retriever", "A must-to-have base retriever that handles original documents.");
         base_retriever_ogroup
@@ -427,7 +378,7 @@ int main(int argc, char** argv) {
     serve_command
             ->add_option("-p,--port", serve_command_options.server.port, "Port number which API server will listen")
             ->default_val("9090");
-    build_command->final_callback([&]() {
+    serve_command->final_callback([&]() {
         serve_command_options.llm_provider = llm_provider_options;
         serve_command_options.doc_store = doc_store_options;
         serve_command_options.vector_store = vector_store_options;
@@ -461,6 +412,7 @@ int main(int argc, char** argv) {
         } catch (const std::runtime_error& err) {
             LOG_ERROR("Failed to execute sub-command {} due to exception. Possible reason: {}", sub_command->get_name(),
                       err.what());
+            return 135;
         }
     }
 
