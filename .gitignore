@@ -5,3 +5,5 @@ _assets
 __pycache__
 build
 CMakeUserPresets.json
+modules/instinct-examples/doc-agent/test/rag_evaluation/data
+modules/instinct-examples/doc-agent/test/rag_evaluation/output

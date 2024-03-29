@@ -21,11 +21,11 @@ namespace  INSTINCT_RETRIEVAL_NS {
             SetupLogging();
 
             size_t dim = 4096;
-            embedding_model_ = instinct::test::create_pesudo_embedding_model(dim);
+            embedding_model_ = test::create_pesudo_embedding_model(dim);
             const auto db_file_path = std::filesystem::temp_directory_path() / (
                                     ChronoUtils::GetCurrentTimestampString() + ".db");
 
-            auto vector_store = CreateDuckDBVectorStore(embedding_model_, {
+            const auto vector_store = CreateDuckDBVectorStore(embedding_model_, {
                 .table_name = "rag_test_table",
                 .db_file_path = db_file_path,
                 // llama2:7b-chat has dimensions of 4096
@@ -34,7 +34,7 @@ namespace  INSTINCT_RETRIEVAL_NS {
             retriever_ = CreateVectorStoreRetriever(vector_store);
             chat_memory_ = std::make_shared<EphemeralChatMemory>();
 
-            ChatModelPtr chat_model = instinct::test::create_pesudo_chat_model();
+            ChatModelPtr chat_model = test::create_pesudo_chat_model();
 
             PromptTemplatePtr question_prompt_template = OllamaChat::CreateChatPromptTemplateBuilder()
                     ->AddHumanMessage(R"(

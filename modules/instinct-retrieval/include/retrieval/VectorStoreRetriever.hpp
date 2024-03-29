@@ -30,7 +30,6 @@ namespace INSTINCT_RETRIEVAL_NS {
             : vecstore_store_(std::move(vector_store)), search_request_template_(std::move(search_request_template)){
         }
 
-
         [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery& query) const override {
             SearchRequest search_request;
             if (search_request_template_) {

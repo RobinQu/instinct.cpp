@@ -15,6 +15,7 @@
 #include "ingestor/DOCXFileIngestor.hpp"
 #include "retrieval/ChunkedMultiVectorRetriever.hpp"
 #include "retrieval/MultiQueryRetriever.hpp"
+#include "retrieval/VectorStoreRetriever.hpp"
 #include "store/duckdb/DuckDBDocStore.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
 #include "tools/http/OpenAICompatibleAPIServer.hpp"
@@ -41,6 +42,7 @@ namespace insintct::exmaples::chat_doc {
 
 
     struct RetrieverOptions {
+        bool plain_vector_retriever = false;
         bool summary_guided_retriever = false;
         bool hypothectical_queries_guided_retriever = false;
         bool chunked_multi_vector_retriever = false;
@@ -113,6 +115,10 @@ namespace insintct::exmaples::chat_doc {
         const VectorStorePtr& vector_store,
         const ChatModelPtr& chat_model
     ) {
+        if (retriever_options.plain_vector_retriever) {
+            // LOG_INFO("")
+            return CreateVectorStoreRetriever(vector_store);
+        }
 
         if(retriever_options.chunked_multi_vector_retriever) {
             LOG_INFO("CreateChunkedMultiVectorRetriever");
@@ -357,6 +363,7 @@ Question: {standalone_question}
     void BuildRetrieverOptions(CLI::Option_group* retriever_option_group, RetrieverOptions& options) {
         // limited to one query_rewriter and one base_retriever
         const auto base_retriever_ogroup = retriever_option_group->add_option_group("base_retriever", "A must-to-have base retriever that handles original documents.");
+        base_retriever_ogroup->add_flag("--plain_vector_retriever", options.plain_vector_retriever, "Enable VectorStoreRetiever.");
         base_retriever_ogroup
             ->add_flag("--parent_child_retriever", options.chunked_multi_vector_retriever, "Enable ChunkedMultiVectorRetriever.");
         base_retriever_ogroup->add_flag("--summary_guided_retriever", options.summary_guided_retriever, "Enable MultiVectorGuidance with summary guidance.");
