@@ -44,15 +44,15 @@ jobs:
     
     - name: Create default conan profile
       run: conan profile detect --force
-    
-    - name: Conan install
-      run: conan install conanfile.py --build=missing -s compiler.cppstd=20 -s build_type=${{ matrix.build_type }} -s compiler=${{ matrix.cc }}
-    
+  
     - uses: actions/cache@v4.0.2
       id: cache-conan
       with: 
         key: ${{ matrix.os}}-${{ matrix.build_type }}-${{ matrix.cc }}
         path: ~/.conan2
+        
+    - name: Conan install
+      run: conan install conanfile.py --build=missing -s compiler.cppstd=20 -s build_type=${{ matrix.build_type }} -s compiler=${{ matrix.cc }}
     
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
