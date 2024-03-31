@@ -39,7 +39,7 @@ jobs:
     
     - uses: turtlebrowser/get-conan@v1.2
     - name: Create default conan profile
-      run: conan profile protfile --detect
+      run: conan profile detect --force
     - name: Conan install
       run: conan install --build=missing -s compiler.cppstd=20 -s build_type=${{ matrix.build_type }} -s compiler=${{ matrix.cc }}
     - name: Configure CMake
