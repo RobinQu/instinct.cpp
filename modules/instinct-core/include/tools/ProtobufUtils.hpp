@@ -9,6 +9,9 @@
 #include <google/protobuf/util/json_util.h>
 
 namespace INSTINCT_CORE_NS {
+    using namespace google::protobuf;
+
+
     class ProtobufUtils final {
     public:
 

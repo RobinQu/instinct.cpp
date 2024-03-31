@@ -79,26 +79,19 @@ find_package(nlohmann_json)
 
 ## rpp
 add_subdirectory(thirdparty/ReactivePlusPlus)
-# find_package(RPP REQUIRED)
+#find_package(RPP REQUIRED)
 
 ## icu
-# TODO embedd icu as submodule
 find_package(ICU 74.1 REQUIRED)
 
 ## base64
 find_package(base64)
 
 ## ordered-map
-#add_subdirectory(thirdparty/ordered-map)
 find_package(tsl-ordered-map REQUIRED)
 
 
 ## duckdb
-## disable SANITIZER on M1 Macs
-#set(ENABLE_SANITIZER FALSE)
-#set(DISABLE_VPTR_SANITIZER TRUE)
-#set(BUILD_UNITTESTS FALSE)
-#add_subdirectory(thirdparty/duckdb)
 find_package(duckdb REQUIRED)
 
 ## fmtlog and fmtlog
