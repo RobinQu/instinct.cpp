@@ -62,6 +62,7 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cc }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
+        --preset ${{ github.workspace }}/build/${{ matrix.build_type }}/generators/CMakePresets.json
         
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
