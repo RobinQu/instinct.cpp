@@ -25,7 +25,9 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         build_type: [Release]
-        cc: [gcc, clang]
+        cc:
+          - { tool: gcc, ver: 13 }
+          - { tool: clang, ver: 15 }
 
     steps:
     - uses: actions/checkout@v3
@@ -48,21 +50,22 @@ jobs:
     - uses: actions/cache@v4.0.2
       id: cache-conan
       with: 
-        key: ${{ matrix.os}}-${{ matrix.build_type }}-${{ matrix.cc }}
+        key: ${{ matrix.os}}-${{ matrix.build_type }}-${{ matrix.cc.tool }}
         path: ~/.conan2
+        save-always: true
         
     - name: Conan install
-      run: conan install conanfile.py --build=missing -s compiler.cppstd=20 -s build_type=${{ matrix.build_type }} -s compiler=${{ matrix.cc }}
+      run: conan install conanfile.py --build=missing -s compiler.cppstd=20 -s build_type=${{ matrix.build_type }} -s compiler=${{ matrix.cc.tool }} -s compile.version=${{matrix.cc.ver}}
     
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cc }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cc.tool }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
-        --preset ${{ github.workspace }}/build/${{ matrix.build_type }}/generators/CMakePresets.json
+        --preset conan-release
         
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
