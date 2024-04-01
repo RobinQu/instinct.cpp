@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.26)
-project(instinct)
+project(instinct VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -78,7 +78,7 @@ find_package(nlohmann_json)
 #add_subdirectory(thirdparty/taskflow)
 
 ## rpp
-add_subdirectory(thirdparty/ReactivePlusPlus)
+add_subdirectory(thirdparty/ReactivePlusPlus EXCLUDE_FROM_ALL)
 #find_package(RPP REQUIRED)
 
 ## icu
@@ -135,4 +135,26 @@ add_subdirectory(modules/instinct-server)
 
 # examples
 add_subdirectory(modules/instinct-examples/doc-agent)
+add_subdirectory(modules/instinct-examples/quick-start)
 
+#
+#include(GNUInstallDirs)
+#include(CMakePackageConfigHelpers)
+#write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
+#        VERSION ${PROJECT_VERSION}
+#        COMPATIBILITY SameMajorVersion)
+#
+#configure_package_config_file(
+#        "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
+#        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+#        INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+#
+#
+#install(EXPORT InstinctTargets
+#        FILE SITargets.cmake
+#        NAMESPACE INSTINCT::
+#        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+#
+#install(FILES "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
+#        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+#        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
