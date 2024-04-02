@@ -31,7 +31,6 @@ namespace INSTINCT_RETRIEVAL_NS {
         bool in_memory = false;
     };
 
-
     namespace details {
         static std::string make_mget_sql(
             const std::string& table_name,
@@ -48,7 +47,6 @@ namespace INSTINCT_RETRIEVAL_NS {
             select_sql += " FROM ";
             select_sql += table_name;
             select_sql += " WHERE id in (";
-            // select_sql += StringUtils::JoinWith(ids, ", ");
             for (int i = 0; i < ids.size(); ++i) {
                 select_sql += "'";
                 select_sql += ids[i];
@@ -329,36 +327,34 @@ namespace INSTINCT_RETRIEVAL_NS {
     }
 
 
-    class DuckDBInternalAppender {
-    public:
-        virtual ~DuckDBInternalAppender() = default;
+    // class DuckDBInternalAppender {
+    // public:
+    //     virtual ~DuckDBInternalAppender() = default;
+    //
+    //     virtual void AppendRow(Appender& appender, Document& doc, UpdateResult& update_result) = 0;
+    //
+    //     virtual void AppendRows(Appender& appender, std::vector<Document>& records, UpdateResult& update_result) = 0;
+    // };
+    //
+    // using DuckDBInternalAppenderPt = std::shared_ptr<DuckDBInternalAppender>;
 
-        virtual void AppendRow(Appender& appender, Document& doc, UpdateResult& update_result) = 0;
-
-        virtual void AppendRows(Appender& appender, std::vector<Document>& records, UpdateResult& update_result) = 0;
-    };
-
-    using DuckDBInternalAppenderPt = std::shared_ptr<DuckDBInternalAppender>;
-
-    class DuckDBStoreInternal : public virtual IDocStore {
+    class BaseDuckDBStore : public virtual IDocStore {
         DuckDBStoreOptions options_;
         DuckDB db_;
         std::shared_ptr<MetadataSchema> metadata_schema_;
         Connection connection_;
         // unique_ptr<PreparedStatement> prepared_mget_statement_;
         unique_ptr<PreparedStatement> prepared_count_all_statement_;
-        DuckDBInternalAppenderPt internal_appender_;
+        // DuckDBInternalAppenderPt internal_appender_;
 
     public:
-        explicit DuckDBStoreInternal(
-            DuckDBInternalAppenderPt  internal_appender,
+        explicit BaseDuckDBStore(
             const DuckDBStoreOptions& options,
             const std::shared_ptr<MetadataSchema>& metadata_schema
         ): options_(options),
            db_(options.db_file_path),
            metadata_schema_(metadata_schema),
-           connection_(db_),
-           internal_appender_(std::move(internal_appender)) {
+           connection_(db_) {
             LOG_DEBUG("Startup db at {}", options.db_file_path);
             assert_true(metadata_schema, "should provide schema");
             // assert_positive(options_.dimension, "dimension should be positive");
@@ -410,26 +406,15 @@ namespace INSTINCT_RETRIEVAL_NS {
             std::vector<Document> docs;
             CollectVector(documents_iterator, docs);
             AddDocuments(docs, update_result);
-//            static size_t batch_size = 10;
-//            documents_iterator
-//            | rpp::operators::as_blocking()
-//            | rpp::operators::window(batch_size)
-//            | rpp::operators::subscribe([&](const rpp::window_observable<Document>& batched_itr) {
-//                std::vector<Document> batched_docs;
-//                CollectVector(batched_itr, batched_docs);
-//                int n = update_result.affected_rows();
-//                UpdateResult batch_update_result;
-//                AddDocuments(batched_docs, batch_update_result);
-////                update_result.MergeFrom(batch_update_result);
-//                update_result.set_affected_rows(batch_update_result.affected_rows() + n);
-//            });
         }
+
+        virtual void AppendRows(Appender& appender, std::vector<Document>& records, UpdateResult& update_result) = 0;
 
         void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
             connection_.BeginTransaction();
             try {
                 Appender appender(connection_, options_.table_name);
-                internal_appender_->AppendRows(appender, records, update_result);
+                AppendRows(appender, records, update_result);
                 appender.Close();
                 connection_.Commit();
             } catch (const duckdb::Exception& e) {
@@ -442,12 +427,14 @@ namespace INSTINCT_RETRIEVAL_NS {
             }
         }
 
+        virtual void AppendRow(Appender& appender, Document& doc, UpdateResult& update_result) = 0;
+
         void AddDocument(Document& doc) override {
             connection_.BeginTransaction();
             try {
                 UpdateResult update_result;
                 Appender appender(connection_, options_.table_name);
-                internal_appender_->AppendRow(appender, doc, update_result);
+                AppendRow(appender, doc, update_result);
                 appender.Close();
                 connection_.Commit();
             } catch (const duckdb::Exception& e) {
@@ -465,7 +452,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto sql = details::make_delete_sql(options_.table_name, ids);
             const auto result = connection_.Query(sql);
             details::assert_query_ok(result);
-            auto xn = result->GetValue<int32_t>(0, 0);
+            const auto xn = result->GetValue<int32_t>(0, 0);
             update_result.set_affected_rows(xn);
             update_result.mutable_returned_ids()->Add(ids.begin(), ids.end());
         }

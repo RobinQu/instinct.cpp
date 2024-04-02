@@ -7,7 +7,7 @@
 #include <duckdb.hpp>
 
 
-#include "DuckDBStoreInternal.hpp"
+#include "BaseDuckDBStore.hpp"
 
 #include "LLMGlobals.hpp"
 #include "RetrievalGlobals.hpp"
@@ -41,27 +41,28 @@ namespace INSTINCT_RETRIEVAL_NS {
     }
 
 
-    class DuckDBDocStoreInternalAppender: public DuckDBInternalAppender {
-        std::shared_ptr<MetadataSchema> metadata_schema_;
-        bool bypass_unknown_fields_;
-
+    /**
+     * Valillan storage for documents backed by DuckDB instance
+     */
+    class DuckDBDocStore final: public BaseDuckDBStore {
     public:
-        DuckDBDocStoreInternalAppender(std::shared_ptr<MetadataSchema> metadata_schema,
-            const bool bypass_unknown_fields)
-            : metadata_schema_(std::move(metadata_schema)),
-              bypass_unknown_fields_(bypass_unknown_fields) {
-
+        explicit DuckDBDocStore(
+            const DuckDBStoreOptions& options,
+            const std::shared_ptr<MetadataSchema>& metadata_schema)
+            : BaseDuckDBStore(
+                options,
+                metadata_schema
+            )  {
+            assert_true(metadata_schema, "should have provide valid metadata schema");
+            assert_true(options.dimension <= 0);
         }
 
-        void AppendRow(Appender& appender, Document& doc, UpdateResult& update_result) override {
-            details::append_row(metadata_schema_, appender, doc, update_result, bypass_unknown_fields_);
-        }
 
-        void AppendRows(Appender& appender, std::vector<Document>& records, UpdateResult& update_result) override {
+        void AppendRows(Appender &appender, std::vector<Document> &records, UpdateResult &update_result) override {
             int affected_row = 0;
             for (auto & record : records) {
                 try {
-                    details::append_row(metadata_schema_, appender, record, update_result, bypass_unknown_fields_);
+                    details::append_row(GetMetadataSchema(), appender, record, update_result, GetOptions().bypass_unknown_fields);
                     affected_row++;
                 } catch (const InstinctException& e) {
                     update_result.add_failed_documents()->CopyFrom(record);
@@ -70,22 +71,11 @@ namespace INSTINCT_RETRIEVAL_NS {
                 }
             }
             update_result.set_affected_rows(affected_row);
+
         }
-    };
 
-    class DuckDBDocStore final: public DuckDBStoreInternal {
-
-    public:
-        explicit DuckDBDocStore(
-            const DuckDBStoreOptions& options,
-            const std::shared_ptr<MetadataSchema>& metadata_schema)
-            : DuckDBStoreInternal(
-                std::make_shared<DuckDBDocStoreInternalAppender>(metadata_schema, options.bypass_unknown_fields),
-                options,
-                metadata_schema
-            ) {
-            assert_true(!!metadata_schema, "should have provide valid metadata schema");
-            assert_true(options.dimension <= 0);
+        void AppendRow(Appender &appender, Document &doc, UpdateResult &update_result) override {
+            details::append_row(GetMetadataSchema(), appender, doc, update_result, GetOptions().bypass_unknown_fields);
         }
     };
 

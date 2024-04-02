@@ -46,6 +46,8 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
     using DocStorePtr = std::shared_ptr<IDocStore>;
+
+
 }
 
 #endif //IDOCSTORE_HPP

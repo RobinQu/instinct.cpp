@@ -27,9 +27,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         virtual AsyncIterator<Document> SearchDocuments(const SearchRequest& request) = 0;
         virtual EmbeddingsPtr GetEmbeddingModel() = 0;
     };
-
     using VectorStorePtr = std::shared_ptr<IVectorStore>;
-
 
 }
 

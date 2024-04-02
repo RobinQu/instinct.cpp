@@ -4,7 +4,6 @@
 #include <gtest/gtest.h>
 #include "retrieval/MultiQueryRetriever.hpp"
 #include "RetrievalTestGlobals.hpp"
-#include "store/duckdb/DuckDBStoreInternal.hpp"
 #include "retrieval/VectorStoreRetriever.hpp"
 #include "retrieval/IRetriever.hpp"
 #include "ingestor/DirectoryTreeIngestor.hpp"

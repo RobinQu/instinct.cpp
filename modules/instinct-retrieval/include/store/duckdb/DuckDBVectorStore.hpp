@@ -8,11 +8,12 @@
 #include <duckdb.hpp>
 #include <retrieval.pb.h>
 
-#include "DuckDBStoreInternal.hpp"
+#include "BaseDuckDBStore.hpp"
+#include "DuckDBDocWithEmbeddingStore.hpp"
 #include "store/IVectorStore.hpp"
 #include "tools/Assertions.hpp"
 #include "tools/StringUtils.hpp"
-#include "../../../../instinct-core/include/tools/MetadataSchemaBuilder.hpp"
+#include "tools/MetadataSchemaBuilder.hpp"
 #include "tools/ChronoUtils.hpp"
 
 
@@ -113,79 +114,16 @@ namespace INSTINCT_RETRIEVAL_NS {
             return select_sql;
         }
 
-        static void append_row(
-                const std::shared_ptr<MetadataSchema>& metadata_schema,
-                Appender& appender,
-                Document& doc,
-                const Embedding& embedding,
-                UpdateResult& update_result,
-                const bool bypass_unknown_fields
-        ) {
-            appender.BeginRow();
-
-            // basic fields
-            append_row_basic_fields(appender, doc, update_result);
-
-            // column of vector
-            vector<Value> vector_value;
-            for (const float& f: embedding) {
-                vector_value.push_back(Value::FLOAT(f));
-            }
-            appender.Append(Value::ARRAY(LogicalType::FLOAT, vector_value));
-
-            // metadata fields
-            append_row_metadata_fields(metadata_schema, appender, doc, bypass_unknown_fields);
-
-            appender.EndRow();
-        }
-
     }
 
-    class DuckDBVectorStoreInternalAppender final: public DuckDBInternalAppender {
-        EmbeddingsPtr embeddings_;
-        std::shared_ptr<MetadataSchema> metadata_schema_;
-        bool bypass_unknown_fields_;
 
-    public:
-        DuckDBVectorStoreInternalAppender(EmbeddingsPtr embeddings, std::shared_ptr<MetadataSchema> metadata_schema,
-            const bool bypass_unknown_fields)
-            : embeddings_(std::move(embeddings)),
-              metadata_schema_(std::move(metadata_schema)),
-              bypass_unknown_fields_(bypass_unknown_fields) {
-        }
-
-        void AppendRow(Appender& appender, Document& doc, UpdateResult& update_result) override {
-            const auto embeddings = embeddings_->EmbedDocuments({doc.text()});
-            details::append_row(metadata_schema_, appender, doc, embeddings[0], update_result, bypass_unknown_fields_);
-        }
-
-        void AppendRows(Appender& appender, std::vector<Document>& records, UpdateResult& update_result) override {
-            // std::vector<std::string> ids;
-            auto text_view = records | std::views::transform([](auto&& record) -> std::string {
-                return record.text();
-            });
-            auto embeddings = embeddings_->EmbedDocuments({text_view.begin(), text_view.end()});
-            assert_equal_size(embeddings, records);
-            int affected_row = 0;
-            for (int i = 0; i < records.size(); i++) {
-                try {
-                    details::append_row(metadata_schema_, appender, records[i], embeddings[i], update_result, bypass_unknown_fields_);
-                    affected_row++;
-                } catch (const InstinctException& e) {
-                    update_result.add_failed_documents()->CopyFrom(records[i]);
-                    // TODO with better logging facilities
-                    std::cerr << e.what() << std::endl;
-                }
-            }
-            update_result.set_affected_rows(affected_row);
-        }
-    };
-
-    class DuckDBVectorStore final: public IVectorStore {
-        EmbeddingsPtr embeddings_;
+    /**
+     * IVectorStore implmenetation using brute-force consine similarty executed by DuckDB instance
+     */
+    class DuckDBVectorStore final: public virtual IVectorStore {
+        DuckDBDocWithEmbeddingStore store_;
         unique_ptr<PreparedStatement> prepared_search_statement_;
-        std::shared_ptr<DuckDBStoreInternal> internal_;
-
+        EmbeddingsPtr embeddings_;
     public:
         DuckDBVectorStore() = delete;
 
@@ -193,18 +131,17 @@ namespace INSTINCT_RETRIEVAL_NS {
             const EmbeddingsPtr& embeddings_model,
             const DuckDBStoreOptions& options,
             const std::shared_ptr<MetadataSchema>& metadata_schema
-        ):
+        ):  store_(options, metadata_schema, embeddings_model),
             embeddings_(embeddings_model)
         {
             assert_gt(options.dimension, 0);
             assert_true(embeddings_ != nullptr, "should provide embeddings object pointer");
             assert_true(metadata_schema, "should have provide valid metadata schema");
-            auto internal_appender = std::make_shared<DuckDBVectorStoreInternalAppender>(embeddings_model, metadata_schema, options.bypass_unknown_fields);
-            internal_ = std::make_shared<DuckDBStoreInternal>(internal_appender, options, metadata_schema);
+            // auto internal_appender = std::make_shared<DuckDBVectorStoreInternalAppender>(embeddings_model, metadata_schema, options.bypass_unknown_fields);
 
             auto search_sql = details::make_prepared_search_sql(options.table_name, metadata_schema);
             LOG_DEBUG("prepare search sql: {}", search_sql);
-            prepared_search_statement_ = internal_->GetConnection().Prepare(search_sql);
+            prepared_search_statement_ =  store_.GetConnection().Prepare(search_sql);
             details::assert_prepared_ok(prepared_search_statement_, "Failed to prepare search statement");
         }
 
@@ -223,12 +160,12 @@ namespace INSTINCT_RETRIEVAL_NS {
             unique_ptr<QueryResult> result;
             if (has_filter) {
                 const auto search_sql = details::make_search_sql(
-                internal_->GetOptions().table_name,
+                store_.GetOptions().table_name,
                 GetMetadataSchema(),
                 query_embedding,
                 request.metadata_filter(),
                 request.top_k());
-                result = internal_->GetConnection().Query(search_sql);
+                result = store_.GetConnection().Query(search_sql);
             } else {
                 // use prepared statement for better performance when no filter is actually given
                 vector<Value> vector_array;
@@ -241,38 +178,37 @@ namespace INSTINCT_RETRIEVAL_NS {
             return details::conv_query_result_to_iterator(
                     std::move(result),
                     GetMetadataSchema()
-            )
-            | rpp::operators::tap({}, {}, [t1]() {
+            ) | rpp::operators::tap({}, {}, [t1]() {
                 LOG_INFO("Search done, rt={}ms", ChronoUtils::GetCurrentTimeMillis()-t1);
             });
         }
 
         void AddDocuments(const AsyncIterator<Document>& documents_iterator, UpdateResult& update_result) override {
-            internal_->AddDocuments(documents_iterator, update_result);
+            store_.AddDocuments(documents_iterator, update_result);
         }
 
         void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
-            internal_->AddDocuments(records, update_result);
+            store_.AddDocuments(records, update_result);
         }
 
         void AddDocument(Document& doc) override {
-            internal_->AddDocument(doc);
+            store_.AddDocument(doc);
         }
 
         void DeleteDocuments(const std::vector<std::string>& ids, UpdateResult& update_result) override {
-            internal_->DeleteDocuments(ids, update_result);
+            store_.DeleteDocuments(ids, update_result);
         }
 
         AsyncIterator<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {
-            return internal_->MultiGetDocuments(ids);
+            return store_.MultiGetDocuments(ids);
         }
 
         [[nodiscard]] std::shared_ptr<MetadataSchema> GetMetadataSchema() const override {
-            return internal_->GetMetadataSchema();
+            return store_.GetMetadataSchema();
         }
 
         size_t CountDocuments() override {
-            return internal_->CountDocuments();
+            return store_.CountDocuments();
         }
     };
 
