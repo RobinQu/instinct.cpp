@@ -63,3 +63,5 @@ You can learn more about this frameworks by following links below:
 | v0.1.3                                                        | Multi agent support and reference app                                                    | 5.24 |
 | v0.2.0                                                        | Features will be frozen. More benchmarks and documentations.                             | 5.31 |
 
+
+Contributions are welcomed! You can join [discord server](https://discord.gg/5cVnVyh3), or contact me via [email](mailto:robinqu@gmail.com).
