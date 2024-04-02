@@ -78,8 +78,8 @@ find_package(nlohmann_json)
 #add_subdirectory(thirdparty/taskflow)
 
 ## rpp
-add_subdirectory(thirdparty/ReactivePlusPlus EXCLUDE_FROM_ALL)
-#find_package(RPP REQUIRED)
+#add_subdirectory(thirdparty/ReactivePlusPlus EXCLUDE_FROM_ALL)
+find_package(RPP REQUIRED)
 
 ## icu
 find_package(ICU 74.1 REQUIRED)
