@@ -22,7 +22,7 @@
 #include "tools/Assertions.hpp"
 
 
-namespace insintct::exmaples::chat_doc {
+namespace insintct::exmaples::doc_agent {
     using namespace INSTINCT_RETRIEVAL_NS;
     using namespace INSTINCT_SERVER_NS;
     using namespace INSTINCT_LLM_NS;
@@ -53,6 +53,8 @@ namespace insintct::exmaples::chat_doc {
     struct BuildCommandOptions {
         std::string filename;
         std::string file_type = "TXT";
+
+        std::string shared_db_file_path;
         DuckDBStoreOptions doc_store;
         DuckDBStoreOptions vector_store;
         LLMProviderOptions chat_model_provider;
@@ -65,6 +67,7 @@ namespace insintct::exmaples::chat_doc {
         LLMProviderOptions chat_model_provider;
         LLMProviderOptions embedding_provider;
         // TODO DBStore refactoring to make it possible to share duckdb instantce.
+        std::string shared_db_file_path;
         DuckDBStoreOptions doc_store;
         DuckDBStoreOptions vector_store;
         ServerOptions server;
@@ -116,7 +119,7 @@ namespace insintct::exmaples::chat_doc {
         const ChatModelPtr& chat_model
     ) {
         if (retriever_options.plain_vector_retriever) {
-            // LOG_INFO("")
+            LOG_INFO("CreateVectorStoreRetriever");
             return CreateVectorStoreRetriever(vector_store);
         }
 
@@ -191,8 +194,11 @@ namespace insintct::exmaples::chat_doc {
                         "VectorStore file already exists. Abort to prevent data corruption.");
         }
 
+        // shared duckdb
+        const DuckDB db(options.shared_db_file_path);
+
         // doc store
-        const auto doc_store = CreateDuckDBDocStore(options.doc_store);
+        const auto doc_store = CreateDuckDBDocStore(db, options.doc_store);
 
         // embedding model
         EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.embedding_provider);
@@ -203,7 +209,7 @@ namespace insintct::exmaples::chat_doc {
         assert_true(chat_model, "should have assigned correct chat model");
 
         // vector model
-        const auto vectore_store = CreateDuckDBVectorStore(embedding_model, options.vector_store);
+        const auto vectore_store = CreateDuckDBVectorStore(db, embedding_model, options.vector_store);
 
         // base retriever is enough for data ingestion
         const auto retriever = CreateBaseRetriever(
@@ -227,8 +233,10 @@ namespace insintct::exmaples::chat_doc {
         const auto chat_model = CreateChatModel(options.chat_model_provider);
         assert_true(chat_model, "should have assigned correct chat model");
 
-        const auto doc_store = CreateDuckDBDocStore(options.doc_store);
-        const auto vector_store = CreateDuckDBVectorStore(embedding_model, options.vector_store);
+        const DuckDB db(options.shared_db_file_path);
+
+        const auto doc_store = CreateDuckDBDocStore(db, options.doc_store);
+        const auto vector_store = CreateDuckDBVectorStore(db, embedding_model, options.vector_store);
         PrintDatabaseSummary("VectorStore and DocStore loaded: ", doc_store, vector_store);
 
         const auto base_retriever = CreateBaseRetriever(options.retriever, doc_store, vector_store, chat_model);
@@ -287,9 +295,9 @@ Question: {standalone_question}
 
     static void BuildDocstoreOptionGroup(CLI::Option_group* doc_store_ogroup,
                                          DuckDBStoreOptions& duck_db_options) {
-        doc_store_ogroup
-                ->add_option("--doc_db_path", duck_db_options.db_file_path,
-                             "File path to database file, which will be created if given file doesn't exist.");
+        // doc_store_ogroup
+        //         ->add_option("--doc_db_path", duck_db_options.db_file_path,
+        //                      "File path to database file, which will be created if given file doesn't exist.");
         doc_store_ogroup
                 ->add_option("--doc_table_name", duck_db_options.table_name, "Table name for documents")
                 ->default_val("doc_table");
@@ -297,9 +305,9 @@ Question: {standalone_question}
 
     static void BuildVecstoreOptionGroup(CLI::Option_group* vec_store_ogroup,
                                          DuckDBStoreOptions& duck_db_options) {
-        vec_store_ogroup
-                ->add_option("--vector_db_path", duck_db_options.db_file_path,
-                             "File path to database file, which will be created if given file doesn't exist.");
+        // vec_store_ogroup
+        //         ->add_option("--vector_db_path", duck_db_options.db_file_path,
+        //                      "File path to database file, which will be created if given file doesn't exist.");
         vec_store_ogroup
                 ->add_option("--vector_table_dimension", duck_db_options.dimension, "Dimension of embedding vector.")
                 ->check(CLI::Bound(1, 8192))
@@ -381,7 +389,7 @@ Question: {standalone_question}
 
 int main(int argc, char** argv) {
     using namespace CLI;
-    using namespace insintct::exmaples::chat_doc;
+    using namespace insintct::exmaples::doc_agent;
     App app{
         "🤖 DocAgent: Chat with your documents locally with privacy. "
     };
@@ -401,6 +409,10 @@ int main(int argc, char** argv) {
     // retriever options
     RetrieverOptions retriever_options;
     BuildRetrieverOptions(app.add_option_group("🔍 Retriever", "Options for building retriever"), retriever_options);
+
+    // db file path
+    std::string shared_db_path;
+    app.add_option("--db_path", shared_db_path, "DB file path for botch vetcor store and doc stror.");
 
     // vector store options
     DuckDBStoreOptions vector_store_options;
@@ -433,6 +445,7 @@ int main(int argc, char** argv) {
         build_command_options.doc_store = doc_store_options;
         build_command_options.vector_store = vector_store_options;
         build_command_options.retriever = retriever_options;
+        build_command_options.shared_db_file_path = shared_db_path;
     });
 
     // serve command
@@ -448,6 +461,7 @@ int main(int argc, char** argv) {
         serve_command_options.doc_store = doc_store_options;
         serve_command_options.vector_store = vector_store_options;
         serve_command_options.retriever = retriever_options;
+        serve_command_options.shared_db_file_path = shared_db_path;
     });
 
     // log level

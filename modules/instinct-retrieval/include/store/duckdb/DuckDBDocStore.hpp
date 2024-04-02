@@ -47,11 +47,14 @@ namespace INSTINCT_RETRIEVAL_NS {
     class DuckDBDocStore final: public BaseDuckDBStore {
     public:
         explicit DuckDBDocStore(
-            const DuckDBStoreOptions& options,
-            const std::shared_ptr<MetadataSchema>& metadata_schema)
+            const DuckDB& db,
+            const std::shared_ptr<MetadataSchema>& metadata_schema,
+            const DuckDBStoreOptions& options
+            )
             : BaseDuckDBStore(
-                options,
-                metadata_schema
+                db,
+                metadata_schema,
+                options
             )  {
             assert_true(metadata_schema, "should have provide valid metadata schema");
             assert_true(options.dimension <= 0);
@@ -79,14 +82,26 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
     };
 
-    static DocStorePtr CreateDuckDBDocStore(const DuckDBStoreOptions& options,
-            std::shared_ptr<MetadataSchema> metadata_schema = nullptr) {
+    static DocStorePtr CreateDuckDBDocStore(
+        const DuckDB& db,
+        const DuckDBStoreOptions& options,
+        std::shared_ptr<MetadataSchema> metadata_schema = nullptr
+    ) {
         if (!metadata_schema) {
             metadata_schema = CreateDocStorePresetMetdataSchema();
         }
-        return std::make_shared<DuckDBDocStore>(options, metadata_schema);
+        return std::make_shared<DuckDBDocStore>(db, metadata_schema, options);
     }
 
+    static DocStorePtr CreateDuckDBDocStore(
+        const DuckDBStoreOptions& options,
+        const std::shared_ptr<MetadataSchema>& metadata_schema = nullptr
+    ) {
+        if (options.in_memory) {
+            return CreateDuckDBDocStore(DuckDB(nullptr), options, metadata_schema);
+        }
+        return CreateDuckDBDocStore(DuckDB(options.db_file_path), options, metadata_schema);
+    }
 
 
 }

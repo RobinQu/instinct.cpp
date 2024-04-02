@@ -24,10 +24,29 @@ namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
 
     struct DuckDBStoreOptions {
+        /**
+         * Table for storing data
+         */
         std::string table_name;
+
+        /**
+         * DB file path. If set, a standalone DuckDB instance will be created
+         */
         std::string db_file_path;
+
+        /**
+         * Dimnesion for vector. Zero means no vector field.
+         */
         size_t dimension = 0;
+
+        /**
+         * A flag to allow unknown metadata fields. Otherwise exception will be raised.
+         */
         bool bypass_unknown_fields = true;
+
+        /**
+         * A flag to build standalone in-memory data store using DuckDb. This is for test purpose only.
+         */
         bool in_memory = false;
     };
 
@@ -326,36 +345,23 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
     }
 
-
-    // class DuckDBInternalAppender {
-    // public:
-    //     virtual ~DuckDBInternalAppender() = default;
-    //
-    //     virtual void AppendRow(Appender& appender, Document& doc, UpdateResult& update_result) = 0;
-    //
-    //     virtual void AppendRows(Appender& appender, std::vector<Document>& records, UpdateResult& update_result) = 0;
-    // };
-    //
-    // using DuckDBInternalAppenderPt = std::shared_ptr<DuckDBInternalAppender>;
-
     class BaseDuckDBStore : public virtual IDocStore {
         DuckDBStoreOptions options_;
         DuckDB db_;
         std::shared_ptr<MetadataSchema> metadata_schema_;
         Connection connection_;
-        // unique_ptr<PreparedStatement> prepared_mget_statement_;
         unique_ptr<PreparedStatement> prepared_count_all_statement_;
-        // DuckDBInternalAppenderPt internal_appender_;
 
     public:
         explicit BaseDuckDBStore(
-            const DuckDBStoreOptions& options,
-            const std::shared_ptr<MetadataSchema>& metadata_schema
+            const DuckDB& db,
+            const std::shared_ptr<MetadataSchema>& metadata_schema,
+            const DuckDBStoreOptions& options
         ): options_(options),
-           db_(options.db_file_path),
+           db_(db),
            metadata_schema_(metadata_schema),
            connection_(db_) {
-            LOG_DEBUG("Startup db at {}", options.db_file_path);
+            // LOG_DEBUG("Startup db at {}", options.db_file_path);
             assert_true(metadata_schema, "should provide schema");
             // assert_positive(options_.dimension, "dimension should be positive");
             assert_lt(options_.dimension, 10000, "dimension should be less than 10000");

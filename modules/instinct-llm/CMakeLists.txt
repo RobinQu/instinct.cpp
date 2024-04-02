@@ -38,7 +38,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/memory/EphemeralChatMemory.hpp
         include/output_parser/BaseOutputParser.hpp
         include/memory/BaseChatMemory.hpp
-        include/model/ModelCallbackMixins.hpp
         include/chat_model/OpenAIChat.hpp
         include/commons/OpenAICommons.hpp
         include/embedding_model/OpenAIEmbedding.hpp

@@ -128,10 +128,11 @@ namespace INSTINCT_RETRIEVAL_NS {
         DuckDBVectorStore() = delete;
 
         explicit DuckDBVectorStore(
+            const DuckDB& db,
             const EmbeddingsPtr& embeddings_model,
-            const DuckDBStoreOptions& options,
-            const std::shared_ptr<MetadataSchema>& metadata_schema
-        ):  store_(options, metadata_schema, embeddings_model),
+            const std::shared_ptr<MetadataSchema>& metadata_schema,
+            const DuckDBStoreOptions& options
+        ):  store_(db, metadata_schema, embeddings_model, options),
             embeddings_(embeddings_model)
         {
             assert_gt(options.dimension, 0);
@@ -212,6 +213,31 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
     };
 
+    /**
+     *
+     * @param db A shared DuckDb instance
+     * @param embeddings_model
+     * @param options
+     * @param metadata_schema
+     * @return
+     */
+    static VectorStorePtr CreateDuckDBVectorStore(
+            const DuckDB& db,
+            const EmbeddingsPtr& embeddings_model,
+            const DuckDBStoreOptions& options,
+            MetadataSchemaPtr metadata_schema = nullptr
+        ) {
+        if (!metadata_schema) {
+            metadata_schema = CreateVectorStorePresetMetdataSchema();
+        }
+        return std::make_shared<DuckDBVectorStore>(
+            db,
+            embeddings_model,
+            metadata_schema,
+            options
+        );
+
+    }
 
     /**
      * Create VectorStore using duckdb implementation
@@ -223,17 +249,20 @@ namespace INSTINCT_RETRIEVAL_NS {
     static VectorStorePtr CreateDuckDBVectorStore(
         const EmbeddingsPtr& embeddings_model,
         const DuckDBStoreOptions& options,
-        MetadataSchemaPtr metadata_schema = nullptr
+        const MetadataSchemaPtr& metadata_schema = nullptr
     ) {
-        if (!metadata_schema) {
-            metadata_schema = CreateVectorStorePresetMetdataSchema();
-        }
-        return std::make_shared<DuckDBVectorStore>(
+        return CreateDuckDBVectorStore(
+            options.in_memory ? DuckDB(nullptr) : DuckDB(options.db_file_path),
             embeddings_model,
             options,
             metadata_schema
-        );
+            );
     }
+
+
+
+
+
 }
 
 

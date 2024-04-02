@@ -9,7 +9,6 @@
 
 #include "LLMGlobals.hpp"
 #include "model/ILanguageModel.hpp"
-#include "model/ModelCallbackMixins.hpp"
 #include "tools/Assertions.hpp"
 #include "functional/StepFunctions.hpp"
 
@@ -44,7 +43,7 @@ namespace INSTINCT_LLM_NS {
         ModelOptions options_;
 //        StepFunctionPtr model_function_;
     public:
-        explicit BaseChatModel(ModelOptions options) : options_(std::move(options)) {
+        explicit BaseChatModel(ModelOptions options) : options_(options) {
 //            model_function_ = std::make_shared<ChatModelFunction>(shared_from_this());
         }
 
@@ -130,8 +129,7 @@ namespace INSTINCT_LLM_NS {
     }
 
 
-
-    ChatModelFunction::ChatModelFunction(ChatModelPtr model) : model_(std::move(model)) {}
+    inline ChatModelFunction::ChatModelFunction(ChatModelPtr model) : model_(std::move(model)) {}
 
 
 }
