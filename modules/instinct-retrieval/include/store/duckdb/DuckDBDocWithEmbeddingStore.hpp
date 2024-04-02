@@ -1,0 +1,90 @@
+//
+// Created by RobinQu on 2024/4/2.
+//
+
+#ifndef BASEDUCKDBVECTORSTORE_HPP
+#define BASEDUCKDBVECTORSTORE_HPP
+
+#include "BaseDuckDBStore.hpp"
+#include "RetrievalGlobals.hpp"
+#include "model/IEmbeddingModel.hpp"
+
+namespace INSTINCT_RETRIEVAL_NS {
+    using namespace INSTINCT_LLM_NS;
+
+    namespace details {
+
+        static void append_row(
+                const std::shared_ptr<MetadataSchema>& metadata_schema,
+                Appender& appender,
+                Document& doc,
+                const Embedding& embedding,
+                UpdateResult& update_result,
+                const bool bypass_unknown_fields
+        ) {
+            appender.BeginRow();
+
+            // basic fields
+            append_row_basic_fields(appender, doc, update_result);
+
+            // column of vector
+            vector<Value> vector_value;
+            for (const float& f: embedding) {
+                vector_value.push_back(Value::FLOAT(f));
+            }
+            appender.Append(Value::ARRAY(LogicalType::FLOAT, vector_value));
+
+            // metadata fields
+            append_row_metadata_fields(metadata_schema, appender, doc, bypass_unknown_fields);
+
+            appender.EndRow();
+        }
+    }
+
+
+    /**
+     * Speicialized DocStore that will embed input documents
+     */
+    class DuckDBDocWithEmbeddingStore final: public BaseDuckDBStore {
+        EmbeddingsPtr embeddings_;
+    public:
+        DuckDBDocWithEmbeddingStore(
+            const DuckDBStoreOptions &options,
+            const MetadataSchemaPtr &metadata_schema,
+            const EmbeddingsPtr& embedding_model)
+            : BaseDuckDBStore(options, metadata_schema), embeddings_(embedding_model) {
+        }
+
+        [[nodiscard]] EmbeddingsPtr GetEmbedding() const {
+            return embeddings_;
+        }
+
+        void AppendRows(Appender &appender, std::vector<Document> &records, UpdateResult &update_result) override {
+            auto text_view = records | std::views::transform([](auto&& record) -> std::string {
+                return record.text();
+            });
+            auto embeddings = embeddings_->EmbedDocuments({text_view.begin(), text_view.end()});
+            assert_equal_size(embeddings, records);
+            int affected_row = 0;
+            for (int i=0;i<records.size();i++) {
+                try {
+                    details::append_row(GetMetadataSchema(), appender, records[i], embeddings[i], update_result, GetOptions().bypass_unknown_fields);
+                    affected_row++;
+                } catch (const InstinctException& e) {
+                    update_result.add_failed_documents()->CopyFrom(records[i]);
+                    // TODO with better logging facilities
+                    std::cerr << e.what() << std::endl;
+                }
+            }
+            update_result.set_affected_rows(affected_row);
+        }
+
+        void AppendRow(Appender &appender, Document &doc, UpdateResult &update_result) override {
+            const auto embeddings = embeddings_->EmbedDocuments({doc.text()});
+            details::append_row(GetMetadataSchema(), appender, doc, embeddings[0], update_result, GetOptions().bypass_unknown_fields);
+        }
+    };
+}
+
+
+#endif //BASEDUCKDBVECTORSTORE_HPP
