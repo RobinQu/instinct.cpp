@@ -105,6 +105,7 @@ namespace INSTINCT_LLM_NS {
         float temperature = 0.8f;
         int seed = 0;
         bool json_mode = false;
+        size_t dimension = 4096;
     };
 
 

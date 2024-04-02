@@ -109,7 +109,7 @@ namespace insintct::exmaples::doc_agent {
     static void PrintDatabaseSummary(const std::string& announcment, const DocStorePtr& doc_store, const VectorStorePtr& vectore_store) {
         auto doc_count = doc_store->CountDocuments();
         auto vector_count = vectore_store->CountDocuments();
-        LOG_INFO("{}: DocStore{} docs, VectorStore {} embeddings", announcment, doc_count, vector_count);
+        LOG_INFO("{}: DocStore {} docs, VectorStore {} embeddings", announcment, doc_count, vector_count);
     }
 
     static StatefulRetrieverPtr CreateBaseRetriever(
@@ -412,7 +412,7 @@ int main(int argc, char** argv) {
 
     // db file path
     std::string shared_db_path;
-    app.add_option("--db_path", shared_db_path, "DB file path for botch vetcor store and doc stror.");
+    app.add_option("--db_path", shared_db_path, "DB file path for botch vetcor store and doc store.")->required();
 
     // vector store options
     DuckDBStoreOptions vector_store_options;
@@ -440,12 +440,17 @@ int main(int argc, char** argv) {
             ->check(IsMember({"PDF", "DOCX", "MD", "TXT"}, CLI::ignore_case));
 
     build_command->final_callback([&]() {
+        if(build_command_options.force_rebuild) {
+            doc_store_options.create_or_replace_table = true;
+            vector_store_options.create_or_replace_table = true;
+        }
         build_command_options.chat_model_provider = chat_model_provider_options;
         build_command_options.embedding_provider = embedding_model_provider_options;
         build_command_options.doc_store = doc_store_options;
         build_command_options.vector_store = vector_store_options;
         build_command_options.retriever = retriever_options;
         build_command_options.shared_db_file_path = shared_db_path;
+
     });
 
     // serve command

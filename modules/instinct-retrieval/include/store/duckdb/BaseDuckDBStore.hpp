@@ -48,6 +48,11 @@ namespace INSTINCT_RETRIEVAL_NS {
          * A flag to build standalone in-memory data store using DuckDb. This is for test purpose only.
          */
         bool in_memory = false;
+
+        /**
+         * A flag to initialize `CREATE OR REPLACE TABLE` syntax during startup. If set to false, `CREATE TABLE IF NOT EXISTS` syntax will be used
+         */
+        bool create_or_replace_table = false;
     };
 
     namespace details {
@@ -84,9 +89,10 @@ namespace INSTINCT_RETRIEVAL_NS {
         static std::string make_create_table_sql(
             const std::string& table_name,
             const size_t dimmension,
-            const std::shared_ptr<MetadataSchema>& metadata_schema
+            const std::shared_ptr<MetadataSchema>& metadata_schema,
+            bool create_or_replace_table
         ) {
-            auto create_table_sql = "CREATE TABLE IF NOT EXISTS " + table_name + "(";
+            auto create_table_sql = (create_or_replace_table ? "CREATE OR REPLACE TABLE " :  "CREATE TABLE IF NOT EXISTS ") + table_name + "(";
             std::vector<std::string> parts;
             parts.emplace_back("id UUID PRIMARY KEY");
             parts.emplace_back("text VARCHAR NOT NULL");
@@ -367,7 +373,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_lt(options_.dimension, 10000, "dimension should be less than 10000");
             assert_true(!StringUtils::IsBlankString(options_.table_name), "table_name cannot be blank");
 
-            const auto sql = details::make_create_table_sql(options_.table_name, options_.dimension, metadata_schema_);
+            const auto sql = details::make_create_table_sql(options_.table_name, options_.dimension, metadata_schema_, options.create_or_replace_table);
             LOG_DEBUG("create document table with SQL: {}", sql);
 
             const auto create_table_result = connection_.Query(sql);

@@ -52,7 +52,7 @@ namespace INSTINCT_LLM_NS {
         size_t GetDimension() override {
             // Ollama embedding cannot be configured with dimension
             // see https://github.com/ollama/ollama/issues/651
-            return 4096;
+            return configuration_.dimension;
         }
     };
 
