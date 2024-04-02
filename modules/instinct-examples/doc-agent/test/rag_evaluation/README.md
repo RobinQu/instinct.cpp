@@ -12,10 +12,9 @@ In the following sections, we will discuss:
 
 ## Experiments
 
-As these are code-intensive experiments, they are written in Jupyter Notebook.
+As these are code-intensive experiments, they are written in Jupyter Notebook:
 
-* [RAG performance with baselines](./hf_rag_eval.ipynb)
-* [Multi-factor study](./factors.ipynb)
+[RAG performance with baselines](./rag_evaluation.ipynb)
 
 ## Conclusion
 
