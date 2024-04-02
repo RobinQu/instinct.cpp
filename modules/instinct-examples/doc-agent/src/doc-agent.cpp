@@ -13,6 +13,7 @@
 #include "ingestor/SingleFileIngestor.hpp"
 #include "ingestor/PDFFileIngestor.hpp"
 #include "ingestor/DOCXFileIngestor.hpp"
+#include "ingestor/ParquetFileIngestor.hpp"
 #include "retrieval/ChunkedMultiVectorRetriever.hpp"
 #include "retrieval/MultiQueryRetriever.hpp"
 #include "retrieval/VectorStoreRetriever.hpp"
@@ -53,6 +54,11 @@ namespace insintct::exmaples::doc_agent {
     struct BuildCommandOptions {
         std::string filename;
         std::string file_type = "TXT";
+
+        /**
+         * see more at instinct::retrieval::CreateParquetIngestor
+         */
+        std::string parquet_mapping;
 
         std::string shared_db_file_path;
         DuckDBStoreOptions doc_store;
@@ -174,6 +180,8 @@ namespace insintct::exmaples::doc_agent {
             ingestor = CreatePDFFileIngestor(options.filename);
         } else if (options.file_type == "DOCX") {
             ingestor = CreateDOCXFileIngestor(options.filename);
+        } else if (options.file_type == "PARQUET") {
+            ingestor = CreateParquetIngestor(options.filename, options.parquet_mapping);
         } else {
             ingestor = CreatePlainTextFileIngestor(options.filename);
         }
@@ -437,7 +445,8 @@ int main(int argc, char** argv) {
             ->add_option("-t,--type", build_command_options.file_type,
                          "File format of assigned document. Supported types are PDF,TXT,MD,DOCX")
             ->default_val("TXT")
-            ->check(IsMember({"PDF", "DOCX", "MD", "TXT"}, CLI::ignore_case));
+            ->check(IsMember({"PDF", "DOCX", "MD", "TXT", "PARQUET"}, CLI::ignore_case));
+    build_command->add_option("--parquet_mapping", build_command_options.parquet_mapping, "Mapping format for parquet columns. e.g. 1:t,2:m:parent_doc_id:int64,3:m:source:varchar.");
 
     build_command->final_callback([&]() {
         if(build_command_options.force_rebuild) {

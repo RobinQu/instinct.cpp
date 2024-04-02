@@ -26,6 +26,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/ingestor/PDFFileIngestor.hpp
         include/ingestor/DOCXFileIngestor.hpp
         include/store/duckdb/DuckDBDocWithEmbeddingStore.hpp
+        include/ingestor/ParquetFileIngestor.hpp
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

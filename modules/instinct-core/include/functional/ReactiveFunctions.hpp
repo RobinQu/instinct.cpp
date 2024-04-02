@@ -9,8 +9,7 @@
 #include <rpp/rpp.hpp>
 #include "CoreGlobals.hpp"
 
-namespace
-INSTINCT_CORE_NS {
+namespace INSTINCT_CORE_NS {
     template<typename T>
     using AsyncIterator = rpp::dynamic_observable<T>;
 

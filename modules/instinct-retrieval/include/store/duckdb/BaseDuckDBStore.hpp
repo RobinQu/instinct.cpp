@@ -90,7 +90,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             const std::string& table_name,
             const size_t dimmension,
             const std::shared_ptr<MetadataSchema>& metadata_schema,
-            bool create_or_replace_table
+            bool create_or_replace_table = false
         ) {
             auto create_table_sql = (create_or_replace_table ? "CREATE OR REPLACE TABLE " :  "CREATE TABLE IF NOT EXISTS ") + table_name + "(";
             std::vector<std::string> parts;
@@ -148,9 +148,12 @@ namespace INSTINCT_RETRIEVAL_NS {
             return delete_sql;
         }
 
+        static bool check_query_ok(const unique_ptr<MaterializedQueryResult>& result) {
+            return result->GetErrorObject().HasError();
+        }
 
         static void assert_query_ok(const unique_ptr<MaterializedQueryResult>& result) {
-            if (const auto error = result->GetErrorObject(); error.HasError()) {
+            if (check_query_ok(result)) {
                 throw InstinctException(result->GetError());
             }
         }
