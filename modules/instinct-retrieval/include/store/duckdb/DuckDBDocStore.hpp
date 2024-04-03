@@ -47,7 +47,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     class DuckDBDocStore final: public BaseDuckDBStore {
     public:
         explicit DuckDBDocStore(
-            const DuckDB& db,
+            const DuckDBPtr& db,
             const std::shared_ptr<MetadataSchema>& metadata_schema,
             const DuckDBStoreOptions& options
             )
@@ -83,7 +83,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
     static DocStorePtr CreateDuckDBDocStore(
-        const DuckDB& db,
+        const DuckDBPtr& db,
         const DuckDBStoreOptions& options,
         std::shared_ptr<MetadataSchema> metadata_schema = nullptr
     ) {
@@ -98,9 +98,9 @@ namespace INSTINCT_RETRIEVAL_NS {
         const std::shared_ptr<MetadataSchema>& metadata_schema = nullptr
     ) {
         if (options.in_memory) {
-            return CreateDuckDBDocStore(DuckDB(nullptr), options, metadata_schema);
+            return CreateDuckDBDocStore(std::make_shared<DuckDB>(nullptr), options, metadata_schema);
         }
-        return CreateDuckDBDocStore(DuckDB(options.db_file_path), options, metadata_schema);
+        return CreateDuckDBDocStore(std::make_shared<DuckDB>(options.db_file_path), options, metadata_schema);
     }
 
 

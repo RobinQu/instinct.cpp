@@ -89,13 +89,9 @@ namespace INSTINCT_RETRIEVAL_NS {
             std::vector<Document> guided_docs;
             auto parent_docs = CollectVector(input);
             for (auto& parent_doc: parent_docs) {
-                // auto& parent_doc = input->Next();
                 doc_store_->AddDocument(parent_doc);
                 auto sub_docs = std::invoke(guidance_, parent_doc);
                 LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), parent_doc.id());
-                // for (auto& sub_doc: sub_docs) {
-                //     DocumentUtils::AddPresetMetadataFileds(sub_doc, parent_doc.id());
-                // }
                 guided_docs.insert(guided_docs.end(), sub_docs.begin(), sub_docs.end());
             }
             UpdateResult update_result;

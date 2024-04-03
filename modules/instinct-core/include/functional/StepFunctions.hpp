@@ -75,42 +75,6 @@ namespace INSTINCT_CORE_NS {
 //        }
     };
 
-
-//
-//    class FunctionReducer {
-//        StepFunctionPtr step_function_;
-//    public:
-//        explicit FunctionReducer(StepFunctionPtr stepFunction) :
-//                step_function_(std::move(stepFunction)) {}
-//
-//    public:
-//        [[nodiscard]] nlohmann::json reduce(const JSONContextPtr &ctx) const {
-//            auto result = step_function_->Invoke(ctx);
-//            return result->GetPayload().at(RETURN_VALUE_VARIABLE_KEY);
-//        }
-//
-//        nlohmann::json operator()(const JSONContextPtr &ctx) const {
-//            return reduce(ctx);
-//        }
-//    };
-//
-//    class GetterReducer {
-//        std::string variable_name_;
-//    public:
-//        explicit GetterReducer(std::string variableName) : variable_name_(std::move(variableName)) {}
-//
-//        [[nodiscard]] nlohmann::json reduce(const JSONContextPtr &ctx) const {
-//            return ctx->GetPayload().at(variable_name_);
-//        }
-//
-//        nlohmann::json operator()(const JSONContextPtr &ctx) const {
-//            return reduce(ctx);
-//        }
-//    };
-//
-//    using JSONContextReducer = std::function<nlohmann::json(const JSONContextPtr &)>;
-
-
     class MappingStepFunction final : public BaseStepFunction {
         std::unordered_map<std::string, StepFunctionPtr> steps_{};
     public:
@@ -158,17 +122,7 @@ namespace INSTINCT_CORE_NS {
             auto mapping_data = input->RequireMappingData();
             return mapping_data[variable_name_];
         }
-
-//        [[nodiscard]] std::vector<std::string> GetInputKeys() const override {
-//            return  {};
-//        }
-//
-//        [[nodiscard]] std::vector<std::string> GetOutputKeys() const override {
-//            return {};
-//        }
     };
-
-
 
     using StepLambda = std::function<JSONContextPtr(const JSONContextPtr &context)>;
 

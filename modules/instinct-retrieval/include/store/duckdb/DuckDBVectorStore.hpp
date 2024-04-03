@@ -128,7 +128,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         DuckDBVectorStore() = delete;
 
         explicit DuckDBVectorStore(
-            const DuckDB& db,
+            const DuckDBPtr& db,
             const EmbeddingsPtr& embeddings_model,
             const std::shared_ptr<MetadataSchema>& metadata_schema,
             const DuckDBStoreOptions& options
@@ -222,7 +222,7 @@ namespace INSTINCT_RETRIEVAL_NS {
      * @return
      */
     static VectorStorePtr CreateDuckDBVectorStore(
-            const DuckDB& db,
+            const DuckDBPtr& db,
             const EmbeddingsPtr& embeddings_model,
             const DuckDBStoreOptions& options,
             MetadataSchemaPtr metadata_schema = nullptr
@@ -252,7 +252,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         const MetadataSchemaPtr& metadata_schema = nullptr
     ) {
         return CreateDuckDBVectorStore(
-            options.in_memory ? DuckDB(nullptr) : DuckDB(options.db_file_path),
+            options.in_memory ? std::make_shared<DuckDB>(nullptr) : std::make_shared<DuckDB>(options.db_file_path),
             embeddings_model,
             options,
             metadata_schema

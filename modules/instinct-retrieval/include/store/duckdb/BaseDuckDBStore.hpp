@@ -354,22 +354,24 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
     }
 
+    using DuckDBPtr = std::shared_ptr<DuckDB>;
+
     class BaseDuckDBStore : public virtual IDocStore {
         DuckDBStoreOptions options_;
-        DuckDB db_;
+        DuckDBPtr db_;
         std::shared_ptr<MetadataSchema> metadata_schema_;
         Connection connection_;
         unique_ptr<PreparedStatement> prepared_count_all_statement_;
 
     public:
         explicit BaseDuckDBStore(
-            const DuckDB& db,
+            const DuckDBPtr& db,
             const std::shared_ptr<MetadataSchema>& metadata_schema,
             const DuckDBStoreOptions& options
         ): options_(options),
            db_(db),
            metadata_schema_(metadata_schema),
-           connection_(db_) {
+           connection_(*db_) {
             // LOG_DEBUG("Startup db at {}", options.db_file_path);
             assert_true(metadata_schema, "should provide schema");
             // assert_positive(options_.dimension, "dimension should be positive");

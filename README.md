@@ -24,20 +24,29 @@ What `instinct.cpp` cannot offer:
 
 ## Getting started
 
+### Install from conan center
+
+WIP
+
 ### Build from sources
 
 System Requirements: 
 
 * CMake 3.26+
 * Compiler that supports C++ 20: GCC 13+ or Clang 15+
+* Conan 2+
 
-This project relies on [conan](https://conan.io/) to resolve dependencies. And there remain some issues before it can be seen on Conan center [#1](https://github.com/RobinQu/instinct.cpp/issues/1). 
+This project relies on [conan](https://conan.io/) to resolve dependencies. To build and install:
+
+```shell
+mkdir build && cd build
+conan install .. --build=missing
+cmake .. && cmake --build . --target INSTALL --preset conan-release
+```
 
 ### Quick start
 
 ```c++
-
-
 
 ```
 

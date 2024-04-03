@@ -87,6 +87,30 @@ namespace INSTINCT_CORE_NS {
             return buf;
         }
 
+        static bool HasMetadataField(const Document& document, const std::string& name) {
+            return std::ranges::any_of(document.metadata(), [&](const auto& m) {
+                return m.name() == name;
+            });
+        }
+
+        static void AddMissingPresetMetadataFields(Document& document) {
+            if(!HasMetadataField(document, METADATA_SCHEMA_PARENT_DOC_ID_KEY)) {
+                auto* metadata_field = document.add_metadata();
+                metadata_field->set_name(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
+                metadata_field->set_string_value("");
+            }
+            if(!HasMetadataField(document, METADATA_SCHEMA_FILE_SOURCE_KEY)) {
+                auto* metadata_field = document.add_metadata();
+                metadata_field->set_name(METADATA_SCHEMA_FILE_SOURCE_KEY);
+                metadata_field->set_string_value("");
+            }
+            if(!HasMetadataField(document, METADATA_SCHEMA_PAGE_NO_KEY)) {
+                auto* metadata_field = document.add_metadata();
+                metadata_field->set_name(METADATA_SCHEMA_PAGE_NO_KEY);
+                metadata_field->set_int_value(0);
+            }
+        }
+
         static void AddPresetMetadataFileds(
             Document& document,
             const std::string& parent_doc_id,

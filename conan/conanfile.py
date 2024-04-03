@@ -1,14 +1,21 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import cmake_layout
+from conan.tools.files import copy, get
+import os
+
 
 class InstinctCppRecipe(ConanFile):
-    """
-    this `conanfile.py` is merely meant to build and install project locally.
-    """
     name = "instinct_cpp"
     version = "0.1.0"
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps", "CMakeToolchain"
+    no_copy_source = True
+    package_type = "header-library"
+    topics = "GenAI", "Agent", "RAG", "LLM", "AI", "header-only"
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         check_min_cppstd(self, 20)
@@ -38,3 +45,20 @@ class InstinctCppRecipe(ConanFile):
         self.requires("cli11/2.4.1")
         # test deps
         self.test_requires("gtest/1.14.0")
+
+    def build(self):
+        pass
+
+    def package(self):
+        for sub_module in ["instinct-core", "instinct-llm", "instinct-retrieval", "instinct-server"]:
+            print(f"copy {sub_module}")
+            copy(self,
+                 "*.hpp", src=os.path.join(self.source_folder, "modules", sub_module, "include"),
+                 dst=os.path.join(self.package_folder, "include", sub_module))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+
+    def package_info(self):
+        # For header-only packages, libdirs and bindirs are not used
+        # so it's necessary to set those as empty.
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

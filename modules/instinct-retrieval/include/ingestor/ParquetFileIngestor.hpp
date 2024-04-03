@@ -13,6 +13,7 @@
 #include "tools/Assertions.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
+    using namespace INSTINCT_CORE_NS;
 
     enum ParquetColumnType {
         kUnknownParquetColumn,
@@ -84,6 +85,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                             }
                             observer.on_error(std::make_exception_ptr(InstinctException("unknown column type at index " + std::to_string(column_idx))));
                         }
+                        DocumentUtils::AddMissingPresetMetadataFields(document);
                         observer.on_next(document);
                     }
                     observer.on_completed();

@@ -49,7 +49,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         EmbeddingsPtr embeddings_;
     public:
         DuckDBDocWithEmbeddingStore(
-            const DuckDB& db,
+            const DuckDBPtr& db,
             const MetadataSchemaPtr &metadata_schema,
             const EmbeddingsPtr& embedding_model,
             const DuckDBStoreOptions &options

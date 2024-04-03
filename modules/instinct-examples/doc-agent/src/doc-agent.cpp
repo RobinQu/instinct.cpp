@@ -49,6 +49,9 @@ namespace insintct::exmaples::doc_agent {
         bool chunked_multi_vector_retriever = false;
         bool multi_query_retriever = false;
         bool auto_retriever = false;
+
+        int parent_chunk_size = 1000;
+        int child_chunk_size = 200;
     };
 
     struct BuildCommandOptions {
@@ -131,12 +134,23 @@ namespace insintct::exmaples::doc_agent {
 
         if(retriever_options.chunked_multi_vector_retriever) {
             LOG_INFO("CreateChunkedMultiVectorRetriever");
-            const auto child_spliter = CreateRecursiveCharacterTextSplitter();
+            const auto child_spliter = CreateRecursiveCharacterTextSplitter({.chunk_size = retriever_options.child_chunk_size});
+            if (retriever_options.parent_chunk_size > 0) {
+                assert_true(retriever_options.parent_chunk_size > retriever_options.child_chunk_size, "parent_chunk_size should be larger than child_chunk_size");
+                const auto parent_splitter = CreateRecursiveCharacterTextSplitter({.chunk_size = retriever_options.parent_chunk_size});
+                return CreateChunkedMultiVectorRetriever(
+                    doc_store,
+                    vector_store,
+                    child_spliter,
+                    parent_splitter
+                );
+            }
             return CreateChunkedMultiVectorRetriever(
                 doc_store,
                 vector_store,
                 child_spliter
             );
+
         }
 
         if(retriever_options.hypothectical_queries_guided_retriever) {
@@ -181,6 +195,7 @@ namespace insintct::exmaples::doc_agent {
         } else if (options.file_type == "DOCX") {
             ingestor = CreateDOCXFileIngestor(options.filename);
         } else if (options.file_type == "PARQUET") {
+            assert_true(!options.parquet_mapping.empty(), "should provide mapping format for parquet file");
             ingestor = CreateParquetIngestor(options.filename, options.parquet_mapping);
         } else {
             ingestor = CreatePlainTextFileIngestor(options.filename);
@@ -203,7 +218,7 @@ namespace insintct::exmaples::doc_agent {
         }
 
         // shared duckdb
-        const DuckDB db(options.shared_db_file_path);
+        const auto db = std::make_shared<DuckDB>(options.shared_db_file_path);
 
         // doc store
         const auto doc_store = CreateDuckDBDocStore(db, options.doc_store);
@@ -231,7 +246,7 @@ namespace insintct::exmaples::doc_agent {
         // ingest data
         retriever->Ingest(ingestor->Load());
 
-        PrintDatabaseSummary("Database is built successfully: ", doc_store, vectore_store);
+        PrintDatabaseSummary("Database is built successfully", doc_store, vectore_store);
     }
 
     static void ServeCommand(const ServeCommandOptions& options) {
@@ -241,7 +256,7 @@ namespace insintct::exmaples::doc_agent {
         const auto chat_model = CreateChatModel(options.chat_model_provider);
         assert_true(chat_model, "should have assigned correct chat model");
 
-        const DuckDB db(options.shared_db_file_path);
+        const auto db = std::make_shared<DuckDB>(options.shared_db_file_path);
 
         const auto doc_store = CreateDuckDBDocStore(db, options.doc_store);
         const auto vector_store = CreateDuckDBVectorStore(db, embedding_model, options.vector_store);
@@ -387,6 +402,14 @@ Question: {standalone_question}
         // one base retriever is required
         base_retriever_ogroup->require_option(1, 1);
 
+        const auto mv_ogroup = retriever_option_group->add_option_group("Options for ChunkedMultiVectorRetriever");
+        mv_ogroup->add_option("--child_chunk_size", options.child_chunk_size, "chunk size for child document")
+            ->default_val(200)
+            ->check(CLI::Range{200, 10000});
+        mv_ogroup->add_option("--parent_chunk_size", options.parent_chunk_size, "chunk size for parent document. Zero means disabling parent document splitter.")
+            ->check(CLI::Range(0, 1000000))
+            ->default_val(0);
+
         const auto query_rerwier_ogorup = retriever_option_group->add_option_group("query_rewriter", "Adaptor retrievers that rewrites original query.");
         query_rerwier_ogorup->add_flag("--multi_query_retriever",  options.multi_query_retriever, "Enable MultiQueryRetriever.");
         // at most one query_retriever is specified
@@ -434,32 +457,32 @@ int main(int argc, char** argv) {
 
     // build command
     BuildCommandOptions build_command_options;
+
     const auto build_command = app.add_subcommand(
         "build", "💼 Anaylize a single document and build database of learned context data. Proper values should be offered for Embedding model, Chat model, DocStore, VecStore and Retriever mentioned above.");
     build_command->add_flag("--force", build_command_options.force_rebuild,
                             "A flag to force rebuild of database, which means existing db files will be deleted. Use this option with caution!");
-    build_command->add_option("-f,--file", build_command_options.filename, "Path to the document you want analyze")
-            ->required()
-            ->check(ExistingFile);
-    build_command
+    auto ds_ogroup = build_command->add_option_group("Data source");
+    ds_ogroup->add_option("-f,--file", build_command_options.filename, "Path to the document you want analyze")
+            ->required();
+    ds_ogroup
             ->add_option("-t,--type", build_command_options.file_type,
-                         "File format of assigned document. Supported types are PDF,TXT,MD,DOCX")
+                         "File format of assigned document. Supported types are PDF,TXT,MD,DOCX,PARQUET")
             ->default_val("TXT")
             ->check(IsMember({"PDF", "DOCX", "MD", "TXT", "PARQUET"}, CLI::ignore_case));
-    build_command->add_option("--parquet_mapping", build_command_options.parquet_mapping, "Mapping format for parquet columns. e.g. 1:t,2:m:parent_doc_id:int64,3:m:source:varchar.");
+    ds_ogroup->add_option("--parquet_mapping", build_command_options.parquet_mapping, "Mapping format for parquet columns. e.g. 1:t,2:m:parent_doc_id:int64,3:m:source:varchar.");
 
     build_command->final_callback([&]() {
-        if(build_command_options.force_rebuild) {
-            doc_store_options.create_or_replace_table = true;
-            vector_store_options.create_or_replace_table = true;
-        }
         build_command_options.chat_model_provider = chat_model_provider_options;
         build_command_options.embedding_provider = embedding_model_provider_options;
         build_command_options.doc_store = doc_store_options;
         build_command_options.vector_store = vector_store_options;
+        if(build_command_options.force_rebuild) {
+            build_command_options.doc_store.create_or_replace_table = true;
+            build_command_options.vector_store.create_or_replace_table = true;
+        }
         build_command_options.retriever = retriever_options;
         build_command_options.shared_db_file_path = shared_db_path;
-
     });
 
     // serve command
