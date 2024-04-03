@@ -149,11 +149,11 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         static bool check_query_ok(const unique_ptr<MaterializedQueryResult>& result) {
-            return result->GetErrorObject().HasError();
+            return !result->GetErrorObject().HasError();
         }
 
         static void assert_query_ok(const unique_ptr<MaterializedQueryResult>& result) {
-            if (check_query_ok(result)) {
+            if (!check_query_ok(result)) {
                 throw InstinctException(result->GetError());
             }
         }

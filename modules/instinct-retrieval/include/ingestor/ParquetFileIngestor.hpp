@@ -22,39 +22,43 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
     struct ParquetColumnMapping {
-        ParquetColumnType column_type;
+        ParquetColumnType column_type = kUnknownParquetColumn;
         MetadataFieldSchema metadata_field_schema;
-        int column_index;
+        int column_index = 0;
     };
 
-    class ParquetFileIngestor final: public BaseIngestor {
+    struct ParquetFileIngestorOptions {
+        // used by naive ingestor to limit line count
+        size_t limit;
+    };
+
+    class BaseParquetFileIngestor: public BaseIngestor {
         std::string file_source;
         std::vector<ParquetColumnMapping> column_mapping;
     public:
-        ParquetFileIngestor(std::string file_source, const std::vector<ParquetColumnMapping> &column_mapping)
+        BaseParquetFileIngestor(std::string file_source, const std::vector<ParquetColumnMapping> &column_mapping)
             : file_source(std::move(file_source)),
               column_mapping(column_mapping) {
         }
+
+        virtual unique_ptr<MaterializedQueryResult> ReadParquet(Connection& conn, const std::string& file_source) = 0;
 
         AsyncIterator<Document> Load() override {
             return rpp::source::create<Document>([&](const auto & observer) {
                 duckdb::DuckDB duck_db(nullptr);
                 duckdb::Connection conn(duck_db);
-                const auto result = conn.Query(fmt::format("select * from read_parquest({});", file_source));
-                if(details::check_query_ok(result)) {
+                if(const auto result = ReadParquet(conn, file_source); details::check_query_ok(result)) {
                     for(const auto& row: *result) {
                         Document document;
-                        for(int i=0; i<column_mapping.size();++i) {
-                            const auto mapping = column_mapping[i];
-                            const int column_idx = mapping.column_index;
-                            if(mapping.column_type == kTextColumn) {
+                        for(const auto&[column_type, metadata_field_schema, column_idx] : column_mapping) {
+                            if(column_type == kTextColumn) {
                                 document.set_text(row.GetValue<std::string>(column_idx));
                                 continue;
                             }
-                            if (mapping.column_type == kMetadataColumn) {
+                            if (column_type == kMetadataColumn) {
                                 auto* metadata_field = document.add_metadata();
-                                metadata_field->set_name(mapping.metadata_field_schema.name());
-                                switch (const auto field_schema = mapping.metadata_field_schema; field_schema.type()) {
+                                metadata_field->set_name(metadata_field_schema.name());
+                                switch (const auto field_schema = metadata_field_schema; field_schema.type()) {
                                     case INT32:
                                         metadata_field->set_int_value(row.GetValue<int32_t>(column_idx));
                                         break;
@@ -90,18 +94,39 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
     };
 
+    /**
+     * This ingestor will trigger a `SELECT *` against parquet file. A more delicate handling is needed for large parquet file.
+     */
+    class NaiveParquetFileIngestor final: public BaseParquetFileIngestor {
+        ParquetFileIngestorOptions options_;
+    public:
+        NaiveParquetFileIngestor(const std::string &file_source,
+            const std::vector<ParquetColumnMapping> &column_mapping, const ParquetFileIngestorOptions& options)
+            : BaseParquetFileIngestor(file_source, column_mapping), options_(options) {
+        }
 
-    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::vector<ParquetColumnMapping> &column_mapping) {
-        return std::make_shared<ParquetFileIngestor>(file_source, column_mapping);
+        unique_ptr<MaterializedQueryResult> ReadParquet(Connection &conn, const std::string &file_source) override {
+            const auto sql_line = options_.limit > 0 ?
+                fmt::format("select * from read_parquet('{}') limit {};", file_source, options_.limit):
+                fmt::format("select * from read_parquet('{}');", file_source);
+            LOG_DEBUG("Query SQL: {}", sql_line);
+            return conn.Query(sql_line);
+        }
+    };
+
+
+    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::vector<ParquetColumnMapping> &column_mapping, const ParquetFileIngestorOptions& options = {}) {
+        return std::make_shared<NaiveParquetFileIngestor>(file_source, column_mapping, options);
     }
 
     /**
      * 
      * @param file_source remote or local file source
-     * @param mapping_string string literals that describes column mappings. e.g. "1:t,2:m:parent_doc_id:int64,3:m:source:varchar"
+     * @param mapping_string string literals that describes column mappings. e.g. "0:t,1:m:parent_doc_id:int64,3:m:source:varchar"
+     * @param options
      * @return 
      */
-    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::string& mapping_string) {
+    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::string& mapping_string, const ParquetFileIngestorOptions& options = {}) {
         std::vector<ParquetColumnMapping> mappings;
         for(const auto& column: StringUtils::ReSplit(StringUtils::Trim(mapping_string), std::regex(","))) {
             if(StringUtils::IsBlankString(column)) continue;
@@ -111,10 +136,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto type_string = StringUtils::ToLower(column_parts[1]);
 
             column_mapping.column_index = std::stoi(column_parts[0]);
-            if(type_string == "t") {
+            if(type_string == "t" || type_string == "text") {
                 column_mapping.column_type = kTextColumn;
             }
-            if(type_string == "m") {
+            if(type_string == "m" || type_string == "metadata") {
                 assert_gte(column_parts.size(), 4, "definition for metadata field should contain exactly four parts.");
                 MetadataFieldSchema field_schema;
                 field_schema.set_name(column_parts[2]);
@@ -149,7 +174,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             mappings.push_back(column_mapping);
         }
 
-        return CreateParquetIngestor(file_source, mappings);
+        return CreateParquetIngestor(file_source, mappings, options);
     }
 
 }

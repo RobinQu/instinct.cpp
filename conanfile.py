@@ -24,7 +24,7 @@ class InstinctCppRecipe(ConanFile):
         self.tool_requires("cmake/3.27.9")
 
     def requirements(self):
-        self.requires("duckdb/0.10.1")
+        self.requires("duckdb/0.10.1", options={"with_httpfs": True})
         self.requires("uriparser/0.9.7")
         self.requires("crossguid/0.2.2")
         self.requires("protobuf/3.21.12")
