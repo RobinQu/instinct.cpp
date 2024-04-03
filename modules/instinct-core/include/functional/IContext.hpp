@@ -29,7 +29,7 @@ namespace INSTINCT_CORE_NS {
 
         explicit IContext(ContextPolicy policy) : policy_(policy) {}
 
-        const ContextPolicy::ValueType& GetValue() const {
+        const typename ContextPolicy::ValueType& GetValue() const {
             return policy_.GetValue();
         }
 
