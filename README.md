@@ -39,8 +39,8 @@ System Requirements:
 This project relies on [conan](https://conan.io/) to resolve dependencies. To build and install:
 
 ```shell
-mkdir build && cd build
-conan install .. --build=missing
+conan install . --build=missing --output-folder=build
+cd build
 cmake .. && cmake --build . --target INSTALL --preset conan-release
 ```
 
