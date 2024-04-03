@@ -9,7 +9,7 @@
 #include "LLMGlobals.hpp"
 #include <llm.pb.h>
 
-#include "PlainChatTemplate.hpp"
+#include "PlainChatPromptTemplate.hpp"
 
 namespace INSTINCT_LLM_NS {
     using namespace google::protobuf;
@@ -99,7 +99,7 @@ namespace INSTINCT_LLM_NS {
                 message.set_role(role_name_mapping_[role]);
                 messages.emplace_back(message);
             }
-            return std::make_shared<PlainChatTemplate>(messages);
+            return std::make_shared<PlainChatPromptTemplate>(messages);
         }
     };
 

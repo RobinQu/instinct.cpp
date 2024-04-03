@@ -62,14 +62,12 @@ int main() {
     using namespace INSTINCT_LLM_NS;
 
     const auto input_parser = CreatePromptVariantInputParser();
-    const auto string_prompt = std::dynamic_pointer_cast<BaseStepFunction>(CreatePlainPromptTemplate("Answer following question in one sentence: {question}"));
+    const auto string_prompt = CreatePlainPromptTemplate("Answer following question in one sentence: {question}");
     const auto output_parser = CreateStringOutputParser();
     const auto chat_model = CreateOllamaChatModel();
     const auto xn = input_parser | string_prompt |  chat_model->AsModelFunction() | output_parser;
     const auto result = xn->Invoke("Why sky is blue?");
-    std::cout << result <<std::endl; 
-    // The sky appears blue because of a phenomenon called Rayleigh scattering, where shorter wavelengths of light are scattered more than longer wavelengths by the tiny molecules of gases in the atmosphere, resulting in a blue hue that we see.
-
+    std::cout << result <<std::endl;
 }
 ```
 

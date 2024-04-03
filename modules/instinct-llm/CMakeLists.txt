@@ -18,7 +18,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/prompt/IChatPromptTemplate.hpp
         include/prompt/StringPromptTemplate.hpp
         include/prompt/PlainPromptTemplate.hpp
-        include/prompt/PlainChatTemplate.hpp
+        include/prompt/PlainChatPromptTemplate.hpp
         include/prompt/FewShotPromptTemplate.hpp
         include/prompt/IExampleSelector.hpp
         include/prompt/MutableExampleSelector.hpp

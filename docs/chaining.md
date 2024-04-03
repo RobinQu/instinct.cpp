@@ -49,13 +49,14 @@ int main() {
     using namespace INSTINCT_LLM_NS;
 
     const auto input_parser = CreatePromptVariantInputParser();
-    const auto string_prompt = std::dynamic_pointer_cast<BaseStepFunction>(CreatePlainPromptTemplate("Answer following question in one sentence: {question}"));
+    const auto string_prompt = CreatePlainPromptTemplate("Answer following question in one sentence: {question}");
     const auto output_parser = CreateStringOutputParser();
     const auto chat_model = CreateOllamaChatModel();
     const auto xn = input_parser | string_prompt |  chat_model->AsModelFunction() | output_parser;
     const auto result = xn->Invoke("Why sky is blue?");
     std::cout << result <<std::endl;
 }
+
 ```
 
 In fact, all sub-classes of [StepFunction](../modules/instinct-core/include/functional/StepFunctions.hpp) are all composable. `StepFunction`s have many desirable characteristics:

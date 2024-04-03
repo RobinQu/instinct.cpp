@@ -9,7 +9,7 @@
 #include "BaseOutputParser.hpp"
 
 namespace INSTINCT_LLM_NS {
-    class StringOutputParser: public BaseOutputParser<std::string> {
+    class StringOutputParser final: public BaseOutputParser<std::string> {
 
     public:
         std::string ParseResult(const Generation &generation) override {

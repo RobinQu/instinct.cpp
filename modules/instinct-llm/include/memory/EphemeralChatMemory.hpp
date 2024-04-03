@@ -15,7 +15,7 @@ namespace INSTINCT_LLM_NS {
     /**
      * Chat history is stored in memory, which will be lost upon termination of current process
      */
-    class EphemeralChatMemory: public BaseChatMemory {
+    class EphemeralChatMemory final: public BaseChatMemory {
         MessageList message_list_;
 
     public:

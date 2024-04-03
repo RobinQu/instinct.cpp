@@ -8,7 +8,7 @@
 #include "chain/LLMChain.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "llm/OllamaLLM.hpp"
-#include "prompt/PlainChatTemplate.hpp"
+#include "prompt/PlainChatPromptTemplate.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
 #include "LLMTestGlobals.hpp"
 

@@ -14,11 +14,11 @@ namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
 
-    class PlainChatTemplate final: public BaseChatPromptTemplate {
+    class PlainChatPromptTemplate final: public BaseChatPromptTemplate {
         std::vector<MessageLikeVariant> messages_;
 
     public:
-        explicit PlainChatTemplate(const std::vector<MessageLikeVariant> &messages,
+        explicit PlainChatPromptTemplate(const std::vector<MessageLikeVariant> &messages,
                           const PromptTemplateOptions &options = {})
                 : BaseChatPromptTemplate(options), messages_(messages) {}
 
