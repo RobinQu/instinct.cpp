@@ -79,18 +79,20 @@ You can learn more about this frameworks by following links below:
 * [Chaining](docs/chaining.md)
 * [Built-in components](docs/components.md) 
 * Reference apps
-  * [doc-agent](./modules/instinct-examples/doc-agent) : Chat with your doc locally with privacy.
+  * [doc-agent](./modules/instinct-examples/doc-agent/README.md) : Chat with your doc locally with privacy.
   * assistant-agent
   * db-agent
 
 
 ## Roadmap
 
+Complete project plan is recorded at [Github Project](https://github.com/users/RobinQu/projects/1/views/1?layout=board).
+
 | Milestone                                                     | Features                                                                                 | DDL  |
 |---------------------------------------------------------------|------------------------------------------------------------------------------------------|------|
 | v0.1.0                                                        | Long-short memory, PDF/TXT/DOCX ingestor, RAG reference app, `Chain` programing paradigm | 3.29 |
-| [v0.1.1](https://github.com/RobinQu/instinct.cpp/milestone/1) | Performance tuning, RAG evaluation, external knowledge retriever, ...                    | 4.12 |
-| [v0.1.2](https://github.com/RobinQu/instinct.cpp/milestone/2) | Function calling, `Actor` programing paradigm and reference app                          | 4.30 |
+| [v0.1.1](https://github.com/RobinQu/instinct.cpp/milestone/1) | Performance tuning, RAG evaluation ...                                                   | 4.12 |
+| [v0.1.2](https://github.com/RobinQu/instinct.cpp/milestone/2) | Function calling, `Actor` programing paradigm and reference app; enhancement for RAG.    | 4.30 |
 | v0.1.3                                                        | Multi agent support and reference app                                                    | 5.24 |
 | v0.2.0                                                        | Features will be frozen. More benchmarks and documentations.                             | 5.31 |
 

@@ -92,7 +92,7 @@ serve
     -p,--port INT [9090]        Port number which API server will listen
 ```
 
-Example command to embed a local PDF and start up OpenAI-like chat completion API server at `localhost:9090`.  
+Following line is example command to embed a local PDF and start up OpenAI-like chat completion API server at `localhost:9090`.  
 
 ```shell
 doc-agent --verbose \
