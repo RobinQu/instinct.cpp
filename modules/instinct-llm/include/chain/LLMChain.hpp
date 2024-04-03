@@ -113,7 +113,7 @@ namespace INSTINCT_LLM_NS {
             input_parser = std::make_shared<PromptValueVariantInputParser>();
         }
         if (!output_parser) {
-            output_parser = std::make_shared<MultilineGenerationOutputParse>();
+            output_parser = std::make_shared<MultilineGenerationOutputParser>();
         }
         return CreateLLMChain<PromptValueVariant, MultilineGeneration> (
                 input_parser,

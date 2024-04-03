@@ -24,9 +24,9 @@ What `instinct.cpp` cannot offer:
 
 ## Getting started
 
-### Install from conan center
+### Install from package manager
 
-WIP
+WIP [#1](https://github.com/RobinQu/instinct.cpp/issues/1)
 
 ### Build from sources
 
@@ -41,8 +41,10 @@ This project relies on [conan](https://conan.io/) to resolve dependencies. To bu
 ```shell
 conan install . --build=missing --output-folder=build
 cd build
-cmake .. && cmake --build . --target INSTALL --preset conan-release
+cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build .
 ```
+
 
 ### Quick start
 

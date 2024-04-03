@@ -26,19 +26,20 @@ namespace INSTINCT_LLM_NS {
             public BaseStepFunction {
         PromptTemplateOptions options_;
     public:
-        explicit BasePromptTemplate(PromptTemplateOptions options) : options_(options) {}
+        explicit BasePromptTemplate(PromptTemplateOptions options) : options_(std::move(options)) {}
 
-    public:
         JSONContextPtr Invoke(const JSONContextPtr &input) override {
-            auto mapping_data = input->RequireMappingData();
-            TemplateVariablesPtr variables = CreateTemplateVariable();
-
-            // only accepting primitive values
-            for(const auto& [k,v]: mapping_data) {
-                if(v->IsPrimitive()) {
-                    variables->emplace(k, v->GetValue());
-                } else {
-                    LOG_WARN("discard data with key {} as it's non-primitive value", k);
+            const TemplateVariablesPtr variables = CreateTemplateVariable();
+            if (input->IsPrimitive()) {
+                variables->emplace(DEFAULT_QUESTION_INPUT_OUTPUT_KEY, input->RequirePrimitive<std::string>());
+            } else {
+                // only accepting primitive values
+                for(const auto mapping_data = input->RequireMappingData(); const auto& [k,v]: mapping_data) {
+                    if(v->IsPrimitive()) {
+                        variables->emplace(k, v->GetValue());
+                    } else {
+                        LOG_WARN("discard data with key {} as it's non-primitive value", k);
+                    }
                 }
             }
             auto prompt_value = FormatPrompt(variables);

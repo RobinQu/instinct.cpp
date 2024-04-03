@@ -11,9 +11,68 @@
 #include "input_parser/BaseInputParser.hpp"
 #include "output_parser/BaseOutputParser.hpp"
 #include "model/ILanguageModel.hpp"
+#include "functional/Xn.hpp"
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
+
+    template<
+            typename Input,
+            typename Output = JSONContextPtr,
+            typename InputParser = InputParserPtr<Input>
+    >
+    class LeftHandPartialMessageChain final: public BaseRunnable<Input, Output>{
+        InputParser input_parser_;
+        StepFunctionPtr step_;
+
+    public:
+        [[nodiscard]] InputParser GetInputParser() const {
+            return input_parser_;
+        }
+
+        [[nodiscard]] StepFunctionPtr GetStepFunction() const {
+            return step_;
+        }
+
+        LeftHandPartialMessageChain(const InputParser &input_parser, const StepFunctionPtr& step)
+            : input_parser_(input_parser),
+              step_(step) {
+        }
+
+        Output Invoke(const Input &input) override {
+            auto result = input_parser_->Invoke(input);
+            return step_->Invoke(result);
+        }
+    };
+
+    template<
+            typename Output,
+            typename Input = JSONContextPtr,
+            typename OutputParser = OutputParserPtr<Output>
+    >
+    class RightHandPartialMessageChain final: public BaseRunnable<Input, Output> {
+        OutputParser output_parser_;
+        StepFunctionPtr step_;
+
+    public:
+        [[nodiscard]] OutputParser GetOutputParser() const {
+            return output_parser_;
+        }
+
+        [[nodiscard]] StepFunctionPtr GetStepFunction() const {
+            return step_;
+        }
+
+        RightHandPartialMessageChain(const OutputParser &output_parser, const StepFunctionPtr &step)
+            : output_parser_(output_parser),
+              step_(step) {
+        }
+
+        Output Invoke(const Input &input) override {
+            auto result = step_->Invoke(input);
+            return output_parser_->Invoke(result);
+        }
+    };
 
 
     /**
@@ -80,8 +139,7 @@ namespace INSTINCT_LLM_NS {
                 const InputParserPtr<Input> &input_parser,
                 const OutputParserPtr<Output> &output_parser,
                 StepFunctionPtr  step_function,
-                const ChainOptions &options
-                           ) :
+                const ChainOptions &options = {}) :
                 MessageChain<Input,Output>(input_parser,
                                            output_parser,
                                            options),
@@ -171,5 +229,23 @@ namespace xn::steps {
     }
 }
 
+
+template <typename Input>
+inline std::shared_ptr<INSTINCT_LLM_NS::LeftHandPartialMessageChain<Input>> operator|(const INSTINCT_LLM_NS::InputParserPtr<Input>& input_parser, const INSTINCT_LLM_NS::StepFunctionPtr& step_function) {
+    return std::make_shared<INSTINCT_LLM_NS::LeftHandPartialMessageChain<Input>>(input_parser, step_function);
+}
+
+template <typename Input, typename Output>
+inline INSTINCT_LLM_NS::MessageChainPtr<Input, Output> operator|(const std::shared_ptr<INSTINCT_LLM_NS::LeftHandPartialMessageChain<Input>>& left_hand_part, const INSTINCT_LLM_NS::OutputParserPtr<Output>& output_parser) {
+    return std::make_shared<INSTINCT_LLM_NS::FunctionalMessageChain<Input,Output>>(left_hand_part->GetInputParser(), output_parser, left_hand_part->GetStepFunction());
+}
+
+template <typename Input>
+inline std::shared_ptr<INSTINCT_LLM_NS::LeftHandPartialMessageChain<Input>> operator|(const std::shared_ptr<INSTINCT_LLM_NS::LeftHandPartialMessageChain<Input>>& left_hand_part, const INSTINCT_LLM_NS::StepFunctionPtr& next_step) {
+    return std::make_shared<INSTINCT_LLM_NS::LeftHandPartialMessageChain<Input>>(
+        left_hand_part->GetInputParser(),
+        left_hand_part->GetStepFunction() | next_step
+        );
+}
 
 #endif //INSTINCT_MESSAGECHAIN_HPP

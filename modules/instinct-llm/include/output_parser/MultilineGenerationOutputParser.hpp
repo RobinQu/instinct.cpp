@@ -15,7 +15,7 @@
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
-    class MultilineGenerationOutputParse final: public BaseOutputParser<MultilineGeneration> {
+    class MultilineGenerationOutputParser final: public BaseOutputParser<MultilineGeneration> {
 
     public:
 
@@ -36,6 +36,10 @@ namespace INSTINCT_LLM_NS {
         }
 
     };
+
+    static OutputParserPtr<MultilineGeneration> CreateMultilineGenerationOutputParser() {
+        return std::make_shared<MultilineGenerationOutputParser>();
+    }
 
 }
 

@@ -19,25 +19,12 @@ namespace INSTINCT_CORE_NS {
     class IStepFunction {
     public:
         virtual ~IStepFunction()=default;
-
-//        [[nodiscard]] virtual std::vector<std::string> GetInputKeys() const = 0;
-//
-//        [[nodiscard]] virtual std::vector<std::string> GetOutputKeys() const = 0;
-//
-//        virtual void ValidateInput(const JSONContextPtr &input) = 0;
     };
 
     using GenericChain = BaseRunnable<JSONContextPtr, JSONContextPtr>;
     using GenericChainPtr = RunnablePtr<JSONContextPtr, JSONContextPtr>;
 
     class BaseStepFunction : public virtual IStepFunction, public GenericChain {
-
-    public:
-//        void ValidateInput(const JSONContextPtr &input) override {
-//            for (const auto &k: this->GetInputKeys()) {
-//                assert_true(input->Contains(k), "context should contain key " + k);
-//            }
-//        }
     };
 
     using StepFunctionPtr = std::shared_ptr<BaseStepFunction>;

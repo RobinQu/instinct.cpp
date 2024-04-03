@@ -19,8 +19,13 @@ namespace INSTINCT_LLM_NS {
             ctx->ProducePrimitive(details::conv_prompt_value_variant_to_string(input));
             return ctx;
         }
-
     };
+
+    static InputParserPtr<PromptValueVariant> CreatePromptVariantInputParser() {
+        return std::make_shared<PromptValueVariantInputParser>();
+    }
+
 }
+
 
 #endif //INSTINCT_PROMPTVALUEVARIANTINPUTPARSER_HPP

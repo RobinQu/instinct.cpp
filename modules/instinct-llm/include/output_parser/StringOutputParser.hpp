@@ -13,9 +13,6 @@ namespace INSTINCT_LLM_NS {
 
     public:
         std::string ParseResult(const Generation &generation) override {
-//            auto generation = context->RequireMessage<Generation>(
-//                    GetOptions().generation_input_key
-//            );
             if (generation.has_message()) {
                 return generation.message().content();
             }
@@ -25,8 +22,17 @@ namespace INSTINCT_LLM_NS {
         std::string GetFormatInstruction() override {
             return "";
         }
-
     };
+
+    static OutputParserPtr<std::string> CreateStringOutputParser() {
+        return std::make_shared<StringOutputParser>();
+    }
 }
+
+// namespace xn::output {
+//     static INSTINCT_LLM_NS::OutputParserPtr<std::string> string_output_parser {
+//         return INSTINCT_LLM_NS::CreateStringOutputParser();
+//     };
+// }
 
 #endif //INSTINCT_STRINGOUTPUTPARSER_HPP
