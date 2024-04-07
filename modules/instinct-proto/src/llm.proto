@@ -149,6 +149,7 @@ message OllamaGenerateMessage {
 message OllamaModelOptions {
   float temperature = 1;
   int32 seed = 2;
+  repeated string stop = 6;
 }
 
 message OllamaCompletionRequest {

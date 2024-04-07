@@ -106,6 +106,7 @@ namespace INSTINCT_LLM_NS {
         int seed = 0;
         bool json_mode = false;
         size_t dimension = 4096;
+        std::vector<std::string> stop_words = {};
     };
 
 

@@ -63,7 +63,8 @@ namespace INSTINCT_LLM_NS {
             // request.mutable_options()->CopyFrom(configuration_->model_options());
             request.mutable_options()->set_seed(configuration_.seed);
             request.mutable_options()->set_temperature(configuration_.temperature);
-            auto response = client_.PostObject<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request);
+            request.mutable_options()->mutable_stop()->Add(configuration_.stop_words.begin(), configuration_.stop_words.end());
+            const auto response = client_.PostObject<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request);
             return transform_raw_response(response);
         }
 
