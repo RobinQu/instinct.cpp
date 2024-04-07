@@ -19,24 +19,20 @@ namespace INSTINCT_LLM_NS {
     protected:
         void SetUp() override {
             SetupLogging();
-//            input_parser_ = std::make_shared<PromptValueInputParser>();
-//            output_parser_ = std::make_shared<GenerationOutputParser>();
-            chat_model_ = instinct::test::create_pesudo_chat_model();
-            llm_ = instinct::test::create_pesudo_llm();
-
-            auto builder = OllamaChat::CreateChatPromptTemplateBuilder();
-            builder->AddHumanMessage("why is the sky blue?");
-            builder->AddAIMessage("due to rayleigh scattering.");
-            builder->AddHumanMessage("{question}");
-            chat_prompt_template_ = builder->Build();
+            chat_model_ = test::create_pesudo_chat_model();
+            llm_ = test::create_pesudo_llm();
+            chat_prompt_template_ = CreatePlainChatPromptTemplate({
+                {kSystem, "You are a help assistant who will try your best to answer user's question."},
+                {kHuman, "why is the sky blue?"},
+                {kAsisstant, "due to rayleigh scattering."},
+                {kHuman, "{question}"}
+            });
             string_prompt_template_ = CreatePlainPromptTemplate("{question}");
         }
         ChatModelPtr chat_model_;
         LLMPtr llm_;
         PromptTemplatePtr chat_prompt_template_;
         PromptTemplatePtr string_prompt_template_;
-//        InputParserPtr<PromptValue> input_parser_;
-//        OutputParserPtr<std::string> output_parser_;
     };
 
 

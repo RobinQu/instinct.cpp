@@ -31,7 +31,7 @@ namespace INSTINCT_CORE_NS {
     public:
         using ValueType = JSONObject;
 
-        explicit JSONContextPolicy(JSONObject data) : data_(std::move(data)) {}
+        explicit JSONContextPolicy(JSONObject data = {}) : data_(std::move(data)) {}
 
         template<typename T>
         T RequirePrimitive() const {
@@ -101,8 +101,28 @@ namespace INSTINCT_CORE_NS {
     };
 
     static JSONContextPtr CreateJSONContext(const nlohmann::json& data = nlohmann::json::parse("{}")) {
-        JSONContextPolicy policy { data };
-        return std::make_shared<IContext<JSONContextPolicy>>(policy);
+        JSONContextPolicy policy;
+        auto ctx = std::make_shared<IContext<JSONContextPolicy>>(policy);
+        if (data.is_string()) {
+            ctx->ProducePrimitive(data.get<std::string>());
+        }
+        if (data.is_number_integer()) {
+            ctx->ProducePrimitive(data.get<long>());
+        }
+        if (data.is_number_float()) {
+            ctx->ProducePrimitive(data.get<double>());
+        }
+        if (data.is_boolean()) {
+            ctx->ProducePrimitive(data.get<bool>());
+        }
+        if (data.is_object()) {
+            JSONMappingContext mapping_data;
+            for(const auto& [k,v]: data.items()) {
+                mapping_data[k] =CreateJSONContext(v);
+            }
+            ctx->ProduceMappingData(mapping_data);
+        }
+        return ctx;
     }
 
     static JSONContextPtr CloneJSONContext(const JSONContextPtr& ctx) {

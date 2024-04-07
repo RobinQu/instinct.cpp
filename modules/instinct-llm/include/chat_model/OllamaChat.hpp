@@ -10,8 +10,6 @@
 #include "commons/OllamaCommons.hpp"
 #include <llm.pb.h>
 
-#include "prompt/ChatPromptBuilder.hpp"
-
 
 namespace INSTINCT_LLM_NS {
     using namespace google::protobuf;
@@ -47,25 +45,6 @@ namespace INSTINCT_LLM_NS {
                 configuration_(ollama_configuration) {
         }
 
-        static ChatPromptBuliderPtr CreateChatPromptBuilder() {
-            return std::make_shared<ChatPromptBulider>(OLLAMA_ROLE_NAME_MAPPING);
-        }
-
-        static ChatPromptTmeplateBuilderPtr CreateChatPromptTemplateBuilder() {
-            return std::make_shared<ChatPromptTemplateBulider>(OLLAMA_ROLE_NAME_MAPPING);
-        }
-        //
-        // std::vector<TokenId> GetTokenIds(const std::string& text) override {
-        //
-        // }
-        //
-        // TokenSize GetTokenCount(const std::string& text) override {
-        //
-        // }
-        //
-        // TokenSize GetTokenCount(const Message& messages) override {
-        //
-        // }
 
     private:
 

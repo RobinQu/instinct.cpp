@@ -81,7 +81,40 @@ namespace INSTINCT_LLM_NS {
 //        std::string output_answer_variable_key = DEFAULT_ANSWER_OUTPUT_KEY;
     };
 
+    enum MessageRole {
+        kUnknown = 0,
+        kAsisstant,
+        kHuman,
+        kSystem,
+        kFunction,
+        kTool
+    };
 
+    using MessageRoleNameMapping = std::unordered_map<MessageRole, std::string>;
+
+    /**
+     * Default role name mapping. This follows convention of OpenAI API
+     */
+    static MessageRoleNameMapping DEFAULT_ROLE_NAME_MAPPING =  {
+        {kAsisstant, "assistant"},
+        {kHuman, "human"},
+        {kSystem, "system"},
+        {kFunction, "function"},
+        {kTool, "tool"}
+    };
+
+    using ChatPrompTeplateLiterals = std::initializer_list<std::pair<MessageRole, std::string>>;
+
+    static PromptValue CreatePromptValue(ChatPrompTeplateLiterals&& literals, const MessageRoleNameMapping& mapping = DEFAULT_ROLE_NAME_MAPPING) {
+        PromptValue pv;
+        const auto chat_prompt_value = pv.mutable_chat();
+        for(const auto& [role,content]: literals) {
+            auto* msg = chat_prompt_value->add_messages();
+            msg->set_role(mapping.at(role));
+            msg->set_content(content);
+        }
+        return pv;
+    }
 
 }
 

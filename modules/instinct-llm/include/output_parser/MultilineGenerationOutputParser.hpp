@@ -6,7 +6,6 @@
 #define INSTINCT_MULTILINEGENERATIONOUTPUTPARSER_HPP
 
 #include <google/protobuf/util/json_util.h>
-#include "IOutputParser.hpp"
 #include "LLMGlobals.hpp"
 #include "tools/Assertions.hpp"
 #include "output_parser/BaseOutputParser.hpp"

@@ -14,6 +14,7 @@ namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
 
+
     class PlainChatPromptTemplate final: public BaseChatPromptTemplate {
         std::vector<MessageLikeVariant> messages_;
 
@@ -47,6 +48,16 @@ namespace INSTINCT_LLM_NS {
 
     };
 
+    static PromptTemplatePtr CreatePlainChatPromptTemplate(const ChatPrompTeplateLiterals& literals, const MessageRoleNameMapping& mapping = DEFAULT_ROLE_NAME_MAPPING) {
+        std::vector<MessageLikeVariant> messages;
+        for(const auto&[role, content]: literals) {
+            Message message;
+            message.set_role(mapping.at(role));
+            message.set_content(content);
+            messages.emplace_back(message);
+        }
+        return std::make_shared<PlainChatPromptTemplate>(messages);
+    }
 
 }
 

@@ -28,7 +28,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/output_parser/StructuredGenerationOutputParser.hpp
         include/output_parser/BaseOutputParser.hpp
         include/prompt/MessageUtils.hpp
-        include/prompt/ChatPromptBuilder.hpp
         include/tokenizer/Tokenizer.hpp
         include/tokenizer/RegexTokenizer.hpp
         include/tokenizer/TiktokenTokenizer.hpp
