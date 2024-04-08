@@ -35,7 +35,7 @@ namespace INSTINCT_LLM_NS {
         return model_result;
     }
 
-    class OllamaChat final: public BaseChatModel {
+    class OllamaChat final: public BaseChatModel, public virtual IConfigurable<OllamaConfiguration> {
         HttpRestClient client_;
         OllamaConfiguration configuration_;
     public:
@@ -45,9 +45,11 @@ namespace INSTINCT_LLM_NS {
                 configuration_(ollama_configuration) {
         }
 
+        void Configure(const OllamaConfiguration &options) override {
+            configuration_ = options;
+        }
 
     private:
-
         LangaugeModelResult CallOllama(const MessageList& message_list) {
             OllamaChatCompletionRequest request;
             for (const auto& message: message_list.messages()) {

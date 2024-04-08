@@ -69,6 +69,9 @@ namespace INSTINCT_LLM_NS {
             return instruction_function_;
         }
 
+        std::string GetFormatInstruction() override {
+            return "";
+        }
     };
 
     template<typename T>

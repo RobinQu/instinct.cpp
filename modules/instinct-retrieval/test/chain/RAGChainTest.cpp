@@ -13,6 +13,7 @@
 #include "tools/ChronoUtils.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
 #include "LLMTestGlobals.hpp"
+#include "prompt/PlainChatPromptTemplate.hpp"
 
 namespace  INSTINCT_RETRIEVAL_NS {
     class RAGChainTest : public testing::Test {
@@ -36,15 +37,15 @@ namespace  INSTINCT_RETRIEVAL_NS {
 
             ChatModelPtr chat_model = test::create_pesudo_chat_model();
 
-            PromptTemplatePtr question_prompt_template = OllamaChat::CreateChatPromptTemplateBuilder()
-                    ->AddHumanMessage(R"(
+            const auto question_prompt_template =
+                CreatePlainChatPromptTemplate({
+                    {kHuman, R"(
 Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
 Chat History:
 {chat_history}
 Follow Up Input: {question}
-Standalone question:)")
-            ->Build();
-
+Standalone question:)"}
+                });
 
             ChainOptions question_chain_options = {
 //                .input_keys = {"question", "chat_history"},
@@ -57,12 +58,14 @@ Standalone question:)")
                 question_chain_options
             );
 
-            PromptTemplatePtr answer_prompt_template = OllamaChat::CreateChatPromptTemplateBuilder()
-            ->AddHumanMessage(R"(Answer the question based only on the following context:
+            const auto answer_prompt_template =
+                CreatePlainChatPromptTemplate({
+                        {kHuman, R"(Answer the question based only on the following context:
 {context}
 
 Question: {standalone_question}
-)")
+)"}
+                });
             ->Build();
 
             ChainOptions answer_chain_options = {

@@ -1,0 +1,73 @@
+syntax = "proto3";
+import "core.proto";
+import "llm.proto";
+
+package instinct.agent;
+
+message FunctionToolArgument {
+  string name = 1;
+  string description = 2;
+  core.PrimitiveType type = 3;
+}
+
+message FunctionToolSchema {
+  string name = 1;
+  string description = 2;
+  repeated FunctionToolArgument arguments = 3;
+}
+
+message FunctionToolInvocation {
+  string name = 1;
+  /**
+  action input from planer llm, which could be a JSON string ,or simple string literal
+   */
+  string input = 2;
+
+  string id = 3;
+}
+
+
+message FunctionToolResult {
+  string invocation_id = 1;
+  string return_value = 2;
+  bool has_error = 3;
+  string exception = 4;
+}
+
+message ReACTAgentThoughtStepMessage {
+  string thought = 1;
+  FunctionToolInvocation invocation = 2;
+}
+
+message ReACTAgentObservationStepMessage {
+  FunctionToolResult result = 1;
+}
+
+message AgentFinishStepMessage {
+  string response = 1;
+  bool has_error = 2;
+  string exception = 3;
+}
+
+//message ReACTAgentStep {
+//  ReACTAgentThoughtStep thought = 1;
+//  FunctionToolResult observation = 2;
+//}
+
+message AgentStep {
+  oneof value {
+    ReACTAgentThoughtStepMessage react_thought = 1;
+    ReACTAgentObservationStepMessage react_observation = 2;
+    AgentFinishStepMessage finish = 3;
+  }
+}
+
+//message AgentStepMessageList {
+//  repeated AgentStepMessage messages = 1;
+//}
+
+message AgentState {
+  repeated AgentStep previous_steps = 1;
+  llm.PromptValue input = 2;
+  repeated FunctionToolSchema function_tools = 3;
+}

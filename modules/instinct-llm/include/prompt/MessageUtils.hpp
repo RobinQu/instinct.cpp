@@ -21,6 +21,12 @@ namespace INSTINCT_LLM_NS {
     class MessageUtils {
     public:
 
+        // static std::string StringifyPromptValue(const PromptValue& pv) {
+        //     if (pv.has_chat()) {
+        //         return pv.chat().
+        //     }
+        // }
+
         static std::string StringifyGeneration(const Generation &generation) {
             if (generation.has_message()) return generation.message().content();
             return generation.text();

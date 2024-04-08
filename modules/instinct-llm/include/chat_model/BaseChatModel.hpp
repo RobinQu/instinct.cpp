@@ -41,7 +41,11 @@ namespace INSTINCT_LLM_NS {
               public std::enable_shared_from_this<BaseChatModel> {
         friend ChatModelFunction;
         ModelOptions options_;
-//        StepFunctionPtr model_function_;
+        virtual BatchedLangaugeModelResult Generate(
+                        const std::vector<MessageList> &messages
+                ) = 0;
+
+        virtual AsyncIterator<LangaugeModelResult> StreamGenerate(const MessageList &messages) = 0;
     public:
         explicit BaseChatModel(ModelOptions options) : options_(options) {
 //            model_function_ = std::make_shared<ChatModelFunction>(shared_from_this());
@@ -51,14 +55,6 @@ namespace INSTINCT_LLM_NS {
             options_ = options;
         }
 
-    private:
-        virtual BatchedLangaugeModelResult Generate(
-                const std::vector<MessageList> &messages
-        ) = 0;
-
-        virtual AsyncIterator<LangaugeModelResult> StreamGenerate(const MessageList &messages) = 0;
-
-    public:
         Message Invoke(const PromptValueVariant &input) override {
             auto messages = details::conv_prompt_value_variant_to_message_list(input);
             auto batched_result = Generate({messages});

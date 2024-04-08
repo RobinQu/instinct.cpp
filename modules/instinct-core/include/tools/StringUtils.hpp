@@ -53,6 +53,11 @@ namespace INSTINCT_CORE_NS {
 
 
     struct StringUtils final {
+        static std::string GenerateUUIDString() {
+            auto g = xg::newGuid();
+            return g.str();
+        }
+
         static std::string CopiesOf(int n, const std::string& text) {
             std::string result;
             while (n-- > 0) {

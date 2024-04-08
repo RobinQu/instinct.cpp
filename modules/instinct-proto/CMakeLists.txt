@@ -10,6 +10,7 @@ add_library(proto-objects STATIC
         src/core.proto
         src/retrieval.proto
         src/llm.proto
+        src/agent.proto
 )
 
 add_library(instinct::proto

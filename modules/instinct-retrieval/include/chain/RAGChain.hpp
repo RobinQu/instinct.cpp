@@ -49,8 +49,7 @@ Question: {standalone_question}
 )", {.input_keys = {"context", "standalone_question"}});
         }
 
-
-        auto question_fn = xn::steps::mapping({
+        const auto question_fn = xn::steps::mapping({
             {
                 "standalone_question", xn::steps::mapping({
                                            {"question", xn::steps::passthrough()},
@@ -66,13 +65,13 @@ Question: {standalone_question}
             }
         });
 
-        auto context_fn = xn::steps::mapping({
+        const auto context_fn = xn::steps::mapping({
             {"context", xn::steps::selection("question") | retriever->AsContextRetrieverFunction()},
             {"standalone_question", xn::steps::selection("standalone_question")},
             {"question", xn::steps::selection("question")},
         });
 
-        auto answer_fn = xn::steps::mapping({
+        const auto answer_fn = xn::steps::mapping({
             {"answer", answer_prompt_template | model->AsModelFunction()},
             {"question", xn::steps::selection("question")}
         });

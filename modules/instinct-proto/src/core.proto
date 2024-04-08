@@ -26,7 +26,7 @@ message Document {
 }
 
 
-enum MetadataFieldType {
+enum PrimitiveType {
   Unknown = 0;
   INT32 = 1;
   INT64 = 2;
@@ -38,7 +38,7 @@ enum MetadataFieldType {
 
 message MetadataFieldSchema {
   string name = 1;
-  MetadataFieldType type = 2;
+  PrimitiveType type = 2;
   string description = 3;
 }
 
