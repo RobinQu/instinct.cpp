@@ -9,20 +9,23 @@
 
 namespace INSTINCT_AGENT_NS {
     using namespace INSTINCT_LLM_NS;
-    class ReACTAgentInputParse final: public llm::BaseInputParser<AgentState> {
+    class ReACTAgentStateInputParser final: public BaseInputParser<AgentState> {
     public:
         JSONContextPtr ParseInput(const AgentState &agent_state) override {
             std::string scratch_pad;
             for(const auto& step: agent_state.previous_steps()) {
-                if (step.has_react_thought()) {
-                    scratch_pad += "\nThought: " + step.react_thought().thought();
-                    scratch_pad += "\nAction: " + step.react_thought().invocation().name();
-                    scratch_pad += "\nAction Input: " + step.react_thought().invocation().input();
+                if (step.has_thought()) {
+                    const auto& react_thought = step.thought().react();
+                    scratch_pad += "\nThought: " + react_thought.thought();
+                    scratch_pad += "\nAction: " + react_thought.invocation().name();
+                    scratch_pad += "\nAction Input: " + react_thought.invocation().input();
                 }
-                if (step.has_react_observation() && step.react_observation().has_result()) {
+
+                if (step.has_observation()) {
+                    const auto& react_observation = step.observation().react();
                     // failed invocation should be skipped first
-                    assert_true(!step.react_observation().result().has_error(), "should provide succssful observation");
-                    scratch_pad += "\nObservation: " + step.react_observation().result().return_value();
+                    assert_true(!react_observation.result().has_error(), "should provide succssful observation");
+                    scratch_pad += "\nObservation: " + react_observation.result().return_value();
                 }
             }
             scratch_pad += "\nThought: ";
@@ -55,7 +58,7 @@ namespace INSTINCT_AGENT_NS {
 
 
     static InputParserPtr<AgentState> CreateReACTAgentInputParser() {
-        return std::make_shared<ReACTAgentInputParse>();
+        return std::make_shared<ReACTAgentStateInputParser>();
     }
 }
 

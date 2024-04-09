@@ -17,8 +17,8 @@ namespace INSTINCT_AGENT_NS {
     using namespace INSTINCT_CORE_NS;
     using namespace INSTINCT_LLM_NS;
 
-    using Agent = MessageChain<AgentState, AgentStep>;
-    using AgentPtr = MessageChainPtr<AgentState, AgentStep>;
+    using Planer = MessageChain<AgentState, AgentThoughtMessage>;
+    using PlannerPtr = MessageChainPtr<AgentState, AgentThoughtMessage>;
 
     /**
      * Render arguments of function tools according to JSON Schema.

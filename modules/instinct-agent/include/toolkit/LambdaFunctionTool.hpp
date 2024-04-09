@@ -14,17 +14,28 @@ namespace INSTINCT_AGENT_NS {
 
     class LambdaFunctionTool final: public BaseFunctionTool {
         FunctionToolFn fn_;
+        FunctionToolSchema schema_;
 
     public:
         LambdaFunctionTool(const FunctionToolSchema &schema, FunctionToolFn fn)
-            : BaseFunctionTool(schema),
-              fn_(std::move(fn)) {
+            : BaseFunctionTool(), fn_(std::move(fn)), schema_(schema) {
+        }
+
+        [[nodiscard]] const FunctionToolSchema & GetSchema() const override {
+            return schema_;
         }
 
         std::string Execute(const std::string &action_input) override {
             return std::invoke(fn_, action_input);
         }
     };
+
+    static FunctionToolPtr CreateFunctionTool(const FunctionToolSchema& schema, FunctionToolFn fn) {
+        return std::make_shared<LambdaFunctionTool>(
+            schema,
+            std::move(fn)
+        );
+    }
 }
 
 

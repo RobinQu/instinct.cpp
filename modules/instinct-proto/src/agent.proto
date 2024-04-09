@@ -1,6 +1,7 @@
 syntax = "proto3";
 import "core.proto";
 import "llm.proto";
+import "google/protobuf/any.proto";
 
 package instinct.agent;
 
@@ -37,6 +38,7 @@ message FunctionToolResult {
 message ReACTAgentThoughtStepMessage {
   string thought = 1;
   FunctionToolInvocation invocation = 2;
+  string final_answer = 3;
 }
 
 message ReACTAgentObservationStepMessage {
@@ -49,25 +51,43 @@ message AgentFinishStepMessage {
   string exception = 3;
 }
 
-//message ReACTAgentStep {
-//  ReACTAgentThoughtStep thought = 1;
-//  FunctionToolResult observation = 2;
-//}
+message LLMCompilerThoughtMessage {}
+
+message LLMCompilerObservationMessage {}
+
+message AgentThoughtMessage {
+  // thought for officially supported implementations
+  oneof value {
+    ReACTAgentThoughtStepMessage react = 1;
+    LLMCompilerThoughtMessage llm_compiler = 2;
+  }
+
+  // reserved for user defined thought
+  google.protobuf.Any custom = 100;
+}
+
+message AgentObservationMessage {
+  // thought for officially supported implementations
+  oneof value {
+    ReACTAgentObservationStepMessage react = 1;
+    LLMCompilerObservationMessage llm_compiler = 2;
+  }
+
+  // reserved for user defined observation
+  google.protobuf.Any custom = 100;
+}
 
 message AgentStep {
   oneof value {
-    ReACTAgentThoughtStepMessage react_thought = 1;
-    ReACTAgentObservationStepMessage react_observation = 2;
-    AgentFinishStepMessage finish = 3;
+    AgentFinishStepMessage finish = 1;
+    AgentThoughtMessage thought = 2;
+    AgentObservationMessage observation = 3;
   }
 }
-
-//message AgentStepMessageList {
-//  repeated AgentStepMessage messages = 1;
-//}
 
 message AgentState {
   repeated AgentStep previous_steps = 1;
   llm.PromptValue input = 2;
   repeated FunctionToolSchema function_tools = 3;
 }
+

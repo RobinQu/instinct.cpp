@@ -33,7 +33,7 @@ namespace INSTINCT_LLM_NS {
     using LanguageModelVariant = std::variant<LLMPtr, ChatModelPtr>;
 
     /**
-     * Create a
+     * Create a simple MessageChain with given components
      * @tparam Input Input type
      * @tparam Output Output type
      * @param input_parser Paser for given input to context object

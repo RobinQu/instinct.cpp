@@ -18,16 +18,18 @@ namespace INSTINCT_AGENT_NS {
      * Expects a `FunctionToolInvocation` message from context, and returns `FunctionToolResult` message.
      */
     class BaseFunctionTool: public virtual IFunctionTool, public BaseStepFunction {
-        FunctionToolSchema schema_;
+        // FunctionToolSchema schema_;
 
     public:
-        explicit BaseFunctionTool(FunctionToolSchema schema)
-            : schema_(std::move(schema)) {
-        }
 
-        [[nodiscard]] const FunctionToolSchema& GetSchema() const override {
-            return schema_;
-        }
+
+        // explicit BaseFunctionTool(FunctionToolSchema schema)
+        //     : schema_(std::move(schema)) {
+        // }
+
+        // [[nodiscard]] const FunctionToolSchema& GetSchema() const override {
+        //     return schema_;
+        // }
 
         JSONContextPtr Invoke(const JSONContextPtr &input) override {
             const auto invocation = input->RequireMessage<FunctionToolInvocation>();

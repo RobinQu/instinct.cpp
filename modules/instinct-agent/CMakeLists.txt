@@ -14,10 +14,14 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/toolkit/IFunctionToolkit.hpp
         include/toolkit/BaseFunctionToolkit.hpp
         include/toolkit/LocalToolkit.hpp
-        include/agent/react/ReACTOutputParser.hpp
-        include/agent/react/ReACTInputParser.hpp
+        include/agent/react/ReACTAgentThoughtOutputParser.hpp
+        include/agent/react/ReACTAgentStateInputParser.hpp
         include/agent/react/Agent.hpp
-        include/executor/adhoc/AdHocAgentExcutor.hpp
+        include/executor/IAgentExecutor.hpp
+        include/executor/BaseAgentExecutor.hpp
+        include/agent/BaseWorker.hpp
+        include/agent/BaseSolver.hpp
+        include/AgentTestGlobals.hpp
 )
 
 
