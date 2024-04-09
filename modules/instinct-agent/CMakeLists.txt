@@ -25,6 +25,7 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/toolkit/ProtoMessageFunctionTool.hpp
         include/toolkit/BaseSearchTool.hpp
         include/toolkit/builtin/SerpAPI.hpp
+        include/toolkit/builtin/LLMMath.hpp
 )
 
 

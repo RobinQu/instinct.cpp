@@ -108,11 +108,11 @@ message SearchToolResponse {
 }
 
 message CaculatorToolRequest {
-  string math_expression = 1;
+  string math_question = 1;
 }
 
 message CalculatorToolResponse {
-  double value = 1;
+  string value = 1;
 }
 
 /**
