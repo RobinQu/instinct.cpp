@@ -13,6 +13,7 @@ namespace INSTINCT_AGENT_NS {
     using namespace INSTINCT_CORE_NS;
     class IFunctionTool {
     public:
+        IFunctionTool()=default;
         virtual ~IFunctionTool()=default;
         IFunctionTool(const IFunctionTool&)=delete;
         IFunctionTool(IFunctionTool&&) = delete;

@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.26)
 project(instinct-agent VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 20)
-
-
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
 SET(${LIBRARY_TARGET_NAME}_HDR
@@ -28,17 +26,17 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/toolkit/builtin/LLMMath.hpp
 )
 
-
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
         ${${LIBRARY_TARGET_NAME}_HDR}
 )
 
+find_package(exprtk REQUIRED)
+
 add_library(instinct::agent
         ALIAS ${LIBRARY_TARGET_NAME})
 
-
-target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::llm instinct::proto)
+target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::llm instinct::proto exprtk::exprtk)
 
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE

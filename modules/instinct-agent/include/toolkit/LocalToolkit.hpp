@@ -43,6 +43,14 @@ namespace INSTINCT_AGENT_NS {
             return {names_view.begin(), names_view.end()};
         }
     };
+
+    static FunctionToolkitPtr CreateToolkit(const std::vector<FunctionToolPtr>& tools) {
+        auto tk = std::make_shared<LocalFunctionToolkit>();
+        for(const auto& tool: tools) {
+            tk->RegisterFunctionTool(tool);
+        }
+        return tk;
+    }
 }
 
 #endif //LOCALTOOLKIT_HPP

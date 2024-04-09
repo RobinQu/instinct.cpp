@@ -26,7 +26,7 @@ namespace INSTINCT_AGENT_NS {
         }
 
         std::string Execute(const std::string &action_input) override {
-            auto input = ProtobufUtils::Deserialize<Output>(action_input);
+            auto input = ProtobufUtils::Deserialize<Input>(action_input);
             auto output = DoExecute(input);
             return ProtobufUtils::Serialize(output);
         }

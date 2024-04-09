@@ -119,6 +119,7 @@ find_package(Tesseract REQUIRED)
 ## duckx for DOCX parsing
 find_package(duckx REQUIRED)
 
+find_package(exprtk REQUIRED)
 
 ## gtest
 if(BUILD_TESTING)
