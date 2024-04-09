@@ -7,7 +7,6 @@
 
 
 #include "AgentGlobals.hpp"
-#include "agent/BasePlanner.h"
 #include "agent/BaseSolver.hpp"
 #include "agent/BaseWorker.hpp"
 #include "memory/BaseChatMemory.hpp"
