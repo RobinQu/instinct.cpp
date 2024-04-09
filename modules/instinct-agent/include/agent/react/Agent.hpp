@@ -13,7 +13,6 @@
 #include "LLMGlobals.hpp"
 #include "ReACTAgentStateInputParser.hpp"
 #include "ReACTAgentThoughtOutputParser.hpp"
-#include "agent/BasePlanner.h"
 #include "agent/BaseWorker.hpp"
 #include "chain/LLMChain.hpp"
 #include "chain/MessageChain.hpp"
@@ -41,9 +40,7 @@ namespace INSTINCT_AGENT_NS {
             const auto& invocation = input.react().invocation();
             for(const auto& tk: GetFunctionToolkits()) {
                 if (tk->LookupFunctionTool({.by_name = input.react().invocation().name()})) {
-                    const auto ctx = CreateJSONContext();
-                    ctx->ProduceMessage(invocation);
-                    const auto fn_result = tk->Invoke(ctx)->RequireMessage<FunctionToolResult>();
+                    const auto fn_result = tk->Invoke(invocation);
                     observation_message.mutable_react()->CopyFrom(fn_result);
                     return observation_message;
                 }

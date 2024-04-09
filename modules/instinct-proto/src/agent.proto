@@ -91,3 +91,38 @@ message AgentState {
   repeated FunctionToolSchema function_tools = 3;
 }
 
+message SearchToolRequest {
+  string query = 1;
+  int32 result_limit = 2;
+  int32 result_offset = 3;
+}
+
+message SearchToolResponseEntry {
+  string url = 1;
+  string content = 2;
+  string title = 3;
+}
+
+message SearchToolResponse {
+  repeated SearchToolResponseEntry entries = 1;
+}
+
+message CaculatorToolRequest {
+  string math_expression = 1;
+}
+
+message CalculatorToolResponse {
+  double value = 1;
+}
+
+/**
+  https://serpapi.com/search-api
+ */
+message SerpAPISearchResponse {
+  message GoogleOrganicResult {
+    string title = 1;
+    string link = 2;
+    string snippet = 3;
+  }
+  repeated GoogleOrganicResult organic_results = 1;
+}

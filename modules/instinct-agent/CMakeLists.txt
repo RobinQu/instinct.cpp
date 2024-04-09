@@ -22,6 +22,9 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/agent/BaseWorker.hpp
         include/agent/BaseSolver.hpp
         include/AgentTestGlobals.hpp
+        include/toolkit/ProtoMessageFunctionTool.hpp
+        include/toolkit/BaseSearchTool.hpp
+        include/toolkit/builtin/SerpAPI.hpp
 )
 
 

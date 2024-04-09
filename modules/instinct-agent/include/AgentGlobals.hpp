@@ -39,7 +39,7 @@ namespace INSTINCT_AGENT_NS {
             if (pt == DOUBLE) arg_type_string = "float";
             if (pt == BOOL) arg_type_string = "bool";
             if (pt == VARCHAR) arg_type_string = "string";
-            return fmt::format(R"({"{}": "{}"})", arg.name(), arg.type());
+            return fmt::format(R"({"{}": "{}"})", arg.name(), arg_type_string);
         });
         return  "{" + StringUtils::JoinWith(args_view, ",") + "}";
     }

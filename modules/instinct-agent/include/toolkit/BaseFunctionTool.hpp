@@ -12,27 +12,15 @@
 #include <agent.pb.h>
 
 #include "tools/ChronoUtils.hpp"
+#include "tools/ProtobufUtils.hpp"
 
 namespace INSTINCT_AGENT_NS {
     /**
      * Expects a `FunctionToolInvocation` message from context, and returns `FunctionToolResult` message.
      */
-    class BaseFunctionTool: public virtual IFunctionTool, public BaseStepFunction {
-        // FunctionToolSchema schema_;
-
+    class BaseFunctionTool: public virtual IFunctionTool, public BaseRunnable<FunctionToolInvocation, FunctionToolResult> {
     public:
-
-
-        // explicit BaseFunctionTool(FunctionToolSchema schema)
-        //     : schema_(std::move(schema)) {
-        // }
-
-        // [[nodiscard]] const FunctionToolSchema& GetSchema() const override {
-        //     return schema_;
-        // }
-
-        JSONContextPtr Invoke(const JSONContextPtr &input) override {
-            const auto invocation = input->RequireMessage<FunctionToolInvocation>();
+        FunctionToolResult Invoke(const FunctionToolInvocation &invocation) override {
             FunctionToolResult result;
             if (StringUtils::IsBlankString(invocation.id())) {
                 result.set_invocation_id(StringUtils::GenerateUUIDString());
@@ -48,14 +36,16 @@ namespace INSTINCT_AGENT_NS {
                 result.set_exception(e.what());
                 LOG_ERROR("Finish function tool with exception: name={},id={},elapsed={}ms, ex.waht={}", GetSchema().name(), result.invocation_id(), ChronoUtils::GetCurrentTimeMillis() -  t1, e.what());
             }
-            input->ProduceMessage(result);
-            return input;
+            return result;
         }
 
         virtual std::string Execute(const std::string& action_input) = 0;
     };
 
     using FunctionToolPtr = std::shared_ptr<BaseFunctionTool>;
+
+
+
 
 }
 

@@ -15,6 +15,13 @@ namespace INSTINCT_AGENT_NS {
         std::unordered_map<std::string, FunctionToolPtr> functions_map_;
 
     public:
+        std::vector<FunctionToolSchema> GetAllFuncitonToolSchema() override {
+            auto view = std::ranges::values_view(functions_map_) | std::views::transform([](const FunctionToolPtr& tool) {
+                return tool->GetSchema();
+            });
+            return {view.begin(), view.end()};
+        }
+
         bool RegisterFunctionTool(const FunctionToolPtr &function_tool) override {
             const auto& fn_name = function_tool->GetSchema().name();
             if (functions_map_.contains(fn_name)) {
