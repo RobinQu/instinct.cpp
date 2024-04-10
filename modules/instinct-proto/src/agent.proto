@@ -96,8 +96,8 @@ message AgentState {
 
 message SearchToolRequest {
   string query = 1;
-  int32 result_limit = 2;
-  int32 result_offset = 3;
+  optional int32 result_limit = 2;
+  optional int32 result_offset = 3;
 }
 
 message SearchToolResponseEntry {

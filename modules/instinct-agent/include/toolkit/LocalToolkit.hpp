@@ -16,7 +16,7 @@ namespace INSTINCT_AGENT_NS {
 
     public:
         std::vector<FunctionToolSchema> GetAllFuncitonToolSchema() override {
-            auto view = std::ranges::values_view(functions_map_) | std::views::transform([](const FunctionToolPtr& tool) {
+            auto view = std::views::values(functions_map_) | std::views::transform([](const auto& tool) {
                 return tool->GetSchema();
             });
             return {view.begin(), view.end()};
@@ -39,12 +39,23 @@ namespace INSTINCT_AGENT_NS {
         }
 
         std::unordered_set<std::string> GetFunctionToolNames() override {
-            auto names_view = std::ranges::keys_view(functions_map_);
+            auto names_view = std::views::keys(functions_map_);
             return {names_view.begin(), names_view.end()};
+        }
+
+        FunctionToolPtr LookupFunctionTool(const FunctionToolLookupOptions &options) override {
+            assert_true(StringUtils::IsNotBlankString(options.by_name), "Lookup by name is supported only.");
+            assert_true(functions_map_.contains(options.by_name), fmt::format("should name an existing function tool. name={}", options.by_name));
+            return functions_map_.at(options.by_name);
         }
     };
 
-    static FunctionToolkitPtr CreateToolkit(const std::vector<FunctionToolPtr>& tools) {
+    /**
+     * Create toolkit with given tools
+     * @param tools
+     * @return
+     */
+    static FunctionToolkitPtr CreateLocalToolkit(const std::vector<FunctionToolPtr>& tools) {
         auto tk = std::make_shared<LocalFunctionToolkit>();
         for(const auto& tool: tools) {
             tk->RegisterFunctionTool(tool);

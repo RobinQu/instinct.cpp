@@ -69,16 +69,7 @@ namespace INSTINCT_AGENT_NS {
                 entry->set_content(serp_response.answer_box().result());
             }
 
-            // use QA results
-            for (int i=0,k=search_tool_response.entries_size(); i<limit-k && i<serp_response.questions_and_answers_size(); ++i) {
-                const auto& qa_result = serp_response.questions_and_answers(i);
-                auto* entry = search_tool_response.add_entries();
-                entry->set_content(qa_result.answer());
-                entry->set_title(qa_result.title());
-                entry->set_url(qa_result.link());
-            }
-
-            // and then organic results
+            // Use organic results
             for(int i=0,k=search_tool_response.entries_size(); i<limit-k && i<serp_response.organic_results_size(); ++i) {
                 const auto& result = serp_response.organic_results(i);
                 auto* entry = search_tool_response.add_entries();
@@ -86,6 +77,17 @@ namespace INSTINCT_AGENT_NS {
                 entry->set_title(result.title());
                 entry->set_url(result.link());
             }
+
+            // Use QA results
+            for (int i=0,k=search_tool_response.entries_size(); i<limit-k && i< serp_response.questions_and_answers_size(); ++i) {
+                const auto& qa_result = serp_response.questions_and_answers(i);
+                auto* entry = search_tool_response.add_entries();
+                entry->set_content(qa_result.answer());
+                entry->set_title(qa_result.title());
+                entry->set_url(qa_result.link());
+            }
+
+
             return search_tool_response;
         }
 

@@ -103,7 +103,7 @@ Question: {question})"");
         }
     };
 
-    static FunctionToolPtr CreateLLMMath(const ChatModelPtr& chat_model, const PromptTemplatePtr& prompt_template = nullptr, const FunctionToolOptions& options ={}) {
+    static FunctionToolPtr CreateLLMMath(const ChatModelPtr& chat_model, const FunctionToolOptions& options ={}, const PromptTemplatePtr& prompt_template = nullptr) {
         return std::make_shared<LLMMath>(chat_model, prompt_template, options);
     }
 }

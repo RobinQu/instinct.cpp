@@ -17,10 +17,10 @@ namespace INSTINCT_AGENT_NS {
 
     struct ReACTAgentStepOutputParserOptions {
         OutputParserOptions base_options = {};
-        std::string final_answer_tokens = "Final Answer:";
-        std::string action_name_token = "Action:";
-        std::string action_input_token = "Action Input:";
-        std::string thought_token = "Thought:";
+        std::string final_answer_tokens = "Final Answer: ";
+        std::string action_name_token = "Action: ";
+        std::string action_input_token = "Action Input: ";
+        std::string thought_token = "Thought: ";
     };
 
     class ReACTAgentThoughtOutputParser final: public BaseOutputParser<AgentThoughtMessage> {
@@ -34,32 +34,43 @@ namespace INSTINCT_AGENT_NS {
             AgentThoughtMessage thought_message;
             const auto content = MessageUtils::StringifyGeneration(context);
             std::string action_name, action_input, thought, final_answer;
-            for(const auto& line: StringUtils::ReSplit(content, std::regex("\n"))) {
-                if (const auto idx = content.find(options_.final_answer_tokens); idx != std::string::npos) {
-                    final_answer = line.substr(idx);
 
-                }
-                if(const auto idx = content.find(options_.action_name_token) != std::string::npos) {
-                    action_name = line.substr(idx);
-                }
-                if (const auto idx = content.find(options_.action_input_token) != std::string::npos) {
-                    action_input = line.substr(idx);
-                }
+            // assume content before "Action: " is thoguht line.
+            if (const auto idx=  content.find(options_.action_name_token); idx != std::string::npos) {
+                thought = StringUtils::Trim(content.substr(0, idx));
+            }
 
-                if (const auto idx = content.find(options_.thought_token) != std::string::npos) {
-                    thought = line.substr(idx);
+            // action name and action input should be strictly written in one line or the parser will fail
+            for(const auto& line: StringUtils::ReSplit(content, std::regex("\n+"))) {
+                if(const auto idx = line.find(options_.action_name_token); idx != std::string::npos) {
+                    action_name = line.substr(idx + options_.action_name_token.size());
+                }
+                if (const auto idx = line.find(options_.action_input_token); idx != std::string::npos) {
+                    action_input = line.substr(idx + options_.action_input_token.size());
                 }
             }
-            if (StringUtils::IsBlankString(action_name) || StringUtils::IsBlankString(thought)) {
-                throw InstinctException("Illegal response for a ReACT agent.");
+
+            // final answer chould have multiple lines
+            if (const auto idx = content.find(options_.final_answer_tokens); idx != std::string::npos) {
+                final_answer = content.substr(idx + options_.final_answer_tokens.size());
             }
-            thought_message.mutable_react()->set_final_answer(final_answer);
-            auto* invocation = thought_message.mutable_react()->mutable_invocation();
-            invocation->set_name(action_name);
-            invocation->set_input(action_input);
-            invocation->set_id(StringUtils::GenerateUUIDString());
-            thought_message.mutable_react()->set_thought(thought);
-            return thought_message;
+
+            if (StringUtils::IsNotBlankString(action_name) && StringUtils::IsNotBlankString(thought)) {
+                auto* invocation = thought_message.mutable_react()->mutable_invocation();
+                invocation->set_name(action_name);
+                invocation->set_input(action_input);
+                invocation->set_id(StringUtils::GenerateUUIDString());
+                thought_message.mutable_react()->set_thought(thought);
+                return thought_message;
+            }
+            if (StringUtils::IsNotBlankString(final_answer)) {
+                thought_message.mutable_react()->set_final_answer(final_answer);
+                return thought_message;
+            }
+
+            // has no thought, no action_name and no final_answer
+            LOG_DEBUG("Illegal response for a ReACT agent: {}", content);
+            throw InstinctException("Illegal response for a ReACT agent.");
         }
 
     };

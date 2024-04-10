@@ -11,6 +11,7 @@
 
 #include "functional/JSONContextPolicy.hpp"
 #include "LLMGlobals.hpp"
+#include "model/ILanguageModel.hpp"
 #include "tools/StringUtils.hpp"
 
 
@@ -21,11 +22,30 @@ namespace INSTINCT_LLM_NS {
     class MessageUtils {
     public:
 
-        // static std::string StringifyPromptValue(const PromptValue& pv) {
-        //     if (pv.has_chat()) {
-        //         return pv.chat().
-        //     }
-        // }
+        static PromptValue ConvertPromptValueVariantToPromptValue(const PromptValueVariant& pvv) {
+            return std::visit(overloaded {
+                [](const StringPromptValue& spv) { PromptValue pv; pv.mutable_string()->CopyFrom(spv); return pv; },
+            [](const ChatPromptValue& cpv) { PromptValue pv; pv.mutable_chat()->CopyFrom(cpv);  return pv; },
+            [](const PromptValue& pv) { return pv; },
+            [](const MessageList& message_list) { PromptValue pv;  pv.mutable_chat()->mutable_messages()->Add(message_list.messages().begin(), message_list.messages().end()); return pv; },
+            [](const Message& message) { PromptValue pv;  pv.mutable_chat()->mutable_messages()->Add()->CopyFrom(message); return pv; },
+            [](const std::string& str) { PromptValue pv; pv.mutable_string()->set_text(str); return pv;}
+            }, pvv);
+        }
+
+
+        static std::string ExtractLatestPromptString(const PromptValue& pv) {
+            if (pv.has_chat()) {
+                // ignore history messages
+                if (const auto msg_count = pv.chat().messages_size(); msg_count > 0) {
+                    return pv.chat().messages(msg_count-1).content();
+                }
+            }
+            if (pv.has_string()) {
+                return pv.string().text();
+            }
+            return "";
+        }
 
         static std::string StringifyGeneration(const Generation &generation) {
             if (generation.has_message()) return generation.message().content();

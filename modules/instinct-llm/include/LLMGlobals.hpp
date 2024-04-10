@@ -23,6 +23,18 @@ namespace INSTINCT_LLM_NS {
 
     };
 
+    /**
+     * LLM input variant
+     */
+    using PromptValueVariant = std::variant<
+        StringPromptValue,
+        ChatPromptValue,
+        PromptValue,
+        MessageList,
+        Message,
+        std::string
+    >;
+
 
     /**
      * this should refer to a Generation

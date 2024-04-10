@@ -39,7 +39,7 @@ namespace INSTINCT_AGENT_NS {
             // if (pt == DOUBLE) arg_type_string = "float";
             // if (pt == BOOL) arg_type_string = "bool";
             // if (pt == VARCHAR) arg_type_string = "string";
-            return "{\"" +  arg.name() + ":\"" + arg.type() + "\"}";
+            return "\"" +  arg.name() + "\":\"" + arg.type() + "\"";
         });
         return  "{" + StringUtils::JoinWith(args_view, ",") + "}";
     }
@@ -56,7 +56,7 @@ namespace INSTINCT_AGENT_NS {
     static std::string RenderFunctionTools(T&& tools, const bool with_args = true) {
         auto fn_desc_view = tools | std::views::transform([&](const FunctionToolSchema& fn_schema) {
             if (with_args) {
-                return fmt::format("{}: {}. args={}", fn_schema.name(), fn_schema.description(), RenderFunctionToolArgument(fn_schema.arguments()));
+                return fmt::format("{}: {} args={}", fn_schema.name(), fn_schema.description(), RenderFunctionToolArgument(fn_schema.arguments()));
             }
             return fmt::format("{}: {}", fn_schema.name(), fn_schema.description());
         });

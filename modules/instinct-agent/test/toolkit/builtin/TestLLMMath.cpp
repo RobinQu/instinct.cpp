@@ -15,7 +15,7 @@ namespace INSTINCT_AGENT_NS {
         void SetUp() override {
             SetupLogging();
             const ChatModelPtr chat_model = CreateOllamaChatModel({.model_name = "mistral:latest", .temperature = 0});
-            math = CreateLLMMath(chat_model, nullptr, {.max_attempts = 3});
+            math = CreateLLMMath(chat_model, {.max_attempts = 3});
         }
 
         [[nodiscard]] std::string Calculate(const std::string& question) const {

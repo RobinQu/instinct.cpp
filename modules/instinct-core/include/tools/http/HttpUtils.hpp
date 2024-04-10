@@ -4,17 +4,19 @@
 
 #ifndef HTTPUTILS_H
 #define HTTPUTILS_H
-#include "tools/StringUtils.hpp"
 
-#include "CoreGlobals.hpp"
 #include <string>
-#include "fmt/ranges.h"
-#include "IHttpClient.hpp"
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <fmt/args.h>
 #include <uriparser/Uri.h>
+#include <curl/curl.h>
+#include <fmt/ranges.h>
 
+
+#include "IHttpClient.hpp"
+#include "tools/StringUtils.hpp"
+#include "CoreGlobals.hpp"
 
 
 namespace INSTINCT_CORE_NS {

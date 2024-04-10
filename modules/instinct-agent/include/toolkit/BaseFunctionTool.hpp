@@ -5,8 +5,6 @@
 #ifndef BASEFUNCTIONTOOL_HPP
 #define BASEFUNCTIONTOOL_HPP
 
-#include <utility>
-
 #include "AgentGlobals.hpp"
 #include "IFunctionTool.hpp"
 #include <agent.pb.h>
@@ -20,6 +18,11 @@ namespace INSTINCT_AGENT_NS {
          * A postive value will trigger retry in `Invoke` method.
          */
         uint8_t max_attempts = 1;
+
+        /**
+         * A flag to include optional arguments during rendering function descriptions.
+         */
+        bool with_optional_arguments = false;
     };
 
 
@@ -38,6 +41,10 @@ namespace INSTINCT_AGENT_NS {
         }
 
         virtual std::string Execute(const std::string& action_input) = 0;
+
+        [[nodiscard]] const FunctionToolOptions& GetOptions() const {
+            return options_;
+        }
 
     private:
         FunctionToolResult InvokeWithRetry_(const FunctionToolInvocation &invocation, const uint8_t retry_count) {

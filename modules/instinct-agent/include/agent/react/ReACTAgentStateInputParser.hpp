@@ -13,10 +13,14 @@ namespace INSTINCT_AGENT_NS {
     public:
         JSONContextPtr ParseInput(const AgentState &agent_state) override {
             std::string scratch_pad;
-            for(const auto& step: agent_state.previous_steps()) {
+            const int n = agent_state.previous_steps_size();
+
+            // zero or more thought and observation paris. last step cannot be thought message.
+            for(int i=0; i<n; ++i) {
+                const auto& step = agent_state.previous_steps(i);
                 if (step.has_thought()) {
                     const auto& react_thought = step.thought().react();
-                    scratch_pad += "\nThought: " + react_thought.thought();
+                    scratch_pad += react_thought.thought();
                     scratch_pad += "\nAction: " + react_thought.invocation().name();
                     scratch_pad += "\nAction Input: " + react_thought.invocation().input();
                 }
@@ -26,20 +30,12 @@ namespace INSTINCT_AGENT_NS {
                     // failed invocation should be skipped first
                     assert_true(!react_observation.result().has_error(), "should provide succssful observation");
                     scratch_pad += "\nObservation: " + react_observation.result().return_value();
+                    scratch_pad += "\nThought: ";
                 }
             }
-            scratch_pad += "\nThought: ";
+            // scratch_pad += "\nThought: ";
 
-            std::string prompt_input;
-            if (agent_state.input().has_chat()) {
-                // ignore history messages
-                if (const auto msg_count = agent_state.input().chat().messages_size(); msg_count > 0) {
-                    prompt_input = agent_state.input().chat().messages(msg_count-1).content();
-                }
-            }
-            if (agent_state.input().has_string()) {
-                prompt_input = agent_state.input().string().text();
-            }
+            std::string prompt_input = MessageUtils::ExtractLatestPromptString(agent_state.input());
             assert_true(StringUtils::IsNotBlankString(prompt_input), "should provide valid prompt input");
 
             auto fn_names = StringUtils::JoinWith(agent_state.function_tools() | std::views::transform([](const FunctionToolSchema& fn_schema) {

@@ -54,6 +54,10 @@ namespace INSTINCT_AGENT_NS {
             const auto* descriptor = target.GetDescriptor();
             for(int i=0;i<descriptor->field_count();++i) {
                 const auto& field_descriptor = descriptor->field(i);
+                if (field_descriptor->has_optional_keyword() && !GetOptions().with_optional_arguments) {
+                    // only output required fields
+                    continue;
+                }
                 auto* arg = schema_.add_arguments();
                 arg->set_name(field_descriptor->name());
                 switch (field_descriptor->cpp_type()) {

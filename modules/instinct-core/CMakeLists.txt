@@ -28,6 +28,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/CoreTestGlobals.hpp
         include/tools/DocumentUtils.hpp
         include/tools/MetadataSchemaBuilder.hpp
+        include/tools/SystemUtils.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
