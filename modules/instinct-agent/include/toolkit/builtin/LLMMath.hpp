@@ -23,14 +23,18 @@ namespace INSTINCT_AGENT_NS {
      * Model selection notice: some model includling `llama2:7b` series performs badlly for generating expressions. Tested working models:
      *
      * Opensourced models:
+     *
      * * General-purpose: `mixtral:8x7b`, `starling-lm:7b`, `mistral:7b`.
+     *
      * * Tuned model for math: `zephyr-beta-math-Mistral-7B-Instruct-v0.2-slerp`
      *
      * Comercial models: `gpt-3.5-turbo-instruct` and other OpenAI GPT models.
      *
      * Other recommendations:
-     * * set `temperature` to zero.
-     * * set `max_attemps` greater than one.
+     *
+     * * set model's `temperature` to zero.
+     *
+     * * increase tool's `max_attemps`.
      *
      *
      */
@@ -41,7 +45,7 @@ namespace INSTINCT_AGENT_NS {
 
     public:
         explicit LLMMath(ChatModelPtr chat_model, PromptTemplatePtr prompt_template = nullptr, const FunctionToolOptions& options ={}):
-            ProtoMessageFunctionTool(options) ,
+            ProtoMessageFunctionTool("Calculator", "Useful for when you need to answer questions about math.", options) ,
             chat_model_(std::move(chat_model)),
             prompt_template_(std::move(prompt_template))
         {

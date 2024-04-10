@@ -31,15 +31,15 @@ namespace INSTINCT_AGENT_NS {
     static std::string RenderFunctionToolArgument(T&& args) {
         auto args_view = args | std::views::transform([](const FunctionToolArgument& arg) {
             // translate to python type which most LLM is more familar with
-            std::string arg_type_string;
-            const auto& pt = arg.type();
-            if (pt == INT32) arg_type_string = "int";
-            if (pt == INT64) arg_type_string = "int";
-            if (pt == FLOAT) arg_type_string = "float";
-            if (pt == DOUBLE) arg_type_string = "float";
-            if (pt == BOOL) arg_type_string = "bool";
-            if (pt == VARCHAR) arg_type_string = "string";
-            return "{\"" +  arg.name() + ":\"" + arg_type_string + "\"}";
+            // std::string arg_type_string;
+            // const auto& pt = arg.type();
+            // if (pt == INT32) arg_type_string = "int";
+            // if (pt == INT64) arg_type_string = "int";
+            // if (pt == FLOAT) arg_type_string = "float";
+            // if (pt == DOUBLE) arg_type_string = "float";
+            // if (pt == BOOL) arg_type_string = "bool";
+            // if (pt == VARCHAR) arg_type_string = "string";
+            return "{\"" +  arg.name() + ":\"" + arg.type() + "\"}";
         });
         return  "{" + StringUtils::JoinWith(args_view, ",") + "}";
     }

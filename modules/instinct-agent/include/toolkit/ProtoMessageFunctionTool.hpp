@@ -15,13 +15,19 @@ namespace INSTINCT_AGENT_NS {
      * @tparam Input
      */
     template<typename Input, typename Output>
+    requires IsProtobufMessage<Input> && IsProtobufMessage<Output>
     class ProtoMessageFunctionTool: public BaseFunctionTool {
         FunctionToolSchema schema_;
     public:
-        explicit ProtoMessageFunctionTool(const FunctionToolOptions &options)
+        explicit ProtoMessageFunctionTool(
+            const std::string& name,
+            const std::string& description,
+            const FunctionToolOptions &options)
             : BaseFunctionTool(options),
               schema_() {
-            // TODO compute schema
+            schema_.set_name(name);
+            schema_.set_description(description);
+            GenerateFunctionSchema_();
         }
 
         [[nodiscard]] const FunctionToolSchema & GetSchema() const override {
@@ -39,8 +45,43 @@ namespace INSTINCT_AGENT_NS {
             return ProtobufUtils::Serialize(result);
         }
 
+    protected:
         virtual Output DoExecute(const Input& input) = 0;
+
+    private:
+        void GenerateFunctionSchema_() {
+            Input target;
+            const auto* descriptor = target.GetDescriptor();
+            for(int i=0;i<descriptor->field_count();++i) {
+                const auto& field_descriptor = descriptor->field(i);
+                auto* arg = schema_.add_arguments();
+                arg->set_name(field_descriptor->name());
+                switch (field_descriptor->cpp_type()) {
+                    case FieldDescriptor::CPPTYPE_INT32:
+                    case FieldDescriptor::CPPTYPE_INT64:
+                    case FieldDescriptor::CPPTYPE_UINT32:
+                    case FieldDescriptor::CPPTYPE_UINT64:
+                        arg->set_type("integer");
+                        break;
+                    case FieldDescriptor::CPPTYPE_DOUBLE:
+                    case FieldDescriptor::CPPTYPE_FLOAT:
+                        arg->set_type("number");
+                        break;
+                    case FieldDescriptor::CPPTYPE_BOOL:
+                        arg->set_type("boolean");
+                        break;
+                    case FieldDescriptor::CPPTYPE_STRING:
+                        arg->set_type("string");
+                        break;
+                    default:
+                        // don't setting arg_type
+                        break;
+                }
+            }
+        }
     };
+
+
 }
 
 #endif //PROTOMESSAGEFUNCTIONTOOL_HPP

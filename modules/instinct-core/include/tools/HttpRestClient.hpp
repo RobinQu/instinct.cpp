@@ -38,13 +38,13 @@ namespace INSTINCT_CORE_NS {
 
     struct ProtobufHttpEntityConverter {
         template<typename T>
-        requires is_pb_message<T>
+        requires IsProtobufMessage<T>
         T Deserialize(const std::string& buf) {
             return ProtobufUtils::Deserialize<T>(buf);
         }
 
         template<typename T>
-        requires is_pb_message<T>
+        requires IsProtobufMessage<T>
         std::string Serialize(const T& obj) {
             return ProtobufUtils::Serialize(obj);
         }

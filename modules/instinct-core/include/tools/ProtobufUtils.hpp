@@ -16,7 +16,7 @@ namespace INSTINCT_CORE_NS {
     public:
 
         template<class T>
-        requires is_pb_message<T>
+        requires IsProtobufMessage<T>
         static T ConvertJSONObjectToMessage(const nlohmann::json& json_object) {
             // TODO write this
             T result;
@@ -24,7 +24,7 @@ namespace INSTINCT_CORE_NS {
         }
 
         template<typename T>
-        requires is_pb_message<T>
+        requires IsProtobufMessage<T>
         static T Deserialize(const std::string& buf) {
             T result;
             util::JsonParseOptions options;
@@ -39,7 +39,7 @@ namespace INSTINCT_CORE_NS {
         }
 
         template<typename T>
-        requires is_pb_message<T>
+        requires IsProtobufMessage<T>
         static std::string Serialize(const T& obj) {
             std::string param_string;
             util::JsonPrintOptions json_print_options;

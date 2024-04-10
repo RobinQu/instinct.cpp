@@ -12,7 +12,7 @@ namespace INSTINCT_AGENT_NS {
         void SetUp() override {
             SetupLogging();
             const auto api_key = std::getenv("SERP_API_KEY");
-            ASSERT_TRUE(!StringUtils::IsBlankString(api_key));
+            ASSERT_TRUE(api_key && !StringUtils::IsBlankString(api_key));
             serp_api = CreateSerpAPI({.apikey =  api_key});
         }
 
@@ -28,6 +28,18 @@ namespace INSTINCT_AGENT_NS {
 
         FunctionToolPtr serp_api;
     };
+
+    TEST_F(TestSerpAPI, GetSchema) {
+        const auto schema = serp_api->GetSchema();
+        LOG_INFO(">> {}", schema.ShortDebugString());
+        ASSERT_EQ(schema.arguments_size(), 3);
+        ASSERT_EQ(schema.arguments(0).name(), "query");
+        ASSERT_EQ(schema.arguments(0).type(), "string");
+        ASSERT_EQ(schema.arguments(1).name(), "result_limit");
+        ASSERT_EQ(schema.arguments(1).type(), "integer");
+        ASSERT_EQ(schema.arguments(2).name(), "result_offset");
+        ASSERT_EQ(schema.arguments(2).type(), "integer");
+    }
 
     TEST_F(TestSerpAPI, SimpleQuery) {
         const auto r1 = Query("how many oceans in the world?");

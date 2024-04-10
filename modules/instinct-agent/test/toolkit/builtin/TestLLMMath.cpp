@@ -87,6 +87,14 @@ Can you please provide the math library you want to use for evaluation?)";
         ASSERT_TRUE(result.passed());
     }
 
+    TEST_F(TestLLMMath, GetSchema) {
+        const auto schema = math->GetSchema();
+        LOG_INFO(">>> {}", schema.ShortDebugString());
+        ASSERT_EQ(schema.arguments_size(), 1);
+        ASSERT_EQ(schema.arguments(0).name(), "math_question");
+        ASSERT_EQ(schema.arguments(0).type(), "string");
+    }
+
     TEST_F(TestLLMMath, SimpleCalculation) {
         const auto r1 = Calculate("What's result of three plus 4 and then multiplied by 0.5?");
         LOG_INFO(">> {}", r1);

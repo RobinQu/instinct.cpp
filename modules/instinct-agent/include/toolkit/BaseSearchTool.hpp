@@ -13,7 +13,7 @@ namespace INSTINCT_AGENT_NS {
     class BaseSearchTool: public ProtoMessageFunctionTool<SearchToolRequest, SearchToolResponse> {
     public:
         explicit BaseSearchTool(const FunctionToolOptions &options)
-            : ProtoMessageFunctionTool<SearchToolRequest, SearchToolResponse>(options) {
+            : ProtoMessageFunctionTool("Search", "A search engine. Useful for when you need to answer questions about current events. Input should be a search query.", options) {
         }
     };
 }

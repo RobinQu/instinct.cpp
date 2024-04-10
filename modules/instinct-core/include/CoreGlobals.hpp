@@ -51,7 +51,7 @@ namespace INSTINCT_CORE_NS {
     using U32String = U_ICU_NAMESPACE::UnicodeString;
 
     template <typename T>
-    concept is_pb_message = std::derived_from<T, google::protobuf::Message>;
+    concept IsProtobufMessage = std::derived_from<T, google::protobuf::Message>;
 
 
     class InstinctException: public std::runtime_error {

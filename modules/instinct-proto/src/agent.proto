@@ -8,7 +8,7 @@ package instinct.agent;
 message FunctionToolArgument {
   string name = 1;
   string description = 2;
-  core.PrimitiveType type = 3;
+  string type = 3;
 }
 
 message FunctionToolSchema {
