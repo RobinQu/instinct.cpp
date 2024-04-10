@@ -14,8 +14,8 @@ namespace INSTINCT_AGENT_NS {
     protected:
         void SetUp() override {
             SetupLogging();
-            const ChatModelPtr chat_model = CreateOllamaChatModel();
-            math = CreateLLMMath(chat_model);
+            const ChatModelPtr chat_model = CreateOllamaChatModel({.model_name = "mistral:latest", .temperature = 0});
+            math = CreateLLMMath(chat_model, nullptr, {.max_attempts = 3});
         }
 
         [[nodiscard]] std::string Calculate(const std::string& question) const {
@@ -24,26 +24,46 @@ namespace INSTINCT_AGENT_NS {
             FunctionToolInvocation invocation;
             invocation.set_input(ProtobufUtils::Serialize(request));
             const auto resp = math->Invoke(invocation);
-            const auto calc_resp = ProtobufUtils::Deserialize<CalculatorToolResponse>(resp.return_value());
-            return calc_resp.value();
+            // const auto calc_resp = ProtobufUtils::Deserialize<CalculatorToolResponse>(resp.return_value());
+            // return calc_resp.value();
+            return resp.return_value();
         }
 
         FunctionToolPtr math;
     };
 
     TEST_F(TestLLMMath, MatchExpression) {
-        const std::string resp = R"(Sure, I'd be happy to help! Here is the math expression for the problem you provided:
+        const std::string paragraph = R"(Sure, I can help you with that! The math problem you provided is:
 
 Question: What's the result of three plus 4 multiplied by 0.5?
-Math expression: 3 + 4 * 0.5)";
-        std::string pattern_text = R"(Math expression:\s*(.+))";
-        const auto expression_regex = std::regex(pattern_text);
-        std::smatch text_match;
-        std::regex_match(resp, text_match, expression_regex);
-        ASSERT_EQ(text_match.size(), 2);
-        for(const auto& match: text_match) {
-            LOG_INFO("match: {}", match.str());
+Math expression: 3 + 4 * 0.5
+
+Can you please provide the math library you want to use for evaluation?)";
+
+        const std::string pattern_text = R"(Math expression:\s*(.+))";
+        const auto pattern = std::regex(pattern_text);
+        std::sregex_iterator iter(paragraph.begin(), paragraph.end(), pattern);
+        std::sregex_iterator end;
+
+        std::vector<std::smatch> matches;
+
+        while (iter != end) {
+            matches.push_back(*iter++);
         }
+
+        if (!matches.empty()) {
+            for (const auto& match : matches) {
+                for(size_t i=0; i<match.size(); ++i) {
+                    std::cout << "Sub-match found: " << match.str(i) << '\n';
+                }
+            }
+        } else {
+            std::cout << "No match found.\n";
+        }
+
+        ASSERT_EQ(matches.size(), 1);
+        ASSERT_EQ(matches[0].size(), 2);
+        ASSERT_EQ(matches[0][1], "3 + 4 * 0.5");
     }
 
     TEST_F(TestLLMMath, EvaluateExpression) {
@@ -57,13 +77,22 @@ Math expression: 3 + 4 * 0.5)";
         // expression_t expression;
         // expression.register_symbol_table(symbol_table);
         parser_t parser;
-        T result = parser.compile("3 + 4 * 0.5" ,symbol_table);
+        T result = parser.compile("(3 + 4) * 0.5" ,symbol_table);
         LOG_INFO("result = {}", result);
-        ASSERT_EQ(result, 5);
+        ASSERT_EQ(result, 3.5);
+    }
+
+    TEST_F(TestLLMMath, SelfTest) {
+        const auto result = math->SelfCheck();
+        ASSERT_TRUE(result.passed());
     }
 
     TEST_F(TestLLMMath, SimpleCalculation) {
-        auto r1 = Calculate("What's  result of three plus 4 multiplied by 0.5?");
-        ASSERT_EQ(r1, "3.5");
+        const auto r1 = Calculate("What's result of three plus 4 and then multiplied by 0.5?");
+        LOG_INFO(">> {}", r1);
+        ASSERT_EQ(r1, "Answer: 3.5");
+
+        const auto r2 = Calculate("What's result of square root of 6?");
+        LOG_INFO(">> {}", r2);
     }
 }

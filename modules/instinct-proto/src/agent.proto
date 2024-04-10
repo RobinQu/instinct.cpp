@@ -27,6 +27,9 @@ message FunctionToolInvocation {
   string id = 3;
 }
 
+message FunctionToolSelfCheckResponse {
+  bool passed = 2;
+}
 
 message FunctionToolResult {
   string invocation_id = 1;

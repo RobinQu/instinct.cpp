@@ -62,7 +62,6 @@ namespace INSTINCT_LLM_NS {
                 request.set_format("json");
             }
             request.set_model(configuration_.model_name);
-            // request.mutable_options()->CopyFrom(configuration_->model_options());
             request.mutable_options()->set_seed(configuration_.seed);
             request.mutable_options()->set_temperature(configuration_.temperature);
             request.mutable_options()->mutable_stop()->Add(configuration_.stop_words.begin(), configuration_.stop_words.end());

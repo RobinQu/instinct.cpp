@@ -66,6 +66,16 @@ namespace INSTINCT_CORE_NS {
             return result;
         }
 
+        static std::vector<std::smatch> MatchPattern(const std::string& paragraph, const std::regex& pattern) {
+            std::sregex_iterator iter(paragraph.begin(), paragraph.end(), pattern);
+            const std::sregex_iterator end;
+            std::vector<std::smatch> matches;
+            while (iter != end) {
+                matches.push_back(*iter++);
+            }
+            return matches;
+        }
+
         static std::vector<std::string> ReSplit(const std::string& s, const std::regex& sep_regex = std::regex{"\\s+"}) {
             std::sregex_token_iterator iter(s.begin(), s.end(), sep_regex, -1);
             std::sregex_token_iterator end;

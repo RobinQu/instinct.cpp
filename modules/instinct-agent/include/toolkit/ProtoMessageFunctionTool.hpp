@@ -10,15 +10,18 @@
 
 namespace INSTINCT_AGENT_NS {
     /**
-     * Tool class that support protobuf message as input and output
+     * Tool class that support protobuf message as input and output.
+     * Output should always be `std::string` and formated for easy understanding by LLM.
      * @tparam Input
-     * @tparam Output
      */
-    template<typename Input, typename Output>
+    template<typename Input>
     class ProtoMessageFunctionTool: public BaseFunctionTool {
         FunctionToolSchema schema_;
     public:
-        ProtoMessageFunctionTool(): BaseFunctionTool() {
+        explicit ProtoMessageFunctionTool(const FunctionToolOptions &options = {})
+            : BaseFunctionTool(options),
+              schema_() {
+            // TODO compute schema
         }
 
         [[nodiscard]] const FunctionToolSchema & GetSchema() const override {
@@ -27,11 +30,10 @@ namespace INSTINCT_AGENT_NS {
 
         std::string Execute(const std::string &action_input) override {
             auto input = ProtobufUtils::Deserialize<Input>(action_input);
-            auto output = DoExecute(input);
-            return ProtobufUtils::Serialize(output);
+            return DoExecute(input);
         }
 
-        virtual Output DoExecute(const Input& input) = 0;
+        virtual std::string DoExecute(const Input& input) = 0;
     };
 }
 
