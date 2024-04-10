@@ -49,6 +49,15 @@ namespace INSTINCT_CORE_NS {
             store.push_back(fmt::arg("host", call.endpoint.host));
             store.push_back(fmt::arg("port", call.endpoint.port));
             store.push_back(fmt::arg("target", call.target));
+            if (!call.paramters.empty()) {
+                std::vector<std::string> parameter_pairs;
+                for (const auto& [k,v]: call.paramters) {
+                    parameter_pairs.push_back(fmt::format("{}={}", k, curl_easy_escape(nullptr, v.c_str(), static_cast<int>(v.size()))));
+                }
+                store.push_back(fmt::arg("query_string", StringUtils::JoinWith(parameter_pairs, "&")));
+                return fmt::vformat("{protocol}://{host}:{port}{target}?{query_string}", store);
+            }
+
             return fmt::vformat("{protocol}://{host}:{port}{target}", store);
         }
 

@@ -34,7 +34,7 @@ namespace INSTINCT_AGENT_NS {
      *
      *
      */
-    class LLMMath final: public ProtoMessageFunctionTool<CaculatorToolRequest> {
+    class LLMMath final: public ProtoMessageFunctionTool<CaculatorToolRequest, CalculatorToolResponse> {
         ChatModelPtr chat_model_;
         PromptTemplatePtr prompt_template_;
         TextChainPtr chain_;
@@ -64,14 +64,16 @@ Question: {question})"");
             chain_ = CreateTextChain(chat_model_, prompt_template_);
         }
 
-        std::string DoExecute(const CaculatorToolRequest &input) override {
+        CalculatorToolResponse DoExecute(const CaculatorToolRequest &input) override {
             static auto MATH_EXPRESSION_REGEX = std::regex{R"(Math expression:\s*(.*)\n?)"};
             auto answer_string = chain_->Invoke(input.math_question());
             LOG_DEBUG("model output: {}", answer_string);
             if (const auto matches = StringUtils::MatchPattern(answer_string, MATH_EXPRESSION_REGEX); !matches.empty() && matches.front().size() == 2) {
                 // use first match as final answer
                 const auto v = Evaulate_<double>(matches.front().str(1));
-                return fmt::format("Answer: {}", v);
+                CalculatorToolResponse response;
+                response.set_answer(v);
+                return response;
             }
             throw InstinctException("Malformed output for LLMMath");
         }
@@ -81,7 +83,7 @@ Question: {question})"");
             request.set_math_question("what's result of 1+1?");
             const auto resp = DoExecute(request);
             FunctionToolSelfCheckResponse response;
-            response.set_passed(resp == "Answer: 2");
+            response.set_passed(resp.answer() == 2);
             return response;
         }
 

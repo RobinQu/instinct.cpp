@@ -90,9 +90,10 @@ Can you please provide the math library you want to use for evaluation?)";
     TEST_F(TestLLMMath, SimpleCalculation) {
         const auto r1 = Calculate("What's result of three plus 4 and then multiplied by 0.5?");
         LOG_INFO(">> {}", r1);
-        ASSERT_EQ(r1, "Answer: 3.5");
+        ASSERT_EQ(r1, R"({"answer":3.5})");
 
         const auto r2 = Calculate("What's result of square root of 6?");
         LOG_INFO(">> {}", r2);
+        ASSERT_EQ(r2, R"({"answer":2.4494897427831779})");
     }
 }

@@ -9,7 +9,9 @@
 #include "functional/ReactiveFunctions.hpp"
 
 namespace INSTINCT_CORE_NS {
-    typedef std::unordered_map<std::string, std::string> HttpHeaders;
+    using HttpHeaders = std::unordered_map<std::string, std::string>;
+    using HttpQueryParamters = std::unordered_map<std::string, std::string>;
+
 
     enum MIMEContentType {
         kKnownContentType,
@@ -48,16 +50,17 @@ namespace INSTINCT_CORE_NS {
 
     struct HttpRequest {
         Endpoint endpoint;
-        HttpMethod method = HttpMethod::kGET;
+        HttpMethod method = kGET;
         std::string target;
         HttpHeaders headers;
         std::string body;
+        HttpQueryParamters paramters;
     };
 
     struct HttpResponse {
         HttpHeaders headers;
         std::string body;
-        unsigned int status_code;
+        unsigned int status_code = 0;
     };
 
 

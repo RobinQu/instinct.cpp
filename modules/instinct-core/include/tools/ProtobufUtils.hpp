@@ -27,9 +27,12 @@ namespace INSTINCT_CORE_NS {
         requires is_pb_message<T>
         static T Deserialize(const std::string& buf) {
             T result;
-            auto status = util::JsonStringToMessage(buf, &result);
+            util::JsonParseOptions options;
+            options.ignore_unknown_fields = true;
+            options.case_insensitive_enum_parsing = true;
+            auto status = util::JsonStringToMessage(buf, &result, options);
             if (!status.ok()) {
-                LOG_DEBUG("Deserialize failed string: {}", buf);
+                LOG_DEBUG("Deserialize failed. reason: {}, orginal string: {}", status.message().as_string(), buf);
             }
             assert_true(status.ok(), "failed to parse protobuf message from response body");
             return result;
@@ -43,7 +46,7 @@ namespace INSTINCT_CORE_NS {
             json_print_options.preserve_proto_field_names = true;
             auto status = util::MessageToJsonString(obj, &param_string, json_print_options);
             if (!status.ok()) {
-                LOG_DEBUG("Serialize failed message obj: {}", obj.DebugString());
+                LOG_DEBUG("Serialize failed message obj. reason: {}, original string: {}", status.message().as_string(), obj.DebugString());
             }
             assert_true(status.ok(), "failed to dump parameters from protobuf message");
             return param_string;

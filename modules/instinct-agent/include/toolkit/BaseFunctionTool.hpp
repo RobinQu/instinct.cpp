@@ -29,7 +29,7 @@ namespace INSTINCT_AGENT_NS {
     class BaseFunctionTool: public virtual IFunctionTool, public BaseRunnable<FunctionToolInvocation, FunctionToolResult> {
         FunctionToolOptions options_;
     public:
-        explicit BaseFunctionTool(const FunctionToolOptions &options = {})
+        explicit BaseFunctionTool(const FunctionToolOptions &options)
             : options_(options) {
         }
 
@@ -56,7 +56,7 @@ namespace INSTINCT_AGENT_NS {
                 result.set_return_value(Execute(invocation.input()));
                 LOG_DEBUG("Finish function tool: name={},id={},elapsed={}ms", GetSchema().name(), result.invocation_id(), ChronoUtils::GetCurrentTimeMillis() -  t1);
             } catch (const std::runtime_error& e) {
-                if (retry_count < options_.max_attempts) {
+                if (retry_count+1 < options_.max_attempts) {
                     return InvokeWithRetry_(invocation, retry_count+1);
                 }
                 result.set_exception(e.what());

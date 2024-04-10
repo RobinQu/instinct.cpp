@@ -11,6 +11,10 @@
 
 namespace INSTINCT_AGENT_NS {
     class BaseSearchTool: public ProtoMessageFunctionTool<SearchToolRequest, SearchToolResponse> {
+    public:
+        explicit BaseSearchTool(const FunctionToolOptions &options)
+            : ProtoMessageFunctionTool<SearchToolRequest, SearchToolResponse>(options) {
+        }
     };
 }
 

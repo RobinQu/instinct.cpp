@@ -14,11 +14,11 @@ namespace INSTINCT_AGENT_NS {
      * Output should always be `std::string` and formated for easy understanding by LLM.
      * @tparam Input
      */
-    template<typename Input>
+    template<typename Input, typename Output>
     class ProtoMessageFunctionTool: public BaseFunctionTool {
         FunctionToolSchema schema_;
     public:
-        explicit ProtoMessageFunctionTool(const FunctionToolOptions &options = {})
+        explicit ProtoMessageFunctionTool(const FunctionToolOptions &options)
             : BaseFunctionTool(options),
               schema_() {
             // TODO compute schema
@@ -28,12 +28,18 @@ namespace INSTINCT_AGENT_NS {
             return schema_;
         }
 
+        /**
+         * Read input as JSON string and write output as JSON string
+         * @param action_input
+         * @return
+         */
         std::string Execute(const std::string &action_input) override {
             auto input = ProtobufUtils::Deserialize<Input>(action_input);
-            return DoExecute(input);
+            auto result = DoExecute(input);
+            return ProtobufUtils::Serialize(result);
         }
 
-        virtual std::string DoExecute(const Input& input) = 0;
+        virtual Output DoExecute(const Input& input) = 0;
     };
 }
 
