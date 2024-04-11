@@ -6,13 +6,13 @@
 #define INSTINCT_MULTICHAINSERVER_HPP
 
 #include <string>
-#include <utility>
 #include <httplib.h>
 #include <google/protobuf/util/json_util.h>
 
-#include "HttpLibServer.hpp"
 #include "ServerGlobals.hpp"
 #include "functional/StepFunctions.hpp"
+#include "server/HttpController.hpp"
+#include "server/httplib/HttpLibServer.hpp"
 #include "tools/HttpRestClient.hpp"
 
 namespace INSTINCT_SERVER_NS {
@@ -20,43 +20,34 @@ namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_CORE_NS;
     using namespace httplib;
 
-    class MultiChainServer final: public HttpLibServer {
-        std::unordered_set<std::string> chain_names_;
+    class MultiChainController final: public HttpLibController {
+        std::unordered_map<std::string, GenericChainPtr> chains_;
     public:
-        explicit MultiChainServer(ServerOptions options = {})
-            : HttpLibServer(std::move(options)) {
-        }
 
-        int Start() override {
-            int port = HttpLibServer::Start();
-            LOG_INFO("ChainServer is up and running at {} with {} registered chain(s)", port, chain_names_.size());
-            if (chain_names_.empty()) {
+        void OnServerStart(HttpLibServer &server, int port) override {
+            LOG_INFO("ChainServer is up and running at {} with {} registered chain(s)", port, chains_.size());
+            if (chains_.empty()) {
                 LOG_WARN("ChainServer has no chains registered yet!");
             }
-            return port;
         }
 
-        bool AddNamedChain(const std::string &chain_name, const GenericChainPtr &chain) {
-            if (chain_names_.contains(chain_name)) {
-                return false;
-            }
-            chain_names_.insert(chain_name);
-            LOG_INFO("AddNamedChain: name={}", chain_name);
-            GetHttpLibServer().Post(fmt::format("/chains/{}/invoke", chain_name), [&, chain](const Request &req, Response &resp) {
-                LOG_DEBUG("POST /chains/{}/invoke -->", chain_name);
-                auto context = CreateJSONContextWithString(req.body);
-                auto result = chain->Invoke(context);
 
+        void Mount(HttpLibServer &server) override {
+            for(const auto& [chain_name, chain]: chains_) {
+                LOG_INFO("AddNamedChain: name={}", chain_name);
+                server.GetHttpLibServer().Post(fmt::format("/chains/{}/invoke", chain_name), [&, chain](const Request &req, Response &resp) {
+                LOG_DEBUG("POST /chains/{}/invoke -->", chain_name);
+                const auto context = CreateJSONContextWithString(req.body);
+                const auto result = chain->Invoke(context);
                 resp.set_content(
                         DumpJSONContext(result),
                         HTTP_CONTENT_TYPES.at(kJSON)
                 );
             });
 
-            GetHttpLibServer().Post(fmt::format("/chains/{}/batch", chain_name), [&, chain](const Request &req, Response &resp) {
+            server.GetHttpLibServer().Post(fmt::format("/chains/{}/batch", chain_name), [&, chain](const Request &req, Response &resp) {
                 LOG_DEBUG("POST /chains/{}/batch -->", chain_name);
-
-                auto batch_context = CreateBatchJSONContextWithString(req.body);
+                const auto batch_context = CreateBatchJSONContextWithString(req.body);
                 std::vector<std::string> parts;
                 parts.reserve(batch_context.size());
                 chain->Batch(batch_context)
@@ -73,9 +64,9 @@ namespace INSTINCT_SERVER_NS {
                 );
             });
 
-            GetHttpLibServer().Post(fmt::format("/chains/{}/stream", chain_name), [&,chain](const Request& req, Response& resp) {
+            server.GetHttpLibServer().Post(fmt::format("/chains/{}/stream", chain_name), [&,chain](const Request& req, Response& resp) {
                 LOG_DEBUG("POST /chains/{}/stream -->", chain_name);
-                auto context = CreateJSONContextWithString(req.body);
+                const auto context = CreateJSONContextWithString(req.body);
                 AsyncIterator<JSONContextPtr> itr = chain->Stream(context);
                 resp.set_chunked_content_provider(HTTP_CONTENT_TYPES.at(kEventStream), [&, chain] (size_t offset, DataSink &sink) {
                     itr.subscribe(
@@ -91,12 +82,21 @@ namespace INSTINCT_SERVER_NS {
                     return true;
                 });
             });
-
-            return true;
+            }
         }
 
-
+        bool AddNamedChain(const std::string &chain_name, const GenericChainPtr &chain) {
+            if (chains_.contains(chain_name)) {
+                return false;
+            }
+            chains_[chain_name] = chain;;
+            return true;
+        }
     };
+
+    static std::shared_ptr<MultiChainController> CreateMultiChainController() {
+        return std::make_shared<MultiChainController>();
+    }
 
 }
 

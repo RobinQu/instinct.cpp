@@ -5,11 +5,13 @@
 #ifndef HTTPLIBSERVER_HPP
 #define HTTPLIBSERVER_HPP
 
-#include "IManagedServer.hpp"
-#include "ServerGlobals.hpp"
 
 #include <httplib.h>
 #include <google/protobuf/util/json_util.h>
+
+#include "../IManagedServer.hpp"
+#include "ServerGlobals.hpp"
+#include "HttpLibServerLifeCycleManager.hpp"
 #include "tools/HttpRestClient.hpp"
 
 
@@ -22,12 +24,12 @@ namespace INSTINCT_SERVER_NS {
         int port = 0;
     };
 
-
-    class HttpLibServer: public IManagedServer {
+    class HttpLibServer final: public IManagedServer<HttpLibServer> {
         ServerOptions options_;
         Server server_;
+        HttpLibServerLifeCycleManager life_cycle_manager_;
     public:
-        explicit HttpLibServer(ServerOptions options)
+        explicit HttpLibServer(ServerOptions options = {})
             : options_(std::move(options)) {
             InitServer();
         }
@@ -41,6 +43,7 @@ namespace INSTINCT_SERVER_NS {
                 resp.set_content("ok", HTTP_CONTENT_TYPES.at(kPlainText));
                 return true;
             });
+            life_cycle_manager_.OnServerCreated(*this);
         }
 
         int Start() override {
@@ -51,18 +54,26 @@ namespace INSTINCT_SERVER_NS {
             } else {
                 port = server_.bind_to_any_port(options_.host);
             }
+            life_cycle_manager_.OnServerStart(*this, port);
             LOG_INFO("Server is up and running at port {}", port);
             return port;
         }
 
         void Shutdown() override {
             LOG_INFO("Server is shutting down");
+            life_cycle_manager_.BeforeServerClose(*this);
             server_.stop();
+            life_cycle_manager_.AfterServerClose(*this);
         }
 
         bool StartAndWait() override {
             Start();
             return server_.listen_after_bind();
+        }
+
+        void Use(const HttpLibControllerPtr &controller) override {
+            life_cycle_manager_.AddServerLifeCylce(controller);
+            controller->Mount(*this);
         }
     };
 }

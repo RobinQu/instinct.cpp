@@ -19,7 +19,7 @@
 #include "retrieval/VectorStoreRetriever.hpp"
 #include "store/duckdb/DuckDBDocStore.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
-#include "tools/http/OpenAICompatibleAPIServer.hpp"
+#include "endpoint/chat_completion/ChatCompletionController.hpp"
 #include "tools/Assertions.hpp"
 
 
@@ -309,9 +309,10 @@ Question: {standalone_question}
 
         const auto rag_chain = question_fn | context_fn | answer_prompt_template | chat_model->AsModelFunction();
 
-        const auto server_chain = CreateOpenAIServerChain(rag_chain);
-
-        OpenAICompatibleAPIServer server(server_chain, options.server);
+        // create server and use controller
+        HttpLibServer server(options.server);
+        const auto controller = CreateOpenAIChatCompletionController(rag_chain);
+        server.Use(controller);
         server.StartAndWait();
     }
 

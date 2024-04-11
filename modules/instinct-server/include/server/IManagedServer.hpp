@@ -7,17 +7,13 @@
 #include <string>
 
 #include "CoreGlobals.hpp"
+#include "HttpController.hpp"
 #include "ServerGlobals.hpp"
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_CORE_NS;
 
-    class IManagedServer;
-    // using ServerInitCallback = std::function<void(IManagedServer&)>;
-    // using ServerStartedCallback = std::function<void(IManagedServer&)>;
-    // using ServerShutdownCallback = std::function<void(IManagedServer&)>;
-    // using CallbackRefID = int32_t;
-
+    template<typename ServerImpl>
     class IManagedServer {
     public:
         virtual ~IManagedServer() = default;
@@ -28,11 +24,7 @@ namespace INSTINCT_SERVER_NS {
         virtual int Start() = 0;
         virtual bool StartAndWait() = 0;
         virtual void Shutdown() = 0;
-
-        // virtual CallbackRefID OnServerInit(const ServerInitCallback& callback);
-        // virtual CallbackRefID OnServerStarted(const ServerStartedCallback& callback);
-        // virtual CallbackRefID ServerShutdownCallback(const ServerShutdownCallback& callback);
-        //
+        virtual void Use(const HttpControllerPtr<ServerImpl>& controller) = 0;
     };
 
 

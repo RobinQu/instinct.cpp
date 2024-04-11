@@ -1,4 +1,4 @@
-# instinct.cpp
+# ✨ instinct.cpp
 
 `instinct.cpp` is a framework for developing AI Agent applications powered by language models.
 

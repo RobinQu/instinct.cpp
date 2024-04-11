@@ -16,7 +16,7 @@ namespace INSTINCT_SERVER_NS {
     /**
      * Utility class to transform a `Generation` to `OpenAIChatCompletionResponse`.
      */
-    class OpenAIChatCompletionResponseOutputParser final: public BaseOutputParser<OpenAIChatCompletionResponse> {
+    class ChatCompletionResponseOutputParser final: public BaseOutputParser<OpenAIChatCompletionResponse> {
     public:
         OpenAIChatCompletionResponse ParseResult(const Generation& context) override {
             OpenAIChatCompletionResponse response;

@@ -2,10 +2,11 @@
 // Created by RobinQu on 3/19/24.
 //
 #include <gtest/gtest.h>
-#include "tools/http/MultiChainServer.hpp"
 #include "chain/LLMChain.hpp"
 #include "chat_model/OpenAIChat.hpp"
 #include "LLMTestGlobals.hpp"
+#include "endpoint/chain/MultiChainController.hpp"
+#include "server/httplib/HttpLibServer.hpp"
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_LLM_NS;
@@ -20,13 +21,13 @@ namespace INSTINCT_SERVER_NS {
             chain1_ = CreateTextChain(llm);
         }
         TextChainPtr chain1_;
-
     };
 
 
     TEST_F(PlainChainServerTest, Lifecycle) {
-        MultiChainServer server;
-        server.AddNamedChain("chain1", chain1_->GetStepFunction());
+        HttpLibServer server({.port = 9999});
+        const auto controller = CreateMultiChainController();
+        controller->AddNamedChain("chain1", chain1_->GetStepFunction());
         server.Start();
         server.Shutdown();
     }

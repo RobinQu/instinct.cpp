@@ -8,13 +8,14 @@
 
 #include <utility>
 
-#include "HttpLibServer.hpp"
 #include "ServerGlobals.hpp"
-#include "chain/LLMChain.hpp"
+
 #include "chain/MessageChain.hpp"
 #include "chat_model/OpenAIChat.hpp"
-#include "input_parser/OpenAIChatCompletionRequestInputParser.hpp"
-#include "output_parser/OpenAIChatCompletionResponseOutputParser.hpp"
+#include "ChatCompletionRequestInputParser.hpp"
+#include "ChatCompletionResponseOutputParser.hpp"
+#include "server/HttpController.hpp"
+#include "server/httplib/HttpLibServer.hpp"
 #include "tools/ChronoUtils.hpp"
 
 namespace INSTINCT_SERVER_NS {
@@ -44,20 +45,15 @@ namespace INSTINCT_SERVER_NS {
 
     using OpenAIChainPtr = MessageChainPtr<OpenAIChatCompletionRequest,OpenAIChatCompletionResponse>;
 
-    class OpenAICompatibleAPIServer final: public HttpLibServer {
-        ServerOptions server_options_;
+    class ChatCompletionController final: public HttpLibController {
         OpenAIChainPtr chain_;
     public:
-
-        explicit OpenAICompatibleAPIServer(OpenAIChainPtr openai_chain, ServerOptions options = {})
-            : HttpLibServer(std::move(options)), chain_(std::move(openai_chain)) {
-            AddRoutes_();
+        explicit ChatCompletionController(OpenAIChainPtr chain)
+            : chain_(std::move(chain)) {
         }
 
-    private:
-        void AddRoutes_() {
-            auto& server = GetHttpLibServer();
-            server.set_exception_handler([](const auto& req, auto& res, std::exception_ptr ep) {
+        void OnServerCreated(HttpLibServer &server) override {
+            server.GetHttpLibServer().set_exception_handler([](const auto& req, auto& res, std::exception_ptr ep) {
                 JSONObject error_response;
                 try {
                     std::rethrow_exception(ep);
@@ -68,7 +64,10 @@ namespace INSTINCT_SERVER_NS {
                 }
                 res.set_content(error_response.dump(), HTTP_CONTENT_TYPES.at(kJSON));
             });
-            server.Post("/v1/chat/completions", [&](const Request& req, Response& resp) {
+        }
+
+        void Mount(HttpLibServer &server) override {
+            server.GetHttpLibServer().Post("/v1/chat/completions", [&](const Request& req, Response& resp) {
                 long t1 = ChronoUtils::GetCurrentTimeMillis();
                 LOG_DEBUG("--> REQ /v1/chat/completions, req={}", req.body);
                 const auto openai_req = ProtobufUtils::Deserialize<OpenAIChatCompletionRequest>(req.body);
@@ -84,13 +83,19 @@ namespace INSTINCT_SERVER_NS {
         }
     };
 
-    static OpenAIChainPtr CreateOpenAIServerChain(const StepFunctionPtr& fn, const OpenAIChatCompletionInputParserOptions& options = {}) {
-        return CreateFunctionalChain<OpenAIChatCompletionRequest, OpenAIChatCompletionResponse>(
-            std::make_shared<OpenAIChatCompletionRequestInputParser>(options),
-            std::make_shared<OpenAIChatCompletionResponseOutputParser>(),
+    static HttpLibControllerPtr CreateOpenAIChatCompletionController(
+        const StepFunctionPtr& fn,
+        const OpenAIChatCompletionInputParserOptions& input_parser_options = {}
+    ) {
+        const auto chain = CreateFunctionalChain<OpenAIChatCompletionRequest, OpenAIChatCompletionResponse>(
+            std::make_shared<ChatCompletionRequestInputParser>(input_parser_options),
+            std::make_shared<ChatCompletionResponseOutputParser>(),
             fn
         );
+        return std::make_shared<ChatCompletionController>(chain);
+
     }
+
 
 
 

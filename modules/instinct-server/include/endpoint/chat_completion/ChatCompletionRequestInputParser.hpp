@@ -23,11 +23,11 @@ namespace INSTINCT_SERVER_NS {
      * In converted `MappingData`, there should contain `chat_history` of `MesasgeList` type and `question` of `std::string` type.
      *
      */
-    class OpenAIChatCompletionRequestInputParser final: public BaseInputParser<OpenAIChatCompletionRequest> {
+    class ChatCompletionRequestInputParser final: public BaseInputParser<OpenAIChatCompletionRequest> {
         OpenAIChatCompletionInputParserOptions options_;
 
     public:
-        explicit OpenAIChatCompletionRequestInputParser(const OpenAIChatCompletionInputParserOptions& options = {})
+        explicit ChatCompletionRequestInputParser(const OpenAIChatCompletionInputParserOptions& options = {})
             : BaseInputParser<OpenAIChatCompletionRequest>(options.base_options),
               options_(options) {
         }

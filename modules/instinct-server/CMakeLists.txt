@@ -5,12 +5,16 @@ set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
 set(${LIBRARY_TARGET_NAME}_HDR
         include/ServerGlobals.hpp
-        include/tools/http/IManagedServer.hpp
-        include/tools/http/MultiChainServer.hpp
-        include/tools/http/HttpLibServer.hpp
-        include/tools/http/OpenAICompatibleAPIServer.hpp
-        include/input_parser/OpenAIChatCompletionRequestInputParser.hpp
-        include/output_parser/OpenAIChatCompletionResponseOutputParser.hpp
+        include/server/IManagedServer.hpp
+        include/endpoint/chain/MultiChainController.hpp
+        include/server/httplib/HttpLibServer.hpp
+        include/endpoint/chat_completion/ChatCompletionController.hpp
+        include/endpoint/chat_completion/ChatCompletionRequestInputParser.hpp
+        include/endpoint/chat_completion/ChatCompletionResponseOutputParser.hpp
+        include/server/IMountable.hpp
+        include/server/IServerLifecycleHandler.hpp
+        include/server/httplib/HttpLibServerLifeCycleManager.hpp
+        include/server/HttpController.hpp
 )
 
 add_library(
