@@ -101,8 +101,8 @@ Thought: {agent_scratchpad})"
 
     /**
      * AgentExecutor that follows ReACT strategy. Let's think, act and observe.
-     * In the exeuction flow, planer will generate first thought, worker will handle invocation according to action input, and feedback to LLM as observation.
-     * And it will loop these procedures until final answer is generated or max loop count is reached.
+     * In the exeuction flow, planer will generate a thought, while worker will handle invocation according to action input and give feedback to LLM as observation.
+     * It will loop these procedures until final answer is generated or max loop count is reached.
      */
     class ReACTAgentExecutor final: public BaseAgentExecutor {
     public:
@@ -147,15 +147,12 @@ Thought: {agent_scratchpad})"
                     state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
                 }
-
-
             }
 
             LOG_DEBUG("illegal state: {}", state.ShortDebugString());
             throw InstinctException("IllegalState for ReACTAgentExecutor");
         }
     };
-
 
 
     static AgentExecutorPtr CreateReACTAgentExecutor(

@@ -14,9 +14,7 @@
 
 namespace INSTINCT_AGENT_NS {
     /**
-     * Interface class for agent executors. Implementation of this interface should expection following context protcol:
-     * Context Input: PromptValue
-     * Context Output: Generation
+     * Interface class for agent executors.
      */
     class IAgentExecutor {
     public:
