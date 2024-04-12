@@ -107,10 +107,6 @@ namespace INSTINCT_RETRIEVAL_NS {
         const PromptTemplatePtr& prompt_template = nullptr,
         const MultiVectorRetrieverOptions& options = {}
         ) {
-//        TextOutputParserPtr output_parser = std::make_shared<GenerationOutputParser>();
-//        ChainOptions chain_options = {.input_keys = {"doc"}};
-
-
         const TextChainPtr summary_chain = CreateTextChain(
             llm,
             // prompt is copied from langchain doc, which may not be the best choice

@@ -87,4 +87,21 @@ namespace INSTINCT_CORE_NS {
 }
 
 
+template <> struct fmt::formatter<INSTINCT_CORE_NS::PrimitiveType>: formatter<string_view> {
+    template <typename FormatContext>
+    auto format(INSTINCT_CORE_NS::PrimitiveType c, FormatContext& ctx) {
+        string_view name = "";
+        switch (c) {
+            case INSTINCT_CORE_NS::INT32:   name = "INT32"; break;
+            case INSTINCT_CORE_NS::INT64: name = "INT64"; break;
+            case INSTINCT_CORE_NS::FLOAT: name = "FLOAT"; break;
+            case INSTINCT_CORE_NS::DOUBLE: name = "DOUBLE"; break;
+            case INSTINCT_CORE_NS::BOOL: name = "BOOL"; break;
+            case INSTINCT_CORE_NS::VARCHAR: name = "VARCHAR"; break;
+            default: name = "";
+        }
+        return formatter<string_view>::format(name, ctx);
+    }
+};
+
 #endif //COREGLOBALS_H

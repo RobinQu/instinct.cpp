@@ -83,7 +83,11 @@ namespace INSTINCT_RETRIEVAL_NS {
                                 }
                                 continue;
                             }
-                            observer.on_error(std::make_exception_ptr(InstinctException("unknown column type at index " + std::to_string(column_idx))));
+                            observer.on_error(std::make_exception_ptr(InstinctException(fmt::format("unknown column type at index {}, column name {}, given column type {}",
+                                std::to_string(column_idx),
+                                metadata_field_schema.name(),
+                                metadata_field_schema.type()
+                                ))));
                         }
                         DocumentUtils::AddMissingPresetMetadataFields(document);
                         observer.on_next(document);
@@ -130,6 +134,8 @@ namespace INSTINCT_RETRIEVAL_NS {
      */
     static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::string& mapping_string, const ParquetFileIngestorOptions& options = {}) {
         std::vector<ParquetColumnMapping> mappings;
+
+        bool found_text;
         for(const auto& column: StringUtils::ReSplit(StringUtils::Trim(mapping_string), std::regex(","))) {
             if(StringUtils::IsBlankString(column)) continue;
             ParquetColumnMapping column_mapping;
@@ -138,7 +144,8 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto type_string = StringUtils::ToLower(column_parts[1]);
 
             column_mapping.column_index = std::stoi(column_parts[0]);
-            if(type_string == "t" || type_string == "text") {
+            if(type_string == "t" || type_string == "text" || type_string == "txt") {
+                found_text = true;
                 column_mapping.column_type = kTextColumn;
             }
             if(type_string == "m" || type_string == "metadata") {
@@ -170,11 +177,15 @@ namespace INSTINCT_RETRIEVAL_NS {
                     field_schema.set_type(VARCHAR);
                 }
 
+                assert_true(field_schema.type() != Unknown, "should have specified correct field type");
+
                 column_mapping.metadata_field_schema = field_schema;
                 column_mapping.column_type = kMetadataColumn;
             }
             mappings.push_back(column_mapping);
         }
+
+        assert_true(found_text, "should have text column specified");
 
         return CreateParquetIngestor(file_source, mappings, options);
     }
