@@ -22,8 +22,6 @@ Galena, also called lead glance, is the natural mineral form of lead(II) sulfide
         R"(The Swift Orange Line is a bus rapid transit line in Snohomish County, Washington, United States. It is the third line of the Swift Bus Rapid Transit system operated by Community Transit and is scheduled to open in March 2024. The 11-mile (18 km) line runs from Edmonds College to McCollum Park, generally serving the cities of Lynnwood and Mill Creek with 16 stations. The Orange Line provides connections between the existing Swift Blue and Green lines, Edmonds College, Alderwood Mall, and Lynnwood Transit Center—the future terminus of the Link light rail system.)"
     };
 
-
-
     TEST(OllamaEmbedding, TestSimpleOps) {
         using namespace INSTINCT_CORE_NS;
         OllamaEmbedding embedding;
@@ -35,9 +33,9 @@ Galena, also called lead glance, is the natural mineral form of lead(II) sulfide
 
     TEST(OllamaEmbedding, TestBatchExecute) {
         SetupLogging();
-        OllamaEmbedding embedding({.max_paralle = 4});
-        embedding.EmbedDocuments(DOCS);
-        // TensorUtils::PrintEmbedding(embedding.EmbedQuery("hell word"));
+        for(OllamaEmbedding embedding({.max_paralle = 4}); const auto& vector: embedding.EmbedDocuments(DOCS)) {
+            TensorUtils::PrintEmbedding(vector);
+        }
     }
 
 

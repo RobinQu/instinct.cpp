@@ -38,8 +38,16 @@ namespace INSTINCT_LLM_NS {
                     request.set_prompt(text);
                     batch->Add(OLLAMA_EMBEDDING_PATH, request);
                 }
-                if (const auto futures = batch->Execute(thread_pool_); !futures.wait_for(configuration_.timeout_in_seconds)) {
-                    throw InstinctException(fmt::format("Embedding request timeout after {} seconds duration", configuration_.timeout_in_seconds.count()));
+
+                auto futures = batch->Execute(thread_pool_);
+                if (configuration_.embedding_timeout_factor > 0s) {
+                    // timeout control
+                    if (const auto timeout = configuration_.embedding_timeout_factor * texts.size(); !futures.wait_for(timeout)) {
+                        throw InstinctException(fmt::format("Embedding request timeout after {} seconds duration", timeout.count()));
+                    }
+                }
+                for(const auto& ollama_resp: futures.get()) {
+                    result.emplace_back(ollama_resp.embedding().begin(), ollama_resp.embedding().end());
                 }
                 return result;
             }

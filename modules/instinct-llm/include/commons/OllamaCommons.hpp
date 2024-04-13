@@ -47,7 +47,10 @@ namespace INSTINCT_LLM_NS {
          */
         u_int32_t max_paralle = 0;
 
-        std::chrono::seconds timeout_in_seconds = 30s;
+        /**
+         * Define timeout for generating one embedding
+         */
+        std::chrono::seconds embedding_timeout_factor = 0s;
     };
 
 

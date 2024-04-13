@@ -78,7 +78,7 @@ namespace INSTINCT_CORE_NS {
             Futures<ResponseEntity> Execute(ThreadPool& pool = shared_http_client_thread_pool) {
                 Futures<ResponseEntity> responses;
                 for (auto&& http_response_future: client->ExecuteBatch(calls, pool)) {
-                    responses.push_back(std::async(std::launch::async, [&, shared_future = std::shared_future<HttpResponse>(std::move(http_response_future))]() {
+                    responses.push_back(std::async(std::launch::async, [&, shared_future = std::shared_future(std::move(http_response_future))]() {
                         const auto&[headers, body, status_code] = shared_future.get();
                         if (status_code >= 400) {
                             throw HttpClientException("Error resposne during batched requests", status_code, body);
