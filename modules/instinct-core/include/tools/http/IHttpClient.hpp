@@ -64,6 +64,9 @@ namespace INSTINCT_CORE_NS {
     };
 
 
+    // struct HttpBatchExecuteOptions {
+    //     u_int32_t max_paralle = std::thread::hardware_concurrency();
+    // };
 
     class IHttpClient {
     public:
@@ -76,8 +79,19 @@ namespace INSTINCT_CORE_NS {
                 const HttpRequest& call
         ) = 0;
 
+        /**
+         * Run batch of http requests. Concurrency behaviour (max parallel, ...) is controlled by given thread pool.
+         * @param calls
+         * @param pool thread pool for concurrent execution
+         * @return 
+         */
+        virtual Futures<HttpResponse> ExecuteBatch(
+            const std::vector<HttpRequest>& calls,
+            ThreadPool& pool
+        ) = 0;
+
         virtual AsyncIterator<std::string> StreamChunk(
-                const HttpRequest& call
+            const HttpRequest& call
         ) = 0;
     };
     using HttpClientPtr = std::shared_ptr<IHttpClient>;

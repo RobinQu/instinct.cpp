@@ -74,6 +74,9 @@ namespace INSTINCT_CORE_NS {
             .subscribe([](const auto& chunk) {
                 LOG_INFO("chunk: {}", chunk);
             });
+    }
+
+    TEST_F(CURLHttpClientTest, BatchRequest) {
 
     }
 

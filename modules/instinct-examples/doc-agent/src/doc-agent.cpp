@@ -87,7 +87,8 @@ namespace insintct::exmaples::doc_agent {
         if (options.provider_name == "ollama") {
             return CreateOllamaEmbedding({
                 .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
-                .model_name = options.model_name
+                .model_name = options.model_name,
+                .max_paralle = (std::thread::hardware_concurrency() / 3)
             });
         }
         if (options.provider_name == "openai") {

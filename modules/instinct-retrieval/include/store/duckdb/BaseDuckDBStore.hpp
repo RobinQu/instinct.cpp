@@ -361,6 +361,10 @@ namespace INSTINCT_RETRIEVAL_NS {
         DuckDBPtr db_;
         std::shared_ptr<MetadataSchema> metadata_schema_;
         unique_ptr<PreparedStatement> prepared_count_all_statement_;
+        // std::map<std::thread::id, Connection> connections_;
+        // std::mutex g_i_mutex;
+
+        Connection connection_;
 
     public:
         explicit BaseDuckDBStore(
@@ -369,7 +373,9 @@ namespace INSTINCT_RETRIEVAL_NS {
             const DuckDBStoreOptions& options
         ): options_(options),
            db_(std::move(db)),
-           metadata_schema_(metadata_schema) {
+           metadata_schema_(metadata_schema),
+            connection_(*db_)
+        {
             // LOG_DEBUG("Startup db at {}", options.db_file_path);
             assert_true(metadata_schema, "should provide schema");
             // assert_positive(options_.dimension, "dimension should be positive");
@@ -379,12 +385,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto sql = details::make_create_table_sql(options_.table_name, options_.dimension, metadata_schema_, options.create_or_replace_table);
             LOG_DEBUG("create document table with SQL: {}", sql);
 
-            auto connection = GetConnection();
-
-            const auto create_table_result = connection.Query(sql);
+            const auto create_table_result = connection_.Query(sql);
             details::assert_query_ok(create_table_result);
 
-            prepared_count_all_statement_ = connection.Prepare(details::make_prepared_count_sql(options_.table_name));
+            prepared_count_all_statement_ = connection_.Prepare(details::make_prepared_count_sql(options_.table_name));
             details::assert_prepared_ok(prepared_count_all_statement_, "Failed to prepare count statement");
         }
 
@@ -398,13 +402,20 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         [[nodiscard]] Connection GetConnection() {
-            return Connection(*db_);
+            // const std::lock_guard<std::mutex> lock(g_i_mutex);
+            // auto id = std::this_thread::get_id();
+            // if (!connections_.contains(id)) {
+            //     connections_.emplace(id, Connection(*db_));
+            // }
+            // return connections_.at(id);
+            return std::move(Connection(*db_));
         }
 
         AsyncIterator<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {
             if (ids.empty()) {
                 return rpp::source::empty<Document>();
             }
+
             auto result = GetConnection().Query(details::make_mget_sql(options_.table_name, metadata_schema_, ids));
             details::assert_query_ok(result);
             return details::conv_query_result_to_iterator(std::move(result), metadata_schema_);
@@ -428,7 +439,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         virtual void AppendRows(Appender& appender, std::vector<Document>& records, UpdateResult& update_result) = 0;
 
         void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
-            Connection connection = GetConnection();
+            auto connection = GetConnection();
             connection.BeginTransaction();
             try {
                 Appender appender(connection, options_.table_name);
@@ -448,7 +459,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         virtual void AppendRow(Appender& appender, Document& doc, UpdateResult& update_result) = 0;
 
         void AddDocument(Document& doc) override {
-            Connection connection = GetConnection();
+            auto connection = GetConnection();
             connection.BeginTransaction();
             try {
                 UpdateResult update_result;
@@ -468,7 +479,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void DeleteDocuments(const std::vector<std::string>& ids, UpdateResult& update_result) override {
-            Connection connection = GetConnection();
+            auto connection = GetConnection();
             const auto sql = details::make_delete_sql(options_.table_name, ids);
             const auto result = connection.Query(sql);
             details::assert_query_ok(result);

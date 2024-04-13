@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 
+
 class InstinctCppRecipe(ConanFile):
     """
     this `conanfile.py` is merely meant to build and install project locally.
@@ -17,6 +18,7 @@ class InstinctCppRecipe(ConanFile):
         self.tool_requires("cmake/3.27.9")
 
     def requirements(self):
+        self.requires("bshoshany-thread-pool/4.1.0")
         self.requires("duckdb/0.10.1", options={"with_httpfs": True})
         self.requires("uriparser/0.9.7")
         self.requires("crossguid/0.2.2")

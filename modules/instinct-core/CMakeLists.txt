@@ -42,7 +42,10 @@ add_library(
 add_library(instinct::core
         ALIAS ${LIBRARY_TARGET_NAME})
 
+find_package(bshoshany-thread-pool REQUIRED)
+
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
+        bshoshany-thread-pool::bshoshany-thread-pool
         crossguid::crossguid
         instinct::proto
         RPP::rpp

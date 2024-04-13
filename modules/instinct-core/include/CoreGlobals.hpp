@@ -12,6 +12,7 @@
 #include <unicode/uversion.h>
 #include <google/protobuf/message.h>
 #include <fmtlog/fmtlog.h>
+#include <BS_thread_pool.hpp>
 
 
 #define INSTINCT_CORE_NS instinct::core
@@ -83,6 +84,27 @@ namespace INSTINCT_CORE_NS {
     static const std::string METADATA_SCHEMA_FILE_SOURCE_KEY = "file_source";
 
     using MetadataSchemaPtr = std::shared_ptr<MetadataSchema>;
+
+    template<typename  T>
+    using Futures = BS::multi_future<T>;
+
+    using ThreadPool = BS::thread_pool;
+
+    /**
+     * Heper function to support continuation for future, which is not available even in C++ 20.
+     * https://stackoverflow.com/questions/14489935/implementing-futurethen-equivalent-for-asynchronous-execution-in-c11
+     * @tparam T
+     * @tparam Work
+     * @param f
+     * @param w
+     * @return
+     */
+    template <typename Fut, typename Work>
+    auto then(Fut& f, Work w) -> std::shared_future<decltype(w(f.get()))>
+    {
+        return std::async([=]{ w(f.get()); });
+    }
+
 
 }
 

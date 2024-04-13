@@ -5,7 +5,9 @@
 #ifndef INSTINCT_CURLHTTPCLIENT_HPP
 #define INSTINCT_CURLHTTPCLIENT_HPP
 
+#include <future>
 #include <curl/curl.h>
+#include <BS_thread_pool.hpp>
 
 
 #include "CoreGlobals.hpp"
@@ -16,6 +18,8 @@
 namespace INSTINCT_CORE_NS {
 
     namespace details {
+
+        static BS::thread_pool shared_http_client_thread_pool(5);
 
         static void initialize_curl() {
             static bool CURL_INITIALIZED = false;
@@ -188,6 +192,20 @@ namespace INSTINCT_CORE_NS {
             });
         }
 
+        Futures<HttpResponse> ExecuteBatch(
+            const std::vector<HttpRequest>& calls,
+            ThreadPool& pool) override {
+            Futures<HttpResponse> result;
+
+            for (int i=0; i<calls.size(); ++i) {
+                result.push_back(pool.submit_task([&, i]() {
+                    LOG_DEBUG("Executing {} of {} requets", i+1, calls.size());
+                    return this->Execute(calls[i]);
+                }));
+            }
+
+            return result;
+        }
     };
 
     static HttpClientPtr CreateCURLHttpClient() {

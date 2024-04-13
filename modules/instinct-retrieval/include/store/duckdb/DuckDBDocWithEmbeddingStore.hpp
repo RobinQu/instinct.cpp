@@ -66,7 +66,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 return record.text();
             });
             auto embeddings = embeddings_->EmbedDocuments({text_view.begin(), text_view.end()});
-            assert_equal_size(embeddings, records);
+            assert_equal_size(embeddings, records, "Count of result embeddings is not equal to that of records");
             int affected_row = 0;
             for (int i=0;i<records.size();i++) {
                 try {
