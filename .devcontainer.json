@@ -1,5 +1,5 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/miniconda:latest",
+  "image": "conanio/gcc13-ubuntu16.04",
   "runArgs": [
     "--gpus",
     "all"
