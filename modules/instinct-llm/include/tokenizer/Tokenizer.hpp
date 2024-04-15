@@ -63,9 +63,6 @@ namespace INSTINCT_LLM_NS {
 
     using BPETokenRanks = tsl::ordered_map<Bytes, int32_t>;
 
-
-
-
     class Tokenizer {
     public:
         // PretrainedTokenizer()=delete;
@@ -82,6 +79,7 @@ namespace INSTINCT_LLM_NS {
         // virtual int32_t TokenToId(const std::string& token) = 0;
     };
 
+    using TokenizerPtr = std::shared_ptr<Tokenizer>;
 
     /**
      * following details are invisible to you

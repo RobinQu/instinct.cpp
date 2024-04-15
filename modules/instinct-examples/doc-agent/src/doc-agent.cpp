@@ -65,6 +65,7 @@ namespace insintct::exmaples::doc_agent {
 
         std::string shared_db_file_path;
         DuckDBStoreOptions doc_store;
+        size_t source_limit = 0;
         DuckDBStoreOptions vector_store;
         LLMProviderOptions chat_model_provider;
         LLMProviderOptions embedding_provider;
@@ -198,7 +199,7 @@ namespace insintct::exmaples::doc_agent {
             ingestor = CreateDOCXFileIngestor(options.filename);
         } else if (options.file_type == "PARQUET") {
             assert_true(!options.parquet_mapping.empty(), "should provide mapping format for parquet file");
-            ingestor = CreateParquetIngestor(options.filename, options.parquet_mapping);
+            ingestor = CreateParquetIngestor(options.filename, options.parquet_mapping, {.limit = options.source_limit});
         } else {
             ingestor = CreatePlainTextFileIngestor(options.filename);
         }
@@ -474,6 +475,7 @@ int main(int argc, char** argv) {
             ->default_val("TXT")
             ->check(IsMember({"PDF", "DOCX", "MD", "TXT", "PARQUET"}, CLI::ignore_case));
     ds_ogroup->add_option("--parquet_mapping", build_command_options.parquet_mapping, "Mapping format for parquet columns. e.g. 1:t,2:m:parent_doc_id:int64,3:m:source:varchar.");
+    ds_ogroup->add_option("--source_limit", build_command_options.source_limit, "Limit max entries from data source. It's supported only part of ingestors including PARQUET. Zero means no limit.")->default_val(0);
 
     build_command->final_callback([&]() {
         build_command_options.chat_model_provider = chat_model_provider_options;

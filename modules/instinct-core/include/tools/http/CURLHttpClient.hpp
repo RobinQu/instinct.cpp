@@ -198,8 +198,8 @@ namespace INSTINCT_CORE_NS {
             Futures<HttpResponse> result;
 
             for (int i=0; i<calls.size(); ++i) {
-                result.push_back(pool.submit_task([&, i]() {
-                    LOG_DEBUG("Executing {} of {} requets", i+1, calls.size());
+                result.push_back(pool.submit_task([&, i, total=calls.size()]() {
+                    LOG_DEBUG("Executing {} of {} requets", i+1, total);
                     return this->Execute(calls[i]);
                 }));
             }

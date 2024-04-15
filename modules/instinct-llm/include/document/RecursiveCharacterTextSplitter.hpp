@@ -8,6 +8,8 @@
 #include <unicode/regex.h>
 #include <unicode/ustring.h>
 
+#include <utility>
+
 #include "BaseTextSplitter.hpp"
 #include "LanguageSplitters.hpp"
 #include "tokenizer/TiktokenTokenizer.hpp"
@@ -24,7 +26,6 @@ namespace INSTINCT_LLM_NS {
     };
 
     struct RecursiveCharacterTextSplitterOptions {
-        LengthFunction length_function = IdentityLengthFunction;
         int chunk_size=4000;
         bool keep_separator=true;
         bool strip_whitespace=true;
@@ -35,25 +36,22 @@ namespace INSTINCT_LLM_NS {
     /**
      * \brief Recursively split text using a sequence of given characters as splitter. Copied a lot from Langchain Python.
      */
-    class RecursiveCharacterTextSplitter: public BaseTextSplitter {
+    class RecursiveCharacterTextSplitter final: public BaseTextSplitter {
         std::vector<UnicodeString> separators_;
     public:
-        explicit RecursiveCharacterTextSplitter(const RecursiveCharacterTextSplitterOptions& options = {}): BaseTextSplitter(
+
+        explicit RecursiveCharacterTextSplitter(const RecursiveCharacterTextSplitterOptions& options = {}): RecursiveCharacterTextSplitter(std::make_shared<StringLengthCalculator>(), options) {}
+
+        explicit RecursiveCharacterTextSplitter(LenghtCalculatorPtr lenght_calculator, const RecursiveCharacterTextSplitterOptions& options = {}): BaseTextSplitter(
             options.chunk_size,
             0,
             options.keep_separator,
             options.strip_whitespace,
-            options.length_function),
+            std::move(lenght_calculator)),
                                                                                                             separators_(options.separators) {
 
         }
 
-        static RecursiveCharacterTextSplitter* FromTiktokenTokenizer(TiktokenTokenizer* tokenizer, RecursiveCharacterTextSplitterOptions options = {}) {
-            options.length_function = [=](const UnicodeString& str) {
-                return tokenizer->Encode(str).size();
-            };
-            return new RecursiveCharacterTextSplitter(options);
-        }
 
         std::vector<UnicodeString> SplitText(const UnicodeString& text) override {
             auto seps = std::vector(separators_);
@@ -87,7 +85,7 @@ namespace INSTINCT_LLM_NS {
             std::vector<UnicodeString> good_splits;
             const auto merging_separator = keep_sepeartor_ ? "" : separator;
             for(auto& s: splits) {
-                if(length_function_(s) < chunk_size_) {
+                if(lenght_calculator_->GetLength(s) < chunk_size_) {
                     good_splits.push_back(s);
                 } else {
                     if(!good_splits.empty()) {
@@ -109,8 +107,16 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
+
     static TextSplitterPtr CreateRecursiveCharacterTextSplitter(const RecursiveCharacterTextSplitterOptions& options = {}) {
         return std::make_shared<RecursiveCharacterTextSplitter>(options);
+    }
+
+    static TextSplitterPtr CreateRecursiveCharacterTextSplitter(const TokenizerPtr& tokenizer, const RecursiveCharacterTextSplitterOptions& options = {}) {
+        return std::make_shared<RecursiveCharacterTextSplitter>(
+std::make_shared<TokenizerBasedLengthCalculator>(tokenizer),
+              options
+        );
     }
 }
 

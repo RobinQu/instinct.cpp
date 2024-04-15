@@ -6,6 +6,8 @@
 #define BASETEXTSPLITTER_HPP
 
 #include <retrieval.pb.h>
+
+#include <utility>
 #include "tools/DocumentUtils.hpp"
 #include "TextSplitter.hpp"
 
@@ -20,24 +22,57 @@ namespace  INSTINCT_LLM_NS {
         return s.length();
     };
 
+
+    class ILenghtCalculator {
+    public:
+        ILenghtCalculator()=default;
+        virtual ~ILenghtCalculator()=default;
+        ILenghtCalculator(ILenghtCalculator&&)=delete;
+        ILenghtCalculator(const ILenghtCalculator&)=delete;
+        virtual size_t GetLength(const UnicodeString& s) =0;
+    };
+
+    using LenghtCalculatorPtr = std::shared_ptr<ILenghtCalculator>;
+
+    class StringLengthCalculator final: public ILenghtCalculator {
+    public:
+        size_t GetLength(const UnicodeString &s) override {
+            return s.length();
+        }
+    };
+
+    class TokenizerBasedLengthCalculator final: public ILenghtCalculator {
+        TokenizerPtr tokenizer_;
+
+    public:
+        explicit TokenizerBasedLengthCalculator(TokenizerPtr tokenizer)
+            : tokenizer_(std::move(tokenizer)) {
+        }
+
+        size_t GetLength(const UnicodeString &s) override {
+            return tokenizer_->Encode(s).size();
+        }
+    };
+
+
     class BaseTextSplitter : public TextSplitter {
     protected:
         int chunk_size_;
         int chunk_overlap_;
         bool keep_sepeartor_;
         bool strip_whitespace_;
-        LengthFunction length_function_;
+        LenghtCalculatorPtr lenght_calculator_;
 
     public:
         BaseTextSplitter();
 
         BaseTextSplitter(const int chunk_size, const int chunk_overlap, const bool keep_sepeartor,
-                         const bool strip_whitespace, LengthFunction length_function)
+                         const bool strip_whitespace, LenghtCalculatorPtr lenght_calculator)
             : chunk_size_(chunk_size),
               chunk_overlap_(chunk_overlap),
               keep_sepeartor_(keep_sepeartor),
               strip_whitespace_(strip_whitespace),
-              length_function_(std::move(length_function)) {
+              lenght_calculator_(std::move(lenght_calculator)) {
         }
 
         AsyncIterator<Document> SplitDocuments(const AsyncIterator<Document>& docs_itr) override {
@@ -65,12 +100,12 @@ namespace  INSTINCT_LLM_NS {
     protected:
         void MergeSplits_(const std::vector<UnicodeString>& splits, const UnicodeString& seperator,
                           std::vector<UnicodeString>& docs) const {
-            const auto s_len = length_function_(seperator);
+            const auto s_len = lenght_calculator_->GetLength(seperator);
             // std::vector<UnicodeString> docs;
             std::vector<UnicodeString> current_doc;
             size_t total = 0;
             for (const auto& s: splits) {
-                const auto d_len = length_function_(s);
+                const auto d_len = lenght_calculator_->GetLength(s);
                 if (total + d_len + (current_doc.empty() ? 0 : s_len) > chunk_size_) {
                     if (!current_doc.empty()) {
                         if (const auto doc = JoinDocs_(current_doc, seperator); doc.length()) {
@@ -80,7 +115,7 @@ namespace  INSTINCT_LLM_NS {
                             // handle overlapping
                             while (total > chunk_overlap_ && !current_doc.empty()) {
                                 // strip first item until remianing chunks are enough for overlapping
-                                total -= length_function_(current_doc.front()) + (current_doc.empty() ? 0 : s_len);
+                                total -= lenght_calculator_->GetLength(current_doc.front()) + (current_doc.empty() ? 0 : s_len);
                                 current_doc.erase(current_doc.begin());
                             }
                         } else {

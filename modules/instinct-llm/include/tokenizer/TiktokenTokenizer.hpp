@@ -26,7 +26,7 @@ namespace INSTINCT_LLM_NS {
         StringIDDict special_tokens;
     };
 
-    class TiktokenTokenizer: public RegexTokenizer {
+    class TiktokenTokenizer final: public RegexTokenizer {
         ByteShuffle byte_shuffle_;
         ByteShuffle revsered_byte_shuffle_;
 
@@ -44,7 +44,7 @@ namespace INSTINCT_LLM_NS {
             throw InstinctException("Not implemented");
         }
 
-        static TiktokenTokenizer* FromTiktokenConfig(const TiktokenConfig& config) {
+        static TokenizerPtr FromTiktokenConfig(const TiktokenConfig& config) {
             BPERanks bpe_ranks = details::recover_byte_pair_bpe_ranks(config.mergeable_ranks);
 
             // init vocab
@@ -66,10 +66,10 @@ namespace INSTINCT_LLM_NS {
                 // first 256 char have rank of less than 256,  so it's safe to cast back to uint8_t
                 byte_shuffle[i] = id;
             }
-            return new TiktokenTokenizer(bpe_ranks, vocab, UnicodeString::fromUTF8(config.pat_str), config.special_tokens, byte_shuffle);
+            return std::make_shared<TiktokenTokenizer>(bpe_ranks, vocab, UnicodeString::fromUTF8(config.pat_str), config.special_tokens, byte_shuffle);
         }
 
-        static TiktokenTokenizer* MakeGPT2Tokenizer(
+        static TokenizerPtr MakeGPT2Tokenizer(
             const std::filesystem::path& bpe_file_path,
             const std::filesystem::path& encoder_json_file_path) {
             auto reader = GPT2BPEFileReader(bpe_file_path, encoder_json_file_path);
@@ -84,7 +84,7 @@ namespace INSTINCT_LLM_NS {
             });
         }
 
-        static TiktokenTokenizer* MakeGPT4Tokenizer(
+        static TokenizerPtr MakeGPT4Tokenizer(
             const std::filesystem::path& tiktoken_bpe_file_path
             ) {
             TiktokenBPEFileReader reader(tiktoken_bpe_file_path);

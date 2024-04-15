@@ -29,6 +29,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/tools/DocumentUtils.hpp
         include/tools/MetadataSchemaBuilder.hpp
         include/tools/SystemUtils.hpp
+        include/tools/cache/FileCaches.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
