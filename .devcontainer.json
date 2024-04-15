@@ -1,1 +1,7 @@
-{"image":"mcr.microsoft.com/devcontainers/miniconda:latest"}
+{
+  "image": "mcr.microsoft.com/devcontainers/miniconda:latest",
+  "runArgs": [
+    "--gpus",
+    "all"
+  ]
+}
