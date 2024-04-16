@@ -59,6 +59,5 @@ namespace INSTINCT_LLM_NS {
         auto text_splitter = CreateRecursiveCharacterTextSplitter(tokenizer, { .chunk_size = 20});
         const auto splits = text_splitter->SplitText(corpus::text3);
         u32_utils::print_splits("splits: ", splits);
-
     }
 }

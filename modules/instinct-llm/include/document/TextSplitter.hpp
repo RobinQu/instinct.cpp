@@ -47,9 +47,9 @@ namespace INSTINCT_LLM_NS {
                 }
             } else { // it's empty seperator, so we have to split into a sequence of chars.
                 UErrorCode status = U_ZERO_ERROR;
-                auto locale = Locale::getDefault();
-                LOG_DEBUG("Build BreakIterator with locale: {}", locale.getLanguage());
-                auto itr = BreakIterator::createCharacterInstance(locale, status);
+                const auto locale = Locale::getDefault();
+                // LOG_DEBUG("Build BreakIterator with locale: {}", locale.getLanguage());
+                const auto itr = BreakIterator::createCharacterInstance(locale, status);
                 if(U_FAILURE(status)) {
                     throw InstinctException("Failed to createCharacterInstance: " + std::string(u_errorName(status)));
                 }

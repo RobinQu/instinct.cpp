@@ -9,6 +9,7 @@
 #include "store/duckdb/DuckDBVectorStore.hpp"
 #include "document/RecursiveCharacterTextSplitter.hpp"
 #include "ingestor/DirectoryTreeIngestor.hpp"
+#include "ingestor/ParquetFileIngestor.hpp"
 
 
 namespace INSTINCT_RETRIEVAL_NS {
@@ -87,6 +88,36 @@ namespace INSTINCT_RETRIEVAL_NS {
             std::cout << doc.DebugString() << std::endl;
         }
         ASSERT_FALSE(result_vec.empty());
+    }
+
+    /**
+     * This should be inside `instinct-core`. But some classes are absent there.
+     */
+    TEST_F(ChunkedMultiVectorRetrieverTest, SplitterConsistentcyTest) {
+        std::ifstream splits_json_file(asset_dir_ / "huggingface_doc_splits.json");
+
+        auto tokenizer = TiktokenTokenizer::MakeGPT4Tokenizer("/Users/robinqu/Downloads/cl100k_base.tiktoken");
+
+        for (const auto splits_collection = nlohmann::json::parse(splits_json_file); const auto& dataset: splits_collection) {
+            const auto chunk_size = dataset.at("chunk_size").get<int>();
+            const auto chunk_overlap = dataset.at("chunk_overlap").get<int>();
+            const auto limit = dataset.at("limit").get<int>();
+            LOG_INFO("Settings: chunk_size={}, chunk_overlap={}, limit={}", chunk_size, chunk_overlap, limit);
+            auto spliter = CreateRecursiveCharacterTextSplitter(tokenizer,  {
+                .chunk_size = chunk_size,
+                .chunk_overlap=chunk_overlap,
+                .separators = {"\n\n", "\n", ".", " ", ""}
+            });
+            const auto ingestor = CreateParquetIngestor(asset_dir_ / "hunggface_doc_train.parquet", "0:text,1:metadata:file_source:varchar", {.limit = static_cast<size_t>(limit)});
+            const auto doc_itr = spliter->SplitDocuments(ingestor->Load());
+            const auto chunked_docs = CollectVector(doc_itr);
+
+            for(int i=0;i<chunked_docs.size();++i) {
+                const auto expected_text = dataset.at("texts")[i].get<std::string>();
+                ASSERT_EQ(chunked_docs[i].text(), expected_text);
+            }
+        }
+
     }
 
 }

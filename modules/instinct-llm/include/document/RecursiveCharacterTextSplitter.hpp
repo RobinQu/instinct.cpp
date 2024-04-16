@@ -27,6 +27,7 @@ namespace INSTINCT_LLM_NS {
 
     struct RecursiveCharacterTextSplitterOptions {
         int chunk_size=4000;
+        int chunk_overlap=0;
         bool keep_separator=true;
         bool strip_whitespace=true;
         std::vector<UnicodeString> separators = DEFAULT_SEPARATOR_FOR_TEXT_SPLITTER;
@@ -68,7 +69,8 @@ namespace INSTINCT_LLM_NS {
                 auto sep = *itr;
                 // break if it's empty string
                 if(sep == "") {
-                    separator = details::escape_for_regular_expression(sep);
+                    // separator = details::escape_for_regular_expression(sep);
+                    separator = "";
                     separators.clear();
                     break;
                 }
@@ -76,14 +78,15 @@ namespace INSTINCT_LLM_NS {
                 if(text.indexOf(sep) > 0) {
                     separator = details::escape_for_regular_expression(sep);
                     // separators = std::vector(itr+1, separators.end());
-                    separators.erase(separators.begin(), itr + 1);
+                    // separators.erase(separators.begin(), itr + 1);
+                    separators.erase(itr);
                     break;
                 }
             }
 
             const auto splits = details::split_text_with_seperator(text, separator, keep_sepeartor_);
             std::vector<UnicodeString> good_splits;
-            const auto merging_separator = keep_sepeartor_ ? "" : separator;
+            const auto merging_separator = keep_sepeartor_ ?  separator: "";
             for(auto& s: splits) {
                 if(lenght_calculator_->GetLength(s) < chunk_size_) {
                     good_splits.push_back(s);
