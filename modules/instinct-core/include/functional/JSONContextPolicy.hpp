@@ -126,7 +126,8 @@ namespace INSTINCT_CORE_NS {
     }
 
     static JSONContextPtr CloneJSONContext(const JSONContextPtr& ctx) {
-        return CreateJSONContext(ctx->GetValue());
+        JSONContextPolicy policy {ctx->GetValue()};
+        return  std::make_shared<IContext<JSONContextPolicy>>(policy);
     }
 
     static JSONContextPtr CreateJSONContextWithString(const std::string& json_string = "{}") {

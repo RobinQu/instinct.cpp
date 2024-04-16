@@ -29,6 +29,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         LOG_INFO("insert one");
         Document doc1;
         doc1.set_text("doc1");
+        DocumentUtils::AddMissingPresetMetadataFields(doc1);
         doc_store->AddDocument(doc1);
         ASSERT_TRUE(!doc1.id().empty());
 
@@ -38,6 +39,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         for(int i=0;i<n;i++)  {
             Document doc;
             doc.set_text("doc of no " + std::to_string(i));
+            DocumentUtils::AddMissingPresetMetadataFields(doc1);
             docs.push_back(doc);
         }
         UpdateResult updateResult;

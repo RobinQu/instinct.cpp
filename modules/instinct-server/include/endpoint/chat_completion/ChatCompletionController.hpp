@@ -58,6 +58,7 @@ namespace INSTINCT_SERVER_NS {
                 try {
                     std::rethrow_exception(ep);
                 } catch (const std::exception& ex) {
+                    LOG_ERROR("Failed request in ChatCompletionController. ex.what={}", ex.what());
                     error_response["message"] = ex.what();
                 } catch (...) {
                     error_response["message"] = "unkown exception occured.";

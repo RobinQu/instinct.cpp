@@ -16,13 +16,6 @@ namespace  INSTINCT_LLM_NS {
     using namespace U_ICU_NAMESPACE;
     using namespace INSTINCT_CORE_NS;
 
-    using LengthFunction = std::function<size_t(const UnicodeString&)>;
-
-    static LengthFunction IdentityLengthFunction = [](const UnicodeString& s) {
-        return s.length();
-    };
-
-
     class ILenghtCalculator {
     public:
         ILenghtCalculator()=default;
@@ -34,13 +27,19 @@ namespace  INSTINCT_LLM_NS {
 
     using LenghtCalculatorPtr = std::shared_ptr<ILenghtCalculator>;
 
+    /**
+     * Calcluate length by counting its Unicode code points
+     */
     class StringLengthCalculator final: public ILenghtCalculator {
     public:
         size_t GetLength(const UnicodeString &s) override {
-            return s.length();
+            return s.countChar32();
         }
     };
 
+    /**
+     * Calculate length using a tokenizer
+     */
     class TokenizerBasedLengthCalculator final: public ILenghtCalculator {
         TokenizerPtr tokenizer_;
 
@@ -50,7 +49,7 @@ namespace  INSTINCT_LLM_NS {
         }
 
         size_t GetLength(const UnicodeString &s) override {
-            return tokenizer_->Encode(s).size();
+            return tokenizer_->Encode(s, {.allow_special = kAll}).size();
         }
     };
 

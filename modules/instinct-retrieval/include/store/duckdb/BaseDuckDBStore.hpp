@@ -231,14 +231,15 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         static void append_row_basic_fields(
             Appender& appender,
-            Document& doc,
+            const Document& doc,
             UpdateResult& update_result
         ) {
             // column of id
-            std::string new_id = u8_utils::uuid_v8();
+            const std::string new_id = u8_utils::uuid_v8();
             update_result.add_returned_ids(new_id);
             appender.Append<>(new_id.c_str());
-            doc.set_id(new_id);
+            // doc.set_id(new_id);
+            update_result.add_returned_ids(new_id);
 
             // column of text
             // TODO escape text chars in case of sql injection
@@ -282,8 +283,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         static void append_row_metadata_fields(
             const std::shared_ptr<MetadataSchema>& metadata_schema,
             Appender& appender,
-            Document& doc,
-            bool bypass_unknown_fields
+            const Document& doc,
+            const bool bypass_unknown_fields
         ) {
             if (!metadata_schema || metadata_schema == EMPTY_METADATA_SCHEMA || metadata_schema->fields_size() == 0) {
                 return;
@@ -436,9 +437,9 @@ namespace INSTINCT_RETRIEVAL_NS {
             AddDocuments(docs, update_result);
         }
 
-        virtual void AppendRows(Appender& appender, std::vector<Document>& records, UpdateResult& update_result) = 0;
+        virtual void AppendRows(Appender& appender, const std::vector<Document>& records, UpdateResult& update_result) = 0;
 
-        void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
+        void AddDocuments(const std::vector<Document>& records, UpdateResult& update_result) override {
             auto connection = GetConnection();
             connection.BeginTransaction();
             try {
@@ -465,6 +466,9 @@ namespace INSTINCT_RETRIEVAL_NS {
                 UpdateResult update_result;
                 Appender appender(connection, options_.table_name);
                 AppendRow(appender, doc, update_result);
+                if (update_result.returned_ids_size() > 0) {
+                    doc.set_id(update_result.returned_ids(0));
+                }
                 appender.Close();
                 connection.Commit();
             } catch (const duckdb::Exception& e) {

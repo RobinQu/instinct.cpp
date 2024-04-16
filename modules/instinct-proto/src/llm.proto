@@ -241,7 +241,7 @@ message OpenAIChatCompletionRequest {
   /**
   The maximum number of tokens that can be generated in the chat completion.
    */
-  int32 max_token = 6;
+  int32 max_tokens = 6;
 
   /**
   How many chat completion choices to generate for each input message. Note that you will be charged based on the number of generated tokens across all of the choices. Keep n as 1 to minimize costs.

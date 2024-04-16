@@ -29,6 +29,7 @@ namespace INSTINCT_LLM_NS {
         std::vector<Embedding> EmbedDocuments(const std::vector<std::string>& texts) override {
             using namespace std::chrono_literals;
             std::vector<Embedding> result;
+            LOG_DEBUG("EmbedDocuments: input.size()={}", texts.size());
 
             if (configuration_.max_paralle > 0) {
                 const auto batch = client_.CreatePostBatch<OllamaEmbeddingRequest, OllamaEmbeddingResponse>();

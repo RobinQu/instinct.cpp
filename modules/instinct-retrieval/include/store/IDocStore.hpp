@@ -26,7 +26,7 @@ namespace INSTINCT_RETRIEVAL_NS {
          * @param records Input records. ID will be updated after inserted.
          * @param update_result Update result containing failed documents and inserted IDs.
          */
-        virtual void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) = 0;
+        virtual void AddDocuments(const std::vector<Document>& records, UpdateResult& update_result) = 0;
 
         /**
          * Add single document. Exception will be thrown directly.

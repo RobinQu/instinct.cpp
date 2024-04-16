@@ -63,6 +63,20 @@ namespace INSTINCT_LLM_NS {
 
     using BPETokenRanks = tsl::ordered_map<Bytes, int32_t>;
 
+    enum AllowSpecialType {
+        kUnspecified,
+        kAll,
+        kNone,
+        kSome,
+        kNoneRaise
+    };
+
+    struct TokenizerEncodeOptions {
+        AllowSpecialType allow_special = kNoneRaise;
+        std::vector<UnicodeString> specials = {};
+    };
+
+
     class Tokenizer {
     public:
         // PretrainedTokenizer()=delete;
@@ -70,6 +84,7 @@ namespace INSTINCT_LLM_NS {
         virtual ~Tokenizer()=default;
         Tokenizer(Tokenizer&&)=delete;
         Tokenizer(const Tokenizer&)=delete;
+        virtual std::vector<int32_t> Encode(const UnicodeString& text, const TokenizerEncodeOptions& options) = 0;
         virtual std::vector<int32_t> Encode(const UnicodeString& text) = 0;
         virtual UnicodeString Decode(const std::vector<int32_t>& ids) = 0;
         virtual void Train(const UnicodeString& text, int vocab_size) = 0;

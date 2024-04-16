@@ -138,6 +138,7 @@ namespace INSTINCT_CORE_NS {
             }, param_string};
             const auto [headers, body, status_code] = http_client_->Execute(request);
             if(status_code >= 400) {
+                LOG_DEBUG("Non-200 response: {}", body);
                 throw HttpClientException(status_code, body);
             }
             return converter_.Deserialize<ResponseEntity>(body);

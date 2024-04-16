@@ -14,12 +14,16 @@
 #include "IHttpClient.hpp"
 #include "HttpUtils.hpp"
 #include "HttpClientException.hpp"
+#include "tools/SystemUtils.hpp"
 
 namespace INSTINCT_CORE_NS {
 
     namespace details {
 
-        static BS::thread_pool shared_http_client_thread_pool(5);
+        static BS::thread_pool shared_http_client_thread_pool(
+        SystemUtils::GetUnsignedIntEnv("SHARED_HTTP_CLIENT_THREADPOOL_COUNT",
+            std::thread::hardware_concurrency())
+        );
 
         static void initialize_curl() {
             static bool CURL_INITIALIZED = false;
@@ -28,7 +32,6 @@ namespace INSTINCT_CORE_NS {
                 CURL_INITIALIZED = true;
             }
         }
-
 
         static size_t curl_write_callback(char *ptr, size_t size, size_t nmemb,
                                           HttpResponse *http_response) {
@@ -195,16 +198,21 @@ namespace INSTINCT_CORE_NS {
         Futures<HttpResponse> ExecuteBatch(
             const std::vector<HttpRequest>& calls,
             ThreadPool& pool) override {
-            Futures<HttpResponse> result;
+            const u_int64_t n = calls.size();
+            return pool.submit_sequence(0ull, n, [&,total=calls.size()](auto i) {
+                LOG_DEBUG("Executing {} of {} requets", i+1, total);
+                return this->Execute(calls[i]);
+            });
 
-            for (int i=0; i<calls.size(); ++i) {
-                result.push_back(pool.submit_task([&, i, total=calls.size()]() {
-                    LOG_DEBUG("Executing {} of {} requets", i+1, total);
-                    return this->Execute(calls[i]);
-                }));
-            }
+            // Futures<HttpResponse> result;
+            // for (int i=0; i<calls.size(); ++i) {
+            //     result.push_back(pool.submit_task([&, i, total=calls.size()]() {
+            //         LOG_DEBUG("Executing {} of {} requets", i+1, total);
+            //         return this->Execute(calls[i]);
+            //     }));
+            // }
 
-            return result;
+            // return result;
         }
     };
 

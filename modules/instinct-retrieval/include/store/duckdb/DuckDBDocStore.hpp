@@ -24,7 +24,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         static void append_row(
                 const std::shared_ptr<MetadataSchema>& metadata_schema,
                 Appender& appender,
-                Document& doc,
+                const Document& doc,
                 UpdateResult& update_result,
                 const bool bypass_unknown_fields
         ) {
@@ -61,7 +61,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
 
-        void AppendRows(Appender &appender, std::vector<Document> &records, UpdateResult &update_result) override {
+        void AppendRows(Appender &appender, const std::vector<Document> &records, UpdateResult &update_result) override {
             int affected_row = 0;
             for (auto & record : records) {
                 try {

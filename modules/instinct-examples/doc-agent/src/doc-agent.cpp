@@ -137,7 +137,11 @@ namespace insintct::exmaples::doc_agent {
 
         if(retriever_options.chunked_multi_vector_retriever) {
             LOG_INFO("CreateChunkedMultiVectorRetriever");
-            const auto child_spliter = CreateRecursiveCharacterTextSplitter({.chunk_size = retriever_options.child_chunk_size});
+
+            // default to use tiktoken tokenizer
+            auto tokenizer = TiktokenTokenizer::MakeGPT4Tokenizer("/Users/robinqu/Downloads/cl100k_base.tiktoken");
+
+            const auto child_spliter = CreateRecursiveCharacterTextSplitter(tokenizer, {.chunk_size = retriever_options.child_chunk_size});
             if (retriever_options.parent_chunk_size > 0) {
                 assert_true(retriever_options.parent_chunk_size > retriever_options.child_chunk_size, "parent_chunk_size should be larger than child_chunk_size");
                 const auto parent_splitter = CreateRecursiveCharacterTextSplitter({.chunk_size = retriever_options.parent_chunk_size});
@@ -306,7 +310,7 @@ Question: {standalone_question}
         });
 
         const auto context_fn = xn::steps::mapping({
-            {"context", xn::steps::selection("question") | retriever->AsContextRetrieverFunction()},
+            {"context", xn::steps::selection("question") | retriever->AsContextRetrieverFunction({.top_k = 7})},
             {"standalone_question", xn::steps::selection("standalone_question")}
         });
 
