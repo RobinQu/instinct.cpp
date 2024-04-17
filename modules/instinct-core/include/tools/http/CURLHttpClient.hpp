@@ -8,6 +8,7 @@
 #include <future>
 #include <curl/curl.h>
 #include <BS_thread_pool.hpp>
+#include <csignal>
 
 
 #include "CoreGlobals.hpp"

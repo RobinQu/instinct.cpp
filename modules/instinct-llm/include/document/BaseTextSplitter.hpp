@@ -110,11 +110,12 @@ namespace  INSTINCT_LLM_NS {
             size_t total = 0;
             for (const auto& s: splits) {
                 const auto d_len = lenght_calculator_->GetLength(s);
-                // LOG_INFO("total={}, chunk_size={}, total + d_len + (current_doc.empty() ? 0 : s_len) = {}", total, chunk_size_, total + d_len + (current_doc.empty() ? 0 : s_len));
-                // details::print_splits("current_doc:", current_doc);
                 // if chunk_size is reached, merge partials in `current_doc` a new string and append to `docs`.
                 if (total + d_len + (current_doc.empty() ? 0 : s_len) > chunk_size_) {
                     if (!current_doc.empty()) {
+                        // std::cout << fmt::format("total={}, chunk_size={}, total + d_len + (current_doc.empty() ? 0 : s_len) = {}", total, chunk_size_, total + d_len + (current_doc.empty() ? 0 : s_len)) << std::endl;
+                        // details::print_splits("current_doc: ", current_doc);
+
                         if (const auto doc = JoinDocs_(current_doc, seperator); doc.length()) {
                             docs.push_back(doc);
                         }

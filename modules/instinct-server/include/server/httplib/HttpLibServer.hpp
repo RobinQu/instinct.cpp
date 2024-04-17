@@ -24,11 +24,38 @@ namespace INSTINCT_SERVER_NS {
         int port = 0;
     };
 
+    static void GracefullyShutdownRunningHttpServers();
+
+    /**
+     * un-managed pointers to `HttpLibServer`
+     */
+    static std::set<HttpLibServer*> RUNNING_HTTP_SERVERS;
+
+
+
     class HttpLibServer final: public IManagedServer<HttpLibServer> {
         ServerOptions options_;
         Server server_;
         HttpLibServerLifeCycleManager life_cycle_manager_;
+
+
     public:
+        static void RegisterSignalHandlers() {
+            static bool DONE = false;
+            if (!DONE) { // register only once
+                LOG_INFO("Regsiter signal handlers");
+                DONE = true;
+                std::signal(SIGINT, [](int signal) {
+                    GracefullyShutdownRunningHttpServers();
+                    std::exit(0);
+                });
+                std::signal(SIGTERM, [](int signal) {
+                    GracefullyShutdownRunningHttpServers();
+                    std::exit(0);
+                });
+            }
+        }
+
         explicit HttpLibServer(ServerOptions options = {})
             : options_(std::move(options)) {
             InitServer();
@@ -54,6 +81,7 @@ namespace INSTINCT_SERVER_NS {
             } else {
                 port = server_.bind_to_any_port(options_.host);
             }
+            RUNNING_HTTP_SERVERS.insert(this);
             life_cycle_manager_.OnServerStart(*this, port);
             LOG_INFO("Server is up and running at port {}", port);
             return port;
@@ -62,6 +90,7 @@ namespace INSTINCT_SERVER_NS {
         void Shutdown() override {
             LOG_INFO("Server is shutting down");
             life_cycle_manager_.BeforeServerClose(*this);
+            RUNNING_HTTP_SERVERS.erase(this);
             server_.stop();
             life_cycle_manager_.AfterServerClose(*this);
         }
@@ -76,6 +105,12 @@ namespace INSTINCT_SERVER_NS {
             controller->Mount(*this);
         }
     };
+
+    static void GracefullyShutdownRunningHttpServers() {
+        for (auto& server: RUNNING_HTTP_SERVERS) {
+            server->Shutdown();
+        }
+    }
 }
 
 

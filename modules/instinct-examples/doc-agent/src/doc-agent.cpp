@@ -257,6 +257,8 @@ namespace insintct::exmaples::doc_agent {
     }
 
     static void ServeCommand(const ServeCommandOptions& options) {
+        HttpLibServer::RegisterSignalHandlers();
+
         EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.embedding_provider);
         assert_true(embedding_model, "should have assigned correct embedding model");
 

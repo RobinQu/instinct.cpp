@@ -6,13 +6,21 @@
 #define DOINGNOTHINGSERVERLIFECYCLE_HPP
 
 #include <vector>
+
+#include "HttpLibServer.hpp"
 #include "../IServerLifecycleHandler.hpp"
+
 
 
 namespace INSTINCT_SERVER_NS {
     class HttpLibServerLifeCycleManager final: public IServerLifeCycle<HttpLibServer> {
+        /**
+         * SLC instances
+         */
         std::vector<HttpLibServerLifeCyclePtr> server_life_cycles_;
+
     public:
+
         void AddServerLifeCylce(const HttpLibServerLifeCyclePtr& server_life_cycle) {
             server_life_cycles_.push_back(server_life_cycle);
         }
@@ -24,6 +32,7 @@ namespace INSTINCT_SERVER_NS {
         }
 
         void OnServerStart(HttpLibServer &server, const int port) override {
+            // RUNNING_HTTP_SERVERS.insert(dynamic_cast<IManagedServer<HttpLibServer>>(&server));
             for(const auto& server_life_cycle: server_life_cycles_) {
                 server_life_cycle->OnServerStart(server, port);
             }

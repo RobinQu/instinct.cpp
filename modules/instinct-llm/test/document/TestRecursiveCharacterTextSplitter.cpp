@@ -49,7 +49,8 @@ namespace INSTINCT_LLM_NS {
         ASSERT_EQ(joined_text, original_string);
     }
 
-    // Bug: https://www.diffchecker.com/0uNKwUwb/
+    // Bug1: https://www.diffchecker.com/0uNKwUwb/
+    // Bug2: https://www.diffchecker.com/mYtFUI5C/
     TEST_F(RecursiveCharacterTextSplitterTest, split_text_with_seperator_bug_1) {
 
     }
