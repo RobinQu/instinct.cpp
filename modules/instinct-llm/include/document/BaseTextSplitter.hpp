@@ -97,34 +97,48 @@ namespace  INSTINCT_LLM_NS {
         }
 
     protected:
+        /**
+         * Merge partial splits into new strings which have size less than `chunk_size`.
+         * @param splits
+         * @param seperator
+         * @param docs
+         */
         void MergeSplits_(const std::vector<UnicodeString>& splits, const UnicodeString& seperator,
                           std::vector<UnicodeString>& docs) const {
             const auto s_len = lenght_calculator_->GetLength(seperator);
-            // std::vector<UnicodeString> docs;
             std::vector<UnicodeString> current_doc;
             size_t total = 0;
             for (const auto& s: splits) {
                 const auto d_len = lenght_calculator_->GetLength(s);
+                // LOG_INFO("total={}, chunk_size={}, total + d_len + (current_doc.empty() ? 0 : s_len) = {}", total, chunk_size_, total + d_len + (current_doc.empty() ? 0 : s_len));
+                // details::print_splits("current_doc:", current_doc);
+                // if chunk_size is reached, merge partials in `current_doc` a new string and append to `docs`.
                 if (total + d_len + (current_doc.empty() ? 0 : s_len) > chunk_size_) {
                     if (!current_doc.empty()) {
                         if (const auto doc = JoinDocs_(current_doc, seperator); doc.length()) {
                             docs.push_back(doc);
                         }
-                        if (chunk_overlap_ != 0) {
-                            // handle overlapping
-                            while (total > chunk_overlap_ && !current_doc.empty()) {
-                                // strip first item until remianing chunks are enough for overlapping
-                                total -= lenght_calculator_->GetLength(current_doc.front()) + (current_doc.empty() ? 0 : s_len);
-                                current_doc.erase(current_doc.begin());
-                            }
-                        } else {
-                            total = 0;
-                            current_doc.clear();
+
+                        while (total > chunk_overlap_ || ((total + d_len + (current_doc.empty() ? s_len : 0) > chunk_size_) && total > 0)) {
+                            total -= lenght_calculator_->GetLength(current_doc.front()) + (current_doc.size() >1 ? s_len : 0);
+                            current_doc.erase(current_doc.begin());
                         }
+
+                        // if (chunk_overlap_ != 0) {
+                        //     // handle overlapping
+                        //     while (total > chunk_overlap_ && !current_doc.empty()) {
+                        //         // strip first item until remianing chunks are enough for overlapping
+                        //         total -= lenght_calculator_->GetLength(current_doc.front()) + (current_doc.empty() ? 0 : s_len);
+                        //         current_doc.erase(current_doc.begin());
+                        //     }
+                        // } else {
+                        //     total = 0;
+                        //     current_doc.clear();
+                        // }
                     }
                 }
-                total += d_len + (current_doc.empty() ? 0 : s_len);
                 current_doc.push_back(s);
+                total += d_len + (current_doc.size() > 1 ? s_len: 0);
             }
             if (const auto rest = JoinDocs_(current_doc, seperator); rest.length()) {
                 docs.push_back(rest);
@@ -136,7 +150,7 @@ namespace  INSTINCT_LLM_NS {
             UnicodeString text;
             for (int i = 0; i < docs.size(); i++) {
                 text += docs[i];
-                if (i + 1 < docs.size()) {
+                if (i != docs.size()-1) {
                     text += seperator;
                 }
             }

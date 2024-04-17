@@ -221,43 +221,7 @@ namespace INSTINCT_LLM_NS {
             return regex_matcher.replaceAll(R"(\\$0)", status);
         }
 
-        /**
-         * split with regex pattern string
-         * @tparam max_split_size
-         * @param text
-         * @param seperator
-         * @param result
-         */
-        template<int max_split_size=3>
-        static void split_text_with_regex(const UnicodeString& text, const UnicodeString& seperator, std::vector<UnicodeString>& result) {
-            UErrorCode status = U_ZERO_ERROR;
-            RegexMatcher matcher(seperator, 0, status);
-            if(U_FAILURE(status)) {
-                std::string sep_utf8;
-                throw InstinctException("Failed to compile regex with seperator string: " + seperator.toUTF8String(sep_utf8));
-            }
-            UnicodeString parts[max_split_size];
-            // we do exhaustive splitting using do-while loop
-            int32_t splits_size = 0;
-            auto text_to_be_split = text;
-            // std::cout << "input=" << text_to_be_split << std::endl;
-            do {
-                // TODO: fix needed! sometimes last chunk of remaining split is ill-formed resulting incomplete text return.
-                splits_size = matcher.split(text_to_be_split, parts, max_split_size, status);
-                // for(int i=0;i<splits_size;i++) {
-                //     std::cout << "len=" << parts[i].length() << ": "<<  parts[i] << std::endl;
-                // }
-                if(U_FAILURE(status)) {
-                    throw InstinctException("Failed to split text with seperator regex");
-                }
-                if (splits_size>0) {
-                    result.insert(result.end(), parts, parts+splits_size-1);
-                    text_to_be_split = parts[splits_size-1];
-                }
-            } while(max_split_size == splits_size);
 
-            result.push_back(parts[splits_size-1]);
-        }
 
         static std::vector<std::string> _bpe(const BPETokenRanks& bpe_token_ranks, const Bytes& token, int32_t max_rank) {
             // auto part_view = token | std::views::transform([](char c) {

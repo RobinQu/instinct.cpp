@@ -235,7 +235,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             UpdateResult& update_result
         ) {
             // column of id
-            const std::string new_id = u8_utils::uuid_v8();
+            const std::string new_id = StringUtils::GenerateUUIDString();
             update_result.add_returned_ids(new_id);
             appender.Append<>(new_id.c_str());
             // doc.set_id(new_id);

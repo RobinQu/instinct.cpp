@@ -184,7 +184,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             LOG_DEBUG("Genearted summary: {}", generation);
             Document summary_doc;
             summary_doc.set_text(generation);
-            summary_doc.set_id(u8_utils::uuid_v8());
+            summary_doc.set_id(StringUtils::GenerateUUIDString());
             DocumentUtils::AddPresetMetadataFileds(
                 summary_doc,
                 doc.id()
@@ -218,7 +218,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             LOG_DEBUG("Genearted queries: {}", result.ShortDebugString());
             for(const auto& query: result.lines()) {
                 Document query_doc;
-                query_doc.set_id(u8_utils::uuid_v8());
+                query_doc.set_id(StringUtils::GenerateUUIDString());
                 query_doc.set_text(query);
                 DocumentUtils::AddPresetMetadataFileds(query_doc, doc.id());
                 final_queries.push_back(query_doc);

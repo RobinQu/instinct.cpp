@@ -45,7 +45,7 @@ namespace INSTINCT_LLM_NS {
 
         explicit RecursiveCharacterTextSplitter(LenghtCalculatorPtr lenght_calculator, const RecursiveCharacterTextSplitterOptions& options = {}): BaseTextSplitter(
             options.chunk_size,
-            0,
+            options.chunk_overlap,
             options.keep_separator,
             options.strip_whitespace,
             std::move(lenght_calculator)),
@@ -69,7 +69,6 @@ namespace INSTINCT_LLM_NS {
                 auto sep = *itr;
                 // break if it's empty string
                 if(sep == "") {
-                    // separator = details::escape_for_regular_expression(sep);
                     separator = "";
                     separators.clear();
                     break;
@@ -77,8 +76,6 @@ namespace INSTINCT_LLM_NS {
                 // break if text can be split by sep
                 if(text.indexOf(sep) > 0) {
                     separator = details::escape_for_regular_expression(sep);
-                    // separators = std::vector(itr+1, separators.end());
-                    // separators.erase(separators.begin(), itr + 1);
                     separators.erase(itr);
                     break;
                 }
@@ -86,11 +83,14 @@ namespace INSTINCT_LLM_NS {
 
             const auto splits = details::split_text_with_seperator(text, separator, keep_sepeartor_);
             std::vector<UnicodeString> good_splits;
-            const auto merging_separator = keep_sepeartor_ ?  separator: "";
+
+            // Tricky part: if `keep_sepeartor` is true, then the splits vector (`good_splits`) already contain sepeartors, so we cannot join splits with seperator again, other there will be duplicated seperators between splits.
+            const auto merging_separator = keep_sepeartor_ ?  "": separator;
             for(auto& s: splits) {
                 if(lenght_calculator_->GetLength(s) < chunk_size_) {
                     good_splits.push_back(s);
                 } else {
+                    // merge partials if possible
                     if(!good_splits.empty()) {
                         MergeSplits_(good_splits, merging_separator, final_chunks);
                         good_splits.clear();
@@ -99,7 +99,6 @@ namespace INSTINCT_LLM_NS {
                         final_chunks.push_back(s);
                     } else {
                         SplitText_(s, separators, final_chunks);
-                        // final_chunks.insert(final_chunks.end(), other.begin(), other.end());
                     }
                 }
             }

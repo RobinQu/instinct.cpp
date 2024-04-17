@@ -99,7 +99,7 @@ namespace INSTINCT_LLM_NS {
                 }
                 auto l = lines[i];
                 std::vector<UnicodeString> splits;
-                details::split_text_with_regex(l, UnicodeString::fromUTF8("\\s"), splits);
+                U32StringUtils::SpilitWithRegex(l, UnicodeString::fromUTF8("\\s"), splits);
                 if (splits.size() != 2) {
                     //TODO should warn about invalid line
                     continue;

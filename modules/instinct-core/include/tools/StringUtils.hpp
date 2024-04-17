@@ -16,8 +16,11 @@
 
 
 namespace INSTINCT_CORE_NS {
-    namespace u32_utils {
-        static U32String copies_of(int n, const U32String& text) {
+    using namespace U_ICU_NAMESPACE;
+
+    class U32StringUtils {
+    public:
+        static U32String CopiesOf(int n, const UnicodeString& text) {
             U32String result;
             while (n-- > 0) {
                 result += text;
@@ -25,34 +28,52 @@ namespace INSTINCT_CORE_NS {
             return result;
         }
 
-        static void print_splits(const std::string& announce, const std::vector<U32String>& splits,
-                                 std::ostream& stream = std::cout, const bool flush = true) {
-            stream << announce;
-            for (const auto& f: splits) {
-                stream << f << " | ";
-            }
-            if (flush) {
-                stream << std::endl;
-            }
-        }
-    }
 
-    namespace u8_utils {
+
+        /**
+         * split with regex pattern string
+         * @tparam max_split_size
+         * @param text
+         * @param seperator
+         * @param result
+         */
+        template<int max_split_size=3>
+        static void SpilitWithRegex(const UnicodeString& text, const UnicodeString& seperator, std::vector<UnicodeString>& result) {
+            UErrorCode status = U_ZERO_ERROR;
+            RegexMatcher matcher(seperator, 0, status);
+            if(U_FAILURE(status)) {
+                std::string sep_utf8;
+                throw InstinctException("Failed to compile regex with seperator string: " + seperator.toUTF8String(sep_utf8));
+            }
+            UnicodeString parts[max_split_size];
+            // we do exhaustive splitting using do-while loop
+            int32_t splits_size = 0;
+            auto text_to_be_split = text;
+            // std::cout << "input=" << text_to_be_split << std::endl;
+            do {
+                // TODO: fix needed! sometimes last chunk of remaining split is ill-formed resulting incomplete text return.
+                splits_size = matcher.split(text_to_be_split, parts, max_split_size, status);
+                if(U_FAILURE(status)) {
+                    throw InstinctException("Failed to split text with seperator regex");
+                }
+                if (splits_size>0) {
+                    result.insert(result.end(), parts, parts+splits_size-1);
+                    text_to_be_split = parts[splits_size-1];
+                }
+            } while(max_split_size == splits_size);
+
+            result.push_back(parts[splits_size-1]);
+        }
+    };
+
+
+    struct StringUtils final {
         /**
         * Generate UUID string, using system library. For windows, linux, and macs, different headers are concerned.
         *
         * https://stackoverflow.com/questions/543306/platform-independent-guid-generation-in-c
         *
         */
-        static std::string uuid_v8() {
-            auto g = xg::newGuid();
-            // TODO this returns uuid string in uppercase, which should be in lowercase
-            return g.str();
-        }
-    }
-
-
-    struct StringUtils final {
         static std::string GenerateUUIDString() {
             auto g = xg::newGuid();
             return g.str();

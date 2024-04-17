@@ -10,6 +10,8 @@
 #include "CoreGlobals.hpp"
 #include "functional/ReactiveFunctions.hpp"
 #include "tokenizer/Tokenizer.hpp"
+#include "tools/StringUtils.hpp"
+
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
@@ -34,16 +36,41 @@ namespace INSTINCT_LLM_NS {
      */
     namespace details {
 
+        static void print_splits(const std::string& announce, const std::vector<UnicodeString>& splits,
+                         std::ostream& stream = std::cout, const bool flush = true) {
+            stream << announce;
+            for (const auto& f: splits) {
+                stream << f << " | ";
+            }
+            if (flush) {
+                stream << std::endl;
+            }
+        }
+
         static std::vector<UnicodeString> split_text_with_seperator(const UnicodeString& text, const UnicodeString& seperator, const bool keep_seperator) {
             std::vector<UnicodeString> result;
             if(seperator.length()) {
+                std::vector<UnicodeString> splits;
                 if (keep_seperator) {
+                    // https://unicode-org.github.io/icu/userguide/strings/regexp.html
+                    // If the pattern expression contains capturing parentheses, the captured data ($1, $2, etc.) will also be saved in the destination array, interspersed with the fields themselves.
                     UnicodeString grouped_sepeartor = "(";
                     grouped_sepeartor.append(seperator);
                     grouped_sepeartor.append(")");
-                    split_text_with_regex(text, grouped_sepeartor, result);
+                    U32StringUtils::SpilitWithRegex(text, grouped_sepeartor, splits);
                 }  else {
-                    split_text_with_regex(text, seperator, result);
+                    U32StringUtils::SpilitWithRegex(text, seperator, splits);
+                }
+
+                // do pair-wise merge
+                result.push_back(splits[0]);
+                if (const size_t n = splits.size(); n>1) {
+                    for(int i=1;i<n;i+=2) {
+                        result.push_back(splits[i] + splits[i+1]);
+                    }
+                    if (splits.size()%2==0) {
+                        result.push_back(splits.back());
+                    }
                 }
             } else { // it's empty seperator, so we have to split into a sequence of chars.
                 UErrorCode status = U_ZERO_ERROR;
@@ -57,6 +84,7 @@ namespace INSTINCT_LLM_NS {
                 // see example at: https://github.com/unicode-org/icu/blob/main/icu4c/source/samples/break/break.cpp
                 // copy each *grapheme* not code point into result
                 int32_t start = itr->first();
+
                 for(int32_t end = itr->next(); end!=BreakIterator::DONE; start=end, end=itr->next()) {
                     result.emplace_back(text, start, end-start);
                 }

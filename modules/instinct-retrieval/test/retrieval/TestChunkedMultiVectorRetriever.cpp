@@ -106,6 +106,8 @@ namespace INSTINCT_RETRIEVAL_NS {
             auto spliter = CreateRecursiveCharacterTextSplitter(tokenizer,  {
                 .chunk_size = chunk_size,
                 .chunk_overlap=chunk_overlap,
+                .strip_whitespace = true,
+                .keep_separator = true,
                 .separators = {"\n\n", "\n", ".", " ", ""}
             });
             const auto ingestor = CreateParquetIngestor(asset_dir_ / "hunggface_doc_train.parquet", "0:text,1:metadata:file_source:varchar", {.limit = static_cast<size_t>(limit)});
@@ -113,6 +115,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto chunked_docs = CollectVector(doc_itr);
 
             for(int i=0;i<chunked_docs.size();++i) {
+                LOG_INFO("Asserting No.{} of total {} docs", i, chunked_docs.size());
                 const auto expected_text = dataset.at("texts")[i].get<std::string>();
                 ASSERT_EQ(chunked_docs[i].text(), expected_text);
             }
