@@ -1,4 +1,4 @@
-# instinct.cpp
+# ✨ instinct.cpp
 
 `instinct.cpp` is a framework for developing AI Agent applications powered by language models.
 
@@ -11,16 +11,21 @@
 
 What `instinct.cpp` offer:
 
-* Integration for privacy-first LLM providers: Built-in support for [Ollama](https://ollama.com/) and other OpenAI compatible API services like [nitro](https://nitro.jan.ai/) and more.
-* Building blocks for common application patterns like RAG, Function-calling agents.
-* Programing paradigms: `Chain` for composable LLM pipelines and `Actor` for Agent execution flows.
-* Embeddable source files: Header only library, which means less binary footprints on projects dependent on it. 
-* Multi-platform compatability.
+* Frameworks to build LLM-based applications 
+  * Integration for privacy-first LLM providers: Built-in support for [Ollama](https://ollama.com/) and other OpenAI compatible API services like [nitro](https://nitro.jan.ai/) and more.
+  * Building blocks for common application patterns like Chatbot, RAG, LLM Agent.
+  * Functional chaining components for composable LLM pipelines.
+  * Agent API service fully compatible with OpenAI's Assistant API, but with infinite scalability and security.
+* Single-binary services that are working out-of-box.
+  * `chat-agent`: A CLI application that create knowledge index with your docs (PDF,TXT,MD,...) and launch an HTTP server that is fully compatible with OpenAI `ChatCompletion`.
+  * `mini-assistant-api` (**WIP in Sprint v0.1.2**):  Agent service that is mostly compatible with OpenAI's Assistant API. 
+
 
 What `instinct.cpp` cannot offer:
 
-* A C++ version of `langchain`. While this project learns a lot from `langchain` including Prompt related classes and functional API designs, `instinct.cpp` will focus on opinionated components while providing extensive interfaces for vendor specific implementations. For example, there are tons of vector database integration available in `langchain`, but `instinct.cpp` will keep [DuckDB](https://duckdb.org/) implementation for embedded scenario and both [Weaviate](https://github.com/weaviate/weaviate) and [milvus](https://milvus.io/) client integration for cloud scenario.
-* Chatbot UI or so: `instinct.cpp` will not be a full-stack solution including UI components. While there is a selected collection of examples for this framework, they will remain in the flavour of `CLI`.
+* A LLM Provider. `instinct.cpp` depends on existing local LLMs like `Ollama`, `nitro`,  `LLMStudio` and API providers like `OpenAI`.
+* A C++ version of `langchain`. While this project learns a lot from `langchain` including Prompt related classes and functional API designs, `instinct.cpp` will focus on opinionated components while providing extensive interfaces for vendor specific implementations. For example, there are tons of vector database integration available in `langchain`, but `instinct.cpp` will keep [DuckDB](https://duckdb.org/) implementation for single-node scenario and both [Weaviate](https://github.com/weaviate/weaviate) and [milvus](https://milvus.io/) client integration for cloud scenario.
+* End-to-end solution with user interfaces.
 
 ## Getting started
 
@@ -78,23 +83,22 @@ You can learn more about this frameworks by following links below:
 
 * [Chaining](docs/chaining.md)
 * [Built-in components](docs/components.md) 
-* Reference apps
-  * [doc-agent](./modules/instinct-examples/doc-agent/README.md) : Chat with your doc locally with privacy.
-  * assistant-agent
-  * db-agent
+* Read more about single-binary services
+  * [doc-agent](./modules/instinct-examples/doc-agent/README.md) : Chat with your docs locally with privacy.
+  * mini-assistant-api.
 
 
 ## Roadmap
 
-Complete project plan is recorded at [Github Project](https://github.com/users/RobinQu/projects/1/views/1?layout=board).
+Complete project plan is tracked at [Github Project](https://github.com/users/RobinQu/projects/1/views/1?layout=board).
 
-| Milestone                                                     | Features                                                                                 | DDL  |
-|---------------------------------------------------------------|------------------------------------------------------------------------------------------|------|
-| v0.1.0                                                        | Long-short memory, PDF/TXT/DOCX ingestor, RAG reference app, `Chain` programing paradigm | 3.29 |
-| [v0.1.1](https://github.com/RobinQu/instinct.cpp/milestone/1) | Performance tuning, RAG evaluation ...                                                   | 4.12 |
-| [v0.1.2](https://github.com/RobinQu/instinct.cpp/milestone/2) | Function calling, `Actor` programing paradigm and reference app; enhancement for RAG.    | 4.30 |
-| v0.1.3                                                        | Multi agent support and reference app                                                    | 5.24 |
-| v0.2.0                                                        | Features will be frozen. More benchmarks and documentations.                             | 5.31 |
+| Milestone                                                     | Features                                                                                               | DDL  |
+|---------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|------|
+| v0.1.0                                                        | Long-short memory, PDF/TXT/DOCX ingestor, `Chain` programing paradigm, RAG reference app `doc-agent`   | 3.29 |
+| [v0.1.1](https://github.com/RobinQu/instinct.cpp/milestone/1) | Performance tuning, RAG evaluation,  Function calling agent                                            | 4.16 |
+| [v0.1.2](https://github.com/RobinQu/instinct.cpp/milestone/2) | OpenAI Assistant API initial implementation, single-binary reference app `mini-assistant`              | 4.30 |
+| v0.1.3                                                        | Benchmarks, packages.                                                                                  | 5.17 |
+| v0.2.0                                                        | Documentations. Features will be frozen.                                                               | 5.31 |
 
 
 Contributions are welcomed! You can join [discord server](https://discord.gg/5cVnVyh3), or contact me via [email](mailto:robinqu@gmail.com).

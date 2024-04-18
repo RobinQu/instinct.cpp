@@ -18,7 +18,7 @@ namespace INSTINCT_LLM_NS {
     using namespace google::protobuf;
 
     template<typename T>
-    requires is_pb_message<T>
+    requires IsProtobufMessage<T>
     class ProtobufMessageOutputParser final : public BaseOutputParser<T> {
     public:
         std::string GetFormatInstruction() override {

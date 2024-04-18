@@ -12,6 +12,7 @@
 #include <unicode/uversion.h>
 #include <google/protobuf/message.h>
 #include <fmtlog/fmtlog.h>
+#include <BS_thread_pool.hpp>
 
 
 #define INSTINCT_CORE_NS instinct::core
@@ -51,7 +52,7 @@ namespace INSTINCT_CORE_NS {
     using U32String = U_ICU_NAMESPACE::UnicodeString;
 
     template <typename T>
-    concept is_pb_message = std::derived_from<T, google::protobuf::Message>;
+    concept IsProtobufMessage = std::derived_from<T, google::protobuf::Message>;
 
 
     class InstinctException: public std::runtime_error {
@@ -84,7 +85,58 @@ namespace INSTINCT_CORE_NS {
 
     using MetadataSchemaPtr = std::shared_ptr<MetadataSchema>;
 
+    template<typename  T>
+    using Futures = BS::multi_future<T>;
+
+    using ThreadPool = BS::thread_pool;
+
+    /**
+     * Heper function to support continuation for future, which is not available even in C++ 20.
+     * https://stackoverflow.com/questions/14489935/implementing-futurethen-equivalent-for-asynchronous-execution-in-c11
+     * @tparam T
+     * @tparam Work
+     * @param f
+     * @param w
+     * @return
+     */
+    template <typename Fut, typename Work>
+    auto then(Fut& f, Work w) -> std::shared_future<decltype(w(f.get()))>
+    {
+        return std::async([=]{ w(f.get()); });
+    }
+
+
 }
 
+/**
+ * format support for PrimitiveType
+ */
+template <> struct fmt::formatter<INSTINCT_CORE_NS::PrimitiveType>: formatter<string_view> {
+    template <typename FormatContext>
+    auto format(INSTINCT_CORE_NS::PrimitiveType c, FormatContext& ctx) {
+        string_view name = "";
+        switch (c) {
+            case INSTINCT_CORE_NS::INT32:   name = "INT32"; break;
+            case INSTINCT_CORE_NS::INT64: name = "INT64"; break;
+            case INSTINCT_CORE_NS::FLOAT: name = "FLOAT"; break;
+            case INSTINCT_CORE_NS::DOUBLE: name = "DOUBLE"; break;
+            case INSTINCT_CORE_NS::BOOL: name = "BOOL"; break;
+            case INSTINCT_CORE_NS::VARCHAR: name = "VARCHAR"; break;
+            default: name = "";
+        }
+        return formatter<string_view>::format(name, ctx);
+    }
+};
+
+
+/**
+ * format support for std::filesystem::path
+ */
+template <> struct fmt::formatter<std::filesystem::path>: formatter<string_view> {
+    template <typename FormatContext>
+    auto format(const std::filesystem::path& c, FormatContext& ctx) {
+        return formatter<string_view>::format(c.string(), ctx);
+    }
+};
 
 #endif //COREGLOBALS_H

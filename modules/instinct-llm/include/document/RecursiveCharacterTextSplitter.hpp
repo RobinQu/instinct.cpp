@@ -8,6 +8,8 @@
 #include <unicode/regex.h>
 #include <unicode/ustring.h>
 
+#include <utility>
+
 #include "BaseTextSplitter.hpp"
 #include "LanguageSplitters.hpp"
 #include "tokenizer/TiktokenTokenizer.hpp"
@@ -24,8 +26,8 @@ namespace INSTINCT_LLM_NS {
     };
 
     struct RecursiveCharacterTextSplitterOptions {
-        LengthFunction length_function = IdentityLengthFunction;
         int chunk_size=4000;
+        int chunk_overlap=0;
         bool keep_separator=true;
         bool strip_whitespace=true;
         std::vector<UnicodeString> separators = DEFAULT_SEPARATOR_FOR_TEXT_SPLITTER;
@@ -35,25 +37,22 @@ namespace INSTINCT_LLM_NS {
     /**
      * \brief Recursively split text using a sequence of given characters as splitter. Copied a lot from Langchain Python.
      */
-    class RecursiveCharacterTextSplitter: public BaseTextSplitter {
+    class RecursiveCharacterTextSplitter final: public BaseTextSplitter {
         std::vector<UnicodeString> separators_;
     public:
-        explicit RecursiveCharacterTextSplitter(const RecursiveCharacterTextSplitterOptions& options = {}): BaseTextSplitter(
+
+        explicit RecursiveCharacterTextSplitter(const RecursiveCharacterTextSplitterOptions& options = {}): RecursiveCharacterTextSplitter(std::make_shared<StringLengthCalculator>(), options) {}
+
+        explicit RecursiveCharacterTextSplitter(LenghtCalculatorPtr lenght_calculator, const RecursiveCharacterTextSplitterOptions& options = {}): BaseTextSplitter(
             options.chunk_size,
-            0,
+            options.chunk_overlap,
             options.keep_separator,
             options.strip_whitespace,
-            options.length_function),
+            std::move(lenght_calculator)),
                                                                                                             separators_(options.separators) {
 
         }
 
-        static RecursiveCharacterTextSplitter* FromTiktokenTokenizer(TiktokenTokenizer* tokenizer, RecursiveCharacterTextSplitterOptions options = {}) {
-            options.length_function = [=](const UnicodeString& str) {
-                return tokenizer->Encode(str).size();
-            };
-            return new RecursiveCharacterTextSplitter(options);
-        }
 
         std::vector<UnicodeString> SplitText(const UnicodeString& text) override {
             auto seps = std::vector(separators_);
@@ -70,26 +69,28 @@ namespace INSTINCT_LLM_NS {
                 auto sep = *itr;
                 // break if it's empty string
                 if(sep == "") {
-                    separator = details::escape_for_regular_expression(sep);
+                    separator = "";
                     separators.clear();
                     break;
                 }
                 // break if text can be split by sep
                 if(text.indexOf(sep) > 0) {
                     separator = details::escape_for_regular_expression(sep);
-                    // separators = std::vector(itr+1, separators.end());
-                    separators.erase(separators.begin(), itr + 1);
+                    separators.erase(itr);
                     break;
                 }
             }
 
             const auto splits = details::split_text_with_seperator(text, separator, keep_sepeartor_);
             std::vector<UnicodeString> good_splits;
-            const auto merging_separator = keep_sepeartor_ ? "" : separator;
+
+            // Tricky part: if `keep_sepeartor` is true, then the splits vector (`good_splits`) already contain sepeartors, so we cannot join splits with seperator again, other there will be duplicated seperators between splits.
+            const auto merging_separator = keep_sepeartor_ ?  "": separator;
             for(auto& s: splits) {
-                if(length_function_(s) < chunk_size_) {
+                if(lenght_calculator_->GetLength(s) < chunk_size_) {
                     good_splits.push_back(s);
                 } else {
+                    // merge partials if possible
                     if(!good_splits.empty()) {
                         MergeSplits_(good_splits, merging_separator, final_chunks);
                         good_splits.clear();
@@ -98,7 +99,6 @@ namespace INSTINCT_LLM_NS {
                         final_chunks.push_back(s);
                     } else {
                         SplitText_(s, separators, final_chunks);
-                        // final_chunks.insert(final_chunks.end(), other.begin(), other.end());
                     }
                 }
             }
@@ -109,8 +109,16 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
+
     static TextSplitterPtr CreateRecursiveCharacterTextSplitter(const RecursiveCharacterTextSplitterOptions& options = {}) {
         return std::make_shared<RecursiveCharacterTextSplitter>(options);
+    }
+
+    static TextSplitterPtr CreateRecursiveCharacterTextSplitter(const TokenizerPtr& tokenizer, const RecursiveCharacterTextSplitterOptions& options = {}) {
+        return std::make_shared<RecursiveCharacterTextSplitter>(
+std::make_shared<TokenizerBasedLengthCalculator>(tokenizer),
+              options
+        );
     }
 }
 

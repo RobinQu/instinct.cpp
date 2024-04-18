@@ -16,7 +16,7 @@ namespace INSTINCT_LLM_NS {
     using namespace google::protobuf;
 
     template<typename T>
-    requires is_pb_message<T>
+    requires IsProtobufMessage<T>
     class StructuredGenerationOutputParser final : public BaseOutputParser<T> {
     public:
         T ParseResult(const Generation& model_result) override { // NOLINT(*-convert-member-functions-to-static)

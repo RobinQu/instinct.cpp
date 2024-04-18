@@ -4,17 +4,19 @@
 
 #ifndef HTTPUTILS_H
 #define HTTPUTILS_H
-#include "tools/StringUtils.hpp"
 
-#include "CoreGlobals.hpp"
 #include <string>
-#include "fmt/ranges.h"
-#include "IHttpClient.hpp"
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <fmt/args.h>
 #include <uriparser/Uri.h>
+#include <curl/curl.h>
+#include <fmt/ranges.h>
 
+
+#include "IHttpClient.hpp"
+#include "tools/StringUtils.hpp"
+#include "CoreGlobals.hpp"
 
 
 namespace INSTINCT_CORE_NS {
@@ -23,7 +25,7 @@ namespace INSTINCT_CORE_NS {
 
     struct HttpUtils {
 
-        static void AsertValidHttpRequest(const HttpRequest& request) {
+        static void AssertHttpRequest(const HttpRequest& request) {
             assert_true(!StringUtils::IsBlankString(request.endpoint.host), "host cannot be blank.");
             assert_true(request.endpoint.port != 0, "port canot be zero");
             assert_true(request.endpoint.protocol != kUnspecifiedProtocol, "protocol should be either HTTP or HTTPS");
@@ -49,6 +51,15 @@ namespace INSTINCT_CORE_NS {
             store.push_back(fmt::arg("host", call.endpoint.host));
             store.push_back(fmt::arg("port", call.endpoint.port));
             store.push_back(fmt::arg("target", call.target));
+            if (!call.paramters.empty()) {
+                std::vector<std::string> parameter_pairs;
+                for (const auto& [k,v]: call.paramters) {
+                    parameter_pairs.push_back(fmt::format("{}={}", k, curl_easy_escape(nullptr, v.c_str(), static_cast<int>(v.size()))));
+                }
+                store.push_back(fmt::arg("query_string", StringUtils::JoinWith(parameter_pairs, "&")));
+                return fmt::vformat("{protocol}://{host}:{port}{target}?{query_string}", store);
+            }
+
             return fmt::vformat("{protocol}://{host}:{port}{target}", store);
         }
 
@@ -59,7 +70,7 @@ namespace INSTINCT_CORE_NS {
             if(parts.size() != 2) {
                 throw InstinctException(fmt::format("invalid request line: {}", request_line));
             }
-            call.method = HttpUtils::ParseMethod(parts[0]);
+            call.method = ParseMethod(parts[0]);
             UriUriA  uri;
             const char* error_pos;
             if(uriParseSingleUriA(&uri, parts[1].data(), &error_pos) == URI_SUCCESS) {
@@ -90,9 +101,27 @@ namespace INSTINCT_CORE_NS {
                     call.target += {path_head->text.first, path_head->text.afterLast};
                     path_head = path_head->next;
                 }
+
+                // query paratmeters
+                call.paramters = ParseQueryParameters({uri.query.first, uri.query.afterLast});
             }
             uriFreeUriMembersA(&uri);
             return call;
+        }
+
+        static HttpQueryParamters ParseQueryParameters(const std::string& query_string) {
+            HttpQueryParamters paramters;
+            if (!query_string.empty()) {
+                for(const auto& part: StringUtils::ReSplit(query_string, std::regex{R"(&)"})) {
+                    auto kv_pair = StringUtils::ReSplit(part, std::regex{R"(=)"});
+                    assert_true(kv_pair.size() == 2, "illegal query parameter pair: " + part);
+                    int k_out_len = 0, v_out_len = 0;
+                    auto unescaped_k = curl_easy_unescape(nullptr, kv_pair[0].data(), kv_pair[0].size(), &k_out_len);
+                    auto unescaped_v = curl_easy_unescape(nullptr, kv_pair[1].data(), kv_pair[1].size(), &v_out_len);
+                    paramters[std::string{unescaped_k, static_cast<size_t>(k_out_len)}] = std::string {unescaped_v, static_cast<size_t>(v_out_len)};
+                }
+            }
+            return paramters;
         }
 
         static std::string GetHeaderValue(const std::string& name, const std::string& default_value, const HttpHeaders& headers) {

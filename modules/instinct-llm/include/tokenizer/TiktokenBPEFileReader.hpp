@@ -7,7 +7,6 @@
 
 
 #include <fstream>
-#include <libbase64.h>
 
 #include "BPETokenRanksReader.hpp"
 #include "tools/StringUtils.hpp"

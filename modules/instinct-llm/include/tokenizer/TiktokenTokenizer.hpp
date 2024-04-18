@@ -11,6 +11,7 @@
 
 #include "GPT2BPEFileReader.hpp"
 #include "TiktokenBPEFileReader.hpp"
+#include "tools/file_vault/FileSystemFileVault.hpp"
 
 
 namespace INSTINCT_LLM_NS {
@@ -26,7 +27,7 @@ namespace INSTINCT_LLM_NS {
         StringIDDict special_tokens;
     };
 
-    class TiktokenTokenizer: public RegexTokenizer {
+    class TiktokenTokenizer final: public RegexTokenizer {
         ByteShuffle byte_shuffle_;
         ByteShuffle revsered_byte_shuffle_;
 
@@ -44,7 +45,7 @@ namespace INSTINCT_LLM_NS {
             throw InstinctException("Not implemented");
         }
 
-        static TiktokenTokenizer* FromTiktokenConfig(const TiktokenConfig& config) {
+        static TokenizerPtr FromTiktokenConfig(const TiktokenConfig& config) {
             BPERanks bpe_ranks = details::recover_byte_pair_bpe_ranks(config.mergeable_ranks);
 
             // init vocab
@@ -66,10 +67,33 @@ namespace INSTINCT_LLM_NS {
                 // first 256 char have rank of less than 256,  so it's safe to cast back to uint8_t
                 byte_shuffle[i] = id;
             }
-            return new TiktokenTokenizer(bpe_ranks, vocab, UnicodeString::fromUTF8(config.pat_str), config.special_tokens, byte_shuffle);
+            return std::make_shared<TiktokenTokenizer>(bpe_ranks, vocab, UnicodeString::fromUTF8(config.pat_str), config.special_tokens, byte_shuffle);
         }
 
-        static TiktokenTokenizer* MakeGPT2Tokenizer(
+        static TokenizerPtr MakeGPT2Tokenizer() {
+            static bool ONCE = false;
+            if(!ONCE) {
+                FetchHttpGetResourceToFileVault(
+                    DEFAULT_FILE_VAULT,
+                    "tiktoken/gpt2_vocab.bpe",
+                    "https://openaipublic.blob.core.windows.net/gpt-2/encodings/main/vocab.bpe",
+                    {.algorithm = kSHA256, .expected_value = "1ce1664773c50f3e0cc8842619a93edc4624525b728b188a9e0be33b7726adc5"}
+                ).wait();
+
+                FetchHttpGetResourceToFileVault(
+                    DEFAULT_FILE_VAULT,
+                    "tiktoken/gpt2_encoder.json",
+                    "https://openaipublic.blob.core.windows.net/gpt-2/encodings/main/encoder.json",
+                    {.algorithm = kSHA256, .expected_value = "196139668be63f3b5d6574427317ae82f612a97c5d1cdaf36ed2256dbf636783"}
+                ).wait();
+            }
+
+            const auto entry1 = DEFAULT_FILE_VAULT->GetResource("tiktoken/gpt2_vocab.bpe").get();
+            const auto entry2 = DEFAULT_FILE_VAULT->GetResource("tiktoken/gpt2_vocab.bpe").get();
+            return MakeGPT2Tokenizer(entry1.local_path, entry2.local_path);
+        }
+
+        static TokenizerPtr MakeGPT2Tokenizer(
             const std::filesystem::path& bpe_file_path,
             const std::filesystem::path& encoder_json_file_path) {
             auto reader = GPT2BPEFileReader(bpe_file_path, encoder_json_file_path);
@@ -84,7 +108,21 @@ namespace INSTINCT_LLM_NS {
             });
         }
 
-        static TiktokenTokenizer* MakeGPT4Tokenizer(
+        static TokenizerPtr MakeGPT4Tokenizer() {
+            static bool ONCE = false;
+            if(!ONCE) {
+                FetchHttpGetResourceToFileVault(
+                    DEFAULT_FILE_VAULT,
+                    "tiktoken/cl100k_base.tiktoken",
+                    "https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken",
+                    {.algorithm = kSHA256, .expected_value = "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7"}
+                ).wait();
+            }
+            const auto entry = DEFAULT_FILE_VAULT->GetResource("tiktoken/cl100k_base.tiktoken").get();
+            return MakeGPT4Tokenizer(entry.local_path);
+        }
+
+        static TokenizerPtr MakeGPT4Tokenizer(
             const std::filesystem::path& tiktoken_bpe_file_path
             ) {
             TiktokenBPEFileReader reader(tiktoken_bpe_file_path);

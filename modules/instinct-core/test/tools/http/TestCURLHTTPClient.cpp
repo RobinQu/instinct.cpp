@@ -74,6 +74,29 @@ namespace INSTINCT_CORE_NS {
             .subscribe([](const auto& chunk) {
                 LOG_INFO("chunk: {}", chunk);
             });
+    }
+
+    TEST_F(CURLHttpClientTest, BatchRequest) {
+        using namespace std::chrono_literals;
+        ThreadPool pool {2};
+        CURLHttpClient client;
+        constexpr int n = 5;
+        std::vector<HttpRequest> calls;
+        calls.reserve(n);
+        for(int i=0;i<n;i++) {
+            calls.push_back({
+                .endpoint = {.protocol = kHTTP, .host="httpbin.org"},
+                .target = "/post",
+                .method = kPOST
+            });
+        }
+        auto futures = client.ExecuteBatch(calls, pool);
+
+        for(auto& f: futures) {
+            auto resp = f.get();
+            ASSERT_EQ(resp.status_code, 200);
+            ASSERT_TRUE(StringUtils::IsNotBlankString(resp.body));
+        }
 
     }
 

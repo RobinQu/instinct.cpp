@@ -19,7 +19,7 @@
 #include "retrieval/VectorStoreRetriever.hpp"
 #include "store/duckdb/DuckDBDocStore.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
-#include "tools/http/OpenAICompatibleAPIServer.hpp"
+#include "endpoint/chat_completion/ChatCompletionController.hpp"
 #include "tools/Assertions.hpp"
 
 
@@ -65,6 +65,7 @@ namespace insintct::exmaples::doc_agent {
 
         std::string shared_db_file_path;
         DuckDBStoreOptions doc_store;
+        size_t source_limit = 0;
         DuckDBStoreOptions vector_store;
         LLMProviderOptions chat_model_provider;
         LLMProviderOptions embedding_provider;
@@ -87,7 +88,9 @@ namespace insintct::exmaples::doc_agent {
         if (options.provider_name == "ollama") {
             return CreateOllamaEmbedding({
                 .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
-                .model_name = options.model_name
+                .model_name = options.model_name,
+                .max_paralle = (std::thread::hardware_concurrency() / 3),
+                .embedding_timeout_factor = 1s
             });
         }
         if (options.provider_name == "openai") {
@@ -103,13 +106,15 @@ namespace insintct::exmaples::doc_agent {
         if (options.provider_name == "ollama") {
             return CreateOllamaChatModel({
                 .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
-                .model_name = options.model_name
+                .model_name = options.model_name,
+                .temperature = 0.2
             });
         }
         if (options.provider_name == "openai") {
             return CreateOpenAIChatModel({
                 .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
-                .model_name = options.model_name
+                .model_name = options.model_name,
+                .temperature = 0.2
             });
         }
         return nullptr;
@@ -134,7 +139,11 @@ namespace insintct::exmaples::doc_agent {
 
         if(retriever_options.chunked_multi_vector_retriever) {
             LOG_INFO("CreateChunkedMultiVectorRetriever");
-            const auto child_spliter = CreateRecursiveCharacterTextSplitter({.chunk_size = retriever_options.child_chunk_size});
+
+            // default to use tiktoken tokenizer
+            auto tokenizer = TiktokenTokenizer::MakeGPT4Tokenizer();
+
+            const auto child_spliter = CreateRecursiveCharacterTextSplitter(tokenizer, {.chunk_size = retriever_options.child_chunk_size});
             if (retriever_options.parent_chunk_size > 0) {
                 assert_true(retriever_options.parent_chunk_size > retriever_options.child_chunk_size, "parent_chunk_size should be larger than child_chunk_size");
                 const auto parent_splitter = CreateRecursiveCharacterTextSplitter({.chunk_size = retriever_options.parent_chunk_size});
@@ -196,7 +205,7 @@ namespace insintct::exmaples::doc_agent {
             ingestor = CreateDOCXFileIngestor(options.filename);
         } else if (options.file_type == "PARQUET") {
             assert_true(!options.parquet_mapping.empty(), "should provide mapping format for parquet file");
-            ingestor = CreateParquetIngestor(options.filename, options.parquet_mapping);
+            ingestor = CreateParquetIngestor(options.filename, options.parquet_mapping, {.limit = options.source_limit});
         } else {
             ingestor = CreatePlainTextFileIngestor(options.filename);
         }
@@ -250,6 +259,8 @@ namespace insintct::exmaples::doc_agent {
     }
 
     static void ServeCommand(const ServeCommandOptions& options) {
+        HttpLibServer::RegisterSignalHandlers();
+
         EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.embedding_provider);
         assert_true(embedding_model, "should have assigned correct embedding model");
 
@@ -276,7 +287,7 @@ Standalone question:)",
                                                                             .input_keys = {"chat_history", "question"},
                                                                         });
         const auto answer_prompt_template = CreatePlainPromptTemplate(
-            R"(Answer the question based only on the following context:
+            R"(Answer the question in a concise and clear way based only on the following context:
 {context}
 
 Question: {standalone_question}
@@ -303,15 +314,16 @@ Question: {standalone_question}
         });
 
         const auto context_fn = xn::steps::mapping({
-            {"context", xn::steps::selection("question") | retriever->AsContextRetrieverFunction()},
+            {"context", xn::steps::selection("question") | retriever->AsContextRetrieverFunction({.top_k = 7})},
             {"standalone_question", xn::steps::selection("standalone_question")}
         });
 
         const auto rag_chain = question_fn | context_fn | answer_prompt_template | chat_model->AsModelFunction();
 
-        const auto server_chain = CreateOpenAIServerChain(rag_chain);
-
-        OpenAICompatibleAPIServer server(server_chain, options.server);
+        // create server and use controller
+        HttpLibServer server(options.server);
+        const auto controller = CreateOpenAIChatCompletionController(rag_chain);
+        server.Use(controller);
         server.StartAndWait();
     }
 
@@ -471,6 +483,7 @@ int main(int argc, char** argv) {
             ->default_val("TXT")
             ->check(IsMember({"PDF", "DOCX", "MD", "TXT", "PARQUET"}, CLI::ignore_case));
     ds_ogroup->add_option("--parquet_mapping", build_command_options.parquet_mapping, "Mapping format for parquet columns. e.g. 1:t,2:m:parent_doc_id:int64,3:m:source:varchar.");
+    ds_ogroup->add_option("--source_limit", build_command_options.source_limit, "Limit max entries from data source. It's supported only part of ingestors including PARQUET. Zero means no limit.")->default_val(0);
 
     build_command->final_callback([&]() {
         build_command_options.chat_model_provider = chat_model_provider_options;

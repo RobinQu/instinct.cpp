@@ -188,7 +188,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             store_.AddDocuments(documents_iterator, update_result);
         }
 
-        void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
+        void AddDocuments(const std::vector<Document>& records, UpdateResult& update_result) override {
             store_.AddDocuments(records, update_result);
         }
 

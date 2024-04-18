@@ -28,6 +28,14 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/CoreTestGlobals.hpp
         include/tools/DocumentUtils.hpp
         include/tools/MetadataSchemaBuilder.hpp
+        include/tools/SystemUtils.hpp
+        include/tools/file_vault/IFileVault.hpp
+        include/tools/file_vault/FileSystemFileVault.hpp
+        include/tools/file_vault/IFileVaultResourceProvider.hpp
+        include/tools/file_vault/HttpURLResourceProvider.hpp
+        include/tools/file_vault/BaseFileVaultResourceProvider.hpp
+        include/tools/HashUtils.hpp
+        include/tools/IOUtils.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
@@ -41,7 +49,21 @@ add_library(
 add_library(instinct::core
         ALIAS ${LIBRARY_TARGET_NAME})
 
+find_package(bshoshany-thread-pool REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(RPP REQUIRED)
+find_package(ICU 74.1 REQUIRED)
+find_package(tsl-ordered-map REQUIRED)
+find_package(fmt REQUIRED)
+find_package(fmtlog REQUIRED)
+find_package(crossguid REQUIRED)
+find_package(uriparser REQUIRED)
+find_package(CURL REQUIRED)
+find_package(hash-library REQUIRED)
+find_package(base64)
+
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
+        bshoshany-thread-pool::bshoshany-thread-pool
         crossguid::crossguid
         instinct::proto
         RPP::rpp
@@ -54,6 +76,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         crossguid::crossguid
         CURL::libcurl
         uriparser::uriparser
+        hash-library::hash-library
 )
 
 #set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES

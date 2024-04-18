@@ -50,6 +50,9 @@ namespace INSTINCT_LLM_NS {
          * only used in embedding API
          */
         size_t dimension;
+
+
+       int max_tokens;
     };
 
     static const std::string DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT = "/v1/chat/completions";

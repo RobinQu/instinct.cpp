@@ -26,6 +26,10 @@ find_package(Threads REQUIRED)
 # add CTest
 include(CTest)
 
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)
+
+
 # control where libraries and executables are placed during the build.
 # with the following settings executables are placed in <the top level of the
 # build tree>/bin and libraries/archives in <top level of the build tree>/lib.
@@ -65,61 +69,6 @@ if(NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 
-# thirdparty dependencies
-
-## json
-#set(JSON_Install OFF CACHE INTERNAL "")
-find_package(nlohmann_json)
-
-
-## taskflow
-#set(TF_BUILD_TESTS OFF)
-#set(TF_BUILD_EXAMPLES OFF)
-#add_subdirectory(thirdparty/taskflow)
-
-## rpp
-#add_subdirectory(thirdparty/ReactivePlusPlus EXCLUDE_FROM_ALL)
-find_package(RPP REQUIRED)
-
-## icu
-find_package(ICU 74.1 REQUIRED)
-
-## base64
-find_package(base64)
-
-## ordered-map
-find_package(tsl-ordered-map REQUIRED)
-
-
-## duckdb
-find_package(duckdb REQUIRED)
-
-## fmtlog and fmtlog
-find_package(fmt)
-find_package(fmtlog)
-
-## crossguid
-find_package(crossguid REQUIRED)
-
-## uriparser
-find_package(uriparser REQUIRED)
-
-## libcurl
-find_package(CURL)
-
-## http server
-find_package(httplib)
-
-## pdfium for PDF parsing
-find_package(pdfium REQUIRED)
-
-## Tesseract for OCR
-find_package(Tesseract REQUIRED)
-
-## duckx for DOCX parsing
-find_package(duckx REQUIRED)
-
-find_package(exprtk REQUIRED)
 
 ## gtest
 if(BUILD_TESTING)
@@ -137,25 +86,3 @@ add_subdirectory(modules/instinct-agent)
 # examples
 add_subdirectory(modules/instinct-examples/doc-agent)
 add_subdirectory(modules/instinct-examples/quick-start)
-
-#
-#include(GNUInstallDirs)
-#include(CMakePackageConfigHelpers)
-#write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
-#        VERSION ${PROJECT_VERSION}
-#        COMPATIBILITY SameMajorVersion)
-#
-#configure_package_config_file(
-#        "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
-#        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-#        INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
-#
-#
-#install(EXPORT InstinctTargets
-#        FILE SITargets.cmake
-#        NAMESPACE INSTINCT::
-#        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
-#
-#install(FILES "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
-#        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-#        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)

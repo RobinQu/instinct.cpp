@@ -9,7 +9,9 @@
 #include "functional/ReactiveFunctions.hpp"
 
 namespace INSTINCT_CORE_NS {
-    typedef std::unordered_map<std::string, std::string> HttpHeaders;
+    using HttpHeaders = std::unordered_map<std::string, std::string>;
+    using HttpQueryParamters = std::unordered_map<std::string, std::string>;
+
 
     enum MIMEContentType {
         kKnownContentType,
@@ -48,19 +50,33 @@ namespace INSTINCT_CORE_NS {
 
     struct HttpRequest {
         Endpoint endpoint;
-        HttpMethod method = HttpMethod::kGET;
+        HttpMethod method = kGET;
         std::string target;
         HttpHeaders headers;
         std::string body;
+        HttpQueryParamters paramters;
     };
 
     struct HttpResponse {
         HttpHeaders headers;
         std::string body;
-        unsigned int status_code;
+        unsigned int status_code = 0;
     };
 
+    struct HttpStreamResponse {
+        HttpHeaders headers;
+        unsigned int status_code = 0;
+    };
 
+    /**
+     * Callback function that will be used inside write function. Return false to stop this http session.
+     */
+    using HttpResponseCallback = std::function<bool(std::string)>;
+
+
+    // struct HttpBatchExecuteOptions {
+    //     u_int32_t max_paralle = std::thread::hardware_concurrency();
+    // };
 
     class IHttpClient {
     public:
@@ -73,8 +89,21 @@ namespace INSTINCT_CORE_NS {
                 const HttpRequest& call
         ) = 0;
 
+        virtual HttpStreamResponse ExecuteWithCallback(const HttpRequest& call, const HttpResponseCallback& callback) = 0;
+
+        /**
+         * Run batch of http requests. Concurrency behaviour (max parallel, ...) is controlled by given thread pool.
+         * @param calls
+         * @param pool thread pool for concurrent execution
+         * @return 
+         */
+        virtual Futures<HttpResponse> ExecuteBatch(
+            const std::vector<HttpRequest>& calls,
+            ThreadPool& pool
+        ) = 0;
+
         virtual AsyncIterator<std::string> StreamChunk(
-                const HttpRequest& call
+            const HttpRequest& call
         ) = 0;
     };
     using HttpClientPtr = std::shared_ptr<IHttpClient>;

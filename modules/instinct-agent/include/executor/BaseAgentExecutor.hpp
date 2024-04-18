@@ -11,11 +11,9 @@
 
 namespace INSTINCT_AGENT_NS {
     /**
-     * Base class for executor that handles the actual execution flow
-     * Context Input: PromptValue
-     * Context Output: AgentStep
+     * Base class for executor that handles state transitions of given agent.
      */
-    class BaseAgentExecutor: public virtual IAgentExecutor, public BaseStepFunction {
+    class BaseAgentExecutor: public virtual IAgentExecutor, public BaseRunnable<AgentState, AgentState> {
         PlannerPtr planner_;
         WorkerPtr worker_;
         SolverPtr solver_;
@@ -33,49 +31,61 @@ namespace INSTINCT_AGENT_NS {
             }
         }
 
-        JSONContextPtr Invoke(const JSONContextPtr &input) override {
-            JSONContextPtr result;
-            Stream(input)
-                | rpp::operators::as_blocking()
-                | rpp::operators::last()
-                | rpp::operators::subscribe([&](const auto& ctx) {
-                    result = ctx;
-                });
-            return result;
+        /**
+         * Create `AgentState` with user prompt. This is a convenient method for Ad-hoc style execution. In a distributed agent server, `AgentState` should recover from ongoing request session.
+         * @param input
+         * @return Initial state
+         */
+        AgentState InitializeState(const PromptValueVariant& input) {
+            const auto pv = MessageUtils::ConvertPromptValueVariantToPromptValue(input);
+            AgentState agent_state;
+            agent_state.mutable_input()->CopyFrom(pv);
+            // TODO: avoid to copy schema for each invocation
+            agent_state.mutable_function_tools()->Add(all_schemas_.begin(), all_schemas_.end());
+            //for (auto& schema: all_schemas_) {
+                // agent_state.mutable_function_tools()->Add()->CopyFrom(schema);
+            //}
+            return agent_state;
         }
 
-        AsyncIterator<JSONContextPtr> Stream(
-            const JSONContextPtr &input) override {
-            const auto pv = input->RequireMessage<PromptValue>();
-            return rpp::source::create<JSONContextPtr>([&, pv](const auto& observer) {
-                AgentState agent_state;
-                agent_state.mutable_input()->CopyFrom(pv);
-                // avoid to copy schema for each invocation
-                for (auto& schema: all_schemas_) {
-                    agent_state.mutable_function_tools()->AddAllocated(&schema);
-                }
+        /**
+         * Return the final step for given state
+         * @param agent_state
+         * @return
+         */
+        AgentState Invoke(const AgentState& agent_state) override {
+            AgentState state;
+            Stream(agent_state)
+                | rpp::operators::as_blocking()
+                | rpp::operators::last()
+                | rpp::operators::subscribe([&](const auto& final_state) {
+                    state = final_state;
+                });
+            return state;
+        }
 
+        /**
+         * Iterate all possible steps with given state. Agent may be finished or paused after execution.
+         * @param agent_state
+         * @return
+         */
+        AsyncIterator<AgentState> Stream(const AgentState& agent_state) override {
+            return rpp::source::create<AgentState>([&](const auto& observer) {
+                AgentState copied_state = agent_state;
                 try {
-                    const auto step = ExecuteAgent(agent_state);
-                    auto result = CreateJSONContext();
-                    result->ProduceMessage(step);
-                    observer.on_next(result);
-                    if (step.has_finish()) {
-                        observer.on_completed();
-                    }
+                    AgentStep step;
+                    do {
+                        step = ResolveNextStep(copied_state);
+                        LOG_DEBUG("Progressed step: {}", step.GetDescriptor()->name());
+                        observer.on_next(copied_state);
+                    } while (!step.has_finish());
+                    LOG_DEBUG("Finished due to AgentFinish");
+                    observer.on_completed();
                 } catch (...) {
                     observer.on_error(std::current_exception());
                 }
             });
         }
-
-
-        /**
-         * Concrete method to perform action with given state and return next step
-         * @param state
-         * @return
-         */
-        virtual AgentStep ExecuteAgent(AgentState& state) = 0;
 
         [[nodiscard]] PlannerPtr GetPlaner() const override {
             return planner_;

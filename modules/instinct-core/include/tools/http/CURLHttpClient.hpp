@@ -5,17 +5,26 @@
 #ifndef INSTINCT_CURLHTTPCLIENT_HPP
 #define INSTINCT_CURLHTTPCLIENT_HPP
 
+#include <future>
 #include <curl/curl.h>
+#include <BS_thread_pool.hpp>
+#include <csignal>
 
 
 #include "CoreGlobals.hpp"
 #include "IHttpClient.hpp"
 #include "HttpUtils.hpp"
 #include "HttpClientException.hpp"
+#include "tools/SystemUtils.hpp"
 
 namespace INSTINCT_CORE_NS {
 
     namespace details {
+
+        static BS::thread_pool shared_http_client_thread_pool(
+        SystemUtils::GetUnsignedIntEnv("SHARED_HTTP_CLIENT_THREADPOOL_COUNT",
+            std::thread::hardware_concurrency())
+        );
 
         static void initialize_curl() {
             static bool CURL_INITIALIZED = false;
@@ -24,7 +33,6 @@ namespace INSTINCT_CORE_NS {
                 CURL_INITIALIZED = true;
             }
         }
-
 
         static size_t curl_write_callback(char *ptr, size_t size, size_t nmemb,
                                           HttpResponse *http_response) {
@@ -150,6 +158,50 @@ namespace INSTINCT_CORE_NS {
             curl_slist_free_all(header_slist);
             return ret;
         }
+
+
+        static size_t curl_write_stream_callback(char *ptr, size_t size, size_t nmemb,
+                                          HttpResponseCallback *callback) {
+            size *= nmemb;
+            return (*callback)({ptr, size}) ? size : 0;
+        }
+
+
+        static CURLcode make_curl_request_with_callback(const HttpRequest& request, HttpStreamResponse& response, const HttpResponseCallback& callback) {
+            initialize_curl();
+            CURL *hnd = curl_easy_init();
+            curl_slist *header_slist = nullptr;
+
+            configure_curl_request(request, hnd, &header_slist);
+
+            curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, curl_write_stream_callback);
+            curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &callback);
+
+            const CURLcode ret = curl_easy_perform(hnd);
+
+            if(ret==0) {
+                // get response code
+                curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &response.status_code);
+                { // dump headers to response
+                    struct curl_header *h;
+                    struct curl_header *prev = nullptr;
+                    do {
+                        h = curl_easy_nextheader(hnd, CURLH_HEADER, -1, prev);
+                        if(h) {
+                            //                            printf(" %s: %s (%u)\n", h->name, h->value, (int)h->amount);
+                            response.headers[h->name] = h->value;
+                        }
+
+                        prev = h;
+                    } while(h);
+                }
+            }
+
+            curl_easy_cleanup(hnd);
+            curl_slist_free_all(header_slist);
+            return ret;
+        }
+
     }
 
     class CURLHttpClient final: public IHttpClient {
@@ -159,8 +211,7 @@ namespace INSTINCT_CORE_NS {
             HttpResponse http_response;
             auto url = HttpUtils::CreateUrlString(call);
             LOG_DEBUG("REQ: {} {}", call.method, url);
-            const auto code = details::make_curl_request(call, http_response);
-            if (code != 0) {
+            if (const auto code = details::make_curl_request(call, http_response); code != 0) {
                 throw HttpClientException(-1, "curl request failed with return code " + std::string(curl_easy_strerror(code)));
             }
             LOG_DEBUG("RESP: {} {}, status_code={}, body_length={}", call.method, url, http_response.status_code, http_response.body.size());
@@ -173,7 +224,7 @@ namespace INSTINCT_CORE_NS {
          * @return
          */
         AsyncIterator<std::string> StreamChunk(const HttpRequest &call) override {
-            HttpUtils::HttpUtils::AsertValidHttpRequest(call);
+            HttpUtils::HttpUtils::AssertHttpRequest(call);
             // TODO maybe stop copying `call` by using smart pointer
             auto url = HttpUtils::CreateUrlString(call);
             LOG_DEBUG("REQ: {} {}", call.method, url);
@@ -188,6 +239,28 @@ namespace INSTINCT_CORE_NS {
             });
         }
 
+        Futures<HttpResponse> ExecuteBatch(
+            const std::vector<HttpRequest>& calls,
+            ThreadPool& pool) override {
+            const u_int64_t n = calls.size();
+            return pool.submit_sequence(0ull, n, [&,total=calls.size()](auto i) {
+                LOG_DEBUG("Executing {} of {} requets", i+1, total);
+                return this->Execute(calls[i]);
+            });
+        }
+
+        HttpStreamResponse ExecuteWithCallback(const HttpRequest &call, const HttpResponseCallback& callback) override {
+            HttpStreamResponse http_stream_response {
+                {},
+                0
+            };
+            auto url = HttpUtils::CreateUrlString(call);
+            if (const auto code = details::make_curl_request_with_callback(call, http_stream_response, callback); code != 0) {
+                throw HttpClientException(-1, "curl request failed with return code " + std::string(curl_easy_strerror(code)));
+            }
+            LOG_DEBUG("RESP: {} {}, status_code={}", call.method, url, http_stream_response.status_code);
+            return http_stream_response;
+        }
     };
 
     static HttpClientPtr CreateCURLHttpClient() {

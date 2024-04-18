@@ -34,108 +34,162 @@ namespace INSTINCT_CORE_NS {
             return std::regex_replace(data_event, DATA_EVENT_PREFIX, "");
         }
 
-    }
+        struct ProtobufHttpEntityConverter {
+            template<typename T>
+            requires IsProtobufMessage<T>
+            T Deserialize(const std::string& buf) {
+                return ProtobufUtils::Deserialize<T>(buf);
+            }
 
-    struct ProtobufHttpEntityConverter {
-        template<typename T>
-        requires is_pb_message<T>
-        T Deserialize(const std::string& buf) {
-            return ProtobufUtils::Deserialize<T>(buf);
-        }
+            template<typename T>
+            requires IsProtobufMessage<T>
+            std::string Serialize(const T& obj) {
+                return ProtobufUtils::Serialize(obj);
+            }
+        };
 
-        template<typename T>
-        requires is_pb_message<T>
-        std::string Serialize(const T& obj) {
-            return ProtobufUtils::Serialize(obj);
-        }
-    };
+        template<typename RequestEntity, typename ResponseEntity>
+        class PostBatchBuilder {
+            Endpoint& endpoint;
+            HttpClientPtr client;
+            ProtobufHttpEntityConverter& converter;
+            std::vector<HttpRequest> calls;
 
+        public:
+            PostBatchBuilder(Endpoint &endpoint, HttpClientPtr client, ProtobufHttpEntityConverter &converter)
+                : endpoint(endpoint),
+                  client(std::move(client)),
+                  converter(converter) {
+            }
 
-class HttpRestClient final {
-    ProtobufHttpEntityConverter converter_;
-    Endpoint endpoint_;
-    HttpClientPtr http_client_;
+            PostBatchBuilder* Add(const std::string& uri, const RequestEntity& param) {
+                calls.push_back({
+                    endpoint,
+                    kPOST,
+                    uri,
+                    {
+                        {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON) }
+                    },
+                    converter.Serialize(param)
+                });
+                return this;
+            }
 
-public:
-    HttpRestClient() = delete;
-
-    explicit HttpRestClient(Endpoint endpoint)
-        : endpoint_(std::move(endpoint)), converter_() {
-        http_client_ = CreateCURLHttpClient();
-    }
-
-    template<typename ResponseEntity>
-    ResponseEntity GetObject(const std::string& uri) {
-        const HttpRequest request = {
-                endpoint_,
-                kGET,
-                uri,
-                {
-                {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON) }
+            Futures<ResponseEntity> Execute(ThreadPool& pool = shared_http_client_thread_pool) {
+                Futures<ResponseEntity> responses;
+                for (auto&& http_response_future: client->ExecuteBatch(calls, pool)) {
+                    responses.push_back(std::async(std::launch::async, [&, shared_future = std::shared_future(std::move(http_response_future))]() {
+                        const auto&[headers, body, status_code] = shared_future.get();
+                        if (status_code >= 400) {
+                            throw HttpClientException("Error resposne during batched requests", status_code, body);
+                        }
+                        return converter.Deserialize<ResponseEntity>(body);
+                    }));
                 }
+                return responses;
+            }
         };
-        const HttpResponse response = http_client_->Execute(request);
-        if(response.status_code >= 400) {
-            throw HttpClientException(response.status_code, response.body);
-        }
-        return converter_.Deserialize<ResponseEntity>(response.body);
+
     }
 
-    template<typename RequestEntity, typename ResponseEntity>
-    ResponseEntity PostObject(const std::string& uri, const RequestEntity& param) {
-        std::string param_string = converter_.Serialize(param);
-        const HttpRequest request = {
-                endpoint_,
-                kPOST,
-                uri,
-                {
-                    {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON)
+
+
+
+    class HttpRestClient final {
+        details::ProtobufHttpEntityConverter converter_;
+        Endpoint endpoint_;
+        HttpClientPtr http_client_;
+
+    public:
+        HttpRestClient() = delete;
+
+        explicit HttpRestClient(Endpoint endpoint)
+            : endpoint_(std::move(endpoint)) {
+            http_client_ = CreateCURLHttpClient();
+        }
+
+        template<typename ResponseEntity>
+        ResponseEntity GetObject(const std::string& uri) {
+            const HttpRequest request = {
+                    endpoint_,
+                    kGET,
+                    uri,
+                    {
+                    {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON) }
                     }
-        }, param_string};
-        const auto [headers, body, status_code] = http_client_->Execute(request);
-        if(status_code >= 400) {
-            throw HttpClientException(status_code, body);
+            };
+            const HttpResponse response = http_client_->Execute(request);
+            if(response.status_code >= 400) {
+                throw HttpClientException(response.status_code, response.body);
+            }
+            return converter_.Deserialize<ResponseEntity>(response.body);
         }
-        return converter_.Deserialize<ResponseEntity>(body);
-    }
 
-    template<typename RequestEntity, typename ResponseEntity>
-    AsyncIterator<ResponseEntity> StreamChunkObject(
-        const std::string& uri,
-        const RequestEntity& param,
-        bool is_sse_event_stream = false,
-        const std::vector<std::string>& end_sentinels = {}
-    ) {
-        std::string param_string = converter_.Serialize(param);
-        const HttpRequest request = {
-            .endpoint = endpoint_,
-            .method = kPOST,
-            .target = uri,
-            .headers = {
-                {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON) }
-            },
-            .body = param_string
-        };
+        template<typename RequestEntity, typename ResponseEntity>
+        ResponseEntity PostObject(const std::string& uri, const RequestEntity& param) {
+            std::string param_string = converter_.Serialize(param);
+            const HttpRequest request = {
+                    endpoint_,
+                    kPOST,
+                    uri,
+                    {
+                        {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON)
+                        }
+            }, param_string};
+            const auto [headers, body, status_code] = http_client_->Execute(request);
+            if(status_code >= 400) {
+                LOG_DEBUG("Non-200 response: {}", body);
+                throw HttpClientException(status_code, body);
+            }
+            return converter_.Deserialize<ResponseEntity>(body);
+        }
 
-        if (is_sse_event_stream) {
+        template<typename RequestEntity, typename ResponseEntity>
+        std::shared_ptr<details::PostBatchBuilder<RequestEntity, ResponseEntity>> CreatePostBatch() {
+            return std::make_shared<details::PostBatchBuilder<RequestEntity, ResponseEntity>>(
+                endpoint_,
+                http_client_,
+                converter_
+            );
+        }
+
+        template<typename RequestEntity, typename ResponseEntity>
+        AsyncIterator<ResponseEntity> StreamChunkObject(
+            const std::string& uri,
+            const RequestEntity& param,
+            bool is_sse_event_stream = false,
+            const std::vector<std::string>& end_sentinels = {}
+        ) {
+            std::string param_string = converter_.Serialize(param);
+            const HttpRequest request = {
+                .endpoint = endpoint_,
+                .method = kPOST,
+                .target = uri,
+                .headers = {
+                    {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON) }
+                },
+                .body = param_string
+            };
+
+            if (is_sse_event_stream) {
+                return http_client_->StreamChunk(request)
+                    | rpp::operators::map(details::strip_data_stream_prefix)
+                    | rpp::operators::take_while([&,end_sentinels](const auto& chunk_string) {
+                        return !details::is_end_sentinels(chunk_string, end_sentinels);
+                    })
+                    | rpp::operators::map([&](const auto& chunk_string) {
+    //                    std::cout << "chunk: " <<  chunk_string << std::endl;
+                        return converter_.Deserialize<ResponseEntity>(chunk_string);
+                    });
+            }
+
             return http_client_->StreamChunk(request)
-                | rpp::operators::map(details::strip_data_stream_prefix)
-                | rpp::operators::take_while([&,end_sentinels](const auto& chunk_string) {
-                    return !details::is_end_sentinels(chunk_string, end_sentinels);
-                })
                 | rpp::operators::map([&](const auto& chunk_string) {
-//                    std::cout << "chunk: " <<  chunk_string << std::endl;
                     return converter_.Deserialize<ResponseEntity>(chunk_string);
                 });
         }
 
-        return http_client_->StreamChunk(request)
-            | rpp::operators::map([&](const auto& chunk_string) {
-                return converter_.Deserialize<ResponseEntity>(chunk_string);
-            });
-    }
-
-};
+    };
 
 } // core
 

@@ -13,7 +13,6 @@ namespace INSTINCT_LLM_NS {
 
     class PromptValueVariantInputParser final: public BaseInputParser<PromptValueVariant> {
     public:
-
         JSONContextPtr ParseInput(const PromptValueVariant &input) override {
             auto ctx = CreateJSONContext();
             ctx->ProducePrimitive(details::conv_prompt_value_variant_to_string(input));

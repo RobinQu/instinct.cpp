@@ -47,7 +47,7 @@ namespace INSTINCT_LLM_NS {
 
         virtual AsyncIterator<LangaugeModelResult> StreamGenerate(const MessageList &messages) = 0;
     public:
-        explicit BaseChatModel(ModelOptions options) : options_(options) {
+        explicit BaseChatModel(ModelOptions  options) : options_(std::move(options)) {
 //            model_function_ = std::make_shared<ChatModelFunction>(shared_from_this());
         }
 

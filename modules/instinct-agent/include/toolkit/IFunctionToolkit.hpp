@@ -24,7 +24,7 @@ namespace INSTINCT_AGENT_NS {
         virtual bool RegisterFunctionTool(const FunctionToolPtr& function_tool) = 0;
         virtual bool UnregisterFuncionTool(const std::string& name) = 0;
         virtual std::unordered_set<std::string> GetFunctionToolNames() = 0;
-        virtual FunctionToolPtr LookupFunctionTool(const FunctionToolLookupOptions& options);
+        virtual FunctionToolPtr LookupFunctionTool(const FunctionToolLookupOptions& options) = 0;
         virtual std::vector<FunctionToolSchema> GetAllFuncitonToolSchema() = 0;
     };
 }

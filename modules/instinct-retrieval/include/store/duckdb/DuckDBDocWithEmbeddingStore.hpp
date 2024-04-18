@@ -17,7 +17,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         static void append_row(
                 const std::shared_ptr<MetadataSchema>& metadata_schema,
                 Appender& appender,
-                Document& doc,
+                const Document& doc,
                 const Embedding& embedding,
                 UpdateResult& update_result,
                 const bool bypass_unknown_fields
@@ -61,12 +61,12 @@ namespace INSTINCT_RETRIEVAL_NS {
             return embeddings_;
         }
 
-        void AppendRows(Appender &appender, std::vector<Document> &records, UpdateResult &update_result) override {
+        void AppendRows(Appender &appender, const std::vector<Document> &records, UpdateResult &update_result) override {
             auto text_view = records | std::views::transform([](auto&& record) -> std::string {
                 return record.text();
             });
             auto embeddings = embeddings_->EmbedDocuments({text_view.begin(), text_view.end()});
-            assert_equal_size(embeddings, records);
+            assert_equal_size(embeddings, records, "Count of result embeddings is not equal to that of records");
             int affected_row = 0;
             for (int i=0;i<records.size();i++) {
                 try {

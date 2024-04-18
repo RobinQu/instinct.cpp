@@ -8,7 +8,7 @@ package instinct.agent;
 message FunctionToolArgument {
   string name = 1;
   string description = 2;
-  core.PrimitiveType type = 3;
+  string type = 3;
 }
 
 message FunctionToolSchema {
@@ -27,6 +27,9 @@ message FunctionToolInvocation {
   string id = 3;
 }
 
+message FunctionToolSelfCheckResponse {
+  bool passed = 2;
+}
 
 message FunctionToolResult {
   string invocation_id = 1;
@@ -93,8 +96,8 @@ message AgentState {
 
 message SearchToolRequest {
   string query = 1;
-  int32 result_limit = 2;
-  int32 result_offset = 3;
+  optional int32 result_limit = 2;
+  optional int32 result_offset = 3;
 }
 
 message SearchToolResponseEntry {
@@ -112,17 +115,31 @@ message CaculatorToolRequest {
 }
 
 message CalculatorToolResponse {
-  string value = 1;
+  double answer = 1;
 }
 
 /**
   https://serpapi.com/search-api
  */
 message SerpAPISearchResponse {
-  message GoogleOrganicResult {
+  message AnswerBox {
+    string type = 1;
+    string result = 2;
+  }
+  message OrganicResult {
     string title = 1;
     string link = 2;
     string snippet = 3;
   }
-  repeated GoogleOrganicResult organic_results = 1;
+  message QuestionAndAnswer {
+    string title = 1;
+    string link = 2;
+    string source = 3;
+    string question = 4;
+    string answer = 5;
+  }
+  repeated OrganicResult organic_results = 1;
+  repeated QuestionAndAnswer questions_and_answers = 2;
+  AnswerBox answer_box = 3;
+
 }

@@ -41,7 +41,9 @@ namespace INSTINCT_AGENT_NS {
             for(const auto& tk: GetFunctionToolkits()) {
                 if (tk->LookupFunctionTool({.by_name = input.react().invocation().name()})) {
                     const auto fn_result = tk->Invoke(invocation);
-                    observation_message.mutable_react()->CopyFrom(fn_result);
+                    observation_message.mutable_react()
+                        ->mutable_result()
+                        ->CopyFrom(fn_result);
                     return observation_message;
                 }
             }
@@ -66,24 +68,24 @@ namespace INSTINCT_AGENT_NS {
             prompt_template = CreatePlainChatPromptTemplate({
                 {kSystem,  R"(Answer the following questions as best you can. You have access to the following tools:
 
-        {tools}
+{tools}
 
-        Use the following format:
+Use the following format:
 
-        Question: the input question you must answer
-        Thought: you should always think about what to do
-        Action: the action to take, should be one of [{tool_names}]
-        Action Input: the input to the action, which is formatted as JSON blob with 'name' and 'arguments' keys.
-        Observation: the result of the action
-        ... (this Thought/Action/Action Input/Observation can repeat N times)
-        Thought: I now know the final answer
-        Final Answer: the final answer to the original input question
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action, which is formatted as JSON blob with 'name' and 'arguments' keys.
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
 
-        Begin!
+Begin!
 
-        Question: {input}
-        Thought:{agent_scratchpad})"}
-            });
+Question: {input}
+Thought: {agent_scratchpad})"
+                }});
         }
 
         return CreateFunctionalChain(
@@ -93,46 +95,65 @@ namespace INSTINCT_AGENT_NS {
             );
     }
 
+    struct ReACTAgentExecutorOptions {
+        u_int8_t max_react_loop = 6;
+    };
 
+    /**
+     * AgentExecutor that follows ReACT strategy. Let's think, act and observe.
+     * In the exeuction flow, planer will generate a thought, while worker will handle invocation according to action input and give feedback to LLM as observation.
+     * It will loop these procedures until final answer is generated or max loop count is reached.
+     */
     class ReACTAgentExecutor final: public BaseAgentExecutor {
     public:
         ReACTAgentExecutor(const PlannerPtr &planner, const WorkerPtr &worker)
             : BaseAgentExecutor(planner, worker, nullptr) {
         }
 
-        AgentStep ExecuteAgent(AgentState &state) override {
+        AgentStep ResolveNextStep(AgentState &state) override {
             AgentStep agent_step;
             const auto step_count = state.previous_steps_size();
-            const auto& last_step = state.previous_steps(step_count-1);
 
             // run planner to think:
             // 1. if no previous steps exist
             // 2. if last step is observation
-            if (state.previous_steps_size() == 0 || last_step.has_observation()) {
+            if (step_count == 0 || state.previous_steps(step_count-1).has_observation()) {
                 const auto thought = GetPlaner()->Invoke(state);
+                LOG_DEBUG("ReACT thought: {}", thought.ShortDebugString());
                 agent_step.mutable_thought()->CopyFrom(thought);
+                // save this step
+                state.add_previous_steps()->CopyFrom(agent_step);
                 return agent_step;
             }
 
-            if (last_step.has_thought()) {
+            if (const auto& last_step = state.previous_steps(step_count-1); last_step.has_thought()) {
                 const auto& thought = last_step.thought();
-                if (thought.react().has_invocation()) {
-                    // if last step is thought and contain invocation request, let's run function then.
-                    const auto observation = GetWorker()->Invoke(thought);
-                    agent_step.mutable_observation()->CopyFrom(observation);
+
+                if (StringUtils::IsNotBlankString(thought.react().final_answer())) {
+                    LOG_DEBUG("ReACT final answer: {}", thought.react().final_answer());
+                    // no invocation but has non-blank final answer
+                    agent_step.mutable_finish()->set_response(thought.react().final_answer());
+                    // save this step
+                    state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
                 }
 
-                if (StringUtils::IsNotBlankString(thought.react().final_answer())) {
-                    // no invocation but has non-blank final answer
-                    agent_step.mutable_finish()->set_response(thought.react().final_answer());
+                if (thought.react().has_invocation()) {
+                    // if last step is thought and contain invocation request, let's run function then.
+                    const auto observation = GetWorker()->Invoke(thought);
+                    LOG_DEBUG("ReACT observation: {}", observation.ShortDebugString());
+                    agent_step.mutable_observation()->CopyFrom(observation);
+                    // save this step
+                    state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
                 }
             }
+
             LOG_DEBUG("illegal state: {}", state.ShortDebugString());
             throw InstinctException("IllegalState for ReACTAgentExecutor");
         }
     };
+
 
     static AgentExecutorPtr CreateReACTAgentExecutor(
         const ChatModelPtr &chat_model,

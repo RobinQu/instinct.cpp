@@ -231,14 +231,15 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         static void append_row_basic_fields(
             Appender& appender,
-            Document& doc,
+            const Document& doc,
             UpdateResult& update_result
         ) {
             // column of id
-            std::string new_id = u8_utils::uuid_v8();
+            const std::string new_id = StringUtils::GenerateUUIDString();
             update_result.add_returned_ids(new_id);
             appender.Append<>(new_id.c_str());
-            doc.set_id(new_id);
+            // doc.set_id(new_id);
+            update_result.add_returned_ids(new_id);
 
             // column of text
             // TODO escape text chars in case of sql injection
@@ -282,8 +283,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         static void append_row_metadata_fields(
             const std::shared_ptr<MetadataSchema>& metadata_schema,
             Appender& appender,
-            Document& doc,
-            bool bypass_unknown_fields
+            const Document& doc,
+            const bool bypass_unknown_fields
         ) {
             if (!metadata_schema || metadata_schema == EMPTY_METADATA_SCHEMA || metadata_schema->fields_size() == 0) {
                 return;
@@ -360,18 +361,22 @@ namespace INSTINCT_RETRIEVAL_NS {
         DuckDBStoreOptions options_;
         DuckDBPtr db_;
         std::shared_ptr<MetadataSchema> metadata_schema_;
-        Connection connection_;
         unique_ptr<PreparedStatement> prepared_count_all_statement_;
+        // std::map<std::thread::id, Connection> connections_;
+        // std::mutex g_i_mutex;
+
+        Connection connection_;
 
     public:
         explicit BaseDuckDBStore(
-            const DuckDBPtr& db,
+            DuckDBPtr db,
             const std::shared_ptr<MetadataSchema>& metadata_schema,
             const DuckDBStoreOptions& options
         ): options_(options),
-           db_(db),
+           db_(std::move(db)),
            metadata_schema_(metadata_schema),
-           connection_(*db_) {
+            connection_(*db_)
+        {
             // LOG_DEBUG("Startup db at {}", options.db_file_path);
             assert_true(metadata_schema, "should provide schema");
             // assert_positive(options_.dimension, "dimension should be positive");
@@ -397,15 +402,22 @@ namespace INSTINCT_RETRIEVAL_NS {
             return metadata_schema_;
         }
 
-        [[nodiscard]] Connection& GetConnection() {
-            return connection_;
+        [[nodiscard]] Connection GetConnection() {
+            // const std::lock_guard<std::mutex> lock(g_i_mutex);
+            // auto id = std::this_thread::get_id();
+            // if (!connections_.contains(id)) {
+            //     connections_.emplace(id, Connection(*db_));
+            // }
+            // return connections_.at(id);
+            return std::move(Connection(*db_));
         }
 
         AsyncIterator<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {
             if (ids.empty()) {
                 return rpp::source::empty<Document>();
             }
-            auto result = connection_.Query(details::make_mget_sql(options_.table_name, metadata_schema_, ids));
+
+            auto result = GetConnection().Query(details::make_mget_sql(options_.table_name, metadata_schema_, ids));
             details::assert_query_ok(result);
             return details::conv_query_result_to_iterator(std::move(result), metadata_schema_);
         }
@@ -425,21 +437,22 @@ namespace INSTINCT_RETRIEVAL_NS {
             AddDocuments(docs, update_result);
         }
 
-        virtual void AppendRows(Appender& appender, std::vector<Document>& records, UpdateResult& update_result) = 0;
+        virtual void AppendRows(Appender& appender, const std::vector<Document>& records, UpdateResult& update_result) = 0;
 
-        void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
-            connection_.BeginTransaction();
+        void AddDocuments(const std::vector<Document>& records, UpdateResult& update_result) override {
+            auto connection = GetConnection();
+            connection.BeginTransaction();
             try {
-                Appender appender(connection_, options_.table_name);
+                Appender appender(connection, options_.table_name);
                 AppendRows(appender, records, update_result);
                 appender.Close();
-                connection_.Commit();
+                connection.Commit();
             } catch (const duckdb::Exception& e) {
-                connection_.Rollback();
+                connection.Rollback();
                 LOG_ERROR("DuckDB Error, what()={}", e.what());
                 throw InstinctException(e, "Failed to AddDocument due to DuckDB error.");
             } catch (...) {
-                connection_.Rollback();
+                connection.Rollback();
                 std::rethrow_exception(std::current_exception());
             }
         }
@@ -447,27 +460,32 @@ namespace INSTINCT_RETRIEVAL_NS {
         virtual void AppendRow(Appender& appender, Document& doc, UpdateResult& update_result) = 0;
 
         void AddDocument(Document& doc) override {
-            connection_.BeginTransaction();
+            auto connection = GetConnection();
+            connection.BeginTransaction();
             try {
                 UpdateResult update_result;
-                Appender appender(connection_, options_.table_name);
+                Appender appender(connection, options_.table_name);
                 AppendRow(appender, doc, update_result);
+                if (update_result.returned_ids_size() > 0) {
+                    doc.set_id(update_result.returned_ids(0));
+                }
                 appender.Close();
-                connection_.Commit();
+                connection.Commit();
             } catch (const duckdb::Exception& e) {
-                connection_.Rollback();
+                connection.Rollback();
                 LOG_ERROR("DuckDB Error, what()={}", e.what());
                 throw InstinctException(e, "Failed to AddDocument due to DuckDB error.");
             } catch (...) {
-                connection_.Rollback();
+                connection.Rollback();
                 std::rethrow_exception(std::current_exception());
             }
 
         }
 
         void DeleteDocuments(const std::vector<std::string>& ids, UpdateResult& update_result) override {
+            auto connection = GetConnection();
             const auto sql = details::make_delete_sql(options_.table_name, ids);
-            const auto result = connection_.Query(sql);
+            const auto result = connection.Query(sql);
             details::assert_query_ok(result);
             const auto xn = result->GetValue<int32_t>(0, 0);
             update_result.set_affected_rows(xn);

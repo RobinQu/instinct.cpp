@@ -74,6 +74,7 @@ namespace INSTINCT_LLM_NS {
             req.set_n(1);
             req.set_seed(configuration_.seed);
             req.set_temperature(configuration_.temperature);
+            req.set_max_tokens(configuration_.max_tokens);
             if (configuration_.json_object) {
                 req.mutable_response_format()->set_type("json_object");
             }

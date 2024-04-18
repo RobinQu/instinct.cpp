@@ -17,15 +17,7 @@ namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
 
-    // To adapt both C++ structs and protobuf messages
-    using PromptValueVariant = std::variant<
-        StringPromptValue,
-        ChatPromptValue,
-        PromptValue,
-        MessageList,
-        Message,
-        std::string
-    >;
+
 
     class ILanguageModel {
     public:

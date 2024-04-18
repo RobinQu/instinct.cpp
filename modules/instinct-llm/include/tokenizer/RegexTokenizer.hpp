@@ -16,18 +16,8 @@
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
-    enum AllowSpecialType {
-        kUnspecified,
-        kAll,
-        kNone,
-        kSome,
-        kNoneRaise
-    };
 
-    struct RegexEncodeOptions {
-        AllowSpecialType allow_special = kNoneRaise;
-        std::vector<UnicodeString> specials = {};
-    };
+
 
     class RegexTokenizer: public Tokenizer {
         BPERanks merges_;
@@ -65,7 +55,7 @@ namespace INSTINCT_LLM_NS {
             return Encode(text, {});
         }
 
-        std::vector<int32_t> Encode(const UnicodeString& text, const RegexEncodeOptions& options) {
+        std::vector<int32_t> Encode(const UnicodeString& text, const TokenizerEncodeOptions& options) override {
             StringIDDict specials;
             switch (options.allow_special) {
                 case kAll:
@@ -97,7 +87,7 @@ namespace INSTINCT_LLM_NS {
 
 
             std::vector<UnicodeString> chunks;
-            details::split_text_with_regex(text, pattern_string, chunks);
+            U32StringUtils::SpilitWithRegex(text, pattern_string, chunks);
             std::vector<int32_t> result;
             for(const auto& chunk: chunks) {
                 if(specials.contains(chunk)) {

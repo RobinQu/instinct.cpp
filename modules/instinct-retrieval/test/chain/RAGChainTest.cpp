@@ -66,7 +66,6 @@ Standalone question:)"}
 Question: {standalone_question}
 )"}
                 });
-            ->Build();
 
             ChainOptions answer_chain_options = {
 //                .input_keys  = {"standalone_question", "context"},
