@@ -45,4 +45,13 @@ namespace INSTINCT_CORE_NS {
         }, InstinctException);
     }
 
+    TEST_F(FileSystemFileVaultTest, TestUtilityFunction) {
+        const auto name1 = StringUtils::GenerateUUIDString();
+        FetchHttpGetResourceToFileVault(file_vault_, name1, "https://httpbin.org/get", {.algorithm = kNoChecksum}).get();
+        ASSERT_TRUE(file_vault_->CheckResourcePresence(name1).get());
+
+        file_vault_->DeleteResource(name1).get();
+        ASSERT_FALSE(file_vault_->CheckResourcePresence(name1).get());
+    }
+
 }

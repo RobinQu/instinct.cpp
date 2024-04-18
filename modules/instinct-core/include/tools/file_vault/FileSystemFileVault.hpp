@@ -133,11 +133,10 @@ namespace INSTINCT_CORE_NS {
         }
     }
 
-
-
     class FileSystemFileVault final : public IFileVault {
         std::filesystem::path root_directory_;
-        std::unordered_map<std::string, FileVaultResourceProviderPtr> resources;
+        std::unordered_map<std::string, FileVaultResourceProviderPtr> resources_;
+        std::mutex write_mutex_;
 
     public:
         explicit FileSystemFileVault(std::filesystem::path root_directory)
@@ -147,19 +146,20 @@ namespace INSTINCT_CORE_NS {
 
         bool AddResource(const FileVaultResourceProviderPtr &resource_provider) override {
             const auto name = resource_provider->GetResourceName();
-            if (resources.contains(name)) {
+            if (resources_.contains(name)) {
                 LOG_WARN("duplicate resource in filevault. name={}, root={}", name, root_directory_);
                 return false;
             }
-            resources[name] = resource_provider;
+            std::lock_guard lock(write_mutex_);
+            resources_[name] = resource_provider;
             return true;
         }
 
         std::future<FileVaultResourceEntry> GetResource(const std::string &named_resource) override {
             return std::async(std::launch::async, [&] {
-                assert_true(resources.contains(named_resource),
+                assert_true(resources_.contains(named_resource),
                             fmt::format("Resource {} should exist in vault", named_resource));
-                const auto resource_provider = resources.at(named_resource);
+                const auto resource_provider = resources_.at(named_resource);
 
                 // get resource paths
                 const auto [data_path, json_path] = GetFilePaths_(resource_provider->GetResourceName());
@@ -173,6 +173,26 @@ namespace INSTINCT_CORE_NS {
                 // all done
                 LOG_DEBUG("local data files are present for resource {}", named_resource);
                 return details::build_entry_from_json(data_path, json_path);
+            });
+        }
+
+        std::future<bool> CheckResourcePresence(const std::string &named_resource) override {
+            return std::async(std::launch::async, [&] {
+                std::lock_guard lock(write_mutex_);
+                const auto [p1,p2] = GetFilePaths_(named_resource);
+                return resources_.contains(named_resource) && std::filesystem::exists(p1) && std::filesystem::exists(p2);
+            });
+        }
+
+        std::future<void> DeleteResource(const std::string &named_resource) override {
+            return std::async(std::launch::async, [&] {
+                if (CheckResourcePresence(named_resource).get()) {
+                    std::lock_guard lock(write_mutex_);
+                    const auto [p1,p2] = GetFilePaths_(named_resource);
+                    std::filesystem::remove(p1);
+                    std::filesystem::remove(p2);
+                    resources_.erase(named_resource);
+                }
             });
         }
 

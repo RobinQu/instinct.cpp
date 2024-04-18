@@ -40,10 +40,21 @@ namespace INSTINCT_CORE_NS {
          */
         virtual bool AddResource(const FileVaultResourceProviderPtr& resource_provider) = 0;
 
+
         /**
-         * Get local resource path for given resource. Implementation may choose to cache
+         * Check presence of given resource
          * @param named_resource
          * @return
+         */
+        virtual std::future<bool> CheckResourcePresence(const std::string& named_resource) = 0;
+
+        virtual std::future<void> DeleteResource(const std::string& named_resource) = 0;
+
+        /**
+         * Get local resource path for given resource. Implementation may choose to cache.
+         * @param named_resource
+         * @return
+         * @throw InstinctException If there is no given resource or error occurs during fetching content, exception will be thrown when you call `get` on returned future.
          */
         virtual std::future<FileVaultResourceEntry> GetResource(const std::string& named_resource) = 0;
 
