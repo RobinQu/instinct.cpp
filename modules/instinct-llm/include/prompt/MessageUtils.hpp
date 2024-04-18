@@ -81,8 +81,7 @@ namespace INSTINCT_LLM_NS {
         static std::string FormatString(
                 const std::string& msg,
                 const TemplateVariablesPtr & context) {
-            // LOG_DEBUG("FormatPrompt {} with variables: {}", msg, context->dump());
-            LOG_DEBUG("FormatPrompt {} with variables.count {}", msg, context->size());
+            LOG_DEBUG("FormatPrompt {}... with variables.count {}", msg.substr(0, 100), context->size());
             fmt::dynamic_format_arg_store<fmt::format_context> store;
             // assuming `context` has depth of one
             for(const auto& [k,v]: context->items()) {
@@ -99,7 +98,10 @@ namespace INSTINCT_LLM_NS {
                     store.push_back(fmt::arg(k.c_str(), v.get<bool>()));
                 }
             }
-            return fmt::vformat(msg, store);
+
+            const auto result = fmt::vformat(msg, store);
+            LOG_DEBUG("FormatPrompt {}..., total char8_t string length: {}", msg.substr(0, 100), result.size());
+            return result;
         }
     };
 }

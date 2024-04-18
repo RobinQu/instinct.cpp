@@ -106,13 +106,15 @@ namespace insintct::exmaples::doc_agent {
         if (options.provider_name == "ollama") {
             return CreateOllamaChatModel({
                 .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
-                .model_name = options.model_name
+                .model_name = options.model_name,
+                .temperature = 0.2
             });
         }
         if (options.provider_name == "openai") {
             return CreateOpenAIChatModel({
                 .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
-                .model_name = options.model_name
+                .model_name = options.model_name,
+                .temperature = 0.2
             });
         }
         return nullptr;
@@ -285,7 +287,7 @@ Standalone question:)",
                                                                             .input_keys = {"chat_history", "question"},
                                                                         });
         const auto answer_prompt_template = CreatePlainPromptTemplate(
-            R"(Answer the question based only on the following context:
+            R"(Answer the question in a concise and clear way based only on the following context:
 {context}
 
 Question: {standalone_question}

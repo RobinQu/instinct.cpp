@@ -87,47 +87,66 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         void Ingest(const AsyncIterator<Document>& input) override {
             static int BUFFER_SIZE = 10;
-            // static ThreadPool WORKER_POOL;
+            static ThreadPool WORKER_POOL;
+
+            Futures<void> tasks;
             input
             | rpp::operators::as_blocking()
-            // | rpp::operators::observe_on(rpp::schedulers::new_thread{})
-            // | rpp::operators::subscribe_on(rpp::schedulers::new_thread{})
+            | rpp::operators::subscribe([&](const Document& parent_doc) {
+                auto f = WORKER_POOL.submit_task([&,parent_doc]() {
+                    Document copied_doc = parent_doc;
+                    doc_store_->AddDocument(copied_doc);
+                    auto sub_docs = std::invoke(guidance_, copied_doc);
+                        LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), copied_doc.id());
+                    UpdateResult update_result;
+                    vector_store_->AddDocuments(sub_docs, update_result);
+                    assert_true(update_result.failed_documents_size()==0, "all sub docs should be inserted successfully");
+                });
+                tasks.push_back(std::move(f));
+            });
 
-            // | rpp::operators::buffer(BUFFER_SIZE)
-            // | rpp::operators::flat_map([&](const std::vector<Document>& parent_docs) {
-            //         return rpp::source::create<Document>([&, copied_docs=parent_docs](auto&& observer) {
-            //             const size_t n = copied_docs.size();
-            //             auto multi_future = WORKER_POOL.submit_sequence({0}, n, [&, copied_docs](const size_t i) {
-            //                 Document copied_doc = copied_docs[i];
+            tasks.wait();
+            //
+            // input
+            // | rpp::operators::as_blocking()
+            // // | rpp::operators::observe_on(rpp::schedulers::new_thread{})
+            // // | rpp::operators::subscribe_on(rpp::schedulers::new_thread{})
+            //
+            // // | rpp::operators::buffer(BUFFER_SIZE)
+            // // | rpp::operators::flat_map([&](const std::vector<Document>& parent_docs) {
+            // //         return rpp::source::create<Document>([&, copied_docs=parent_docs](auto&& observer) {
+            // //             const size_t n = copied_docs.size();
+            // //             auto multi_future = WORKER_POOL.submit_sequence({0}, n, [&, copied_docs](const size_t i) {
+            // //                 Document copied_doc = copied_docs[i];
+            // //                 doc_store_->AddDocument(copied_doc);
+            // //                 auto sub_docs = std::invoke(guidance_, copied_doc);
+            // //                                 LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), copied_doc.id());
+            // //                 return sub_docs;
+            // //             });
+            // //
+            // //             for(auto& f: multi_future) {
+            // //                 for(const auto& doc: f.get()) {
+            // //                     observer.on_next(doc);
+            // //                 }
+            // //             }
+            // //
+            // //         });
+            // //     })
+            //
+            // | rpp::operators::flat_map([&](const Document& parent_doc) {
+            //     Document copied_doc = parent_doc;
             //                 doc_store_->AddDocument(copied_doc);
             //                 auto sub_docs = std::invoke(guidance_, copied_doc);
             //                                 LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), copied_doc.id());
-            //                 return sub_docs;
-            //             });
+            //                 return rpp::source::from_iterable(sub_docs);
             //
-            //             for(auto& f: multi_future) {
-            //                 for(const auto& doc: f.get()) {
-            //                     observer.on_next(doc);
-            //                 }
-            //             }
-            //
-            //         });
-            //     })
-
-            | rpp::operators::flat_map([&](const Document& parent_doc) {
-                Document copied_doc = parent_doc;
-                            doc_store_->AddDocument(copied_doc);
-                            auto sub_docs = std::invoke(guidance_, copied_doc);
-                                            LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), copied_doc.id());
-                            return rpp::source::from_iterable(sub_docs);
-
-            })
-            | rpp::operators::buffer(BUFFER_SIZE)
-            | rpp::operators::subscribe([&](const std::vector<Document>& guided_docs) {
-                UpdateResult update_result;
-                vector_store_->AddDocuments(guided_docs, update_result);
-                assert_true(update_result.failed_documents_size()==0, "all sub docs should be inserted successfully");
-            });
+            // })
+            // | rpp::operators::buffer(BUFFER_SIZE)
+            // | rpp::operators::subscribe([&](const std::vector<Document>& guided_docs) {
+            //     UpdateResult update_result;
+            //     vector_store_->AddDocuments(guided_docs, update_result);
+            //     assert_true(update_result.failed_documents_size()==0, "all sub docs should be inserted successfully");
+            // });
 
             //
             // auto parent_docs = CollectVector(input);
