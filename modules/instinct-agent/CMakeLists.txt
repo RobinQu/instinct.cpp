@@ -26,6 +26,9 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/toolkit/builtin/LLMMath.hpp
 )
 
+
+find_package(exprtk REQUIRED)
+
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
         ${${LIBRARY_TARGET_NAME}_HDR}

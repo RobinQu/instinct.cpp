@@ -33,6 +33,12 @@ set(${LIBRARY_TARGET_NAME}_HDR
 #
 #)
 
+find_package(duckdb REQUIRED)
+find_package(pdfium REQUIRED)
+find_package(Tesseract REQUIRED)
+find_package(duckx REQUIRED)
+
+
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
 #        ${${LIBRARY_TARGET_NAME}_SRC}

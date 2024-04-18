@@ -37,6 +37,19 @@ namespace INSTINCT_CORE_NS {
             }
             return defualt_value;
         }
+
+
+        /**
+         * Get HOME path for current user
+         * @return
+         */
+        static std::filesystem::path GetHomeDirectory() {
+#ifdef _WIN32
+            return GetEnv("HOMEDRIVE") + GetEnv("HOMEPATH");
+#else
+            return GetEnv("HOME");
+#endif
+        }
     };
 }
 

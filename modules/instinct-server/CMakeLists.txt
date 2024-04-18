@@ -17,6 +17,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/server/HttpController.hpp
 )
 
+find_package(httplib)
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
         #        ${${LIBRARY_TARGET_NAME}_SRC}

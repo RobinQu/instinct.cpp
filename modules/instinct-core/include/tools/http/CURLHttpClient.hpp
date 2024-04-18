@@ -158,6 +158,50 @@ namespace INSTINCT_CORE_NS {
             curl_slist_free_all(header_slist);
             return ret;
         }
+
+
+        static size_t curl_write_stream_callback(char *ptr, size_t size, size_t nmemb,
+                                          HttpResponseCallback *callback) {
+            size *= nmemb;
+            return *callback({ptr, size}) ? size : 0;
+        }
+
+
+        static CURLcode make_curl_request_with_callback(const HttpRequest& request, HttpStreamResponse& response, const HttpResponseCallback& callback) {
+            initialize_curl();
+            CURL *hnd = curl_easy_init();
+            curl_slist *header_slist = nullptr;
+
+            configure_curl_request(request, hnd, &header_slist);
+
+            curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, curl_write_stream_callback);
+            curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &callback);
+
+            const CURLcode ret = curl_easy_perform(hnd);
+
+            if(ret==0) {
+                // get response code
+                curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &response.status_code);
+                { // dump headers to response
+                    struct curl_header *h;
+                    struct curl_header *prev = nullptr;
+                    do {
+                        h = curl_easy_nextheader(hnd, CURLH_HEADER, -1, prev);
+                        if(h) {
+                            //                            printf(" %s: %s (%u)\n", h->name, h->value, (int)h->amount);
+                            response.headers[h->name] = h->value;
+                        }
+
+                        prev = h;
+                    } while(h);
+                }
+            }
+
+            curl_easy_cleanup(hnd);
+            curl_slist_free_all(header_slist);
+            return ret;
+        }
+
     }
 
     class CURLHttpClient final: public IHttpClient {
@@ -167,8 +211,7 @@ namespace INSTINCT_CORE_NS {
             HttpResponse http_response;
             auto url = HttpUtils::CreateUrlString(call);
             LOG_DEBUG("REQ: {} {}", call.method, url);
-            const auto code = details::make_curl_request(call, http_response);
-            if (code != 0) {
+            if (const auto code = details::make_curl_request(call, http_response); code != 0) {
                 throw HttpClientException(-1, "curl request failed with return code " + std::string(curl_easy_strerror(code)));
             }
             LOG_DEBUG("RESP: {} {}, status_code={}, body_length={}", call.method, url, http_response.status_code, http_response.body.size());
@@ -181,7 +224,7 @@ namespace INSTINCT_CORE_NS {
          * @return
          */
         AsyncIterator<std::string> StreamChunk(const HttpRequest &call) override {
-            HttpUtils::HttpUtils::AsertValidHttpRequest(call);
+            HttpUtils::HttpUtils::AssertHttpRequest(call);
             // TODO maybe stop copying `call` by using smart pointer
             auto url = HttpUtils::CreateUrlString(call);
             LOG_DEBUG("REQ: {} {}", call.method, url);
@@ -204,16 +247,19 @@ namespace INSTINCT_CORE_NS {
                 LOG_DEBUG("Executing {} of {} requets", i+1, total);
                 return this->Execute(calls[i]);
             });
+        }
 
-            // Futures<HttpResponse> result;
-            // for (int i=0; i<calls.size(); ++i) {
-            //     result.push_back(pool.submit_task([&, i, total=calls.size()]() {
-            //         LOG_DEBUG("Executing {} of {} requets", i+1, total);
-            //         return this->Execute(calls[i]);
-            //     }));
-            // }
-
-            // return result;
+        HttpStreamResponse ExecuteWithCallback(const HttpRequest &call, const HttpResponseCallback& callback) override {
+            HttpStreamResponse http_stream_response {
+                {},
+                0
+            };
+            auto url = HttpUtils::CreateUrlString(call);
+            if (const auto code = details::make_curl_request_with_callback(call, http_stream_response, callback); code != 0) {
+                throw HttpClientException(-1, "curl request failed with return code " + std::string(curl_easy_strerror(code)));
+            }
+            LOG_DEBUG("RESP: {} {}, status_code={}", call.method, url, http_stream_response.status_code);
+            return http_stream_response;
         }
     };
 

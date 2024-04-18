@@ -25,7 +25,7 @@ namespace INSTINCT_CORE_NS {
 
     struct HttpUtils {
 
-        static void AsertValidHttpRequest(const HttpRequest& request) {
+        static void AssertHttpRequest(const HttpRequest& request) {
             assert_true(!StringUtils::IsBlankString(request.endpoint.host), "host cannot be blank.");
             assert_true(request.endpoint.port != 0, "port canot be zero");
             assert_true(request.endpoint.protocol != kUnspecifiedProtocol, "protocol should be either HTTP or HTTPS");

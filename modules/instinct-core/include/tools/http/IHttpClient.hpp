@@ -63,6 +63,16 @@ namespace INSTINCT_CORE_NS {
         unsigned int status_code = 0;
     };
 
+    struct HttpStreamResponse {
+        HttpHeaders headers;
+        unsigned int status_code = 0;
+    };
+
+    /**
+     * Callback function that will be used inside write function. Return false to stop this http session.
+     */
+    using HttpResponseCallback = std::function<bool(std::string)>;
+
 
     // struct HttpBatchExecuteOptions {
     //     u_int32_t max_paralle = std::thread::hardware_concurrency();
@@ -78,6 +88,8 @@ namespace INSTINCT_CORE_NS {
         virtual HttpResponse Execute(
                 const HttpRequest& call
         ) = 0;
+
+        virtual HttpStreamResponse ExecuteWithCallback(const HttpRequest& call, const HttpResponseCallback& callback) = 0;
 
         /**
          * Run batch of http requests. Concurrency behaviour (max parallel, ...) is controlled by given thread pool.
