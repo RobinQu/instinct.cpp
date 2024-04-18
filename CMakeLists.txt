@@ -26,6 +26,10 @@ find_package(Threads REQUIRED)
 # add CTest
 include(CTest)
 
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)
+
+
 # control where libraries and executables are placed during the build.
 # with the following settings executables are placed in <the top level of the
 # build tree>/bin and libraries/archives in <top level of the build tree>/lib.

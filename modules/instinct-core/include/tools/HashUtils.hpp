@@ -14,10 +14,11 @@
 namespace INSTINCT_CORE_NS {
 
     template<typename H, typename Buffer = const void*, typename ByteCount = size_t>
-    concept IsHashImplementation = requires(H hash, Buffer buf, ByteCount count)
+    concept IsHashImplementation = requires(H hash, Buffer buf, ByteCount count, const std::string& string)
     {
         hash.add(buf, count);
         { hash.getHash() } -> std::same_as<std::string>;
+        { hash.operator()(string) } -> std::same_as<std::string>;
     };
 
 
@@ -32,8 +33,7 @@ namespace INSTINCT_CORE_NS {
         requires IsHashImplementation<Hash>
         static std::string HashForString(const std::string& buf) {
             Hash hash;
-            hash.add(buf.data(), buf.size());
-            return hash.getHash();
+            return hash(buf);
         }
 
         template<typename Hash>

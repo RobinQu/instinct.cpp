@@ -108,7 +108,9 @@ namespace INSTINCT_CORE_NS {
 
 }
 
-
+/**
+ * format support for PrimitiveType
+ */
 template <> struct fmt::formatter<INSTINCT_CORE_NS::PrimitiveType>: formatter<string_view> {
     template <typename FormatContext>
     auto format(INSTINCT_CORE_NS::PrimitiveType c, FormatContext& ctx) {
@@ -123,6 +125,17 @@ template <> struct fmt::formatter<INSTINCT_CORE_NS::PrimitiveType>: formatter<st
             default: name = "";
         }
         return formatter<string_view>::format(name, ctx);
+    }
+};
+
+
+/**
+ * format support for std::filesystem::path
+ */
+template <> struct fmt::formatter<std::filesystem::path>: formatter<string_view> {
+    template <typename FormatContext>
+    auto format(const std::filesystem::path& c, FormatContext& ctx) {
+        return formatter<string_view>::format(c.string(), ctx);
     }
 };
 

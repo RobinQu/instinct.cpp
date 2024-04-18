@@ -35,6 +35,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/tools/file_vault/HttpURLResourceProvider.hpp
         include/tools/file_vault/BaseFileVaultResourceProvider.hpp
         include/tools/HashUtils.hpp
+        include/tools/IOUtils.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

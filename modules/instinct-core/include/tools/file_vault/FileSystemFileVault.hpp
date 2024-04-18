@@ -22,20 +22,30 @@ namespace INSTINCT_CORE_NS {
                 return true;
             }
 
-            std::ifstream data_file(file_path);
-            if (checksum_request.algorithm == kMD5) {
-                return checksum_request.expected_value == HashUtils::HashForStream<MD5>( data_file);
-            }
-            if (checksum_request.algorithm == kSHA1) {
-                return checksum_request.expected_value == HashUtils::HashForStream<SHA1>( data_file);
-            }
-            if (checksum_request.algorithm == kSHA256) {
-                return checksum_request.expected_value == HashUtils::HashForStream<SHA256>( data_file);
+            std::string hash_value;
+            if(std::ifstream data_file(file_path, std::ios::in | std::ios::binary); data_file) {
+                if (checksum_request.algorithm == kMD5) {
+                    hash_value = HashUtils::HashForStream<MD5>(data_file);
+                }
+                if (checksum_request.algorithm == kSHA1) {
+                    hash_value = HashUtils::HashForStream<SHA1>(data_file);
+                }
+                if (checksum_request.algorithm == kSHA256) {
+                    hash_value = HashUtils::HashForStream<SHA256>(data_file);
+                }
+            } else {
+                LOG_ERROR("failed to open file at {}", file_path);
             }
 
-            return false;
+            LOG_DEBUG("checksum: file={}, current={}:{}, execpted={}:{}",
+                      file_path,
+                      to_string(checksum_request.algorithm),
+                      hash_value,
+                      to_string(checksum_request.algorithm),
+                      checksum_request.expected_value
+                      );
+            return hash_value == checksum_request.expected_value;
         }
-
 
         static void write_data_json(const FileVaultResourceEntry &entry, const std::filesystem::path &json_file_path) {
             // NOLINT(*-convert-member-functions-to-static)
@@ -57,7 +67,9 @@ namespace INSTINCT_CORE_NS {
             auto data = nlohmann::json::parse(json_file);
             FileVaultResourceEntryMetadata metadata;
             for (const auto &[k,v]: data.items()) {
-                metadata[k] = v;
+                if (v.is_string()) {
+                    metadata[k] = v;
+                }
             }
             return {
                 .name = data["name"],
@@ -78,14 +90,13 @@ namespace INSTINCT_CORE_NS {
 
             // fetch content
             std::ofstream temp_file(temp_file_path, std::ios::out | std::ios::trunc);
-            resource_provider->Persist(temp_file).wait();
+            resource_provider->Persist(temp_file).get();
+            temp_file.close();
+            LOG_DEBUG("resource {} saved to tempfile at {}", name, temp_file_path);
 
             // checksum
-            LOG_DEBUG("checksum resource with checksum. resource_name={}, checksum={}:{}",
-                      name, to_string(resource_provider->GetChecksum().algorithm),
-                      resource_provider->GetChecksum().expected_value);
             if (!checksum(temp_file_path, resource_provider->GetChecksum())) {
-                LOG_WARN("checksum failed to resource. name={}, file_path={}. Try again immediate.", name, data_path);
+                LOG_WARN("checksum failed to resource. name={}, file_path={}. Try again immediate.", name, temp_file_path);
 
                 // delete trash files
                 std::filesystem::remove(data_path);
@@ -94,6 +105,7 @@ namespace INSTINCT_CORE_NS {
                 // fetch again
                 std::ofstream temp_file2(temp_file_path, std::ios::out | std::ios::trunc);
                 resource_provider->Persist(temp_file2).wait();
+                temp_file2.close();
 
                 // if failed for second time, we will throw
                 if(!checksum(temp_file_path, resource_provider->GetChecksum())) {
@@ -103,7 +115,7 @@ namespace INSTINCT_CORE_NS {
             }
 
             // move to vault folder
-            LOG_DEBUG("move temp file to vault. from={}, to={}", temp_file_path, data_path);
+            LOG_DEBUG("move temp file to vault. from={}, to={}", temp_file_path.string(), data_path.string());
             std::filesystem::rename(temp_file_path, data_path);
 
             FileVaultResourceEntry entry;
@@ -159,6 +171,7 @@ namespace INSTINCT_CORE_NS {
                 }
 
                 // all done
+                LOG_DEBUG("local data files are present for resource {}", named_resource);
                 return details::build_entry_from_json(data_path, json_path);
             });
         }

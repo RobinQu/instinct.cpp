@@ -56,10 +56,11 @@ namespace INSTINCT_CORE_NS {
      * @param file_vault
      * @param resource_name
      * @param url_string http or https protocol string
+     * @param checksum chcksum info for given file
      * @return
      */
-    static std::future<FileVaultResourceEntry> FetchHttpGetResourceToFileVault(const FileVaultPtr& file_vault, const std::string& resource_name, const std::string& url_string) {
-        const auto resource = std::make_shared<HttpURLResourceProvider>(resource_name, "GET " + url_string);
+    static std::future<FileVaultResourceEntry> FetchHttpGetResourceToFileVault(const FileVaultPtr& file_vault, const std::string& resource_name, const std::string& url_string, const ChecksumRequest& checksum) {
+        const auto resource = std::make_shared<HttpURLResourceProvider>(resource_name, "GET " + url_string, checksum);
         assert_true(file_vault->AddResource(resource), "should have added the resource");
         return file_vault->GetResource(resource_name);
     }

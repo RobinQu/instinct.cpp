@@ -70,7 +70,7 @@ namespace INSTINCT_CORE_NS {
             if(parts.size() != 2) {
                 throw InstinctException(fmt::format("invalid request line: {}", request_line));
             }
-            call.method = HttpUtils::ParseMethod(parts[0]);
+            call.method = ParseMethod(parts[0]);
             UriUriA  uri;
             const char* error_pos;
             if(uriParseSingleUriA(&uri, parts[1].data(), &error_pos) == URI_SUCCESS) {
@@ -111,13 +111,15 @@ namespace INSTINCT_CORE_NS {
 
         static HttpQueryParamters ParseQueryParameters(const std::string& query_string) {
             HttpQueryParamters paramters;
-            for(const auto& part: StringUtils::ReSplit(query_string, std::regex{R"(&)"})) {
-                auto kv_pair = StringUtils::ReSplit(part, std::regex{R"(=)"});
-                assert_true(kv_pair.size() == 2, "illegal query parameter pair: " + part);
-                int k_out_len = 0, v_out_len = 0;
-                auto unescaped_k = curl_easy_unescape(nullptr, kv_pair[0].data(), kv_pair[0].size(), &k_out_len);
-                auto unescaped_v = curl_easy_unescape(nullptr, kv_pair[1].data(), kv_pair[1].size(), &v_out_len);
-                paramters[std::string{unescaped_k, static_cast<size_t>(k_out_len)}] = std::string {unescaped_v, static_cast<size_t>(v_out_len)};
+            if (!query_string.empty()) {
+                for(const auto& part: StringUtils::ReSplit(query_string, std::regex{R"(&)"})) {
+                    auto kv_pair = StringUtils::ReSplit(part, std::regex{R"(=)"});
+                    assert_true(kv_pair.size() == 2, "illegal query parameter pair: " + part);
+                    int k_out_len = 0, v_out_len = 0;
+                    auto unescaped_k = curl_easy_unescape(nullptr, kv_pair[0].data(), kv_pair[0].size(), &k_out_len);
+                    auto unescaped_v = curl_easy_unescape(nullptr, kv_pair[1].data(), kv_pair[1].size(), &v_out_len);
+                    paramters[std::string{unescaped_k, static_cast<size_t>(k_out_len)}] = std::string {unescaped_v, static_cast<size_t>(v_out_len)};
+                }
             }
             return paramters;
         }

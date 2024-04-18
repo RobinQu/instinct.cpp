@@ -47,12 +47,18 @@ namespace INSTINCT_CORE_NS {
                 output_stream.write(buf.data(), buf.size());
                 return true;
             });
-            assert_true(status_code < 400, fmt::format("Status code {} for URL {}", status_code, HttpUtils::CreateUrlString(call_)));
+            assert_true(status_code >= 200 && status_code < 400, fmt::format("Status code {} for URL {}", status_code, HttpUtils::CreateUrlString(call_)));
             // add response headers to metadata
             GetMetadata().insert(headers.begin(), headers.end());
         }
-
     };
+
+    static FileVaultResourceProviderPtr CreateHttpURLResourceProvider(const std::string& resource_name, const std::string& request_line) {
+        return std::make_shared<HttpURLResourceProvider>(resource_name, request_line);
+    }
+
+
+
 }
 
 #endif

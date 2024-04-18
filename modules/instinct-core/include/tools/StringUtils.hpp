@@ -69,6 +69,7 @@ namespace INSTINCT_CORE_NS {
 
 
     struct StringUtils final {
+
         /**
         * Generate UUID string, using system library. For windows, linux, and macs, different headers are concerned.
         *

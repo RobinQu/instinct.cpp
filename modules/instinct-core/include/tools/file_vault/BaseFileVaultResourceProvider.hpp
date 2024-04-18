@@ -44,6 +44,7 @@ namespace INSTINCT_CORE_NS {
 
         std::future<void> Persist(std::ostream &ostream) override {
             return std::async(std::launch::async, [&]() {
+                ostream.clear();
                 this->Write(ostream);
             });
         }
@@ -60,6 +61,8 @@ namespace INSTINCT_CORE_NS {
          */
         virtual void Write(std::ostream &ostream) = 0;
     };
+
+
 }
 
 #endif //BASEFILEVAULTRESOURCEPROVIDER_HPP
