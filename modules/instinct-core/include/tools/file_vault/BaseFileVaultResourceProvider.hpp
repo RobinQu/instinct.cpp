@@ -35,17 +35,12 @@ namespace INSTINCT_CORE_NS {
 
         explicit BaseFileVaultResourceProvider(std::string resource_name,
             ChecksumRequest checksum,
-            const std::unordered_map<std::string, std::string> &metadata = {})
+            FileVaultResourceEntryMetadata metadata = {})
             : resource_name(std::move(resource_name)),
-              metadata(metadata),
+              metadata(std::move(metadata)),
                 checksum_(std::move(checksum)){
         }
 
-        /**
-         * A function for writing down resource in a sync manaer
-         * @param ostream a writable stream for resource content
-         */
-        virtual void Write(std::ostream &ostream) = 0;
 
         std::future<void> Persist(std::ostream &ostream) override {
             return std::async(std::launch::async, [&]() {
@@ -56,6 +51,14 @@ namespace INSTINCT_CORE_NS {
         [[nodiscard]] const ChecksumRequest & GetChecksum() const override {
             return checksum_;
         }
+
+    private:
+
+        /**
+         * A function for writing down resource in a sync manaer
+         * @param ostream a writable stream for resource content
+         */
+        virtual void Write(std::ostream &ostream) = 0;
     };
 }
 

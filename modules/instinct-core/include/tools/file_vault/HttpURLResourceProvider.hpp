@@ -19,9 +19,10 @@ namespace INSTINCT_CORE_NS {
         HttpURLResourceProvider(
             const std::string &resource_name,
             HttpRequest call,
-            const std::unordered_map<std::string, std::string> &metadata = {},
+            const ChecksumRequest& request ={.algorithm = kNoChecksum},
+            const FileVaultResourceEntryMetadata &metadata = {},
             HttpClientPtr client = nullptr)
-            : BaseFileVaultResourceProvider(resource_name, metadata),
+            : BaseFileVaultResourceProvider(resource_name, request, metadata),
               client_(std::move(client)),
               call_(std::move(call)) {
             if (!client_) {
@@ -30,15 +31,16 @@ namespace INSTINCT_CORE_NS {
             HttpUtils::AssertHttpRequest(call_);
         }
 
-
         HttpURLResourceProvider(
             const std::string &resource_name,
             const std::string &request_line,
+            const ChecksumRequest& request ={.algorithm = kNoChecksum},
             const std::unordered_map<std::string, std::string> &metadata = {},
             const HttpClientPtr& client = nullptr
-            ): HttpURLResourceProvider(resource_name, HttpUtils::CreateRequest(request_line), metadata, client)  {
+            ): HttpURLResourceProvider(resource_name, HttpUtils::CreateRequest(request_line), request, metadata, client)  {
         }
 
+    private:
         void Write(std::ostream &output_stream) override {
             const auto [headers, status_code] = client_->ExecuteWithCallback(call_, [&](const std::string& buf) {
                 output_stream.write(buf.data(), buf.size());

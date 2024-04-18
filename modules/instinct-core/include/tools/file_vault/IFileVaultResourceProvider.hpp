@@ -44,7 +44,7 @@ namespace INSTINCT_CORE_NS {
         virtual ~IFileVaultResourceProvider()=default;
         IFileVaultResourceProvider(IFileVaultResourceProvider&&)=delete;
         IFileVaultResourceProvider(const IFileVaultResourceProvider&)=delete;
-        [[nodiscard]] virtual [[nodiscard]] const ChecksumRequest& GetChecksum() const = 0;
+        [[nodiscard]] virtual const ChecksumRequest& GetChecksum() const = 0;
         virtual FileVaultResourceEntryMetadata& GetMetadata() = 0;
         [[nodiscard]] virtual const std::string& GetResourceName() const = 0;
         virtual std::future<void> Persist(std::ostream& ostream) = 0;

@@ -13,6 +13,7 @@
 #include <unicode/ustream.h>
 #include <Guid.hpp>
 #include "Assertions.hpp"
+#include <unicode/regex.h>
 
 
 namespace INSTINCT_CORE_NS {

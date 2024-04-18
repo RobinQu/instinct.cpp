@@ -163,7 +163,7 @@ namespace INSTINCT_CORE_NS {
         static size_t curl_write_stream_callback(char *ptr, size_t size, size_t nmemb,
                                           HttpResponseCallback *callback) {
             size *= nmemb;
-            return *callback({ptr, size}) ? size : 0;
+            return (*callback)({ptr, size}) ? size : 0;
         }
 
 
