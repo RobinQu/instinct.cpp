@@ -42,6 +42,7 @@ namespace INSTINCT_CORE_NS {
 
     private:
         void Write(std::ostream &output_stream) override {
+            // LOG_INFO("Writing to ostream");
             const auto [headers, status_code] = client_->ExecuteWithCallback(call_, [&](const std::string& buf) {
                 output_stream.write(buf.data(), buf.size());
                 return true;
