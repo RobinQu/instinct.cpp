@@ -40,7 +40,7 @@ namespace INSTINCT_CORE_NS {
         requires IsHashImplementation<Hash>
         static std::string HashForStream(std::istream& input_stream) {
             Hash hash;
-            static constexpr size_t BUFFER_SIZE = 144*7*1024;
+            static constexpr size_t BUFFER_SIZE = 1024;
             char buf[BUFFER_SIZE];
             while (input_stream) {
                 input_stream.read(buf, BUFFER_SIZE);

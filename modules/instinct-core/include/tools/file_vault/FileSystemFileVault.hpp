@@ -137,6 +137,7 @@ namespace INSTINCT_CORE_NS {
         std::filesystem::path root_directory_;
         std::unordered_map<std::string, FileVaultResourceProviderPtr> resources_;
         std::mutex write_mutex_;
+        std::unordered_map<std::string, std::mutex> resource_mutexes_;
 
     public:
         explicit FileSystemFileVault(std::filesystem::path root_directory)
@@ -159,6 +160,9 @@ namespace INSTINCT_CORE_NS {
             return std::async(std::launch::async, [&] {
                 assert_true(resources_.contains(named_resource),
                             fmt::format("Resource {} should exist in vault", named_resource));
+
+                // lock and get resource provider
+                std::lock_guard lock(resource_mutexes_[named_resource]);
                 const auto resource_provider = resources_.at(named_resource);
 
                 // get resource paths

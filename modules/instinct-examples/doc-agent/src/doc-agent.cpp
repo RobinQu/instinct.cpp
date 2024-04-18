@@ -141,7 +141,7 @@ namespace insintct::exmaples::doc_agent {
             LOG_INFO("CreateChunkedMultiVectorRetriever");
 
             // default to use tiktoken tokenizer
-            auto tokenizer = TiktokenTokenizer::MakeGPT4Tokenizer("/Users/robinqu/Downloads/cl100k_base.tiktoken");
+            auto tokenizer = TiktokenTokenizer::MakeGPT4Tokenizer();
 
             const auto child_spliter = CreateRecursiveCharacterTextSplitter(tokenizer, {.chunk_size = retriever_options.child_chunk_size});
             if (retriever_options.parent_chunk_size > 0) {
