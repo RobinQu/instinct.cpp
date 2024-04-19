@@ -1,6 +1,6 @@
 # ✨ instinct.cpp
 
-`instinct.cpp` is a framework for developing AI Agent applications powered by language models.
+`instinct.cpp` is a toolkit for developing LLM-powered applications targeting edge computing.  
 
 [![Discord](https://img.shields.io/badge/Discord%20Chat-purple?style=flat-square&logo=discord&logoColor=white&link=https%3A%2F%2Fdiscord.gg%2F5cVnVyh3)](https://discord.gg/5cVnVyh3)   [![C++ 20](https://img.shields.io/badge/C%2B%2B-20-blue?style=flat-square&link=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FC%252B%252B20)](https://en.wikipedia.org/wiki/C%2B%2B20)    [![License](https://img.shields.io/badge/Apache%20License-2.0-green?style=flat-square&logo=Apache&link=.%2FLICENSE)](./LICENSE)
 
@@ -11,21 +11,21 @@
 
 What `instinct.cpp` offer:
 
+* Single-binary services that are working out-of-box.
+  * `chat-agent`: A CLI application that create knowledge index with your docs (PDF,TXT,MD,...) and launch an HTTP server that is fully compatible with OpenAI `ChatCompletion`.
+  * `mini-assistant-api` (**WIP in Sprint v0.1.2**):  Agent service that is mostly compatible with OpenAI's Assistant API.
 * Frameworks to build LLM-based applications 
   * Integration for privacy-first LLM providers: Built-in support for [Ollama](https://ollama.com/) and other OpenAI compatible API services like [nitro](https://nitro.jan.ai/) and more.
   * Building blocks for common application patterns like Chatbot, RAG, LLM Agent.
   * Functional chaining components for composable LLM pipelines.
-  * Agent API service fully compatible with OpenAI's Assistant API, but with infinite scalability and security.
-* Single-binary services that are working out-of-box.
-  * `chat-agent`: A CLI application that create knowledge index with your docs (PDF,TXT,MD,...) and launch an HTTP server that is fully compatible with OpenAI `ChatCompletion`.
-  * `mini-assistant-api` (**WIP in Sprint v0.1.2**):  Agent service that is mostly compatible with OpenAI's Assistant API. 
+  * [WIP] Agent API service fully compatible with OpenAI's Assistant API, but with infinite scalability and security.
 
 
 What `instinct.cpp` cannot offer:
 
 * A LLM Provider. `instinct.cpp` depends on existing local LLMs like `Ollama`, `nitro`,  `LLMStudio` and API providers like `OpenAI`.
 * A C++ version of `langchain`. While this project learns a lot from `langchain` including Prompt related classes and functional API designs, `instinct.cpp` will focus on opinionated components while providing extensive interfaces for vendor specific implementations. For example, there are tons of vector database integration available in `langchain`, but `instinct.cpp` will keep [DuckDB](https://duckdb.org/) implementation for single-node scenario and both [Weaviate](https://github.com/weaviate/weaviate) and [milvus](https://milvus.io/) client integration for cloud scenario.
-* End-to-end solution with user interfaces.
+* End-to-end solution with user interfaces. We hope there will be downstream projects building Desktop or Webapps with `instinct.cpp`. 
 
 ## Getting started
 
