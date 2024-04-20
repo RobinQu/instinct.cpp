@@ -24,10 +24,24 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/toolkit/BaseSearchTool.hpp
         include/toolkit/builtin/SerpAPI.hpp
         include/toolkit/builtin/LLMMath.hpp
+        include/assistant/service/AssistantFacade.hpp
+        include/assistant/service/IAssistantService.hpp
+        include/assistant/service/IFileService.hpp
+        include/assistant/service/IRunService.hpp
+        include/assistant/service/IThreadService.hpp
+        include/assistant/service/IVecStoreService.hpp
+
+        include/assistant/endpoint/AssistantController.hpp
+        include/assistant/endpoint/ThreadController.hpp
+        include/assistant/endpoint/RunController.hpp
+        include/assistant/endpoint/RunStepController.hpp
+        include/assistant/endpoint/VectorStoreController.hpp
+        include/assistant/endpoint/VectorStoreFileController.hpp
+        include/assistant/endpoint/VectorStoreFileBatchController.hpp
+        include/assistant/endpoint/FileController.hpp
+        include/assistant/endpoint/BaseController.hpp
 )
 
-
-find_package(exprtk REQUIRED)
 
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
@@ -39,7 +53,7 @@ find_package(exprtk REQUIRED)
 add_library(instinct::agent
         ALIAS ${LIBRARY_TARGET_NAME})
 
-target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::llm instinct::proto exprtk::exprtk)
+target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::llm instinct::proto exprtk::exprtk instinct::server)
 
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE

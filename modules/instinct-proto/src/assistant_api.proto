@@ -2,6 +2,8 @@ syntax = "proto3";
 import "google/protobuf/empty.proto";
 import "google/protobuf/api.proto";
 
+
+package instinct.agent.assistant;
 //
 //message CancelBatchRequest {
 //  // The ID of the batch to cancel.

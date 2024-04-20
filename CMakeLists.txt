@@ -86,3 +86,4 @@ add_subdirectory(modules/instinct-agent)
 # examples
 add_subdirectory(modules/instinct-examples/doc-agent)
 add_subdirectory(modules/instinct-examples/quick-start)
+add_subdirectory(modules/instinct-examples/mini-assistant)
