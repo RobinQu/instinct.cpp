@@ -29,10 +29,9 @@ message AssistantObject { // CreateAssistantRequest, GetAssistantResponse, Modif
 }
 
 enum AssistantToolType {
-  Unknown = 0;
-  CodeInterpreter = 1;
-  FieSearch = 2;
-  Function = 3;
+  CodeInterpreter = 0;
+  FieSearch = 1;
+  Function = 2;
 }
 
 message AssistantToolObject { // union of Code, FileSearch, Function
@@ -180,6 +179,7 @@ enum MessageRole {
   Assistant = 1;
 }
 
+
 message Message {// CreateMessageResponse, RetrieveMessageResponse, ModifyMessageResponse
   string id = 1;
   string object = 2;
@@ -193,17 +193,7 @@ message Message {// CreateMessageResponse, RetrieveMessageResponse, ModifyMessag
     Completed = 2;
   }
 
-  MessageIncompleteDetails incomplete_details =  6;
-  message MessageIncompleteDetails {
-    MessageIncompleteReason reason = 1;
-    enum MessageIncompleteReason {
-      ContentFilter = 0;
-      MaxTokens = 1;
-      RunCancelled = 2;
-      RunExpired = 3;
-      RunFailed = 4;
-    }
-  }
+  IncompleteDetails incomplete_details =  6;
 
   uint64 completed_at = 7;
 
@@ -267,6 +257,18 @@ message Message {// CreateMessageResponse, RetrieveMessageResponse, ModifyMessag
   google.protobuf.Struct metadata = 14;
 }
 
+message IncompleteDetails {
+  IncompleteReason reason = 1;
+  enum IncompleteReason {
+    ContentFilter = 0;
+    MaxTokens = 1;
+    RunCancelled = 2;
+    RunExpired = 3;
+    RunFailed = 4;
+  }
+}
+
+
 message MessageAttachment {
   string file_id = 1;
   repeated AssistantToolType tools = 2;
@@ -327,34 +329,137 @@ message ModifyMessageRequest {
 // ==============================================================
 // ThreadService - Run
 // ==============================================================
+message CreateThreadAndRunRequest {
+  string assistant_id = 1;
+  ThreadObject thread = 2;
+  string model = 3;
+  string instructions = 4;
+  repeated AssistantToolObject tools = 5;
+  AssistantToolResources tool_resources = 6;
+  google.protobuf.Struct metadata = 7;
+  float temperature = 8;
+  float top_p = 9;
+  bool stream = 10;
+  // >= 256
+  uint32 max_prompt_tokens = 11;
+  // >= 256
+  uint32 max_completion_tokens = 12;
 
-message CreateRunRequest {
-  // The ID of the thread to run.
-  string thread_id = 1;
+  // The truncation strategy to use for the thread. The default is auto. If set to last_messages, the thread will be truncated to the n most recent messages in the thread. When set to auto, messages in the middle of the thread will be dropped to fit the context length of the model, max_prompt_tokens.
+  enum TruncationStrategy {
+    Auto = 0;
+    LastMessages = 1;
+  }
+  TruncationStrategy truncation_strategy = 13;
+
+  // Controls which (if any) tool is called by the model. none means the model will not call any tools and instead generates a message. auto is the default value and means the model can pick between generating a message or calling a tool. Specifying a particular tool like {"type": "file_search"} or {"type": "function", "function": {"name": "my_function"}} forces the model to call that tool.
+  ToolChoice tool_choice = 14; // due to language characteristics, we cannot make `tool_choice` as arbitrary type of `string` and `object`. So we choose to define `ToolChoice` as object type.
+  message ToolChoice {
+    AssistantToolType type = 1;
+    ToolChoiceFunction function = 2;
+    message ToolChoiceFunction {
+      string name = 1;
+    }
+  }
+
+  ResponseFormat response_format = 15;
 }
 
-message CancelRunRequest {
-  // The ID of the run to cancel.
-  string run_id = 1;
+message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRunObject, ModifyRunResponse, SubmitToolOutputsResponse, GetRunResponse
+  string id = 1;
+  string object = 2; // always `thread.run`
+  uint64 created_at = 3;
+  string thread_id = 4;
+  string assistant_id = 5;
 
-  // The ID of the thread to which this run belongs.
-  string thread_id = 2;
+  enum RunObjectStatus {
+    Queued = 0;
+    InProgress = 1;
+    RequiresAction = 2;
+    Cancelling = 3;
+    Cancelled = 4;
+    Failed = 5;
+    Completed = 6;
+    Expired = 7;
+  }
+  RunObjectStatus status = 6;
+
+  RequiredAction required_action = 7;
+  message RequiredAction {
+    RequiredActionType type = 1;
+    enum RequiredActionType {
+      SubmitToolOutputs = 0;
+    }
+
+    repeated RunToolCallObject tool_calls = 2;
+    message RunToolCallObject {
+      string id = 1;
+
+      RunToolCallObjectType type = 2;
+      enum RunToolCallObjectType {
+        Function = 0;
+      }
+
+      message RunToolCallFunctionObject {
+        string name = 1;
+        string arguments = 2;
+      }
+      RunToolCallFunctionObject function = 3;
+    }
+  }
+
+
+  message RunErrorObject {
+    RunErrorType last_error = 1;
+
+
+    uint64 expires_at = 2;
+    uint64 cancelled_at = 3;
+    uint64 failed_at = 4;
+    uint64 completed_at = 5;
+    uint64 incomplete_at = 6;
+    IncompleteDetails incomplete_details = 7;
+    string model = 8;
+    string instruction = 9;
+    repeated AssistantToolObject tools = 10;
+    google.protobuf.Struct metadata = 11;
+
+    CompletionUsage usage = 12;
+
+
+    float temperature = 13;
+    float top_p = 14;
+
+    uint32 max_prompt_tokens = 15;
+    uint32 max_completion_tokens = 16;
+
+    enum TruncationStrategy {
+      Auto = 0;
+      LastMessages = 1;
+    }
+    TruncationStrategy truncation_strategy = 17;
+
+    ToolChoice tool_choice = 18;
+    message ToolChoice {
+      AssistantToolType type = 1;
+      ToolChoiceFunction function = 2;
+      message ToolChoiceFunction {
+        string name = 1;
+      }
+    }
+
+    ResponseFormat response_format = 19;
+  }
 }
 
-message GetRunRequest {
-  // The ID of the run to retrieve.
-  string run_id = 1;
 
-  // The ID of the [thread](/docs/api-reference/threads) that was run.
-  string thread_id = 2;
+enum RunErrorType {
+  ServerError = 0;
+  RateLimitExceeded = 1;
+  InvalidPrompt = 2;
 }
 
 message ListRunsRequest {
-  enum ListRunsRequestOrder {
-    LIST_RUNS_REQUEST_ORDER_ASC = 0;
-    LIST_RUNS_REQUEST_ORDER_DESC = 1;
-  }
-
   // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
   string after = 1;
 
@@ -365,11 +470,65 @@ message ListRunsRequest {
   int32 limit = 3;
 
   // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
-  ListRunsRequestOrder order = 4;
+  ListRequestOrder order = 4;
 
   // The ID of the thread the run belongs to.
   string thread_id = 5;
 }
+
+message CompletionUsage {
+  int32 completion_tokens = 1;
+  int32 prompt_tokens = 2;
+  int32 total_tokens = 3;
+}
+
+message ListRunsResponse {
+  string object = 1; // always `list`
+  repeated RunObject data = 2;
+  string first_di = 3;
+  string last_id = 4;
+  bool has_more = 5;
+}
+
+message CreateRunRequest {
+  string assistant_id = 1;
+  string instructions = 2;
+  string additional_instructions = 3;
+  Message additional_messages = 4;
+  repeated AssistantToolObject tools = 5;
+  google.protobuf.Struct metadata = 6;
+  float temperature = 7;
+  float top_p = 8;
+  bool stream = 9;
+  uint32 max_prompt_tokens = 15;
+  uint32 max_completion_tokens = 16;
+
+  enum TruncationStrategy {
+    Auto = 0;
+    LastMessages = 1;
+  }
+  TruncationStrategy truncation_strategy = 17;
+
+  ToolChoice tool_choice = 18;
+  message ToolChoice {
+    AssistantToolType type = 1;
+    ToolChoiceFunction function = 2;
+    message ToolChoiceFunction {
+      string name = 1;
+    }
+  }
+
+  ResponseFormat response_format = 19;
+}
+
+message GetRunRequest {
+  // The ID of the run to retrieve.
+  string run_id = 1;
+
+  // The ID of the [thread](/docs/api-reference/threads) that was run.
+  string thread_id = 2;
+}
+
 
 message ModifyRunRequest {
   // The ID of the run to modify.
@@ -377,11 +536,71 @@ message ModifyRunRequest {
 
   // The ID of the [thread](/docs/api-reference/threads) that was run.
   string thread_id = 2;
+
+  google.protobuf.Struct metadata = 3;
 }
+
+message SubmitToolOutputsToRunRequest { // When a run has the `status: "requires_action"` and `required_action.type` is `submit_tool_outputs`, this endpoint can be used to submit the outputs from the tool calls once they're all completed. All outputs must be submitted in a single request.
+
+  // The ID of the run that requires the tool output submission.
+  string run_id = 1;
+
+  // The ID of the [thread](/docs/api-reference/threads) to which this run belongs.
+  string thread_id = 2;
+
+  repeated ToolOutput tool_outputs = 3;
+  message ToolOutput {
+    string tool_call_id = 1;
+    string output = 2;
+  }
+
+  // If true, returns a stream of events that happen during the Run as server-sent events, terminating when the Run enters a terminal state with a data: [DONE] message.
+  bool stream = 4;
+}
+
+
+message CancelRunRequest {
+  // The ID of the run to cancel.
+  string run_id = 1;
+
+  // The ID of the thread to which this run belongs.
+  string thread_id = 2;
+}
+
+
 
 // ==============================================================
 // ThreadService - RunStep
 // ==============================================================
+
+message ListRunStepsRequest {
+  // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
+  string after = 1;
+
+  // A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
+  string before = 2;
+
+  // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
+  int32 limit = 3;
+
+  // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
+  ListRequestOrder order = 4;
+
+  // The ID of the run the run steps belong to.
+  string run_id = 5;
+
+  // The ID of the thread the run and run steps belong to.
+  string thread_id = 6;
+}
+
+message ListRunStepsResponse {
+  string object = 1; // always `list`
+  repeated RunStepObject data = 2;
+  string first_id = 3;
+  string last_id = 4;
+  bool has_more = 5;
+}
+
 
 message GetRunStepRequest {
   // The ID of the run to which the run step belongs.
@@ -395,37 +614,81 @@ message GetRunStepRequest {
 }
 
 
-message ListRunStepsRequest {
-  enum ListRunStepsRequestOrder {
-    LIST_RUN_STEPS_REQUEST_ORDER_ASC = 0;
-    LIST_RUN_STEPS_REQUEST_ORDER_DESC = 1;
+message RunStepObject { // GetRunStepResponse
+  string id = 1;
+  string object = 2;
+  uint64 created_at = 3;
+  string assistant_id = 4;
+  string thread_id = 5;
+  string run_id = 6;
+
+  RunStepType type = 7;
+  enum RunStepType {
+    MessageCreation = 0;
+    ToolCalls = 1;
   }
 
-  // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
-  string after = 1;
+  RunStepStatus status = 8;
+  enum RunStepStatus {
+    InProgress = 0;
+    Cancelled = 1;
+    Failed = 2;
+    Completed = 3;
+    Expired = 4;
+  }
 
-  // A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
-  string before = 2;
+  RunStepDetails step_details = 9;
+  message RunStepDetails {// union of RunStepDetailsMessageCreationObject and RunStepDetailsToolCallObject
+    RunStepType type = 1;
 
-  // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
-  int32 limit = 3;
+    // for message creation only
+    MessageCreationDetails message_creation = 2;
+    message MessageCreationDetails {
+      string message_id = 1;
+    }
 
-  // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
-  ListRunStepsRequestOrder order = 4;
+    // for tool calls only
+    repeated ToolCallDetail tool_calls = 3;
+    message ToolCallDetail { // union of CodeInterpreterToolCall, FileSearchToolCall, FunctionToolCall
+      string id = 1;
+      AssistantToolType type = 2;
 
-  // The ID of the run the run steps belong to.
-  string run_id = 5;
+      message CodeInterpreter {
+        string input = 1;
 
-  // The ID of the thread the run and run steps belong to.
-  string thread_id = 6;
-}
+        message CodeInterpreterOutput { // union of CodeOutputLogsObject and CodeOutputImageObject
+          CodeInterpreterOutputType type = 1;
+          enum CodeInterpreterOutputType {
+            Logs = 0;
+            Image = 1;
+          }
 
-message SubmitToolOutputsToRunRequest {
-  // The ID of the run that requires the tool output submission.
-  string run_id = 1;
+          // only for CodeOutputLogsObject
+          string logs = 2;
 
-  // The ID of the [thread](/docs/api-reference/threads) to which this run belongs.
-  string thread_id = 2;
+          // only for CodeOutputImageObject
+          CodeInterpreterImageOutput image = 3;
+          message CodeInterpreterImageOutput {
+            string file_id = 1;
+          }
+        }
+        repeated CodeInterpreterOutput outputs = 2;
+      }
+    }
+  }
+
+  RunStepError last_error = 10;
+  message RunStepError {
+    RunErrorType type = 1;
+    string message = 2;
+  }
+
+  uint64 expired_at = 11;
+  uint64 cancelled_at = 12;
+  uint64 failed_at = 13;
+  uint64 completed_at = 14;
+  google.protobuf.Struct metadata = 15;
+  CompletionUsage usage = 16;
 }
 
 
