@@ -691,6 +691,103 @@ message RunStepObject { // GetRunStepResponse
   CompletionUsage usage = 16;
 }
 
+// ==============================================================
+// VectorStore
+// ==============================================================
+message ListVectorStoresRequest {
+  // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
+  string after = 1;
+
+  // A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
+  string before = 2;
+
+  // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
+  int32 limit = 3;
+
+  // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
+  ListRequestOrder order = 4;
+}
+
+message ListVectorStoresResponse {
+  string object = 1;
+  repeated VectorStoreObject data = 2;
+  string first_id = 3;
+  string last_id = 4;
+  bool has_more = 5;
+}
+
+message CreateVectorStoreRequest {
+  repeated string file_ids = 1;
+  string name = 2;
+  VectorStoreExpirationPolicy expires_after = 3;
+  google.protobuf.Struct metadata = 4;
+}
+
+message VectorStoreExpirationPolicy {
+  // Anchor timestamp after which the expiration policy applies. Supported anchors: last_active_at.
+  VectorStoreExpirationAnchor anchor = 1;
+  enum VectorStoreExpirationAnchor {
+    LastActiveAt = 0;
+  }
+
+  // The number of days after the anchor time that the vector store will expire.
+  uint32 days = 2;
+}
+
+message GetVectorStoreRequest {
+  // The ID of the vector store to retrieve.
+  string vector_store_id = 1;
+}
+
+message ModifyVectorStoreRequest {
+  // The ID of the vector store to modify.
+  string vector_store_id = 1;
+
+  string name = 2;
+  VectorStoreExpirationPolicy expires_after = 3;
+  google.protobuf.Struct metadata = 4;
+}
+
+message DeleteVectorStoreRequest {
+  // The ID of the vector store to delete.
+  string vector_store_id = 1;
+}
+
+message DeleteVectorStoreResponse {
+  string id = 1;
+  bool deleted = 2;
+  string object = 3;
+}
+
+message VectorStoreObject { // CreateVectorStoreResponse, GetVectorStoreResponse, ModifyVectorStoreResponse
+  string id = 1;
+  string object = 2; // always `vector_store`
+  int32 created_at = 3;
+  string name = 4;
+  uint32 bytes = 5;
+
+  FileCounts file_counts = 6;
+  message FileCounts {
+    int32 in_progress = 1;
+    int32 completed = 2;
+    int32 failed = 3;
+    int32 cancelled = 4;
+    int32 total = 5;
+  }
+
+  VectorStoreStatus status = 7;
+  enum VectorStoreStatus {
+    Expired = 0;
+    InProgress = 1;
+    Completed = 2;
+  }
+
+  VectorStoreExpirationPolicy expires_after = 8;
+  int32 expires_at = 9; // The Unix timestamp (in seconds) for when the vector store will expire.
+  int32 last_active_at = 10; // The Unix timestamp (in seconds) for when the vector store was last active.
+  google.protobuf.Struct metadata = 11;
+}
+
 
 // ==============================================================
 // VectorStore - FileBatch
@@ -816,42 +913,6 @@ message ListVectorStoreFilesRequest {
 }
 
 
-// ==============================================================
-// VectorStore
-// ==============================================================
-message DeleteVectorStoreRequest {
-  // The ID of the vector store to delete.
-  string vector_store_id = 1;
-}
-
-message GetVectorStoreRequest {
-  // The ID of the vector store to retrieve.
-  string vector_store_id = 1;
-}
-
-message ListVectorStoresRequest {
-  enum ListVectorStoresRequestOrder {
-    LIST_VECTOR_STORES_REQUEST_ORDER_ASC = 0;
-    LIST_VECTOR_STORES_REQUEST_ORDER_DESC = 1;
-  }
-
-  // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
-  string after = 1;
-
-  // A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
-  string before = 2;
-
-  // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
-  int32 limit = 3;
-
-  // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
-  ListVectorStoresRequestOrder order = 4;
-}
-
-message ModifyVectorStoreRequest {
-  // The ID of the vector store to modify.
-  string vector_store_id = 1;
-}
 
 
 // ==============================================================
