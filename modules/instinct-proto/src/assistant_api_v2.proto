@@ -1,0 +1,611 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/api.proto";
+import "google/protobuf/struct.proto";
+
+
+package instinct.agent.assistant.v2;
+
+enum ResponseFormat {
+  None = 0;
+  Auto = 1;
+}
+
+// ==============================================================
+// AssistantService
+// ==============================================================
+message AssistantObject { // CreateAssistantRequest, GetAssistantResponse, ModifyAssistantResponse
+  string model = 1;
+  string name = 2;
+  string description = 3;
+  string instructions = 4;
+  google.protobuf.Struct metadata = 5;
+  float temperature = 6;
+  float top_p = 7;
+  ResponseFormat response_format = 8;
+  string id = 9;
+  repeated AssistantToolObject tools = 10;
+  AssistantToolResources tool_resources = 11;
+}
+
+enum AssistantToolType {
+  Unknown = 0;
+  CodeInterpreter = 1;
+  FieSearch = 2;
+  Function = 3;
+}
+
+message AssistantToolObject { // union of Code, FileSearch, Function
+  AssistantToolType type = 1;
+}
+
+
+message AssistantToolResources {
+  AssistantCodeToolResource code_interpreter = 1;
+  AssistantFileSearchToolResource file_search = 2;
+
+  message AssistantCodeToolResource {
+    // maxItems = 20
+    repeated string file_ids = 1;
+  }
+
+  message AssistantFileSearchToolResource {
+    // maxItem = 1
+    repeated string vector_store_ids = 1;
+  }
+
+}
+
+message ListAssistantsRequest {
+  enum ListAssistantsRequestOrder {
+    LIST_ASSISTANTS_REQUEST_ORDER_ASC = 0;
+    LIST_ASSISTANTS_REQUEST_ORDER_DESC = 1;
+  }
+
+  // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
+  string after = 1;
+
+  // A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
+  string before = 2;
+
+  // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
+  int32 limit = 3;
+
+  // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
+  ListAssistantsRequestOrder order = 4;
+}
+
+message ListAssistantsResponse {
+  string object = 1;
+  repeated AssistantObject data = 2;
+  string first_id = 3;
+  string last_id = 4;
+  bool has_more = 5;
+}
+
+message GetAssistantRequest {
+  // The ID of the assistant to retrieve.
+  string assistant_id = 1;
+}
+
+message DeleteAssistantRequest {
+  // The ID of the assistant to delete.
+  string assistant_id = 1;
+}
+
+message DeleteAssistantResponse {
+  string id = 1;
+  bool deleted = 2;
+  string object = 3;
+}
+
+message ModifyAssistantRequest {
+  string model = 1;
+  string name = 2;
+  string description = 3;
+  string instructions = 4;
+  google.protobuf.Struct metadata = 5;
+  float temperature = 6;
+  float top_p = 7;
+  ResponseFormat response_format = 8;
+  repeated AssistantToolObject tools = 10;
+  AssistantToolResources tool_resources = 11;
+}
+
+// ==============================================================
+// ThreadService - Thread
+// ==============================================================
+message ThreadObject { // CreateThreadRequest, GetThreadResponse, ModifyThreadResponse
+  string id = 1;
+  string object = 2;
+  repeated Message messages = 3;
+  AssistantToolResources tool_resources = 4;
+  google.protobuf.Struct metadata = 5;
+}
+
+message GetThreadRequest {
+  // The ID of the thread to retrieve.
+  string thread_id = 1;
+}
+
+message ModifyThreadRequest {
+  // The ID of the thread to modify. Only the `metadata` can be modified.
+  string thread_id = 1;
+  AssistantToolResources tool_resources = 2;
+  google.protobuf.Struct metadata = 3;
+}
+
+message DeleteThreadRequest {
+  // The ID of the thread to delete.
+  string thread_id = 1;
+}
+
+message DeleteThreadResponse {
+  string id = 1;
+  bool deleted = 2;
+  string object = 3;
+}
+
+enum ListRequestOrder {
+  ORDER_ASC = 0;
+  ORDER_DESC = 1;
+}
+
+// ==============================================================
+// ThreadService - Message
+// ==============================================================
+message ListMessagesRequest {
+
+  // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
+  string after = 1;
+
+  // A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
+  string before = 2;
+
+  // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
+  int32 limit = 3;
+
+  // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
+  ListRequestOrder order = 4;
+
+  // Filter messages by the run ID that generated them.
+  string run_id = 5;
+
+  // The ID of the [thread](/docs/api-reference/threads) the messages belong to.
+  string thread_id = 6;
+}
+
+enum MessageRole {
+  User = 0;
+  Assistant = 1;
+}
+
+message Message {// CreateMessageResponse, RetrieveMessageResponse, ModifyMessageResponse
+  string id = 1;
+  string object = 2;
+  uint64 created_at = 3;
+  string thread_id = 4;
+
+  MessageStatus status = 5;
+  enum MessageStatus {
+    InProgress = 0;
+    Incomplete = 1;
+    Completed = 2;
+  }
+
+  MessageIncompleteDetails incomplete_details =  6;
+  message MessageIncompleteDetails {
+    MessageIncompleteReason reason = 1;
+    enum MessageIncompleteReason {
+      ContentFilter = 0;
+      MaxTokens = 1;
+      RunCancelled = 2;
+      RunExpired = 3;
+      RunFailed = 4;
+    }
+  }
+
+  uint64 completed_at = 7;
+
+  uint64 incompleted_at = 8;
+
+  MessageRole role = 9;
+
+  MessageContent content = 10;
+  message MessageContent {
+    enum MessageContentType {
+      Text = 0;
+      ImageFile = 1;
+    }
+    MessageContentType type = 1;
+
+    // for image file only
+    repeated MessageContentImageFile image_file = 2;
+    message MessageContentImageFile {
+      string file_id = 1;
+    }
+
+    // for text only
+    MessageContentText text = 3;
+    message MessageContentText {
+      string value = 1;
+
+      repeated MessageContentTextAnnotation annotations = 2;
+      message MessageContentTextAnnotation { // union of citation and file path
+        enum MessageContentTextAnnotationType {
+          FileCitation = 0;
+        }
+
+        MessageContentTextAnnotationType type = 1;
+
+        string text = 2;
+
+        int32 start_index = 3;
+
+        int32 end_index = 4;
+
+        // for citation only
+        message MessageContentTextFileCitation {
+          string file_id = 1;
+          string quote = 2;
+        }
+        MessageContentTextFileCitation citation = 5;
+
+        // for file path only
+        message MessageContentTextFilePath {
+          string file_id = 1;
+        }
+        MessageContentTextFilePath file_path = 6;
+      }
+    }
+
+  }
+  string assistant_id = 11;
+  string run_id = 12;
+
+  repeated MessageAttachment attachments = 13;
+  google.protobuf.Struct metadata = 14;
+}
+
+message MessageAttachment {
+  string file_id = 1;
+  repeated AssistantToolType tools = 2;
+}
+
+message ListMessageRequest {
+  string thread_id = 1;
+  int32 limit = 2;
+  ListRequestOrder order = 3;
+  string after = 4;
+  string before = 5;
+  string run_id = 6;
+}
+
+message ListMessageResponse {
+  string object = 1;
+  repeated Message data = 2;
+  string first_id = 3;
+  string last_id = 4;
+  bool has_more = 5;
+}
+
+message CreateMessageRequest {
+  // The ID of the [thread](/docs/api-reference/threads) to create a message for.
+  string thread_id = 1;
+
+  MessageRole role = 2;
+
+  string content = 3;
+
+  repeated MessageAttachment attachments = 4;
+
+  google.protobuf.Struct metadata = 5;
+
+}
+
+
+message GetMessageRequest {
+  // The ID of the message to retrieve.
+  string message_id = 1;
+
+  // The ID of the [thread](/docs/api-reference/threads) to which this message belongs.
+  string thread_id = 2;
+}
+
+
+message ModifyMessageRequest {
+  // The ID of the message to modify.
+  string message_id = 1;
+
+  // The ID of the thread to which this message belongs.
+  string thread_id = 2;
+
+  google.protobuf.Struct metadata = 3;
+}
+
+
+// ==============================================================
+// ThreadService - Run
+// ==============================================================
+
+message CreateRunRequest {
+  // The ID of the thread to run.
+  string thread_id = 1;
+}
+
+message CancelRunRequest {
+  // The ID of the run to cancel.
+  string run_id = 1;
+
+  // The ID of the thread to which this run belongs.
+  string thread_id = 2;
+}
+
+message GetRunRequest {
+  // The ID of the run to retrieve.
+  string run_id = 1;
+
+  // The ID of the [thread](/docs/api-reference/threads) that was run.
+  string thread_id = 2;
+}
+
+message ListRunsRequest {
+  enum ListRunsRequestOrder {
+    LIST_RUNS_REQUEST_ORDER_ASC = 0;
+    LIST_RUNS_REQUEST_ORDER_DESC = 1;
+  }
+
+  // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
+  string after = 1;
+
+  // A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
+  string before = 2;
+
+  // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
+  int32 limit = 3;
+
+  // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
+  ListRunsRequestOrder order = 4;
+
+  // The ID of the thread the run belongs to.
+  string thread_id = 5;
+}
+
+message ModifyRunRequest {
+  // The ID of the run to modify.
+  string run_id = 1;
+
+  // The ID of the [thread](/docs/api-reference/threads) that was run.
+  string thread_id = 2;
+}
+
+// ==============================================================
+// ThreadService - RunStep
+// ==============================================================
+
+message GetRunStepRequest {
+  // The ID of the run to which the run step belongs.
+  string run_id = 1;
+
+  // The ID of the run step to retrieve.
+  string step_id = 2;
+
+  // The ID of the thread to which the run and run step belongs.
+  string thread_id = 3;
+}
+
+
+message ListRunStepsRequest {
+  enum ListRunStepsRequestOrder {
+    LIST_RUN_STEPS_REQUEST_ORDER_ASC = 0;
+    LIST_RUN_STEPS_REQUEST_ORDER_DESC = 1;
+  }
+
+  // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
+  string after = 1;
+
+  // A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
+  string before = 2;
+
+  // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
+  int32 limit = 3;
+
+  // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
+  ListRunStepsRequestOrder order = 4;
+
+  // The ID of the run the run steps belong to.
+  string run_id = 5;
+
+  // The ID of the thread the run and run steps belong to.
+  string thread_id = 6;
+}
+
+message SubmitToolOutputsToRunRequest {
+  // The ID of the run that requires the tool output submission.
+  string run_id = 1;
+
+  // The ID of the [thread](/docs/api-reference/threads) to which this run belongs.
+  string thread_id = 2;
+}
+
+
+// ==============================================================
+// VectorStore - FileBatch
+// ==============================================================
+message CancelVectorStoreFileBatchRequest {
+  // The ID of the file batch to cancel.
+  string batch_id = 1;
+
+  // The ID of the vector store that the file batch belongs to.
+  string vector_store_id = 2;
+}
+
+message CreateVectorStoreFileBatchRequest {
+  // The ID of the vector store for which to create a File Batch.
+  string vector_store_id = 1;
+}
+
+message GetVectorStoreFileBatchRequest {
+  // The ID of the file batch being retrieved.
+  string batch_id = 1;
+
+  // The ID of the vector store that the file batch belongs to.
+  string vector_store_id = 2;
+}
+
+
+message ListFilesInVectorStoreBatchRequest {
+  enum ListFilesInVectorStoreBatchRequestFilter {
+    LIST_FILES_IN_VECTOR_STORE_BATCH_REQUEST_FILTER_IN_PROGRESS = 0;
+    LIST_FILES_IN_VECTOR_STORE_BATCH_REQUEST_FILTER_COMPLETED = 1;
+    LIST_FILES_IN_VECTOR_STORE_BATCH_REQUEST_FILTER_FAILED = 2;
+    LIST_FILES_IN_VECTOR_STORE_BATCH_REQUEST_FILTER_CANCELLED = 3;
+  }
+
+  enum ListFilesInVectorStoreBatchRequestOrder {
+    LIST_FILES_IN_VECTOR_STORE_BATCH_REQUEST_ORDER_ASC = 0;
+    LIST_FILES_IN_VECTOR_STORE_BATCH_REQUEST_ORDER_DESC = 1;
+  }
+
+  // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
+  string after = 1;
+
+  // The ID of the file batch that the files belong to.
+  string batch_id = 2;
+
+  // A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
+  string before = 3;
+
+  // Filter by file status. One of `in_progress`, `completed`, `failed`, `cancelled`.
+  ListFilesInVectorStoreBatchRequestFilter filter = 4;
+
+  // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
+  int32 limit = 5;
+
+  // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
+  ListFilesInVectorStoreBatchRequestOrder order = 6;
+
+  // The ID of the vector store that the files belong to.
+  string vector_store_id = 7;
+}
+
+
+// ==============================================================
+// VectorStore - File
+// ==============================================================
+message CreateVectorStoreFileRequest {
+  // The ID of the vector store for which to create a File.
+  string vector_store_id = 1;
+}
+
+
+message DeleteFileRequest {
+  // The ID of the file to use for this request.
+  string file_id = 1;
+}
+
+message GetVectorStoreFileRequest {
+  // The ID of the file being retrieved.
+  string file_id = 1;
+
+  // The ID of the vector store that the file belongs to.
+  string vector_store_id = 2;
+}
+
+message DeleteVectorStoreFileRequest {
+  // The ID of the file to delete.
+  string file_id = 1;
+
+  // The ID of the vector store that the file belongs to.
+  string vector_store_id = 2;
+}
+
+message ListVectorStoreFilesRequest {
+  enum ListVectorStoreFilesRequestFilter {
+    LIST_VECTOR_STORE_FILES_REQUEST_FILTER_IN_PROGRESS = 0;
+    LIST_VECTOR_STORE_FILES_REQUEST_FILTER_COMPLETED = 1;
+    LIST_VECTOR_STORE_FILES_REQUEST_FILTER_FAILED = 2;
+    LIST_VECTOR_STORE_FILES_REQUEST_FILTER_CANCELLED = 3;
+  }
+
+  enum ListVectorStoreFilesRequestOrder {
+    LIST_VECTOR_STORE_FILES_REQUEST_ORDER_ASC = 0;
+    LIST_VECTOR_STORE_FILES_REQUEST_ORDER_DESC = 1;
+  }
+
+  // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
+  string after = 1;
+
+  // A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
+  string before = 2;
+
+  // Filter by file status. One of `in_progress`, `completed`, `failed`, `cancelled`.
+  ListVectorStoreFilesRequestFilter filter = 3;
+
+  // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
+  int32 limit = 4;
+
+  // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
+  ListVectorStoreFilesRequestOrder order = 5;
+
+  // The ID of the vector store that the files belong to.
+  string vector_store_id = 6;
+}
+
+
+// ==============================================================
+// VectorStore
+// ==============================================================
+message DeleteVectorStoreRequest {
+  // The ID of the vector store to delete.
+  string vector_store_id = 1;
+}
+
+message GetVectorStoreRequest {
+  // The ID of the vector store to retrieve.
+  string vector_store_id = 1;
+}
+
+message ListVectorStoresRequest {
+  enum ListVectorStoresRequestOrder {
+    LIST_VECTOR_STORES_REQUEST_ORDER_ASC = 0;
+    LIST_VECTOR_STORES_REQUEST_ORDER_DESC = 1;
+  }
+
+  // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
+  string after = 1;
+
+  // A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
+  string before = 2;
+
+  // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
+  int32 limit = 3;
+
+  // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
+  ListVectorStoresRequestOrder order = 4;
+}
+
+message ModifyVectorStoreRequest {
+  // The ID of the vector store to modify.
+  string vector_store_id = 1;
+}
+
+
+// ==============================================================
+// File
+// ==============================================================
+message DownloadFileRequest {
+  // The ID of the file to use for this request.
+  string file_id = 1;
+}
+
+message ListFilesRequest {
+  // Only return files with the given purpose.
+  string purpose = 1;
+}
+
+
+message RetrieveFileRequest {
+  // The ID of the file to use for this request.
+  string file_id = 1;
+}

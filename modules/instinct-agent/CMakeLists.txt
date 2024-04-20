@@ -24,22 +24,22 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/toolkit/BaseSearchTool.hpp
         include/toolkit/builtin/SerpAPI.hpp
         include/toolkit/builtin/LLMMath.hpp
-        include/assistant/service/AssistantFacade.hpp
-        include/assistant/service/IAssistantService.hpp
-        include/assistant/service/IFileService.hpp
-        include/assistant/service/IRunService.hpp
-        include/assistant/service/IThreadService.hpp
-        include/assistant/service/IVecStoreService.hpp
+        include/assistant/v2/service/AssistantFacade.hpp
+        include/assistant/v2/service/IAssistantService.hpp
+        include/assistant/v2/service/IFileService.hpp
+        include/assistant/v2/service/IRunService.hpp
+        include/assistant/v2/service/IThreadService.hpp
+        include/assistant/v2/service/IVecStoreService.hpp
 
-        include/assistant/endpoint/AssistantController.hpp
-        include/assistant/endpoint/ThreadController.hpp
-        include/assistant/endpoint/RunController.hpp
-        include/assistant/endpoint/RunStepController.hpp
-        include/assistant/endpoint/VectorStoreController.hpp
-        include/assistant/endpoint/VectorStoreFileController.hpp
-        include/assistant/endpoint/VectorStoreFileBatchController.hpp
-        include/assistant/endpoint/FileController.hpp
-        include/assistant/endpoint/BaseController.hpp
+        include/assistant/v2/endpoint/AssistantController.hpp
+        include/assistant/v2/endpoint/ThreadController.hpp
+        include/assistant/v2/endpoint/RunController.hpp
+        include/assistant/v2/endpoint/RunStepController.hpp
+        include/assistant/v2/endpoint/VectorStoreController.hpp
+        include/assistant/v2/endpoint/VectorStoreFileController.hpp
+        include/assistant/v2/endpoint/VectorStoreFileBatchController.hpp
+        include/assistant/v2/endpoint/FileController.hpp
+        include/assistant/v2/endpoint/BaseController.hpp
 )
 
 
