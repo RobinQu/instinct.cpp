@@ -880,6 +880,7 @@ message VectorStoreFileError {
 message CreateVectorStoreFileBatchRequest {
   // The ID of the vector store for which to create a File Batch.
   string vector_store_id = 1;
+  repeated string file_ids = 2;
 }
 
 message CancelVectorStoreFileBatchRequest {

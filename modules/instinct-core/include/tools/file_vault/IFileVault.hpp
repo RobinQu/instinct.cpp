@@ -46,7 +46,7 @@ namespace INSTINCT_CORE_NS {
          * @param named_resource
          * @return
          */
-        virtual std::future<bool> CheckResourcePresence(const std::string& named_resource) = 0;
+        virtual std::future<bool> CheckResource(const std::string& named_resource) = 0;
 
         virtual std::future<void> DeleteResource(const std::string& named_resource) = 0;
 

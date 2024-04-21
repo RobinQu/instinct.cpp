@@ -71,15 +71,16 @@ namespace INSTINCT_LLM_NS {
         }
 
         static TokenizerPtr MakeGPT2Tokenizer() {
-            static bool ONCE = false;
-            if(!ONCE) {
+            if(!DEFAULT_FILE_VAULT->CheckResource("tiktoken/gpt2_vocab.bpe").get()) {
                 FetchHttpGetResourceToFileVault(
                     DEFAULT_FILE_VAULT,
                     "tiktoken/gpt2_vocab.bpe",
                     "https://openaipublic.blob.core.windows.net/gpt-2/encodings/main/vocab.bpe",
                     {.algorithm = kSHA256, .expected_value = "1ce1664773c50f3e0cc8842619a93edc4624525b728b188a9e0be33b7726adc5"}
                 ).wait();
+            }
 
+            if(!DEFAULT_FILE_VAULT->CheckResource("tiktoken/gpt2_encoder.json").get()) {
                 FetchHttpGetResourceToFileVault(
                     DEFAULT_FILE_VAULT,
                     "tiktoken/gpt2_encoder.json",
@@ -109,8 +110,7 @@ namespace INSTINCT_LLM_NS {
         }
 
         static TokenizerPtr MakeGPT4Tokenizer() {
-            static bool ONCE = false;
-            if(!ONCE) {
+            if(DEFAULT_FILE_VAULT->CheckResource("tiktoken/cl100k_base.tiktoken").get()) {
                 FetchHttpGetResourceToFileVault(
                     DEFAULT_FILE_VAULT,
                     "tiktoken/cl100k_base.tiktoken",

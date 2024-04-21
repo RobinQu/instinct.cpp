@@ -180,7 +180,7 @@ namespace INSTINCT_CORE_NS {
             });
         }
 
-        std::future<bool> CheckResourcePresence(const std::string &named_resource) override {
+        std::future<bool> CheckResource(const std::string &named_resource) override {
             return std::async(std::launch::async, [&] {
                 std::lock_guard lock(write_mutex_);
                 const auto [p1,p2] = GetFilePaths_(named_resource);
@@ -190,7 +190,7 @@ namespace INSTINCT_CORE_NS {
 
         std::future<void> DeleteResource(const std::string &named_resource) override {
             return std::async(std::launch::async, [&] {
-                if (CheckResourcePresence(named_resource).get()) {
+                if (CheckResource(named_resource).get()) {
                     std::lock_guard lock(write_mutex_);
                     const auto [p1,p2] = GetFilePaths_(named_resource);
                     std::filesystem::remove(p1);
