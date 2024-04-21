@@ -109,6 +109,7 @@ message ModifyAssistantRequest {
   ResponseFormat response_format = 8;
   repeated AssistantToolObject tools = 10;
   AssistantToolResources tool_resources = 11;
+  string assistant_id = 12;
 }
 
 // ==============================================================

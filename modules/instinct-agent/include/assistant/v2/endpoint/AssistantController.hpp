@@ -20,8 +20,27 @@ namespace INSTINCT_AGENT_NS::assistant::v2 {
         }
 
         void Mount(HttpLibServer &server) override {
-            server.PostRoute<ListAssistantsRequest, ListAssistantsResponse>("/assistants", [&](const ListAssistantsRequest& req, const RestRouteSession& session) {
+            server.GetRoute<ListAssistantsRequest, ListAssistantsResponse>("/assistants", [&](ListAssistantsRequest& req, const HttpLibSession& session) {
                 return facade_.assistant->ListAssistants(req);
+            });
+
+            server.PostRoute<AssistantObject, AssistantObject>("/assitants", [&](AssistantObject& req, const HttpLibSession& session) {
+                return facade_.assistant->CreateAssistant(req);
+            });
+
+            server.GetRoute<GetAssistantRequest, AssistantObject>("/assitants/:assitant_id", [&](GetAssistantRequest& req, const HttpLibSession& session) {
+                req.set_assistant_id(session.request.path_params.at("assistant_id"));
+                return facade_.assistant->RetrieveAssistant(req);
+            });
+
+            server.PostRoute<ModifyAssistantRequest, AssistantObject>("/assistants/:assistant_id", [&](ModifyAssistantRequest& req, const HttpLibSession& session) {
+                req.set_assistant_id(session.request.path_params.at("assistant_id"));
+                return facade_.assistant->ModifyAssistant(req);
+            });
+
+            server.DeleteRoute<DeleteAssistantRequest, DeleteAssistantResponse>("/assitants/:assistant:id", [&](DeleteAssistantRequest& req, const HttpLibSession& session) {
+                req.set_assistant_id(session.request.path_params.at("assistant_id"));
+                return facade_.assistant->DeleteAssistant(req);
             });
         }
     };

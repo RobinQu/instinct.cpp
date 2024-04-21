@@ -33,7 +33,7 @@ namespace INSTINCT_SERVER_NS {
 
 
 
-    struct RestRouteSession {
+    struct HttpLibSession {
         const Request request;
         Response& resp;
     };
@@ -112,22 +112,32 @@ namespace INSTINCT_SERVER_NS {
 
 
         template<typename Req, typename Res, typename Fn, typename EntityConverter=ProtobufUtils>
-        requires std::is_invocable_r_v<Res, Fn, const Req&, const RestRouteSession&>
+        requires std::is_invocable_r_v<Res, Fn, Req&, const HttpLibSession&>
         void PostRoute(const std::string& path, Fn&& fn) {
             GetHttpLibServer().Post(path, [&,fn](const Request& req, Response& resp) {
-                const auto req_entity = EntityConverter::Deserialize(req.body);
-                auto resp_entity = std::invoke(fn, req_entity, {req,resp});
-                resp.body = EntityConverter::Serialize(resp_entity);
+                auto req_entity = EntityConverter::template Deserialize<Req>(req.body);
+                auto resp_entity = std::invoke(fn, req_entity, HttpLibSession {req, resp});
+                resp.body = EntityConverter::template Serialize<Res>(resp_entity);
             });
         }
 
         template<typename Req, typename Res, typename Fn, typename EntityConverter=ProtobufUtils>
-        requires std::is_invocable_r_v<Res, Fn, const Req&, const RestRouteSession&>
+        requires std::is_invocable_r_v<Res, Fn, Req&, const HttpLibSession&>
         void GetRoute(const std::string& path, Fn&& fn) {
             GetHttpLibServer().Get(path, [&,fn](const Request& req, Response& resp) {
-                const auto req_entity = EntityConverter::Deserialize(req.body);
-                auto resp_entity = std::invoke(fn, req_entity, {req,resp});
-                resp.body = EntityConverter::Serialize(resp_entity);
+                auto req_entity = EntityConverter::template Deserialize<Req>(req.body);
+                auto resp_entity = std::invoke(fn, req_entity, HttpLibSession {req,resp});
+                resp.body = EntityConverter::template Serialize<Res>(resp_entity);
+            });
+        }
+
+        template<typename Req, typename Res, typename Fn, typename EntityConverter=ProtobufUtils>
+        requires std::is_invocable_r_v<Res, Fn, Req&, const HttpLibSession&>
+        void DeleteRoute(const std::string& path, Fn&& fn) {
+            GetHttpLibServer().Delete(path, [&,fn](const Request& req, Response& resp) {
+                auto req_entity = EntityConverter::template Deserialize<Req>(req.body);
+                auto resp_entity = std::invoke(fn, req_entity, HttpLibSession {req,resp});
+                resp.body = EntityConverter::template Serialize<Res>(resp_entity);
             });
         }
 

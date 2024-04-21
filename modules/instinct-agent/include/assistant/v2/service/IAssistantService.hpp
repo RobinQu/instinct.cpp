@@ -20,6 +20,7 @@ namespace INSTINCT_AGENT_NS::assistant::v2 {
         virtual AssistantObject CreateAssistant(const AssistantObject& create_request) = 0;
         virtual AssistantObject RetrieveAssistant(const GetAssistantRequest& get_request) = 0;
         virtual DeleteAssistantResponse DeleteAssistant(const DeleteAssistantRequest& delete_request) = 0;
+        virtual AssistantObject ModifyAssistant(const ModifyAssistantRequest& modify_assistant_request) = 0;
     };
 
     using AssistantServicePtr = std::shared_ptr<IAssistantService>;
