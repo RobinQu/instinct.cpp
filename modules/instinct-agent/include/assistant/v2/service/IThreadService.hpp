@@ -5,10 +5,10 @@
 #ifndef THREADSERVICE_HPP
 #define THREADSERVICE_HPP
 
-#include <assistant_api.pb.h>
+#include <assistant_api_v2.pb.h>
 #include "AgentGlobals.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_AGENT_NS::assistant::v2 {
 
     class IThreadService {
     public:
@@ -17,7 +17,10 @@ namespace INSTINCT_AGENT_NS {
         IThreadService(IThreadService&&)=delete;
         IThreadService(const IThreadService&)=delete;
 
-        // CreateAssistant();
+        virtual ThreadObject CreateThread(const ThreadObject& create_request) = 0;
+        virtual ThreadObject RetrieveThread(const RetrieveFileRequest& retrieve_request) = 0;
+        virtual ThreadObject ModifyThread(const ModifyAssistantRequest& modify_request) = 0;
+        virtual DeleteThreadResponse DeleteThread(const DeleteThreadResponse& delete_request) = 0;
 
     };
 

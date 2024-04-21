@@ -5,15 +5,23 @@
 #ifndef ASSISTANTAPIBASECONTROLLER_HPP
 #define ASSISTANTAPIBASECONTROLLER_HPP
 
+#include <utility>
 
+#include "AgentGlobals.hpp"
+#include "assistant/v2/service/AssistantFacade.hpp"
 #include "server/HttpController.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_AGENT_NS::assistant::v2 {
     using namespace INSTINCT_SERVER_NS;
 
     class BaseController: public HttpLibController {
+    protected:
+        AssistantFacade facade_;
 
-
+    public:
+        explicit BaseController(AssistantFacade facade)
+            : facade_(std::move(facade)) {
+        }
     };
 }
 

@@ -7,7 +7,7 @@
 
 #include "BaseController.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_AGENT_NS::assistant::v2 {
 
     class VectorStoreFileBatchController final: public BaseController {
 

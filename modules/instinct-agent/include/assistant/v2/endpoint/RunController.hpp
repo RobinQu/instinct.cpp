@@ -7,7 +7,7 @@
 
 #include "BaseController.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_AGENT_NS::assistant::v2 {
 
     class RunController final: public BaseController {
 

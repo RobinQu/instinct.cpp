@@ -5,10 +5,10 @@
 #ifndef VECSTORESERVICE_HPP
 #define VECSTORESERVICE_HPP
 
-#include <assistant_api.pb.h>
+#include <assistant_api_v2.pb.h>
 #include "AgentGlobals.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_AGENT_NS::assistant::v2 {
 
     class IVectorStoreService {
     public:

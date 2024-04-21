@@ -40,6 +40,7 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/assistant/v2/endpoint/VectorStoreFileBatchController.hpp
         include/assistant/v2/endpoint/FileController.hpp
         include/assistant/v2/endpoint/BaseController.hpp
+        include/assistant/v2/service/IMessageService.hpp
 )
 
 

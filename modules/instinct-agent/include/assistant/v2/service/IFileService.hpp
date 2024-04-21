@@ -8,8 +8,7 @@
 #include <assistant_api.pb.h>
 #include "AgentGlobals.hpp"
 
-namespace INSTINCT_AGENT_NS {
-
+namespace INSTINCT_AGENT_NS::assistant::v2{
     class IFileService {
     public:
         IFileService()=default;
@@ -17,6 +16,11 @@ namespace INSTINCT_AGENT_NS {
         IFileService(IFileService&&)=delete;
         IFileService(const IFileService&)=delete;
 
+        virtual ListFilesResponse ListFiles(const ListFilesRequest& list_files_request) = 0;
+        virtual FileObject UploadFile(const UploadFileRequest& upload_file_request) = 0;
+        virtual DeleteFileResponse DeleteFile(const DeleteFileRequest& delete_file_request) = 0;
+        virtual FileObject RetrieveFile(const RetrieveFileRequest& retrieve_file_request) = 0;
+        virtual std::string DownloadFile(const DownloadFileRequest& download_file_request) = 0;
     };
 
     using FileServicePtr = std::shared_ptr<IFileService>;
