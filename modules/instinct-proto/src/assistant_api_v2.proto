@@ -410,7 +410,7 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
 
 
   message RunErrorObject {
-    RunErrorType last_error = 1;
+    CommonErrorType last_error = 1;
 
 
     uint64 expires_at = 2;
@@ -453,7 +453,7 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
 }
 
 
-enum RunErrorType {
+enum CommonErrorType {
   ServerError = 0;
   RateLimitExceeded = 1;
   InvalidPrompt = 2;
@@ -679,7 +679,7 @@ message RunStepObject { // GetRunStepResponse
 
   RunStepError last_error = 10;
   message RunStepError {
-    RunErrorType type = 1;
+    CommonErrorType type = 1;
     string message = 2;
   }
 
@@ -788,80 +788,42 @@ message VectorStoreObject { // CreateVectorStoreResponse, GetVectorStoreResponse
   google.protobuf.Struct metadata = 11;
 }
 
-
 // ==============================================================
-// VectorStore - FileBatch
+// VectorStore - File
 // ==============================================================
-message CancelVectorStoreFileBatchRequest {
-  // The ID of the file batch to cancel.
-  string batch_id = 1;
+message ListVectorStoreFilesRequest {
 
-  // The ID of the vector store that the file batch belongs to.
-  string vector_store_id = 2;
-}
-
-message CreateVectorStoreFileBatchRequest {
-  // The ID of the vector store for which to create a File Batch.
-  string vector_store_id = 1;
-}
-
-message GetVectorStoreFileBatchRequest {
-  // The ID of the file batch being retrieved.
-  string batch_id = 1;
-
-  // The ID of the vector store that the file batch belongs to.
-  string vector_store_id = 2;
-}
-
-
-message ListFilesInVectorStoreBatchRequest {
-  enum ListFilesInVectorStoreBatchRequestFilter {
-    LIST_FILES_IN_VECTOR_STORE_BATCH_REQUEST_FILTER_IN_PROGRESS = 0;
-    LIST_FILES_IN_VECTOR_STORE_BATCH_REQUEST_FILTER_COMPLETED = 1;
-    LIST_FILES_IN_VECTOR_STORE_BATCH_REQUEST_FILTER_FAILED = 2;
-    LIST_FILES_IN_VECTOR_STORE_BATCH_REQUEST_FILTER_CANCELLED = 3;
-  }
-
-  enum ListFilesInVectorStoreBatchRequestOrder {
-    LIST_FILES_IN_VECTOR_STORE_BATCH_REQUEST_ORDER_ASC = 0;
-    LIST_FILES_IN_VECTOR_STORE_BATCH_REQUEST_ORDER_DESC = 1;
-  }
 
   // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
   string after = 1;
 
-  // The ID of the file batch that the files belong to.
-  string batch_id = 2;
-
   // A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
-  string before = 3;
+  string before = 2;
 
   // Filter by file status. One of `in_progress`, `completed`, `failed`, `cancelled`.
-  ListFilesInVectorStoreBatchRequestFilter filter = 4;
+  VectorStoreFileStatus filter = 3;
 
   // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
-  int32 limit = 5;
+  int32 limit = 4;
 
   // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
-  ListFilesInVectorStoreBatchRequestOrder order = 6;
+  ListRequestOrder order = 5;
 
   // The ID of the vector store that the files belong to.
-  string vector_store_id = 7;
+  string vector_store_id = 6;
 }
 
+message ListVectorStoreFilesResponse {
+  string object = 1;
+  repeated VectorStoreFile data = 2;
+  string first_id = 3;
+  string last_id = 4;
+  bool has_more = 5;
+}
 
-// ==============================================================
-// VectorStore - File
-// ==============================================================
-message CreateVectorStoreFileRequest {
-  // The ID of the vector store for which to create a File.
+message CreateVectorFileRequest {
   string vector_store_id = 1;
-}
-
-
-message DeleteFileRequest {
-  // The ID of the file to use for this request.
-  string file_id = 1;
+  string file_di = 2;
 }
 
 message GetVectorStoreFileRequest {
@@ -880,56 +842,142 @@ message DeleteVectorStoreFileRequest {
   string vector_store_id = 2;
 }
 
-message ListVectorStoreFilesRequest {
-  enum ListVectorStoreFilesRequestFilter {
-    LIST_VECTOR_STORE_FILES_REQUEST_FILTER_IN_PROGRESS = 0;
-    LIST_VECTOR_STORE_FILES_REQUEST_FILTER_COMPLETED = 1;
-    LIST_VECTOR_STORE_FILES_REQUEST_FILTER_FAILED = 2;
-    LIST_VECTOR_STORE_FILES_REQUEST_FILTER_CANCELLED = 3;
-  }
+message DeleteVectorStoreFileResponse {
+  string id = 1;
+  bool deleted = 2;
+  string object = 3; // always `vector_store.file.deleted`
+}
 
-  enum ListVectorStoreFilesRequestOrder {
-    LIST_VECTOR_STORE_FILES_REQUEST_ORDER_ASC = 0;
-    LIST_VECTOR_STORE_FILES_REQUEST_ORDER_DESC = 1;
-  }
+enum VectorStoreFileStatus {
+  IN_PROGRESS = 0;
+  COMPLETED = 1;
+  FAILED = 2;
+  CANCELLED = 3;
+}
 
-  // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
-  string after = 1;
+message VectorStoreFile { // CreateVectorFileResponse
+  string id = 1;
+  string object = 2;
+  int32 created_at = 3;
+  string vector_store_id = 4;
+  VectorStoreFileStatus status = 5;
+  VectorStoreFileError last_error = 6;
+}
 
-  // A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
-  string before = 2;
+message CreateVectorStoreFileRequest {
+  // The ID of the vector store for which to create a File.
+  string vector_store_id = 1;
+}
 
-  // Filter by file status. One of `in_progress`, `completed`, `failed`, `cancelled`.
-  ListVectorStoreFilesRequestFilter filter = 3;
+message VectorStoreFileError {
+  CommonErrorType code = 1;
+  string message = 2;
+}
 
-  // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
-  int32 limit = 4;
+// ==============================================================
+// VectorStore - FileBatch
+// ==============================================================
+message CreateVectorStoreFileBatchRequest {
+  // The ID of the vector store for which to create a File Batch.
+  string vector_store_id = 1;
+}
 
-  // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
-  ListVectorStoreFilesRequestOrder order = 5;
+message CancelVectorStoreFileBatchRequest {
+  // The ID of the file batch to cancel.
+  string batch_id = 1;
 
-  // The ID of the vector store that the files belong to.
-  string vector_store_id = 6;
+  // The ID of the vector store that the file batch belongs to.
+  string vector_store_id = 2;
 }
 
 
+message GetVectorStoreFileBatchRequest {
+  // The ID of the file batch being retrieved.
+  string batch_id = 1;
+
+  // The ID of the vector store that the file batch belongs to.
+  string vector_store_id = 2;
+}
+
+
+message ListFilesInVectorStoreBatchRequest {
+  // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
+  string after = 1;
+
+  // The ID of the file batch that the files belong to.
+  string batch_id = 2;
+
+  // A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list.
+  string before = 3;
+
+  // Filter by file status. One of `in_progress`, `completed`, `failed`, `cancelled`.
+  VectorStoreFileStatus filter = 4;
+
+  // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
+  int32 limit = 5;
+
+  // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
+  ListRequestOrder order = 6;
+
+  // The ID of the vector store that the files belong to.
+  string vector_store_id = 7;
+}
+
+message VectorStoreFileBatch {// CreateVectorStoreFileBatchResponse, GetVectorStoreFileBatchResponse, CancelVectorStoreFileBatchResponse
+  string id = 1;
+  string object = 2;
+  int32 created_at = 3;
+  string vector_store_id = 4;
+  VectorStoreFileStatus filter = 5;
+  VectorStoreFileError last_error = 6;
+}
 
 
 // ==============================================================
 // File
 // ==============================================================
-message DownloadFileRequest {
-  // The ID of the file to use for this request.
-  string file_id = 1;
-}
-
 message ListFilesRequest {
   // Only return files with the given purpose.
   string purpose = 1;
 }
 
+message ListFilesResponse {
+  string object = 1; // always `list`
+  repeated FileObject data = 2;
+}
+
+message UploadFileRequest {
+  bytes file = 1;
+  string purpose = 2; // fine-tune, assistants
+}
+
+message DeleteFileRequest {
+  // The ID of the file to use for this request.
+  string file_id = 1;
+}
+
+message DeleteFileResponse {
+  string id = 1;
+  string object = 2;
+  bool deleted = 3;
+}
 
 message RetrieveFileRequest {
   // The ID of the file to use for this request.
   string file_id = 1;
+}
+
+
+message DownloadFileRequest { // DownloadFileResponse is type of string, thus it cannot be defined in proto files
+  // The ID of the file to use for this request.
+  string file_id = 1;
+}
+
+message FileObject { // UploadFileResponse, RetrieveFileResponse
+  string id = 1;
+  int32 bytes = 2;
+  int32 created_at = 3;
+  string filename = 4;
+  string object = 5;
+  string purpose = 6;
 }
