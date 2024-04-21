@@ -22,6 +22,21 @@
 
 
 namespace INSTINCT_CORE_NS {
+
+    struct ProtobufHttpEntityConverter {
+        template<typename T>
+        requires IsProtobufMessage<T>
+        T Deserialize(const std::string& buf) {
+            return ProtobufUtils::Deserialize<T>(buf);
+        }
+
+        template<typename T>
+        requires IsProtobufMessage<T>
+        std::string Serialize(const T& obj) {
+            return ProtobufUtils::Serialize(obj);
+        }
+    };
+
     namespace details {
         static bool is_end_sentinels(const std::string& chunk_string, const std::vector<std::string>& end_sentinels) {
             return std::ranges::any_of(end_sentinels.begin(), end_sentinels.end(), [&](const auto&item) {
@@ -34,19 +49,6 @@ namespace INSTINCT_CORE_NS {
             return std::regex_replace(data_event, DATA_EVENT_PREFIX, "");
         }
 
-        struct ProtobufHttpEntityConverter {
-            template<typename T>
-            requires IsProtobufMessage<T>
-            T Deserialize(const std::string& buf) {
-                return ProtobufUtils::Deserialize<T>(buf);
-            }
-
-            template<typename T>
-            requires IsProtobufMessage<T>
-            std::string Serialize(const T& obj) {
-                return ProtobufUtils::Serialize(obj);
-            }
-        };
 
         template<typename RequestEntity, typename ResponseEntity>
         class PostBatchBuilder {
@@ -92,11 +94,8 @@ namespace INSTINCT_CORE_NS {
 
     }
 
-
-
-
     class HttpRestClient final {
-        details::ProtobufHttpEntityConverter converter_;
+        ProtobufHttpEntityConverter converter_;
         Endpoint endpoint_;
         HttpClientPtr http_client_;
 

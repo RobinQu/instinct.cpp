@@ -20,10 +20,8 @@ namespace INSTINCT_AGENT_NS::assistant::v2 {
         }
 
         void Mount(HttpLibServer &server) override {
-            server.GetHttpLibServer().Post("/assitants", [&](const Request& req, Response& resp) {
-                const auto req_entity = ProtobufUtils::Deserialize<ListAssistantsRequest>(req.body);
-                const auto response_entity = facade_.assistant->ListAssistants(req_entity);
-                resp.body = ProtobufUtils::Serialize(response_entity);
+            server.PostRoute<ListAssistantsRequest, ListAssistantsResponse>("/assistants", [&](const ListAssistantsRequest& req, const RestRouteSession& session) {
+                return facade_.assistant->ListAssistants(req);
             });
         }
     };

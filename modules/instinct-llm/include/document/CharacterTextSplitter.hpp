@@ -10,7 +10,7 @@
 namespace INSTINCT_LLM_NS {
 
     struct CharacterTextSplitterOptions {
-        LengthFunction length_function = IdentityLengthFunction;
+        LenghtCalculatorPtr length_function = std::make_shared<StringLengthCalculator>();
         int chunk_size=4000;
         int chunk_overlap=200;
         bool keep_sepeartor=false;
@@ -18,7 +18,7 @@ namespace INSTINCT_LLM_NS {
         UnicodeString separator = "\n\n";
     };
 
-    class CharacterTextSplitter: public BaseTextSplitter {
+    class CharacterTextSplitter final: public BaseTextSplitter {
         UnicodeString sepeartor_;
     public:
         explicit CharacterTextSplitter(const CharacterTextSplitterOptions& options = {}): BaseTextSplitter(options.chunk_size, options.chunk_overlap, options.keep_sepeartor, options.strip_whitespace, options.length_function),

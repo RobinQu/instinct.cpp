@@ -1,6 +1,7 @@
 //
 // Created by RobinQu on 2024/2/29.
 //
+#include <document/TextSplitter.hpp>
 #include <unicode/brkiter.h>
 #include <gtest/gtest.h>
 #include <unicode/regex.h>
@@ -88,7 +89,7 @@ The ancestors of llamas are thought to have originated from the Great Plains of 
         // split with category
         auto reg_pattern = "\\s+";
         std::vector<UnicodeString> result;
-        details::split_text_with_regex(text2, reg_pattern, result);
+        U32StringUtils::SpilitWithRegex(text2, reg_pattern, result);
         for (const auto& str: result) {
             std::cout << "length=" << str.length() << ", content=" << str << std::endl;
         }
@@ -96,14 +97,14 @@ The ancestors of llamas are thought to have originated from the Great Plains of 
 
         // split with simpe char
         result.clear();
-        details::split_text_with_regex("aaaabbccbc", "b", result);
+        U32StringUtils::SpilitWithRegex("aaaabbccbc", "b", result);
         TensorUtils::PrintEmbedding("splits: ", result);
         ASSERT_EQ(result.size(), 4);
 
         // split with non-existence char
 
         result.clear();
-        details::split_text_with_regex("aaaabbccbc", "f", result);
+        U32StringUtils::SpilitWithRegex("aaaabbccbc", "f", result);
         TensorUtils::PrintEmbedding("splits: ", result);
 
         result.clear();
@@ -113,9 +114,9 @@ The ancestors of llamas are thought to have originated from the Great Plains of 
         });
         UnicodeString pattern_str = "(" + details::join_with_seperator("|", specials_unicode) + ")";
         std::cout << "pattern string: " << pattern_str << std::endl;
-        details::split_text_with_regex(text3, pattern_str, result);
+        U32StringUtils::SpilitWithRegex(text3, pattern_str, result);
 //        TensorUtils::PrintEmbedding("result=", result);
-        u32_utils::print_splits("split text3: ", result);
+        details::print_splits("split text3: ", result);
 
     }
 

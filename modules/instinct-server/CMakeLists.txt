@@ -15,7 +15,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/server/IServerLifecycleHandler.hpp
         include/server/httplib/HttpLibServerLifeCycleManager.hpp
         include/server/HttpController.hpp
-        include/server/RestController.hpp
+        include/server/RestRoutes.hpp
 
 )
 

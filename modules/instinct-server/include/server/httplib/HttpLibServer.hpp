@@ -33,11 +33,16 @@ namespace INSTINCT_SERVER_NS {
 
 
 
+    struct RestRouteSession {
+        const Request request;
+        Response& resp;
+    };
+
+
     class HttpLibServer final: public IManagedServer<HttpLibServer> {
         ServerOptions options_;
         Server server_;
         HttpLibServerLifeCycleManager life_cycle_manager_;
-
 
     public:
         static void RegisterSignalHandlers() {
@@ -104,6 +109,28 @@ namespace INSTINCT_SERVER_NS {
             life_cycle_manager_.AddServerLifeCylce(controller);
             controller->Mount(*this);
         }
+
+
+        template<typename Req, typename Res, typename Fn, typename EntityConverter=ProtobufUtils>
+        requires std::is_invocable_r_v<Res, Fn, const Req&, const RestRouteSession&>
+        void PostRoute(const std::string& path, Fn&& fn) {
+            GetHttpLibServer().Post(path, [&,fn](const Request& req, Response& resp) {
+                const auto req_entity = EntityConverter::Deserialize(req.body);
+                auto resp_entity = std::invoke(fn, req_entity, {req,resp});
+                resp.body = EntityConverter::Serialize(resp_entity);
+            });
+        }
+
+        template<typename Req, typename Res, typename Fn, typename EntityConverter=ProtobufUtils>
+        requires std::is_invocable_r_v<Res, Fn, const Req&, const RestRouteSession&>
+        void GetRoute(const std::string& path, Fn&& fn) {
+            GetHttpLibServer().Get(path, [&,fn](const Request& req, Response& resp) {
+                const auto req_entity = EntityConverter::Deserialize(req.body);
+                auto resp_entity = std::invoke(fn, req_entity, {req,resp});
+                resp.body = EntityConverter::Serialize(resp_entity);
+            });
+        }
+
     };
 
     static void GracefullyShutdownRunningHttpServers() {

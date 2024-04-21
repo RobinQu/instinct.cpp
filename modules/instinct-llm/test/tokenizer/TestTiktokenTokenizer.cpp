@@ -45,8 +45,6 @@ The ancestors of llamas are thought to have originated from the Great Plains of 
         TensorUtils::PrintEmbedding("tokens of ids2: ", ids2);
         ASSERT_TRUE(check_equality(ids2, std::vector{15339, 1917, 62904, 233}));
 
-
-        delete tokenizer;
     }
 
     TEST(TiktokenTokenizer, TestEncodeWithSepcials) {
