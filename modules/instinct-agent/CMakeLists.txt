@@ -29,7 +29,7 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/assistant/v2/service/IFileService.hpp
         include/assistant/v2/service/IRunService.hpp
         include/assistant/v2/service/IThreadService.hpp
-        include/assistant/v2/service/IVecStoreService.hpp
+        include/assistant/v2/service/IVectorStoreService.hpp
 
         include/assistant/v2/endpoint/AssistantController.hpp
         include/assistant/v2/endpoint/ThreadController.hpp

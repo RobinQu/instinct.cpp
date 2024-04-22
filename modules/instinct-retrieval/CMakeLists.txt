@@ -27,6 +27,13 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/ingestor/DOCXFileIngestor.hpp
         include/store/duckdb/DuckDBDocWithEmbeddingStore.hpp
         include/ingestor/ParquetFileIngestor.hpp
+        include/tools/orm/IDataMapper.hpp
+        include/tools/orm/EntityDataMapper.hpp
+        include/tools/orm/IConnectionPool.hpp
+        include/tools/orm/BaseConnectionPool.hpp
+        include/tools/orm/BaseConnection.hpp
+        include/store/duckdb/DuckDBConnectionPool.hpp
+
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

@@ -9,7 +9,7 @@
 #include "IFileService.hpp"
 #include "IRunService.hpp"
 #include "IThreadService.hpp"
-#include "IVecStoreService.hpp"
+#include "IVectorStoreService.hpp"
 
 
 namespace INSTINCT_AGENT_NS::assistant::v2 {
