@@ -36,10 +36,13 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/tools/file_vault/BaseFileVaultResourceProvider.hpp
         include/tools/HashUtils.hpp
         include/tools/IOUtils.hpp
+        include/tools/SnowflakeIDGenerator.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
 #)
+
+find_package(inja REQUIRED)
 
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
@@ -77,6 +80,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         CURL::libcurl
         uriparser::uriparser
         hash-library::hash-library
+        pantor::inja
 )
 
 #set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES

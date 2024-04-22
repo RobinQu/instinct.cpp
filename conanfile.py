@@ -37,6 +37,7 @@ class InstinctCppRecipe(ConanFile):
         self.requires("pdfium/95.0.4629")
         self.requires("duckx/1.2.2")
         self.requires("exprtk/0.0.2")
+        self.requires("inja/3.4.0")
 
         # deps of examples
         self.requires("cli11/2.4.1")

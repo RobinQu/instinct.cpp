@@ -18,9 +18,14 @@ namespace INSTINCT_RETRIEVAL_NS {
             : connection_pool_(connection_pool), last_active_time_point_(std::chrono::system_clock::now()), impl_(std::move(impl_)) {
         }
 
-        Impl * operator*() override {
+        Impl & GetImpl() const override {
+            return impl_;
+        }
+
+        Impl* operator->() const override {
             return *impl_;
         }
+
 
         std::chrono::time_point<std::chrono::system_clock> GetLastActiveTime() override {
             return last_active_time_point_;

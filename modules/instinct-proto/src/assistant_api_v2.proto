@@ -56,11 +56,6 @@ message AssistantToolResources {
 }
 
 message ListAssistantsRequest {
-  enum ListAssistantsRequestOrder {
-    LIST_ASSISTANTS_REQUEST_ORDER_ASC = 0;
-    LIST_ASSISTANTS_REQUEST_ORDER_DESC = 1;
-  }
-
   // A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list.
   string after = 1;
 
@@ -71,7 +66,7 @@ message ListAssistantsRequest {
   int32 limit = 3;
 
   // Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order.
-  ListAssistantsRequestOrder order = 4;
+  ListRequestOrder order = 4;
 }
 
 message ListAssistantsResponse {

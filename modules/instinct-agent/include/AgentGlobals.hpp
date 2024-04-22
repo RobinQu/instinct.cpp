@@ -12,6 +12,7 @@
 #include "CoreGlobals.hpp"
 #include "chain/MessageChain.hpp"
 #include "toolkit/BaseFunctionTool.hpp"
+#include "tools/SnowflakeIDGenerator.hpp"
 
 namespace INSTINCT_AGENT_NS {
     using namespace INSTINCT_CORE_NS;
@@ -63,7 +64,17 @@ namespace INSTINCT_AGENT_NS {
         return StringUtils::JoinWith(fn_desc_view, "\n");
     }
 
+    namespace assistant::v2 {
+        static constexpr int DEFAULT_LIST_LIMIT = 20;
 
+        namespace details {
+            static std::string GenerateNextId(const std::string_view& prefix) {
+                static SnowflakeIDGenerator<1534832906275L> generator;
+                return fmt::format("{}-{}", prefix, generator.NextID());
+            }
+        }
+
+    }
 
 
 }

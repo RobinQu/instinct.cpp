@@ -19,6 +19,9 @@
 namespace INSTINCT_CORE_NS {
     using namespace U_ICU_NAMESPACE;
 
+
+
+
     class U32StringUtils {
     public:
         static U32String CopiesOf(int n, const UnicodeString& text) {
@@ -164,6 +167,13 @@ namespace INSTINCT_CORE_NS {
             return value;
         }
     };
+
+
+    static void assert_not_blank(const std::string& v, const std::string& msg = "given string cannot be blank") {
+        if (StringUtils::IsBlankString(v)) {
+            throw InstinctException(msg);
+        }
+    }
 }
 
 #endif //STRINGUTILS_H

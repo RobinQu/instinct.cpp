@@ -7,16 +7,21 @@
 
 
 #include <duckdb/main/connection.hpp>
+#include <utility>
 
-#include "BaseDuckDBStore.hpp"
-#include "../../tools/orm/BaseConnectionPool.hpp"
-#include "tools/orm/ManagedConnection.hpp"
+#include "../../../store/duckdb/BaseDuckDBStore.hpp"
+#include "../BaseConnectionPool.hpp"
+#include "../ManagedConnection.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
 
     class DuckDBConnectionPool final: public BaseConnectionPool<duckdb::Connection> {
         DuckDBPtr db_;
     public:
+        explicit DuckDBConnectionPool(DuckDBPtr db)
+            : db_(std::move(db)) {
+        }
+
         std::shared_ptr<IConnection<duckdb::Connection>> Create() override {
             return std::make_shared<ManagedConnection<duckdb::Connection>>(
                 this->shared_from_this(),

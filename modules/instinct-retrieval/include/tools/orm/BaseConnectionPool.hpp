@@ -23,7 +23,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::condition_variable condition_;
         ConnectionPoolOptions options_;
     public:
-        std::shared_ptr<IConnection<Impl>> Acquire() override {
+        std::shared_ptr<IConnection<Impl>> TryAcquire() override {
             std::unique_lock lock(mutex_);
             while (pool_.empty()) {
                 if (condition_.wait_for(lock, options_.max_wait_duration_for_acquire) ==
@@ -45,6 +45,13 @@ namespace INSTINCT_RETRIEVAL_NS {
             return this->Create();
         }
 
+        typename IConnectionPool<Impl>::ConnectionPtr Acquire() override {
+            if (const auto conn = TryAcquire()) {
+                return conn;
+            }
+            throw InstinctException("Cannot acquire connection from connection pool");
+        }
+
         void Release(const std::shared_ptr<IConnection<Impl>> &connection) override {
             if (!connection || !connection->IsAlive() ) {
                 connection = this->Create();
@@ -57,6 +64,9 @@ namespace INSTINCT_RETRIEVAL_NS {
             return true;
         }
     };
+
+    template<typename Impl>
+    using ConnectionPoolPtr = std::shared_ptr<BaseConnectionPool<Impl>>;
 
 
 

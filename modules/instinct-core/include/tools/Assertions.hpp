@@ -6,9 +6,8 @@
 #define ASSERTIONS_HPP
 
 #include "CoreGlobals.hpp"
+#include "StringUtils.hpp"
 #include "tools/http/IHttpClient.hpp"
-
- #include "StringUtils.hpp"
 
 
 namespace INSTINCT_CORE_NS {

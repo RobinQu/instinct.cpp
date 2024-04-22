@@ -5,12 +5,11 @@
 #ifndef BASEDUCKDBSTORE_HPP
 #define BASEDUCKDBSTORE_HPP
 
-#include "RetrievalGlobals.hpp"
 #include <duckdb.hpp>
 #include <utility>
 #include "tools/Assertions.hpp"
 
-#include "LLMGlobals.hpp"
+#include "RetrievalGlobals.hpp"
 #include "store/IDocStore.hpp"
 #include "tools/StringUtils.hpp"
 #include "functional/ReactiveFunctions.hpp"
@@ -148,28 +147,6 @@ namespace INSTINCT_RETRIEVAL_NS {
             return delete_sql;
         }
 
-        static bool check_query_ok(const unique_ptr<MaterializedQueryResult>& result) {
-            return !result->GetErrorObject().HasError();
-        }
-
-        static void assert_query_ok(const unique_ptr<MaterializedQueryResult>& result) {
-            if (!check_query_ok(result)) {
-                throw InstinctException(result->GetError());
-            }
-        }
-
-        static void assert_query_ok(const unique_ptr<QueryResult>& result) {
-            if (const auto error = result->GetErrorObject(); error.HasError()) {
-                throw InstinctException(result->GetError());
-            }
-        }
-
-        static void assert_prepared_ok(const unique_ptr<PreparedStatement>& result,
-                                       const std::string& msg = "Failed to prepare statement") {
-            if (const auto error = result->GetErrorObject(); error.HasError()) {
-                throw InstinctException(msg + " " + result->GetError());
-            }
-        }
 
         static void observe_query_result(QueryResult& query_result, const std::shared_ptr<MetadataSchema>& metadata_schema_, const auto& observer) {
             int count = 0;

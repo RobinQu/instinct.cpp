@@ -28,11 +28,12 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/store/duckdb/DuckDBDocWithEmbeddingStore.hpp
         include/ingestor/ParquetFileIngestor.hpp
         include/tools/orm/IDataMapper.hpp
-        include/tools/orm/EntityDataMapper.hpp
+        include/tools/orm/duckdb/DuckDBDataMapper.hpp
         include/tools/orm/IConnectionPool.hpp
         include/tools/orm/BaseConnectionPool.hpp
         include/tools/orm/ManagedConnection.hpp
-        include/store/duckdb/DuckDBConnectionPool.hpp
+        include/tools/orm/duckdb/DuckDBConnectionPool.hpp
+        include/tools/orm/DBUtils.hpp
 
 )
 
