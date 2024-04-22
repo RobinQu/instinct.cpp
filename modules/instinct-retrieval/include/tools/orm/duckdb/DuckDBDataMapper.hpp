@@ -71,40 +71,50 @@ namespace INSTINCT_RETRIEVAL_NS {
                     auto *field_descriptor = descriptor->FindFieldByName(name);
                     assert_true(field_descriptor, "should have found field_ descriptor by column name: " + name);
                     switch (field_descriptor->cpp_type()) {
-                        case FieldDescriptor::CPPTYPE_STRING:
+                        case FieldDescriptor::CPPTYPE_STRING: {
                             reflection->SetString(&entity, field_descriptor, row.GetValue<std::string>(i));
                             break;
-                        case FieldDescriptor::CPPTYPE_INT32:
+                        }
+                        case FieldDescriptor::CPPTYPE_INT32: {
                             reflection->SetInt32(&entity, field_descriptor, row.GetValue<int>(i));
                             break;
-                        case FieldDescriptor::CPPTYPE_INT64:
+                        }
+                        case FieldDescriptor::CPPTYPE_INT64: {
                             reflection->SetInt64(&entity, field_descriptor, row.GetValue<long>(i));
                             break;
-                        case FieldDescriptor::CPPTYPE_UINT32:
+                        }
+                        case FieldDescriptor::CPPTYPE_UINT32: {
                             reflection->SetUInt32(&entity, field_descriptor, row.GetValue<u_int32_t>(i));
                             break;
-                        case FieldDescriptor::CPPTYPE_UINT64:
+                        }
+                        case FieldDescriptor::CPPTYPE_UINT64: {
                             reflection->SetUInt64(&entity, field_descriptor, row.GetValue<u_int64_t>(i));
                             break;
-                        case FieldDescriptor::CPPTYPE_DOUBLE:
+                            }
+                        case FieldDescriptor::CPPTYPE_DOUBLE: {
                             reflection->SetDouble(&entity, field_descriptor, row.GetValue<double>(i));
                             break;
-                        case FieldDescriptor::CPPTYPE_FLOAT:
+                        }
+                        case FieldDescriptor::CPPTYPE_FLOAT: {
                             reflection->SetFloat(&entity, field_descriptor, row.GetValue<float>(i));
                             break;
-                        case FieldDescriptor::CPPTYPE_BOOL:
+                        }
+                        case FieldDescriptor::CPPTYPE_BOOL: {
                             reflection->SetBool(&entity, field_descriptor, row.GetValue<bool>(i));
                             break;
-                        case FieldDescriptor::CPPTYPE_ENUM:
+                        }
+                        case FieldDescriptor::CPPTYPE_ENUM: {
                             auto enum_name = row.GetValue<std::string>(i);
                             auto enum_value_descriptor = field_descriptor->enum_type()->FindValueByName(enum_name);
                             assert_true(enum_value_descriptor, "should have found enum value by name " + enum_name);
                             reflection->SetEnum(&entity, field_descriptor, enum_value_descriptor);
                             break;
-                        default:
+                        }
+                        default: {
                             throw InstinctException(fmt::format("Unknown cpp_type for this field. name={}, cpp_type={}",
                                                                 field_descriptor->name(),
                                                                 field_descriptor->cpp_type_name()));
+                        }
                     }
                 }
                 result.push_back(std::move(entity));

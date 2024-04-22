@@ -57,7 +57,7 @@ limit {% limit %};
 
         std::optional<AssistantObject> CreateAssistant(const AssistantObject &create_request) override {
             SQLContext context;
-            ProtobufUtils::ConvertMessageTOJsonObject(create_request, context);
+            ProtobufUtils::ConvertMessageToJsonObject(create_request, context);
             auto id = details::GenerateNextId("assistant");
             context["id"] = id;
             data_mapper_->Execute("insert into tbl_instinct_assistant(id, name, model, description, instruction, temperature, top_p, tools, tool_resourecs, metadata)  values({{id}}, {{model}}, {{description}}, {{instruction}}, {{temperature}}, {{top_p}}, {{tools}}, {{tool_resources}}, {{response_format}}, {{metadata}})", context);
@@ -84,7 +84,7 @@ limit {% limit %};
         std::optional<AssistantObject> ModifyAssistant(const ModifyAssistantRequest &modify_assistant_request) override {
             assert_not_blank(modify_assistant_request.assistant_id(), "assistant id should be given");
             SQLContext context;
-            ProtobufUtils::ConvertMessageTOJsonObject(modify_assistant_request, context);
+            ProtobufUtils::ConvertMessageToJsonObject(modify_assistant_request, context);
             data_mapper_->Execute(R"("update tbl_instinct_assistant set
 {% if is_not_blank(model) %}
 model = {{model}},

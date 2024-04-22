@@ -6,16 +6,15 @@
 #define INSTINCT_PROTOBUFUTILS_HPP
 
 #include "CoreGlobals.hpp"
+#include "tools/Assertions.hpp"
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/dynamic_message.h>
 
 namespace INSTINCT_CORE_NS {
     using namespace google::protobuf;
 
-
     class ProtobufUtils final {
     public:
-
         template<class T>
         requires IsProtobufMessage<T>
         static void ConvertJSONObjectToMessage(const nlohmann::json& json_object, T& message) {
@@ -25,96 +24,215 @@ namespace INSTINCT_CORE_NS {
                 auto *field_descriptor = descriptor->FindFieldByName(name);
                 assert_true(field_descriptor, "should have found field_ descriptor by column name: " + name);
                 switch (field_descriptor->cpp_type()) {
-                    case FieldDescriptor::CPPTYPE_STRING:
+                    case FieldDescriptor::CPPTYPE_STRING: {
                         reflection->SetString(&message, field_descriptor, v.get<std::string>());
                         break;
-                    case FieldDescriptor::CPPTYPE_INT32:
+                    }
+                    case FieldDescriptor::CPPTYPE_INT32: {
                         reflection->SetInt32(&message, field_descriptor, v.get<int>());
                         break;
-                    case FieldDescriptor::CPPTYPE_INT64:
+                    }
+                    case FieldDescriptor::CPPTYPE_INT64: {
                         reflection->SetInt64(&message, field_descriptor, v.get<long>());
                         break;
-                    case FieldDescriptor::CPPTYPE_UINT32:
+                    }
+                    case FieldDescriptor::CPPTYPE_UINT32: {
                         reflection->SetUInt32(&message, field_descriptor, v.get<u_int32_t>());
                         break;
-                    case FieldDescriptor::CPPTYPE_UINT64:
+                    }
+                    case FieldDescriptor::CPPTYPE_UINT64: {
                         reflection->SetUInt64(&message, field_descriptor, v.get<u_int64_t>());
                         break;
-                    case FieldDescriptor::CPPTYPE_DOUBLE:
+                    }
+                    case FieldDescriptor::CPPTYPE_DOUBLE: {
                         reflection->SetDouble(&message, field_descriptor, v.get<double>());
-                        break;
-                    case FieldDescriptor::CPPTYPE_FLOAT:
+                            break;
+                    }
+                    case FieldDescriptor::CPPTYPE_FLOAT: {
                         reflection->SetFloat(&message, field_descriptor, v.get<float>());
                         break;
-                    case FieldDescriptor::CPPTYPE_BOOL:
-                        reflection->SetFloat(&message, field_descriptor, v.get<bool>());
+                    }
+                    case FieldDescriptor::CPPTYPE_BOOL: {
+                        reflection->SetBool(&message, field_descriptor, v.get<bool>());
                         break;
-                    case FieldDescriptor::CPPTYPE_ENUM:
+                    }
+                    case FieldDescriptor::CPPTYPE_ENUM: {
                         const auto enum_name = v.get<std::string>();
                         auto enum_value_descriptor = field_descriptor->enum_type()->FindValueByName();
                         assert_true(enum_value_descriptor, "should have found enum value by name " + enum_name);
                         reflection->SetEnum(&message, field_descriptor, enum_value_descriptor);
                         break;
-                    case FieldDescriptor::CPPTYPE_MESSAGE:
-                        google::protobuf::DynamicMessageFactory dmf;
-                        google::protobuf::Message* actual_msg = dmf.GetPrototype(field_descriptor)->New();
+                    }
+                    case FieldDescriptor::CPPTYPE_MESSAGE: {
+                        DynamicMessageFactory dmf;
+                        Message* actual_msg = dmf.GetPrototype(field_descriptor)->New();
                         ConvertJSONObjectToMessage(v, *actual_msg);
                         reflection->SetAllocatedMessage(&message, actual_msg, field_descriptor);
                         break;
-                    default:
+                    }
+                    default: {
                         throw InstinctException(fmt::format("Unknown cpp_type for this field. name={}, cpp_type={}",
                                                             field_descriptor->name(),
                                                             field_descriptor->cpp_type_name()));
+                    }
                 }
             }
         }
 
+        struct ToJsonObjectOptions {
+            // As enum is written as string, this controls it should be written in camel-case or snake-case.
+            bool camel_case_enum = false;
+            // Don't write field with default values to json object if this is set to `true`.
+            bool ommit_default_values = true;
+        };
+
         template<class T>
         requires IsProtobufMessage<T>
-        static void ConvertMessageTOJsonObject(const T& message, nlohmann::json& json_object) {
+        static void ConvertMessageToJsonObject(const T& message, nlohmann::json& json_object, const ToJsonObjectOptions& options) {
             auto *descriptor = message.GetDescriptor();
             auto *reflection = message.GetReflection();
             for(int i=0;i<descriptor->field_count();++i) {
                 auto* field_descriptor = descriptor->field(i);
-                const auto field_name = descriptor->name();
+                const auto field_name = field_descriptor->name();
+                const int repeated_field_size = field_descriptor->is_repeated() ? reflection->FieldSize(message, field_descriptor) : 0;
                 switch (field_descriptor->cpp_type()) {
-                    case FieldDescriptor::CPPTYPE_STRING:
-                        json_object[field_name] = reflection->GetString(message, field_descriptor);
+                    case FieldDescriptor::CPPTYPE_STRING: {
+                        if (field_descriptor->is_repeated()) {
+                            for(int j=0;j<repeated_field_size;++j) {
+                                json_object[field_name].push_back(reflection->GetRepeatedString(message, field_descriptor, j));
+                            }
+                        } else {
+                            json_object[field_name] = reflection->GetString(message, field_descriptor);
+                        }
                         break;
-                    case FieldDescriptor::CPPTYPE_INT32:
-                        json_object[field_name] = reflection->GetInt32(message, field_descriptor);
+                    }
+
+                    case FieldDescriptor::CPPTYPE_INT32: {
+                        if (field_descriptor->is_repeated()) {
+                            for(int j=0;j<repeated_field_size;++j) {
+                                json_object[field_name].push_back(reflection->GetRepeatedInt32(message, field_descriptor, j));
+                            }
+                        } else {
+                            json_object[field_name] = reflection->GetInt32(message, field_descriptor);
+                        }
                         break;
-                    case FieldDescriptor::CPPTYPE_INT64:
-                        json_object[field_name] = reflection->GetInt64(message, field_descriptor);
+                    }
+
+                    case FieldDescriptor::CPPTYPE_INT64: {
+                        if (field_descriptor->is_repeated()) {
+                            for(int j=0;j<repeated_field_size;++j) {
+                                json_object[field_name].push_back(reflection->GetRepeatedInt64(message, field_descriptor, j));
+                            }
+                        } else {
+                            json_object[field_name] = reflection->GetInt64(message, field_descriptor);
+                        }
+
                         break;
-                    case FieldDescriptor::CPPTYPE_UINT32:
-                        json_object[field_name] = reflection->GetUInt32(message, field_descriptor);
+                    }
+
+                    case FieldDescriptor::CPPTYPE_UINT32: {
+                        if (field_descriptor->is_repeated()) {
+                            for(int j=0;j<repeated_field_size;++j) {
+                                json_object[field_name].push_back(reflection->GetRepeatedUInt32(message, field_descriptor, j));
+                            }
+                        } else {
+                            json_object[field_name] = reflection->GetUInt32(message, field_descriptor);
+                        }
                         break;
-                    case FieldDescriptor::CPPTYPE_UINT64:
-                        json_object[field_name] = reflection->GetInt64(message, field_descriptor);
+                    }
+
+                    case FieldDescriptor::CPPTYPE_UINT64: {
+                        if (field_descriptor->is_repeated()) {
+                            for(int j=0;j<repeated_field_size;++j) {
+                                json_object[field_name].push_back(
+                                    reflection->GetRepeatedUInt64(message, field_descriptor, j)
+                                );
+                            }
+                        } else {
+                            json_object[field_name] = reflection->GetUInt64(message, field_descriptor);
+                        }
+                            break;
+                    }
+
+                    case FieldDescriptor::CPPTYPE_DOUBLE: {
+                        if (field_descriptor->is_repeated()) {
+                            for(int j=0;j<repeated_field_size;++j) {
+                                json_object[field_name].push_back(
+                                    reflection->GetRepeatedDouble(message, field_descriptor, j)
+                                );
+                            }
+                        } else {
+                            json_object[field_name] = reflection->GetDouble(message, field_descriptor);
+                        }
                         break;
-                    case FieldDescriptor::CPPTYPE_DOUBLE:
-                        json_object[field_name] = reflection->GetDouble(message, field_descriptor);
+                    }
+
+                    case FieldDescriptor::CPPTYPE_FLOAT: {
+                        if (field_descriptor->is_repeated()) {
+                            for(int j=0;j<repeated_field_size;++j) {
+                                json_object[field_name].push_back(
+                                    reflection->GetRepeatedFloat(message, field_descriptor, j)
+                                );
+                            }
+                        } else {
+                            json_object[field_name] = reflection->GetFloat(message, field_descriptor);
+                        }
+
                         break;
-                    case FieldDescriptor::CPPTYPE_FLOAT:
-                        json_object[field_name] = reflection->GetFloat(message, field_descriptor);
+                    }
+
+                    case FieldDescriptor::CPPTYPE_BOOL: {
+                        if (field_descriptor->is_repeated()) {
+                            for(int j=0;j<repeated_field_size;++j) {
+                                json_object[field_name].push_back(
+                                reflection->GetRepeatedBool(message, field_descriptor, j)
+                                );
+                            }
+                        } else {
+                            json_object[field_name] = reflection->GetBool(message, field_descriptor);
+                        }
                         break;
-                    case FieldDescriptor::CPPTYPE_BOOL:
-                        json_object[field_name] = reflection->GetBool(message, field_descriptor);
+                    }
+
+                    case FieldDescriptor::CPPTYPE_ENUM: {
+                        if (field_descriptor->is_repeated()) {
+                            for(int j=0;j<repeated_field_size;++j) {
+                                auto enum_value_descriptor = reflection->GetRepeatedEnum(message, field_descriptor, j);
+                                // TODO add options for snake_case or CamelCase
+                                auto enum_name = options.camel_case_enum ? enum_value_descriptor->name():  StringUtils::CamelToSnake(enum_value_descriptor->name());
+                                json_object[field_name].push_back(enum_name);
+                            }
+                        } else {
+                            auto enum_value_descriptor = reflection->GetEnum(message, field_descriptor);
+                            auto enum_name = options.camel_case_enum ? enum_value_descriptor->name() : StringUtils::CamelToSnake(enum_value_descriptor->name());
+                            json_object[field_name] = enum_name;
+                        }
                         break;
-                    case FieldDescriptor::CPPTYPE_ENUM:
-                        auto enum_value_descriptor = reflection->GetEnum(message, field_descriptor);
-                        auto enum_name = enum_value_descriptor->name();
-                        json_object[field_name] = enum_name;
+                    }
+
+                    case FieldDescriptor::CPPTYPE_MESSAGE: {
+                        if(field_descriptor->is_repeated()) {
+                            for(int j=0;j<repeated_field_size;++j) {
+                                auto& message_item = reflection->GetRepeatedMessage(message, field_descriptor, j);
+                                nlohmann::json sub_obj;
+                                ConvertMessageToJsonObject(message_item, sub_obj);
+                                json_object[field_name].push_back(sub_obj);
+                            }
+                        } else {
+                            auto& sub_message = reflection->GetMessage(message, field_descriptor);
+                            nlohmann::json sub_obj;
+                            ConvertMessageToJsonObject(sub_message, sub_obj);
+                            json_object[field_name] = sub_obj;
+                        }
                         break;
-                    case FieldDescriptor::CPPTYPE_MESSAGE:
-                        auto& sub_message = reflection->GetMessage(message, field_descriptor);
-                        ConvertMessageTOJsonObject(sub_message, json_object[field_name]);
-                        break;
-                    default:
+                    }
+
+                    default: {
                         throw InstinctException(fmt::format("Unknown cpp_type for this field. name={}, cpp_type={}",
                                                             field_descriptor->name(),
                                                             field_descriptor->cpp_type_name()));
+                    }
+
                 }
             }
         }

@@ -166,6 +166,37 @@ namespace INSTINCT_CORE_NS {
             }
             return value;
         }
+
+        static std::string CamelToSnake(const std::string& str) {
+            // Empty String
+            std::string result;
+
+            // Append first character(in lower case)
+            // to result string
+            result += static_cast<char>(std::tolower(static_cast<unsigned char>(str[0])));
+
+            // Traverse the string from
+            // ist index to last index
+            for (int i = 1; i < str.length(); i++) {
+                char ch = str[i];
+                // Check if the character is upper case
+                // then append '_' and such character
+                // (in lower case) to result string
+                if (std::isupper(ch)) {
+                    result += '_';
+                    result += static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+                }
+
+                // If the character is lower case then
+                // add such character into result string
+                else {
+                    result += ch;
+                }
+            }
+
+            // return the result
+            return result;
+        }
     };
 
 

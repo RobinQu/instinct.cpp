@@ -179,7 +179,7 @@ enum MessageRole {
 message Message {// CreateMessageResponse, RetrieveMessageResponse, ModifyMessageResponse
   string id = 1;
   string object = 2;
-  uint64 created_at = 3;
+  int32 created_at = 3;
   string thread_id = 4;
 
   MessageStatus status = 5;
@@ -191,9 +191,9 @@ message Message {// CreateMessageResponse, RetrieveMessageResponse, ModifyMessag
 
   IncompleteDetails incomplete_details =  6;
 
-  uint64 completed_at = 7;
+  int32 completed_at = 7;
 
-  uint64 incompleted_at = 8;
+  int32 incompleted_at = 8;
 
   MessageRole role = 9;
 
@@ -364,7 +364,7 @@ message CreateThreadAndRunRequest {
 message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRunObject, ModifyRunResponse, SubmitToolOutputsResponse, GetRunResponse
   string id = 1;
   string object = 2; // always `thread.run`
-  uint64 created_at = 3;
+  int32 created_at = 3;
   string thread_id = 4;
   string assistant_id = 5;
 
@@ -412,7 +412,7 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
     uint64 expires_at = 2;
     uint64 cancelled_at = 3;
     uint64 failed_at = 4;
-    uint64 completed_at = 5;
+    int32 completed_at = 5;
     uint64 incomplete_at = 6;
     IncompleteDetails incomplete_details = 7;
     string model = 8;
@@ -613,7 +613,7 @@ message GetRunStepRequest {
 message RunStepObject { // GetRunStepResponse
   string id = 1;
   string object = 2;
-  uint64 created_at = 3;
+  int32 created_at = 3;
   string assistant_id = 4;
   string thread_id = 5;
   string run_id = 6;
@@ -682,7 +682,7 @@ message RunStepObject { // GetRunStepResponse
   uint64 expired_at = 11;
   uint64 cancelled_at = 12;
   uint64 failed_at = 13;
-  uint64 completed_at = 14;
+  int32 completed_at = 14;
   google.protobuf.Struct metadata = 15;
   CompletionUsage usage = 16;
 }
