@@ -9,12 +9,17 @@
 
 namespace INSTINCT_RETRIEVAL_NS {
     template<typename Impl>
-    class BaseConnection: public IConnection<Impl>, public std::enable_shared_from_this<BaseConnection<Impl>> {
+    class ManagedConnection: public IConnection<Impl>, public std::enable_shared_from_this<ManagedConnection<Impl>> {
         std::weak_ptr<IConnectionPool<Impl>> connection_pool_;
         std::chrono::time_point<std::chrono::system_clock> last_active_time_point_;
+        Impl impl_;
     public:
-        explicit BaseConnection(const std::weak_ptr<IConnectionPool<Impl>> &connection_pool)
-            : connection_pool_(connection_pool), last_active_time_point_(std::chrono::system_clock::now()) {
+        ManagedConnection(const std::shared_ptr<IConnectionPool<Impl>> &connection_pool, Impl impl_)
+            : connection_pool_(connection_pool), last_active_time_point_(std::chrono::system_clock::now()), impl_(std::move(impl_)) {
+        }
+
+        Impl * operator*() override {
+            return *impl_;
         }
 
         std::chrono::time_point<std::chrono::system_clock> GetLastActiveTime() override {
@@ -26,7 +31,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
 
-        ~BaseConnection() override {
+        ~ManagedConnection() override {
             if (connection_pool_.lock()) {
                 connection_pool_->Release(this->shared_from_this());
             }

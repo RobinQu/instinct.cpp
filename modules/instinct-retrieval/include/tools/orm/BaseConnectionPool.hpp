@@ -53,6 +53,9 @@ namespace INSTINCT_RETRIEVAL_NS {
             condition_.notify_one();
         }
 
+        bool Check(const typename IConnectionPool<Impl>::ConnectionPtr &connection) override {
+            return true;
+        }
     };
 
 

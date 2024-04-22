@@ -31,7 +31,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/tools/orm/EntityDataMapper.hpp
         include/tools/orm/IConnectionPool.hpp
         include/tools/orm/BaseConnectionPool.hpp
-        include/tools/orm/BaseConnection.hpp
+        include/tools/orm/ManagedConnection.hpp
         include/store/duckdb/DuckDBConnectionPool.hpp
 
 )
