@@ -10,7 +10,7 @@
 namespace INSTINCT_RETRIEVAL_NS {
 
     using SQLTemplate = std::string_view;
-    using SQLContext = nlohmann::json;
+    using SQLContext = nlohmann::ordered_json;
 
     /**
      * Data mapper with SQL statements
