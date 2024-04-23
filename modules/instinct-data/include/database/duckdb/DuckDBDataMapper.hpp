@@ -6,24 +6,26 @@
 #define ENTITYDATAMAPPER_HPP
 
 #include <inja/inja.hpp>
-#include <store/duckdb/BaseDuckDBStore.hpp>
-
+#include "DataGlobals.hpp"
 #include "../BaseConnectionPool.hpp"
 #include "tools/Assertions.hpp"
 #include "../IDataMapper.hpp"
 
 
-namespace INSTINCT_RETRIEVAL_NS {
+namespace INSTINCT_DATA_NS {
+    using namespace google::protobuf;
+    using namespace duckdb;
+
     template<typename Entity, typename PrimaryKey = std::string>
         requires IsProtobufMessage<Entity>
     class DuckDBDataMapper final : public IDataMapper<Entity, PrimaryKey> {
-        ConnectionPoolPtr<duckdb::Connection> connection_pool_;
+        ConnectionPoolPtr<Connection> connection_pool_;
         std::shared_ptr<inja::Environment> env_;
         // from sql column name to entity field name
         std::unordered_map<std::string_view, std::string_view> column_names_mapping_;
     public:
         explicit DuckDBDataMapper(
-            const ConnectionPoolPtr<duckdb::Connection> &connection_pool,
+            const ConnectionPoolPtr<Connection> &connection_pool,
             const std::shared_ptr<inja::Environment>& env = DEFAULT_SQL_TEMPLATE_INJA_ENV,
             const std::unordered_map<std::string_view, std::string_view> &column_names_mapping = {})
             :   connection_pool_(connection_pool),
@@ -37,7 +39,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto sql_line = env_->render(select_sql, context);
             LOG_DEBUG("SelectOne: {}", sql_line);
             const auto result = conn->GetImpl().Query(sql_line);
-            details::assert_query_ok(result);
+            assert_query_ok(result);
             if (result->RowCount() == 0) {
                 return {};
             }
@@ -55,7 +57,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto sql_line = env_->render(select_sql, context);
             LOG_DEBUG("SelectMany: {}", sql_line);
             const auto result = conn->GetImpl().Query(sql_line);
-            details::assert_query_ok(result);
+            assert_query_ok(result);
             std::vector<Entity> result_vector;
             ConvertQueryResult_(*result, result_vector);
             return result_vector;
@@ -67,7 +69,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto sql_line = env_->render(sql, context);
             LOG_DEBUG("Execute: {}", sql_line);
             const auto result = conn->GetImpl().Query(sql_line);
-            details::assert_query_ok(result);
+            assert_query_ok(result);
             return result->GetValue<uint64_t>(0,0);
         }
 
@@ -83,7 +85,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             auto sql = env_->render(insert_sql, context);
             LOG_DEBUG("InsertMany: {}", sql);
             const auto result = conn->GetImpl().Query(sql);
-            details::assert_query_ok(result);
+            assert_query_ok(result);
             std::vector<PrimaryKey> key_result;
             for(const auto& row: *result) {
                 key_result.push_back(row.GetValue<PrimaryKey>(0));

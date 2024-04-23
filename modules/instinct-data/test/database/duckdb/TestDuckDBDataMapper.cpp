@@ -2,12 +2,13 @@
 // Created by RobinQu on 2024/4/23.
 //
 #include <gtest/gtest.h>
+#include <llm.pb.h>
+#include "database/duckdb/DuckDBConnectionPool.hpp"
+#include "database/duckdb/DuckDBDataMapper.hpp"
 
-#include "tools/orm/duckdb/DuckDBConnectionPool.hpp"
-#include "tools/orm/duckdb/DuckDBDataMapper.hpp"
 
-namespace INSTINCT_RETRIEVAL_NS {
-    using namespace INSTINCT_CORE_NS;
+namespace INSTINCT_DATA_NS {
+    // using namespace INSTINCT_CORE_NS;
 
     class TestDuckDBDataMapper: public testing::Test {
     protected:
@@ -23,7 +24,7 @@ create table message (
     content varchar not null
 );
 )");
-            details::assert_query_ok(result);
+            assert_query_ok(result);
         }
 
         DuckDBPtr db_ = std::make_shared<duckdb::DuckDB>(nullptr);
@@ -31,7 +32,7 @@ create table message (
     };
 
     TEST_F(TestDuckDBDataMapper, SimpleCRUD) {
-        DuckDBDataMapper<Message> data_mapper {pool_};
+        DuckDBDataMapper<llm::Message> data_mapper {pool_};
         auto id1 = data_mapper.InsertOne("insert into message(role, content) values({{text(role)}}, {{text(content)}}) returning (id);", {
             {"role", "human"},
             {"content", "why sky is blue?"}

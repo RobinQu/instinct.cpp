@@ -20,6 +20,7 @@
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace duckdb;
     using namespace google::protobuf;
+    using namespace INSTINCT_DATA_NS;
 
 
     namespace details {
@@ -143,7 +144,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             auto search_sql = details::make_prepared_search_sql(options.table_name, metadata_schema);
             LOG_DEBUG("prepare search sql: {}", search_sql);
             prepared_search_statement_ =  store_.GetConnection().Prepare(search_sql);
-            details::assert_prepared_ok(prepared_search_statement_, "Failed to prepare search statement");
+            assert_prepared_ok(prepared_search_statement_, "Failed to prepare search statement");
         }
 
 
@@ -175,7 +176,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 }
                 result = prepared_search_statement_->Execute(Value::ARRAY(LogicalType::FLOAT, vector_array), request.top_k());
             }
-            details::assert_query_ok(result);
+            assert_query_ok(result);
             return details::conv_query_result_to_iterator(
                     std::move(result),
                     GetMetadataSchema()

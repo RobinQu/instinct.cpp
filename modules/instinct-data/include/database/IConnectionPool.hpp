@@ -5,9 +5,9 @@
 #ifndef CONNECTIONPOOL_HPP
 #define CONNECTIONPOOL_HPP
 
-#include "RetrievalGlobals.hpp"
+#include "DataGlobals.hpp"
 
-namespace INSTINCT_RETRIEVAL_NS {
+namespace INSTINCT_DATA_NS {
 
     template<typename Impl>
     class IConnection {

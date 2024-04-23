@@ -5,9 +5,9 @@
 #ifndef IDATAMAPPER_HPP
 #define IDATAMAPPER_HPP
 
-#include "RetrievalGlobals.hpp"
+#include "DataGlobals.hpp"
 
-namespace INSTINCT_RETRIEVAL_NS {
+namespace INSTINCT_DATA_NS {
 
     using SQLTemplate = std::string_view;
     using SQLContext = nlohmann::ordered_json;

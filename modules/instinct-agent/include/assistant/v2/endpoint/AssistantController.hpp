@@ -25,17 +25,17 @@ namespace INSTINCT_AGENT_NS::assistant::v2 {
             });
 
             server.PostRoute<AssistantObject, AssistantObject>("/assitants", [&](AssistantObject& req, const HttpLibSession& session) {
-                return facade_.assistant->CreateAssistant(req);
+                return facade_.assistant->CreateAssistant(req).value();
             });
 
             server.GetRoute<GetAssistantRequest, AssistantObject>("/assitants/:assitant_id", [&](GetAssistantRequest& req, const HttpLibSession& session) {
                 req.set_assistant_id(session.request.path_params.at("assistant_id"));
-                return facade_.assistant->RetrieveAssistant(req);
+                return facade_.assistant->RetrieveAssistant(req).value();
             });
 
             server.PostRoute<ModifyAssistantRequest, AssistantObject>("/assistants/:assistant_id", [&](ModifyAssistantRequest& req, const HttpLibSession& session) {
                 req.set_assistant_id(session.request.path_params.at("assistant_id"));
-                return facade_.assistant->ModifyAssistant(req);
+                return facade_.assistant->ModifyAssistant(req).value();
             });
 
             server.DeleteRoute<DeleteAssistantRequest, DeleteAssistantResponse>("/assitants/:assistant:id", [&](DeleteAssistantRequest& req, const HttpLibSession& session) {

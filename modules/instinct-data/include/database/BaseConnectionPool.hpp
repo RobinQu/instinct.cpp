@@ -7,7 +7,7 @@
 
 #include "IConnectionPool.hpp"
 
-namespace INSTINCT_RETRIEVAL_NS {
+namespace INSTINCT_DATA_NS {
     using namespace std::chrono_literals;
 
     struct ConnectionPoolOptions {

@@ -20,31 +20,22 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/ingestor/SingleFileIngestor.hpp
         include/ingestor/DirectoryTreeIngestor.hpp
         include/store/duckdb/DuckDBDocStore.hpp
-
         include/RetrievalTestGlobals.hpp
         include/retrieval/BaseRetriever.hpp
         include/ingestor/PDFFileIngestor.hpp
         include/ingestor/DOCXFileIngestor.hpp
         include/store/duckdb/DuckDBDocWithEmbeddingStore.hpp
         include/ingestor/ParquetFileIngestor.hpp
-        include/tools/orm/IDataMapper.hpp
-        include/tools/orm/duckdb/DuckDBDataMapper.hpp
-        include/tools/orm/IConnectionPool.hpp
-        include/tools/orm/BaseConnectionPool.hpp
-        include/tools/orm/ManagedConnection.hpp
-        include/tools/orm/duckdb/DuckDBConnectionPool.hpp
-        include/tools/orm/DBUtils.hpp
-
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
 #)
 
-find_package(duckdb REQUIRED)
+find_package(duckx REQUIRED)
 find_package(pdfium REQUIRED)
 find_package(Tesseract REQUIRED)
-find_package(duckx REQUIRED)
+
 
 
 add_library(
@@ -73,11 +64,11 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::proto
         instinct::core
         instinct::llm
-        duckdb::duckdb
         pdfium::pdfium
         icu::icu
-        duckx::duckx
+        instinct::data
         Tesseract::libtesseract
+        duckx::duckx
 )
 
 install(TARGETS ${LIBRARY_TARGET_NAME}

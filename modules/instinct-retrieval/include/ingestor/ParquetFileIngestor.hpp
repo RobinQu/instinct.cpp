@@ -48,7 +48,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             return rpp::source::create<Document>([&](const auto & observer) {
                 duckdb::DuckDB duck_db(nullptr);
                 duckdb::Connection conn(duck_db);
-                if(const auto result = ReadParquet(conn, file_source); details::check_query_ok(result)) {
+                if(const auto result = ReadParquet(conn, file_source); check_query_ok(result)) {
                     for(const auto& row: *result) {
                         Document document;
                         for(const auto&[column_type, metadata_field_schema, column_idx] : column_mapping) {

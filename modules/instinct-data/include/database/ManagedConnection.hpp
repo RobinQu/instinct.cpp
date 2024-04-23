@@ -8,7 +8,7 @@
 #include "IConnectionPool.hpp"
 #include "tools/StringUtils.hpp"
 
-namespace INSTINCT_RETRIEVAL_NS {
+namespace INSTINCT_DATA_NS {
     template<typename Impl>
     class ManagedConnection final: public IConnection<Impl>, public std::enable_shared_from_this<ManagedConnection<Impl>> {
         std::chrono::time_point<std::chrono::system_clock> last_active_time_point_;

@@ -2,10 +2,11 @@
 // Created by RobinQu on 2024/4/23.
 //
 #include <gtest/gtest.h>
-#include "RetrievalGlobals.hpp"
-#include "tools/orm/duckdb/DuckDBConnectionPool.hpp"
+#include "DataGlobals.hpp"
+#include "database/duckdb/DuckDBConnectionPool.hpp"
 
-namespace INSTINCT_RETRIEVAL_NS {
+namespace INSTINCT_DATA_NS {
+    using namespace INSTINCT_CORE_NS;
     class DuckDBConnectionPoolTest: public testing::Test {
     protected:
         void SetUp() override {

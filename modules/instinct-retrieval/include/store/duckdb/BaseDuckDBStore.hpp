@@ -6,7 +6,6 @@
 #define BASEDUCKDBSTORE_HPP
 
 #include <duckdb.hpp>
-#include <utility>
 #include "tools/Assertions.hpp"
 
 #include "RetrievalGlobals.hpp"
@@ -21,6 +20,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     using namespace google::protobuf;
     using namespace INSTINCT_CORE_NS;
     using namespace INSTINCT_LLM_NS;
+    using namespace INSTINCT_DATA_NS;
 
     struct DuckDBStoreOptions {
         /**
@@ -364,10 +364,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             LOG_DEBUG("create document table with SQL: {}", sql);
 
             const auto create_table_result = connection_.Query(sql);
-            details::assert_query_ok(create_table_result);
+            assert_query_ok(create_table_result);
 
             prepared_count_all_statement_ = connection_.Prepare(details::make_prepared_count_sql(options_.table_name));
-            details::assert_prepared_ok(prepared_count_all_statement_, "Failed to prepare count statement");
+            assert_prepared_ok(prepared_count_all_statement_, "Failed to prepare count statement");
         }
 
 
@@ -395,13 +395,13 @@ namespace INSTINCT_RETRIEVAL_NS {
             }
 
             auto result = GetConnection().Query(details::make_mget_sql(options_.table_name, metadata_schema_, ids));
-            details::assert_query_ok(result);
+            assert_query_ok(result);
             return details::conv_query_result_to_iterator(std::move(result), metadata_schema_);
         }
 
         size_t CountDocuments() override {
             const auto result = prepared_count_all_statement_->Execute();
-            details::assert_query_ok(result);
+            assert_query_ok(result);
             for (const auto& row: *result) {
                 return row.GetValue<uint32_t>(0);
             }
@@ -463,7 +463,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             auto connection = GetConnection();
             const auto sql = details::make_delete_sql(options_.table_name, ids);
             const auto result = connection.Query(sql);
-            details::assert_query_ok(result);
+            assert_query_ok(result);
             const auto xn = result->GetValue<int32_t>(0, 0);
             update_result.set_affected_rows(xn);
             update_result.mutable_returned_ids()->Add(ids.begin(), ids.end());

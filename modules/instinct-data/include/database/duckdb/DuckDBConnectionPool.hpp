@@ -6,12 +6,12 @@
 #define DUCKDBCONNECTIONPOOL_HPP
 
 
-#include <duckdb/main/connection.hpp>
+#include <duckdb.hpp>
 
 #include "../BaseConnectionPool.hpp"
 #include "../ManagedConnection.hpp"
 
-namespace INSTINCT_RETRIEVAL_NS {
+namespace INSTINCT_DATA_NS {
 
 
     class DuckDBConnectionPool final: public BaseConnectionPool<duckdb::Connection> {

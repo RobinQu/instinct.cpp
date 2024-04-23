@@ -5,10 +5,10 @@
 #ifndef DBUTILS_HPP
 #define DBUTILS_HPP
 
-#include "RetrievalGlobals.hpp"
+#include "DataGlobals.hpp"
 #include "tools/SnowflakeIDGenerator.hpp"
 
-namespace INSTINCT_RETRIEVAL_NS {
+namespace INSTINCT_DATA_NS {
 
     class DBUtils final {
     public:
