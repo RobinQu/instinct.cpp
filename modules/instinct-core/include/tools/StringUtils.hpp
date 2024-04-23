@@ -167,7 +167,7 @@ namespace INSTINCT_CORE_NS {
             return value;
         }
 
-        static std::string CamelToSnake(const std::string& str) {
+        static std::string SnakeToCamel(const std::string& str) {
             // Empty String
             std::string result;
 
@@ -196,6 +196,30 @@ namespace INSTINCT_CORE_NS {
 
             // return the result
             return result;
+        }
+
+        static std::string EscapeSQLText(const std::string& s) {
+            const std::unordered_map<char, std::string> CHARS_ESCAPE_MAP {
+                    {'\0' , "\\0"},
+                    {'\b'   , "\\b"},
+                    {'\f'   , "\\f"},
+                    {'\t'   , "\\t"},
+                    {'\n'   , "\\n"},
+                    {'\r'   , "\\r"},
+                    {'\v'   , "\\v"},
+                    {'\x1a' , "\\Z"},
+                    {'\''    , "\'\'"},
+                    {'\\' , "\\\\"}
+            };
+            std::string copied;
+            for(const auto c: s) {
+                if (CHARS_ESCAPE_MAP.contains(c)) {
+                    copied += CHARS_ESCAPE_MAP.at(c);
+                } else {
+                    copied += c;
+                }
+            }
+            return copied;
         }
     };
 

@@ -9,7 +9,7 @@
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_CORE_NS;
 
-    class TestDuckdDBDataMapper: public testing::Test {
+    class TestDuckDBDataMapper: public testing::Test {
     protected:
         void SetUp() override {
             SetupLogging();
@@ -30,9 +30,9 @@ create table message (
         DuckDBConnectionPoolPtr pool_ = CreateDuckDBConnectionPool(db_);
     };
 
-    TEST_F(TestDuckdDBDataMapper, SimpleCRUD) {
+    TEST_F(TestDuckDBDataMapper, SimpleCRUD) {
         DuckDBDataMapper<Message> data_mapper {pool_};
-        auto id1 = data_mapper.InsertOne("insert into message(role, content) values({{role}}, {{content}})", {
+        auto id1 = data_mapper.InsertOne("insert into message(role, content) values({{text(role)}}, {{text(content)}}) returning (id);", {
             {"role", "human"},
             {"content", "why sky is blue?"}
         });
@@ -40,8 +40,9 @@ create table message (
         auto id2_id3 = data_mapper.InsertMany(R"(
 insert into message(role, content) values
 ## for message in messages
- ({{message.role}}, {{message.content}})
+ ({{text(message.role)}}, {{text(message.content)}}),
 ## endfor
+returning (id);
 )", {
             {"messages", {
                 {
@@ -59,7 +60,7 @@ insert into message(role, content) values
         auto count = data_mapper.Execute("select count(*) from message;", {});
         ASSERT_EQ(count, 3);
 
-        const auto msg1= data_mapper.SelectOne("select * from message;", {{"id", id1}});
+        const auto msg1= data_mapper.SelectOne("select * from message where id = {{text(id)}};", {{"id", id1}});
         ASSERT_EQ(msg1->role(), "human");
         ASSERT_EQ(msg1->content(), "why sky is blue?");
 
@@ -69,7 +70,7 @@ insert into message(role, content) values
             ASSERT_EQ("human", msg.role());
         }
 
-        count = data_mapper.Execute("update message set message = 'You are super AI, aka SKYNET.' where role ='system';", {});
+        count = data_mapper.Execute("update message set content = 'You are super AI, aka SKYNET.' where role ='system';", {});
         ASSERT_EQ(count, 1);
         const auto msg2 = data_mapper.SelectOne("select * from message where role ='system';", {});
         ASSERT_EQ(msg2->content(), "You are super AI, aka SKYNET.");

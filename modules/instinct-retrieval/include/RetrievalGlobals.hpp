@@ -63,13 +63,20 @@ namespace INSTINCT_RETRIEVAL_NS {
         static std::shared_ptr<inja::Environment> create_shared_sql_template_env() {
             auto env = std::make_shared<inja::Environment>();
             env->add_callback("is_non_blank", 1, [](const inja::Arguments& args) {
-                auto v = args.at(0)->get<std::string>();
+                const auto v = args.at(0)->get<std::string>();
                 return StringUtils::IsNotBlankString(v);
             });
             env->add_callback("is_blank", 1, [](const inja::Arguments& args) {
-                auto v = args.at(0)->get<std::string>();
+                const auto v = args.at(0)->get<std::string>();
                 return StringUtils::IsBlankString(v);
             });
+
+            env->add_callback("text", 1, [](const inja::Arguments& args) {
+                auto v = args.at(0)->get<std::string>();
+                return "'" + StringUtils::EscapeSQLText(v) + "'";
+            });
+            env->set_trim_blocks(true);
+            env->set_lstrip_blocks(true);
             return env;
 
         }

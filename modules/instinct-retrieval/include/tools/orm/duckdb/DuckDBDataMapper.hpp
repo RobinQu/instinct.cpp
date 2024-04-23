@@ -34,7 +34,9 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::optional<Entity> SelectOne(const SQLTemplate &select_sql, const SQLContext& context) override {
             const auto conn = connection_pool_->Acquire();
             DuckDBConnectionPool::GuardConnection guard {connection_pool_, conn};
-            auto result = conn->GetImpl().Query(env_->render(select_sql, context));
+            const auto sql_line = env_->render(select_sql, context);
+            LOG_DEBUG("SelectOne: {}", sql_line);
+            const auto result = conn->GetImpl().Query(sql_line);
             details::assert_query_ok(result);
             if (result->RowCount() == 0) {
                 return {};
@@ -50,7 +52,9 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::vector<Entity> SelectMany(const SQLTemplate &select_sql, const SQLContext& context) override {
             const auto conn = connection_pool_->Acquire();
             DuckDBConnectionPool::GuardConnection guard {connection_pool_, conn};
-            auto result = conn->GetImpl().Query(env_->render(select_sql, context));
+            const auto sql_line = env_->render(select_sql, context);
+            LOG_DEBUG("SelectMany: {}", sql_line);
+            const auto result = conn->GetImpl().Query(sql_line);
             details::assert_query_ok(result);
             std::vector<Entity> result_vector;
             ConvertQueryResult_(*result, result_vector);
@@ -60,7 +64,9 @@ namespace INSTINCT_RETRIEVAL_NS {
         size_t Execute(const SQLTemplate &sql, const SQLContext& context) override {
             const auto conn = connection_pool_->Acquire();
             DuckDBConnectionPool::GuardConnection guard {connection_pool_, conn};
-            const auto result = conn->GetImpl().Query(env_->render(sql, context));
+            const auto sql_line = env_->render(sql, context);
+            LOG_DEBUG("Execute: {}", sql_line);
+            const auto result = conn->GetImpl().Query(sql_line);
             details::assert_query_ok(result);
             return result->GetValue<uint64_t>(0,0);
         }
@@ -74,7 +80,9 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::vector<PrimaryKey> InsertMany(const SQLTemplate &insert_sql, const SQLContext &context) override {
             const auto conn = connection_pool_->Acquire();
             DuckDBConnectionPool::GuardConnection guard {connection_pool_, conn};
-            auto result = conn->GetImpl().Query(env_->render(insert_sql, context));
+            auto sql = env_->render(insert_sql, context);
+            LOG_DEBUG("InsertMany: {}", sql);
+            const auto result = conn->GetImpl().Query(sql);
             details::assert_query_ok(result);
             std::vector<PrimaryKey> key_result;
             for(const auto& row: *result) {
@@ -95,7 +103,11 @@ namespace INSTINCT_RETRIEVAL_NS {
                         name = column_names_mapping_[name];
                     }
                     auto *field_descriptor = descriptor->FindFieldByName(name);
-                    assert_true(field_descriptor, "should have found field_ descriptor by column name: " + name);
+                    if (!field_descriptor) {
+                        LOG_WARN("field name {} not found in entity but exist in column data", name);
+                        continue;
+                    }
+                    // assert_true(field_descriptor, "should have found field_ descriptor by column name: " + name);
                     switch (field_descriptor->cpp_type()) {
                         case FieldDescriptor::CPPTYPE_STRING: {
                             reflection->SetString(&entity, field_descriptor, row.GetValue<std::string>(i));
