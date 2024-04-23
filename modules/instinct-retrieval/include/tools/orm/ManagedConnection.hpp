@@ -6,16 +6,17 @@
 #define BASECONNECTION_HPP
 
 #include "IConnectionPool.hpp"
+#include "tools/StringUtils.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
     template<typename Impl>
-    class ManagedConnection: public IConnection<Impl>, public std::enable_shared_from_this<ManagedConnection<Impl>> {
-        std::weak_ptr<IConnectionPool<Impl>> connection_pool_;
+    class ManagedConnection final: public IConnection<Impl>, public std::enable_shared_from_this<ManagedConnection<Impl>> {
         std::chrono::time_point<std::chrono::system_clock> last_active_time_point_;
         std::unique_ptr<Impl> impl_;
+        std::string id_;
     public:
-        ManagedConnection(const std::shared_ptr<IConnectionPool<Impl>> &connection_pool, std::unique_ptr<Impl> impl_)
-            : connection_pool_(connection_pool), last_active_time_point_(std::chrono::system_clock::now()), impl_(std::move(impl_)) {
+        explicit ManagedConnection(std::unique_ptr<Impl> impl_, std::string id = StringUtils::GenerateUUIDString())
+            : last_active_time_point_(std::chrono::system_clock::now()), impl_(std::move(impl_)), id_(std::move(id)) {
         }
 
         Impl& GetImpl() override {
@@ -34,11 +35,8 @@ namespace INSTINCT_RETRIEVAL_NS {
             last_active_time_point_ = std::chrono::system_clock::now();
         }
 
-
-        ~ManagedConnection() override {
-            if (auto ptr = connection_pool_.lock(); ptr) {
-                ptr->Release(this->shared_from_this());
-            }
+        [[nodiscard]] const std::string & GetId() const override {
+            return id_;
         }
     };
 }

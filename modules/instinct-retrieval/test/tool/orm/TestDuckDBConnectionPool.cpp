@@ -16,8 +16,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
     TEST_F(DuckDBConnectionPoolTest, TestAcquireRelease) {
-        constexpr ConnectionPoolOptions options {.intial_connection_count = 2};
-        auto pool = CreateDuckDBConnectionPool(mem_db_, options);
+        auto pool = CreateDuckDBConnectionPool(mem_db_, {.intial_connection_count = 2});
         auto c1 = pool->Acquire();
         auto c2 = pool->Acquire();
 
@@ -34,7 +33,16 @@ namespace INSTINCT_RETRIEVAL_NS {
         });
     }
 
-
+    TEST_F(DuckDBConnectionPoolTest, TestConnectionGarud) {
+        const auto pool = CreateDuckDBConnectionPool(mem_db_, {.intial_connection_count = 2});
+        pool->Acquire();
+        {
+            const auto c = pool->Acquire();
+            DuckDBConnectionPool::GuardConnection guard {pool, c};
+            ASSERT_FALSE(pool->TryAcquire());
+        }
+        ASSERT_TRUE(pool->Acquire());
+    }
 
 }
 

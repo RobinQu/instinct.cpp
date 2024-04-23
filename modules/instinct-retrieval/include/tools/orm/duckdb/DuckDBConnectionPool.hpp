@@ -13,6 +13,7 @@
 
 namespace INSTINCT_RETRIEVAL_NS {
 
+
     class DuckDBConnectionPool final: public BaseConnectionPool<duckdb::Connection> {
         DuckDBPtr db_;
     public:
@@ -22,7 +23,6 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         std::shared_ptr<IConnection<duckdb::Connection>> Create() override {
             return std::make_shared<ManagedConnection<duckdb::Connection>>(
-                this->shared_from_this(),
                 std::make_unique<duckdb::Connection>(*db_)
             );
         }

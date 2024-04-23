@@ -16,6 +16,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::chrono::seconds max_wait_duration_for_acquire = 3s;
     };
 
+
+
     template<typename Impl>
     class BaseConnectionPool: public IConnectionPool<Impl>, public std::enable_shared_from_this<BaseConnectionPool<Impl>>{
         std::deque<std::shared_ptr<IConnection<Impl>>> pool_;
@@ -23,6 +25,23 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::condition_variable condition_;
         ConnectionPoolOptions options_;
     public:
+
+        /**
+         * Helper class to guard a connection to released in end of scope
+         * @tparam Impl
+         */
+        struct GuardConnection {
+            std::shared_ptr<IConnectionPool<Impl>> pool_;
+            std::weak_ptr<IConnection<Impl>> connection_;
+
+
+            ~GuardConnection() {
+                if (auto ptr = connection_.lock(); ptr) {
+                    pool_->Release(ptr);
+                }
+            }
+        };
+
         explicit BaseConnectionPool(const ConnectionPoolOptions &options)
             : options_(options) {
         }
@@ -59,6 +78,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         typename IConnectionPool<Impl>::ConnectionPtr Acquire() override {
             if (const auto conn = TryAcquire()) {
+                LOG_DEBUG("Acquired one: {}", conn->GetId());
                 return conn;
             }
             throw InstinctException("Cannot acquire connection from connection pool");
@@ -66,8 +86,11 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         void Release(const std::shared_ptr<IConnection<Impl>> &connection) override {
             if (!connection || !this->Check(connection) ) {
-                pool_.push_back(this->Create());
+                auto c = this->Create();
+                LOG_DEBUG("Discard one. Newly created: {}", c->GetId());
+                pool_.push_back(c);
             } else {
+                LOG_DEBUG("Release one: {}", connection->GetId());
                 pool_.push_back(connection);
             }
             condition_.notify_one();

@@ -21,6 +21,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         virtual Impl* operator->() const = 0;
         virtual std::chrono::time_point<std::chrono::system_clock> GetLastActiveTime() = 0;
         virtual void UpdateActiveTime() = 0;
+        [[nodiscard]] virtual const std::string& GetId() const = 0;
     };
 
 
