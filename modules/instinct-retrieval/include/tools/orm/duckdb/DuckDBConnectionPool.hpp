@@ -27,12 +27,19 @@ namespace INSTINCT_RETRIEVAL_NS {
             );
         }
 
+        /**
+         * As DuckDB is a local embedded database and has none connection turbulence, we canno always return true.
+         * @param connection
+         * @return
+         */
         bool Check(const typename IConnectionPool<duckdb::Connection>::ConnectionPtr &connection) override {
             return true;
         }
     };
 
-    static ConnectionPoolPtr<duckdb::Connection> CreateDuckDBConnectionPool(const DuckDBPtr& db, const ConnectionPoolOptions &options) {
+    using DuckDBConnectionPoolPtr = ConnectionPoolPtr<duckdb::Connection>;
+
+    static DuckDBConnectionPoolPtr CreateDuckDBConnectionPool(const DuckDBPtr& db, const ConnectionPoolOptions &options = {}) {
         const auto pool =  std::make_shared<DuckDBConnectionPool>(db, options);
         pool->Initialize();
         return pool;

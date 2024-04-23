@@ -73,24 +73,10 @@ namespace INSTINCT_AGENT_NS {
                 return fmt::format("{}-{}", prefix, generator.NextID());
             }
 
-            static std::shared_ptr<inja::Environment> create_shared_sql_template_env() {
-                auto env = std::make_shared<inja::Environment>();
-                env->add_callback("is_non_blank", 1, [](const inja::Arguments& args) {
-                    auto v = args.at(0)->get<std::string>();
-                    return StringUtils::IsNotBlankString(v);
-                });
-                env->add_callback("is_blank", 1, [](const inja::Arguments& args) {
-                    auto v = args.at(0)->get<std::string>();
-                    return StringUtils::IsBlankString(v);
-                });
-                return env;
-
-            }
         }
 
         static constexpr int DEFAULT_LIST_LIMIT = 20;
 
-        static std::shared_ptr<inja::Environment> DEFAULT_SQL_TEMPLATE_INJA_ENV = details::create_shared_sql_template_env();
 
         static std::string to_string(const ListRequestOrder order) {
             if (order == asc) return "asc";

@@ -8,14 +8,13 @@
 #include <inja/inja.hpp>
 #include <store/duckdb/BaseDuckDBStore.hpp>
 
-#include "AgentGlobals.hpp"
 #include "../BaseConnectionPool.hpp"
 #include "../IDataMapper.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
-    template<typename Entity>
+    template<typename Entity, typename PrimaryKey = std::string>
         requires IsProtobufMessage<Entity>
-    class DuckDBDataMapper final : public IDataMapper<Entity> {
+    class DuckDBDataMapper final : public IDataMapper<Entity, PrimaryKey> {
         ConnectionPoolPtr<duckdb::Connection> connection_pool_;
         std::shared_ptr<inja::Environment> env_;
         // from sql column name to entity field name
@@ -23,7 +22,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     public:
         explicit DuckDBDataMapper(
             const ConnectionPoolPtr<duckdb::Connection> &connection_pool,
-            const std::shared_ptr<inja::Environment>& env = agent::assistant::v2::DEFAULT_SQL_TEMPLATE_INJA_ENV,
+            const std::shared_ptr<inja::Environment>& env = DEFAULT_SQL_TEMPLATE_INJA_ENV,
             const std::unordered_map<std::string_view, std::string_view> &column_names_mapping = {})
             :   connection_pool_(connection_pool),
                 env_(env),
@@ -32,6 +31,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         std::optional<Entity> SelectOne(const SQLTemplate &select_sql, const SQLContext& context) override {
             const auto conn = connection_pool_->Acquire();
+            DuckDBConnectionPool::GuardConnection {connection_pool_, conn};
             auto result = conn->GetImpl().Query(env_->render(select_sql, context));
             details::assert_query_ok(result);
             if (result->RowCount() == 0) {
@@ -47,6 +47,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         std::vector<Entity> SelectMany(const SQLTemplate &select_sql, const SQLContext& context) override {
             const auto conn = connection_pool_->Acquire();
+            DuckDBConnectionPool::GuardConnection {connection_pool_, conn};
             auto result = conn->GetImpl().Query(env_->render(select_sql, context));
             details::assert_query_ok(result);
             std::vector<Entity> result_vector;
@@ -56,9 +57,28 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         size_t Execute(const SQLTemplate &sql, const SQLContext& context) override {
             const auto conn = connection_pool_->Acquire();
+            DuckDBConnectionPool::GuardConnection {connection_pool_, conn};
             const auto result = conn->GetImpl().Query(env_->render(sql, context));
             details::assert_query_ok(result);
             return result->GetValue<uint64_t>(0,0);
+        }
+
+        PrimaryKey InsertOne(const SQLTemplate &insert_sql, const SQLContext &context) override {
+            auto result = InsertMany(insert_sql, context);
+            assert_true(result.size(), 1, "should have only one returned id");
+            return result.front();
+        }
+
+        std::vector<PrimaryKey> InsertMany(const SQLTemplate &insert_sql, const SQLContext &context) override {
+            const auto conn = connection_pool_->Acquire();
+            DuckDBConnectionPool::GuardConnection {connection_pool_, conn};
+            auto result = conn->GetImpl().Query(env_->render(insert_sql, context));
+            details::assert_query_ok(result);
+            std::vector<PrimaryKey> key_result;
+            for(const auto& row: *result) {
+                key_result.push_back(row.GetValue<PrimaryKey>());
+            }
+            return key_result;
         }
 
     private:

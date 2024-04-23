@@ -17,7 +17,8 @@ namespace INSTINCT_RETRIEVAL_NS {
      * @tparam T
      */
     template<
-        typename T
+        typename T,
+        typename PrimaryKey
     >
     class IDataMapper {
     public:
@@ -49,6 +50,10 @@ namespace INSTINCT_RETRIEVAL_NS {
          * @return changed row count
          */
         virtual size_t Execute(const SQLTemplate& insert_sql, const SQLContext& context) = 0;
+
+        virtual PrimaryKey InsertOne(const SQLTemplate& insert_sql, const SQLContext& context) = 0;
+
+        virtual std::vector<PrimaryKey> InsertMany(const SQLTemplate& insert_sql, const SQLContext& context) = 0;
     };
 
     template<typename T>
