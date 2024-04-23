@@ -198,6 +198,14 @@ namespace INSTINCT_CORE_NS {
             return result;
         }
 
+
+        /**
+         * Esacpe string for sql text value
+         * @sa https://dev.mysql.com/doc/c-api/8.0/en/mysql-real-escape-string.html
+         * @sa https://github.com/kylefarris/tsqlstring/blob/master/lib/SqlString.js
+         * @param s input string to escape
+         * @return escaped string that's safe for sql text value
+         */
         static std::string EscapeSQLText(const std::string& s) {
             const std::unordered_map<char, std::string> CHARS_ESCAPE_MAP {
                     {'\0' , "\\0"},
