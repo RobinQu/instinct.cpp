@@ -1,14 +1,15 @@
 syntax = "proto3";
-import "google/protobuf/empty.proto";
-import "google/protobuf/api.proto";
+//import "google/protobuf/empty.proto";
+//import "google/protobuf/api.proto";
 import "google/protobuf/struct.proto";
 
 
 package instinct.agent.assistant.v2;
 
 enum ResponseFormat {
-  None = 0;
-  Auto = 1;
+  unknown_response_format = 0;
+  none = 1;
+  auto = 2;
 }
 
 // ==============================================================
@@ -29,9 +30,10 @@ message AssistantObject { // CreateAssistantRequest, GetAssistantResponse, Modif
 }
 
 enum AssistantToolType {
-  CodeInterpreter = 0;
-  FieSearch = 1;
-  Function = 2;
+  UnknownAssistantToolType = 0;
+  CodeInterpreter = 1;
+  FieSearch = 2;
+  Function = 3;
 }
 
 message AssistantToolObject { // union of Code, FileSearch, Function
@@ -142,8 +144,9 @@ message DeleteThreadResponse {
 }
 
 enum ListRequestOrder {
-  ORDER_ASC = 0;
-  ORDER_DESC = 1;
+  unknown_list_request_order = 0;
+  asc = 1;
+  desc = 2;
 }
 
 // ==============================================================
@@ -171,8 +174,9 @@ message ListMessagesRequest {
 }
 
 enum MessageRole {
-  User = 0;
-  Assistant = 1;
+  unknown_message_role = 0;
+  user = 1;
+  assistant = 2;
 }
 
 
@@ -184,9 +188,10 @@ message Message {// CreateMessageResponse, RetrieveMessageResponse, ModifyMessag
 
   MessageStatus status = 5;
   enum MessageStatus {
-    InProgress = 0;
-    Incomplete = 1;
-    Completed = 2;
+    unknown_message_status = 0;
+    in_progress = 1;
+    incomplete = 2;
+    completed = 3;
   }
 
   IncompleteDetails incomplete_details =  6;
@@ -198,11 +203,14 @@ message Message {// CreateMessageResponse, RetrieveMessageResponse, ModifyMessag
   MessageRole role = 9;
 
   MessageContent content = 10;
+
+  enum MessageContentType {
+    unknown_message_content_type = 0;
+    text = 1;
+    image_file = 2;
+  }
   message MessageContent {
-    enum MessageContentType {
-      Text = 0;
-      ImageFile = 1;
-    }
+
     MessageContentType type = 1;
 
     // for image file only
@@ -219,7 +227,8 @@ message Message {// CreateMessageResponse, RetrieveMessageResponse, ModifyMessag
       repeated MessageContentTextAnnotation annotations = 2;
       message MessageContentTextAnnotation { // union of citation and file path
         enum MessageContentTextAnnotationType {
-          FileCitation = 0;
+          unknown_content_text_annotation_type = 0;
+          file_citation = 1;
         }
 
         MessageContentTextAnnotationType type = 1;
@@ -256,11 +265,12 @@ message Message {// CreateMessageResponse, RetrieveMessageResponse, ModifyMessag
 message IncompleteDetails {
   IncompleteReason reason = 1;
   enum IncompleteReason {
-    ContentFilter = 0;
-    MaxTokens = 1;
-    RunCancelled = 2;
-    RunExpired = 3;
-    RunFailed = 4;
+    unknown_incomplete_reason = 0;
+    content_filter = 1;
+    max_tokens = 2;
+    run_cancelled = 3;
+    run_expired = 4;
+    run_failed = 5;
   }
 }
 
@@ -342,11 +352,13 @@ message CreateThreadAndRunRequest {
   uint32 max_completion_tokens = 12;
 
   // The truncation strategy to use for the thread. The default is auto. If set to last_messages, the thread will be truncated to the n most recent messages in the thread. When set to auto, messages in the middle of the thread will be dropped to fit the context length of the model, max_prompt_tokens.
-  enum TruncationStrategy {
-    Auto = 0;
-    LastMessages = 1;
-  }
   TruncationStrategy truncation_strategy = 13;
+
+  enum TruncationStrategy {
+    unknown_truncation_strategy = 0;
+    auto = 1;
+    last_messages = 2;
+  }
 
   // Controls which (if any) tool is called by the model. none means the model will not call any tools and instead generates a message. auto is the default value and means the model can pick between generating a message or calling a tool. Specifying a particular tool like {"type": "file_search"} or {"type": "function", "function": {"name": "my_function"}} forces the model to call that tool.
   ToolChoice tool_choice = 14; // due to language characteristics, we cannot make `tool_choice` as arbitrary type of `string` and `object`. So we choose to define `ToolChoice` as object type.
@@ -361,6 +373,7 @@ message CreateThreadAndRunRequest {
   ResponseFormat response_format = 15;
 }
 
+
 message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRunObject, ModifyRunResponse, SubmitToolOutputsResponse, GetRunResponse
   string id = 1;
   string object = 2; // always `thread.run`
@@ -369,14 +382,15 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
   string assistant_id = 5;
 
   enum RunObjectStatus {
-    Queued = 0;
-    InProgress = 1;
-    RequiresAction = 2;
-    Cancelling = 3;
-    Cancelled = 4;
-    Failed = 5;
-    Completed = 6;
-    Expired = 7;
+    unknown_run_object_status = 0;
+    queued = 1;
+    in_progress = 2;
+    requires_action = 3;
+    cancelling = 4;
+    cancelled = 5;
+    failed = 6;
+    completed = 7;
+    expired = 8;
   }
   RunObjectStatus status = 6;
 
@@ -384,31 +398,30 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
   message RequiredAction {
     RequiredActionType type = 1;
     enum RequiredActionType {
-      SubmitToolOutputs = 0;
+      unknown_required_action_type = 0;
+      submit_tool_outputs = 1;
     }
 
     repeated RunToolCallObject tool_calls = 2;
+
     message RunToolCallObject {
       string id = 1;
-
       RunToolCallObjectType type = 2;
-      enum RunToolCallObjectType {
-        Function = 0;
-      }
-
       message RunToolCallFunctionObject {
         string name = 1;
         string arguments = 2;
       }
       RunToolCallFunctionObject function = 3;
     }
+    enum RunToolCallObjectType {
+      unknown_run_tool_call_object_type = 0;
+      function = 1;
+    }
   }
 
 
   message RunErrorObject {
     CommonErrorType last_error = 1;
-
-
     uint64 expires_at = 2;
     uint64 cancelled_at = 3;
     uint64 failed_at = 4;
@@ -419,19 +432,16 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
     string instruction = 9;
     repeated AssistantToolObject tools = 10;
     google.protobuf.Struct metadata = 11;
-
     CompletionUsage usage = 12;
-
-
     float temperature = 13;
     float top_p = 14;
-
     uint32 max_prompt_tokens = 15;
     uint32 max_completion_tokens = 16;
 
     enum TruncationStrategy {
-      Auto = 0;
-      LastMessages = 1;
+      unknown_truncation_strategy = 0;
+      auto = 1;
+      last_messages = 2;
     }
     TruncationStrategy truncation_strategy = 17;
 
@@ -448,11 +458,11 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
   }
 }
 
-
 enum CommonErrorType {
-  ServerError = 0;
-  RateLimitExceeded = 1;
-  InvalidPrompt = 2;
+  unknown_error_type = 0;
+  server_error = 1;
+  rate_limit_exceeded = 2;
+  invalid_prompt = 3;
 }
 
 message ListRunsRequest {
@@ -500,8 +510,9 @@ message CreateRunRequest {
   uint32 max_completion_tokens = 16;
 
   enum TruncationStrategy {
-    Auto = 0;
-    LastMessages = 1;
+    unknown_truncation_strategy = 0;
+    auto = 1;
+    last_messages = 2;
   }
   TruncationStrategy truncation_strategy = 17;
 
@@ -620,17 +631,19 @@ message RunStepObject { // GetRunStepResponse
 
   RunStepType type = 7;
   enum RunStepType {
-    MessageCreation = 0;
-    ToolCalls = 1;
+    unknown_run_step_type = 0;
+    message_creation = 1;
+    tool_calls = 2;
   }
 
   RunStepStatus status = 8;
   enum RunStepStatus {
-    InProgress = 0;
-    Cancelled = 1;
-    Failed = 2;
-    Completed = 3;
-    Expired = 4;
+    unknown_run_step_status = 0;
+    in_progress = 1;
+    cancelled = 2;
+    failed = 3;
+    completed = 4;
+    expired = 5;
   }
 
   RunStepDetails step_details = 9;
@@ -652,16 +665,15 @@ message RunStepObject { // GetRunStepResponse
       message CodeInterpreter {
         string input = 1;
 
+        enum CodeInterpreterOutputType {
+          unknown_code_interpreter_output_type = 0;
+          logs = 1;
+          image = 2;
+        }
         message CodeInterpreterOutput { // union of CodeOutputLogsObject and CodeOutputImageObject
           CodeInterpreterOutputType type = 1;
-          enum CodeInterpreterOutputType {
-            Logs = 0;
-            Image = 1;
-          }
-
           // only for CodeOutputLogsObject
           string logs = 2;
-
           // only for CodeOutputImageObject
           CodeInterpreterImageOutput image = 3;
           message CodeInterpreterImageOutput {
@@ -723,7 +735,8 @@ message VectorStoreExpirationPolicy {
   // Anchor timestamp after which the expiration policy applies. Supported anchors: last_active_at.
   VectorStoreExpirationAnchor anchor = 1;
   enum VectorStoreExpirationAnchor {
-    LastActiveAt = 0;
+    unknown_vector_store_expiration_anchor = 0;
+    last_active_at = 1;
   }
 
   // The number of days after the anchor time that the vector store will expire.
@@ -773,9 +786,10 @@ message VectorStoreObject { // CreateVectorStoreResponse, GetVectorStoreResponse
 
   VectorStoreStatus status = 7;
   enum VectorStoreStatus {
-    Expired = 0;
-    InProgress = 1;
-    Completed = 2;
+    unknown_vector_Store_status = 0;
+    expired = 1;
+    in_progress = 2;
+    completed = 3;
   }
 
   VectorStoreExpirationPolicy expires_after = 8;
@@ -845,10 +859,11 @@ message DeleteVectorStoreFileResponse {
 }
 
 enum VectorStoreFileStatus {
-  IN_PROGRESS = 0;
-  COMPLETED = 1;
-  FAILED = 2;
-  CANCELLED = 3;
+  unknown_vector_store_file_status = 0;
+  in_progress = 1;
+  completed = 2;
+  failed = 3;
+  cancelled = 4;
 }
 
 message VectorStoreFile { // CreateVectorFileResponse

@@ -27,7 +27,7 @@ where
     {% if before &}
     id < {{before}}
     {% endif %}
-{% if order == "ORDER_ASC" %}
+{% if order == "asc" %}
 order by created_at ASC
 {% else %}
 order by created_at DESC

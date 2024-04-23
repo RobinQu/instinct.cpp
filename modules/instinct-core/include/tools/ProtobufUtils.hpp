@@ -13,6 +13,14 @@
 namespace INSTINCT_CORE_NS {
     using namespace google::protobuf;
 
+
+    struct ToJsonObjectOptions {
+        // As enum is written as string, this controls it should be written in camel-case or snake-case.
+        bool camel_case_enum = false;
+        // Don't write field with default values to json object if this is set to `false`.
+        bool keep_default_values = false;
+    };
+
     class ProtobufUtils final {
     public:
         template<class T>
@@ -21,6 +29,7 @@ namespace INSTINCT_CORE_NS {
             auto *descriptor = message.GetDescriptor();
             auto *reflection = message.GetReflection();
             for (const auto& [name,v]: json_object.items()) {
+                LOG_DEBUG("k={}, v.type={}", name, v.type_name());
                 auto *field_descriptor = descriptor->FindFieldByName(name);
                 assert_true(field_descriptor, "should have found field_ descriptor by column name: " + name);
                 switch (field_descriptor->cpp_type()) {
@@ -64,11 +73,16 @@ namespace INSTINCT_CORE_NS {
                         break;
                     }
                     case FieldDescriptor::CPPTYPE_MESSAGE: {
-                        DynamicMessageFactory dmf;
-                        Message* actual_msg = dmf.GetPrototype(field_descriptor)->New();
-                        ConvertJSONObjectToMessage(v, *actual_msg);
-                        reflection->SetAllocatedMessage(&message, actual_msg, field_descriptor);
-                        break;
+                        if (field_descriptor->is_map()) {
+                            LOG_WARN("map found, but not supported yet");
+                        } else {
+
+                            DynamicMessageFactory dmf;
+                            Message* actual_msg = dmf.GetPrototype(field_descriptor)->New();
+                            ConvertJSONObjectToMessage(v, *actual_msg);
+                            reflection->SetAllocatedMessage(&message, actual_msg, field_descriptor);
+                            break;
+                        }
                     }
                     default: {
                         throw InstinctException(fmt::format("Unknown cpp_type for this field. name={}, cpp_type={}",
@@ -79,20 +93,15 @@ namespace INSTINCT_CORE_NS {
             }
         }
 
-        struct ToJsonObjectOptions {
-            // As enum is written as string, this controls it should be written in camel-case or snake-case.
-            bool camel_case_enum = false;
-            // Don't write field with default values to json object if this is set to `true`.
-            bool ommit_default_values = true;
-        };
 
         template<class T>
         requires IsProtobufMessage<T>
-        static void ConvertMessageToJsonObject(const T& message, nlohmann::json& json_object, const ToJsonObjectOptions& options) {
+        static void ConvertMessageToJsonObject(const T& message, nlohmann::ordered_json& json_object, const ToJsonObjectOptions& options = {}) {
             auto *descriptor = message.GetDescriptor();
             auto *reflection = message.GetReflection();
             for(int i=0;i<descriptor->field_count();++i) {
                 auto* field_descriptor = descriptor->field(i);
+                // LOG_DEBUG("k={}, index={}, number={}", field_descriptor->name(), field_descriptor->index(), field_descriptor->number());
                 const auto field_name = field_descriptor->name();
                 const int repeated_field_size = field_descriptor->is_repeated() ? reflection->FieldSize(message, field_descriptor) : 0;
                 switch (field_descriptor->cpp_type()) {
@@ -102,7 +111,11 @@ namespace INSTINCT_CORE_NS {
                                 json_object[field_name].push_back(reflection->GetRepeatedString(message, field_descriptor, j));
                             }
                         } else {
-                            json_object[field_name] = reflection->GetString(message, field_descriptor);
+
+                            auto v = reflection->GetString(message, field_descriptor);
+                            if (options.keep_default_values || StringUtils::IsNotBlankString(v)) {
+                                json_object[field_name] = v;
+                            }
                         }
                         break;
                     }
@@ -113,7 +126,10 @@ namespace INSTINCT_CORE_NS {
                                 json_object[field_name].push_back(reflection->GetRepeatedInt32(message, field_descriptor, j));
                             }
                         } else {
-                            json_object[field_name] = reflection->GetInt32(message, field_descriptor);
+                            auto v = reflection->GetInt32(message, field_descriptor);;
+                            if (v) {
+                                json_object[field_name] = v;
+                            }
                         }
                         break;
                     }
@@ -124,7 +140,10 @@ namespace INSTINCT_CORE_NS {
                                 json_object[field_name].push_back(reflection->GetRepeatedInt64(message, field_descriptor, j));
                             }
                         } else {
-                            json_object[field_name] = reflection->GetInt64(message, field_descriptor);
+                            auto v = reflection->GetInt64(message, field_descriptor);;
+                            if (options.keep_default_values || v!=0) {
+                                json_object[field_name] = v;
+                            }
                         }
 
                         break;
@@ -136,7 +155,10 @@ namespace INSTINCT_CORE_NS {
                                 json_object[field_name].push_back(reflection->GetRepeatedUInt32(message, field_descriptor, j));
                             }
                         } else {
-                            json_object[field_name] = reflection->GetUInt32(message, field_descriptor);
+                            auto v = reflection->GetUInt32(message, field_descriptor);
+                            if (options.keep_default_values || v!= 0) {
+                                json_object[field_name] = v;
+                            }
                         }
                         break;
                     }
@@ -149,9 +171,12 @@ namespace INSTINCT_CORE_NS {
                                 );
                             }
                         } else {
-                            json_object[field_name] = reflection->GetUInt64(message, field_descriptor);
+                            auto v = reflection->GetUInt64(message, field_descriptor);;
+                            if (options.keep_default_values || v != 0) {
+                                json_object[field_name] = v;
+                            }
                         }
-                            break;
+                        break;
                     }
 
                     case FieldDescriptor::CPPTYPE_DOUBLE: {
@@ -162,7 +187,10 @@ namespace INSTINCT_CORE_NS {
                                 );
                             }
                         } else {
-                            json_object[field_name] = reflection->GetDouble(message, field_descriptor);
+                            auto v = reflection->GetDouble(message, field_descriptor);;
+                            if (options.keep_default_values || v!=0) {
+                                json_object[field_name] = v;
+                            }
                         }
                         break;
                     }
@@ -175,7 +203,10 @@ namespace INSTINCT_CORE_NS {
                                 );
                             }
                         } else {
-                            json_object[field_name] = reflection->GetFloat(message, field_descriptor);
+                            auto v = reflection->GetFloat(message, field_descriptor);
+                            if (options.keep_default_values || v != 0) {
+                                json_object[field_name] = v;
+                            }
                         }
 
                         break;
@@ -189,7 +220,10 @@ namespace INSTINCT_CORE_NS {
                                 );
                             }
                         } else {
-                            json_object[field_name] = reflection->GetBool(message, field_descriptor);
+                            auto v = reflection->GetBool(message, field_descriptor);
+                            if (options.keep_default_values || v == true) {
+                                json_object[field_name] = v;
+                            }
                         }
                         break;
                     }
@@ -203,9 +237,10 @@ namespace INSTINCT_CORE_NS {
                                 json_object[field_name].push_back(enum_name);
                             }
                         } else {
-                            auto enum_value_descriptor = reflection->GetEnum(message, field_descriptor);
-                            auto enum_name = options.camel_case_enum ? enum_value_descriptor->name() : StringUtils::CamelToSnake(enum_value_descriptor->name());
-                            json_object[field_name] = enum_name;
+                            if (auto enum_value_descriptor = reflection->GetEnum(message, field_descriptor); enum_value_descriptor->number() != 0) {
+                                auto enum_name = options.camel_case_enum ? enum_value_descriptor->name() : StringUtils::CamelToSnake(enum_value_descriptor->name());
+                                json_object[field_name] = enum_name;
+                            }
                         }
                         break;
                     }
@@ -214,15 +249,22 @@ namespace INSTINCT_CORE_NS {
                         if(field_descriptor->is_repeated()) {
                             for(int j=0;j<repeated_field_size;++j) {
                                 auto& message_item = reflection->GetRepeatedMessage(message, field_descriptor, j);
-                                nlohmann::json sub_obj;
+                                nlohmann::ordered_json sub_obj;
                                 ConvertMessageToJsonObject(message_item, sub_obj);
                                 json_object[field_name].push_back(sub_obj);
                             }
                         } else {
-                            auto& sub_message = reflection->GetMessage(message, field_descriptor);
-                            nlohmann::json sub_obj;
-                            ConvertMessageToJsonObject(sub_message, sub_obj);
-                            json_object[field_name] = sub_obj;
+                            if (field_descriptor->is_map()) {
+                                LOG_DEBUG("map detected, but not supported");
+                            } else {
+                                if (reflection->HasField(message, field_descriptor)) {
+                                    auto& sub_message = reflection->GetMessage(message, field_descriptor);
+                                    nlohmann::ordered_json sub_obj;
+                                    ConvertMessageToJsonObject(sub_message, sub_obj);
+                                    json_object[field_name] = sub_obj;
+                                }
+                            }
+
                         }
                         break;
                     }

@@ -13,11 +13,12 @@ namespace INSTINCT_CORE_NS {
         agent::assistant::v2::Message message;
         message.set_assistant_id("assistant-123");
         message.set_id("msg-123");
-        message.mutable_content()->set_type(agent::assistant::v2::Message_MessageContent_MessageContentType::Message_MessageContent_MessageContentType_Text);
+        message.mutable_content()->set_type(agent::assistant::v2::Message_MessageContentType_text);
         message.mutable_content()->mutable_text()->set_value("hahha");
         const auto json_string = ProtobufUtils::Serialize(message);
 
-        nlohmann::json output;
+        // use `ordered_json` to preserve field order
+        nlohmann::ordered_json output;
         ProtobufUtils::ConvertMessageToJsonObject(message, output);
         LOG_INFO("converted json object: {}", output.dump());
         ASSERT_EQ(output.dump(), json_string);
