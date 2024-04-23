@@ -6,11 +6,10 @@
 #define RETRIEVALGLOBALS_HPP
 
 #include <retrieval.pb.h>
+#include <duckdb.hpp>
 
-#include <utility>
 #include "CoreGlobals.hpp"
 #include "LLMGlobals.hpp"
-#include "store/duckdb/DuckDBDocStore.hpp"
 
 #define INSTINCT_RETRIEVAL_NS instinct::retrieval
 
@@ -29,6 +28,8 @@ namespace INSTINCT_RETRIEVAL_NS {
 //        std::string standalone_question_variable_key = DEFAULT_STANDALONE_QUESTION_INPUT_KEY;
 //        int top_k = 10;
     };
+
+    using DuckDBPtr = std::shared_ptr<duckdb::DuckDB>;
 
 
     namespace details {

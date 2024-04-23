@@ -17,7 +17,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         IConnection(IConnection&&)=delete;
         IConnection(const IConnection&)=delete;
 
-        virtual Impl& GetImpl() const = 0;
+        virtual Impl& GetImpl() = 0;
         virtual Impl* operator->() const = 0;
         virtual std::chrono::time_point<std::chrono::system_clock> GetLastActiveTime() = 0;
         virtual void UpdateActiveTime() = 0;
@@ -33,6 +33,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         IConnectionPool(const IConnectionPool&)=delete;
         IConnectionPool(IConnectionPool&&)=delete;
 
+        virtual void Initialize() = 0;
+
         virtual ConnectionPtr Create() = 0;
 
         /**
@@ -47,7 +49,17 @@ namespace INSTINCT_RETRIEVAL_NS {
          */
         virtual ConnectionPtr Acquire() = 0;
 
+        /**
+         * check a single connection
+         * @param connection
+         * @return
+         */
         virtual bool Check(const ConnectionPtr& connection) = 0;
+
+        /**
+         * Release a single connection
+         * @param connection
+         */
         virtual void Release(const ConnectionPtr& connection) = 0;
 
     };

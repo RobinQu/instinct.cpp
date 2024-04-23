@@ -23,6 +23,18 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::condition_variable condition_;
         ConnectionPoolOptions options_;
     public:
+        explicit BaseConnectionPool(const ConnectionPoolOptions &options)
+            : options_(options) {
+        }
+
+        void Initialize() override {
+            auto count = options_.intial_connection_count;
+            LOG_INFO("Init pool with {} connections", count);
+            while (count-->0) {
+                pool_.push_back(this->Create());
+            }
+        }
+
         std::shared_ptr<IConnection<Impl>> TryAcquire() override {
             std::unique_lock lock(mutex_);
             while (pool_.empty()) {
@@ -36,7 +48,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             pool_.pop_front();
 
             if (conn &&
-                conn->IsAlive() &&
+                this->Check(conn) &&
                 conn->GetLastActiveTime() - std::chrono::system_clock::now() < options_.max_idle_duration) {
                 conn->UpdateActiveTime();
                 return conn;
@@ -53,16 +65,14 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void Release(const std::shared_ptr<IConnection<Impl>> &connection) override {
-            if (!connection || !connection->IsAlive() ) {
-                connection = this->Create();
+            if (!connection || !this->Check(connection) ) {
+                pool_.push_back(this->Create());
+            } else {
+                pool_.push_back(connection);
             }
-            pool_.push_back(connection);
             condition_.notify_one();
         }
 
-        bool Check(const typename IConnectionPool<Impl>::ConnectionPtr &connection) override {
-            return true;
-        }
     };
 
     template<typename Impl>

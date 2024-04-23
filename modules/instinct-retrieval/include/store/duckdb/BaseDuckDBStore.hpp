@@ -332,7 +332,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
     }
 
-    using DuckDBPtr = std::shared_ptr<DuckDB>;
+
 
     class BaseDuckDBStore : public virtual IDocStore {
         DuckDBStoreOptions options_;
