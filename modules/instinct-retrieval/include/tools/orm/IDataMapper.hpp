@@ -51,13 +51,25 @@ namespace INSTINCT_RETRIEVAL_NS {
          */
         virtual size_t Execute(const SQLTemplate& insert_sql, const SQLContext& context) = 0;
 
+        /**
+         * Execute sql for inserting one record
+         * @param insert_sql should contain `retuning(id)` clause
+         * @param context
+         * @return
+         */
         virtual PrimaryKey InsertOne(const SQLTemplate& insert_sql, const SQLContext& context) = 0;
 
+        /**
+         * Execute sql for inserting many records
+         * @param insert_sql should contain `retuning(id)` clause
+         * @param context 
+         * @return 
+         */
         virtual std::vector<PrimaryKey> InsertMany(const SQLTemplate& insert_sql, const SQLContext& context) = 0;
     };
 
-    template<typename T>
-    using DataMapperPtr = std::shared_ptr<IDataMapper<T>>;
+    template<typename T, typename PrimaryKey>
+    using DataMapperPtr = std::shared_ptr<IDataMapper<T,PrimaryKey>>;
 }
 
 

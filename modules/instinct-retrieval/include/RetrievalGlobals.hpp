@@ -7,10 +7,11 @@
 
 #include <retrieval.pb.h>
 #include <duckdb.hpp>
-#include <inja/environment.hpp>
+#include <inja/inja.hpp>
 
 #include "CoreGlobals.hpp"
 #include "LLMGlobals.hpp"
+#include "tools/StringUtils.hpp"
 
 #define INSTINCT_RETRIEVAL_NS instinct::retrieval
 

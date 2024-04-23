@@ -9,7 +9,9 @@
 #include <store/duckdb/BaseDuckDBStore.hpp>
 
 #include "../BaseConnectionPool.hpp"
+#include "tools/Assertions.hpp"
 #include "../IDataMapper.hpp"
+
 
 namespace INSTINCT_RETRIEVAL_NS {
     template<typename Entity, typename PrimaryKey = std::string>
@@ -31,7 +33,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         std::optional<Entity> SelectOne(const SQLTemplate &select_sql, const SQLContext& context) override {
             const auto conn = connection_pool_->Acquire();
-            DuckDBConnectionPool::GuardConnection {connection_pool_, conn};
+            DuckDBConnectionPool::GuardConnection guard {connection_pool_, conn};
             auto result = conn->GetImpl().Query(env_->render(select_sql, context));
             details::assert_query_ok(result);
             if (result->RowCount() == 0) {
@@ -41,23 +43,23 @@ namespace INSTINCT_RETRIEVAL_NS {
                 throw InstinctException("More than one rows are returned from SelectOne");
             }
             std::vector<Entity> result_vector;
-            ConvertQueryResult_(result, result_vector);
+            ConvertQueryResult_(*result, result_vector);
             return result_vector.front();
         }
 
         std::vector<Entity> SelectMany(const SQLTemplate &select_sql, const SQLContext& context) override {
             const auto conn = connection_pool_->Acquire();
-            DuckDBConnectionPool::GuardConnection {connection_pool_, conn};
+            DuckDBConnectionPool::GuardConnection guard {connection_pool_, conn};
             auto result = conn->GetImpl().Query(env_->render(select_sql, context));
             details::assert_query_ok(result);
             std::vector<Entity> result_vector;
-            ConvertQueryResult_(result, result_vector);
+            ConvertQueryResult_(*result, result_vector);
             return result_vector;
         }
 
         size_t Execute(const SQLTemplate &sql, const SQLContext& context) override {
             const auto conn = connection_pool_->Acquire();
-            DuckDBConnectionPool::GuardConnection {connection_pool_, conn};
+            DuckDBConnectionPool::GuardConnection guard {connection_pool_, conn};
             const auto result = conn->GetImpl().Query(env_->render(sql, context));
             details::assert_query_ok(result);
             return result->GetValue<uint64_t>(0,0);
@@ -65,30 +67,30 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         PrimaryKey InsertOne(const SQLTemplate &insert_sql, const SQLContext &context) override {
             auto result = InsertMany(insert_sql, context);
-            assert_true(result.size(), 1, "should have only one returned id");
+            assert_true(result.size() == 1, "should have only one returned id");
             return result.front();
         }
 
         std::vector<PrimaryKey> InsertMany(const SQLTemplate &insert_sql, const SQLContext &context) override {
             const auto conn = connection_pool_->Acquire();
-            DuckDBConnectionPool::GuardConnection {connection_pool_, conn};
+            DuckDBConnectionPool::GuardConnection guard {connection_pool_, conn};
             auto result = conn->GetImpl().Query(env_->render(insert_sql, context));
             details::assert_query_ok(result);
             std::vector<PrimaryKey> key_result;
             for(const auto& row: *result) {
-                key_result.push_back(row.GetValue<PrimaryKey>());
+                key_result.push_back(row.GetValue<PrimaryKey>(0));
             }
             return key_result;
         }
 
     private:
-        void ConvertQueryResult_(const QueryResult &query_result, std::vector<Entity> &result) {
-            for (const auto &row: query_result) {
+        void ConvertQueryResult_(QueryResult &query_result, std::vector<Entity> &result) {
+            for (auto &row: query_result) {
                 Entity entity;
                 auto *descriptor = entity.GetDescriptor();
                 auto *reflection = entity.GetReflection();
-                for (int i = 0; i < result->names.size(); i++) {
-                    auto name = result->names[i];
+                for (int i = 0; i < query_result.names.size(); i++) {
+                    auto name = query_result.names[i];
                     if(column_names_mapping_.contains(name)) { // apply mapping
                         name = column_names_mapping_[name];
                     }
@@ -100,11 +102,11 @@ namespace INSTINCT_RETRIEVAL_NS {
                             break;
                         }
                         case FieldDescriptor::CPPTYPE_INT32: {
-                            reflection->SetInt32(&entity, field_descriptor, row.GetValue<int>(i));
+                            reflection->SetInt32(&entity, field_descriptor, row.GetValue<int32_t>(i));
                             break;
                         }
                         case FieldDescriptor::CPPTYPE_INT64: {
-                            reflection->SetInt64(&entity, field_descriptor, row.GetValue<long>(i));
+                            reflection->SetInt64(&entity, field_descriptor, row.GetValue<int64_t>(i));
                             break;
                         }
                         case FieldDescriptor::CPPTYPE_UINT32: {
