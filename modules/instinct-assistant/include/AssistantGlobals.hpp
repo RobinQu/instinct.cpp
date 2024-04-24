@@ -14,6 +14,7 @@
 #include <inja/inja.hpp>
 
 #include "CoreGlobals.hpp"
+#include "DataGlobals.hpp"
 #include "chain/MessageChain.hpp"
 #include "toolkit/BaseFunctionTool.hpp"
 #include "tools/SnowflakeIDGenerator.hpp"
@@ -21,7 +22,6 @@
 namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_CORE_NS;
     using namespace INSTINCT_LLM_NS;
-
 
     namespace v2 {
         namespace details {

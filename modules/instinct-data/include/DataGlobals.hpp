@@ -34,9 +34,12 @@ namespace INSTINCT_DATA_NS {
                 const auto v = args.at(0)->get<std::string>();
                 return StringUtils::IsBlankString(v);
             });
-
             env->add_callback("text", 1, [](const inja::Arguments& args) {
                 auto v = args.at(0)->get<std::string>();
+                return "'" + StringUtils::EscapeSQLText(v) + "'";
+            });
+            env->add_callback("stringify", 1, [](const inja::Arguments& args) {
+                auto v = args.at(0)->dump();
                 return "'" + StringUtils::EscapeSQLText(v) + "'";
             });
             env->set_trim_blocks(true);

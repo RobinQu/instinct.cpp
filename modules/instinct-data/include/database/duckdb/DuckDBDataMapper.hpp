@@ -26,8 +26,8 @@ namespace INSTINCT_DATA_NS {
     public:
         explicit DuckDBDataMapper(
             const ConnectionPoolPtr<Connection> &connection_pool,
-            const std::shared_ptr<inja::Environment>& env = DEFAULT_SQL_TEMPLATE_INJA_ENV,
-            const std::unordered_map<std::string_view, std::string_view> &column_names_mapping = {})
+            const std::shared_ptr<inja::Environment>& env,
+            const std::unordered_map<std::string_view, std::string_view> &column_names_mapping)
             :   connection_pool_(connection_pool),
                 env_(env),
                 column_names_mapping_(column_names_mapping) {
@@ -161,6 +161,14 @@ namespace INSTINCT_DATA_NS {
             }
         }
     };
+
+    template<typename T, typename PrimaryKey>
+    DataMapperPtr<T, PrimaryKey> CreateDuckDBDataMapper(
+            const ConnectionPoolPtr<Connection> &connection_pool,
+            const std::shared_ptr<inja::Environment>& env = DEFAULT_SQL_TEMPLATE_INJA_ENV,
+            const std::unordered_map<std::string_view, std::string_view> &column_names_mapping = {}) {
+        return std::make_shared<DuckDBDataMapper<T,PrimaryKey>>(connection_pool, env, column_names_mapping);
+    }
 }
 
 #endif //ENTITYDATAMAPPER_HPP

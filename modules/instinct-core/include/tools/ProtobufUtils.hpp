@@ -137,9 +137,8 @@ namespace INSTINCT_CORE_NS {
                                 json_object[field_name].push_back(reflection->GetRepeatedString(message, field_descriptor, j));
                             }
                         } else {
-
                             auto v = reflection->GetString(message, field_descriptor);
-                            if (options.keep_default_values || StringUtils::IsNotBlankString(v)) {
+                            if (options.keep_default_values || reflection->HasField(message, field_descriptor) || StringUtils::IsNotBlankString(v)) {
                                 json_object[field_name] = v;
                             }
                         }
@@ -153,7 +152,7 @@ namespace INSTINCT_CORE_NS {
                             }
                         } else {
                             auto v = reflection->GetInt32(message, field_descriptor);;
-                            if (v) {
+                            if (options.keep_default_values || reflection->HasField(message, field_descriptor) || v!=0) {
                                 json_object[field_name] = v;
                             }
                         }
@@ -167,7 +166,7 @@ namespace INSTINCT_CORE_NS {
                             }
                         } else {
                             auto v = reflection->GetInt64(message, field_descriptor);;
-                            if (options.keep_default_values || v!=0) {
+                            if (options.keep_default_values || reflection->HasField(message, field_descriptor) || v!=0) {
                                 json_object[field_name] = v;
                             }
                         }
@@ -182,7 +181,7 @@ namespace INSTINCT_CORE_NS {
                             }
                         } else {
                             auto v = reflection->GetUInt32(message, field_descriptor);
-                            if (options.keep_default_values || v!= 0) {
+                            if (options.keep_default_values || reflection->HasField(message, field_descriptor) || v!= 0) {
                                 json_object[field_name] = v;
                             }
                         }
@@ -198,7 +197,7 @@ namespace INSTINCT_CORE_NS {
                             }
                         } else {
                             auto v = reflection->GetUInt64(message, field_descriptor);;
-                            if (options.keep_default_values || v != 0) {
+                            if (options.keep_default_values || reflection->HasField(message, field_descriptor) || v != 0) {
                                 json_object[field_name] = v;
                             }
                         }
@@ -214,7 +213,7 @@ namespace INSTINCT_CORE_NS {
                             }
                         } else {
                             auto v = reflection->GetDouble(message, field_descriptor);;
-                            if (options.keep_default_values || v!=0) {
+                            if (options.keep_default_values || reflection->HasField(message, field_descriptor) || v!=0) {
                                 json_object[field_name] = v;
                             }
                         }
@@ -230,7 +229,7 @@ namespace INSTINCT_CORE_NS {
                             }
                         } else {
                             auto v = reflection->GetFloat(message, field_descriptor);
-                            if (options.keep_default_values || v != 0) {
+                            if (options.keep_default_values || reflection->HasField(message, field_descriptor) || v != 0) {
                                 json_object[field_name] = v;
                             }
                         }
@@ -247,7 +246,7 @@ namespace INSTINCT_CORE_NS {
                             }
                         } else {
                             auto v = reflection->GetBool(message, field_descriptor);
-                            if (options.keep_default_values || v == true) {
+                            if (options.keep_default_values || reflection->HasField(message, field_descriptor) || v == true) {
                                 json_object[field_name] = v;
                             }
                         }
@@ -262,7 +261,7 @@ namespace INSTINCT_CORE_NS {
                                 json_object[field_name].push_back(enum_name);
                             }
                         } else {
-                            if (auto enum_value_descriptor = reflection->GetEnum(message, field_descriptor); enum_value_descriptor->number() != 0) {
+                            if (auto enum_value_descriptor = reflection->GetEnum(message, field_descriptor); options.keep_default_values || reflection->HasField(message, field_descriptor) || enum_value_descriptor->number() != 0) {
                                 auto enum_name = enum_value_descriptor->name();
                                 json_object[field_name] = enum_name;
                             }

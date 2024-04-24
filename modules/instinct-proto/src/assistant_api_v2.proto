@@ -7,9 +7,8 @@ import "google/protobuf/struct.proto";
 package instinct.assistant.v2;
 
 enum ResponseFormat {
-  unknown_response_format = 0;
+  auto = 0;
   none = 1;
-  auto = 2;
 }
 
 // ==============================================================
@@ -21,8 +20,8 @@ message AssistantObject { // CreateAssistantRequest, GetAssistantResponse, Modif
   string description = 3;
   string instructions = 4;
   google.protobuf.Struct metadata = 5;
-  float temperature = 6;
-  float top_p = 7;
+  optional float temperature = 6;
+  optional float top_p = 7;
   ResponseFormat response_format = 8;
   string id = 9;
   repeated AssistantToolObject tools = 10;
