@@ -6,7 +6,9 @@
 #define AGENTGLOBALS_HPP
 
 
-#define INSTINCT_AGENT_NS instinct::agent
+#define INSTINCT_ASSISTANT_NS instinct::assistant
+
+
 #include <assistant_api_v2.pb.h>
 #include <string>
 #include <inja/inja.hpp>
@@ -16,12 +18,12 @@
 #include "toolkit/BaseFunctionTool.hpp"
 #include "tools/SnowflakeIDGenerator.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_CORE_NS;
     using namespace INSTINCT_LLM_NS;
 
 
-    namespace assistant::v2 {
+    namespace v2 {
         namespace details {
             static std::string generate_next_object_id(const std::string_view& prefix) {
                 static SnowflakeIDGenerator<1534832906275L> generator;

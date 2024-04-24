@@ -4,7 +4,7 @@ syntax = "proto3";
 import "google/protobuf/struct.proto";
 
 
-package instinct.agent.assistant.v2;
+package instinct.assistant.v2;
 
 enum ResponseFormat {
   unknown_response_format = 0;

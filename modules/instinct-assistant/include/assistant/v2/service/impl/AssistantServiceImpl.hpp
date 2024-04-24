@@ -5,12 +5,12 @@
 #ifndef ASSISTANTSERVICEIMPL_HPP
 #define ASSISTANTSERVICEIMPL_HPP
 
-#include "AgentGlobals.hpp"
+#include "AssistantGlobals.hpp"
 #include "assistant/v2/service/IAssistantService.hpp"
 #include "tools/orm/DBUtils.hpp"
 #include "tools/orm/IDataMapper.hpp"
 
-namespace INSTINCT_AGENT_NS::assistant::v2 {
+namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_RETRIEVAL_NS;
     class AssistantServiceImpl final: public IAssistantService {
         DataMapperPtr<AssistantObject> data_mapper_;

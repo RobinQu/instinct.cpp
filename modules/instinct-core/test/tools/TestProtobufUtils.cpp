@@ -17,10 +17,10 @@ namespace INSTINCT_CORE_NS {
     };
 
     TEST_F(ProtobufUtilsTest, ConvertJSONObjectToMessage) {
-        agent::assistant::v2::Message message;
+        assistant::v2::Message message;
         message.set_assistant_id("assistant-123");
         message.set_id("msg-123");
-        message.mutable_content()->set_type(agent::assistant::v2::Message_MessageContentType_text);
+        message.mutable_content()->set_type(assistant::v2::Message_MessageContentType_text);
         message.mutable_content()->mutable_text()->set_value("hahha");
 
         auto *fields = message.mutable_metadata()->mutable_fields();

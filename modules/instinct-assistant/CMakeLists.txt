@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.26)
-project(instinct-agent VERSION 0.1.0)
+project(instinct-assistant VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
 SET(${LIBRARY_TARGET_NAME}_HDR
-        include/AgentGlobals.hpp
-        include/AgentTestGlobals.hpp
+        include/AssistantGlobals.hpp
+        include/AssistantTestGlobals.hpp
         include/assistant/v2/service/AssistantFacade.hpp
         include/assistant/v2/service/IAssistantService.hpp
         include/assistant/v2/service/IFileService.hpp

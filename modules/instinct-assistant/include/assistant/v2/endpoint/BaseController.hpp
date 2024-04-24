@@ -7,11 +7,11 @@
 
 #include <utility>
 
-#include "AgentGlobals.hpp"
+#include "AssistantGlobals.hpp"
 #include "assistant/v2/service/AssistantFacade.hpp"
 #include "server/httplib/HttpLibServer.hpp"
 
-namespace INSTINCT_AGENT_NS::assistant::v2 {
+namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_SERVER_NS;
 
     class BaseController: public HttpLibController {

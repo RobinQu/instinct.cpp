@@ -6,9 +6,9 @@
 #define VECSTORESERVICE_HPP
 
 #include <assistant_api_v2.pb.h>
-#include "AgentGlobals.hpp"
+#include "AssistantGlobals.hpp"
 
-namespace INSTINCT_AGENT_NS::assistant::v2 {
+namespace INSTINCT_ASSISTANT_NS::v2 {
 
     class IVectorStoreService {
     public:

@@ -7,7 +7,7 @@
 
 #include "BaseController.hpp"
 
-namespace INSTINCT_AGENT_NS::assistant::v2 {
+namespace INSTINCT_ASSISTANT_NS::v2 {
 
     class VectorStoreController final: public BaseController {
 

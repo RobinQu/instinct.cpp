@@ -82,8 +82,9 @@ add_subdirectory(modules/instinct-core)
 add_subdirectory(modules/instinct-llm)
 add_subdirectory(modules/instinct-retrieval)
 add_subdirectory(modules/instinct-server)
-add_subdirectory(modules/instinct-agent)
 add_subdirectory(modules/instinct-data)
+add_subdirectory(modules/instinct-assistant)
+
 # examples
 add_subdirectory(modules/instinct-examples/doc-agent)
 add_subdirectory(modules/instinct-examples/quick-start)

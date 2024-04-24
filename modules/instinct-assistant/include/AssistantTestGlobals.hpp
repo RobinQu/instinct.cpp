@@ -8,12 +8,12 @@
 
 #include <random>
 
-#include "AgentGlobals.hpp"
+#include "AssistantGlobals.hpp"
 #include "toolkit/BaseSearchTool.hpp"
 #include "toolkit/LambdaFunctionTool.hpp"
 #include "toolkit/ProtoMessageFunctionTool.hpp"
 
-namespace INSTINCT_AGENT_NS::test {
+namespace INSTINCT_ASSISTANT_NS::test {
 
 
 }
