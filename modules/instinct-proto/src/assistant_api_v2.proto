@@ -116,7 +116,7 @@ message ModifyAssistantRequest {
 message ThreadObject { // CreateThreadRequest, GetThreadResponse, ModifyThreadResponse
   string id = 1;
   string object = 2;
-  repeated Message messages = 3;
+  repeated MessageObject messages = 3;
   AssistantToolResources tool_resources = 4;
   google.protobuf.Struct metadata = 5;
 }
@@ -180,7 +180,7 @@ enum MessageRole {
 }
 
 
-message Message {// CreateMessageResponse, RetrieveMessageResponse, ModifyMessageResponse
+message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, ModifyMessageResponse
   string id = 1;
   string object = 2;
   int32 created_at = 3;
@@ -291,7 +291,7 @@ message ListMessageRequest {
 
 message ListMessageResponse {
   string object = 1;
-  repeated Message data = 2;
+  repeated MessageObject data = 2;
   string first_id = 3;
   string last_id = 4;
   bool has_more = 5;
@@ -501,7 +501,7 @@ message CreateRunRequest {
   string assistant_id = 1;
   string instructions = 2;
   string additional_instructions = 3;
-  Message additional_messages = 4;
+  repeated MessageObject additional_messages = 4;
   repeated AssistantToolObject tools = 5;
   google.protobuf.Struct metadata = 6;
   float temperature = 7;

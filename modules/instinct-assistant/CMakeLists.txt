@@ -25,6 +25,8 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/assistant/v2/endpoint/BaseController.hpp
         include/assistant/v2/service/IMessageService.hpp
         include/assistant/v2/service/impl/AssistantServiceImpl.hpp
+        include/assistant/v2/service/impl/ThreadServiceImpl.hpp
+        include/assistant/v2/tool/ValidationUtils.hpp
 )
 
 

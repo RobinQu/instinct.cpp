@@ -24,6 +24,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         virtual Message ModifyMessagE(const ModifyMessageRequest& modify_request) = 0;
 
     };
+
+    using MessageServicePtr = std::shared_ptr<IMessageService>;
 }
 
 #endif //IMESSAGESERVICE_HPP
