@@ -12,6 +12,8 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/database/duckdb/DuckDBConnectionPool.hpp
         include/database/DBUtils.hpp
         include/database/duckdb/DuckDBConnection.hpp
+        include/database/DatabaseMigration.hpp
+        include/database/IDatabaseMigration.hpp
 )
 
 

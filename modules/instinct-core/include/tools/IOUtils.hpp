@@ -9,6 +9,7 @@
 #include <fstream>
 #include <streambuf>
 
+#include "Assertions.hpp"
 #include "CoreGlobals.hpp"
 
 
@@ -16,6 +17,7 @@ namespace INSTINCT_CORE_NS {
     class IOUtils final {
     public:
         static std::string ReadString(const std::filesystem::path& file_path) {
+            assert_true(std::filesystem::exists(file_path), "file should exist at " + file_path.string());
             std::ifstream t(file_path);
             std::string str;
 

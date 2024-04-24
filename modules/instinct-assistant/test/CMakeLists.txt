@@ -19,4 +19,9 @@ foreach(_test_file ${TEST_SRC_FILES})
     target_link_libraries(${_test_name} ${LIBRARY_TARGET_NAME})
     add_test(${_test_name} ${_test_name})
     set_tests_properties(${_test_name} PROPERTIES TIMEOUT 30)
+
+    # copy corpus test data to build tree
+    add_custom_command(TARGET ${_test_name} PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+            ${CMAKE_CURRENT_SOURCE_DIR}/_assets/ $<TARGET_FILE_DIR:${_test_name}>/_assets)
 endforeach()

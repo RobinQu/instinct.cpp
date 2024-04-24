@@ -4,21 +4,23 @@
 
 #ifndef ENTITYDATAMAPPER_HPP
 #define ENTITYDATAMAPPER_HPP
+#include <google/protobuf/dynamic_message.h>
+#include <google/protobuf/util/json_util.h>
 
-#include <inja/inja.hpp>
-#include <utility>
 #include "DataGlobals.hpp"
 #include "../BaseConnectionPool.hpp"
 #include "tools/Assertions.hpp"
 #include "../IDataMapper.hpp"
+#include "tools/ProtobufUtils.hpp"
 
 
 namespace INSTINCT_DATA_NS {
     using namespace google::protobuf;
     using namespace duckdb;
+    using namespace INSTINCT_CORE_NS;
 
     template<typename Entity, typename PrimaryKey = std::string>
-        requires IsProtobufMessage<Entity>
+    requires IsProtobufMessage<Entity>
     class DuckDBDataMapper final : public IDataMapper<Entity, PrimaryKey> {
         DuckDBConnectionPoolPtr connection_pool_;
         // from sql column name to entity field name
@@ -37,14 +39,15 @@ namespace INSTINCT_DATA_NS {
             const auto result = conn->Query(select_sql, context);
             assert_query_ok(result);
             if (result->RowCount() == 0) {
-                return {};
+                return std::nullopt;
             }
             if (result->RowCount() > 1) {
                 throw InstinctException("More than one rows are returned from SelectOne");
             }
             std::vector<Entity> result_vector;
             ConvertQueryResult_(*result, result_vector);
-            return result_vector.front();
+            Entity entity = result_vector[0];
+            return entity;
         }
 
         std::vector<Entity> SelectMany(const SQLTemplate &select_sql, const SQLContext& context) override {
@@ -85,10 +88,10 @@ namespace INSTINCT_DATA_NS {
 
     private:
         void ConvertQueryResult_(QueryResult &query_result, std::vector<Entity> &result) {
+            auto *descriptor = Entity::GetDescriptor();
+            auto *reflection = Entity::GetReflection();
             for (auto &row: query_result) {
                 Entity entity;
-                auto *descriptor = entity.GetDescriptor();
-                auto *reflection = entity.GetReflection();
                 for (int i = 0; i < query_result.names.size(); i++) {
                     auto name = query_result.names[i];
                     if(column_names_mapping_.contains(name)) { // apply mapping
@@ -140,6 +143,31 @@ namespace INSTINCT_DATA_NS {
                             reflection->SetEnum(&entity, field_descriptor, enum_value_descriptor);
                             break;
                         }
+                        case FieldDescriptor::CPPTYPE_MESSAGE: { // messages are seriallized as string in database
+                            auto obj_string = row.GetValue<std::string>(i);
+                            if (obj_string == "NULL") {
+                                // cannot parse any value from null value, so leave it as it is
+                                break;
+                            }
+                            DynamicMessageFactory dmf;
+                            // set this to true or it will throw as generated messages has no reflection data
+                            dmf.SetDelegateToGeneratedFactory(true);
+                            if (field_descriptor->is_repeated()) {
+                                auto json_array = nlohmann::json::parse(obj_string);
+                                assert_true(json_array.is_array(), "should be json array for string in column: " + name);
+                                for(auto& item: json_array) {
+
+                                    Message* actual_msg = dmf.GetPrototype(field_descriptor->message_type())->New();
+                                    ProtobufUtils::ConvertJSONObjectToMessage(item, actual_msg);
+                                    reflection->AddAllocatedMessage(&entity, field_descriptor, actual_msg);
+                                }
+                            } else {
+                                Message* actual_msg = dmf.GetPrototype(field_descriptor->message_type())->New();
+                                ProtobufUtils::ConvertJSONObjectToMessage(nlohmann::json::parse(obj_string), actual_msg);
+                                reflection->SetAllocatedMessage(&entity, actual_msg, field_descriptor);
+                            }
+                            break;
+                        }
                         default: {
                             throw InstinctException(fmt::format("Unknown cpp_type for this field. name={}, cpp_type={}",
                                                                 field_descriptor->name(),
@@ -147,7 +175,8 @@ namespace INSTINCT_DATA_NS {
                         }
                     }
                 }
-                result.push_back(std::move(entity));
+                std::cout << entity.DebugString() << std::endl;
+                result.push_back(entity);
             }
         }
     };

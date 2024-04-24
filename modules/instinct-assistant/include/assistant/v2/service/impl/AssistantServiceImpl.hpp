@@ -92,6 +92,7 @@ insert into instinct_assistant(
 {% if exists("tool_resourecs") %}
     tool_resourecs,
 {% endif %}
+    response_format,
 {% if exists("metadata") %}
     metadata,
 {% endif %}
@@ -99,6 +100,7 @@ insert into instinct_assistant(
     modified_at
 )  values(
     {{text(id)}},
+    {{text(name)}},
     {{text(model)}},
     {{text(description)}},
     {{text(instructions)}},
@@ -110,7 +112,7 @@ insert into instinct_assistant(
 {% if exists("tool_resourecs") %}
     {{stringify(tool_resources)}},
 {% endif %}
-    {{response_format}},
+    {{text(response_format)}},
 {% if exists("metadata") %}
     {{stringify(metadata)}},
 {% endif %}
@@ -125,11 +127,11 @@ insert into instinct_assistant(
         }
 
         std::optional<AssistantObject> RetrieveAssistant(const GetAssistantRequest &get_request) override {
-            return data_mapper_->SelectOne("select * from instinct_assistant where id = {{id}}", {{"id", get_request.assistant_id()}});
+            return data_mapper_->SelectOne("select * from instinct_assistant where id = {{text(id)}}", {{"id", get_request.assistant_id()}});
         }
 
         DeleteAssistantResponse DeleteAssistant(const DeleteAssistantRequest &delete_request) override {
-            const auto count = data_mapper_->Execute("delete from instinct_assistant where id = {{id}}", {{"id", delete_request.assistant_id()}});
+            const auto count = data_mapper_->Execute("delete from instinct_assistant where id = {{text(id)}}", {{"id", delete_request.assistant_id()}});
 
             DeleteAssistantResponse response;
             response.set_id(delete_request.assistant_id());
@@ -144,25 +146,25 @@ insert into instinct_assistant(
             ProtobufUtils::ConvertMessageToJsonObject(modify_assistant_request, context);
             data_mapper_->Execute(R"("update instinct_assistant set
 {% if is_not_blank(model) %}
-model = {{model}},
+model = {{text(model)}},
 {% endif %}
 {% if is_not_blank(description) %}
-description = {{description}},
+description = {{text(description)}},
 {% endif %}
 {% if is_not_blank(instructions) %}
-instructions = {{instructions}},
+instructions = {{text(instructions)}},
 {% endif %}
-{% if is_not_blank(metadata) %}
-metadata = {{metadata}},
+{% if exists("metadata") %}
+metadata = {{stringify(metadata)}},
 {% endif %}
-{% if is_not_blank(temperature) %}
+{% if exists("temperature") %}
 temperature = {{temperature}},
 {% endif %}
-{% if is_not_blank(top_p) %}
+{% if exists("top_p") %}
 top_p = {{top_p}},
 {% endif %}
 {% if is_not_blank(response_format) %}
-response_format = {{response_format}},
+response_format = {{text(response_format)}},
 {% endif %}
 {% if exists("tools") %}
 tools = {{stringify(tools)}},
@@ -170,11 +172,8 @@ tools = {{stringify(tools)}},
 {% if exists("tool_resources") %}
 tool_resources = {{stringify(tool_resources)}},
 {% endif %}
-{% if exists("metadata") %}
-metadata = {{stringify(metadata)}},
-{% endif %}
 modified_at = now()
-where id = {{assistant_id}}
+where id = {{text(assistant_id)}}
  )", context);
 
             GetAssistantRequest get_assistant_request;

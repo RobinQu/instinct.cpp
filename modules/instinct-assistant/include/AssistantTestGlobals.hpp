@@ -9,6 +9,7 @@
 #include <gtest/gtest.h>
 #include "AssistantGlobals.hpp"
 #include "assistant/v2/service/impl/AssistantServiceImpl.hpp"
+#include "database/DBUtils.hpp"
 #include "database/duckdb/DuckDBConnectionPool.hpp"
 #include "database/duckdb/DuckDBDataMapper.hpp"
 
@@ -20,11 +21,13 @@ namespace INSTINCT_ASSISTANT_NS {
     protected:
         void SetUp() override {
             SetupLogging();
+            DBUtils::ExecuteSQL(migration_dir / "001" / "up.sql", connection_pool_);
         }
 
         DuckDBPtr duck_db_ = std::make_shared<DuckDB>(nullptr);
         DuckDBConnectionPoolPtr connection_pool_ = CreateDuckDBConnectionPool(duck_db_);
         DataMapperPtr<AssistantObject, std::string> assistant_data_mapper = CreateDuckDBDataMapper<AssistantObject, std::string>(connection_pool_);
+        std::filesystem::path migration_dir = std::filesystem::current_path() / "_assets" / "db_migration";
     };
 
 

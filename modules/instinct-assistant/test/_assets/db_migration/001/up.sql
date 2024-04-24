@@ -10,6 +10,6 @@ CREATE TABLE IF NOT EXISTS instinct_assistant(
        response_format VARCHAR,
        tools VARCHAR,
        tool_resources VARCHAR,
-       created_at INTEGER,
-       modified_at INTEGER
+       created_at TIMESTAMP,
+       modified_at TIMESTAMP
 );

@@ -59,4 +59,22 @@ namespace INSTINCT_CORE_NS {
         LOG_INFO("converted json object: {}", output.dump());
         ASSERT_EQ(output.dump(), json_string);
     }
+
+    TEST_F(ProtobufUtilsTest, Reflection) {
+
+        const auto descriptor = assistant::v2::AssistantObject::GetDescriptor();
+        const auto reflection = assistant::v2::AssistantObject::GetReflection();
+
+        const auto name_field = descriptor->FindFieldByName("name");
+        auto* obj = new assistant::v2::AssistantObject;
+        reflection->SetString(obj, name_field, "test");
+        std::cout << obj->ShortDebugString() << std::endl;
+        delete obj;
+
+        assistant::v2::AssistantObject obj2;
+        reflection->SetString(&obj2, name_field, "test2");
+        std::cout << obj2.ShortDebugString() << std::endl;
+    }
+
+
 }

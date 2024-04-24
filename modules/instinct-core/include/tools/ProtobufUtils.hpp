@@ -29,6 +29,10 @@ namespace INSTINCT_CORE_NS {
         bool keep_default_values = false;
     };
 
+    static void assert_status_ok(const util::Status& status, const std::string& msg = "") {
+        assert_true(status.ok(), msg.empty() ? "Protobuf function returned with error status: " + status.message().as_string() : msg);
+    }
+
     class ProtobufUtils final {
     public:
         static const FieldDescriptor* WhichOneof(const Message& message,
@@ -46,6 +50,18 @@ namespace INSTINCT_CORE_NS {
             // Return nullptr if no oneof set.
             return reflection->GetOneofFieldDescriptor(message, oneof_descriptor);
         }
+
+        template<class T>
+        requires IsProtobufMessage<T>
+        static void ConvertJSONObjectToMessage(const nlohmann::json& json_object, T* message) {
+            // TODO use reflection instread of JsonStringToMessage
+            util::JsonParseOptions options;
+            options.ignore_unknown_fields = true;
+            options.case_insensitive_enum_parsing = true;
+            auto status = util::JsonStringToMessage(json_object.dump(), message, options);
+            assert_status_ok(status);
+        }
+
 
         //
         // template<class T>
@@ -320,9 +336,18 @@ namespace INSTINCT_CORE_NS {
             return result;
         }
 
-        template<typename T>
-        requires IsProtobufMessage<T>
-        static std::string Serialize(const T& obj) {
+        static void Deserialize(const std::string& buf, Message& result) {
+            util::JsonParseOptions options;
+            options.ignore_unknown_fields = true;
+            options.case_insensitive_enum_parsing = true;
+            auto status = util::JsonStringToMessage(buf, &result, options);
+            if (!status.ok()) {
+                LOG_DEBUG("Deserialize failed. reason: {}, orginal string: {}", status.message().as_string(), buf);
+            }
+            assert_true(status.ok(), "failed to parse protobuf message from response body");
+        }
+
+        static std::string Serialize(const Message& obj) {
             std::string param_string;
             util::JsonPrintOptions json_print_options;
             json_print_options.preserve_proto_field_names = true;
