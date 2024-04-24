@@ -21,6 +21,11 @@ namespace INSTINCT_DATA_NS {
 
     using DuckDBPtr = std::shared_ptr<duckdb::DuckDB>;
 
+    using SQLTemplate = std::string_view;
+
+    using SQLContext = nlohmann::ordered_json;
+
+
     namespace details {
         using namespace duckdb;
 

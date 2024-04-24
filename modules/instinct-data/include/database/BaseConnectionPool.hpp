@@ -18,23 +18,23 @@ namespace INSTINCT_DATA_NS {
 
 
 
-    template<typename Impl>
-    class BaseConnectionPool: public IConnectionPool<Impl>, public std::enable_shared_from_this<BaseConnectionPool<Impl>>{
-        std::deque<std::shared_ptr<IConnection<Impl>>> pool_;
+    template<typename ConnectionImpl, typename  QueryResultImpl>
+    class BaseConnectionPool: public IConnectionPool<ConnectionImpl, QueryResultImpl>, public std::enable_shared_from_this<BaseConnectionPool<ConnectionImpl, QueryResultImpl>>{
+        std::deque<std::shared_ptr<IConnection<ConnectionImpl, QueryResultImpl>>> pool_;
         std::mutex mutex_;
         std::condition_variable condition_;
         ConnectionPoolOptions options_;
     public:
+        using ConnectionPtr = typename IConnectionPool<ConnectionImpl, QueryResultImpl>::ConnectionPtr;
+        using ConnectionPoolPtr = std::shared_ptr<BaseConnectionPool<ConnectionImpl, QueryResultImpl>>;
 
         /**
          * Helper class to guard a connection to released in end of scope
          * @tparam Impl
          */
         struct GuardConnection {
-            std::shared_ptr<IConnectionPool<Impl>> pool_;
-            std::weak_ptr<IConnection<Impl>> connection_;
-
-
+            ConnectionPoolPtr pool_;
+            std::weak_ptr<IConnection<ConnectionImpl, QueryResultImpl>> connection_;
             ~GuardConnection() {
                 if (auto ptr = connection_.lock(); ptr) {
                     pool_->Release(ptr);
@@ -54,7 +54,7 @@ namespace INSTINCT_DATA_NS {
             }
         }
 
-        std::shared_ptr<IConnection<Impl>> TryAcquire() override {
+        ConnectionPtr TryAcquire() override {
             std::unique_lock lock(mutex_);
             while (pool_.empty()) {
                 if (condition_.wait_for(lock, options_.max_wait_duration_for_acquire) ==
@@ -76,7 +76,7 @@ namespace INSTINCT_DATA_NS {
             return this->Create();
         }
 
-        typename IConnectionPool<Impl>::ConnectionPtr Acquire() override {
+        ConnectionPtr Acquire() override {
             if (const auto conn = TryAcquire()) {
                 LOG_DEBUG("Acquired one: {}", conn->GetId());
                 return conn;
@@ -84,7 +84,7 @@ namespace INSTINCT_DATA_NS {
             throw InstinctException("Cannot acquire connection from connection pool");
         }
 
-        void Release(const std::shared_ptr<IConnection<Impl>> &connection) override {
+        void Release(const ConnectionPtr &connection) override {
             if (!connection || !this->Check(connection) ) {
                 auto c = this->Create();
                 LOG_DEBUG("Discard one. Newly created: {}", c->GetId());
@@ -98,8 +98,8 @@ namespace INSTINCT_DATA_NS {
 
     };
 
-    template<typename Impl>
-    using ConnectionPoolPtr = std::shared_ptr<BaseConnectionPool<Impl>>;
+    template<typename ConnectionImpl, typename  QueryResultImpl>
+    using ConnectionPoolPtr = std::shared_ptr<BaseConnectionPool<ConnectionImpl, QueryResultImpl>>;
 
 
 

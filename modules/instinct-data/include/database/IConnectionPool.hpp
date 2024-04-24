@@ -9,7 +9,7 @@
 
 namespace INSTINCT_DATA_NS {
 
-    template<typename Impl>
+    template<typename ConnectionImpl, typename  QueryResultImpl>
     class IConnection {
     public:
         IConnection()=default;
@@ -17,18 +17,19 @@ namespace INSTINCT_DATA_NS {
         IConnection(IConnection&&)=delete;
         IConnection(const IConnection&)=delete;
 
-        virtual Impl& GetImpl() = 0;
-        virtual Impl* operator->() const = 0;
+        virtual ConnectionImpl& GetImpl() = 0;
+        virtual ConnectionImpl* operator->() const = 0;
         virtual std::chrono::time_point<std::chrono::system_clock> GetLastActiveTime() = 0;
         virtual void UpdateActiveTime() = 0;
         [[nodiscard]] virtual const std::string& GetId() const = 0;
+        virtual QueryResultImpl Query(const SQLTemplate& select_sql, const SQLContext& context) = 0;
     };
 
 
-    template<typename Impl>
+    template<typename ConnectionImpl, typename  QueryResultImpl>
     class IConnectionPool {
     public:
-        using ConnectionPtr = std::shared_ptr<IConnection<Impl>>;
+        using ConnectionPtr = std::shared_ptr<IConnection<ConnectionImpl, QueryResultImpl>>;
         IConnectionPool()=default;
         virtual ~IConnectionPool()=default;
         IConnectionPool(const IConnectionPool&)=delete;

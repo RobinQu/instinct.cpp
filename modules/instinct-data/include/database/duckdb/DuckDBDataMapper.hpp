@@ -6,6 +6,7 @@
 #define ENTITYDATAMAPPER_HPP
 
 #include <inja/inja.hpp>
+#include <utility>
 #include "DataGlobals.hpp"
 #include "../BaseConnectionPool.hpp"
 #include "tools/Assertions.hpp"
@@ -19,26 +20,21 @@ namespace INSTINCT_DATA_NS {
     template<typename Entity, typename PrimaryKey = std::string>
         requires IsProtobufMessage<Entity>
     class DuckDBDataMapper final : public IDataMapper<Entity, PrimaryKey> {
-        ConnectionPoolPtr<Connection> connection_pool_;
-        std::shared_ptr<inja::Environment> env_;
+        DuckDBConnectionPoolPtr connection_pool_;
         // from sql column name to entity field name
         std::unordered_map<std::string_view, std::string_view> column_names_mapping_;
     public:
         explicit DuckDBDataMapper(
-            const ConnectionPoolPtr<Connection> &connection_pool,
-            const std::shared_ptr<inja::Environment>& env,
+            DuckDBConnectionPoolPtr connection_pool,
             const std::unordered_map<std::string_view, std::string_view> &column_names_mapping)
-            :   connection_pool_(connection_pool),
-                env_(env),
+            :   connection_pool_(std::move(connection_pool)),
                 column_names_mapping_(column_names_mapping) {
         }
 
         std::optional<Entity> SelectOne(const SQLTemplate &select_sql, const SQLContext& context) override {
             const auto conn = connection_pool_->Acquire();
             DuckDBConnectionPool::GuardConnection guard {connection_pool_, conn};
-            const auto sql_line = env_->render(select_sql, context);
-            LOG_DEBUG("SelectOne: {}", sql_line);
-            const auto result = conn->GetImpl().Query(sql_line);
+            const auto result = conn->Query(select_sql, context);
             assert_query_ok(result);
             if (result->RowCount() == 0) {
                 return {};
@@ -54,9 +50,7 @@ namespace INSTINCT_DATA_NS {
         std::vector<Entity> SelectMany(const SQLTemplate &select_sql, const SQLContext& context) override {
             const auto conn = connection_pool_->Acquire();
             DuckDBConnectionPool::GuardConnection guard {connection_pool_, conn};
-            const auto sql_line = env_->render(select_sql, context);
-            LOG_DEBUG("SelectMany: {}", sql_line);
-            const auto result = conn->GetImpl().Query(sql_line);
+            const auto result = conn->Query(select_sql, context);
             assert_query_ok(result);
             std::vector<Entity> result_vector;
             ConvertQueryResult_(*result, result_vector);
@@ -66,9 +60,7 @@ namespace INSTINCT_DATA_NS {
         size_t Execute(const SQLTemplate &sql, const SQLContext& context) override {
             const auto conn = connection_pool_->Acquire();
             DuckDBConnectionPool::GuardConnection guard {connection_pool_, conn};
-            const auto sql_line = env_->render(sql, context);
-            LOG_DEBUG("Execute: {}", sql_line);
-            const auto result = conn->GetImpl().Query(sql_line);
+            const auto result = conn->Query(sql, context);
             assert_query_ok(result);
             return result->GetValue<uint64_t>(0,0);
         }
@@ -82,9 +74,7 @@ namespace INSTINCT_DATA_NS {
         std::vector<PrimaryKey> InsertMany(const SQLTemplate &insert_sql, const SQLContext &context) override {
             const auto conn = connection_pool_->Acquire();
             DuckDBConnectionPool::GuardConnection guard {connection_pool_, conn};
-            auto sql = env_->render(insert_sql, context);
-            LOG_DEBUG("InsertMany: {}", sql);
-            const auto result = conn->GetImpl().Query(sql);
+            const auto result = conn->Query(insert_sql, context);
             assert_query_ok(result);
             std::vector<PrimaryKey> key_result;
             for(const auto& row: *result) {
@@ -164,10 +154,9 @@ namespace INSTINCT_DATA_NS {
 
     template<typename T, typename PrimaryKey>
     DataMapperPtr<T, PrimaryKey> CreateDuckDBDataMapper(
-            const ConnectionPoolPtr<Connection> &connection_pool,
-            const std::shared_ptr<inja::Environment>& env = DEFAULT_SQL_TEMPLATE_INJA_ENV,
+            const DuckDBConnectionPoolPtr &connection_pool,
             const std::unordered_map<std::string_view, std::string_view> &column_names_mapping = {}) {
-        return std::make_shared<DuckDBDataMapper<T,PrimaryKey>>(connection_pool, env, column_names_mapping);
+        return std::make_shared<DuckDBDataMapper<T,PrimaryKey>>(connection_pool, column_names_mapping);
     }
 }
 

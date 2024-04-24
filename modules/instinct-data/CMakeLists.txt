@@ -11,6 +11,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/database/ManagedConnection.hpp
         include/database/duckdb/DuckDBConnectionPool.hpp
         include/database/DBUtils.hpp
+        include/database/duckdb/DuckDBConnection.hpp
 )
 
 

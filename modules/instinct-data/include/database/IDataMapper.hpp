@@ -9,8 +9,6 @@
 
 namespace INSTINCT_DATA_NS {
 
-    using SQLTemplate = std::string_view;
-    using SQLContext = nlohmann::ordered_json;
 
     /**
      * Data mapper with SQL statements

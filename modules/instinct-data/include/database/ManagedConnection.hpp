@@ -9,21 +9,22 @@
 #include "tools/StringUtils.hpp"
 
 namespace INSTINCT_DATA_NS {
-    template<typename Impl>
-    class ManagedConnection final: public IConnection<Impl>, public std::enable_shared_from_this<ManagedConnection<Impl>> {
+    template<typename ConnectionImpl, typename  QueryResultImpl>
+    class ManagedConnection: public IConnection<ConnectionImpl, QueryResultImpl>, public std::enable_shared_from_this<ManagedConnection<ConnectionImpl, QueryResultImpl>> {
         std::chrono::time_point<std::chrono::system_clock> last_active_time_point_;
-        std::unique_ptr<Impl> impl_;
+        std::unique_ptr<ConnectionImpl> impl_;
         std::string id_;
+        std::shared_ptr<inja::Environment> env_;
     public:
-        explicit ManagedConnection(std::unique_ptr<Impl> impl_, std::string id = StringUtils::GenerateUUIDString())
-            : last_active_time_point_(std::chrono::system_clock::now()), impl_(std::move(impl_)), id_(std::move(id)) {
+        explicit ManagedConnection(std::unique_ptr<ConnectionImpl> impl_, std::string id, std::shared_ptr<inja::Environment> template_env)
+            : last_active_time_point_(std::chrono::system_clock::now()), impl_(std::move(impl_)), id_(std::move(id)), env_(std::move(template_env)) {
         }
 
-        Impl& GetImpl() override {
+        ConnectionImpl& GetImpl() override {
             return *impl_;
         }
 
-        Impl* operator->() const override {
+        ConnectionImpl* operator->() const override {
             return impl_.get();
         }
 
@@ -38,6 +39,15 @@ namespace INSTINCT_DATA_NS {
         [[nodiscard]] const std::string & GetId() const override {
             return id_;
         }
+
+        QueryResultImpl Query(const SQLTemplate &select_sql, const SQLContext &context) override {
+            const auto sql_line = env_->render(select_sql, context);
+            LOG_DEBUG("Query: {}", sql_line);
+            return Execute(sql_line);
+        }
+
+    private:
+        virtual QueryResultImpl Execute(const std::string& sql_line) = 0;
     };
 }
 
