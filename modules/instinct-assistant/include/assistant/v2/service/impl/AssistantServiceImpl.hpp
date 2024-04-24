@@ -23,20 +23,20 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // limit + 1 to check if there is more records that match the conditions
             auto limit = list_request.limit() == 0 ? DEFAULT_LIST_LIMIT + 1 : list_request.limit() + 1;
             auto assistants = data_mapper_->SelectMany(R"(
-select from instinct_assistant
-where
-    {% if after %}
-    id > {{after}} and
+select * from instinct_assistant
+where 1=1
+    {% if is_not_blank(after) %}
+    and id > {{text(after)}}
     {% endif %}
-    {% if before &}
-    id < {{before}}
+    {% if is_not_blank(before) %}
+    and id < {{text(before)}}
     {% endif %}
 {% if order == "asc" %}
 order by created_at ASC
 {% else if order == "desc" %}
 order by created_at DESC
 {% endif %}
-limit {% limit %};
+limit {{limit}};
 )", {
                 {"after", list_request.after()},
                 {"before", list_request.before()},
@@ -45,21 +45,23 @@ limit {% limit %};
             });
 
             ListAssistantsResponse response;
-            if (assistants.size() == limit) { // no more
+            if (assistants.size() <= limit) { // no more
                 response.mutable_data()->Add(assistants.begin(), assistants.end());
                 response.set_first_id(assistants.front().id());
                 response.set_last_id(assistants.back().id());
                 response.set_has_more(false);
-            } else { // at least have one more
-                response.mutable_data()->Add(assistants.begin(), assistants.end()-1);
+            } else {
                 response.set_first_id(assistants.front().id());
-                if (assistants.size() > 2) {
-                    response.set_last_id(assistants.end()[-2].id());
-                } else {
+                if (const int n = response.data_size(); n>1) {
+                    response.set_last_id(assistants[n-2].id());
+                    response.mutable_data()->Add(assistants.begin(), assistants.end()-1);
+                } else { // only one
                     response.set_last_id(assistants.front().id());
+                    response.mutable_data()->Add()->CopyFrom(assistants.front());
                 }
                 response.set_has_more(true);
             }
+            response.set_object("list");
             return response;
         }
 
@@ -144,35 +146,37 @@ insert into instinct_assistant(
             assert_not_blank(modify_assistant_request.assistant_id(), "assistant id should be given");
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(modify_assistant_request, context);
-            data_mapper_->Execute(R"("update instinct_assistant set
-{% if is_not_blank(model) %}
-model = {{text(model)}},
-{% endif %}
-{% if is_not_blank(description) %}
-description = {{text(description)}},
-{% endif %}
-{% if is_not_blank(instructions) %}
-instructions = {{text(instructions)}},
-{% endif %}
-{% if exists("metadata") %}
-metadata = {{stringify(metadata)}},
-{% endif %}
-{% if exists("temperature") %}
-temperature = {{temperature}},
-{% endif %}
-{% if exists("top_p") %}
-top_p = {{top_p}},
-{% endif %}
-{% if is_not_blank(response_format) %}
-response_format = {{text(response_format)}},
-{% endif %}
-{% if exists("tools") %}
-tools = {{stringify(tools)}},
-{% endif %}
-{% if exists("tool_resources") %}
-tool_resources = {{stringify(tool_resources)}},
-{% endif %}
-modified_at = now()
+            data_mapper_->Execute(R"(
+update instinct_assistant
+set
+    {% if exists("model") and is_not_blank(model) %}
+    model = {{text(model)}},
+    {% endif %}
+    {% if exists("description") and is_not_blank(description) %}
+    description = {{text(description)}},
+    {% endif %}
+    {% if exists("instruction") and is_not_blank(instructions) %}
+    instructions = {{text(instructions)}},
+    {% endif %}
+    {% if exists("metadata") %}
+    metadata = {{stringify(metadata)}},
+    {% endif %}
+    {% if exists("temperature") %}
+    temperature = {{temperature}},
+    {% endif %}
+    {% if exists("top_p") %}
+    top_p = {{top_p}},
+    {% endif %}
+    {% if exists("response_format") and is_not_blank(response_format) %}
+    response_format = {{text(response_format)}},
+    {% endif %}
+    {% if exists("tools") %}
+    tools = {{stringify(tools)}},
+    {% endif %}
+    {% if exists("tool_resources") %}
+    tool_resources = {{stringify(tool_resources)}},
+    {% endif %}
+    modified_at = now()
 where id = {{text(assistant_id)}}
  )", context);
 

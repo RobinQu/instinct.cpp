@@ -26,6 +26,8 @@ message AssistantObject { // CreateAssistantRequest, GetAssistantResponse, Modif
   string id = 9;
   repeated AssistantToolObject tools = 10;
   AssistantToolResources tool_resources = 11;
+  int64 created_at = 12;
+  int64 modified_at = 13;
 }
 
 enum AssistantToolType {
@@ -143,9 +145,8 @@ message DeleteThreadResponse {
 }
 
 enum ListRequestOrder {
-  unknown_list_request_order = 0;
+  desc = 0; // default
   asc = 1;
-  desc = 2;
 }
 
 // ==============================================================

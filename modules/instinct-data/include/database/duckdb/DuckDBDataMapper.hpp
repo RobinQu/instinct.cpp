@@ -175,7 +175,6 @@ namespace INSTINCT_DATA_NS {
                         }
                     }
                 }
-                std::cout << entity.DebugString() << std::endl;
                 result.push_back(entity);
             }
         }

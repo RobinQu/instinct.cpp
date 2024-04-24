@@ -217,6 +217,7 @@ namespace INSTINCT_CORE_NS {
                     {'\v'   , "\\v"},
                     {'\x1a' , "\\Z"},
                     {'\''    , "\'\'"},
+                    // {'\"'    , "\"\""},
                     {'\\' , "\\\\"}
             };
             std::string copied;
