@@ -24,6 +24,9 @@ namespace INSTINCT_SERVER_NS {
          */
         virtual void Mount(ServerImpl& server) = 0;
     };
+
+    template<typename ServerImpl>
+    using MountablePtr = std::shared_ptr<IMountable<ServerImpl>>;
 }
 
 #endif //ENDPOINTMOUNT_HPP

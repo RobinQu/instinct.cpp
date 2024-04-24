@@ -25,12 +25,10 @@ namespace INSTINCT_SERVER_NS {
         void AfterServerClose(ServerImpl &server) override {}
     };
 
-    using HttpLibController = HttpController<HttpLibServer>;
 
     template<typename ServerImpl>
     using HttpControllerPtr = std::shared_ptr<HttpController<ServerImpl>>;
 
-    using HttpLibControllerPtr = std::shared_ptr<HttpLibController>;
 
 }
 

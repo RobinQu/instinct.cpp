@@ -10,7 +10,7 @@
 
 namespace INSTINCT_CORE_NS {
 
-class HttpClientException: public InstinctException {
+class HttpClientException final: public InstinctException {
 public:
     const unsigned int status_code;
     const std::string raw_response;

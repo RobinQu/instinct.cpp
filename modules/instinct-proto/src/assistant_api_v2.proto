@@ -463,6 +463,7 @@ enum CommonErrorType {
   server_error = 1;
   rate_limit_exceeded = 2;
   invalid_prompt = 3;
+  invalid_request_error = 4;
 }
 
 message ListRunsRequest {

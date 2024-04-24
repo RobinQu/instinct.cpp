@@ -24,7 +24,7 @@ namespace INSTINCT_SERVER_NS {
         virtual int Start() = 0;
         virtual bool StartAndWait() = 0;
         virtual void Shutdown() = 0;
-        virtual void Use(const HttpControllerPtr<ServerImpl>& controller) = 0;
+        virtual void Use(const MountablePtr<ServerImpl>& moutable) = 0;
     };
 
 

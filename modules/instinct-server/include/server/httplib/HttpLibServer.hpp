@@ -13,7 +13,7 @@
 #include "ServerGlobals.hpp"
 #include "HttpLibServerLifeCycleManager.hpp"
 #include "tools/HttpRestClient.hpp"
-
+#include "HttpLibSession.hpp"
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_CORE_NS;
@@ -32,18 +32,15 @@ namespace INSTINCT_SERVER_NS {
     static std::set<HttpLibServer*> RUNNING_HTTP_SERVERS;
 
 
+    using HttpLibController = HttpController<HttpLibServer>;
+    using HttpLibControllerPtr = std::shared_ptr<HttpLibController>;
 
-    struct HttpLibSession {
-        const Request request;
-        Response& resp;
-    };
 
 
     class HttpLibServer final: public IManagedServer<HttpLibServer> {
         ServerOptions options_;
         Server server_;
         HttpLibServerLifeCycleManager life_cycle_manager_;
-
     public:
         static void RegisterSignalHandlers() {
             static bool DONE = false;
@@ -105,39 +102,55 @@ namespace INSTINCT_SERVER_NS {
             return server_.listen_after_bind();
         }
 
-        void Use(const HttpLibControllerPtr &controller) override {
-            life_cycle_manager_.AddServerLifeCylce(controller);
-            controller->Mount(*this);
+        void Use(const MountablePtr<HttpLibServer> &mountable) override {
+
+            if (const auto controller = std::dynamic_pointer_cast<HttpLibController>(mountable)) {
+                life_cycle_manager_.AddServerLifeCylce(controller);
+                controller->Mount(*this);
+            }
+
         }
 
 
         template<typename Req, typename Res, typename Fn, typename EntityConverter=ProtobufUtils>
-        requires std::is_invocable_r_v<Res, Fn, Req&, const HttpLibSession&>
+        requires std::is_invocable_r_v<void, Fn, Req&, HttpLibSession&>
         void PostRoute(const std::string& path, Fn&& fn) {
             GetHttpLibServer().Post(path, [&,fn](const Request& req, Response& resp) {
                 auto req_entity = EntityConverter::template Deserialize<Req>(req.body);
-                auto resp_entity = std::invoke(fn, req_entity, HttpLibSession {req, resp});
-                resp.body = EntityConverter::template Serialize<Res>(resp_entity);
+                const HttpLibSession session {req, resp};
+                try {
+                    std::invoke(fn, req_entity, session);
+                } catch (const std::runtime_error& e) {
+                    session.Respond(e.what(), 500);
+                }
             });
         }
 
         template<typename Req, typename Res, typename Fn, typename EntityConverter=ProtobufUtils>
-        requires std::is_invocable_r_v<Res, Fn, Req&, const HttpLibSession&>
+        requires std::is_invocable_r_v<void, Fn, Req&, HttpLibSession&>
         void GetRoute(const std::string& path, Fn&& fn) {
             GetHttpLibServer().Get(path, [&,fn](const Request& req, Response& resp) {
                 auto req_entity = EntityConverter::template Deserialize<Req>(req.body);
-                auto resp_entity = std::invoke(fn, req_entity, HttpLibSession {req,resp});
-                resp.body = EntityConverter::template Serialize<Res>(resp_entity);
+                const HttpLibSession session {req, resp};
+                try {
+                    std::invoke(fn, req_entity, session);
+                } catch (const std::runtime_error& e) {
+                    session.Respond(e.what(), 500);
+                }
             });
         }
 
         template<typename Req, typename Res, typename Fn, typename EntityConverter=ProtobufUtils>
-        requires std::is_invocable_r_v<Res, Fn, Req&, const HttpLibSession&>
+        requires std::is_invocable_r_v<void, Fn, Req&, HttpLibSession&>
         void DeleteRoute(const std::string& path, Fn&& fn) {
             GetHttpLibServer().Delete(path, [&,fn](const Request& req, Response& resp) {
                 auto req_entity = EntityConverter::template Deserialize<Req>(req.body);
-                auto resp_entity = std::invoke(fn, req_entity, HttpLibSession {req,resp});
-                resp.body = EntityConverter::template Serialize<Res>(resp_entity);
+                const HttpLibSession session {req, resp};
+                try {
+                    std::invoke(fn, req_entity, session);
+                } catch (const std::runtime_error& e) {
+                    session.Respond(e.what(), 500);
+                }
             });
         }
 

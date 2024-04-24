@@ -15,6 +15,8 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/server/IServerLifecycleHandler.hpp
         include/server/httplib/HttpLibServerLifeCycleManager.hpp
         include/server/HttpController.hpp
+        include/server/HttpServerException.hpp
+        include/server/httplib/HttpLibSession.hpp
 )
 
 find_package(httplib)

@@ -9,7 +9,7 @@
 
 #include "AgentGlobals.hpp"
 #include "assistant/v2/service/AssistantFacade.hpp"
-#include "server/HttpController.hpp"
+#include "server/httplib/HttpLibServer.hpp"
 
 namespace INSTINCT_AGENT_NS::assistant::v2 {
     using namespace INSTINCT_SERVER_NS;
