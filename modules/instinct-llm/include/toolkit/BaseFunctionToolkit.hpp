@@ -6,7 +6,7 @@
 #define BASEFUNCTIONTOOLKIT_HPP
 #include "IFunctionToolkit.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     class BaseFunctionToolkit: public virtual IFunctionToolKit, public BaseRunnable<FunctionToolInvocation, FunctionToolResult> {
     public:
         FunctionToolResult Invoke(const FunctionToolInvocation &invocation) override {

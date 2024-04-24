@@ -6,13 +6,16 @@
 #define IAGENTEXECUTOR_HPP
 
 
-#include "AgentGlobals.hpp"
+#include "LLMGlobals.hpp"
 #include "agent/BaseSolver.hpp"
 #include "agent/BaseWorker.hpp"
-#include "memory/BaseChatMemory.hpp"
-#include "toolkit/BaseFunctionToolkit.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
+
+    using Planer = MessageChain<AgentState, AgentThoughtMessage>;
+    using PlannerPtr = MessageChainPtr<AgentState, AgentThoughtMessage>;
+
+
     /**
      * Interface class for agent executors.
      */

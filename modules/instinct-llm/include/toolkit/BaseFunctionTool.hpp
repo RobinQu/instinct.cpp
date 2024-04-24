@@ -5,14 +5,14 @@
 #ifndef BASEFUNCTIONTOOL_HPP
 #define BASEFUNCTIONTOOL_HPP
 
-#include "AgentGlobals.hpp"
+#include "LLMGlobals.hpp"
 #include "IFunctionTool.hpp"
 #include <agent.pb.h>
 
 #include "tools/ChronoUtils.hpp"
 #include "tools/ProtobufUtils.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     struct FunctionToolOptions {
         /**
          * A postive value will trigger retry in `Invoke` method.

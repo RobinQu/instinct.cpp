@@ -4,13 +4,15 @@
 
 #ifndef IFUNCTIONTOOL_HPP
 #define IFUNCTIONTOOL_HPP
-#include "AgentGlobals.hpp"
+#include "LLMGlobals.hpp"
 #include <agent.pb.h>
 
 #include "functional/StepFunctions.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
+    using namespace INSTINCT_LLM_NS;
+
     class IFunctionTool {
     public:
         IFunctionTool()=default;

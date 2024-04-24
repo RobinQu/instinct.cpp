@@ -6,11 +6,11 @@
 #define IFUNCTIONTOOLKIT_HPP
 
 
-#include "AgentGlobals.hpp"
+#include "LLMGlobals.hpp"
 #include "BaseFunctionTool.hpp"
 
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     struct FunctionToolLookupOptions {
         std::string by_name;
     };

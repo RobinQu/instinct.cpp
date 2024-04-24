@@ -5,10 +5,10 @@
 #ifndef BASEWORKER_HPP
 #define BASEWORKER_HPP
 
-#include "AgentGlobals.hpp"
+#include "LLMGlobals.hpp"
 #include "toolkit/BaseFunctionToolkit.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     class BaseWorker: public BaseRunnable<AgentThoughtMessage, AgentObservationMessage> {
         std::vector<FunctionToolkitPtr> toolkits_;
     public:

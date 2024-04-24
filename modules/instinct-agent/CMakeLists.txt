@@ -6,24 +6,7 @@ set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
 SET(${LIBRARY_TARGET_NAME}_HDR
         include/AgentGlobals.hpp
-        include/toolkit/IFunctionTool.hpp
-        include/toolkit/BaseFunctionTool.hpp
-        include/toolkit/LambdaFunctionTool.hpp
-        include/toolkit/IFunctionToolkit.hpp
-        include/toolkit/BaseFunctionToolkit.hpp
-        include/toolkit/LocalToolkit.hpp
-        include/agent/react/ReACTAgentThoughtOutputParser.hpp
-        include/agent/react/ReACTAgentStateInputParser.hpp
-        include/agent/react/Agent.hpp
-        include/executor/IAgentExecutor.hpp
-        include/executor/BaseAgentExecutor.hpp
-        include/agent/BaseWorker.hpp
-        include/agent/BaseSolver.hpp
         include/AgentTestGlobals.hpp
-        include/toolkit/ProtoMessageFunctionTool.hpp
-        include/toolkit/BaseSearchTool.hpp
-        include/toolkit/builtin/SerpAPI.hpp
-        include/toolkit/builtin/LLMMath.hpp
         include/assistant/v2/service/AssistantFacade.hpp
         include/assistant/v2/service/IAssistantService.hpp
         include/assistant/v2/service/IFileService.hpp
@@ -50,12 +33,12 @@ add_library(
         ${${LIBRARY_TARGET_NAME}_HDR}
 )
 
-find_package(exprtk REQUIRED)
+
 
 add_library(instinct::agent
         ALIAS ${LIBRARY_TARGET_NAME})
 
-target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::llm instinct::proto exprtk::exprtk instinct::server)
+target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::llm instinct::proto instinct::server)
 
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE

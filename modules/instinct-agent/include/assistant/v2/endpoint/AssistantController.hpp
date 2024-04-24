@@ -23,6 +23,7 @@ namespace INSTINCT_AGENT_NS::assistant::v2 {
             server.GetRoute<ListAssistantsRequest, ListAssistantsResponse>("/assistants", [&](const ListAssistantsRequest& req, const HttpLibSession& session) {
                 session.Respond(facade_.assistant->ListAssistants(req));
             });
+
             server.PostRoute<AssistantObject, AssistantObject>("/assitants", [&](const AssistantObject& req, const HttpLibSession& session) {
                 auto v = facade_.assistant->CreateAssistant(req);
                 if (v.has_value()) {

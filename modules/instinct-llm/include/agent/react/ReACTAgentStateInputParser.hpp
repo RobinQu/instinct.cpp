@@ -5,9 +5,10 @@
 #ifndef REACTINPUTPARSER_HPP
 #define REACTINPUTPARSER_HPP
 #include "input_parser/BaseInputParser.hpp"
-#include "AgentGlobals.hpp"
+#include "LLMGlobals.hpp"
+#include "prompt/MessageUtils.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_LLM_NS;
     class ReACTAgentStateInputParser final: public BaseInputParser<AgentState> {
     public:

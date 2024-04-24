@@ -9,10 +9,10 @@
 #include <agent.pb.h>
 
 #include "output_parser/BaseOutputParser.hpp"
-#include "AgentGlobals.hpp"
+#include "LLMGlobals.hpp"
 #include "prompt/MessageUtils.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_LLM_NS;
 
     struct ReACTAgentStepOutputParserOptions {

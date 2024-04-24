@@ -7,7 +7,7 @@
 
 #include "BaseFunctionToolkit.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     /**
      * A function toolkit that manage local function tools
      */

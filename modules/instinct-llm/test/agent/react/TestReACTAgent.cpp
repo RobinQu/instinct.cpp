@@ -10,7 +10,7 @@
 #include "toolkit/builtin/SerpAPI.hpp"
 #include "tools/SystemUtils.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     class ReACTAgentTest: public testing::Test {
     protected:
         void SetUp() override {

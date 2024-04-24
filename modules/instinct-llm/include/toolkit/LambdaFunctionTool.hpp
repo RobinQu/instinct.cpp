@@ -9,7 +9,7 @@
 
 #include "BaseFunctionTool.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     using FunctionToolFn = std::function<std::string(const std::string&)>;
 
     class LambdaFunctionTool final: public BaseFunctionTool {

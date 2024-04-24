@@ -9,7 +9,6 @@
 #include <agent.pb.h>
 #include <sys/stat.h>
 
-#include "AgentGlobals.hpp"
 #include "LLMGlobals.hpp"
 #include "ReACTAgentStateInputParser.hpp"
 #include "ReACTAgentThoughtOutputParser.hpp"
@@ -17,13 +16,13 @@
 #include "chain/LLMChain.hpp"
 #include "chain/MessageChain.hpp"
 #include "chat_model/BaseChatModel.hpp"
-#include "executor/BaseAgentExecutor.hpp"
+#include "agent_executor/BaseAgentExecutor.hpp"
 #include "functional/StepFunctions.hpp"
 #include "prompt/PlainChatPromptTemplate.hpp"
 #include "functional/Xn.hpp"
 #include "toolkit/BaseFunctionToolkit.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_LLM_NS;
 
     /**

@@ -6,9 +6,9 @@
 #define BASESOLVER_HPP
 
 
-#include "AgentGlobals.hpp"
+#include "LLMGlobals.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     class BaseSolver : public BaseRunnable<AgentState, AgentStep> {
 
     };

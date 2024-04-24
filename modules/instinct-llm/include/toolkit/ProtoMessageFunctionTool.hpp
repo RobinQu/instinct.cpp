@@ -6,9 +6,10 @@
 #define PROTOMESSAGEFUNCTIONTOOL_HPP
 
 
-#include "AgentGlobals.hpp"
+#include "LLMGlobals.hpp"
+#include "toolkit/BaseFunctionTool.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     /**
      * Tool class that support protobuf message as input and output.
      * Output should always be `std::string` and formated for easy understanding by LLM.

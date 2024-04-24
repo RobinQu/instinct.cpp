@@ -9,7 +9,7 @@
 
 #include "IAgentExecutor.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     /**
      * Base class for executor that handles state transitions of given agent.
      */

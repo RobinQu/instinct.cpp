@@ -51,11 +51,27 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/output_parser/MultilineGenerationOutputParser.hpp
         include/input_parser/PromptValueVariantInputParser.hpp
         include/output_parser/StringOutputParser.hpp
+
+        include/toolkit/IFunctionTool.hpp
+        include/toolkit/BaseFunctionTool.hpp
+        include/toolkit/LambdaFunctionTool.hpp
+        include/toolkit/IFunctionToolkit.hpp
+        include/toolkit/BaseFunctionToolkit.hpp
+        include/toolkit/LocalToolkit.hpp
+        include/agent/react/ReACTAgentThoughtOutputParser.hpp
+        include/agent/react/ReACTAgentStateInputParser.hpp
+        include/agent/react/Agent.hpp
+        include/agent_executor/IAgentExecutor.hpp
+        include/agent_executor/BaseAgentExecutor.hpp
+        include/agent/BaseWorker.hpp
+        include/agent/BaseSolver.hpp
+        include/toolkit/ProtoMessageFunctionTool.hpp
+        include/toolkit/BaseSearchTool.hpp
+        include/toolkit/builtin/SerpAPI.hpp
+        include/toolkit/builtin/LLMMath.hpp
 )
 
-#set(${LIBRARY_TARGET_NAME}_SRC
-#
-#)
+find_package(exprtk REQUIRED)
 
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
@@ -79,7 +95,7 @@ target_include_directories(${LIBRARY_TARGET_NAME}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
-target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::core)
+target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::core exprtk::exprtk)
 
 install(TARGETS ${LIBRARY_TARGET_NAME}
         EXPORT  ${PROJECT_NAME}

@@ -6,10 +6,10 @@
 #define BASESEARCHTOOL_HPP
 
 
-#include "AgentGlobals.hpp"
+#include "LLMGlobals.hpp"
 #include "ProtoMessageFunctionTool.hpp"
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     class BaseSearchTool: public ProtoMessageFunctionTool<SearchToolRequest, SearchToolResponse> {
     public:
         explicit BaseSearchTool(const FunctionToolOptions &options)

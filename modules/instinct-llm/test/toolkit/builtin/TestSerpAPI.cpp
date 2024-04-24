@@ -7,6 +7,8 @@
 #include "toolkit/builtin/SerpAPI.hpp"
 
 namespace INSTINCT_AGENT_NS {
+    using namespace INSTINCT_LLM_NS;
+
     class TestSerpAPI: public testing::Test {
     protected:
         void SetUp() override {

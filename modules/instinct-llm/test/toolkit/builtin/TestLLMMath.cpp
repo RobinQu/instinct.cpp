@@ -9,6 +9,7 @@
 #include "toolkit/builtin/LLMMath.hpp"
 
 namespace INSTINCT_AGENT_NS {
+    using namespace INSTINCT_LLM_NS;
 
     class TestLLMMath: public testing::Test {
     protected:

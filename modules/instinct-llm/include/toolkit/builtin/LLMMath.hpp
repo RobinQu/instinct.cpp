@@ -16,7 +16,7 @@
 
 
 
-namespace INSTINCT_AGENT_NS {
+namespace INSTINCT_LLM_NS {
     /**
      * Prompt LLM to generate math expression and then cacluate the result of expression using `exprtk` math library.
      *
