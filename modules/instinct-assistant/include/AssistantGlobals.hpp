@@ -24,6 +24,23 @@ namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_LLM_NS;
 
     namespace v2 {
+        static std::string to_string(const ListRequestOrder order) {
+            if (order == asc) return "asc";
+            if (order == desc) return "desc";
+            return "";
+        }
+
+        static std::string to_string(const FileObjectPurpose purpose) {
+            if (purpose == assistants) {
+                return "assistants";
+            }
+            if (purpose == assistants_output) {
+                return "assistants_output";
+            }
+            return "unknown";
+        }
+
+
         namespace details {
             static std::string generate_next_object_id(const std::string_view& prefix) {
                 static SnowflakeIDGenerator<1534832906275L> generator;
@@ -32,17 +49,11 @@ namespace INSTINCT_ASSISTANT_NS {
 
             static std::string map_file_object_key(FileObjectPurpose purpose, const std::string& file_id) {
                 const auto partition_id = file_id.back() % 10;
-                return fmt::format("{}/{}/{}", purpose, partition_id, file_id);
+                return fmt::format("{}/{}/{}", to_string(purpose), partition_id, file_id);
             }
         }
 
         static constexpr int DEFAULT_LIST_LIMIT = 20;
-
-        static std::string to_string(const ListRequestOrder order) {
-            if (order == asc) return "asc";
-            if (order == desc) return "desc";
-            return "";
-        }
 
 
 
@@ -50,7 +61,5 @@ namespace INSTINCT_ASSISTANT_NS {
 
 
 }
-
-
 
 #endif //AGENTGLOBALS_HPP

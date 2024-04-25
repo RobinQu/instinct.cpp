@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS instinct_thread(
     metadata VARCHAR,
     created_at TIMESTAMP DEFAULT now() NOT NULL,
     modified_at TIMESTAMP DEFAULT now() NOT NULL
-)
+);
 
 CREATE TABLE IF NOT EXISTS instinct_message(
     id VARCHAR PRIMARY KEY,
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS instinct_thread_run(
     response_format VARCHAR NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS insintct_thread_run_step {
+CREATE TABLE IF NOT EXISTS insintct_thread_run_step (
     id VARCHAR PRIMARY KEY,
     object VARCHAR DEFAULT 'thread.run.step' NOT NULL,
     created_at TIMESTAMP DEFAULT now() NOT NULL,
@@ -86,9 +86,9 @@ CREATE TABLE IF NOT EXISTS insintct_thread_run_step {
     completed_at TIMESTAMP,
     metadata VARCHAR,
     usage VARCHAR
-};
+);
 
-CREATE TABLE IF NOT EXISTS instinct_vector_store {
+CREATE TABLE IF NOT EXISTS instinct_vector_store (
     id VARCHAR PRIMARY KEY,
     object VARCHAR DEFAULT 'vector_store' NOT NULL,
     created_at TIMESTAMP DEFAULT now() NOT NULL,
@@ -101,9 +101,9 @@ CREATE TABLE IF NOT EXISTS instinct_vector_store {
     expires_at TIMESTAMP NOT NULL,
     last_active_at TIMESTAMP NOT NULL,
     metadata VARCHAR NOT NULL
-};
+);
 
-CREATE TABLE IF NOT EXISTS instinct_vector_store_file {
+CREATE TABLE IF NOT EXISTS instinct_vector_store_file (
     id VARCHAR PRIMARY KEY,
     object VARCHAR DEFAULT 'vector_store.file' NOT NULL,
     created_at TIMESTAMP DEFAULT now() NOT NULL,
@@ -113,9 +113,9 @@ CREATE TABLE IF NOT EXISTS instinct_vector_store_file {
     status VARCHAR NOT NULL,
     last_error VARCHAR,
     file_batch_id VARCHAR
-};
+);
 
-CREATE TABLE IF NOT EXISTS instinct_vector_store_file_batch {
+CREATE TABLE IF NOT EXISTS instinct_vector_store_file_batch (
     id VARCHAR PRIMARY KEY,
     object VARCHAR DEFAULT 'vector_store.file_batch' NOT NULL,
     created_at TIMESTAMP DEFAULT now() NOT NULL,
@@ -123,9 +123,9 @@ CREATE TABLE IF NOT EXISTS instinct_vector_store_file_batch {
     vector_store_id VARCHAR NOT NULL,
     status VARCHAR NOT NULL,
     last_error VARCHAR
-};
+);
 
-CREATE TABLE IF NOT EXISTS instinct_file {
+CREATE TABLE IF NOT EXISTS instinct_file (
     id VARCHAR PRIMARY KEY,
     object VARCHAR DEFAULT 'file' NOT NULL,
     created_at TIMESTAMP DEFAULT now() NOT NULL,
@@ -133,5 +133,5 @@ CREATE TABLE IF NOT EXISTS instinct_file {
     bytes INTEGER NOT NULL DEFAULT 0,
     filename VARCHAR NOT NULL,
     purpuse VARCHAR NOT NULL
-};
+);
 

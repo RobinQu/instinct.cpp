@@ -44,6 +44,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     list_message_response.set_last_id(messages_list.front().id());
                     list_message_response.add_data()->CopyFrom(messages_list.front());
                 }
+                // do nothing if n == 0
             }
             return list_message_response;
         }

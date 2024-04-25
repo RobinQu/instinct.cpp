@@ -4,7 +4,6 @@
 
 #ifndef THREADSERVICEIMPL_HPP
 #define THREADSERVICEIMPL_HPP
-#include "AssistantTestGlobals.hpp"
 #include "assistant/v2/service/IMessageService.hpp"
 #include "assistant/v2/service/IThreadService.hpp"
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
@@ -15,6 +14,12 @@ namespace INSTINCT_ASSISTANT_NS {
         DataMapperPtr<ThreadObject, std::string> thread_data_mapper_;
         DataMapperPtr<MessageObject, std::string> message_data_mapper_;
     public:
+        ThreadServiceImpl(const DataMapperPtr<ThreadObject, std::string> &thread_data_mapper,
+            const DataMapperPtr<MessageObject, std::string> &message_data_mapper)
+            : thread_data_mapper_(thread_data_mapper),
+              message_data_mapper_(message_data_mapper) {
+        }
+
         std::optional<ThreadObject> CreateThread(const ThreadObject &create_request) override {
             // TODO with transaction
             SQLContext context;
@@ -24,18 +29,20 @@ namespace INSTINCT_ASSISTANT_NS {
             auto thread_id = details::generate_next_object_id("thread");
             context["id"] = thread_id;
 
-            // generate mesage id
-            for(auto& msg_obj: context["messages"]) {
-                msg_obj["id"] = details::generate_next_object_id("message");
-                msg_obj["thread_id"] = thread_id;
+            if(create_request.messages_size()) {
+                // generate mesage ids
+                for(auto& msg_obj: context["messages"]) {
+                    msg_obj["id"] = details::generate_next_object_id("message");
+                    msg_obj["thread_id"] = thread_id;
+                }
+                // create mesages
+                EntitySQLUtils::InsertManyMessages(message_data_mapper_, context);
             }
-
-            // create mesages
-            EntitySQLUtils::InsertManyMessages(message_data_mapper_, context);
 
             // create thread
             EntitySQLUtils::InsertOneThread(thread_data_mapper_, context);
 
+            // return thread
             GetThreadRequest get_thread_request;
             get_thread_request.set_thread_id(thread_id);
             return RetrieveThread(get_thread_request);

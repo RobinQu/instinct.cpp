@@ -21,7 +21,7 @@ namespace INSTINCT_SERVER_NS {
         template<typename Res, typename EntityConverter=ProtobufUtils>
         requires IsProtobufMessage<Res>
         void Respond(const Res& resp_entity, const int code = 200, const HttpHeaders& headers = {}) const {
-            response.body = EntityConverter::template Serialize<Res>(resp_entity);
+             EntityConverter::Serialize(resp_entity, response.body);
             response.status = code;
             for(const auto& [k,v]: headers) {
                 response.set_header(k,v);
