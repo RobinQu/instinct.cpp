@@ -143,6 +143,43 @@ returning (id);
 )", context);
         }
 
+        template<typename PrimaryKey = std::string>
+        static PrimaryKey InsertOneFile(const DataMapperPtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            return data_mapper->InsertOne(R"(
+insert into instinct_file(id, filename, bytes, purpose) values(
+    {{text(id)}},
+    {{text(filename)}},
+    {{bytes}}
+    {{text(purpose)}}
+);
+            )", context);
+        }
+
+        template<typename PrimaryKey = std::string>
+        static std::vector<FileObject> SelectManyFiles(const DataMapperPtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            return data_mapper->SelectMany(R"(
+select * from instinct_file
+where 1=1
+{% if exists("purpose") and is_not_blank("purpose") %}
+ purpose = {{text(purpose)}}
+{% endif %}
+            )", context);
+        }
+
+        template<typename PrimaryKey = std::string>
+        static std::optional<FileObject> SelectOneFile(const DataMapperPtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            return data_mapper->SelectOne(R"(
+select * from instinct_file where id = {{text(file_id)}};
+            )");
+
+        }
+
+        template<typename PrimaryKey = std::string>
+        static size_t DeleteFile(const DataMapperPtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            return data_mapper->Execute("delete instinct_file where id = {{text(file_id)}}", context);
+        }
+
+
 
     };
 

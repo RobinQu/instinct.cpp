@@ -29,6 +29,7 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/assistant/v2/tool/ValidationUtils.hpp
         include/assistant/v2/tool/EntitySQLUtils.hpp
         include/assistant/v2/service/impl/MessageServiceImpl.hpp
+        include/assistant/v2/service/impl/FileServiceImpl.hpp
 )
 
 
