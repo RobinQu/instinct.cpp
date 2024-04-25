@@ -15,8 +15,6 @@ namespace INSTINCT_ASSISTANT_NS {
     class EntitySQLUtils final {
 
     public:
-
-
         template<typename PrimaryKey = std::string>
         static PrimaryKey InsertOneThread(const DataMapperPtr<ThreadObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->InsertMany(R"(

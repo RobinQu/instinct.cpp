@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package instinct.data;
+
+message OSSStatus {
+  bool has_error = 1;
+  string message = 2;
+  ErrorType error_type = 3;
+  enum ErrorType {
+    UnknownOSSError = 0;
+    ObjectNotFound = 1;
+  }
+}
+
+//message PubObjectRequest {
+//
+//}
+//
+//message PutObjectResponse {
+//
+//}
+//
+//message GetObjectRequest {
+//
+//}
+//
+//message GetObjectResponse {
+//
+//}
+//
+//message DeleteObjectRequest {
+//
+//}
+//
+//message DeleteObjectResponse {
+//
+//}
+

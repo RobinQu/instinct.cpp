@@ -12,6 +12,7 @@ add_library(proto-objects STATIC
         src/llm.proto
         src/agent.proto
         src/assistant_api_v2.proto
+        src/data.proto
 )
 
 add_library(instinct::proto

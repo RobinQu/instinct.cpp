@@ -946,7 +946,13 @@ message VectorStoreFileBatch {// CreateVectorStoreFileBatchResponse, GetVectorSt
 // ==============================================================
 message ListFilesRequest {
   // Only return files with the given purpose.
-  string purpose = 1;
+  FileObjectPurpose purpose = 1;
+}
+
+enum FileObjectPurpose {
+  unknown_file_object_purpose = 0;
+  assistants = 1;
+  assistants_output = 2;
 }
 
 message ListFilesResponse {
@@ -956,7 +962,7 @@ message ListFilesResponse {
 
 message UploadFileRequest {
   bytes file = 1;
-  string purpose = 2; // fine-tune, assistants
+  FileObjectPurpose purpose = 2; // fine-tune, assistants
 }
 
 message DeleteFileRequest {
@@ -975,7 +981,6 @@ message RetrieveFileRequest {
   string file_id = 1;
 }
 
-
 message DownloadFileRequest { // DownloadFileResponse is type of string, thus it cannot be defined in proto files
   // The ID of the file to use for this request.
   string file_id = 1;
@@ -988,5 +993,5 @@ message FileObject { // UploadFileResponse, RetrieveFileResponse
   int32 modified_at = 4;
   int32 bytes = 5;
   string filename = 6;
-  string purpose = 7;
+  FileObjectPurpose purpose = 7;
 }

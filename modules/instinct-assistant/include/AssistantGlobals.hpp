@@ -30,10 +30,13 @@ namespace INSTINCT_ASSISTANT_NS {
                 return fmt::format("{}-{}", prefix, generator.NextID());
             }
 
+            static std::string map_file_object_key(FileObjectPurpose purpose, const std::string& file_id) {
+                const auto partition_id = file_id.back() % 10;
+                return fmt::format("{}/{}/{}", purpose, partition_id, file_id);
+            }
         }
 
         static constexpr int DEFAULT_LIST_LIMIT = 20;
-
 
         static std::string to_string(const ListRequestOrder order) {
             if (order == asc) return "asc";

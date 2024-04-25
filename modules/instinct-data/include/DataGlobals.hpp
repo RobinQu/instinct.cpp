@@ -9,6 +9,7 @@
 #define INSTINCT_DATA_NS instinct::data
 #endif
 
+#include <data.pb.h>
 #include <duckdb.hpp>
 #include <inja/inja.hpp>
 
@@ -51,8 +52,17 @@ namespace INSTINCT_DATA_NS {
             env->set_lstrip_blocks(true);
             return env;
         }
+
     }
 
+
+    static std::string to_string(const OSSStatus_ErrorType& type) {
+        if (type == OSSStatus_ErrorType_ObjectNotFound) {
+            return "ObjectNotFound";
+        }
+        // for rest of enum values
+        return "UnknwnOSSError";
+    }
 
 
     static bool check_query_ok(const duckdb::unique_ptr<duckdb::MaterializedQueryResult>& result) {
@@ -78,6 +88,11 @@ namespace INSTINCT_DATA_NS {
         }
     }
 
+    static void assert_status_ok(const OSSStatus& status) {
+        if (status.has_error()) {
+            throw InstinctException(fmt::format("ObjectStore operation failed. error_type={} ,message={}", to_string(status.error_type()), status.message()));
+        }
+    }
 
     static std::shared_ptr<inja::Environment> DEFAULT_SQL_TEMPLATE_INJA_ENV = details::create_shared_sql_template_env();
 

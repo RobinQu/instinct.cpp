@@ -15,6 +15,8 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/database/DatabaseMigration.hpp
         include/database/IDatabaseMigration.hpp
         include/database/duckdb/TransactionAware.hpp
+        include/object_store/IObjectStore.hpp
+        include/object_store/FileSystemObjectStore.hpp
 )
 
 

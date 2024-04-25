@@ -16,6 +16,13 @@
 namespace INSTINCT_CORE_NS {
     class IOUtils final {
     public:
+        /**
+         * Read file into string at your own risks
+         * @sa https://stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring
+         * @sa https://insanecoding.blogspot.com/2011/11/how-to-read-in-file-in-c.html
+         * @param file_path
+         * @return
+         */
         static std::string ReadString(const std::filesystem::path& file_path) {
             assert_true(std::filesystem::exists(file_path), "file should exist at " + file_path.string());
             std::ifstream t(file_path);
