@@ -7,6 +7,7 @@
 #include "AssistantTestGlobals.hpp"
 #include "assistant/v2/service/IMessageService.hpp"
 #include "assistant/v2/service/IThreadService.hpp"
+#include "assistant/v2/tool/EntitySQLUtils.hpp"
 
 
 namespace INSTINCT_ASSISTANT_NS {
@@ -16,12 +17,27 @@ namespace INSTINCT_ASSISTANT_NS {
     public:
         std::optional<ThreadObject> CreateThread(const ThreadObject &create_request) override {
             // TODO with transaction
-            for(const auto& msg: create_request.messages()) {
-                CreateMessage_(msg);
+            SQLContext context;
+            ProtobufUtils::ConvertMessageToJsonObject(create_request, context, {.keep_default_values = true});
+
+            // generate thread id
+            auto thread_id = details::generate_next_object_id("thread");
+            context["id"] = thread_id;
+
+            // generate mesage id
+            for(auto& msg_obj: context["messages"]) {
+                msg_obj["id"] = details::generate_next_object_id("message");
+                msg_obj["thread_id"] = thread_id;
             }
-            auto id = CreateThraed_(create_request);
+
+            // create mesages
+            EntitySQLUtils::InsertManyMessages(message_data_mapper_, context);
+
+            // create thread
+            EntitySQLUtils::InsertOneThread(thread_data_mapper_, context);
+
             GetThreadRequest get_thread_request;
-            get_thread_request.set_thread_id(id);
+            get_thread_request.set_thread_id(thread_id);
             return RetrieveThread(get_thread_request);
         }
 
@@ -33,12 +49,18 @@ namespace INSTINCT_ASSISTANT_NS {
         }
 
         std::optional<ThreadObject> ModifyThread(const ModifyThreadRequest &modify_request) override {
-
+            assert_not_blank(modify_request.thread_id(), "should provide thread id");
+            SQLContext context;
+            ProtobufUtils::ConvertMessageToJsonObject(modify_request, context);
+            EntitySQLUtils::UpdateThread(thread_data_mapper_, context);
+            GetThreadRequest get_thread_request;
+            get_thread_request.set_thread_id(modify_request.thread_id());
+            return RetrieveThread(get_thread_request);
         }
 
         DeleteThreadResponse DeleteThread(const DeleteThreadResponse &delete_request) override {
-            assert_not_blank(delete_request.id());
-            const auto count = thread_data_mapper_->Execute("delete from instinct_thread where id = {{text(id)}};", {{"id", delete_request.id()}});
+            assert_not_blank(delete_request.id(), "should provide thread id for  deletion");
+            const auto count = EntitySQLUtils::DeleteThread(thread_data_mapper_, {{"id", delete_request.id()}});
             DeleteThreadResponse delete_thread_response;
             delete_thread_response.set_deleted(count == 1);
             delete_thread_response.set_object("thread.deleted");
@@ -46,14 +68,6 @@ namespace INSTINCT_ASSISTANT_NS {
             return delete_thread_response;
         }
 
-    private:
-        void CreateMessage_(const MessageObject& message) {
-
-        }
-
-        std::string CreateThraed_(const ThreadObject& thread) {
-
-        }
     };
 }
 

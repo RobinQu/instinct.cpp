@@ -23,7 +23,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         virtual ListRunsResponse ListRuns(const ListRunsRequest& list_request) = 0;
         virtual RunObject RetrieveRun(const GetRunRequest& get_request) = 0;
         virtual RunObject ModifyRun(const ModifyRunRequest& modify_run_request) = 0;
-        virtual RunObject SubmittoolOutputs(const SubmitToolOutputsToRunRequest& sub_request) = 0;
+        virtual RunObject SubmitToolOutputs(const SubmitToolOutputsToRunRequest& sub_request) = 0;
         virtual RunObject CancelRun(const CancelRunRequest& cancel_request) = 0;
         virtual ListRunStepsResponse ListRunSteps(const ListRunStepsRequest& list_run_steps_request) = 0;
         virtual RunObject GetRunStep(const GetRunStepRequest& get_run_step_request) = 0;

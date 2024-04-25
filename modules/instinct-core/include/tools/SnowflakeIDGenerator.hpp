@@ -60,10 +60,10 @@ public:
     SnowflakeIDGenerator(const SnowflakeIDGenerator&) = delete;
 
     SnowflakeIDGenerator& operator=(const SnowflakeIDGenerator&) = delete;
-
-    SnowflakeIDGenerator(const int64_t workerid, const int64_t datacenterid) {
-        Init(workerid, datacenterid);
-    }
+    //
+    // SnowflakeIDGenerator(const int64_t workerid, const int64_t datacenterid) {
+    //     Init(workerid, datacenterid);
+    // }
 
     void Init(const int64_t workerid, const int64_t datacenterid)
     {

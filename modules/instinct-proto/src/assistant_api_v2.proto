@@ -116,9 +116,11 @@ message ModifyAssistantRequest {
 message ThreadObject { // CreateThreadRequest, GetThreadResponse, ModifyThreadResponse
   string id = 1;
   string object = 2;
-  repeated MessageObject messages = 3;
-  AssistantToolResources tool_resources = 4;
-  google.protobuf.Struct metadata = 5;
+  int64 created_at = 3;
+  int64 modified_at = 4;
+  repeated MessageObject messages = 5;
+  AssistantToolResources tool_resources = 6;
+  google.protobuf.Struct metadata = 7;
 }
 
 message GetThreadRequest {
@@ -183,7 +185,7 @@ enum MessageRole {
 message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, ModifyMessageResponse
   string id = 1;
   string object = 2;
-  int32 created_at = 3;
+  int64 created_at = 3;
   string thread_id = 4;
 
   MessageStatus status = 5;
@@ -195,13 +197,9 @@ message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, Modify
   }
 
   IncompleteDetails incomplete_details =  6;
-
-  int32 completed_at = 7;
-
-  int32 incompleted_at = 8;
-
+  int64 completed_at = 7;
+  int64 incompleted_at = 8;
   MessageRole role = 9;
-
   MessageContent content = 10;
 
   enum MessageContentType {
@@ -210,7 +208,6 @@ message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, Modify
     image_file = 2;
   }
   message MessageContent {
-
     MessageContentType type = 1;
 
     // for image file only
@@ -226,17 +223,15 @@ message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, Modify
 
       repeated MessageContentTextAnnotation annotations = 2;
       message MessageContentTextAnnotation { // union of citation and file path
+
+        MessageContentTextAnnotationType type = 1;
         enum MessageContentTextAnnotationType {
           unknown_content_text_annotation_type = 0;
           file_citation = 1;
         }
 
-        MessageContentTextAnnotationType type = 1;
-
         string text = 2;
-
         int32 start_index = 3;
-
         int32 end_index = 4;
 
         // for citation only
@@ -260,6 +255,7 @@ message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, Modify
 
   repeated MessageAttachment attachments = 13;
   google.protobuf.Struct metadata = 14;
+  int64 modified_at = 15;
 }
 
 message IncompleteDetails {
@@ -420,42 +416,39 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
   }
 
 
-  message RunErrorObject {
-    CommonErrorType last_error = 1;
-    uint64 expires_at = 2;
-    uint64 cancelled_at = 3;
-    uint64 failed_at = 4;
-    int32 completed_at = 5;
-    uint64 incomplete_at = 6;
-    IncompleteDetails incomplete_details = 7;
-    string model = 8;
-    string instruction = 9;
-    repeated AssistantToolObject tools = 10;
-    google.protobuf.Struct metadata = 11;
-    CompletionUsage usage = 12;
-    float temperature = 13;
-    float top_p = 14;
-    uint32 max_prompt_tokens = 15;
-    uint32 max_completion_tokens = 16;
+  RunStepError last_error = 8;
+  int64 expires_at = 9;
+  int64 cancelled_at = 10;
+  int64 failed_at = 11;
+  int32 completed_at = 12;
+  uint64 incomplete_at = 13;
+  IncompleteDetails incomplete_details = 14;
+  string model = 15;
+  string instructions = 16;
+  repeated AssistantToolObject tools = 17;
+  google.protobuf.Struct metadata = 18;
+  CompletionUsage usage = 19;
+  float temperature = 20;
+  float top_p = 21;
+  int32 max_prompt_tokens = 22;
+  int32 max_completion_tokens = 23;
 
-    enum TruncationStrategy {
-      unknown_truncation_strategy = 0;
-      auto = 1;
-      last_messages = 2;
-    }
-    TruncationStrategy truncation_strategy = 17;
-
-    ToolChoice tool_choice = 18;
-    message ToolChoice {
-      AssistantToolType type = 1;
-      ToolChoiceFunction function = 2;
-      message ToolChoiceFunction {
-        string name = 1;
-      }
-    }
-
-    ResponseFormat response_format = 19;
+  enum TruncationStrategy {
+    auto = 0;
+    last_messages = 1;
   }
+  TruncationStrategy truncation_strategy = 24;
+
+  ToolChoice tool_choice = 25;
+  message ToolChoice {
+    AssistantToolType type = 1;
+    ToolChoiceFunction function = 2;
+    message ToolChoiceFunction {
+      string name = 1;
+    }
+  }
+
+  ResponseFormat response_format = 26;
 }
 
 enum CommonErrorType {
@@ -687,17 +680,17 @@ message RunStepObject { // GetRunStepResponse
   }
 
   RunStepError last_error = 10;
-  message RunStepError {
-    CommonErrorType type = 1;
-    string message = 2;
-  }
-
-  uint64 expired_at = 11;
-  uint64 cancelled_at = 12;
-  uint64 failed_at = 13;
-  int32 completed_at = 14;
+  int64 expired_at = 11;
+  int64 cancelled_at = 12;
+  int64 failed_at = 13;
+  int64 completed_at = 14;
   google.protobuf.Struct metadata = 15;
   CompletionUsage usage = 16;
+}
+
+message RunStepError {
+  CommonErrorType type = 1;
+  string message = 2;
 }
 
 // ==============================================================
@@ -794,8 +787,8 @@ message VectorStoreObject { // CreateVectorStoreResponse, GetVectorStoreResponse
   }
 
   VectorStoreExpirationPolicy expires_after = 8;
-  int32 expires_at = 9; // The Unix timestamp (in seconds) for when the vector store will expire.
-  int32 last_active_at = 10; // The Unix timestamp (in seconds) for when the vector store was last active.
+  int64 expires_at = 9; // The Unix timestamp (in seconds) for when the vector store will expire.
+  int64 last_active_at = 10; // The Unix timestamp (in seconds) for when the vector store was last active.
   google.protobuf.Struct metadata = 11;
 }
 
@@ -834,7 +827,7 @@ message ListVectorStoreFilesResponse {
 
 message CreateVectorFileRequest {
   string vector_store_id = 1;
-  string file_di = 2;
+  string file_id = 2;
 }
 
 message GetVectorStoreFileRequest {
@@ -870,10 +863,11 @@ enum VectorStoreFileStatus {
 message VectorStoreFile { // CreateVectorFileResponse
   string id = 1;
   string object = 2;
-  int32 created_at = 3;
-  string vector_store_id = 4;
-  VectorStoreFileStatus status = 5;
-  VectorStoreFileError last_error = 6;
+  int64 created_at = 3;
+  int32 modified_at = 4;
+  string vector_store_id = 5;
+  VectorStoreFileStatus status = 6;
+  VectorStoreFileError last_error = 7;
 }
 
 message CreateVectorStoreFileRequest {
@@ -939,10 +933,11 @@ message ListFilesInVectorStoreBatchRequest {
 message VectorStoreFileBatch {// CreateVectorStoreFileBatchResponse, GetVectorStoreFileBatchResponse, CancelVectorStoreFileBatchResponse
   string id = 1;
   string object = 2;
-  int32 created_at = 3;
-  string vector_store_id = 4;
-  VectorStoreFileStatus filter = 5;
-  VectorStoreFileError last_error = 6;
+  int64 created_at = 3;
+  int64 modified = 4;
+  string vector_store_id = 6;
+  VectorStoreFileStatus status = 7;
+  VectorStoreFileError last_error = 8;
 }
 
 
@@ -988,9 +983,10 @@ message DownloadFileRequest { // DownloadFileResponse is type of string, thus it
 
 message FileObject { // UploadFileResponse, RetrieveFileResponse
   string id = 1;
-  int32 bytes = 2;
+  string object = 2;
   int32 created_at = 3;
-  string filename = 4;
-  string object = 5;
-  string purpose = 6;
+  int32 modified_at = 4;
+  int32 bytes = 5;
+  string filename = 6;
+  string purpose = 7;
 }
