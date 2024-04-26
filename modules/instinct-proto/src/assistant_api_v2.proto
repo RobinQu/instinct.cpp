@@ -22,7 +22,8 @@ message AssistantObject { // CreateAssistantRequest, GetAssistantResponse, Modif
   google.protobuf.Struct metadata = 5;
   optional float temperature = 6;
   optional float top_p = 7;
-  ResponseFormat response_format = 8;
+//  ResponseFormat response_format = 8;
+  string response_format = 8;
   string id = 9;
   repeated AssistantToolObject tools = 10;
   AssistantToolResources tool_resources = 11;
@@ -31,10 +32,10 @@ message AssistantObject { // CreateAssistantRequest, GetAssistantResponse, Modif
 }
 
 enum AssistantToolType {
-  UnknownAssistantToolType = 0;
-  CodeInterpreter = 1;
-  FieSearch = 2;
-  Function = 3;
+  unknown_assistant_tool_type = 0;
+  code_interpreter = 1;
+  file_search = 2;
+  function = 3;
 }
 
 message AssistantToolObject { // union of Code, FileSearch, Function
@@ -104,7 +105,8 @@ message ModifyAssistantRequest {
   google.protobuf.Struct metadata = 5;
   float temperature = 6;
   float top_p = 7;
-  ResponseFormat response_format = 8;
+//  ResponseFormat response_format = 8;
+  string response_format = 8;
   repeated AssistantToolObject tools = 10;
   AssistantToolResources tool_resources = 11;
   string assistant_id = 12;
@@ -356,16 +358,19 @@ message CreateThreadAndRunRequest {
   }
 
   // Controls which (if any) tool is called by the model. none means the model will not call any tools and instead generates a message. auto is the default value and means the model can pick between generating a message or calling a tool. Specifying a particular tool like {"type": "file_search"} or {"type": "function", "function": {"name": "my_function"}} forces the model to call that tool.
-  ToolChoice tool_choice = 14; // due to language characteristics, we cannot make `tool_choice` as arbitrary type of `string` and `object`. So we choose to define `ToolChoice` as object type.
-  message ToolChoice {
-    AssistantToolType type = 1;
-    ToolChoiceFunction function = 2;
-    message ToolChoiceFunction {
-      string name = 1;
-    }
-  }
+  // due to language characteristics, we cannot make `tool_choice` as arbitrary type of `string` and `object`. So we choose to define `ToolChoice` as object type.
+//  ToolChoice tool_choice = 14;
+  string tool_choice = 14;
+//  message ToolChoice {
+//    AssistantToolType type = 1;
+//    ToolChoiceFunction function = 2;
+//    message ToolChoiceFunction {
+//      string name = 1;
+//    }
+//  }
 
-  ResponseFormat response_format = 15;
+//  ResponseFormat response_format = 15;
+  string response_format = 15;
 }
 
 
@@ -427,8 +432,8 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
   repeated AssistantToolObject tools = 17;
   google.protobuf.Struct metadata = 18;
   CompletionUsage usage = 19;
-  float temperature = 20;
-  float top_p = 21;
+  optional float temperature = 20; // could be zero so it has be `optional`
+  optional float top_p = 21; // could be zero so it has be `optional`
   int32 max_prompt_tokens = 22;
   int32 max_completion_tokens = 23;
 
@@ -438,16 +443,18 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
   }
   TruncationStrategy truncation_strategy = 24;
 
-  ToolChoice tool_choice = 25;
-  message ToolChoice {
-    AssistantToolType type = 1;
-    ToolChoiceFunction function = 2;
-    message ToolChoiceFunction {
-      string name = 1;
-    }
-  }
-
-  ResponseFormat response_format = 26;
+  // "auto" or JSON string of ToolChoice
+  string tool_choice = 25;
+//  message ToolChoice {
+//    AssistantToolType type = 1;
+//    ToolChoiceFunction function = 2;
+//    message ToolChoiceFunction {
+//      string name = 1;
+//    }
+//  }
+  // "auto" or JSON string of ResponseFormat
+  string response_format = 26;
+//  ResponseFormat response_format = 26;
 }
 
 enum CommonErrorType {
@@ -484,7 +491,7 @@ message CompletionUsage {
 message ListRunsResponse {
   string object = 1; // always `list`
   repeated RunObject data = 2;
-  string first_di = 3;
+  string first_id = 3;
   string last_id = 4;
   bool has_more = 5;
 }
@@ -509,16 +516,20 @@ message CreateRunRequest {
   }
   TruncationStrategy truncation_strategy = 17;
 
-  ToolChoice tool_choice = 18;
-  message ToolChoice {
-    AssistantToolType type = 1;
-    ToolChoiceFunction function = 2;
-    message ToolChoiceFunction {
-      string name = 1;
-    }
-  }
+//  ToolChoice tool_choice = 18;
+  string tool_choice = 18;
 
-  ResponseFormat response_format = 19;
+  //
+//  ResponseFormat response_format = 19;
+  string response_format = 19;
+}
+
+message ToolChoice {
+  AssistantToolType type = 1;
+  ToolChoiceFunction function = 2;
+  message ToolChoiceFunction {
+    string name = 1;
+  }
 }
 
 message GetRunRequest {
@@ -655,6 +666,7 @@ message RunStepObject { // GetRunStepResponse
       string id = 1;
       AssistantToolType type = 2;
 
+      CodeInterpreter code_interpreter = 3;
       message CodeInterpreter {
         string input = 1;
 
@@ -674,6 +686,16 @@ message RunStepObject { // GetRunStepResponse
           }
         }
         repeated CodeInterpreterOutput outputs = 2;
+      }
+
+      FileSearch file_search = 4;
+      message FileSearch {}
+
+      FunctionCall function = 5;
+      message FunctionCall {
+        string name = 1;
+        string arguments = 2;
+        string output = 3;
       }
     }
   }

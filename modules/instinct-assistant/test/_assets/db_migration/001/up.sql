@@ -58,11 +58,13 @@ CREATE TABLE IF NOT EXISTS instinct_thread_run(
     failed_at TIMESTAMP,
     incomplete_at TIMESTAMP,
     incomplete_details VARCHAR,
-    model VARCHAR NOT NULL,
-    instructions VARCHAR NOT NULL,
+    model VARCHAR,
+    instructions VARCHAR,
     usage VARCHAR,
-    temperature FLOAT NOT NULL,
-    top_p FLOAT NOT NULL,
+    tool_resources VARCHAR,
+    tools VARCHAR,
+    temperature FLOAT,
+    top_p FLOAT,
     max_prompt_tokens INTEGER,
     max_completion_tokens INTEGER,
     truncation_strategy VARCHAR NOT NULL,
@@ -70,7 +72,7 @@ CREATE TABLE IF NOT EXISTS instinct_thread_run(
     response_format VARCHAR NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS insintct_thread_run_step (
+CREATE TABLE IF NOT EXISTS instinct_thread_run_step (
     id VARCHAR PRIMARY KEY,
     object VARCHAR DEFAULT 'thread.run.step' NOT NULL,
     created_at TIMESTAMP DEFAULT now() NOT NULL,

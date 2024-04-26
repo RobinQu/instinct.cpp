@@ -6,7 +6,6 @@
 #define FILESYSTEMOBJECTSTORE_HPP
 
 #include <fstream>
-#include <utility>
 
 #include "DataGlobals.hpp"
 #include "IObjectStore.hpp"

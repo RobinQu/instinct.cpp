@@ -12,8 +12,8 @@
 namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_DATA_NS;
     using namespace v2;
-    class EntitySQLUtils final {
 
+    class EntitySQLUtils final {
     public:
         template<typename PrimaryKey = std::string>
         static PrimaryKey InsertOneAssistant(const DataMapperPtr<AssistantObject, PrimaryKey>& data_mapper, const SQLContext& context) {
@@ -359,7 +359,6 @@ order by created_at desc
             return data_mapper->SelectOne(R"(
 select * from instinct_file where id = {{text(file_id)}};
             )", context);
-
         }
 
         template<typename PrimaryKey = std::string>
@@ -367,14 +366,187 @@ select * from instinct_file where id = {{text(file_id)}};
             return data_mapper->Execute("delete from instinct_file where id = {{text(file_id)}}", context);
         }
 
+        template<typename PrimaryKey = std::string>
+        static PrimaryKey InsertOneRun(const DataMapperPtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            return data_mapper->InsertOne(R"(
+insert into instinct_thread_run(
+    id, thread_id, assistant_id, status, truncation_strategy, response_format
+    {% if exists("model") and is_not_blank("model") %}
+    , model
+    {% endif %}
+    {% if exists("instructions") and is_not_blank("instructions") %}
+    , instructions
+    {% endif %}
+    {% if exists("tools") %}
+    , tools
+    {% endif %}
+    {% if exists("tool_resources") %}
+    , tool_resources
+    {% endif %}
+    {% if exists("metadata") %}
+    , metadata
+    {% endif %}
+    {% if exists("temperature") %}
+    , temperature
+    {% endif %}
+    {% if exists("top_p") %}
+    , top_p
+    {% endif %}
+    {% if exists("max_prompt_tokens") and max_prompt_tokens %}
+    , max_prompt_tokens
+    {% endif %}
+    {% if exists("max_completion_tokens") and max_completion_tokens %}
+    , max_completion_tokens
+    {% endif %}
+    {% if exists("truncation_strategy") %}
+    , truncation_strategy
+    {% endif %}
+    {% if exists("tool_choice") and is_not_blank("tool_choice") %}
+    , tool_choice
+    {% endif %}
+    {% if exists("response_format") and is_not_blank("response_format") %}
+    , response_format
+    {% endif %}
+) values(
+    {% if exists("model") and is_not_blank("model") %}
+    , {{text(model)}}
+    {% endif %}
+    {% if exists("instructions") and is_not_blank("instructions") %}
+    , {{text(instructions)}}
+    {% endif %}
+    {% if exists("tools") %}
+    , {{stringify(tools)}}
+    {% endif %}
+    {% if exists("tool_resources") %}
+    , {{stringify(tool_resources)}}
+    {% endif %}
+    {% if exists("metadata") %}
+    , {{stringify(metadata)}}
+    {% endif %}
+    {% if exists("temperature") %}
+    , {{temperature}}
+    {% endif %}
+    {% if exists("top_p") %}
+    , {{top_p}}
+    {% endif %}
+    {% if exists("max_prompt_tokens") and max_prompt_tokens %}
+    , {{max_prompt_tokens}}
+    {% endif %}
+    {% if exists("max_completion_tokens") and max_completion_tokens %}
+    , {{max_completion_tokens}}
+    {% endif %}
+    {% if exists("truncation_strategy") %}
+    , {{stringify(truncation_strategy)}}
+    {% endif %}
+    {% if exists("tool_choice") and is_not_blank("tool_choice") %}
+    , {{text(tool_choice)}}
+    {% endif %}
+    {% if exists("response_format") and is_not_blank("response_format") %}
+    , {{text(response_format)}}
+    {% endif %}
+);
+            )", context);
+        }
 
+        template<typename PrimaryKey = std::string>
+        static size_t UpdateRun(const DataMapperPtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            return data_mapper->Execute(R"(
+update instinct_thread_run
+set
+    modified_at = now()
+    {% if exists("status") and is_not_blank(status) %}
+    , status = {{text(status)}}
+    {% endif %}
+    {% if exists("meatdata") %}
+    , metadata = {{stringify(metadata)}}
+    {% endif %}
+where thread_id = {{text(thread_id)}} and run_id = {{text(run_id)}};
+            )", context);
+        }
+
+
+        template<typename PrimaryKey = std::string>
+        static std::vector<RunObject> SelectManyRuns(const DataMapperPtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            assert_true(context.contains("thread_id"), "should provide thread_id");
+            return data_mapper->SelectMany(R"(
+select * from instinct_thread_run
+where thread_id = {{text(thread_id)}}
+{% if exists("after") and is_not_blank(after) %}
+and id > after
+{% endif %}
+{% if exists("before") and is_not_blank(before) %}
+and id < before
+{% endif %}
+{% if order == "asc" %}
+order by created_at asc
+{% endif %}
+{% if order == "desc" %}
+order by created_at desc
+{% endif %}
+limit {{limit}};
+            )", context);
+        }
+
+        template<typename PrimaryKey = std::string>
+        static std::optional<RunObject> SelectOneRun(const DataMapperPtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            assert_true(context.contains("run_id"), "should provide run id");
+            assert_true(context.contains("thraed_id"), "should provide thread id");
+            return data_mapper->SelectMany(R"(
+select * from instinct_thread_run
+where run_id = {{text(run_id)}} and thread_id={{text(thread_id)}};
+            )", context);
+        }
+
+        template<typename PrimaryKey = std::string>
+        static size_t UpdateRunStep(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            return data_mapper->Execute(R"(
+update instinct_thread_run_step
+set
+    modified_at = now()
+    {% if exists("status") and is_not_blank(status) %}
+    , status = {{text(status)}}
+    {% endif %}
+    {% if exists("step_details") %}
+    , step_details = {{stringify(step_details)}}
+    {% endif %}
+where
+    id={{text(step_id)}}
+    and thread_id={{text(thread_id)}}
+    and run_id = {{text(run_id)}};
+            )", context);
+
+        }
+
+        template<typename PrimaryKey = std::string>
+        static RunStepObject GetRunStep(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            return data_mapper->SelectOne("select * from instinct_thread_run_step where id={{text(step_id)}} and thread_id={{text(thread_id)}} and run_id = {{text(run_id)}} limit 1;", context);
+        }
+
+
+        template<typename PrimaryKey = std::string>
+        static std::vector<RunStepObject> SelectManyRunSteps(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            return data_mapper->SelectMany(R"(
+select * from instinct_thread_run_step
+where
+    thread_id = {{text(thread_id)}}
+    and run_id = {{text(run_id)}}
+    {% if exists("after") and is_not_blank(after) %}
+    and id > {{text(after)}}
+    {% endif %}
+    {% if exists("before") and is_not_blank(before) %}
+    and id < {{text(before)}}
+    {% endif %}
+{% if order == "asc" %}
+order by created_at asc
+{% endif %}
+{% if order == "desc" %}
+order by created_at desc
+{% endif %}
+limit {{limit}};
+            )", context);
+        }
 
     };
-
-
-
-
-
 
 
 }
