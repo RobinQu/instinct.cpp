@@ -41,14 +41,26 @@ namespace INSTINCT_DATA_NS {
                 return StringUtils::IsBlankString(v);
             });
             env->add_callback("text", 1, [](const inja::Arguments& args) {
-                auto v = args.at(0)->get<std::string>();
-                return "'" + StringUtils::EscapeSQLText(v) + "'";
+                if (const auto& arg = args.at(0); arg->is_string() && !arg->get<std::string>().empty()) {
+                    const auto v = arg->get<std::string>();
+                    return "'" + StringUtils::EscapeSQLText(v) + "'";
+                }
+                return std::string {"NULL"};
+
             });
             env->add_callback("stringify", 1, [](const inja::Arguments& args) {
-                auto v = args.at(0)->dump();
-                return "'" + StringUtils::EscapeSQLText(v) + "'";
+                if (const auto& arg = args.at(0); arg->is_array() || arg->is_object()) {
+                    const auto v = arg->dump();
+                    return "'" + StringUtils::EscapeSQLText(v) + "'";
+                }
+                return std::string {"NULL"};
             });
             env->set_trim_blocks(true);
+            env->add_callback("timestamp", 1, [](const inja::Arguments& args) {
+                const auto v = args.at(0)->get<int64_t>();
+                // milli or micro?
+                return "'" + Timestamp::ToString(Timestamp::FromEpochMs(v)) + "'";
+            });
             env->set_lstrip_blocks(true);
             return env;
         }

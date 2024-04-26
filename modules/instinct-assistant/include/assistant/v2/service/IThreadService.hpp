@@ -20,7 +20,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         virtual std::optional<ThreadObject> CreateThread(const ThreadObject& create_request) = 0;
         virtual std::optional<ThreadObject> RetrieveThread(const GetThreadRequest& retrieve_request) = 0;
         virtual std::optional<ThreadObject> ModifyThread(const ModifyThreadRequest& modify_request) = 0;
-        virtual DeleteThreadResponse DeleteThread(const DeleteThreadResponse& delete_request) = 0;
+        virtual DeleteThreadResponse DeleteThread(const DeleteThreadRequest& delete_request) = 0;
 
     };
 

@@ -34,6 +34,8 @@ namespace INSTINCT_ASSISTANT_NS {
                 for(auto& msg_obj: context["messages"]) {
                     msg_obj["id"] = details::generate_next_object_id("message");
                     msg_obj["thread_id"] = thread_id;
+                    // manually inserted messages are all completed
+                    msg_obj["completed_at"] = ChronoUtils::GetCurrentTimeMillis();
                 }
                 // create mesages
                 EntitySQLUtils::InsertManyMessages(message_data_mapper_, context);
@@ -65,13 +67,15 @@ namespace INSTINCT_ASSISTANT_NS {
             return RetrieveThread(get_thread_request);
         }
 
-        DeleteThreadResponse DeleteThread(const DeleteThreadResponse &delete_request) override {
-            assert_not_blank(delete_request.id(), "should provide thread id for  deletion");
-            const auto count = EntitySQLUtils::DeleteThread(thread_data_mapper_, {{"id", delete_request.id()}});
+        DeleteThreadResponse DeleteThread(const DeleteThreadRequest &delete_request) override {
+            assert_not_blank(delete_request.thread_id(), "should provide thread id for  deletion");
+            SQLContext context;
+            ProtobufUtils::ConvertMessageToJsonObject(delete_request, context);
+            const auto count = EntitySQLUtils::DeleteThread(thread_data_mapper_, context);
             DeleteThreadResponse delete_thread_response;
             delete_thread_response.set_deleted(count == 1);
             delete_thread_response.set_object("thread.deleted");
-            delete_thread_response.set_id(delete_request.id());
+            delete_thread_response.set_id(delete_request.thread_id());
             return delete_thread_response;
         }
 

@@ -163,10 +163,10 @@ set
     {% if exists("tool_resources") %}
     ,tool_resources = {{stringify(tool_resources)}}
     {% endif %}
-    {% if exists("metadata") %}
+    {% if exists("metadata")  %}
     , metadata = {{stringify(metadata)}}
     {% endif %}
-where thread_id = {{text(thread_id)}};
+where id = {{text(thread_id)}};
             )", context);
         }
 
@@ -222,22 +222,60 @@ limit {{limit}};
 
         template<typename PrimaryKey = std::string>
         static std::vector<PrimaryKey> InsertManyMessages(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            if (!context.contains("messages") || context["messages"].empty()) return {};
+            for(const auto& msg_obj: context["messages"]) {
+                assert_true(msg_obj.contains("content") && msg_obj.at("content").is_object(), "should provide content");
+                assert_true(msg_obj.contains("role") && (msg_obj.at("role").get<std::string>() == "user" || msg_obj.at("role").get<std::string>() == "assistant"), "should provide correct role for message");
+            }
             return data_mapper->InsertMany(R"(
-insert into instinct_thread_message(id, thread_id, status, incomplete_details, completed_at, incompleted_at, role, content, assistant_id, run_id, attachments, metadata) values
+insert into instinct_thread_message(
+    id,
+    thread_id,
+    status,
+    incomplete_details,
+    completed_at,
+    incompleted_at,
+    role,
+    content,
+    assistant_id,
+    run_id,
+    attachments,
+    metadata
+) values
 ## for msg in messages
 (
     {{text(msg.id)}},
     {{text(msg.thread_id)}},
     {{text(msg.status)}},
-    {{text(msg.incomplete_details)}},
-    {{msg.completed_at}},
-    {{msg.incompleted_at}},
+{% if existsIn(msg, "incomplete_details") %}
+    {{stringify(msg.incomplete_details)}},
+{% else %}
+    NULL,
+{% endif %}
+{% if existsIn(msg, "completed_at") and msg.completed_at %}
+    {{timestamp(msg.completed_at)}},
+{% else %}
+    NULL,
+{% endif %}
+{% if existsIn(msg, "incompleted_at") and msg.incompleted_at %}
+    {{timestamp(msg.incompleted_at)}},
+{% else %}
+    NULL,
+{% endif %}
     {{text(msg.role)}},
     {{stringify(msg.content)}},
     {{text(msg.assistant_id)}},
-    {{text(msg.run_id)}}
+    {{text(msg.run_id)}},
+{% if existsIn(msg, "attachments") %}
     {{stringify(msg.attachments)}},
+{% else %}
+    NULL,
+{% endif %}
+{% if existsIn(msg, "metadata") %}
     {{stringify(msg.metadata)}}
+{% else %}
+    NULL,
+{% endif %}
 ),
 ## endfor
 returning (id);
@@ -245,24 +283,51 @@ returning (id);
         }
 
         template<typename PrimaryKey = std::string>
-        static PrimaryKey InsertOneMessages(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static PrimaryKey InsertOneMessages(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& msg_obj) {
+            assert_true(msg_obj.contains("content") && msg_obj.at("content").is_object(), "should provide content");
+            assert_true(msg_obj.contains("role") && (msg_obj.at("role").get<std::string>() == "human" || msg_obj.at("role").get<std::string>() == "assistant"), "should provide correct role for message");
+
             return data_mapper->InsertMany(R"(
 insert into instinct_thread_message(id, thread_id, status, incomplete_details, completed_at, incompleted_at, role, content, assistant_id, run_id, attachments, metadata) values
 (
     {{text(id)}},
     {{text(status)}},
-    {{text(incomplete_details)}},
-    {{completed_at}},
-    {{incompleted_at}},
+{% if exists("incomplete_details") %}
+    {{stringify(incomplete_details)}},
+{% else %}
+    NULL,
+{% endif %}
+{% if exists("completed_at") and msg.completed_at %}
+    {{timestamp(completed_at)}},
+{% else %}
+    NULL,
+{% endif %}
+{% if exists("incompleted_at") and msg.incompleted_at %}
+    {{timestamp(incompleted_at)}},
+{% else %}
+    NULL,
+{% endif %}
     {{text(role)}},
+{% if exists("content") %}
     {{stringify(content)}},
+{% else %}
+    NULL,
+{% endif %}
     {{text(assistant_id)}},
-    {{text(run_id)}}
+    {{text(run_id)}},
+{% exists("attachments") %}
     {{stringify(attachments)}},
+{% else %}
+    NULL,
+{% endif %}
+{% exists("metadata") %}
     {{stringify(metadata)}}
+{% else %}
+    NULL
+{% endif %}
 )
 returning (id);
-)", context);
+)", msg_obj);
         }
 
         template<typename PrimaryKey = std::string>

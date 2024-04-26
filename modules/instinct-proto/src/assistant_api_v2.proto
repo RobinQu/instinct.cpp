@@ -190,10 +190,9 @@ message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, Modify
 
   MessageStatus status = 5;
   enum MessageStatus {
-    unknown_message_status = 0;
+    completed = 0;
     in_progress = 1;
     incomplete = 2;
-    completed = 3;
   }
 
   IncompleteDetails incomplete_details =  6;

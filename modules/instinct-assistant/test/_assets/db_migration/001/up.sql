@@ -25,11 +25,12 @@ CREATE TABLE IF NOT EXISTS instinct_thread(
     modified_at TIMESTAMP DEFAULT now() NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS instinct_message(
+CREATE TABLE IF NOT EXISTS instinct_thread_message(
     id VARCHAR PRIMARY KEY,
     object VARCHAR DEFAULT 'thread.message',
     created_at TIMESTAMP DEFAULT now() NOT NULL,
     modified_at TIMESTAMP DEFAULT now() NOT NULL,
+    thread_id VARCHAR NOT NULL,
     status VARCHAR NOT NULL,
     incomplete_details VARCHAR,
     completed_at TIMESTAMP,

@@ -291,7 +291,7 @@ namespace INSTINCT_CORE_NS {
                             for(int j=0;j<repeated_field_size;++j) {
                                 auto& message_item = reflection->GetRepeatedMessage(message, field_descriptor, j);
                                 nlohmann::ordered_json sub_obj;
-                                ConvertMessageToJsonObject(message_item, sub_obj);
+                                ConvertMessageToJsonObject(message_item, sub_obj, options);
                                 json_object[field_name].push_back(sub_obj);
                             }
                         } else {
@@ -302,7 +302,7 @@ namespace INSTINCT_CORE_NS {
                                 if (details::is_protobuf_struct_type(field_descriptor)) {
                                     details::convert_protobuf_struct_to_json_object(sub_message, sub_obj);
                                 } else {
-                                    ConvertMessageToJsonObject(sub_message, sub_obj);
+                                    ConvertMessageToJsonObject(sub_message, sub_obj, options);
                                 }
                                 json_object[field_name] = sub_obj;
                             }
