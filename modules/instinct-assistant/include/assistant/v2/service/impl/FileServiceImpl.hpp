@@ -44,7 +44,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         std::optional<FileObject> UploadFile(const UploadFileRequest &upload_file_request) override {
             assert_true(upload_file_request.purpose() != 0, "should provide purpose");
             SQLContext context;
-            context["purpose"] = upload_file_request.purpose();
+            ProtobufUtils::ConvertMessageToJsonObject(upload_file_request, context, {.keep_default_values = true});
 
             // generate id
             const auto id = details::generate_next_object_id("file");;
@@ -52,11 +52,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
             // upload file
             const auto object_key = details::map_file_object_key(upload_file_request.purpose(), id);
-            const auto status = object_store_->PutObject(options_.bucket_name, id, object_key);
+            const auto status = object_store_->PutObject(options_.bucket_name, object_key, upload_file_request.file_content());
             assert_status_ok(status);
 
             // write db
+            context["bytes"] = upload_file_request.file_content().size();
             EntitySQLUtils::InsertOneFile(data_mapper_, context);
+
+            // return file
             RetrieveFileRequest retrieve_file_request;
             retrieve_file_request.set_file_id(id);
             return RetrieveFile(retrieve_file_request);
@@ -64,14 +67,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         DeleteFileResponse DeleteFile(const DeleteFileRequest &delete_file_request) override {
             assert_not_blank(delete_file_request.file_id(), "should provide file_id");
+            DeleteFileResponse response;
+            response.set_object("file.deleted");
 
             // find file
             RetrieveFileRequest retrieve_file_request;
             retrieve_file_request.set_file_id(delete_file_request.file_id());
             const auto file = RetrieveFile(retrieve_file_request);
             if (!file.has_value()) {
-                DeleteFileResponse response;
-                response.set_object("file");
                 response.set_deleted(false);
                 response.set_id(delete_file_request.file_id());
                 return response;
@@ -85,10 +88,13 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // delete in object store
             const auto object_key = details::map_file_object_key(file->purpose(), file->id());
             const auto status = object_store_->DeleteObject(options_.bucket_name, object_key);
+            if (status.has_error() && status.error_type() == OSSStatus_ErrorType_ObjectNotFound) {
+                response.set_deleted(false);
+                response.set_id(delete_file_request.file_id());
+                return response;
+            }
             assert_status_ok(status);
 
-            DeleteFileResponse response;
-            response.set_object("file");
             response.set_deleted(count == 1);
             response.set_id(file->id());
             return response;
@@ -110,7 +116,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             }
             const auto object_key = details::map_file_object_key(file->purpose(), file->id());
             std::string buf;
-            object_store_->GetObject(options_.bucket_name, object_key, buf);
+            const auto status = object_store_->GetObject(options_.bucket_name, object_key, buf);
+            if (status.has_error() && status.error_type() == OSSStatus_ErrorType_ObjectNotFound) {
+                return std::nullopt;
+            }
+            assert_status_ok(status);
             return buf;
         }
 

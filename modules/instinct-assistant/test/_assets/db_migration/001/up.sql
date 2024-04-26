@@ -131,8 +131,8 @@ CREATE TABLE IF NOT EXISTS instinct_file (
     object VARCHAR DEFAULT 'file' NOT NULL,
     created_at TIMESTAMP DEFAULT now() NOT NULL,
     modified_at TIMESTAMP DEFAULT now() NOT NULL,
-    bytes INTEGER NOT NULL DEFAULT 0,
+    bytes BIGINT NOT NULL DEFAULT 0,
     filename VARCHAR NOT NULL,
-    purpuse VARCHAR NOT NULL
+    purpose VARCHAR NOT NULL
 );
 

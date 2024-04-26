@@ -960,8 +960,9 @@ message ListFilesResponse {
 }
 
 message UploadFileRequest {
-  bytes file = 1;
-  FileObjectPurpose purpose = 2; // fine-tune, assistants
+  bytes file_content = 1;
+  string filename = 2;
+  FileObjectPurpose purpose = 3; // fine-tune, assistants
 }
 
 message DeleteFileRequest {
@@ -988,9 +989,9 @@ message DownloadFileRequest { // DownloadFileResponse is type of string, thus it
 message FileObject { // UploadFileResponse, RetrieveFileResponse
   string id = 1;
   string object = 2;
-  int32 created_at = 3;
-  int32 modified_at = 4;
-  int32 bytes = 5;
+  int64 created_at = 3;
+  int64 modified_at = 4;
+  int64 bytes = 5;
   string filename = 6;
   FileObjectPurpose purpose = 7;
 }

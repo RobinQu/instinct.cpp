@@ -12,6 +12,8 @@
 #include "database/DBUtils.hpp"
 #include "database/duckdb/DuckDBConnectionPool.hpp"
 #include "database/duckdb/DuckDBDataMapper.hpp"
+#include "object_store/FileSystemObjectStore.hpp"
+#include "object_store/IObjectStore.hpp"
 
 namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_DATA_NS;
@@ -43,6 +45,8 @@ namespace INSTINCT_ASSISTANT_NS {
         DataMapperPtr<RunStepObject, std::string> run_step_data_mapper = CreateDuckDBDataMapper<RunStepObject, std::string>(connection_pool_);
 
         std::filesystem::path migration_dir = std::filesystem::current_path() / "_assets" / "db_migration";
+
+        ObjectStorePtr filesystem_object_store_ = std::make_shared<FileSystemObjectStore>(std::filesystem::temp_directory_path() / "assistant_api_test");
     };
 
 

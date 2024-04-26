@@ -336,7 +336,7 @@ returning (id);
 insert into instinct_file(id, filename, bytes, purpose) values(
     {{text(id)}},
     {{text(filename)}},
-    {{bytes}}
+    {{bytes}},
     {{text(purpose)}}
 );
             )", context);
@@ -348,8 +348,9 @@ insert into instinct_file(id, filename, bytes, purpose) values(
 select * from instinct_file
 where 1=1
 {% if exists("purpose") and is_not_blank("purpose") %}
- purpose = {{text(purpose)}}
+and purpose = {{text(purpose)}}
 {% endif %}
+order by created_at desc
             )", context);
         }
 
@@ -357,13 +358,13 @@ where 1=1
         static std::optional<FileObject> SelectOneFile(const DataMapperPtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->SelectOne(R"(
 select * from instinct_file where id = {{text(file_id)}};
-            )");
+            )", context);
 
         }
 
         template<typename PrimaryKey = std::string>
         static size_t DeleteFile(const DataMapperPtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
-            return data_mapper->Execute("delete instinct_file where id = {{text(file_id)}}", context);
+            return data_mapper->Execute("delete from instinct_file where id = {{text(file_id)}}", context);
         }
 
 

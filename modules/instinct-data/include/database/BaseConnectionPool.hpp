@@ -78,7 +78,7 @@ namespace INSTINCT_DATA_NS {
 
         ConnectionPtr Acquire() override {
             if (const auto conn = TryAcquire()) {
-                LOG_DEBUG("Acquired one: {}", conn->GetId());
+                LOG_DEBUG("Acquired: {}", conn->GetId());
                 return conn;
             }
             throw InstinctException("Cannot acquire connection from connection pool");
@@ -87,10 +87,10 @@ namespace INSTINCT_DATA_NS {
         void Release(const ConnectionPtr &connection) override {
             if (!connection || !this->Check(connection) ) {
                 auto c = this->Create();
-                LOG_DEBUG("Discard one. Newly created: {}", c->GetId());
+                LOG_DEBUG("Discarded previous broken connection. Newly created: {}", c->GetId());
                 pool_.push_back(c);
             } else {
-                LOG_DEBUG("Release one: {}", connection->GetId());
+                LOG_DEBUG("Released: {}", connection->GetId());
                 pool_.push_back(connection);
             }
             condition_.notify_one();
