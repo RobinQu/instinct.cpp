@@ -26,9 +26,11 @@ namespace INSTINCT_ASSISTANT_NS {
         // insert one thread with two messages
         ThreadObject create_request2;
         const auto msg1 = create_request2.add_messages();
+        msg1->mutable_content()->set_type(MessageObject_MessageContentType_text);
         msg1->mutable_content()->mutable_text()->set_value("Why sky is blue?");
         msg1->set_role(user);
         const auto msg2 = create_request2.add_messages();
+        msg2->mutable_content()->set_type(MessageObject_MessageContentType_text);
         msg2->mutable_content()->mutable_text()->set_value(R"( The sky appears blue because of a process called Rayleigh scattering. As sunlight reaches Earth's atmosphere, it is made up of different colors, which are represented in the light spectrum as having different wavelengths. Blue and violet light have the shortest wavelengths and are scattered in all directions by the gas molecules in the earth's atmosphere.
 
 This scattering of light is what makes the sky look blue in our perception. You might wonder why we don't see a violet sky, given that violet light is scattered more than blue light. This is because our eyes are more sensitive to blue light and because sunlight reaches us with less violet light to begin with. Additionally, some of the violet light gets absorbed by the ozone layer in the atmosphere. As a result, when we look at the sky, we perceive it as blue, not violet.)");

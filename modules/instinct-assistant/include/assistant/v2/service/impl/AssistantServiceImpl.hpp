@@ -22,7 +22,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         ListAssistantsResponse ListAssistants(const ListAssistantsRequest &list_request) override {
             SQLContext context;
-            ProtobufUtils::ConvertMessageToJsonObject(list_request, context);
+            ProtobufUtils::ConvertMessageToJsonObject(list_request, context, {.keep_default_values = true});
             // limit + 1 to check if there is more records that match the conditions
             auto limit = list_request.limit() <= 0 ? DEFAULT_LIST_LIMIT + 1 : list_request.limit() + 1;
             context["limit"] = limit;
