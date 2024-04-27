@@ -29,7 +29,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         virtual std::optional<RunStepObject> GetRunStep(const GetRunStepRequest& get_run_step_request) = 0;
     };
 
-    using IRunServicePtr = std::shared_ptr<IRunService>;
+    using RunServicePtr = std::shared_ptr<IRunService>;
 
 }
 

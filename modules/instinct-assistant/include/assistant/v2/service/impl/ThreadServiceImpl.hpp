@@ -9,7 +9,7 @@
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
 
 
-namespace INSTINCT_ASSISTANT_NS {
+namespace INSTINCT_ASSISTANT_NS::v2 {
     class ThreadServiceImpl final: public IThreadService {
         DataMapperPtr<ThreadObject, std::string> thread_data_mapper_;
         DataMapperPtr<MessageObject, std::string> message_data_mapper_;

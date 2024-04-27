@@ -25,10 +25,12 @@ namespace INSTINCT_ASSISTANT_NS {
             SetupLogging();
             const auto status = DBUtils::ExecuteSQL(migration_dir / "001" / "up.sql", connection_pool_);
             assert_query_ok(status);
-            LOG_INFO("DB is initialized");
+            LOG_INFO("database is intialized at {}", db_file_path);
         }
 
-        DuckDBPtr duck_db_ = std::make_shared<DuckDB>(nullptr);
+        std::filesystem::path db_file_path = std::filesystem::temp_directory_path() / fmt::format("assistant_test_{}.db", ChronoUtils::GetCurrentTimeMillis());
+
+        DuckDBPtr duck_db_ = std::make_shared<DuckDB>(db_file_path);
 
         DuckDBConnectionPoolPtr connection_pool_ = CreateDuckDBConnectionPool(duck_db_);
 

@@ -102,6 +102,9 @@ namespace INSTINCT_DATA_NS {
                         LOG_WARN("field name {} not found in entity but exist in column data", name);
                         continue;
                     }
+                    if (row.iterator.chunk->GetValue(i, row.row).IsNull()) {
+                        continue;
+                    }
                     // assert_true(field_descriptor, "should have found field_ descriptor by column name: " + name);
                     switch (field_descriptor->cpp_type()) {
                         case FieldDescriptor::CPPTYPE_STRING: {

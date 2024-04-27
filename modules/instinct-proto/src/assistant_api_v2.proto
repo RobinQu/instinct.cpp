@@ -149,8 +149,9 @@ message DeleteThreadResponse {
 }
 
 enum ListRequestOrder {
-  desc = 0; // default
-  asc = 1;
+  unknown_list_request_order = 0;
+  desc = 1; // default
+  asc = 2;
 }
 
 // ==============================================================
@@ -329,6 +330,7 @@ message ModifyMessageRequest {
 }
 
 
+
 // ==============================================================
 // ThreadService - Run
 // ==============================================================
@@ -351,12 +353,6 @@ message CreateThreadAndRunRequest {
   // The truncation strategy to use for the thread. The default is auto. If set to last_messages, the thread will be truncated to the n most recent messages in the thread. When set to auto, messages in the middle of the thread will be dropped to fit the context length of the model, max_prompt_tokens.
   TruncationStrategy truncation_strategy = 13;
 
-  enum TruncationStrategy {
-    unknown_truncation_strategy = 0;
-    auto = 1;
-    last_messages = 2;
-  }
-
   // Controls which (if any) tool is called by the model. none means the model will not call any tools and instead generates a message. auto is the default value and means the model can pick between generating a message or calling a tool. Specifying a particular tool like {"type": "file_search"} or {"type": "function", "function": {"name": "my_function"}} forces the model to call that tool.
   // due to language characteristics, we cannot make `tool_choice` as arbitrary type of `string` and `object`. So we choose to define `ToolChoice` as object type.
 //  ToolChoice tool_choice = 14;
@@ -373,13 +369,18 @@ message CreateThreadAndRunRequest {
   string response_format = 15;
 }
 
+message TruncationStrategy {
+  RunObject.TruncationStrategyType type = 1;
+  int32 last_messages = 2;
+}
 
 message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRunObject, ModifyRunResponse, SubmitToolOutputsResponse, GetRunResponse
   string id = 1;
   string object = 2; // always `thread.run`
-  int32 created_at = 3;
-  string thread_id = 4;
-  string assistant_id = 5;
+  int64 created_at = 3;
+  int64 modified_at = 4;
+  string thread_id = 5;
+  string assistant_id = 6;
 
   enum RunObjectStatus {
     unknown_run_object_status = 0;
@@ -392,9 +393,9 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
     completed = 7;
     expired = 8;
   }
-  RunObjectStatus status = 6;
+  RunObjectStatus status = 7;
 
-  RequiredAction required_action = 7;
+  RequiredAction required_action = 8;
   message RequiredAction {
     RequiredActionType type = 1;
     enum RequiredActionType {
@@ -419,32 +420,32 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
     }
   }
 
+  RunStepError last_error = 9;
+  int64 expires_at = 10;
+  int64 cancelled_at = 11;
+  int64 failed_at = 12;
+  int32 completed_at = 13;
+  uint64 incomplete_at = 14;
+  IncompleteDetails incomplete_details = 15;
+  string model = 16;
+  string instructions = 17;
+  repeated AssistantToolObject tools = 18;
+  google.protobuf.Struct metadata = 19;
+  CompletionUsage usage = 20;
+  optional float temperature = 21; // could be zero so it has be `optional`
+  optional float top_p = 22; // could be zero so it has be `optional`
+  int32 max_prompt_tokens = 23;
+  int32 max_completion_tokens = 24;
 
-  RunStepError last_error = 8;
-  int64 expires_at = 9;
-  int64 cancelled_at = 10;
-  int64 failed_at = 11;
-  int32 completed_at = 12;
-  uint64 incomplete_at = 13;
-  IncompleteDetails incomplete_details = 14;
-  string model = 15;
-  string instructions = 16;
-  repeated AssistantToolObject tools = 17;
-  google.protobuf.Struct metadata = 18;
-  CompletionUsage usage = 19;
-  optional float temperature = 20; // could be zero so it has be `optional`
-  optional float top_p = 21; // could be zero so it has be `optional`
-  int32 max_prompt_tokens = 22;
-  int32 max_completion_tokens = 23;
-
-  enum TruncationStrategy {
-    auto = 0;
-    last_messages = 1;
+  enum TruncationStrategyType {
+    unknown = 0;
+    auto = 1;
+    last_messages = 2;
   }
-  TruncationStrategy truncation_strategy = 24;
+  TruncationStrategy truncation_strategy = 25;
 
   // "auto" or JSON string of ToolChoice
-  string tool_choice = 25;
+  string tool_choice = 26;
 //  message ToolChoice {
 //    AssistantToolType type = 1;
 //    ToolChoiceFunction function = 2;
@@ -453,7 +454,7 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
 //    }
 //  }
   // "auto" or JSON string of ResponseFormat
-  string response_format = 26;
+  string response_format = 27;
 //  ResponseFormat response_format = 26;
 }
 
@@ -509,11 +510,6 @@ message CreateRunRequest {
   uint32 max_prompt_tokens = 15;
   uint32 max_completion_tokens = 16;
 
-  enum TruncationStrategy {
-    unknown_truncation_strategy = 0;
-    auto = 1;
-    last_messages = 2;
-  }
   TruncationStrategy truncation_strategy = 17;
 
 //  ToolChoice tool_choice = 18;
@@ -522,6 +518,8 @@ message CreateRunRequest {
   //
 //  ResponseFormat response_format = 19;
   string response_format = 19;
+
+  string thread_id = 20;
 }
 
 message ToolChoice {

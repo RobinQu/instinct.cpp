@@ -13,10 +13,21 @@ namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_DATA_NS;
     using namespace v2;
 
+    namespace details {
+        static void check_presence(const SQLContext& context, const std::vector<std::string>& names) {
+            for (const auto& field: names) {
+                assert_true(context.contains(field), fmt::format("should provide {} in context", field));
+            }
+        }
+    }
+
     class EntitySQLUtils final {
     public:
         template<typename PrimaryKey = std::string>
         static PrimaryKey InsertOneAssistant(const DataMapperPtr<AssistantObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            for (const auto& field: { "id", "model", "temperature", "top_p"}) {
+                assert_true(context.contains(field), fmt::format("should provide {} in context", field));
+            }
             return data_mapper->InsertOne(R"(
 insert into instinct_assistant(
     id,
@@ -25,19 +36,17 @@ insert into instinct_assistant(
     description,
     instructions,
     temperature,
-    top_p,
+    top_p
 {% if exists("tools") %}
-    tools,
+    , tools
 {% endif %}
 {% if exists("tool_resourecs") %}
-    tool_resourecs,
+    , tool_resourecs
 {% endif %}
-    response_format,
+    , response_format
 {% if exists("metadata") %}
-    metadata,
+    metadata
 {% endif %}
-    created_at,
-    modified_at
 )  values(
     {{text(id)}},
     {{text(name)}},
@@ -45,19 +54,17 @@ insert into instinct_assistant(
     {{text(description)}},
     {{text(instructions)}},
     {{temperature}},
-    {{top_p}},
+    {{top_p}}
 {% if exists("tools") %}
-    {{stringify(tools)}},
+    , {{stringify(tools)}}
 {% endif %}
 {% if exists("tool_resourecs") %}
-    {{stringify(tool_resources)}},
+    , {{stringify(tool_resources)}}
 {% endif %}
-    {{text(response_format)}},
+    , {{text(response_format)}}
 {% if exists("metadata") %}
-    {{stringify(metadata)}},
+    , {{stringify(metadata)}}
 {% endif %}
-    now(),
-    now()
 );
 )", context);
         }
@@ -224,8 +231,11 @@ limit {{limit}};
         static std::vector<PrimaryKey> InsertManyMessages(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             if (!context.contains("messages") || context["messages"].empty()) return {};
             for(const auto& msg_obj: context["messages"]) {
-                assert_true(msg_obj.contains("content") && msg_obj.at("content").is_object(), "should provide content");
-                assert_true(msg_obj.contains("role") && (msg_obj.at("role").get<std::string>() == "user" || msg_obj.at("role").get<std::string>() == "assistant"), "should provide correct role for message");
+                assistant::details::check_presence(msg_obj, {"id", "thread_id", "content", "role", "status"});
+                assert_not_blank(msg_obj["thread_id"], "should provide thread_id");
+                assert_true(msg_obj.at("content").is_object(), "should provide content");
+                assert_true(msg_obj["content"]["type"] == "text" || msg_obj["content"]["type"] == "image_file", "content type for message should be text or image_file.");
+                assert_true((msg_obj.at("role").get<std::string>() == "user" || msg_obj.at("role").get<std::string>() == "assistant"), "should provide correct role for message");
             }
             return data_mapper->InsertMany(R"(
 insert into instinct_thread_message(
@@ -264,8 +274,16 @@ insert into instinct_thread_message(
 {% endif %}
     {{text(msg.role)}},
     {{stringify(msg.content)}},
+{% if existsIn(msg,"assistantId") and is_not_blank(msg.assistant_id) %}
     {{text(msg.assistant_id)}},
+{% else %}
+    NULL,
+{% endif %}
+{% if existsIn(msg,"run_id") and is_not_blank(msg.run_id) %}
     {{text(msg.run_id)}},
+{% else %}
+    NULL,
+{% endif %}
 {% if existsIn(msg, "attachments") %}
     {{stringify(msg.attachments)}},
 {% else %}
@@ -284,8 +302,10 @@ returning (id);
 
         template<typename PrimaryKey = std::string>
         static PrimaryKey InsertOneMessages(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& msg_obj) {
-            assert_true(msg_obj.contains("content") && msg_obj.at("content").is_object(), "should provide content");
-            assert_true(msg_obj.contains("role") && (msg_obj.at("role").get<std::string>() == "human" || msg_obj.at("role").get<std::string>() == "assistant"), "should provide correct role for message");
+            assistant::details::check_presence(msg_obj, {"id", "thread_id", "content", "role", "status"});
+            assert_true(msg_obj.at("content").is_object(), "should provide content");
+            assert_true(msg_obj["content"]["type"] == "text" || msg_obj["content"]["type"] == "image_file", "content type for message should be text or image_file.");
+            assert_true((msg_obj.at("role").get<std::string>() == "human" || msg_obj.at("role").get<std::string>() == "assistant"), "should provide correct role for message");
 
             return data_mapper->InsertMany(R"(
 insert into instinct_thread_message(id, thread_id, status, incomplete_details, completed_at, incompleted_at, role, content, assistant_id, run_id, attachments, metadata) values
@@ -313,8 +333,16 @@ insert into instinct_thread_message(id, thread_id, status, incomplete_details, c
 {% else %}
     NULL,
 {% endif %}
+{% if exists("assistantId") and is_not_blank(assistant_id) %}
     {{text(assistant_id)}},
+{% else %}
+    NULL,
+{% endif %}
+{% if exists("run_id") and is_not_blank(run_id) %}
     {{text(run_id)}},
+{% else %}
+    NULL,
+{% endif %}
 {% exists("attachments") %}
     {{stringify(attachments)}},
 {% else %}
@@ -332,6 +360,7 @@ returning (id);
 
         template<typename PrimaryKey = std::string>
         static PrimaryKey InsertOneFile(const DataMapperPtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            assistant::details::check_presence(context, {"id", "filename", "bytes", "purpose"});
             return data_mapper->InsertOne(R"(
 insert into instinct_file(id, filename, bytes, purpose) values(
     {{text(id)}},
@@ -368,6 +397,7 @@ select * from instinct_file where id = {{text(file_id)}};
 
         template<typename PrimaryKey = std::string>
         static PrimaryKey InsertOneRun(const DataMapperPtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            assistant::details::check_presence(context, {"thread_id", "assistant_id"});
             return data_mapper->InsertOne(R"(
 insert into instinct_thread_run(
     id, thread_id, assistant_id, status, truncation_strategy, response_format
@@ -398,16 +428,16 @@ insert into instinct_thread_run(
     {% if exists("max_completion_tokens") and max_completion_tokens %}
     , max_completion_tokens
     {% endif %}
-    {% if exists("truncation_strategy") %}
-    , truncation_strategy
-    {% endif %}
     {% if exists("tool_choice") and is_not_blank("tool_choice") %}
     , tool_choice
     {% endif %}
-    {% if exists("response_format") and is_not_blank("response_format") %}
-    , response_format
-    {% endif %}
 ) values(
+    {{text(id)}}
+    , {{text(thread_id)}}
+    , {{text(assistant_id)}}
+    , {{text(status)}}
+    , {{stringify(truncation_strategy)}}
+    , {{text(response_format)}}
     {% if exists("model") and is_not_blank("model") %}
     , {{text(model)}}
     {% endif %}
@@ -435,16 +465,10 @@ insert into instinct_thread_run(
     {% if exists("max_completion_tokens") and max_completion_tokens %}
     , {{max_completion_tokens}}
     {% endif %}
-    {% if exists("truncation_strategy") %}
-    , {{stringify(truncation_strategy)}}
-    {% endif %}
     {% if exists("tool_choice") and is_not_blank("tool_choice") %}
     , {{text(tool_choice)}}
     {% endif %}
-    {% if exists("response_format") and is_not_blank("response_format") %}
-    , {{text(response_format)}}
-    {% endif %}
-);
+) returning (id);
             )", context);
         }
 
@@ -457,10 +481,10 @@ set
     {% if exists("status") and is_not_blank(status) %}
     , status = {{text(status)}}
     {% endif %}
-    {% if exists("meatdata") %}
+    {% if exists("metadata") %}
     , metadata = {{stringify(metadata)}}
     {% endif %}
-where thread_id = {{text(thread_id)}} and run_id = {{text(run_id)}};
+where thread_id = {{text(thread_id)}} and id = {{text(run_id)}};
             )", context);
         }
 
@@ -490,10 +514,11 @@ limit {{limit}};
         template<typename PrimaryKey = std::string>
         static std::optional<RunObject> SelectOneRun(const DataMapperPtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             assert_true(context.contains("run_id"), "should provide run id");
-            assert_true(context.contains("thraed_id"), "should provide thread id");
-            return data_mapper->SelectMany(R"(
+            assert_true(context.contains("thread_id"), "should provide thread id");
+            return data_mapper->SelectOne(R"(
 select * from instinct_thread_run
-where run_id = {{text(run_id)}} and thread_id={{text(thread_id)}};
+where id = {{text(run_id)}} and thread_id={{text(thread_id)}}
+limit 1;
             )", context);
         }
 
@@ -518,7 +543,7 @@ where
         }
 
         template<typename PrimaryKey = std::string>
-        static RunStepObject GetRunStep(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static std::optional<RunStepObject> GetRunStep(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->SelectOne("select * from instinct_thread_run_step where id={{text(step_id)}} and thread_id={{text(thread_id)}} and run_id = {{text(run_id)}} limit 1;", context);
         }
 

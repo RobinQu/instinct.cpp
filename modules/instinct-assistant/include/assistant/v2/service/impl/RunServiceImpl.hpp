@@ -6,6 +6,7 @@
 #define RUNSERVICEIMPL_HPP
 
 #include "../IRunService.hpp"
+#include "assistant/v2/service/IMessageService.hpp"
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
 #include "database/IDataMapper.hpp"
 
@@ -16,31 +17,54 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         DataMapperPtr<ThreadObject, std::string> thread_data_mapper_;
         DataMapperPtr<RunObject, std::string> run_data_mapper_;
         DataMapperPtr<RunStepObject, std::string> run_step_data_mapper_;
+        DataMapperPtr<MessageObject, std::string> message_data_mapper_;
     public:
         RunServiceImpl(const DataMapperPtr<ThreadObject, std::string> &thread_data_mapper,
             const DataMapperPtr<RunObject, std::string> &run_data_mapper,
-            const DataMapperPtr<RunStepObject, std::string> &run_step_data_mapper)
+            const DataMapperPtr<RunStepObject, std::string> &run_step_data_mapper,
+            const DataMapperPtr<MessageObject, std::string>& message_data_mapper
+            )
             : thread_data_mapper_(thread_data_mapper),
               run_data_mapper_(run_data_mapper),
-              run_step_data_mapper_(run_step_data_mapper) {
+              run_step_data_mapper_(run_step_data_mapper),
+              message_data_mapper_(message_data_mapper){
         }
 
-        std::optional<RunObject> CreateThreadAndRun(const CreateThreadAndRunRequest &create_thread_and_run_request) override {
+        std::optional<RunObject> CreateThreadAndRun(const CreateThreadAndRunRequest &create_thread_and_run_request) override { // TODO with transaction
+            assert_not_blank(create_thread_and_run_request.assistant_id(), "should provide assistant id");
             assert_true(create_thread_and_run_request.has_thread(), "should provide thread data");
-
-            // TODO with transaction
             SQLContext context;
-            ProtobufUtils::ConvertMessageToJsonObject(create_thread_and_run_request, context);
+            ProtobufUtils::ConvertMessageToJsonObject(create_thread_and_run_request, context, {.keep_default_values = true});
+            const auto run_id = details::generate_next_object_id("run");
 
             // create thread
-            // const auto& thread_object = create_thread_and_run_request.thread();
+            const auto& thread_object = create_thread_and_run_request.thread();
             const auto thread_id = details::generate_next_object_id("thread");;
             context["thread"]["id"] = thread_id;
             EntitySQLUtils::InsertOneThread(thread_data_mapper_, context["thread"]);
 
+            // create additional messages
+            if (thread_object.messages_size() > 0) {
+                SQLContext insert_messages_context;
+                insert_messages_context["messages"] = context["thread"]["messages"];
+                for (auto& msg_obj: insert_messages_context["messages"]) {
+                    msg_obj["id"] = details::generate_next_object_id("message");
+                    msg_obj["thread_id"] = thread_id;
+                    if (!msg_obj.contains("status")) {
+                        msg_obj["status"] = "completed";
+                    }
+                    msg_obj["run_id"] = run_id;
+                }
+                const auto msg_ids = EntitySQLUtils::InsertManyMessages(message_data_mapper_, insert_messages_context);
+                assert_true(msg_ids.size() == thread_object.messages_size(), "should have saved all additional messages");
+            }
+
             // create run
-            const auto run_id = details::generate_next_object_id("run");;
             context["id"] = run_id;
+            context["status"] = "queued";
+            context["response_format"] = "auto";
+            context["truncation_strategy"] = nlohmann::ordered_json::parse(R"({"type":"auto"})");
+            context["thread_id"] = thread_id;
             EntitySQLUtils::InsertOneRun(run_data_mapper_, context);
 
             // TODO submit run to task queue
@@ -48,20 +72,49 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // return
             GetRunRequest get_run_request;
             get_run_request.set_run_id(run_id);
+            get_run_request.set_thread_id(thread_id);
             return RetrieveRun(get_run_request);
         }
 
         std::optional<RunObject> CreateRun(const CreateRunRequest &create_request) override {
-            // create run
+            // TODO with transaction
+            assert_not_blank(create_request.thread_id(), "should provide thread id");
+            assert_not_blank(create_request.assistant_id(), "should provide assistant id");
             SQLContext context;
-            ProtobufUtils::ConvertMessageToJsonObject(create_request, context);
-            const auto run_id = details::generate_next_object_id("run");;
+            ProtobufUtils::ConvertMessageToJsonObject(create_request, context, {.keep_default_values = true});
+            const auto run_id = details::generate_next_object_id("run");
+
+            // create additional messages
+            if (create_request.additional_messages_size() > 0) {
+                for(auto& msg_obj: context["additional_messages"]) {
+                    msg_obj["id"] = details::generate_next_object_id("message");
+                    msg_obj["thread_id"] = create_request.thread_id();
+                    msg_obj["run_id"] = run_id;
+                    if (!msg_obj.contains("status")) {
+                        msg_obj["status"] = "completed";
+                    }
+                }
+                SQLContext insert_messages_context;
+                insert_messages_context["messages"] = context["additional_messages"];
+                const auto msg_ids = EntitySQLUtils::InsertManyMessages(message_data_mapper_, insert_messages_context);
+                assert_true(msg_ids.size() == create_request.additional_messages_size(), "should have saved all additional messages");
+            }
+
+            // TODO handle additional_instructions and instructions
+
+            // create run
             context["id"] = run_id;
+            context["status"] = "queued";
+            context["response_format"] = "auto";
+            context["truncation_strategy"] = nlohmann::ordered_json::parse(R"({"type":"auto"})");
             EntitySQLUtils::InsertOneRun(run_data_mapper_, context);
+
+            // TODO start agent exeuction
 
             // return
             GetRunRequest get_run_request;
             get_run_request.set_run_id(run_id);
+            get_run_request.set_thread_id(create_request.thread_id());
             return RetrieveRun(get_run_request);
         }
 
@@ -84,21 +137,17 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 list_runs_response.mutable_data()->Add(run_list.begin(), run_list.end()-1);
             } else {
                 list_runs_response.set_has_more(false);
-                if(n>1) {
-                    list_runs_response.set_first_id(run_list.front().id());
-                    list_runs_response.set_last_id(run_list.at(n-2).id());
-                    list_runs_response.mutable_data()->Add(run_list.begin(), run_list.end()-1);
-                } else if(n==1) {
-                    list_runs_response.set_first_id(run_list.front().id());
-                    list_runs_response.set_last_id(run_list.front().id());
-                    list_runs_response.add_data()->CopyFrom(run_list.front());
-                }
+                list_runs_response.set_first_id(run_list.front().id());
+                list_runs_response.set_last_id(run_list.back().id());
+                list_runs_response.mutable_data()->Add(run_list.begin(), run_list.end());
                 // do nothing if n==0
             }
             return list_runs_response;
         }
 
         std::optional<RunObject> RetrieveRun(const GetRunRequest &get_request) override {
+            assert_not_blank(get_request.thread_id(), "should provide thread id");
+            assert_not_blank(get_request.run_id(), "should provide run id");
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(get_request, context);
             return EntitySQLUtils::SelectOneRun(run_data_mapper_, context);
@@ -211,6 +260,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             ProtobufUtils::ConvertMessageToJsonObject(list_run_steps_request, context);
             auto limit = list_run_steps_request.limit() <= 0 ? DEFAULT_LIST_LIMIT + 1 : list_run_steps_request.limit() + 1;
             context["limit"] = limit;
+            if (list_run_steps_request.limit() == unknown_list_request_order) {
+                context["order"] = "desc";
+            }
             const auto run_step_list = EntitySQLUtils::SelectManyRunSteps(run_step_data_mapper_, context);
 
             ListRunStepsResponse list_run_steps_response;
@@ -222,16 +274,17 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 list_run_steps_response.set_has_more(true);
             } else {
                 list_run_steps_response.set_has_more(false);
-                if (n>1) {
-                    list_run_steps_response.mutable_data()->Add(run_step_list.begin(), run_step_list.end());
-                    list_run_steps_response.set_first_id(run_step_list.front().id());
-                    list_run_steps_response.set_last_id(run_step_list.back().id());
-                } else if(n==1) {
-                    list_run_steps_response.mutable_data()->Add()->CopyFrom(run_step_list.front());
-                    list_run_steps_response.set_first_id(run_step_list.front().id());
-                    list_run_steps_response.set_last_id(run_step_list.front().id());
-                }
+                // if (n>1) {
+                //
+                // } else if(n==1) {
+                //     list_run_steps_response.mutable_data()->Add()->CopyFrom(run_step_list.front());
+                //     list_run_steps_response.set_first_id(run_step_list.front().id());
+                //     list_run_steps_response.set_last_id(run_step_list.front().id());
+                // }
                 // do nothing if n == 0
+                list_run_steps_response.mutable_data()->Add(run_step_list.begin(), run_step_list.end());
+                list_run_steps_response.set_first_id(run_step_list.front().id());
+                list_run_steps_response.set_last_id(run_step_list.back().id());
             }
             return list_run_steps_response;
         }

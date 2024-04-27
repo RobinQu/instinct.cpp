@@ -69,7 +69,8 @@ CREATE TABLE IF NOT EXISTS instinct_thread_run(
     max_completion_tokens INTEGER,
     truncation_strategy VARCHAR NOT NULL,
     tool_choice VARCHAR,
-    response_format VARCHAR NOT NULL
+    response_format VARCHAR NOT NULL,
+    metadata VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS instinct_thread_run_step (

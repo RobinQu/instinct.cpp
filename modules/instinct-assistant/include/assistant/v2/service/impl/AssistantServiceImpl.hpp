@@ -21,14 +21,15 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         ListAssistantsResponse ListAssistants(const ListAssistantsRequest &list_request) override {
+            SQLContext context;
+            ProtobufUtils::ConvertMessageToJsonObject(list_request, context);
             // limit + 1 to check if there is more records that match the conditions
             auto limit = list_request.limit() <= 0 ? DEFAULT_LIST_LIMIT + 1 : list_request.limit() + 1;
-            auto assistants = EntitySQLUtils::GetManyAssistant(data_mapper_, {
-                {"after", list_request.after()},
-                {"before", list_request.before()},
-                {"limit", limit},
-                {"order", to_string(list_request.order()) }
-            });
+            context["limit"] = limit;
+            if (list_request.limit() == unknown_list_request_order) {
+                context["order"] = "desc";
+            }
+            auto assistants = EntitySQLUtils::GetManyAssistant(data_mapper_, context);
 
             ListAssistantsResponse response;
             if (const auto n = assistants.size(); n > limit) { // no more
@@ -63,6 +64,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             }
             if (!create_request.has_temperature()) {
                 context["temperature"] = 1;
+            }
+            if (StringUtils::IsBlankString(create_request.response_format())) {
+                context["response_format"] = "auto";
             }
 
             auto id = details::generate_next_object_id("assistant");

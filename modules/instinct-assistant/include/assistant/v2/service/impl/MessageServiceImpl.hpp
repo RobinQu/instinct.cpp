@@ -22,6 +22,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // plus one for remianing check
             const auto limit = list_request.limit() <= 0 ? DEFAULT_LIST_LIMIT + 1: list_request.limit() + 1;
             context["limit"] = limit;
+            if (list_request.limit() == unknown_list_request_order) {
+                context["order"] = "desc";
+            }
 
             const auto messages_list = EntitySQLUtils::SelectManyMessages(data_mapper_, context);
 

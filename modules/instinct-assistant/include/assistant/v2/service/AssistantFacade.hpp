@@ -16,7 +16,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     struct AssistantFacade {
         AssistantServicePtr assistant;
         FileServicePtr file;
-        IRunServicePtr run;
+        RunServicePtr run;
         ThreadServicePtr thread;
         VectorStoreServicePtr vector_store;
     };
