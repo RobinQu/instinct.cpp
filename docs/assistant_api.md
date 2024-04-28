@@ -110,4 +110,36 @@ Task scheduling is needed in following sections:
 
 ### Outcomes
 
-* task and task steps that are timeout have been marked as `expired`.  
+* task and task steps that are timeout have been marked as `expired`.
+
+## `tool-server`
+
+### `file-search`
+
+* duckdb implementation, mainly used for `mini-assistant`.
+  * For Each file object we will generate one document table and embedding table.
+  * Given only one `file_id` can be assigned to thread currently and only one process is accessing database files, we can manage all `VectorStorePtr` dynamically in memory.  e.g a map from `file_id` to `VectorStorePtr`.
+* a more scalable solution involves standalone vector database.
+  * A file object can be embedded and linked to a `collection`.
+  * Mapping from `file_id` and `collection`'s id is required.
+
+### `code-interpreter`
+
+Prompting is straightforward. The challenge would the sandbox for Python scripts.
+
+Basically two ways for sandboxes:
+
+* Container with official Python binaries. 
+  * [E2B sandbox](https://e2b.dev/docs/sandbox/overview).
+  * https://github.com/significant-gravitas/autogpt/blob/master/autogpts/autogpt/autogpt/commands/execute_code.py
+  * https://github.com/engineer-man/piston
+  * https://github.com/StepicOrg/epicbox
+* WebAssembly port of Python and run with a WebAssembly runtime. See [Pyodide](https://pyodide.org/en/stable/index.html). 
+
+
+For `mini-assistant`, we will try script execution without sandbox first. And then try the WebAssembly way as it's possible to embed a working runtime without additional Docker or containerd setup.
+
+For scalable solution, container-based solution is definitely the way to go as it can easily leverage cloud-native technologies like Kubernetes and KNative.
+
+
+
