@@ -134,7 +134,9 @@ Basically two ways for sandboxes:
   * https://github.com/significant-gravitas/autogpt/blob/master/autogpts/autogpt/autogpt/commands/execute_code.py
   * https://github.com/engineer-man/piston
   * https://github.com/StepicOrg/epicbox
-* WebAssembly port of Python and run with a WebAssembly runtime. See [Pyodide](https://pyodide.org/en/stable/index.html). 
+* WebAssembly port of Python and run with a WebAssembly runtime. 
+  * [Pyodide](https://pyodide.org/en/stable/index.html).
+  * Sandbox engine using https://github.com/cohere-ai/cohere-terrarium
 
 
 For `mini-assistant`, we will try script execution without sandbox first. And then try the WebAssembly way as it's possible to embed a working runtime without additional Docker or containerd setup.
