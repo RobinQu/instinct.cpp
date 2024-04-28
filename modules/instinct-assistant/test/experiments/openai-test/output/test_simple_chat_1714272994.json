@@ -1,0 +1,165 @@
+[
+  {
+    "data": {
+      "id": "run_LaD0P5FVzBe0jAnu7yzQQr9e",
+      "assistant_id": "asst_3sIjfhp7l9z8mSJzuGXyzhAI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714272696,
+      "expires_at": 1714273296,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a personal assistant to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": null,
+      "status": "queued",
+      "thread_id": "thread_YtcJkXo9Av5FjV1ZonKva77m",
+      "tool_choice": "auto",
+      "tools": [],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.created"
+  },
+  {
+    "data": {
+      "id": "run_LaD0P5FVzBe0jAnu7yzQQr9e",
+      "assistant_id": "asst_3sIjfhp7l9z8mSJzuGXyzhAI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714272696,
+      "expires_at": 1714273296,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a personal assistant to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": null,
+      "status": "queued",
+      "thread_id": "thread_YtcJkXo9Av5FjV1ZonKva77m",
+      "tool_choice": "auto",
+      "tools": [],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.queued"
+  },
+  {
+    "data": {
+      "id": "run_LaD0P5FVzBe0jAnu7yzQQr9e",
+      "assistant_id": "asst_3sIjfhp7l9z8mSJzuGXyzhAI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714272696,
+      "expires_at": 1714273296,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a personal assistant to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": 1714272697,
+      "status": "in_progress",
+      "thread_id": "thread_YtcJkXo9Av5FjV1ZonKva77m",
+      "tool_choice": "auto",
+      "tools": [],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.in_progress"
+  },
+  {
+    "data": {
+      "id": "run_LaD0P5FVzBe0jAnu7yzQQr9e",
+      "assistant_id": "asst_3sIjfhp7l9z8mSJzuGXyzhAI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714272696,
+      "expires_at": null,
+      "failed_at": 1714272702,
+      "incomplete_details": null,
+      "instructions": "You are a personal assistant to answer questions.",
+      "last_error": {
+        "code": "rate_limit_exceeded",
+        "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors."
+      },
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": 1714272697,
+      "status": "failed",
+      "thread_id": "thread_YtcJkXo9Av5FjV1ZonKva77m",
+      "tool_choice": "auto",
+      "tools": [],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0,
+        "total_tokens": 0
+      },
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.failed"
+  }
+]

@@ -1,0 +1,1414 @@
+[
+  {
+    "data": {
+      "id": "run_w2gikhWz2qgMtHzr2HN56ODs",
+      "assistant_id": "asst_tSaaG8qPK0EEjNYhgLkbBGAd",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714273176,
+      "expires_at": 1714273776,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a personal assistant to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": null,
+      "status": "queued",
+      "thread_id": "thread_WLbHSr3VcHhjaW1K9nQiHaNM",
+      "tool_choice": "auto",
+      "tools": [],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.created"
+  },
+  {
+    "data": {
+      "id": "run_w2gikhWz2qgMtHzr2HN56ODs",
+      "assistant_id": "asst_tSaaG8qPK0EEjNYhgLkbBGAd",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714273176,
+      "expires_at": 1714273776,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a personal assistant to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": null,
+      "status": "queued",
+      "thread_id": "thread_WLbHSr3VcHhjaW1K9nQiHaNM",
+      "tool_choice": "auto",
+      "tools": [],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.queued"
+  },
+  {
+    "data": {
+      "id": "run_w2gikhWz2qgMtHzr2HN56ODs",
+      "assistant_id": "asst_tSaaG8qPK0EEjNYhgLkbBGAd",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714273176,
+      "expires_at": 1714273776,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a personal assistant to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": 1714273176,
+      "status": "in_progress",
+      "thread_id": "thread_WLbHSr3VcHhjaW1K9nQiHaNM",
+      "tool_choice": "auto",
+      "tools": [],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.in_progress"
+  },
+  {
+    "data": {
+      "id": "step_Jg6AomQtrvItqf42kSblAlQ8",
+      "assistant_id": "asst_tSaaG8qPK0EEjNYhgLkbBGAd",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714273177,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_w2gikhWz2qgMtHzr2HN56ODs",
+      "status": "in_progress",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_WLbHSr3VcHhjaW1K9nQiHaNM",
+      "type": "message_creation",
+      "usage": null,
+      "expires_at": 1714273776
+    },
+    "event": "thread.run.step.created"
+  },
+  {
+    "data": {
+      "id": "step_Jg6AomQtrvItqf42kSblAlQ8",
+      "assistant_id": "asst_tSaaG8qPK0EEjNYhgLkbBGAd",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714273177,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_w2gikhWz2qgMtHzr2HN56ODs",
+      "status": "in_progress",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_WLbHSr3VcHhjaW1K9nQiHaNM",
+      "type": "message_creation",
+      "usage": null,
+      "expires_at": 1714273776
+    },
+    "event": "thread.run.step.in_progress"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "assistant_id": "asst_tSaaG8qPK0EEjNYhgLkbBGAd",
+      "attachments": [],
+      "completed_at": null,
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "The sky appears blue because of the way our atmosphere scatters sunlight. Blue light has a shorter wavelength and scatters more easily than other colors, so when sunlight passes through the atmosphere, the blue light is scattered in all directions. This scattered blue light is what we see when we look at the sky."
+          },
+          "type": "text",
+          "index": 0
+        }
+      ],
+      "created_at": 1714273177,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_w2gikhWz2qgMtHzr2HN56ODs",
+      "status": "in_progress",
+      "thread_id": "thread_WLbHSr3VcHhjaW1K9nQiHaNM"
+    },
+    "event": "thread.message.created"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "assistant_id": "asst_tSaaG8qPK0EEjNYhgLkbBGAd",
+      "attachments": [],
+      "completed_at": null,
+      "content": [],
+      "created_at": 1714273177,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_w2gikhWz2qgMtHzr2HN56ODs",
+      "status": "in_progress",
+      "thread_id": "thread_WLbHSr3VcHhjaW1K9nQiHaNM"
+    },
+    "event": "thread.message.in_progress"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "annotations": [],
+              "value": "The"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " sky"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " appears"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " blue"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " because"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " of"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " the"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " way"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " our"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " atmosphere"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " sc"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "atters"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " sunlight"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "."
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " Blue"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " light"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " has"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " a"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " shorter"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " wavelength"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " and"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " sc"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "atters"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " more"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " easily"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " than"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " other"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " colors"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": ","
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " so"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " when"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " sunlight"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " passes"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " through"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " the"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " atmosphere"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": ","
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " the"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " blue"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " light"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " is"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " scattered"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " in"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " all"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " directions"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "."
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " This"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " scattered"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " blue"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " light"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " is"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " what"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " we"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " see"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " when"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " we"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " look"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " at"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " the"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " sky"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "."
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD",
+      "assistant_id": "asst_tSaaG8qPK0EEjNYhgLkbBGAd",
+      "attachments": [],
+      "completed_at": 1714273178,
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "The sky appears blue because of the way our atmosphere scatters sunlight. Blue light has a shorter wavelength and scatters more easily than other colors, so when sunlight passes through the atmosphere, the blue light is scattered in all directions. This scattered blue light is what we see when we look at the sky."
+          },
+          "type": "text"
+        }
+      ],
+      "created_at": 1714273177,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_w2gikhWz2qgMtHzr2HN56ODs",
+      "status": "completed",
+      "thread_id": "thread_WLbHSr3VcHhjaW1K9nQiHaNM"
+    },
+    "event": "thread.message.completed"
+  },
+  {
+    "data": {
+      "id": "step_Jg6AomQtrvItqf42kSblAlQ8",
+      "assistant_id": "asst_tSaaG8qPK0EEjNYhgLkbBGAd",
+      "cancelled_at": null,
+      "completed_at": 1714273178,
+      "created_at": 1714273177,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_w2gikhWz2qgMtHzr2HN56ODs",
+      "status": "completed",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_k2Esjr7kLfVLMtuBnGpeiUUD"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_WLbHSr3VcHhjaW1K9nQiHaNM",
+      "type": "message_creation",
+      "usage": {
+        "completion_tokens": 63,
+        "prompt_tokens": 23,
+        "total_tokens": 86
+      },
+      "expires_at": 1714273776
+    },
+    "event": "thread.run.step.completed"
+  },
+  {
+    "data": {
+      "id": "run_w2gikhWz2qgMtHzr2HN56ODs",
+      "assistant_id": "asst_tSaaG8qPK0EEjNYhgLkbBGAd",
+      "cancelled_at": null,
+      "completed_at": 1714273178,
+      "created_at": 1714273176,
+      "expires_at": null,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a personal assistant to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": 1714273176,
+      "status": "completed",
+      "thread_id": "thread_WLbHSr3VcHhjaW1K9nQiHaNM",
+      "tool_choice": "auto",
+      "tools": [],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": {
+        "completion_tokens": 63,
+        "prompt_tokens": 23,
+        "total_tokens": 86
+      },
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.completed"
+  }
+]
