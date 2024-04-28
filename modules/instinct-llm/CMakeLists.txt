@@ -69,6 +69,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/toolkit/BaseSearchTool.hpp
         include/toolkit/builtin/SerpAPI.hpp
         include/toolkit/builtin/LLMMath.hpp
+        include/agent/openai_tool/Agent.hpp
 )
 
 find_package(exprtk REQUIRED)

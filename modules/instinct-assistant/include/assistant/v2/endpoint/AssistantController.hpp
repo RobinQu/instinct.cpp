@@ -29,7 +29,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 if (v.has_value()) {
                     session.Respond(v.value());
                 } else {
-                    session.Respond(fmt::format("No assistant found with id '{}'.", req.id()));
+                    session.Respond(fmt::format("No assistant found with id '{}'.", req.id()), 404);
                 }
             });
 

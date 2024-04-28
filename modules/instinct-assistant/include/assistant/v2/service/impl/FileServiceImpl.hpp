@@ -65,6 +65,30 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             return RetrieveFile(retrieve_file_request);
         }
 
+        std::optional<FileObject>
+        UploadFile(const UploadFileRequest &upload_file_request, std::istream &input_stream) override {
+            SQLContext context;
+            ProtobufUtils::ConvertMessageToJsonObject(upload_file_request, context, {.keep_default_values = true});
+
+            // generate id
+            const auto id = details::generate_next_object_id("file");;
+            context["id"] = id;
+
+            // upload file
+            const auto object_key = details::map_file_object_key(upload_file_request.purpose(), id);
+            const auto status = object_store_->PutObject(options_.bucket_name, object_key, input_stream);
+            assert_status_ok(status);
+
+            // write db
+            context["bytes"] = upload_file_request.file_content().size();
+            EntitySQLUtils::InsertOneFile(data_mapper_, context);
+
+            // return file
+            RetrieveFileRequest retrieve_file_request;
+            retrieve_file_request.set_file_id(id);
+            return RetrieveFile(retrieve_file_request);
+        }
+
         DeleteFileResponse DeleteFile(const DeleteFileRequest &delete_file_request) override {
             assert_not_blank(delete_file_request.file_id(), "should provide file_id");
             DeleteFileResponse response;
