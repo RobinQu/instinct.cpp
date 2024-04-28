@@ -1,0 +1,4766 @@
+[
+  {
+    "data": {
+      "id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714280620,
+      "expires_at": 1714281220,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a personal math tutor. When asked a math question, write and run code to answer the question.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": null,
+      "status": "queued",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "tool_choice": "auto",
+      "tools": [
+        {
+          "type": "code_interpreter"
+        }
+      ],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.created"
+  },
+  {
+    "data": {
+      "id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714280620,
+      "expires_at": 1714281220,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a personal math tutor. When asked a math question, write and run code to answer the question.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": null,
+      "status": "queued",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "tool_choice": "auto",
+      "tools": [
+        {
+          "type": "code_interpreter"
+        }
+      ],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.queued"
+  },
+  {
+    "data": {
+      "id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714280620,
+      "expires_at": 1714281220,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a personal math tutor. When asked a math question, write and run code to answer the question.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": 1714280620,
+      "status": "in_progress",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "tool_choice": "auto",
+      "tools": [
+        {
+          "type": "code_interpreter"
+        }
+      ],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.in_progress"
+  },
+  {
+    "data": {
+      "id": "step_ZmwtuZ9XRjEPP37Tco4Z3Kn1",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714280621,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "message_creation",
+      "usage": null,
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.created"
+  },
+  {
+    "data": {
+      "id": "step_ZmwtuZ9XRjEPP37Tco4Z3Kn1",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714280621,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "message_creation",
+      "usage": null,
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.in_progress"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "attachments": [],
+      "completed_at": null,
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "I will first need to take a look at the contents of the Excel file to understand its structure and data. Let's read the file and display its contents."
+          },
+          "type": "text",
+          "index": 0
+        }
+      ],
+      "created_at": 1714280621,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5"
+    },
+    "event": "thread.message.created"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "attachments": [],
+      "completed_at": null,
+      "content": [],
+      "created_at": 1714280621,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5"
+    },
+    "event": "thread.message.in_progress"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "annotations": [],
+              "value": "I"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " will"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " first"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " need"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " to"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " take"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " a"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " look"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " at"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " the"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " contents"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " of"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " the"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " Excel"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " file"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " to"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " understand"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " its"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " structure"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " and"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " data"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "."
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " Let"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "'s"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " read"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " the"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " file"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " and"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " display"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " its"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " contents"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "."
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "attachments": [],
+      "completed_at": 1714280622,
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "I will first need to take a look at the contents of the Excel file to understand its structure and data. Let's read the file and display its contents."
+          },
+          "type": "text"
+        }
+      ],
+      "created_at": 1714280621,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "completed",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5"
+    },
+    "event": "thread.message.completed"
+  },
+  {
+    "data": {
+      "id": "step_ZmwtuZ9XRjEPP37Tco4Z3Kn1",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": 1714280622,
+      "created_at": 1714280621,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "completed",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "message_creation",
+      "usage": {
+        "completion_tokens": 34,
+        "prompt_tokens": 209,
+        "total_tokens": 243
+      },
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.completed"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714280622,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "step_details": {
+        "tool_calls": [],
+        "type": "tool_calls"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "tool_calls",
+      "usage": null,
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.created"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714280622,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "step_details": {
+        "tool_calls": [],
+        "type": "tool_calls"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "tool_calls",
+      "usage": null,
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.in_progress"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "id": "call_yVH5gO1Ji7wBzURnOPqjPiCF",
+              "code_interpreter": {
+                "input": "",
+                "outputs": []
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "import"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " pandas"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " as"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " pd"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "\n\n"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "#"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " Read"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " the"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " Excel"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " file"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "\n"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "file"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "_path"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " ="
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " '/"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "mnt"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "/data"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "/file"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "-n"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "mc"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "7"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "L"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "TO"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "5"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "E"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "25"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "k"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "U"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "7"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "U"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "56"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "j"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "Gr"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "v"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "5"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "H"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "6"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "'\n"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "df"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " ="
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " pd"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": ".read"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "_excel"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "(file"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "_path"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": ")\n\n"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "#"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " Display"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " the"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " contents"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " of"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " the"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " Excel"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " file"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "\n"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "df"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": ".head"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "()"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "outputs": [
+                  {
+                    "index": 0,
+                    "type": "logs",
+                    "logs": "               Item  Quantity Unit   Category  Price (RMB)  SubTotal\n0            Banana         2   KG       Food            2         4\n1             Apple        10   KG       Food            1        10\n2         Pineapple         2   KG       Food            2         4\n3  Highway Toll fee         1  NaN  Transport           10        10\n4          Gasoline        10    L  Transport           10       100"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_p4lB1bbmI3JoRyoMlyJ6neF4",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": 1714280628,
+      "created_at": 1714280622,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "completed",
+      "step_details": {
+        "tool_calls": [
+          {
+            "id": "call_yVH5gO1Ji7wBzURnOPqjPiCF",
+            "code_interpreter": {
+              "input": "import pandas as pd\n\n# Read the Excel file\nfile_path = '/mnt/data/file-nmc7LTO5E25kU7U56jGrv5H6'\ndf = pd.read_excel(file_path)\n\n# Display the contents of the Excel file\ndf.head()",
+              "outputs": [
+                {
+                  "logs": "               Item  Quantity Unit   Category  Price (RMB)  SubTotal\n0            Banana         2   KG       Food            2         4\n1             Apple        10   KG       Food            1        10\n2         Pineapple         2   KG       Food            2         4\n3  Highway Toll fee         1  NaN  Transport           10        10\n4          Gasoline        10    L  Transport           10       100",
+                  "type": "logs"
+                }
+              ]
+            },
+            "type": "code_interpreter"
+          }
+        ],
+        "type": "tool_calls"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "tool_calls",
+      "usage": {
+        "completion_tokens": 64,
+        "prompt_tokens": 245,
+        "total_tokens": 309
+      },
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.completed"
+  },
+  {
+    "data": {
+      "id": "step_SJWar7rFy7bGcnbSgON0a9i0",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714280628,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "message_creation",
+      "usage": null,
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.created"
+  },
+  {
+    "data": {
+      "id": "step_SJWar7rFy7bGcnbSgON0a9i0",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714280628,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "message_creation",
+      "usage": null,
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.in_progress"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "attachments": [],
+      "completed_at": null,
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "The Excel file contains the following columns: Item, Quantity, Unit, Category, Price (RMB), and SubTotal. To calculate the total price of food items, we need to sum the 'SubTotal' values for rows where the 'Category' is 'Food'. Let's calculate this total."
+          },
+          "type": "text",
+          "index": 0
+        }
+      ],
+      "created_at": 1714280628,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5"
+    },
+    "event": "thread.message.created"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "attachments": [],
+      "completed_at": null,
+      "content": [],
+      "created_at": 1714280628,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5"
+    },
+    "event": "thread.message.in_progress"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "annotations": [],
+              "value": "The"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " Excel"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " file"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " contains"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " the"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " following"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " columns"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": ":"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " Item"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": ","
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " Quantity"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": ","
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " Unit"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": ","
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " Category"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": ","
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " Price"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " ("
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "R"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "MB"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "),"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " and"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " Sub"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "Total"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "."
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " To"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " calculate"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " the"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " total"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " price"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " of"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " food"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " items"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": ","
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " we"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " need"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " to"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " sum"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " the"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " '"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "Sub"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "Total"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "'"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " values"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " for"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " rows"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " where"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " the"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " '"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "Category"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "'"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " is"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " '"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "Food"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "'."
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " Let"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "'s"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " calculate"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " this"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " total"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "."
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "attachments": [],
+      "completed_at": 1714280628,
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "The Excel file contains the following columns: Item, Quantity, Unit, Category, Price (RMB), and SubTotal. To calculate the total price of food items, we need to sum the 'SubTotal' values for rows where the 'Category' is 'Food'. Let's calculate this total."
+          },
+          "type": "text"
+        }
+      ],
+      "created_at": 1714280628,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "completed",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5"
+    },
+    "event": "thread.message.completed"
+  },
+  {
+    "data": {
+      "id": "step_SJWar7rFy7bGcnbSgON0a9i0",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": 1714280629,
+      "created_at": 1714280628,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "completed",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "message_creation",
+      "usage": {
+        "completion_tokens": 63,
+        "prompt_tokens": 422,
+        "total_tokens": 485
+      },
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.completed"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714280629,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "step_details": {
+        "tool_calls": [],
+        "type": "tool_calls"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "tool_calls",
+      "usage": null,
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.created"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714280629,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "step_details": {
+        "tool_calls": [],
+        "type": "tool_calls"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "tool_calls",
+      "usage": null,
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.in_progress"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "id": "call_Y1uhUCFAy0GPfcjEfxbYQvlG",
+              "code_interpreter": {
+                "input": "",
+                "outputs": []
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "#"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " Calculate"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " the"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " total"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " price"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " of"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " food"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " items"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "\n"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "total"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "_food"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "_price"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " ="
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " df"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": ".loc"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "[df"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "['"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "Category"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "']"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " =="
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " '"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "Food"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "',"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": " '"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "Sub"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "Total"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "']."
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "sum"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "()\n"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "total"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "_food"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "input": "_price"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "code_interpreter",
+              "code_interpreter": {
+                "outputs": [
+                  {
+                    "index": 0,
+                    "type": "logs",
+                    "logs": "18"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_Lm2cKsyJKLrThem5Uko7nkJA",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": 1714280631,
+      "created_at": 1714280629,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "completed",
+      "step_details": {
+        "tool_calls": [
+          {
+            "id": "call_Y1uhUCFAy0GPfcjEfxbYQvlG",
+            "code_interpreter": {
+              "input": "# Calculate the total price of food items\ntotal_food_price = df.loc[df['Category'] == 'Food', 'SubTotal'].sum()\ntotal_food_price",
+              "outputs": [
+                {
+                  "logs": "18",
+                  "type": "logs"
+                }
+              ]
+            },
+            "type": "code_interpreter"
+          }
+        ],
+        "type": "tool_calls"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "tool_calls",
+      "usage": {
+        "completion_tokens": 38,
+        "prompt_tokens": 487,
+        "total_tokens": 525
+      },
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.completed"
+  },
+  {
+    "data": {
+      "id": "step_RgdIZ43xIo7c04SbNoJi6cwx",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714280631,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_sXAX13hFu2BVtMg7NcNWEUnk"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "message_creation",
+      "usage": null,
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.created"
+  },
+  {
+    "data": {
+      "id": "step_RgdIZ43xIo7c04SbNoJi6cwx",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714280631,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_sXAX13hFu2BVtMg7NcNWEUnk"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "message_creation",
+      "usage": null,
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.in_progress"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "attachments": [],
+      "completed_at": null,
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "The total price of food items in the Excel file is 18 RMB."
+          },
+          "type": "text",
+          "index": 0
+        }
+      ],
+      "created_at": 1714280631,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5"
+    },
+    "event": "thread.message.created"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "attachments": [],
+      "completed_at": null,
+      "content": [],
+      "created_at": 1714280631,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "in_progress",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5"
+    },
+    "event": "thread.message.in_progress"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "annotations": [],
+              "value": "The"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " total"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " price"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " of"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " food"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " items"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " in"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " the"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " Excel"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " file"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " is"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " "
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "18"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " R"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "MB"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "."
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "attachments": [],
+      "completed_at": 1714280631,
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "The total price of food items in the Excel file is 18 RMB."
+          },
+          "type": "text"
+        }
+      ],
+      "created_at": 1714280631,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "completed",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5"
+    },
+    "event": "thread.message.completed"
+  },
+  {
+    "data": {
+      "id": "step_RgdIZ43xIo7c04SbNoJi6cwx",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": 1714280631,
+      "created_at": 1714280631,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "status": "completed",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_sXAX13hFu2BVtMg7NcNWEUnk"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "message_creation",
+      "usage": {
+        "completion_tokens": 18,
+        "prompt_tokens": 534,
+        "total_tokens": 552
+      },
+      "expires_at": 1714281220
+    },
+    "event": "thread.run.step.completed"
+  },
+  {
+    "data": {
+      "id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": 1714280631,
+      "created_at": 1714280620,
+      "expires_at": null,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a personal math tutor. When asked a math question, write and run code to answer the question.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": 1714280620,
+      "status": "completed",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "tool_choice": "auto",
+      "tools": [
+        {
+          "type": "code_interpreter"
+        }
+      ],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": {
+        "completion_tokens": 217,
+        "prompt_tokens": 1897,
+        "total_tokens": 2114
+      },
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.completed"
+  }
+]
