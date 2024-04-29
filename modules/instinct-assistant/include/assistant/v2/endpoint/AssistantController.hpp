@@ -24,26 +24,26 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 session.Respond(facade_.assistant->ListAssistants(req));
             });
 
-            server.PostRoute<AssistantObject, AssistantObject>("/assitants", [&](const AssistantObject& req, const HttpLibSession& session) {
+            server.PostRoute<AssistantObject, AssistantObject>("/v1/assitants", [&](const AssistantObject& req, const HttpLibSession& session) {
                 auto v = facade_.assistant->CreateAssistant(req);
                 if (v.has_value()) {
                     session.Respond(v.value());
                 } else {
-                    session.Respond(fmt::format("No assistant found with id '{}'.", req.id()), 404);
+                    session.Respond("Assistant is not retrieved after createion", 500);
                 }
             });
 
-            server.GetRoute<GetAssistantRequest, AssistantObject>("/assitants/:assitant_id", [&](GetAssistantRequest& req, const HttpLibSession& session) {
+            server.GetRoute<GetAssistantRequest, AssistantObject>("/v1/assitants/:assitant_id", [&](GetAssistantRequest& req, const HttpLibSession& session) {
                 req.set_assistant_id(session.request.path_params.at("assistant_id"));
                 session.Respond(facade_.assistant->RetrieveAssistant(req).value());
             });
 
-            server.PostRoute<ModifyAssistantRequest, AssistantObject>("/assistants/:assistant_id", [&](ModifyAssistantRequest& req, const HttpLibSession& session) {
+            server.PostRoute<ModifyAssistantRequest, AssistantObject>("/v1/assistants/:assistant_id", [&](ModifyAssistantRequest& req, const HttpLibSession& session) {
                 req.set_assistant_id(session.request.path_params.at("assistant_id"));
                 session.Respond(facade_.assistant->ModifyAssistant(req).value());
             });
 
-            server.DeleteRoute<DeleteAssistantRequest, DeleteAssistantResponse>("/assitants/:assistant:id", [&](DeleteAssistantRequest& req, const HttpLibSession& session) {
+            server.DeleteRoute<DeleteAssistantRequest, DeleteAssistantResponse>("/v1/assitants/:assistant:id", [&](DeleteAssistantRequest& req, const HttpLibSession& session) {
                 req.set_assistant_id(session.request.path_params.at("assistant_id"));
                 session.Respond(facade_.assistant->DeleteAssistant(req));
             });
