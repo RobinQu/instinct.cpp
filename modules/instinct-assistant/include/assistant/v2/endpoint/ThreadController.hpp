@@ -23,7 +23,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 }
             });
 
-            server.GetRoute<GetThreadRequest, ThreadObject>("/v1/threads/:thread_id", [&](const GetThreadRequest& req, const HttpLibSession& session) {
+            server.GetRoute<GetThreadRequest, ThreadObject>("/v1/threads/:thread_id", [&](GetThreadRequest& req, const HttpLibSession& session) {
+                req.set_thread_id(session.request.path_params.at("thread_id"));
                 if (const auto resp = facade_.thread->RetrieveThread(req); resp.has_value()) {
                     session.Respond(resp.value());
                 } else {
@@ -31,7 +32,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 }
             });
 
-            server.PostRoute<ModifyThreadRequest, ThreadObject>("/v1/threads/:thread_id", [&](const ModifyThreadRequest& req, const HttpLibSession& session) {
+            server.PostRoute<ModifyThreadRequest, ThreadObject>("/v1/threads/:thread_id", [&](ModifyThreadRequest& req, const HttpLibSession& session) {
+                req.set_thread_id(session.request.path_params.at("thread_id"));
                 if (const auto resp = facade_.thread->ModifyThread(req); resp.has_value()) {
                     session.Respond(resp.value());
                 } else {
@@ -39,7 +41,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 }
             });
 
-            server.DeleteRoute<DeleteThreadRequest, DeleteThreadResponse>("/v1/threads/:thread_id", [&](const DeleteThreadRequest& req, const HttpLibSession& session) {
+            server.DeleteRoute<DeleteThreadRequest, DeleteThreadResponse>("/v1/threads/:thread_id", [&](DeleteThreadRequest& req, const HttpLibSession& session) {
+                req.set_thread_id(session.request.path_params.at("thread_id"));
                 const auto resp = facade_.thread->DeleteThread(req);
                 session.Respond(resp);
             });

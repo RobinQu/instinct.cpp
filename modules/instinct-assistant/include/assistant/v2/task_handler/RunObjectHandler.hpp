@@ -14,9 +14,8 @@ namespace INSTINCT_ASSISTANT_NS {
     class RunObjectHandler final: public CommonTaskScheduler::ITaskHandler {
         DataMapperPtr<RunObject, std::string> run_data_mapper_;
         DataMapperPtr<RunStepObject, std::string> run_step_data_mapper_;
-
     public:
-        static constexpr std::string CATEGORY = "run_object";
+        static inline std::string CATEGORY = "run_object";
 
         bool Accept(const ITaskScheduler<std::string>::Task &task) override {
             return task.category == CATEGORY;

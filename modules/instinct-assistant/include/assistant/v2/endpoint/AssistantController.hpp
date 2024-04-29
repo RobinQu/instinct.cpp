@@ -35,12 +35,22 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
             server.GetRoute<GetAssistantRequest, AssistantObject>("/v1/assitants/:assitant_id", [&](GetAssistantRequest& req, const HttpLibSession& session) {
                 req.set_assistant_id(session.request.path_params.at("assistant_id"));
-                session.Respond(facade_.assistant->RetrieveAssistant(req).value());
+                const auto resp = facade_.assistant->RetrieveAssistant(req);
+                if (resp.has_value()) {
+                    session.Respond(resp.value());
+                } else {
+                    session.Respond("Assistant object cannot be retrieved after creation", 500);
+                }
             });
 
             server.PostRoute<ModifyAssistantRequest, AssistantObject>("/v1/assistants/:assistant_id", [&](ModifyAssistantRequest& req, const HttpLibSession& session) {
                 req.set_assistant_id(session.request.path_params.at("assistant_id"));
-                session.Respond(facade_.assistant->ModifyAssistant(req).value());
+                const auto resp = facade_.assistant->ModifyAssistant(req);
+                if (resp.has_value()) {
+                    session.Respond(resp.value());
+                } else {
+                    session.Respond("Assistant object cannot be retrieved after modification", 500);
+                }
             });
 
             server.DeleteRoute<DeleteAssistantRequest, DeleteAssistantResponse>("/v1/assitants/:assistant:id", [&](DeleteAssistantRequest& req, const HttpLibSession& session) {

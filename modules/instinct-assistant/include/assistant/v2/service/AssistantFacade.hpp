@@ -7,6 +7,7 @@
 
 #include "IAssistantService.hpp"
 #include "IFileService.hpp"
+#include "IMessageService.hpp"
 #include "IRunService.hpp"
 #include "IThreadService.hpp"
 #include "IVectorStoreService.hpp"
@@ -19,6 +20,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         RunServicePtr run;
         ThreadServicePtr thread;
         VectorStoreServicePtr vector_store;
+        MessageServicePtr message;
     };
 }
 

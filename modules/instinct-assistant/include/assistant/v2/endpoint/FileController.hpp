@@ -25,7 +25,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             });
 
 
-            server.GetRoute<RetrieveFileRequest, FileObject>("/v1/files/:file_id", [&](const RetrieveFileRequest& req, const HttpLibSession& session) {
+            server.GetRoute<RetrieveFileRequest, FileObject>("/v1/files/:file_id", [&](RetrieveFileRequest& req, const HttpLibSession& session) {
+                req.set_file_id(session.request.path_params.at("file_id"));
                 const auto v = facade_.file->RetrieveFile(req);
                 if (v.has_value()) {
                     session.Respond(v.value());
@@ -34,7 +35,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 }
             });
 
-            server.GetRoute<DownloadFileRequest, std::string>("/v1/files/:file_id/content", [&](const DownloadFileRequest& req, const HttpLibSession& session) {
+            server.GetRoute<DownloadFileRequest, std::string>("/v1/files/:file_id/content", [&](DownloadFileRequest& req, const HttpLibSession& session) {
+                req.set_file_id(session.request.path_params.at("file_id"));
                 const auto buf = facade_.file->DownloadFile(req);
                 if (buf.has_value()) {
                     return session.Respond(buf.value());
@@ -42,13 +44,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 session.Respond(fmt::format("No file found with id '{}'", req.file_id()), 404);
             });
 
-            server.DeleteRoute<DeleteFileRequest, DeleteFileResponse>("/v1/files/:file_id", [&](const DeleteFileRequest& req, const HttpLibSession& session) {
+            server.DeleteRoute<DeleteFileRequest, DeleteFileResponse>("/v1/files/:file_id", [&](DeleteFileRequest& req, const HttpLibSession& session) {
+                req.set_file_id(session.request.path_params.at("file_id"));
                 const auto resp = facade_.file->DeleteFile(req);
                 session.Respond(resp);
             });
 
             // upload endpoint is accepting multipart-formdata, not Restful
-            server.GetHttpLibServer().Post("/v1/files/:file_id", [&](const auto& req, auto& res, const ContentReader &content_reader) {
+            server.GetHttpLibServer().Post("/v1/files", [&](const auto& req, auto& res, const ContentReader &content_reader) {
                 if (req.is_multipart_form_data()) {
                   // NOTE: `content_reader` is blocking until every form data field is read
                     std::unordered_map<std::string, TempFile> files;
@@ -109,10 +112,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         HttpLibSession::Respond(res, "File is not retrieved after uploaded", 500);
                     }
                 }
-            });
-
-            server.PostRoute<UploadFileRequest, FileObject>("/v1/files/:file_id", [&](const UploadFileRequest& req, const HttpLibSession& session) {
-
             });
         }
     };
