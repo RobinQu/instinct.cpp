@@ -53,6 +53,7 @@ namespace INSTINCT_DATA_NS {
 
         std::future<void> Terminate() override {
             return std::async(std::launch::async, [&] {
+                running_ = false;
                 for(auto& t: consumer_threads_) {
                     if(t.joinable()) {
                         t.join();
@@ -67,7 +68,7 @@ namespace INSTINCT_DATA_NS {
 
     template<typename Payload=std::string>
     static TaskSchedulerPtr<Payload> CreateThreadPoolTaskScheduler(
-        const typename ThreadPoolTaskScheduler<Payload>::TaskQueuePtr& task_queue = nullptr,
+        typename ThreadPoolTaskScheduler<Payload>::TaskQueuePtr task_queue = nullptr,
         const unsigned int consumer_thread_count = std::thread::hardware_concurrency()) {
         if (!task_queue) {
             task_queue = CreateInProcessQueue<Payload>();

@@ -18,6 +18,7 @@ namespace INSTINCT_DATA_NS {
         InProcessTaskQueue() = default;
 
         void Enqueue(const Task &task) override {
+            LOG_INFO("Enqueue task: id={},category={}", task.task_id, task.category);
             q_.enqueue(task);
         }
 
@@ -28,7 +29,7 @@ namespace INSTINCT_DATA_NS {
 
     template<typename T>
     static typename ITaskScheduler<T>::TaskQueuePtr CreateInProcessQueue() {
-        return std::make_shared<typename ITaskScheduler<T>::TaskQueuePtr>();
+        return std::make_shared<InProcessTaskQueue<T>>();
     }
 
 }
