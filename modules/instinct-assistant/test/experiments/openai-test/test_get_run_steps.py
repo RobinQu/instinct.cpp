@@ -1,21 +1,35 @@
+import json
+import os.path
+import time
+from pathlib import Path
+
 from openai import OpenAI
 
 client = OpenAI()
-steps = client.beta.threads.runs.steps.list(
-    thread_id="thread_hr57M2To5roEu61UyCXMW4n5",
-    run_id="run_cGmFtvSDAVFFh8Kcfu5VMi8h"
-)
 
-print(steps.to_json())
+# thread about travel expenses with column hints
+# THREAD_ID = "thread_ZKcuR3Dj4rUnJKucq1jbRpAi"
+# RUN_ID = "run_vbvEBpJu0GQfkELkYHYWJ30Z"
 
 
-for step in steps:
-    if step.type == "message_creation":
-        msg = client.beta.threads.messages.retrieve(
-            message_id=step.step_details.message_creation.message_id,
-            thread_id=step.thread_id
-        )
-        print(msg.to_json())
-    if step.type == "tool_calls":
-        print(step.step_details.to_json())
+# thread about travel expenses without column hints, and it failed to answer
+THREAD_ID = "thread_yI8ronxIqJRrcGGJvT3YSXVs"
+RUN_ID = "run_nHjr9mg8UqB9tuz9VN84ezbo"
+
+
+with open(f"output/test_get_run_steps_{int(time.time())}.json", "w+") as f:
+    data = {
+        "run": client.beta.threads.runs.retrieve(
+            run_id=RUN_ID,
+            thread_id=THREAD_ID
+        ).to_dict(mode="json"),
+        "steps": client.beta.threads.runs.steps.list(
+            thread_id=THREAD_ID,
+            run_id=RUN_ID
+        ).to_dict(mode="json"),
+        "messages": client.beta.threads.messages.list(
+            thread_id=THREAD_ID
+        ).to_dict(mode="json")
+    }
+    json.dump(data, f)
 

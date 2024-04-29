@@ -38,6 +38,7 @@ class InstinctCppRecipe(ConanFile):
         self.requires("duckx/1.2.2")
         self.requires("exprtk/0.0.2")
         self.requires("inja/3.4.0")
+        self.requires("concurrentqueue/1.0.4")
 
         # deps of examples
         self.requires("cli11/2.4.1")

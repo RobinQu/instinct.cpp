@@ -108,6 +108,16 @@ Task scheduling is needed in following sections:
   * Find last run step that are `in_progress` and update them to status of `expired`.
   * Update run object to status of `expired`.
 
+
+### Implementation notes
+
+* An in-memory local queue is preferred in `mini-assistant`. [cameron314/concurrentqueue](https://github.com/cameron314/concurrentqueue) seems to be a good option.
+* Uniform interface for task queue is needed for more scalable implementation on the cloud, where dedicated task scheduler will be used with multiple worker nodes setup. Possible options: 
+  * Celery or other task-focused frameworks.
+  * Queue facilities in distributed compute frameworks like `ray`, e.g. [ray.util.queue.Queue](https://docs.ray.io/en/latest/ray-core/api/doc/ray.util.queue.Queue.html).
+  * Custom implementation based on message broker like Kafka.  
+
+  
 ### Outcomes
 
 * task and task steps that are timeout have been marked as `expired`.

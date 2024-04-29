@@ -17,6 +17,10 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/database/duckdb/TransactionAware.hpp
         include/object_store/IObjectStore.hpp
         include/object_store/FileSystemObjectStore.hpp
+        include/task_scheduler/ITaskScheduler.hpp
+        include/task_scheduler/InProcessTaskQueue.hpp
+        include/task_scheduler/BaseTaskScheduler.hpp
+        include/task_scheduler/ThreadPoolTaskScheduler.hpp
 )
 
 
@@ -31,14 +35,15 @@ add_library(instinct::data
 
 find_package(inja REQUIRED)
 find_package(duckdb REQUIRED)
+find_package(concurrentqueue REQUIRED)
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::core
         instinct::proto
         pantor::inja
         duckdb::duckdb
+        concurrentqueue::concurrentqueue
 )
-
 
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE
