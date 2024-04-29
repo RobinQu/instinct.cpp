@@ -6,10 +6,13 @@
 #define ITASKSCHEDULER_HPP
 
 #include "DataGlobals.hpp"
-#include "tools/ProtobufUtils.hpp"
+
 
 namespace INSTINCT_DATA_NS {
-
+    /**
+     * A sketon interface for multi-consumer task queue
+     * @tparam Payload
+     */
     template<typename Payload>
     class ITaskScheduler {
     public:
@@ -53,7 +56,21 @@ namespace INSTINCT_DATA_NS {
         virtual bool RemoveHandler(const TaskHandlerPtr& handler)=0;
         virtual const std::vector<TaskHandlerPtr>& ListHandlers() const=0;
 
+        /**
+         * A shortcut method to add a task to queue
+         * @param task
+         */
+        virtual void Enqueue(const Task& task) = 0;
+
+        /**
+         * Start this scheduler
+         */
         virtual void Start() = 0;
+
+        /**
+         * Stop scheduler
+         * @return
+         */
         virtual std::future<void> Terminate() = 0;
     };
 

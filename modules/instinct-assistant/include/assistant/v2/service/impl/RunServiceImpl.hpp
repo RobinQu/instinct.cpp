@@ -7,8 +7,10 @@
 
 #include "../IRunService.hpp"
 #include "assistant/v2/service/IMessageService.hpp"
+#include "assistant/v2/task_handler/RunObjectHandler.hpp"
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
 #include "database/IDataMapper.hpp"
+#include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;
@@ -18,16 +20,19 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         DataMapperPtr<RunObject, std::string> run_data_mapper_;
         DataMapperPtr<RunStepObject, std::string> run_step_data_mapper_;
         DataMapperPtr<MessageObject, std::string> message_data_mapper_;
+        CommonTaskSchedulerPtr task_scheduler_;
     public:
         RunServiceImpl(const DataMapperPtr<ThreadObject, std::string> &thread_data_mapper,
             const DataMapperPtr<RunObject, std::string> &run_data_mapper,
             const DataMapperPtr<RunStepObject, std::string> &run_step_data_mapper,
-            const DataMapperPtr<MessageObject, std::string>& message_data_mapper
+            const DataMapperPtr<MessageObject, std::string>& message_data_mapper,
+            const CommonTaskSchedulerPtr& task_scheduler
             )
             : thread_data_mapper_(thread_data_mapper),
               run_data_mapper_(run_data_mapper),
               run_step_data_mapper_(run_step_data_mapper),
-              message_data_mapper_(message_data_mapper){
+              message_data_mapper_(message_data_mapper),
+              task_scheduler_(task_scheduler) {
         }
 
         std::optional<RunObject> CreateThreadAndRun(const CreateThreadAndRunRequest &create_thread_and_run_request) override { // TODO with transaction
@@ -67,7 +72,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             context["thread_id"] = thread_id;
             EntitySQLUtils::InsertOneRun(run_data_mapper_, context);
 
-            // TODO submit run to task queue
+            // kick off agent execution
+            task_scheduler_->Enqueue({
+                .task_id = run_id,
+                .category = RunObjectHandler::CATEGORY
+            });
 
             // return
             GetRunRequest get_run_request;
@@ -109,7 +118,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             context["truncation_strategy"] = nlohmann::ordered_json::parse(R"({"type":"auto"})");
             EntitySQLUtils::InsertOneRun(run_data_mapper_, context);
 
-            // TODO start agent exeuction
+            // start agent exeuction
+            task_scheduler_->Enqueue({
+                .task_id = run_id,
+                .category = RunObjectHandler::CATEGORY
+            });
 
             // return
             GetRunRequest get_run_request;
@@ -225,7 +238,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             auto count = EntitySQLUtils::UpdateRunStep(run_step_data_mapper_, update_run_step_object_context);
             assert_true(count == 1, fmt::format("should have run step object updated. thread_id={}, run_id={}, run_step_id={}", thread_id, run_id, last_run_step.id()));
 
-            // TODO resume agent execution
+            // resume agent execution
+            task_scheduler_->Enqueue({
+                .task_id = run_id,
+                .category = RunObjectHandler::CATEGORY
+            });
 
             // update run object
             SQLContext update_run_object_context;
@@ -240,13 +257,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<RunObject> CancelRun(const CancelRunRequest &cancel_request) override {
-            // update database
+            // update database only
+            // task handler will checkout status in loop and abort if run is cancelled
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(cancel_request, context);
             context["status"] = "cancelling";
             EntitySQLUtils::UpdateRun(run_data_mapper_, context);
-
-            // TODO cancel in task queue
 
             // return
             GetRunRequest get_run_request;

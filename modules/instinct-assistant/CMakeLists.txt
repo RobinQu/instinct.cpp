@@ -31,6 +31,7 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/assistant/v2/service/impl/MessageServiceImpl.hpp
         include/assistant/v2/service/impl/FileServiceImpl.hpp
         include/assistant/v2/service/impl/RunServiceImpl.hpp
+        include/assistant/v2/task_handler/RunObjectHandler.hpp
 )
 
 

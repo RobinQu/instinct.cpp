@@ -14,6 +14,7 @@
 #include "database/duckdb/DuckDBDataMapper.hpp"
 #include "object_store/FileSystemObjectStore.hpp"
 #include "object_store/IObjectStore.hpp"
+#include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 
 namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_DATA_NS;
@@ -49,6 +50,9 @@ namespace INSTINCT_ASSISTANT_NS {
         std::filesystem::path migration_dir = std::filesystem::current_path() / "_assets" / "db_migration";
 
         ObjectStorePtr filesystem_object_store_ = std::make_shared<FileSystemObjectStore>(std::filesystem::temp_directory_path() / "assistant_api_test");
+
+        // no queue is assigned here, so it will create a in-memory queue by default
+        CommonTaskSchedulerPtr task_scheduler_ = CreateThreadPoolTaskScheduler();
     };
 
 

@@ -44,6 +44,9 @@ namespace INSTINCT_DATA_NS {
             return task_handlers_;
         }
 
+        void Enqueue(const typename ITaskScheduler<T>::Task &task) override {
+            queue_->Enqueue(task);
+        }
     };
 }
 
