@@ -7,6 +7,7 @@
 
 
 #include "BaseController.hpp"
+#include "tools/file_vault/TempFile.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 
@@ -50,7 +51,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             server.GetHttpLibServer().Post("/v1/files/:file_id", [&](const auto& req, auto& res, const ContentReader &content_reader) {
                 if (req.is_multipart_form_data()) {
                   // NOTE: `content_reader` is blocking until every form data field is read
-                    std::unordered_map<std::string, std::fstream> files;
+                    std::unordered_map<std::string, TempFile> files;
                     std::vector<std::string> file_names;
                     std::vector<std::string> content_types;
                     std::vector<std::string> field_names;
@@ -63,7 +64,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         if (StringUtils::IsBlankString(field.filename)) { // treat as file object
                             is_file = true;
                             const auto temp_file = std::filesystem::temp_directory_path() / StringUtils::GenerateUUIDString();
-                            files.emplace(field.name, std::fstream { temp_file, std::ios::out | std::ios::trunc});
+                            files.emplace(field.name, TempFile {});
                             file_names.emplace_back(field.filename);
                             content_types.emplace_back(field.content_type);
                         } else {
@@ -74,7 +75,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     },
                     [&](const char *data, const size_t data_length) {
                         if (is_file && files.contains(field_names.back())) {
-                            files[field_names.back()].write(data, data_length);
+                            files[field_names.back()].file.write(data, data_length);
                         } else {
                             params[field_names.back()] += std::string {data, data_length};
                         }
@@ -101,7 +102,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     UploadFileRequest upload_file_request;
                     upload_file_request.set_filename(file_names[0]);
                     upload_file_request.set_purpose(file_object_purpose);
-                    if (const auto v = facade_.file->UploadFile(upload_file_request, files.at("file")); v.has_value()) {
+                    if (const auto v = facade_.file->UploadFile(upload_file_request, files.at("file").file); v.has_value()) {
                         ProtobufUtils::Serialize(v.value(), res.body);
                         res.status = 200;
                     } else {

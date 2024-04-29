@@ -37,6 +37,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/tools/HashUtils.hpp
         include/tools/IOUtils.hpp
         include/tools/SnowflakeIDGenerator.hpp
+        include/tools/file_vault/TempFile.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
