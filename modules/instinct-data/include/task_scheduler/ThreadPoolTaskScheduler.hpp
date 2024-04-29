@@ -11,6 +11,8 @@
 #include "InProcessTaskQueue.hpp"
 
 namespace INSTINCT_DATA_NS {
+
+
     template<typename T>
     class ThreadPoolTaskScheduler final: public BaseTaskScheduler<T> {
         unsigned int consumer_thread_count_;
@@ -20,11 +22,13 @@ namespace INSTINCT_DATA_NS {
     public:
         using Task = typename ITaskScheduler<T>::Task;
         using TaskQueuePtr = typename ITaskScheduler<T>::TaskQueuePtr;
+        using TaskHandlerCallbacksPtr = typename ITaskScheduler<T>::TaskHandlerCallbacksPtr;
 
         ThreadPoolTaskScheduler(
             const TaskQueuePtr &queue,
+            const TaskHandlerCallbacksPtr& callbacks,
             const unsigned int consumer_thread_count):
-            BaseTaskScheduler<T>(queue),
+            BaseTaskScheduler<T>(queue, callbacks),
             consumer_thread_count_(consumer_thread_count),
             running_(false) {
         }
@@ -40,10 +44,29 @@ namespace INSTINCT_DATA_NS {
                 consumer_threads_.emplace_back([&] {
                     while (running_) {
                         if(Task task; this->GetQueue()->Dequeue(task)) {
+                            bool handled = false;
                             for (const auto& handler: this->ListHandlers()) {
-                                if(handler->Accept(task)) {
-                                    handler->Handle(task);
+                                try {
+                                    if(handler->Accept(task)) {
+                                        handled = true;
+                                        handler->Handle(task);
+
+                                        try {
+                                            this->GetTaskHandlerCallbacks()->OnHandledTask(handler, task);
+                                        } catch (...) {}
+                                    }
+                                } catch (std::runtime_error& e) {
+                                    LOG_WARN("failed task found: id={}, category={}, e.what={}", task.task_id, task.category, e.what());
+                                    try {
+                                        this->GetTaskHandlerCallbacks()->OnFailedTask(handler, task, e);
+                                    } catch (...) {}
                                 }
+                            }
+                            LOG_WARN("unhandled task found: id={}, category={}", task.task_id, task.category);
+                            if (!handled) {
+                                try {
+                                    this->GetTaskHandlerCallbacks()->OnUnhandledTask(task);
+                                } catch (...) {}
                             }
                         }
                     }
@@ -51,7 +74,7 @@ namespace INSTINCT_DATA_NS {
             }
         }
 
-        std::future<void> Terminate() override {
+        std::future<std::vector<Task>> Terminate() override {
             return std::async(std::launch::async, [&] {
                 running_ = false;
                 for(auto& t: consumer_threads_) {
@@ -59,6 +82,7 @@ namespace INSTINCT_DATA_NS {
                         t.join();
                     }
                 }
+                return this->GetQueue()->Drain();
             });
         }
     };
@@ -68,12 +92,13 @@ namespace INSTINCT_DATA_NS {
 
     template<typename Payload=std::string>
     static TaskSchedulerPtr<Payload> CreateThreadPoolTaskScheduler(
+        const unsigned int consumer_thread_count = std::thread::hardware_concurrency(),
         typename ThreadPoolTaskScheduler<Payload>::TaskQueuePtr task_queue = nullptr,
-        const unsigned int consumer_thread_count = std::thread::hardware_concurrency()) {
+        const typename ThreadPoolTaskScheduler<Payload>::TaskHandlerCallbacksPtr& task_handler_callbacks = nullptr) {
         if (!task_queue) {
             task_queue = CreateInProcessQueue<Payload>();
         }
-        return std::make_shared<ThreadPoolTaskScheduler<Payload>>(task_queue, consumer_thread_count);
+        return std::make_shared<ThreadPoolTaskScheduler<Payload>>(task_queue, task_handler_callbacks, consumer_thread_count);
     }
 
 }

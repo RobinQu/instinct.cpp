@@ -10,15 +10,33 @@
 
 
 namespace INSTINCT_DATA_NS {
+
     template<typename T>
     class BaseTaskScheduler: public ITaskScheduler<T> {
         using TaskQueuePtr = typename ITaskScheduler<T>::TaskQueuePtr;
         using TaskHandlerPtr = typename ITaskScheduler<T>::TaskHandlerPtr;
+        using TaskHandlerCallbacksPtr = typename BaseTaskScheduler::TaskHandlerCallbacksPtr;
         TaskQueuePtr queue_;
         std::vector<TaskHandlerPtr> task_handlers_;
+        TaskHandlerCallbacksPtr callbacks_;
     public:
-        explicit BaseTaskScheduler(const TaskQueuePtr &queue)
-            : queue_(queue) {
+        class NoOpTaskHandlerCallbacks: public ITaskScheduler<T>::ITaskHandlerCallbacks {
+        public:
+            void OnUnhandledTask(const typename ITaskScheduler<T>::Task &task) override {}
+
+            void OnFailedTask(const typename ITaskScheduler<T>::TaskHandlerPtr &handler, const typename ITaskScheduler<T>::Task &task,
+                std::runtime_error &error) override {}
+
+            void OnHandledTask(const typename ITaskScheduler<T>::TaskHandlerPtr &handler,
+                const typename ITaskScheduler<T>::Task &task) override {}
+        };
+
+
+        BaseTaskScheduler(const TaskQueuePtr &queue, const TaskHandlerCallbacksPtr& callbacks)
+            : queue_(queue), callbacks_(callbacks) {
+            if (!callbacks_) {
+                callbacks_ = std::make_shared<NoOpTaskHandlerCallbacks>();
+            }
         }
 
         TaskQueuePtr GetQueue() const override {
@@ -46,6 +64,10 @@ namespace INSTINCT_DATA_NS {
 
         void Enqueue(const typename ITaskScheduler<T>::Task &task) override {
             queue_->Enqueue(task);
+        }
+
+        TaskHandlerCallbacksPtr GetTaskHandlerCallbacks() const override {
+            return callbacks_;
         }
     };
 }

@@ -20,10 +20,23 @@ namespace INSTINCT_DATA_NS {
         void Enqueue(const Task &task) override {
             LOG_INFO("Enqueue task: id={},category={}", task.task_id, task.category);
             q_.enqueue(task);
+
         }
 
         bool Dequeue(Task &task) override {
             return q_.try_dequeue(task);
+        }
+
+        std::vector<Task> Drain() override {
+            std::vector<Task> tasks;
+            Task buf[100];
+            int count = 0;
+            while((count = q_. try_dequeue_bulk(buf, 100)) != 0) {
+                for(int i=0;i<count;++i) {
+                    tasks.push_back(buf[i]);
+                }
+            }
+            return tasks;
         }
     };
 

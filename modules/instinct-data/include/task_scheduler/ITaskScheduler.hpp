@@ -43,8 +43,21 @@ namespace INSTINCT_DATA_NS {
 
             virtual void Enqueue(const Task& task) = 0;
             virtual bool Dequeue(Task& task) = 0;
+            virtual std::vector<Task> Drain() = 0;
         };
         using TaskQueuePtr = std::shared_ptr<ITaskQueue>;
+
+        class ITaskHandlerCallbacks {
+        public:
+            ITaskHandlerCallbacks()=default;
+            virtual ~ITaskHandlerCallbacks()=default;
+            ITaskHandlerCallbacks(const ITaskHandlerCallbacks&)=delete;
+            ITaskHandlerCallbacks(ITaskHandlerCallbacks&&)=delete;
+            virtual void OnUnhandledTask(const Task& task) = 0;
+            virtual void OnFailedTask(const TaskHandlerPtr& handler, const Task& task, std::runtime_error& error) = 0;
+            virtual void OnHandledTask(const TaskHandlerPtr& handler, const Task& task) = 0;
+        };
+        using TaskHandlerCallbacksPtr = std::shared_ptr<ITaskHandlerCallbacks>;
 
         ITaskScheduler(const ITaskScheduler&)=delete;
         ITaskScheduler(ITaskScheduler&&)=delete;
@@ -55,6 +68,7 @@ namespace INSTINCT_DATA_NS {
         virtual bool RegisterHandler(const TaskHandlerPtr& handler)=0;
         virtual bool RemoveHandler(const TaskHandlerPtr& handler)=0;
         virtual const std::vector<TaskHandlerPtr>& ListHandlers() const=0;
+        virtual TaskHandlerCallbacksPtr GetTaskHandlerCallbacks() const=0;
 
         /**
          * A shortcut method to add a task to queue
@@ -71,7 +85,7 @@ namespace INSTINCT_DATA_NS {
          * Stop scheduler
          * @return
          */
-        virtual std::future<void> Terminate() = 0;
+        virtual std::future<std::vector<Task>> Terminate() = 0;
     };
 
     template<typename Payload>
