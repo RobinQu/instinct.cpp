@@ -3,7 +3,6 @@ project(instinct-proto)
 
 set(CMAKE_CXX_STANDARD 20)
 
-
 find_package(Protobuf CONFIG REQUIRED)
 
 add_library(proto-objects STATIC
@@ -12,6 +11,9 @@ add_library(proto-objects STATIC
         src/llm.proto
         src/agent.proto
         src/assistant_api_v2.proto
+        src/embedding_api.proto
+        src/chat_completion_api.proto
+        src/ollama_api.proto
         src/data.proto
 )
 

@@ -21,10 +21,33 @@ namespace INSTINCT_LLM_NS {
     class OpenAIChat final: public BaseChatModel {
         OpenAIConfiguration configuration_;
         HttpRestClient client_;
-
+        std::vector<OpenAIChatCompletionRequest_ChatCompletionTool> function_tools_;
     public:
         explicit OpenAIChat(OpenAIConfiguration configuration)
             : BaseChatModel(configuration.base_options), configuration_(std::move(configuration)), client_(configuration_.endpoint) {
+            client_.GetDefaultHeaders().emplace("Authorization", fmt::format("Bearer {}", GetAPIKey_()));
+        }
+
+        void BindTools(const FunctionToolkitPtr &toolkit) override {
+            for (const auto& tool_schema: toolkit->GetAllFuncitonToolSchema()) {
+                OpenAIChatCompletionRequest_ChatCompletionTool tool;
+                tool.set_type("function");
+                FunctionTool* function_tool = tool.mutable_function();
+                function_tool->set_description(tool_schema.description());
+                function_tool->set_name(tool_schema.name());
+                for(const auto& arg: tool_schema.arguments()) {
+                    const auto param = function_tool->mutable_parameters();
+                    param->set_type("object");
+                    FunctionTool_FunctionParametersSchema_FunctionParameterSchema parameter_schema;
+                    parameter_schema.set_type(arg.type());
+                    parameter_schema.set_description(arg.description());
+                    param->mutable_properties()->emplace(arg.name(), parameter_schema);
+                    if (arg.required()) {
+                        *function_tool->mutable_required()->Add() = arg.name();
+                    }
+                }
+                function_tools_.push_back(tool);
+            }
         }
 
         void CallOpenAI(const MessageList& message_list, BatchedLangaugeModelResult& batched_langauge_model_result) {
@@ -78,13 +101,26 @@ namespace INSTINCT_LLM_NS {
             if (configuration_.json_object) {
                 req.mutable_response_format()->set_type("json_object");
             }
+            req.mutable_tools()->Add(function_tools_.begin(), function_tools_.end());
             req.set_stream(stream);
             return req;
         }
 
+        std::string GetAPIKey_() const {
+            if (StringUtils::IsNotBlankString(configuration_.api_key)) {
+                return configuration_.api_key;
+            }
+            if (const auto api_key_env = SystemUtils::GetEnv("OPENAI_API_KEY"); StringUtils::IsNotBlankString(api_key_env)) {
+                return api_key_env;
+            }
+            LOG_WARN("API key for OpenAI is not found in configuration or envrionment variables.");
+            // won't thorw as some local LLMs don't need an API key for authentication at all
+            return "";
+        }
+
     };
 
-    static ChatModelPtr CreateOpenAIChatModel(const OpenAIConfiguration& configuration) {
+    static ChatModelPtr CreateOpenAIChatModel(const OpenAIConfiguration& configuration = {}) {
         return std::make_shared<OpenAIChat>(configuration);
     }
 }

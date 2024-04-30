@@ -7,7 +7,7 @@
 
 #include "../IRunService.hpp"
 #include "assistant/v2/service/IMessageService.hpp"
-#include "assistant/v2/task_handler/RunObjectHandler.hpp"
+#include "assistant/v2/task_handler/RunObjectTaskHandler.hpp"
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
 #include "database/IDataMapper.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
@@ -75,7 +75,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // kick off agent execution
             task_scheduler_->Enqueue({
                 .task_id = run_id,
-                .category = RunObjectHandler::CATEGORY
+                .category = RunObjectTaskHandler::CATEGORY
             });
 
             // return
@@ -121,7 +121,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // start agent exeuction
             task_scheduler_->Enqueue({
                 .task_id = run_id,
-                .category = RunObjectHandler::CATEGORY
+                .category = RunObjectTaskHandler::CATEGORY
             });
 
             // return
@@ -241,7 +241,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // resume agent execution
             task_scheduler_->Enqueue({
                 .task_id = run_id,
-                .category = RunObjectHandler::CATEGORY
+                .category = RunObjectTaskHandler::CATEGORY
             });
 
             // update run object

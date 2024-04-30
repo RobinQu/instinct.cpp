@@ -43,7 +43,9 @@ namespace instinct::test {
 
     public:
         explicit PesudoLLM(const ModelOptions &options = {}) : BaseLLM(options) {}
-
+        void BindTools(const FunctionToolkitPtr &toolkit) override {
+            throw InstinctException("Not implemented");
+        }
     private:
         BatchedLangaugeModelResult Generate(const std::vector<std::string> &prompts) override {
             BatchedLangaugeModelResult batched;
@@ -71,9 +73,13 @@ namespace instinct::test {
         }
     };
 
-    class PesudoChatModel : public BaseChatModel {
+    class PesudoChatModel final: public BaseChatModel {
     public:
         explicit PesudoChatModel(const ModelOptions &options = {}) : BaseChatModel(options) {}
+
+        void BindTools(const FunctionToolkitPtr &toolkit) override {
+            throw InstinctException("Not implemented");
+        }
 
     private:
         BatchedLangaugeModelResult Generate(const std::vector<MessageList> &messages) override {

@@ -2,7 +2,7 @@ syntax = "proto3";
 //import "google/protobuf/empty.proto";
 //import "google/protobuf/api.proto";
 import "google/protobuf/struct.proto";
-
+import "chat_completion_api.proto";
 
 package instinct.assistant.v2;
 
@@ -40,6 +40,7 @@ enum AssistantToolType {
 
 message AssistantToolObject { // union of Code, FileSearch, Function
   AssistantToolType type = 1;
+  llm.FunctionTool function = 2;
 }
 
 
@@ -402,22 +403,7 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
       unknown_required_action_type = 0;
       submit_tool_outputs = 1;
     }
-
-    repeated RunToolCallObject tool_calls = 2;
-
-    message RunToolCallObject {
-      string id = 1;
-      RunToolCallObjectType type = 2;
-      message RunToolCallFunctionObject {
-        string name = 1;
-        string arguments = 2;
-      }
-      RunToolCallFunctionObject function = 3;
-    }
-    enum RunToolCallObjectType {
-      unknown_run_tool_call_object_type = 0;
-      function = 1;
-    }
+    repeated llm.ToolCallObject tool_calls = 2;
   }
 
   RunStepError last_error = 9;

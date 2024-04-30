@@ -38,7 +38,6 @@ namespace INSTINCT_LLM_NS {
 
             std::string prompt_input = MessageUtils::ExtractLatestPromptString(agent_state.input());
             assert_true(StringUtils::IsNotBlankString(prompt_input), "should provide valid prompt input");
-
             auto fn_names = StringUtils::JoinWith(agent_state.function_tools() | std::views::transform([](const FunctionToolSchema& fn_schema) {
                 return fn_schema.name();
             }), ",");

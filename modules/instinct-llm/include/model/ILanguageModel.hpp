@@ -10,20 +10,24 @@
 #include "functional/IRunnable.hpp"
 #include "prompt/MessageUtils.hpp"
 #include "prompt/StringPromptTemplate.hpp"
+#include "toolkit/BaseFunctionToolkit.hpp"
 #include "tools/Assertions.hpp"
 
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
-
-
-
     class ILanguageModel {
     public:
         // virtual std::vector<TokenId> GetTokenIds(const std::string& text) = 0;
         // virtual TokenSize GetTokenCount(const std::string& text) = 0;
         // virtual TokenSize GetTokenCount(const Message& messages) = 0;
+
+        /**
+         * Bind toolkits for LLM APIs that support tool uses
+         * @param toolkit
+         */
+        virtual void BindTools(const FunctionToolkitPtr& toolkit) = 0;
     };
 
     // using LanguageModelPtr = std::shared_ptr<ILanguageModel>;

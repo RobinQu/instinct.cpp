@@ -42,9 +42,6 @@ namespace INSTINCT_LLM_NS {
             agent_state.mutable_input()->CopyFrom(pv);
             // TODO: avoid to copy schema for each invocation
             agent_state.mutable_function_tools()->Add(all_schemas_.begin(), all_schemas_.end());
-            //for (auto& schema: all_schemas_) {
-                // agent_state.mutable_function_tools()->Add()->CopyFrom(schema);
-            //}
             return agent_state;
         }
 

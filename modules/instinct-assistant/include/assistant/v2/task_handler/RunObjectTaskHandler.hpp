@@ -11,7 +11,7 @@
 namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_DATA_NS;
 
-    class RunObjectHandler final: public CommonTaskScheduler::ITaskHandler {
+    class RunObjectTaskHandler final: public CommonTaskScheduler::ITaskHandler {
         DataMapperPtr<RunObject, std::string> run_data_mapper_;
         DataMapperPtr<RunStepObject, std::string> run_step_data_mapper_;
     public:

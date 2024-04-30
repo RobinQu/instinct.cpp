@@ -39,6 +39,8 @@ namespace INSTINCT_LLM_NS {
 
         SearchToolResponse DoExecute(const SearchToolRequest &input) override {
             assert_true(StringUtils::IsNotBlankString(input.query()), "should provide non-blank query");
+            const auto api_key = StringUtils::IsNotBlankString(options_.apikey) ? options_.apikey : SystemUtils::GetEnv("SERP_APIKEY");
+            assert_not_blank(api_key, "should provide serp apikey in configuration or environment variables");
 
             // offset defaults to zero
             const size_t start = input.result_offset() <= 0 ? 0 : input.result_offset();
@@ -51,7 +53,7 @@ namespace INSTINCT_LLM_NS {
                 .paramters = {
                     {"q", input.query()},
                     {"engine", options_.engine},
-                    {"api_key", options_.apikey},
+                    {"api_key", api_key},
                     {"start", std::to_string(start)},
                     {"num", std::to_string(limit)}
                 }
@@ -101,7 +103,7 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
-    static FunctionToolPtr CreateSerpAPI(const SerpAPIOptions& options) {
+    static FunctionToolPtr CreateSerpAPI(const SerpAPIOptions& options = {}) {
         return std::make_shared<SerpAPI>(options);
     }
 }

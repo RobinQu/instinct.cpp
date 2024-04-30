@@ -47,6 +47,9 @@ namespace INSTINCT_LLM_NS {
         // TokenSize GetTokenCount(const Message& messages) override {
         //
         // }
+        void BindTools(const FunctionToolkitPtr &toolkit) override {
+            throw InstinctException("Not supported");
+        }
 
     private:
         LangaugeModelResult CallOllama(const std::string& prompt) {

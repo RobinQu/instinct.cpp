@@ -28,9 +28,6 @@ namespace INSTINCT_LLM_NS {
 
         AsyncIterator<JSONContextPtr> Stream(const JSONContextPtr &input) override;
 
-//        [[nodiscard]] std::vector<std::string> GetInputKeys() const override;
-//
-//        [[nodiscard]] std::vector<std::string> GetOutputKeys() const override;
     };
 
 
@@ -42,15 +39,13 @@ namespace INSTINCT_LLM_NS {
         friend LLMStepFunction;
 
         ModelOptions options_;
-//        StepFunctionPtr model_function_;
 
         virtual BatchedLangaugeModelResult Generate(const std::vector<std::string> &prompts) = 0;
 
         virtual AsyncIterator<LangaugeModelResult> StreamGenerate(const std::string &prompt) = 0;
 
     public:
-        explicit BaseLLM(ModelOptions options) : options_(options) {
-//            model_function_ = std::make_shared<LLMStepFunction>(shared_from_this());
+        explicit BaseLLM(const ModelOptions &options) : options_(options) {
         }
 
         void Configure(const ModelOptions &options) override {
@@ -92,7 +87,7 @@ namespace INSTINCT_LLM_NS {
     };
 
 
-    JSONContextPtr LLMStepFunction::Invoke(const JSONContextPtr &input) {
+    inline JSONContextPtr LLMStepFunction::Invoke(const JSONContextPtr &input) {
         auto prompt_value = input->RequireMessage<PromptValue>();
         const auto string_prompt = details::conv_prompt_value_variant_to_string(prompt_value);
 
@@ -104,7 +99,7 @@ namespace INSTINCT_LLM_NS {
         return input;
     }
 
-    AsyncIterator<instinct::core::JSONContextPtr> LLMStepFunction::Batch(const std::vector<JSONContextPtr> &input) {
+    inline AsyncIterator<instinct::core::JSONContextPtr> LLMStepFunction::Batch(const std::vector<JSONContextPtr> &input) {
         auto prompts_view = input | std::views::transform([&](const JSONContextPtr &ctx) {
             auto prompt = ctx->template RequirePrimitive<std::string>();
             return details::conv_prompt_value_variant_to_string(prompt);
@@ -121,7 +116,7 @@ namespace INSTINCT_LLM_NS {
         });
     }
 
-    AsyncIterator<instinct::core::JSONContextPtr> LLMStepFunction::Stream(const JSONContextPtr &input) {
+    inline AsyncIterator<instinct::core::JSONContextPtr> LLMStepFunction::Stream(const JSONContextPtr &input) {
         auto prompt_value = input->RequireMessage<PromptValue>();
         const auto string_prompt = details::conv_prompt_value_variant_to_string(prompt_value);
         return model_->StreamGenerate(string_prompt)

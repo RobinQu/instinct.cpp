@@ -46,3 +46,15 @@ message MetadataSchema {
   repeated MetadataFieldSchema fields = 1;
   string description = 2;
 }
+
+
+
+enum JSONValueType {
+  unspecified_json_value_type = 0;
+  object = 1;
+  array = 2;
+  string = 3;
+  number = 4;
+  integer = 5;
+  boolean = 6;
+}

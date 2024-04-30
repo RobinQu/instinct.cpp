@@ -21,6 +21,7 @@ namespace INSTINCT_LLM_NS {
         virtual ~IFunctionToolKit()=default;
         IFunctionToolKit(IFunctionToolKit&&)=delete;
         IFunctionToolKit(const IFunctionToolKit&)=delete;
+
         virtual bool RegisterFunctionTool(const FunctionToolPtr& function_tool) = 0;
         virtual bool UnregisterFuncionTool(const std::string& name) = 0;
         virtual std::unordered_set<std::string> GetFunctionToolNames() = 0;

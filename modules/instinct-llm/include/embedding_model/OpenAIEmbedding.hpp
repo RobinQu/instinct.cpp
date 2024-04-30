@@ -5,6 +5,7 @@
 #ifndef OPENAIEMBEDDING_HPP
 #define OPENAIEMBEDDING_HPP
 
+#include <embedding_api.pb.h>
 #include <model/IEmbeddingModel.hpp>
 
 #include "LLMGlobals.hpp"

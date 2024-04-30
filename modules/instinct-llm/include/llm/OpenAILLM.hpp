@@ -15,12 +15,16 @@ namespace INSTINCT_LLM_NS {
     /**
      * OpenAI text completion is depreciated, and it's recommended to make use of ChatCompletion instead. OpenAILLM is just a wrapper around `OpenAIChat` for conventions.
      */
-    class OpenAILLM: public BaseLLM {
+    class OpenAILLM final: public BaseLLM {
         OpenAIChat chat_;
 
     public:
         explicit OpenAILLM(OpenAIConfiguration configuration)
             : BaseLLM(configuration.base_options), chat_(std::move(configuration)) {
+        }
+
+        void BindTools(const FunctionToolkitPtr &toolkit) override {
+            chat_.BindTools(toolkit);
         }
 
     private:

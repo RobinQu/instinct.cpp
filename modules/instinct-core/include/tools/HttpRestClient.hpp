@@ -98,6 +98,7 @@ namespace INSTINCT_CORE_NS {
         ProtobufHttpEntityConverter converter_;
         Endpoint endpoint_;
         HttpClientPtr http_client_;
+        HttpHeaders default_headers_;
 
     public:
         HttpRestClient() = delete;
@@ -107,15 +108,19 @@ namespace INSTINCT_CORE_NS {
             http_client_ = CreateCURLHttpClient();
         }
 
+        HttpHeaders& GetDefaultHeaders() {
+            return default_headers_;
+        }
+
         template<typename ResponseEntity>
         ResponseEntity GetObject(const std::string& uri) {
+            HttpHeaders headers = default_headers_;
+            headers.emplace(HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON));
             const HttpRequest request = {
                     endpoint_,
                     kGET,
                     uri,
-                    {
-                    {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON) }
-                    }
+                    headers
             };
             const HttpResponse response = http_client_->Execute(request);
             if(response.status_code >= 400) {
@@ -126,16 +131,17 @@ namespace INSTINCT_CORE_NS {
 
         template<typename RequestEntity, typename ResponseEntity>
         ResponseEntity PostObject(const std::string& uri, const RequestEntity& param) {
-            std::string param_string = converter_.Serialize(param);
+            const std::string param_string = converter_.Serialize(param);
+            HttpHeaders headers = default_headers_;
+            headers.emplace(HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON));
             const HttpRequest request = {
                     endpoint_,
                     kPOST,
                     uri,
-                    {
-                        {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON)
-                        }
-            }, param_string};
-            const auto [headers, body, status_code] = http_client_->Execute(request);
+                    headers,
+                param_string
+            };
+            const auto [_, body, status_code] = http_client_->Execute(request);
             if(status_code >= 400) {
                 LOG_DEBUG("Non-200 response: {}", body);
                 throw HttpClientException(status_code, body);
@@ -156,17 +162,17 @@ namespace INSTINCT_CORE_NS {
         AsyncIterator<ResponseEntity> StreamChunkObject(
             const std::string& uri,
             const RequestEntity& param,
-            bool is_sse_event_stream = false,
+            const bool is_sse_event_stream = false,
             const std::vector<std::string>& end_sentinels = {}
         ) {
-            std::string param_string = converter_.Serialize(param);
+            HttpHeaders headers = default_headers_;
+            headers.emplace(HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON));
+            const std::string param_string = converter_.Serialize(param);
             const HttpRequest request = {
                 .endpoint = endpoint_,
                 .method = kPOST,
                 .target = uri,
-                .headers = {
-                    {HTTP_HEADER_CONTENT_TYPE_NAME, HTTP_CONTENT_TYPES.at(kJSON) }
-                },
+                .headers = headers,
                 .body = param_string
             };
 

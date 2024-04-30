@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package instinct.llm;
+import "chat_completion_api.proto";
+
+message OpenAIEmbeddingRequest {
+  /**
+  Input text to embed
+   */
+  repeated string input = 1;
+
+  /**
+  ID of the model to use. You can use the List models API to see all of your available models, or see our Model overview for descriptions of them.
+   */
+  string model = 2;
+
+  /**
+  The format to return the embeddings in. Can be either float or base64.
+   */
+  string encoding_format = 3;
+
+  /**
+  The number of dimensions the resulting output embeddings should have. Only supported in text-embedding-3 and later models.
+   */
+  uint32 dimension = 4;
+
+  /**
+  A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
+   */
+  string user = 5;
+}
+
+
+message OpenAIEmbeddingResponse {
+  string object = 1;
+
+  repeated OpenAIEmbedding data = 2;
+  message OpenAIEmbedding {
+    int32 index = 1;
+    repeated float embedding = 2;
+    string object = 3;
+  }
+
+  string model = 3;
+
+  OpenAIUsageInResponse usage = 4;
+}
