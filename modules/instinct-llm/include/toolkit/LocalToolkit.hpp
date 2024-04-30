@@ -50,6 +50,13 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
+    template<typename ...Args>
+    static FunctionToolkitPtr CreateLocalToolkit(Args... args) {
+        auto tk = std::make_shared<LocalFunctionToolkit>();
+        (void)std::initializer_list<int> {(tk->RegisterFunctionTool(args), 0)...};
+        return tk;
+    }
+
     /**
      * Create toolkit with given tools
      * @param tools

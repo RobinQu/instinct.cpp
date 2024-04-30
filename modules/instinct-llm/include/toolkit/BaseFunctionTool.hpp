@@ -46,6 +46,12 @@ namespace INSTINCT_LLM_NS {
             return options_;
         }
 
+        FunctionToolSelfCheckResponse SelfCheck() override {
+            FunctionToolSelfCheckResponse response;
+            response.set_passed(true);
+            return response;
+        }
+
     private:
         FunctionToolResult InvokeWithRetry_(const FunctionToolInvocation &invocation, const uint8_t retry_count) {
             // if (retry_count > options_.max_attempts) {

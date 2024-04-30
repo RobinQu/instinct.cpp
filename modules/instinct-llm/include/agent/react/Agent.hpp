@@ -23,7 +23,6 @@
 #include "toolkit/BaseFunctionToolkit.hpp"
 
 namespace INSTINCT_LLM_NS {
-    using namespace INSTINCT_LLM_NS;
 
     /**
      * Create toolkits based worker that follows ReACT strategy
@@ -106,7 +105,7 @@ Thought: {agent_scratchpad})"
     class ReACTAgentExecutor final: public BaseAgentExecutor {
     public:
         ReACTAgentExecutor(const PlannerPtr &planner, const WorkerPtr &worker)
-            : BaseAgentExecutor(planner, worker, nullptr) {
+            : BaseAgentExecutor(planner, worker) {
         }
 
         AgentStep ResolveNextStep(AgentState &state) override {

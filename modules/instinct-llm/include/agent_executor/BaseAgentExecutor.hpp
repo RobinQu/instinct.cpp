@@ -16,13 +16,12 @@ namespace INSTINCT_LLM_NS {
     class BaseAgentExecutor: public virtual IAgentExecutor, public BaseRunnable<AgentState, AgentState> {
         PlannerPtr planner_;
         WorkerPtr worker_;
-        SolverPtr solver_;
+        // SolverPtr solver_;
         std::vector<FunctionToolSchema> all_schemas_;
     public:
-        BaseAgentExecutor(PlannerPtr planner, WorkerPtr worker, SolverPtr solver)
+        BaseAgentExecutor(PlannerPtr planner, WorkerPtr worker)
             : planner_(std::move(planner)),
-              worker_(std::move(worker)),
-              solver_(std::move(solver)) {
+              worker_(std::move(worker)) {
             // do a copy for schema in toolkits
             for (const auto& tk: worker_->GetFunctionToolkits()) {
                 for(const auto& schema: tk->GetAllFuncitonToolSchema()) {
@@ -40,7 +39,6 @@ namespace INSTINCT_LLM_NS {
             const auto pv = MessageUtils::ConvertPromptValueVariantToPromptValue(input);
             AgentState agent_state;
             agent_state.mutable_input()->CopyFrom(pv);
-            // TODO: avoid to copy schema for each invocation
             agent_state.mutable_function_tools()->Add(all_schemas_.begin(), all_schemas_.end());
             return agent_state;
         }
@@ -73,7 +71,7 @@ namespace INSTINCT_LLM_NS {
                     AgentStep step;
                     do {
                         step = ResolveNextStep(copied_state);
-                        LOG_DEBUG("Progressed step: {}", step.GetDescriptor()->name());
+                        LOG_DEBUG("Progressed step: {}", step.ShortDebugString());
                         observer.on_next(copied_state);
                     } while (!step.has_finish());
                     LOG_DEBUG("Finished due to AgentFinish");
@@ -92,9 +90,6 @@ namespace INSTINCT_LLM_NS {
             return worker_;
         }
 
-        [[nodiscard]] SolverPtr GetSolver() const override {
-            return solver_;
-        }
     };
 
 

@@ -9,6 +9,7 @@
 #include "LLMGlobals.hpp"
 #include "agent/BaseSolver.hpp"
 #include "agent/BaseWorker.hpp"
+#include "chain/MessageChain.hpp"
 
 namespace INSTINCT_LLM_NS {
 
@@ -30,7 +31,7 @@ namespace INSTINCT_LLM_NS {
 
         [[nodiscard]] virtual WorkerPtr GetWorker() const = 0;
 
-        [[nodiscard]] virtual SolverPtr GetSolver() const = 0;
+        // [[nodiscard]] virtual SolverPtr GetSolver() const = 0;
 
         /**
          * Generate and execute next step.

@@ -19,9 +19,10 @@ namespace INSTINCT_LLM_NS {
 
     class ILanguageModel {
     public:
-        // virtual std::vector<TokenId> GetTokenIds(const std::string& text) = 0;
-        // virtual TokenSize GetTokenCount(const std::string& text) = 0;
-        // virtual TokenSize GetTokenCount(const Message& messages) = 0;
+        ILanguageModel()=default;
+        virtual ~ILanguageModel()=default;
+        ILanguageModel(ILanguageModel&&)=delete;
+        ILanguageModel(const ILanguageModel&)=delete;
 
         /**
          * Bind toolkits for LLM APIs that support tool uses
@@ -30,7 +31,6 @@ namespace INSTINCT_LLM_NS {
         virtual void BindTools(const FunctionToolkitPtr& toolkit) = 0;
     };
 
-    // using LanguageModelPtr = std::shared_ptr<ILanguageModel>;
     namespace details {
         static auto visit_prompt_variant_as_string = overloaded {
             // [](const std::monostate&) { throw InstinctException("PromptValue is not set"); },
@@ -79,9 +79,6 @@ namespace INSTINCT_LLM_NS {
             [](const MessageList& message_list) {
                 return message_list;
             },
-            // [](MessageList&& message_list) {
-            //     return message_list;
-            // },
             [](const Message& message) {
                 MessageList message_list;
                 message_list.add_messages()->CopyFrom(message);
@@ -94,13 +91,6 @@ namespace INSTINCT_LLM_NS {
                 msg->set_role("user");
                 return  message_list;
             }
-            // [](std::string&& str) {
-            //     MessageList message_list;
-            //     const auto msg = message_list.add_messages();
-            //     msg->set_content(str);
-            //     msg->set_role("human");
-            //     return  message_list;
-            // }
         };
 
 

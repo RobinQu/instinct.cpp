@@ -60,11 +60,20 @@ message LLMCompilerThoughtMessage {}
 
 message LLMCompilerObservationMessage {}
 
+message OpenAIToolAgentThoughtMessage {
+  llm.Message tool_call_message = 1; // should be a message container tool call request
+}
+
+message OpenAIToolAgentObservation {
+  repeated llm.Message tool_messages = 1; // should be a tool message
+}
+
 message AgentThoughtMessage {
   // thought for officially supported implementations
   oneof value {
     ReACTAgentThoughtStepMessage react = 1;
     LLMCompilerThoughtMessage llm_compiler = 2;
+    OpenAIToolAgentThoughtMessage openai = 3;
   }
 
   // reserved for user defined thought
@@ -76,6 +85,7 @@ message AgentObservationMessage {
   oneof value {
     ReACTAgentObservationStepMessage react = 1;
     LLMCompilerObservationMessage llm_compiler = 2;
+    OpenAIToolAgentObservation openai = 4; // should be a tool message
   }
 
   // reserved for user defined observation
