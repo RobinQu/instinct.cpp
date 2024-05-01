@@ -1,5 +1,6 @@
 {
-  "image": "conanio/gcc13-ubuntu16.04",
+//  "image": "conanio/gcc13-ubuntu16.04",
+  "build": { "dockerfile": "Dockerfile" },
   "runArgs": [
     "--gpus",
     "all"
