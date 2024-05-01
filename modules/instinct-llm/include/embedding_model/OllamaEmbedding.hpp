@@ -23,7 +23,7 @@ namespace INSTINCT_LLM_NS {
     public:
         explicit OllamaEmbedding(const OllamaConfiguration& configuration = {}):
             client_(configuration.endpoint),
-            configuration_(configuration), thread_pool_(configuration_.max_paralle) {
+            configuration_(configuration), thread_pool_(configuration_.max_parallel) {
         }
 
         std::vector<Embedding> EmbedDocuments(const std::vector<std::string>& texts) override {
@@ -31,7 +31,7 @@ namespace INSTINCT_LLM_NS {
             std::vector<Embedding> result;
             LOG_DEBUG("EmbedDocuments: input.size()={}", texts.size());
 
-            if (configuration_.max_paralle > 0) {
+            if (configuration_.max_parallel > 0) {
                 const auto batch = client_.CreatePostBatch<OllamaEmbeddingRequest, OllamaEmbeddingResponse>();
                 for(const auto& text: texts) {
                     OllamaEmbeddingRequest request;

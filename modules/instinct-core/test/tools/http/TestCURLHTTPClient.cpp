@@ -86,8 +86,9 @@ namespace INSTINCT_CORE_NS {
         for(int i=0;i<n;i++) {
             calls.push_back({
                 .endpoint = {.protocol = kHTTP, .host="httpbin.org"},
+                .method = kPOST,
                 .target = "/post",
-                .method = kPOST
+
             });
         }
         auto futures = client.ExecuteBatch(calls, pool);
