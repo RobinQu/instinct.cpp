@@ -103,15 +103,15 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto chunk_overlap = dataset.at("chunk_overlap").get<int>();
             const auto limit = dataset.at("limit").get<int>();
             LOG_INFO("Settings: chunk_size={}, chunk_overlap={}, limit={}", chunk_size, chunk_overlap, limit);
-            auto spliter = CreateRecursiveCharacterTextSplitter(tokenizer,  {
+            auto splitter = CreateRecursiveCharacterTextSplitter(tokenizer, {
                 .chunk_size = chunk_size,
                 .chunk_overlap=chunk_overlap,
-                .strip_whitespace = true,
                 .keep_separator = true,
+                .strip_whitespace = true,
                 .separators = {"\n\n", "\n", ".", " ", ""}
             });
-            const auto ingestor = CreateParquetIngestor(asset_dir_ / "hunggface_doc_train.parquet", "0:text,1:metadata:file_source:varchar", {.limit = static_cast<size_t>(limit)});
-            const auto doc_itr = spliter->SplitDocuments(ingestor->Load());
+            const auto ingest = CreateParquetIngestor(asset_dir_ / "hunggface_doc_train.parquet", "0:text,1:metadata:file_source:varchar", {.limit = static_cast<size_t>(limit)});
+            const auto doc_itr = splitter->SplitDocuments(ingest->Load());
             const auto chunked_docs = CollectVector(doc_itr);
 
             for(int i=0;i<chunked_docs.size();++i) {

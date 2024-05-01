@@ -87,9 +87,9 @@ namespace insintct::exmaples::doc_agent {
     static EmbeddingsPtr CreateEmbeddingModel(const LLMProviderOptions& options) {
         if (options.provider_name == "ollama") {
             return CreateOllamaEmbedding({
+                                                 .model_name = options.model_name,
                 .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
-                .model_name = options.model_name,
-                .max_paralle = (std::thread::hardware_concurrency() / 3),
+                .max_parallel = (std::thread::hardware_concurrency() / 3),
                 .embedding_timeout_factor = 1s
             });
         }
@@ -105,8 +105,8 @@ namespace insintct::exmaples::doc_agent {
     static ChatModelPtr CreateChatModel(const LLMProviderOptions& options) {
         if (options.provider_name == "ollama") {
             return CreateOllamaChatModel({
+                                                 .model_name = options.model_name,
                 .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
-                .model_name = options.model_name,
                 .temperature = 0.2
             });
         }

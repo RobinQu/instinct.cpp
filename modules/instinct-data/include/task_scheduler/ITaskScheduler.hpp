@@ -17,8 +17,8 @@ namespace INSTINCT_DATA_NS {
     class ITaskScheduler {
     public:
         struct Task {
-            std::string category;
             std::string task_id;
+            std::string category;
             Payload payload;
         };
 

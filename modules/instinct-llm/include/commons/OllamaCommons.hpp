@@ -43,9 +43,9 @@ namespace INSTINCT_LLM_NS {
         std::vector<std::string> stop_words = {};
 
         /**
-         * max paralled requests for OpenAI http client
+         * max parallel requests for OpenAI http client
          */
-        u_int32_t max_paralle = 0;
+        u_int32_t max_parallel = 0;
 
         /**
          * Define timeout for generating one embedding

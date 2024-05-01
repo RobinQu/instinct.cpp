@@ -19,8 +19,8 @@ namespace INSTINCT_LLM_NS {
                 .apikey = SystemUtils::GetEnv("SERP_API_KEY")
             });
             chat_model_ = CreateOllamaChatModel({
+                                                        .model_name = "mixtral:latest",
                 .temperature = 0,
-                .model_name = "mixtral:latest",
                 .stop_words = {{"Observation:"}}
             });
             const auto calculator = CreateLLMMath(chat_model_, {.max_attempts = 2});
