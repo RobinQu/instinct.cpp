@@ -6,14 +6,17 @@
 #define RUNOBJECTHANDLER_HPP
 
 #include "AssistantGlobals.hpp"
+#include "agent_executor/BaseAgentExecutor.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 
 namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_DATA_NS;
 
     class RunObjectTaskHandler final: public CommonTaskScheduler::ITaskHandler {
-        DataMapperPtr<RunObject, std::string> run_data_mapper_;
-        DataMapperPtr<RunStepObject, std::string> run_step_data_mapper_;
+        // DataMapperPtr<RunObject, std::string> run_data_mapper_;
+        // DataMapperPtr<RunStepObject, std::string> run_step_data_mapper_;
+        RunServicePtr run_service_;
+        MessageServicePtr message_service_;
     public:
         static inline std::string CATEGORY = "run_object";
 
@@ -22,6 +25,68 @@ namespace INSTINCT_ASSISTANT_NS {
         }
 
         void Handle(const ITaskScheduler<std::string>::Task &task) override {
+            // GetRunRequest get_run_request;
+            // get_run_request.set_run_id(task.task_id);
+            RunObject run_object;
+            ProtobufUtils::Deserialize(task.payload, run_object);
+
+
+
+            AgentState state;
+            RecoverAentState_(run_object, state);
+
+            AgentExecutorPtr executor;
+
+            // execute possible steps
+            executor->Stream(state)
+                | rpp::operators::subscribe([&](const AgentState& current_state) {
+                    const auto last_step = current_state.previous_steps().rbegin();
+
+                });
+        }
+
+
+    private:
+        void RecoverAentState_(const RunObject& run_object, AgentState& state) {
+
+        ListRunStepsRequest list_run_steps_request;
+            list_run_steps_request.set_order(asc);
+            list_run_steps_request.set_run_id(run_object.id());
+            list_run_steps_request.set_thread_id(run_object.thread_id());
+            const auto list_run_steps_resp = run_service_->ListRunSteps(list_run_steps_request);
+
+            ListMessageRequest list_message_request;
+            list_run_steps_request.set_thread_id(run_object.thread_id());
+            list_run_steps_request.set_order(asc);
+            auto list_mesage_response = message_service_->ListMessages(list_message_request);
+
+            std::unordered_map<std::string, MessageObject*> msgs_by_id;
+            MessageObject* last_user_message = nullptr;
+            for (int i=0;i<list_mesage_response.data_size();++i) {
+                auto msg = list_mesage_response.mutable_data(i);
+                msgs_by_id[msg->id()] = msg;
+                if (msg->role() == user) {
+                    last_user_message = msg;
+                }
+            }
+
+            assert_true(last_user_message, "Should have user message in thread");
+
+
+            auto* user_message = state.mutable_input()->mutable_chat()->add_messages();
+            // TODO support image message
+            user_message->set_content(last_user_message->content().text());
+            user_message->set_role("user");
+            for(const auto &step: list_run_steps_resp.data()) {
+                // state.mutable_previous_steps()->
+                if (step.type() == RunStepObject_RunStepType_message_creation && step.step_details().has_message_creation()) {
+                    auto msg = msgs_by_id.at(step.step_details().message_creation().message_id());
+
+                }
+                if (step.type() == RunStepObject_RunStepType_tool_calls) {
+
+                }
+            }
 
         }
     };
