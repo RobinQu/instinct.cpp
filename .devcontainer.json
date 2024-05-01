@@ -1,6 +1,5 @@
 {
-//  "image": "conanio/gcc13-ubuntu16.04",
-  "build": { "dockerfile": "Dockerfile" },
+  "image": "robinqu/instinct-cpp-devcontainer:latest",
   "runArgs": [
     "--gpus",
     "all"
