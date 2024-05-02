@@ -68,13 +68,15 @@ namespace INSTINCT_LLM_NS {
             return rpp::source::create<AgentState>([&](const auto& observer) {
                 AgentState copied_state = agent_state;
                 try {
-                    AgentStep step;
-                    do {
+                    AgentStep step = ResolveNextStep(copied_state);
+                    observer.on_next(copied_state);
+                    while (
+                            step.has_observation() ||
+                            (step.has_thought() && step.thought().has_continuation())
+                    ) {
                         step = ResolveNextStep(copied_state);
-                        LOG_DEBUG("Progressed step: {}", step.ShortDebugString());
                         observer.on_next(copied_state);
-                    } while (!step.has_finish());
-                    LOG_DEBUG("Finished due to AgentFinish");
+                    }
                     observer.on_completed();
                 } catch (...) {
                     observer.on_error(std::current_exception());

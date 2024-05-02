@@ -40,63 +40,87 @@ message FunctionToolResult {
   string exception = 4;
 }
 
-message ReACTAgentThoughtStepMessage {
+message ReACTAgentContinuation {
   string thought = 1;
   FunctionToolInvocation invocation = 2;
-  string final_answer = 3;
+//  string final_answer = 3;
 }
 
-message ReACTAgentObservationStepMessage {
+message ReACTAgentObservation {
   FunctionToolResult result = 1;
 }
 
-message AgentFinishStepMessage {
+message LLMCompilerContinuation {}
+
+message LLMCompilerObservation {}
+
+message OpenAIToolAgentContinuation {
+  llm.Message tool_call_message = 1; // should be a message container tool call requests
+  repeated llm.FunctionTool functions = 2; // possible function tools
+}
+
+message OpenAIToolAgentObservation {
+  repeated llm.Message tool_messages = 1; // completed tool calls
+}
+
+message OpenAIToolAgentPause {
+  repeated llm.Message completed = 1; // should be a tool message
+  llm.Message tool_call_message = 2; // original tool call requests
+
+}
+
+message AgentContinuation {
+  // thought for officially supported implementations
+  oneof value {
+    ReACTAgentContinuation react = 1;
+    LLMCompilerContinuation llm_compiler = 2;
+    OpenAIToolAgentContinuation openai = 3;
+  }
+  // reserved for user defined thought
+  google.protobuf.Any custom = 100;
+}
+
+message AgentPause {
+  // currently only openai tool agent supports pausing
+  oneof value {
+      OpenAIToolAgentPause openai = 1;
+  }
+  // reserved for user defined thought
+  google.protobuf.Any custom = 100;
+}
+
+message AgentFinish {
   string response = 1;
   bool has_error = 2;
   string exception = 3;
 }
 
-message LLMCompilerThoughtMessage {}
 
-message LLMCompilerObservationMessage {}
-
-message OpenAIToolAgentThoughtMessage {
-  llm.Message tool_call_message = 1; // should be a message container tool call request
-}
-
-message OpenAIToolAgentObservation {
-  repeated llm.Message tool_messages = 1; // should be a tool message
-}
-
-message AgentThoughtMessage {
-  // thought for officially supported implementations
+message AgentThought {
   oneof value {
-    ReACTAgentThoughtStepMessage react = 1;
-    LLMCompilerThoughtMessage llm_compiler = 2;
-    OpenAIToolAgentThoughtMessage openai = 3;
+      AgentContinuation continuation = 1;
+      AgentPause pause = 2;
+      AgentFinish finish = 3;
   }
-
-  // reserved for user defined thought
-  google.protobuf.Any custom = 100;
 }
 
-message AgentObservationMessage {
+message AgentObservation {
   // thought for officially supported implementations
   oneof value {
-    ReACTAgentObservationStepMessage react = 1;
-    LLMCompilerObservationMessage llm_compiler = 2;
-    OpenAIToolAgentObservation openai = 4; // should be a tool message
+    ReACTAgentObservation react = 1;
+    LLMCompilerObservation llm_compiler = 2;
+    OpenAIToolAgentObservation openai = 3; // should be a tool message
   }
 
   // reserved for user defined observation
   google.protobuf.Any custom = 100;
 }
 
+
 message AgentStep {
   oneof value {
-    AgentFinishStepMessage finish = 1;
-    AgentThoughtMessage thought = 2;
-    AgentObservationMessage observation = 3;
+    AgentThought thought = 1;
+    AgentObservation observation = 2;
   }
 }
 

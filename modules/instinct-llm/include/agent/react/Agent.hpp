@@ -33,11 +33,12 @@ namespace INSTINCT_LLM_NS {
             : BaseWorker(toolkits) {
         }
 
-        AgentObservationMessage Invoke(const AgentThoughtMessage &input) override {
-            AgentObservationMessage observation_message;
-            const auto& invocation = input.react().invocation();
+        AgentObservation Invoke(const AgentThought &input) override {
+            AgentObservation observation_message;
+            assert_true(input.has_continuation() && input.continuation().has_react(), "should have continuation for ReACT executor.");
+            const auto& invocation = input.continuation().react().invocation();
             for(const auto& tk: GetFunctionToolkits()) {
-                if (tk->LookupFunctionTool({.by_name = input.react().invocation().name()})) {
+                if (tk->LookupFunctionTool({.by_name = input.continuation().react().invocation().name()})) {
                     const auto fn_result = tk->Invoke(invocation);
                     observation_message.mutable_react()
                         ->mutable_result()
@@ -127,16 +128,9 @@ Thought: {agent_scratchpad})"
             if (const auto& last_step = state.previous_steps(step_count-1); last_step.has_thought()) {
                 const auto& thought = last_step.thought();
 
-                if (StringUtils::IsNotBlankString(thought.react().final_answer())) {
-                    LOG_DEBUG("ReACT final answer: {}", thought.react().final_answer());
-                    // no invocation but has non-blank final answer
-                    agent_step.mutable_finish()->set_response(thought.react().final_answer());
-                    // save this step
-                    state.add_previous_steps()->CopyFrom(agent_step);
-                    return agent_step;
-                }
+                assert_true(thought.has_continuation(), "thought should have continuation");
 
-                if (thought.react().has_invocation()) {
+                if (thought.has_continuation() && thought.continuation().has_react()) {
                     // if last step is thought and contain invocation request, let's run function then.
                     const auto observation = GetWorker()->Invoke(thought);
                     LOG_DEBUG("ReACT observation: {}", observation.ShortDebugString());

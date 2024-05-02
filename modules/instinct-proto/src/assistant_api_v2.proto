@@ -40,7 +40,6 @@ enum AssistantToolType {
 
 message AssistantToolObject { // union of Code, FileSearch, Function
   AssistantToolType type = 1;
-  llm.FunctionTool function = 2;
 }
 
 
@@ -399,11 +398,14 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
   RequiredAction required_action = 8;
   message RequiredAction {
     RequiredActionType type = 1;
-    enum RequiredActionType {
-      unknown_required_action_type = 0;
-      submit_tool_outputs = 1;
+    SubmitToolOutputs submit_tool_outputs = 2;
+    message SubmitToolOutputs {
+      repeated llm.ToolCallObject tool_calls = 2;
     }
-    repeated llm.ToolCallObject tool_calls = 2;
+  }
+  enum RequiredActionType {
+    unknown_required_action_type = 0;
+    submit_tool_outputs = 1;
   }
 
   RunStepError last_error = 9;

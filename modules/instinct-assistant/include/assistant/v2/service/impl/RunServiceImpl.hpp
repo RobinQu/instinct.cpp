@@ -193,7 +193,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             const auto run_object = RetrieveRun(get_run_request);
             assert_true(run_object.has_value(), fmt::format("should have found run object with thread_id={}, run_id={}", thread_id, run_id));
             assert_true(run_object->status() == RunObject_RunObjectStatus_requires_action, "run object should be in status of 'requires_action'.");
-            assert_true(run_object->required_action().type() == RunObject_RequiredAction::submit_tool_outputs, fmt::format("required action for run object should be type of 'submit_tool_outputs'. thread_id={}, run_id={}", thread_id, run_id));
+            assert_true(run_object->required_action().type() == RunObject_RequiredActionType_submit_tool_outputs, fmt::format("required action for run object should be type of 'submit_tool_outputs'. thread_id={}, run_id={}", thread_id, run_id));
 
             // check run last run step
             ListRunStepsRequest list_run_steps_request;
@@ -245,6 +245,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             });
 
             // update run object
+            // status is updated just to signal the change. in fact, actual handling is implemented in `RunObjectTaskHandler`.
             SQLContext update_run_object_context;
             update_run_object_context["thread_id"] = thread_id;
             update_run_object_context["run_id"] = run_id;

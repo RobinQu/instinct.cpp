@@ -9,7 +9,7 @@
 #include "toolkit/BaseFunctionToolkit.hpp"
 
 namespace INSTINCT_LLM_NS {
-    class BaseWorker: public BaseRunnable<AgentThoughtMessage, AgentObservationMessage> {
+    class BaseWorker: public BaseRunnable<AgentThought, AgentObservation> {
         std::vector<FunctionToolkitPtr> toolkits_;
     public:
         explicit BaseWorker(const std::vector<FunctionToolkitPtr> &toolkits)

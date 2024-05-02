@@ -10,8 +10,7 @@
 #include "chain/MessageChain.hpp"
 #include "chat_model/BaseChatModel.hpp"
 
-namespace
-INSTINCT_LLM_NS {
+namespace INSTINCT_LLM_NS {
     /**
      * agent executor that relies on a model with built-in tool calling API
      */
@@ -28,10 +27,21 @@ INSTINCT_LLM_NS {
                 : BaseWorker(toolkits) {
             }
 
-            AgentObservationMessage Invoke(const AgentThoughtMessage &input) override {
-                const auto &tool_request_msg = input.openai().tool_call_message();
+            AgentObservation Invoke(const AgentThought &input) override {
+                const auto &tool_request_msg = input.continuation().openai().tool_call_message();
+
+                std::vector<ToolCallObject> filtered_tool_calls;
+                for (const auto& call: tool_request_msg.tool_calls()) {
+                    for (const auto &tk: GetFunctionToolkits()) {
+                        if (tk->LookupFunctionTool({.by_name = call.function().name()})) {
+                            filtered_tool_calls.push_back(call);
+                        }
+                    }
+                }
+
+                // only execute tool call that has matching tools in worker
                 auto multi_futures = thread_pool_.submit_sequence(0, tool_request_msg.tool_calls_size(), [&](auto i) {
-                    const auto &call = tool_request_msg.tool_calls(i);
+                    const auto &call = filtered_tool_calls.at(i);
                     FunctionToolInvocation invocation;
                     invocation.set_id(call.id());
                     invocation.set_name(call.function().name());
@@ -41,11 +51,12 @@ INSTINCT_LLM_NS {
                             return tk->Invoke(invocation);
                         }
                     }
+                    // impossible to reach here
                     throw InstinctException(fmt::format("Unresolved invocation: id={}, name={}", invocation.id(),
                                                         invocation.name()));
                 });
 
-                AgentObservationMessage observation_message;
+                AgentObservation observation_message;
                 auto *observation = observation_message.mutable_openai();;
                 for (auto &future: multi_futures) {
                     const auto tool_result = future.get();
@@ -66,52 +77,108 @@ INSTINCT_LLM_NS {
         static WorkerPtr CreateOpenAIToolAgentWorker(const std::vector<FunctionToolkitPtr> &toolkits) {
             return std::make_shared<OpenAIToolAgentWorker>(toolkits);
         }
+//
+//        class OpenAIToolAgentStateInputParser final: public BaseInputParser<AgentState> {
+//        public:
+//            JSONContextPtr ParseInput(const AgentState &state) override {
+//                JSONContextPtr ctx = CreateJSONContext();
+//
+//                // this should contain the first message from user
+//                PromptValue prompt_value = state.input();
+//                for (const auto &step: state.previous_steps()) {
+//                    // add tool call message ChatCompletion api
+//                    if (step.has_thought()
+//                            && step.thought().has_continuation()
+//                            && step.thought().continuation().has_openai()
+//                            && step.thought().continuation().openai().has_tool_call_message()) {
+//                        prompt_value.mutable_chat()->add_messages()->CopyFrom(
+//                            step.thought().continuation().openai().tool_call_message()
+//                        );
+//                    }
+//                    if (step.has_observation() && step.observation().has_openai() && step.observation().openai().
+//                        tool_messages_size() > 0) {
+//                        // add tool call results
+//                        for (const auto &msg: step.observation().openai().tool_messages()) {
+//                            prompt_value.mutable_chat()->add_messages()->CopyFrom(msg);
+//                        }
+//                    }
+//                }
+//                ctx->ProduceMessage(prompt_value);
+//                return ctx;
+//            }
+//        };
 
-        class OpenAIToolAgentStateInputParser final: public BaseInputParser<AgentState> {
+
+        class OpenAIToolAgentPlanner: public BaseRunnable<AgentState, AgentThought> {
+            ChatModelPtr chat_model_;
         public:
-            JSONContextPtr ParseInput(const AgentState &state) override {
-                JSONContextPtr ctx = CreateJSONContext();
+            explicit OpenAIToolAgentPlanner(const ChatModelPtr &chatModel) : chat_model_(chatModel) {}
+
+            AgentThought Invoke(const AgentState &state) override {
+                chat_model_->BindToolSchemas({state.function_tools().begin(), state.function_tools().end()});
 
                 // this should contain the first message from user
                 PromptValue prompt_value = state.input();
                 for (const auto &step: state.previous_steps()) {
                     // add tool call message ChatCompletion api
-                    if (step.has_thought() && step.thought().has_openai() && step.thought().openai().
-                        has_tool_call_message()) {
+                    if (step.has_thought()
+                        && step.thought().has_continuation()
+                        && step.thought().continuation().has_openai()
+                        && step.thought().continuation().openai().has_tool_call_message()) {
                         prompt_value.mutable_chat()->add_messages()->CopyFrom(
-                            step.thought().openai().tool_call_message());
+                                step.thought().continuation().openai().tool_call_message()
+                        );
                     }
                     if (step.has_observation() && step.observation().has_openai() && step.observation().openai().
-                        tool_messages_size() > 0) {
+                            tool_messages_size() > 0) {
                         // add tool call results
                         for (const auto &msg: step.observation().openai().tool_messages()) {
                             prompt_value.mutable_chat()->add_messages()->CopyFrom(msg);
                         }
                     }
                 }
-                ctx->ProduceMessage(prompt_value);
-                return ctx;
-            }
-        };
 
-        class OpenAIToolAgentThoughtOutputParser final : public BaseOutputParser<AgentThoughtMessage> {
-        public:
-            AgentThoughtMessage ParseResult(const Generation &context) override {
-                AgentThoughtMessage thought_message;
-                thought_message.mutable_openai()->mutable_tool_call_message()->CopyFrom(context.message());
+                const auto message = chat_model_->Invoke(prompt_value);
+                AgentThought thought_message;
+                if (message.tool_calls_size() > 0) { // has more tool call requests
+                    thought_message.mutable_continuation()->mutable_openai()->mutable_tool_call_message()->CopyFrom(message);
+                    return thought_message;
+                }
+                thought_message.mutable_finish()->set_response(message.content());
                 return thought_message;
             }
         };
+//
+//        class OpenAIToolAgentThoughtOutputParser final : public BaseOutputParser<AgentThought> {
+//        public:
+//            AgentThought ParseResult(const Generation &context) override {
+//                AgentThought thought_message;
+//                if (context.message().tool_calls_size() > 0) { // has more tool call requests
+//                    thought_message.mutable_continuation()->mutable_openai()->mutable_tool_call_message()->CopyFrom(context.message());
+//                    return thought_message;
+//                }
+//                thought_message.mutable_finish()->set_response(context.message().content());
+//                return thought_message;
+//            }
+//        };
 
+        /**
+         * Create OpenAI style tool agent
+         * @param chat_model A chat model provider that supports tool calling APIs
+         * @return
+         */
         static PlannerPtr CreateOpenAIToolAgentPlanner(const ChatModelPtr &chat_model) {
-            const InputParserPtr<AgentState> input_parser = std::make_shared<OpenAIToolAgentStateInputParser>();
-            const OutputParserPtr<AgentThoughtMessage> output_parser = std::make_shared<OpenAIToolAgentThoughtOutputParser>();
-            return CreateFunctionalChain(
-                input_parser,
-                output_parser,
-                chat_model->AsModelFunction()
-            );
+//            const InputParserPtr<AgentState> input_parser = std::make_shared<OpenAIToolAgentStateInputParser>();
+//            const OutputParserPtr<AgentThought> output_parser = std::make_shared<OpenAIToolAgentThoughtOutputParser>();
+//            return CreateFunctionalChain(
+//                input_parser,
+//                output_parser,
+//                chat_model->AsModelFunction()
+//            );
+            return std::make_shared<OpenAIToolAgentPlanner>(chat_model);
         }
+
+//        using PausePolicy = std::function<bool()>;
 
     public:
         OpenAIToolAgentExecutor(const PlannerPtr &planner, const WorkerPtr &worker)
@@ -134,36 +201,74 @@ INSTINCT_LLM_NS {
             //  do ChatCompletion with messages -> message
             //  is_last = messages.function_call is None
             const auto n = state.previous_steps_size();
-            if (n == 0 || state.previous_steps(n - 1).has_observation()) {
+            const auto last_step = state.previous_steps(n - 1);
+            if (n == 0 || last_step.has_observation()) {
                 // do planing
-                const AgentThoughtMessage thought_step = GetPlaner()->Invoke(state);
-                assert_true(thought_step.has_openai());
+                AgentThought thought_step = GetPlaner()->Invoke(state);
                 agent_step.mutable_thought()->CopyFrom(thought_step);
                 state.add_previous_steps()->CopyFrom(agent_step);
                 return agent_step;
             }
 
-            if (state.previous_steps(n - 1).has_thought()) {
-                const AgentThoughtMessage thought_step = state.previous_steps(n - 1).thought();
-                assert_true(thought_step.has_openai());
-
-                if (thought_step.openai().tool_call_message().tool_calls_size() > 0) {
-                    const auto observation_message = GetWorker()->Invoke(thought_step);
+            if (last_step.has_thought()
+                && last_step.thought().has_pause()
+                && last_step.thought().pause().has_openai()
+                && last_step.thought().pause().openai().has_tool_call_message()
+                    ) {
+                // for pause step, user should submit rest of tool results through IRunService::SubmitToolOutputs.
+                // so we just check if all tools are done here
+                const auto& pause = last_step.thought().pause().openai();
+                if (pause.tool_call_message().tool_calls_size() == pause.completed_size()) {
+                    // lift to observation
+                    OpenAIToolAgentObservation observation_message;
+                    observation_message.mutable_tool_messages()->CopyFrom(pause.completed());
                     agent_step.mutable_observation()->CopyFrom(observation_message);
                     state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
                 }
-                // if no tool calls are requested, then finalize
-                AgentFinishStepMessage finish_step_message;
-                finish_step_message.set_response(thought_step.openai().tool_call_message().content());
-                agent_step.mutable_finish()->CopyFrom(finish_step_message);
+            }
+
+            // if last step is paused and finished, it cannot be executed again
+            if (last_step.has_thought()
+                    && last_step.thought().has_continuation()
+                    && last_step.thought().continuation().has_openai()
+                    && last_step.thought().continuation().openai().has_tool_call_message()
+                    && last_step.thought().continuation().openai().tool_call_message().tool_calls_size() > 0
+                    ) {
+                const auto& tool_call_message = last_step.thought().continuation().openai().tool_call_message();
+                const auto& tool_call_objects = tool_call_message.tool_calls();
+                const auto& thought_step = last_step.thought();
+
+                // worker should filter out unsupported tool
+                const auto observation_message = GetWorker()->Invoke(thought_step);
+                int completed = 0;
+                for(const auto& tool_call: tool_call_objects) {
+                    for(const auto& tool_message: observation_message.openai().tool_messages()) {
+                        if (tool_message.tool_call_id() == tool_call.id()) {
+                            completed++;
+                        }
+                    }
+                }
+                bool all_done = completed == tool_call_objects.size();
+
+                if (!all_done) { // return a pause step
+                    auto* pause = agent_step.mutable_thought()->mutable_pause()->mutable_openai();
+                    pause->mutable_tool_call_message()->CopyFrom(tool_call_message);
+                    pause->mutable_completed()->CopyFrom(observation_message.openai().tool_messages());
+                    return agent_step;
+                }
+
+                agent_step.mutable_observation()->CopyFrom(observation_message);
                 state.add_previous_steps()->CopyFrom(agent_step);
                 return agent_step;
             }
 
             LOG_DEBUG("illegal state: {}", state.ShortDebugString());
-            throw InstinctException("IllegalState for OpenAIToolAgentExeuctor");
+            throw InstinctException("IllegalState for OpenAIToolAgentExecutor");
         }
+
+    private:
+
     };
 
     static AgentExecutorPtr CreateOpenAIToolAgentExecutor(

@@ -13,8 +13,8 @@
 
 namespace INSTINCT_LLM_NS {
 
-    using Planer = MessageChain<AgentState, AgentThoughtMessage>;
-    using PlannerPtr = MessageChainPtr<AgentState, AgentThoughtMessage>;
+    using Planer = BaseRunnable<AgentState, AgentThought>;
+    using PlannerPtr = RunnablePtr<AgentState, AgentThought>;
 
 
     /**
