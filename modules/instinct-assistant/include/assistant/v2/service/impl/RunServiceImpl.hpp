@@ -134,7 +134,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         ListRunsResponse ListRuns(const ListRunsRequest &list_request) override {
             assert_not_blank(list_request.thread_id(), "should provide thread_id");
             SQLContext context;
-            // plus one for remianing check
+            // plus one for remaining check
             const auto limit = list_request.limit() <= 0 ? DEFAULT_LIST_LIMIT + 1: list_request.limit() + 1;
             context["limit"] = limit;
             ProtobufUtils::ConvertMessageToJsonObject(list_request, context);
@@ -208,21 +208,21 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
             // do a copy and filter
             auto copied_run_step = last_run_step;
-            auto function_step_detaiils_view = (*copied_run_step.mutable_step_details()->mutable_tool_calls()) | std::views::filter([](const RunStepObject_RunStepDetails_ToolCallDetail& detail) {
+            auto function_step_details_view = (*copied_run_step.mutable_step_details()->mutable_tool_calls()) | std::views::filter([](const RunStepObject_RunStepDetails_ToolCallDetail& detail) {
                     return detail.type() == function;
             });
-            auto size = std::ranges::distance(function_step_detaiils_view);
+            auto size = std::ranges::distance(function_step_details_view);
             assert_true(size > 0, fmt::format("should have at at least one tool call for thread_id={}, run_id={}, run_step_id={}", thread_id, run_id, last_run_step.id()));
 
             // collect call ids
-            auto function_Step_details_ids_view = function_step_detaiils_view | std::views::transform([](const RunStepObject_RunStepDetails_ToolCallDetail& detail) {
+            auto function_Step_details_ids_view = function_step_details_view | std::views::transform([](const RunStepObject_RunStepDetails_ToolCallDetail& detail) {
                 return detail.id();
             });
             std::unordered_set<std::string> function_call_ids {function_Step_details_ids_view.begin(), function_Step_details_ids_view.end()};
 
-            // set tool ouptut result in step_details
+            // set tool output result in step_details
             for(const auto& tool_output: sub_request.tool_outputs()) {
-                for(auto& function_step_detail: function_step_detaiils_view) {
+                for(auto& function_step_detail: function_step_details_view) {
                     if (function_step_detail.id() == tool_output.tool_call_id()) {
                         function_call_ids.erase(function_step_detail.id());
                         function_step_detail.mutable_function()->set_output(tool_output.output());

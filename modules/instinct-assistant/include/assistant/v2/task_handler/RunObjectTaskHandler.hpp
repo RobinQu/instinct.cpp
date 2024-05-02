@@ -13,8 +13,8 @@ namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_DATA_NS;
 
     class RunObjectTaskHandler final: public CommonTaskScheduler::ITaskHandler {
-        // DataMapperPtr<RunObject, std::string> run_data_mapper_;
-        // DataMapperPtr<RunStepObject, std::string> run_step_data_mapper_;
+//         DataMapperPtr<RunObject, std::string> run_data_mapper_;
+//         DataMapperPtr<RunStepObject, std::string> run_step_data_mapper_;
         RunServicePtr run_service_;
         MessageServicePtr message_service_;
     public:
@@ -25,29 +25,60 @@ namespace INSTINCT_ASSISTANT_NS {
         }
 
         void Handle(const ITaskScheduler<std::string>::Task &task) override {
-            // GetRunRequest get_run_request;
-            // get_run_request.set_run_id(task.task_id);
             RunObject run_object;
             ProtobufUtils::Deserialize(task.payload, run_object);
 
+            if (CheckPreconditions_(run_object)) {
+                LOG_WARN("Precondition failure for run object: {}", run_object.ShortDebugString());
+                return;
+            }
+
             AgentState state;
             RecoverAgentState_(run_object, state);
-
-            AgentExecutorPtr executor;
+            AgentExecutorPtr executor = BuildAgentExecutor_(run_object);
 
             // execute possible steps
             executor->Stream(state)
                 | rpp::operators::subscribe([&](const AgentState& current_state) {
                     const auto last_step = current_state.previous_steps().rbegin();
+                    if (last_step->has_thought() && last_step->thought().has_openai() && last_step->thought().openai().has_tool_call_message()) { // should be thought of openai tool agent
+                        CreateRunStep_(last_step->thought().openai());
+                        return;
+                    }
 
+                    if(last_step->has_finish()) { // finish message
+                        CreateRunStep_(last_step->finish());
+                        return;
+                    }
+
+                    // should be observation which cannot be generated from tool agent. they should be submitted by users through `IRunService::SubmitToolOutputs` and agent executor will consult planer to generate thought messages or finish messages.
+                    LOG_WARN("Illegal message from agent: {}", last_step->ShortDebugString());
                 });
         }
 
 
     private:
-        void RecoverAgentState_(const RunObject& run_object, AgentState& state) {
 
-        ListRunStepsRequest list_run_steps_request;
+        bool CheckPreconditions_(const RunObject& run_object) {
+
+        }
+
+        AgentExecutorPtr BuildAgentExecutor_(const RunObject& run_object) {
+
+        }
+
+        void CreateRunStep_(const AgentFinishStepMessage& finish_message) {
+
+        }
+
+        void CreateRunStep_(const OpenAIToolAgentThoughtMessage& thought_message) {
+
+        }
+
+
+
+        void RecoverAgentState_(const RunObject& run_object, AgentState& state) {
+            ListRunStepsRequest list_run_steps_request;
             list_run_steps_request.set_order(asc);
             list_run_steps_request.set_run_id(run_object.id());
             list_run_steps_request.set_thread_id(run_object.thread_id());

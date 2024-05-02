@@ -57,7 +57,7 @@ namespace INSTINCT_LLM_NS {
         // const auto calculator = CreateLLMMath(openai_chat);
         const auto serp_api = CreateSerpAPI();
         const auto toolkit = CreateLocalToolkit({ serp_api});
-        openai_chat->BindTools(toolkit);
+        openai_chat->BindToolSchemas(toolkit);
 
         MessageList messages;
         llm::Message message;

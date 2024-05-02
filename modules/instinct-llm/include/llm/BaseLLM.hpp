@@ -56,7 +56,7 @@ namespace INSTINCT_LLM_NS {
                 const PromptValueVariant &input) override {
             const auto string_prompt = details::conv_prompt_value_variant_to_string(input);
             if (const auto result = Generate({string_prompt}); !result.generations().empty()) {
-                const auto answer = details::conv_languange_result_to_string(result.generations(0));
+                const auto answer = details::conv_language_result_to_string(result.generations(0));
                 return answer;
             }
             throw InstinctException("Empty response");
@@ -68,7 +68,7 @@ namespace INSTINCT_LLM_NS {
             auto batched_result = Generate({string_view.begin(), string_view.end()});
             if (batched_result.generations_size() > 0) {
                 auto result_string_view = batched_result.generations() | std::views::transform(
-                        details::conv_languange_result_to_string);
+                        details::conv_language_result_to_string);
                 return rpp::source::from_iterable(result_string_view);
             }
             return CreateAsyncIteratorWithError<std::string>("Empty response");
@@ -77,14 +77,14 @@ namespace INSTINCT_LLM_NS {
         AsyncIterator<std::string> Stream(const PromptValueVariant &input) override {
             const auto string_prompt = details::conv_prompt_value_variant_to_string(input);
             return StreamGenerate(string_prompt)
-                   | rpp::operators::map(details::conv_languange_result_to_string);
+                   | rpp::operators::map(details::conv_language_result_to_string);
         }
 
         StepFunctionPtr AsModelFunction()  {
             return std::make_shared<LLMStepFunction>(shared_from_this());;
         }
 
-        void BindTools(const std::vector<FunctionToolSchema> &function_tool_schema) override {
+        void BindToolSchemas(const std::vector<FunctionToolSchema> &function_tool_schema) override {
             throw InstinctException("Not implemented");
         }
 

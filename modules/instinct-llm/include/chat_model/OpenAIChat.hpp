@@ -28,7 +28,7 @@ namespace INSTINCT_LLM_NS {
             client_.GetDefaultHeaders().emplace("Authorization", fmt::format("Bearer {}", GetAPIKey_()));
         }
 
-        void BindTools(const std::vector<FunctionToolSchema> &function_tool_schema) override {
+        void BindToolSchemas(const std::vector<FunctionToolSchema> &function_tool_schema) override {
             for (const auto& tool_schema: function_tool_schema) {
                 OpenAIChatCompletionRequest_ChatCompletionTool tool;
                 tool.set_type("function");

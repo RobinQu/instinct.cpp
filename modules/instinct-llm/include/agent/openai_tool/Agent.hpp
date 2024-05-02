@@ -18,7 +18,7 @@ INSTINCT_LLM_NS {
     class OpenAIToolAgentExecutor final : public BaseAgentExecutor {
 
         /**
-         * Tool executor that supports paralled tool calling using thread pool
+         * Tool executor that supports parallel tool calling using thread pool
          */
         class OpenAIToolAgentWorker final : public BaseWorker {
             ThreadPool thread_pool_;
@@ -72,7 +72,7 @@ INSTINCT_LLM_NS {
             JSONContextPtr ParseInput(const AgentState &state) override {
                 JSONContextPtr ctx = CreateJSONContext();
 
-                // this should contain the first mesage from user
+                // this should contain the first message from user
                 PromptValue prompt_value = state.input();
                 for (const auto &step: state.previous_steps()) {
                     // add tool call message ChatCompletion api
