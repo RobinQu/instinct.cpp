@@ -49,10 +49,6 @@ namespace INSTINCT_LLM_NS {
             configuration_ = options;
         }
 
-        void BindTools(const FunctionToolkitPtr &toolkit) override {
-            throw InstinctException("Not implemented");
-        }
-
     private:
         LangaugeModelResult CallOllama(const MessageList& message_list) {
             OllamaChatCompletionRequest request;

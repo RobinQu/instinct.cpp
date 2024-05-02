@@ -28,8 +28,8 @@ namespace INSTINCT_LLM_NS {
             client_.GetDefaultHeaders().emplace("Authorization", fmt::format("Bearer {}", GetAPIKey_()));
         }
 
-        void BindTools(const FunctionToolkitPtr &toolkit) override {
-            for (const auto& tool_schema: toolkit->GetAllFuncitonToolSchema()) {
+        void BindTools(const std::vector<FunctionToolSchema> &function_tool_schema) override {
+            for (const auto& tool_schema: function_tool_schema) {
                 OpenAIChatCompletionRequest_ChatCompletionTool tool;
                 tool.set_type("function");
                 FunctionTool* function_tool = tool.mutable_function();
@@ -50,13 +50,13 @@ namespace INSTINCT_LLM_NS {
             }
         }
 
-        void CallOpenAI(const MessageList& message_list, BatchedLangaugeModelResult& batched_langauge_model_result) {
+        void CallOpenAI(const MessageList& message_list, BatchedLangaugeModelResult& batched_language_model_result) {
             const auto req = BuildRequest_(message_list, false);
             const auto resp = client_.PostObject<OpenAIChatCompletionRequest, OpenAIChatCompletionResponse>(DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT, req);
 
-            auto* langauge_model_result = batched_langauge_model_result.add_generations();
+            auto* language_model_result = batched_language_model_result.add_generations();
             for(const auto& choice: resp.choices()) {
-                auto* single_result = langauge_model_result->add_generations();
+                auto* single_result = language_model_result->add_generations();
                 single_result->set_text(choice.message().content());
                 single_result->set_is_chunk(false);
                 single_result->mutable_message()->CopyFrom(choice.message());

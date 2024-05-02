@@ -79,6 +79,10 @@ namespace INSTINCT_LLM_NS {
             return std::make_shared<ChatModelFunction>(shared_from_this());;
         }
 
+        void BindTools(const std::vector<FunctionToolSchema> &function_tool_schema) override {
+            throw InstinctException("Not implemented");
+        }
+
     };
 
     inline JSONContextPtr ChatModelFunction::Invoke(const JSONContextPtr &input) {

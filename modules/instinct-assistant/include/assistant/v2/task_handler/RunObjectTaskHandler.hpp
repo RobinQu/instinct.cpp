@@ -30,10 +30,8 @@ namespace INSTINCT_ASSISTANT_NS {
             RunObject run_object;
             ProtobufUtils::Deserialize(task.payload, run_object);
 
-
-
             AgentState state;
-            RecoverAentState_(run_object, state);
+            RecoverAgentState_(run_object, state);
 
             AgentExecutorPtr executor;
 
@@ -47,7 +45,7 @@ namespace INSTINCT_ASSISTANT_NS {
 
 
     private:
-        void RecoverAentState_(const RunObject& run_object, AgentState& state) {
+        void RecoverAgentState_(const RunObject& run_object, AgentState& state) {
 
         ListRunStepsRequest list_run_steps_request;
             list_run_steps_request.set_order(asc);
@@ -58,12 +56,12 @@ namespace INSTINCT_ASSISTANT_NS {
             ListMessageRequest list_message_request;
             list_run_steps_request.set_thread_id(run_object.thread_id());
             list_run_steps_request.set_order(asc);
-            auto list_mesage_response = message_service_->ListMessages(list_message_request);
+            auto list_message_response = message_service_->ListMessages(list_message_request);
 
             std::unordered_map<std::string, MessageObject*> msgs_by_id;
             MessageObject* last_user_message = nullptr;
-            for (int i=0;i<list_mesage_response.data_size();++i) {
-                auto msg = list_mesage_response.mutable_data(i);
+            for (int i=0; i < list_message_response.data_size(); ++i) {
+                auto msg = list_message_response.mutable_data(i);
                 msgs_by_id[msg->id()] = msg;
                 if (msg->role() == user) {
                     last_user_message = msg;
@@ -72,10 +70,9 @@ namespace INSTINCT_ASSISTANT_NS {
 
             assert_true(last_user_message, "Should have user message in thread");
 
-
-            auto* user_message = state.mutable_input()->mutable_chat()->add_messages();
+            auto user_message = state.mutable_input()->mutable_chat()->add_messages();
             // TODO support image message
-            user_message->set_content(last_user_message->content().text());
+            user_message->set_content(last_user_message->content().text().value());
             user_message->set_role("user");
             for(const auto &step: list_run_steps_resp.data()) {
                 // state.mutable_previous_steps()->

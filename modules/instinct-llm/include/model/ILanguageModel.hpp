@@ -28,7 +28,11 @@ namespace INSTINCT_LLM_NS {
          * Bind toolkits for LLM APIs that support tool uses
          * @param toolkit
          */
-        virtual void BindTools(const FunctionToolkitPtr& toolkit) = 0;
+        virtual void BindTools(const FunctionToolkitPtr& toolkit) {
+            BindTools(toolkit->GetAllFuncitonToolSchema());
+        }
+
+        virtual void BindTools(const std::vector<FunctionToolSchema>& function_tool_schema) = 0;
     };
 
     namespace details {
