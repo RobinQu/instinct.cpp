@@ -523,6 +523,21 @@ limit 1;
         }
 
         template<typename PrimaryKey = std::string>
+        static PrimaryKey CreateRunStep(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            return data_mapper->InsertOne(R"(
+insert into instinct_thread_run_step(id, thread_id, run_id, type, status)
+values (
+    {{text(id)}},
+    {{text(thread_id)}},
+    {{text(run_id)}},
+    {{text(type)}},
+    {{text(status)}}
+)
+returning (id);
+            )", context);
+        }
+
+        template<typename PrimaryKey = std::string>
         static size_t UpdateRunStep(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->Execute(R"(
 update instinct_thread_run_step
@@ -531,22 +546,41 @@ set
     {% if exists("status") and is_not_blank(status) %}
     , status = {{text(status)}}
     {% endif %}
+
     {% if exists("step_details") %}
     , step_details = {{stringify(step_details)}}
+    {% endif %}
+
+    {% if exists("last_error") %}
+    , last_error = {{stringify(last_error)}}
+    {% endif %}
+
+    {% if exists("expired_at") and expired_at > 0 %}
+    , expired_at = {{timestamp(expired_at)}}
+    {% endif %}
+
+    {% if exists("cancelled_at") and cancelled_at > 0 %}
+    , cancelled_at = {{timestamp(cancelled_at)}}
+    {% endif %}
+
+    {% if exists("failed_at") and failed_at > 0 %}
+    , failed_at = {{timestamp(failed_at)}}
+    {% endif %}
+
+    {% if exists("completed_at") and completed_at > 0 %}
+    , completed_at = {{timestamp(completed_at)}}
     {% endif %}
 where
     id={{text(step_id)}}
     and thread_id={{text(thread_id)}}
     and run_id = {{text(run_id)}};
             )", context);
-
         }
 
         template<typename PrimaryKey = std::string>
         static std::optional<RunStepObject> GetRunStep(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->SelectOne("select * from instinct_thread_run_step where id={{text(step_id)}} and thread_id={{text(thread_id)}} and run_id = {{text(run_id)}} limit 1;", context);
         }
-
 
         template<typename PrimaryKey = std::string>
         static std::vector<RunStepObject> SelectManyRunSteps(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {

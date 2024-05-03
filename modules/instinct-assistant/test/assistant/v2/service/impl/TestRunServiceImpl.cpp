@@ -14,7 +14,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     class RunServiceTest: public BaseAssistantApiTest {
     public:
         RunServicePtr CreateService() {
-            return std::make_shared<RunServiceImpl>(thread_data_mapper, run_data_mapper, run_step_data_mapper, message_data_mapper, task_scheduler_);
+            return std::make_shared<RunServiceImpl>(thread_data_mapper, run_data_mapper, run_step_data_mapper, message_data_mapper, state_manager_, task_scheduler_);
         }
 
         AssistantServicePtr assistant_service = std::make_shared<AssistantServiceImpl>(assistant_data_mapper);
@@ -92,5 +92,67 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         const auto obj6 = run_service->CancelRun(cancel_run_request);
         LOG_INFO("CancelRun returned: {}", obj6->ShortDebugString());
         ASSERT_EQ(obj6->status(), RunObject::RunObjectStatus::RunObject_RunObjectStatus_cancelling);
+    }
+
+
+    TEST_F(RunServiceTest, SimpleCRUDWithRunStepObjects) {
+        const auto run_service = CreateService();
+        google::protobuf::util::MessageDifferencer message_differencer;
+
+        // create asssitant
+        AssistantObject create_assitant_request;
+        create_assitant_request.set_model("ollama/llama3:latest");
+        const auto obj1 = assistant_service->CreateAssistant(create_assitant_request);
+        LOG_INFO("CreateAssistant returned: {}", obj1->ShortDebugString());
+
+        // create thread and run
+        CreateThreadAndRunRequest create_thread_and_run_request1;
+        create_thread_and_run_request1.set_assistant_id(obj1->id());
+        auto* msg = create_thread_and_run_request1.mutable_thread()->add_messages();
+        msg->set_role(user);
+        msg->mutable_content()->mutable_text()->set_value("What's the population of India?");
+        msg->mutable_content()->set_type(MessageObject_MessageContentType_text);
+        const auto obj2 = run_service->CreateThreadAndRun(create_thread_and_run_request1);
+        LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
+
+
+        // create run step
+        RunStepObject create_run_step_request;
+        create_run_step_request.set_run_id(obj2->id());
+        create_run_step_request.set_thread_id(obj2->thread_id());
+        create_run_step_request.set_assistant_id(obj2->assistant_id());
+        create_run_step_request.set_type(RunStepObject_RunStepType_message_creation);
+        create_run_step_request.set_status(RunStepObject_RunStepStatus_in_progress);
+        const auto obj3 = run_service->CreateRunStep(create_run_step_request);
+        LOG_INFO("CreateRunStep returned: {}", obj3->ShortDebugString());
+        ASSERT_EQ(obj3->object(), "thread.run.step");
+        ASSERT_TRUE(StringUtils::IsNotBlankString(obj3->id()));
+
+        // modify run step
+        ModifyRunStepRequest modify_run_step_request;
+        modify_run_step_request.set_step_id(obj3->id());
+        modify_run_step_request.set_thread_id(obj2->thread_id());
+        modify_run_step_request.set_run_id(obj2->id());
+        modify_run_step_request.set_status(RunStepObject_RunStepStatus_failed);
+        const auto obj4 = run_service->ModifyRunStep(modify_run_step_request);
+        LOG_INFO("ModifyRunStep returned: {}", obj4->ShortDebugString());
+        ASSERT_EQ(obj4->status(), RunStepObject_RunStepStatus_failed);
+
+        // get run step
+        GetRunStepRequest get_run_step_request;
+        get_run_step_request.set_step_id(obj3->id());
+        get_run_step_request.set_thread_id(obj2->thread_id());
+        get_run_step_request.set_run_id(obj2->id());
+        const auto obj5 = run_service->GetRunStep(get_run_step_request);
+        ASSERT_TRUE(message_differencer.Compare(obj5.value(), obj4.value()));
+
+        // list run steps
+        ListRunStepsRequest list_run_steps_request;
+        list_run_steps_request.set_order(desc);
+        list_run_steps_request.set_run_id(obj2->id());
+        list_run_steps_request.set_thread_id(obj2->thread_id());
+        const auto obj6 = run_service->ListRunSteps(list_run_steps_request);
+        ASSERT_EQ(obj6.data_size(), 1);
+        ASSERT_TRUE(message_differencer.Compare(obj6.data(0), obj5.value()));
     }
 }

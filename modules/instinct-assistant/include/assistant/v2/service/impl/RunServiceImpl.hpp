@@ -29,14 +29,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             const DataMapperPtr<RunObject, std::string> &run_data_mapper,
             const DataMapperPtr<RunStepObject, std::string> &run_step_data_mapper,
             const DataMapperPtr<MessageObject, std::string>& message_data_mapper,
-            // const DataMapperPtr<AssistantObject, std::string>& assistant_data_mapper,
+            const StateManagerPtr& state_manager,
             const CommonTaskSchedulerPtr& task_scheduler
             )
             : thread_data_mapper_(thread_data_mapper),
               run_data_mapper_(run_data_mapper),
               run_step_data_mapper_(run_step_data_mapper),
               message_data_mapper_(message_data_mapper),
-              // assistant_data_mapper_(assistant_data_mapper),
+              state_manager_(state_manager),
               task_scheduler_(task_scheduler) {
         }
 
@@ -148,6 +148,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             context["response_format"] = "auto";
             context["truncation_strategy"] = nlohmann::ordered_json::parse(R"({"type":"auto"})");
             EntitySQLUtils::InsertOneRun(run_data_mapper_, context);
+
+            // create empty state
+            AgentState initial_state;
+            initial_state.set_id(run_id);
+            state_manager_->Save(initial_state);
 
             // start agent exeuction
             task_scheduler_->Enqueue({
@@ -336,11 +341,32 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<RunStepObject> CreateRunStep(const RunStepObject &create_request) override {
+            assert_not_blank(create_request.run_id(), "should provide run_id");
+            assert_not_blank(create_request.thread_id(), "should provide thread_id");
 
+            SQLContext context;
+            ProtobufUtils::ConvertMessageToJsonObject(create_request, context);
+            const auto run_step_id = details::generate_next_object_id("run_step");;
+            context["id"] = run_step_id;
+            EntitySQLUtils::CreateRunStep(run_step_data_mapper_, context);
+            GetRunStepRequest get_run_step_request;
+            get_run_step_request.set_run_id(create_request.run_id());
+            get_run_step_request.set_step_id(run_step_id);
+            get_run_step_request.set_thread_id(create_request.thread_id());
+            return GetRunStep(get_run_step_request);
         }
 
         std::optional<RunStepObject> ModifyRunStep(const ModifyRunStepRequest &modify_reequest) override {
+            SQLContext context;
+            ProtobufUtils::ConvertMessageToJsonObject(modify_reequest, context);
+            EntitySQLUtils::UpdateRunStep(run_step_data_mapper_, context);
 
+            // return
+            GetRunStepRequest get_run_step_request;
+            get_run_step_request.set_run_id(modify_reequest.run_id());
+            get_run_step_request.set_step_id(modify_reequest.step_id());
+            get_run_step_request.set_thread_id(modify_reequest.thread_id());
+            return GetRunStep(get_run_step_request);
         }
     };
 }

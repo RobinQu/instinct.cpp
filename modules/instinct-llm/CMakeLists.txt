@@ -72,6 +72,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/agent/patterns/openai_tool/Agent.hpp
         include/agent/state/IStateManager.hpp
         include/tool/FunctionToolUtils.hpp
+        include/agent/state/InMemoryStateManager.hpp
 )
 
 find_package(exprtk REQUIRED)

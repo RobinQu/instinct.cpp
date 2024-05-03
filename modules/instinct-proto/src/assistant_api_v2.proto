@@ -618,7 +618,7 @@ message GetRunStepRequest {
 message RunStepObject { // GetRunStepResponse
   string id = 1;
   string object = 2;
-  int32 created_at = 3;
+  int64 created_at = 3;
   string assistant_id = 4;
   string thread_id = 5;
   string run_id = 6;
@@ -697,6 +697,7 @@ message RunStepObject { // GetRunStepResponse
   int64 completed_at = 14;
   google.protobuf.Struct metadata = 15;
   CompletionUsage usage = 16;
+  int64 modified_at = 17;
 }
 
 message RunStepError {
@@ -708,15 +709,15 @@ message RunStepError {
 message ModifyRunStepRequest {
   string run_id = 1;
   string thread_id = 2;
-  string run_step_id = 3;
+  string step_id = 3;
+
   RunStepObject.RunStepDetails step_details = 4;
   RunStepObject.RunStepStatus status = 5;
-
-  RunStepError last_error = 10;
-  int64 expired_at = 11;
-  int64 cancelled_at = 12;
-  int64 failed_at = 13;
-  int64 completed_at = 14;
+  RunStepError last_error = 6;
+  int64 expired_at = 7;
+  int64 cancelled_at = 8;
+  int64 failed_at = 9;
+  int64 completed_at = 10;
 }
 
 // ==============================================================

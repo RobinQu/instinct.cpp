@@ -220,7 +220,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // update run step
             ModifyRunStepRequest modify_run_step_request;
             modify_run_step_request.set_run_id(run_object.id());
-            modify_run_step_request.set_run_step_id(last_run_step_opt->id());
+            modify_run_step_request.set_step_id(last_run_step_opt->id());
             modify_run_step_request.set_thread_id(run_object.thread_id());
             auto* step_details = modify_run_step_request.mutable_step_details();
             step_details->CopyFrom(last_run_step_opt->step_details());
@@ -281,7 +281,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // update run step with tool call outputs
             ModifyRunStepRequest modify_run_step_request;
             modify_run_step_request.set_run_id(run_object.id());
-            modify_run_step_request.set_run_step_id(last_run_step_opt->id());
+            modify_run_step_request.set_step_id(last_run_step_opt->id());
             modify_run_step_request.set_thread_id(run_object.thread_id());
             auto* step_details = modify_run_step_request.mutable_step_details();
             step_details->CopyFrom(last_run_step_opt->step_details());
@@ -332,7 +332,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 // update last run step object with status of `failed`
                 ModifyRunStepRequest modify_run_step_request;
                 modify_run_step_request.set_run_id(run_object.id());
-                modify_run_step_request.set_run_step_id(last_run_step_opt->id());
+                modify_run_step_request.set_step_id(last_run_step_opt->id());
                 modify_run_step_request.set_thread_id(run_object.thread_id());
                 modify_run_step_request.set_failed_at(ChronoUtils::GetCurrentTimeMillis());
                 modify_run_step_request.set_status(RunStepObject_RunStepStatus_failed);
@@ -357,7 +357,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // update last run step object with status of `completed`
             ModifyRunStepRequest modify_run_step_request;
             modify_run_step_request.set_run_id(run_object.id());
-            modify_run_step_request.set_run_step_id(last_run_step_opt->id());
+            modify_run_step_request.set_step_id(last_run_step_opt->id());
             modify_run_step_request.set_thread_id(run_object.thread_id());
             modify_run_step_request.set_completed_at(ChronoUtils::GetCurrentTimeMillis());
             modify_run_step_request.set_status(RunStepObject_RunStepStatus_completed);
