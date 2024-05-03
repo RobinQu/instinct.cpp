@@ -15,7 +15,7 @@ namespace INSTINCT_LLM_NS {
         std::unordered_map<std::string, FunctionToolPtr> functions_map_;
 
     public:
-        std::vector<FunctionTool> GetAllFuncitonToolSchema() override {
+        std::vector<FunctionTool> GetAllFunctionToolSchema() override {
             auto view = std::views::values(functions_map_) | std::views::transform([](const auto& tool) {
                 return tool->GetSchema();
             });
@@ -31,7 +31,7 @@ namespace INSTINCT_LLM_NS {
             return true;
         }
 
-        bool UnregisterFuncionTool(const std::string &name) override {
+        bool UnregisterFunctionTool(const std::string &name) override {
             if (!functions_map_.contains(name)) {
                 return false;
             }

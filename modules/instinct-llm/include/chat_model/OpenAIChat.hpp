@@ -5,17 +5,15 @@
 #ifndef OPENAICHAT_HPP
 #define OPENAICHAT_HPP
 
+#include <llm.pb.h>
+
 #include "BaseChatModel.hpp"
 #include "LLMGlobals.hpp"
 #include "commons/OpenAICommons.hpp"
 #include "tools/HttpRestClient.hpp"
-#include <llm.pb.h>
 
-#include "tool/FunctionToolUtils.hpp"
 
 namespace INSTINCT_LLM_NS {
-
-
     /**
     * OpenAI API endpoint reference:
     * https://platform.openai.com/docs/api-reference/chat/create

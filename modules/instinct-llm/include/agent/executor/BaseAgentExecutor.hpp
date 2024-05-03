@@ -23,7 +23,7 @@ namespace INSTINCT_LLM_NS {
               worker_(std::move(worker)) {
             // do a copy for schema in toolkits
             for (const auto& tk: worker_->GetFunctionToolkits()) {
-                for(const auto& schema: tk->GetAllFuncitonToolSchema()) {
+                for(const auto& schema: tk->GetAllFunctionToolSchema()) {
                     all_schemas_.push_back(schema);
                 }
             }

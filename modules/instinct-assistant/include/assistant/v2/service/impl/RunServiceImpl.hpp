@@ -11,7 +11,6 @@
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
 #include "database/IDataMapper.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
-#include "tool/FunctionToolUtils.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;

@@ -29,7 +29,7 @@ namespace INSTINCT_LLM_NS {
          * @param toolkit
          */
         virtual void BindTools(const FunctionToolkitPtr& toolkit) {
-            BindToolSchemas(toolkit->GetAllFuncitonToolSchema());
+            BindToolSchemas(toolkit->GetAllFunctionToolSchema());
         }
 
         /**
