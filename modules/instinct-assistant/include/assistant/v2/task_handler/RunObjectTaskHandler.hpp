@@ -15,8 +15,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;
 
     class RunObjectTaskHandler final: public CommonTaskScheduler::ITaskHandler {
-//         DataMapperPtr<RunObject, std::string> run_data_mapper_;
-//         DataMapperPtr<RunStepObject, std::string> run_step_data_mapper_;
         RunServicePtr run_service_;
         MessageServicePtr message_service_;
         AssistantServicePtr assistant_service_;
@@ -24,9 +22,19 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         FunctionToolkitPtr built_in_toolkit_;
         StateManagerPtr state_manager_;
 
-
     public:
         static inline std::string CATEGORY = "run_object";
+
+        RunObjectTaskHandler(RunServicePtr run_service, MessageServicePtr message_service,
+            AssistantServicePtr assistant_service, ChatModelPtr chat_model, FunctionToolkitPtr built_in_toolkit,
+            StateManagerPtr state_manager)
+            : run_service_(std::move(run_service)),
+              message_service_(std::move(message_service)),
+              assistant_service_(std::move(assistant_service)),
+              chat_model_(std::move(chat_model)),
+              built_in_toolkit_(std::move(built_in_toolkit)),
+              state_manager_(std::move(state_manager)) {
+        }
 
         bool Accept(const ITaskScheduler<std::string>::Task &task) override {
             return task.category == CATEGORY;
@@ -383,6 +391,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
 
+        // ReSharper disable once CppMemberFunctionMayBeConst
         std::optional<RunStepObject> RetrieveLastRunStep_(const RunObject& run_object) {
             ListRunStepsRequest list_run_steps_request;
             list_run_steps_request.set_order(asc);
@@ -396,29 +405,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
 
-        /**
-         * To find user input:
-         * 1. list messages in thread
-         * 2. find the latest user message
-         * 3. throw if not found
-         *
-         * To find previous steps:
-         * 1. list run steps objects in run object in descendant order in terms of `created_at`.
-         * 2. loop each run step
-         *      1. For step object with type of `tool_calls`,
-         *          1. if it's in status of `in_progress`,
-         *              1. create `AgentThought` with `OpenAIToolAgentContinuation`.
-         *                  1. if `last_step` is kind of `message_creation`, treat it as `content` of `tool_message`.
-         *              2. if its `step_details` contains results of completed all tool calls, create `AgentObservation` with `OpenAIToolAgentObservation`.
-         *          2. if it's in status of `required_action`, create `AgentThought` with `OpenAIToolAgentPause`.
-         *          3. if it's in status of `failed` or `expired`, create `AgentThought` with `AgentFinish` with corresponding fields.
-     *          2. For step object with type of `message_creation`
-         *          1. if it's last step and run object is in terminal state (`completed`, `failed`, `expired`), create `AgentFinish` with message content in response field.
-         *          2. Or just update `last_step` reference.
-         *
-         * @param run_object
-         * @return state
-         */
         std::optional<AgentState> RecoverAgentState_(const RunObject& run_object) {
             auto state = state_manager_->Load(run_object.id()).get();
             const auto last_run_step_object = RetrieveLastRunStep_(run_object);
