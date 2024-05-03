@@ -23,7 +23,7 @@ namespace INSTINCT_LLM_NS {
             : BaseLLM(configuration.base_options), chat_(std::move(configuration)) {
         }
 
-        void BindToolSchemas(const std::vector<FunctionToolSchema> &function_tool_schema) override {
+        void BindToolSchemas(const std::vector<FunctionTool> &function_tool_schema) override {
             chat_.BindToolSchemas(function_tool_schema);
         }
 

@@ -6,10 +6,10 @@
 #define IAGENTEXECUTOR_HPP
 
 
-#include "LLMGlobals.hpp"
-#include "agent/BaseSolver.hpp"
-#include "agent/BaseWorker.hpp"
-#include "chain/MessageChain.hpp"
+#include "../../LLMGlobals.hpp"
+#include "../BaseSolver.hpp"
+#include "../BaseWorker.hpp"
+#include "../../chain/MessageChain.hpp"
 
 namespace INSTINCT_LLM_NS {
 

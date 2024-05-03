@@ -18,7 +18,7 @@ namespace INSTINCT_LLM_NS {
     template<typename Input, typename Output>
     requires IsProtobufMessage<Input> && IsProtobufMessage<Output>
     class ProtoMessageFunctionTool: public BaseFunctionTool {
-        FunctionToolSchema schema_;
+        FunctionTool schema_;
     public:
         explicit ProtoMessageFunctionTool(
             const std::string& name,
@@ -31,7 +31,7 @@ namespace INSTINCT_LLM_NS {
             GenerateFunctionSchema_();
         }
 
-        [[nodiscard]] const FunctionToolSchema & GetSchema() const override {
+        [[nodiscard]] const FunctionTool & GetSchema() const override {
             return schema_;
         }
 
@@ -51,37 +51,38 @@ namespace INSTINCT_LLM_NS {
 
     private:
         void GenerateFunctionSchema_() {
-            Input target;
-            const auto* descriptor = target.GetDescriptor();
+            const auto* descriptor = Input::GetDescriptor();
+            auto* properties = schema_.mutable_parameters()->mutable_properties();
+
             for(int i=0;i<descriptor->field_count();++i) {
                 const auto& field_descriptor = descriptor->field(i);
                 if (field_descriptor->has_optional_keyword() && !GetOptions().with_optional_arguments) {
                     // only output required fields
                     continue;
                 }
-                auto* arg = schema_.add_arguments();
-                arg->set_name(field_descriptor->name());
+                FunctionTool_FunctionParametersSchema_FunctionParameterSchema parameters_schema;
                 switch (field_descriptor->cpp_type()) {
                     case FieldDescriptor::CPPTYPE_INT32:
                     case FieldDescriptor::CPPTYPE_INT64:
                     case FieldDescriptor::CPPTYPE_UINT32:
                     case FieldDescriptor::CPPTYPE_UINT64:
-                        arg->set_type("integer");
+                        parameters_schema.set_type("integer");
                         break;
                     case FieldDescriptor::CPPTYPE_DOUBLE:
                     case FieldDescriptor::CPPTYPE_FLOAT:
-                        arg->set_type("number");
+                        parameters_schema.set_type("number");
                         break;
                     case FieldDescriptor::CPPTYPE_BOOL:
-                        arg->set_type("boolean");
+                        parameters_schema.set_type("boolean");
                         break;
                     case FieldDescriptor::CPPTYPE_STRING:
-                        arg->set_type("string");
+                        parameters_schema.set_type("string");
                         break;
                     default:
                         // don't setting arg_type
                         break;
                 }
+                properties->emplace(field_descriptor->name(), parameters_schema);
             }
         }
     };

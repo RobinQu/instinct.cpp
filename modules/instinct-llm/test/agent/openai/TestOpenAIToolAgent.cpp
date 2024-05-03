@@ -3,15 +3,15 @@
 //
 #include <gtest/gtest.h>
 #include "LLMGlobals.hpp"
-#include "agent/openai_tool/Agent.hpp"
-#include "agent_executor/BaseAgentExecutor.hpp"
+#include "agent/patterns/openai_tool/Agent.hpp"
+#include "agent/executor/BaseAgentExecutor.hpp"
 #include "chat_model/OpenAIChat.hpp"
 #include "toolkit/LocalToolkit.hpp"
 
 namespace INSTINCT_LLM_NS {
     class OpenAIToolAgentTest: public testing::Test {
         class GetNightlyHotelPrice final: public BaseFunctionTool {
-            FunctionToolSchema schema_;
+            FunctionTool schema_;
 
         public:
             explicit GetNightlyHotelPrice(const FunctionToolOptions &options = {})
@@ -32,7 +32,7 @@ namespace INSTINCT_LLM_NS {
 )", schema_);
             }
 
-            [[nodiscard]] const FunctionToolSchema & GetSchema() const override {
+            [[nodiscard]] const FunctionTool & GetSchema() const override {
                 return schema_;
             }
 
@@ -52,7 +52,7 @@ namespace INSTINCT_LLM_NS {
         };
 
         class GetFlightPriceTool final: public BaseFunctionTool {
-            FunctionToolSchema schema_;
+            FunctionTool schema_;
 
         public:
             explicit GetFlightPriceTool(const FunctionToolOptions &options = {})
@@ -73,7 +73,7 @@ namespace INSTINCT_LLM_NS {
 )", schema_);
             }
 
-            [[nodiscard]] const FunctionToolSchema & GetSchema() const override {
+            [[nodiscard]] const FunctionTool & GetSchema() const override {
                 return schema_;
             }
 
@@ -116,8 +116,8 @@ namespace INSTINCT_LLM_NS {
             | rpp::operators::as_blocking()
             | rpp::operators::subscribe([](const AgentState& state) {
                 auto& latest_step = *state.previous_steps().rbegin();
-                if (latest_step.has_finish()) {
-                    LOG_INFO("Final answer: {}", latest_step.finish().response());
+                if (latest_step.thought().has_finish()) {
+                    LOG_INFO("Final answer: {}", latest_step.thought().finish().response());
                 }
             })
         ;

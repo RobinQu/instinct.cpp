@@ -20,7 +20,7 @@ namespace INSTINCT_LLM_NS {
             for(int i=0; i<n; ++i) {
                 const auto& step = agent_state.previous_steps(i);
                 if (step.has_thought()) {
-                    const auto& react_thought = step.thought().react();
+                    const auto& react_thought = step.thought().continuation().react();
                     scratch_pad += react_thought.thought();
                     scratch_pad += "\nAction: " + react_thought.invocation().name();
                     scratch_pad += "\nAction Input: " + react_thought.invocation().input();
@@ -38,7 +38,7 @@ namespace INSTINCT_LLM_NS {
 
             std::string prompt_input = MessageUtils::ExtractLatestPromptString(agent_state.input());
             assert_true(StringUtils::IsNotBlankString(prompt_input), "should provide valid prompt input");
-            auto fn_names = StringUtils::JoinWith(agent_state.function_tools() | std::views::transform([](const FunctionToolSchema& fn_schema) {
+            auto fn_names = StringUtils::JoinWith(agent_state.function_tools() | std::views::transform([](const FunctionTool& fn_schema) {
                 return fn_schema.name();
             }), ",");
             auto tool_desc = RenderFunctionTools(agent_state.function_tools());

@@ -23,15 +23,15 @@ namespace INSTINCT_LLM_NS {
         std::string thought_token = "Thought: ";
     };
 
-    class ReACTAgentThoughtOutputParser final: public BaseOutputParser<AgentThoughtMessage> {
+    class ReACTAgentThoughtOutputParser final: public BaseOutputParser<AgentThought> {
         ReACTAgentStepOutputParserOptions options_;
     public:
         explicit ReACTAgentThoughtOutputParser(const ReACTAgentStepOutputParserOptions &options)
             : BaseOutputParser(options.base_options), options_(options) {
         }
 
-        AgentThoughtMessage ParseResult(const Generation &context) override {
-            AgentThoughtMessage thought_message;
+        AgentThought ParseResult(const Generation &context) override {
+            AgentThought thought_message;
             const auto content = MessageUtils::StringifyGeneration(context);
             std::string action_name, action_input, thought, final_answer;
 
@@ -56,15 +56,15 @@ namespace INSTINCT_LLM_NS {
             }
 
             if (StringUtils::IsNotBlankString(action_name) && StringUtils::IsNotBlankString(thought)) {
-                auto* invocation = thought_message.mutable_react()->mutable_invocation();
+                auto* invocation = thought_message.mutable_continuation()->mutable_react()->mutable_invocation();
                 invocation->set_name(action_name);
                 invocation->set_input(action_input);
                 invocation->set_id(StringUtils::GenerateUUIDString());
-                thought_message.mutable_react()->set_thought(thought);
+                thought_message.mutable_continuation()->mutable_react()->set_thought(thought);
                 return thought_message;
             }
             if (StringUtils::IsNotBlankString(final_answer)) {
-                thought_message.mutable_react()->set_final_answer(final_answer);
+                thought_message.mutable_finish()->set_response(final_answer);
                 return thought_message;
             }
 
@@ -75,7 +75,7 @@ namespace INSTINCT_LLM_NS {
 
     };
 
-    static OutputParserPtr<AgentThoughtMessage> CreateReACTAgentThoughtOutputParser(const ReACTAgentStepOutputParserOptions& options = {}) {
+    static OutputParserPtr<AgentThought> CreateReACTAgentThoughtOutputParser(const ReACTAgentStepOutputParserOptions& options = {}) {
         return std::make_shared<ReACTAgentThoughtOutputParser>(options);
     }
 }

@@ -11,6 +11,8 @@
 #include "tools/HttpRestClient.hpp"
 #include <llm.pb.h>
 
+#include "tool/FunctionToolUtils.hpp"
+
 namespace INSTINCT_LLM_NS {
 
 
@@ -28,24 +30,11 @@ namespace INSTINCT_LLM_NS {
             client_.GetDefaultHeaders().emplace("Authorization", fmt::format("Bearer {}", GetAPIKey_()));
         }
 
-        void BindToolSchemas(const std::vector<FunctionToolSchema> &function_tool_schema) override {
-            for (const auto& tool_schema: function_tool_schema) {
+        void BindToolSchemas(const std::vector<FunctionTool> &function_tool_schema) override {
+            for(const auto& function_tool: function_tool_schema) {
                 OpenAIChatCompletionRequest_ChatCompletionTool tool;
                 tool.set_type("function");
-                FunctionTool* function_tool = tool.mutable_function();
-                function_tool->set_description(tool_schema.description());
-                function_tool->set_name(tool_schema.name());
-                for(const auto& arg: tool_schema.arguments()) {
-                    const auto param = function_tool->mutable_parameters();
-                    param->set_type("object");
-                    FunctionTool_FunctionParametersSchema_FunctionParameterSchema parameter_schema;
-                    parameter_schema.set_type(arg.type());
-                    parameter_schema.set_description(arg.description());
-                    param->mutable_properties()->emplace(arg.name(), parameter_schema);
-                    if (arg.required()) {
-                        *function_tool->mutable_required()->Add() = arg.name();
-                    }
-                }
+                tool.mutable_function()->CopyFrom(function_tool);
                 function_tools_.push_back(tool);
             }
         }

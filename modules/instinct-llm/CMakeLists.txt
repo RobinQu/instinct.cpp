@@ -58,18 +58,20 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/toolkit/IFunctionToolkit.hpp
         include/toolkit/BaseFunctionToolkit.hpp
         include/toolkit/LocalToolkit.hpp
-        include/agent/react/ReACTAgentThoughtOutputParser.hpp
-        include/agent/react/ReACTAgentStateInputParser.hpp
-        include/agent/react/Agent.hpp
-        include/agent_executor/IAgentExecutor.hpp
-        include/agent_executor/BaseAgentExecutor.hpp
+        include/agent/patterns/react/ReACTAgentThoughtOutputParser.hpp
+        include/agent/patterns/react/ReACTAgentStateInputParser.hpp
+        include/agent/patterns/react/Agent.hpp
+        include/agent/executor/IAgentExecutor.hpp
+        include/agent/executor/BaseAgentExecutor.hpp
         include/agent/BaseWorker.hpp
         include/agent/BaseSolver.hpp
         include/toolkit/ProtoMessageFunctionTool.hpp
         include/toolkit/BaseSearchTool.hpp
         include/toolkit/builtin/SerpAPI.hpp
         include/toolkit/builtin/LLMMath.hpp
-        include/agent/openai_tool/Agent.hpp
+        include/agent/patterns/openai_tool/Agent.hpp
+        include/agent/state/IStateManager.hpp
+        include/tool/FunctionToolUtils.hpp
 )
 
 find_package(exprtk REQUIRED)

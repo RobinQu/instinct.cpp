@@ -27,6 +27,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         virtual std::optional<RunObject> CancelRun(const CancelRunRequest& cancel_request) = 0;
         virtual ListRunStepsResponse ListRunSteps(const ListRunStepsRequest& list_run_steps_request) = 0;
         virtual std::optional<RunStepObject> GetRunStep(const GetRunStepRequest& get_run_step_request) = 0;
+
+        virtual std::optional<RunStepObject> CreateRunStep(const RunStepObject& create_request) = 0;
+        virtual std::optional<RunStepObject> ModifyRunStep(const ModifyRunStepRequest& modify_reequest) = 0;
+
     };
 
     using RunServicePtr = std::shared_ptr<IRunService>;

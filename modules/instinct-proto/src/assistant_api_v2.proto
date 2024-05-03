@@ -40,6 +40,7 @@ enum AssistantToolType {
 
 message AssistantToolObject { // union of Code, FileSearch, Function
   AssistantToolType type = 1;
+  llm.FunctionTool function = 2;
 }
 
 
@@ -535,6 +536,9 @@ message ModifyRunRequest {
   string thread_id = 2;
 
   google.protobuf.Struct metadata = 3;
+
+  // only used internally
+  RunObject.RunObjectStatus status = 4;
 }
 
 message SubmitToolOutputsToRunRequest { // When a run has the `status: "requires_action"` and `required_action.type` is `submit_tool_outputs`, this endpoint can be used to submit the outputs from the tool calls once they're all completed. All outputs must be submitted in a single request.
@@ -698,6 +702,21 @@ message RunStepObject { // GetRunStepResponse
 message RunStepError {
   CommonErrorType type = 1;
   string message = 2;
+}
+
+
+message ModifyRunStepRequest {
+  string run_id = 1;
+  string thread_id = 2;
+  string run_step_id = 3;
+  RunStepObject.RunStepDetails step_details = 4;
+  RunStepObject.RunStepStatus status = 5;
+
+  RunStepError last_error = 10;
+  int64 expired_at = 11;
+  int64 cancelled_at = 12;
+  int64 failed_at = 13;
+  int64 completed_at = 14;
 }
 
 // ==============================================================

@@ -6,7 +6,7 @@
 #define OPENAITOOLAGENTEXECUTOR_HPP
 
 #include "LLMGlobals.hpp"
-#include "agent_executor/BaseAgentExecutor.hpp"
+#include "agent/executor/BaseAgentExecutor.hpp"
 #include "chain/MessageChain.hpp"
 #include "chat_model/BaseChatModel.hpp"
 
@@ -77,39 +77,8 @@ namespace INSTINCT_LLM_NS {
         static WorkerPtr CreateOpenAIToolAgentWorker(const std::vector<FunctionToolkitPtr> &toolkits) {
             return std::make_shared<OpenAIToolAgentWorker>(toolkits);
         }
-//
-//        class OpenAIToolAgentStateInputParser final: public BaseInputParser<AgentState> {
-//        public:
-//            JSONContextPtr ParseInput(const AgentState &state) override {
-//                JSONContextPtr ctx = CreateJSONContext();
-//
-//                // this should contain the first message from user
-//                PromptValue prompt_value = state.input();
-//                for (const auto &step: state.previous_steps()) {
-//                    // add tool call message ChatCompletion api
-//                    if (step.has_thought()
-//                            && step.thought().has_continuation()
-//                            && step.thought().continuation().has_openai()
-//                            && step.thought().continuation().openai().has_tool_call_message()) {
-//                        prompt_value.mutable_chat()->add_messages()->CopyFrom(
-//                            step.thought().continuation().openai().tool_call_message()
-//                        );
-//                    }
-//                    if (step.has_observation() && step.observation().has_openai() && step.observation().openai().
-//                        tool_messages_size() > 0) {
-//                        // add tool call results
-//                        for (const auto &msg: step.observation().openai().tool_messages()) {
-//                            prompt_value.mutable_chat()->add_messages()->CopyFrom(msg);
-//                        }
-//                    }
-//                }
-//                ctx->ProduceMessage(prompt_value);
-//                return ctx;
-//            }
-//        };
 
-
-        class OpenAIToolAgentPlanner: public BaseRunnable<AgentState, AgentThought> {
+        class OpenAIToolAgentPlanner final: public BaseRunnable<AgentState, AgentThought> {
             ChatModelPtr chat_model_;
         public:
             explicit OpenAIToolAgentPlanner(const ChatModelPtr &chatModel) : chat_model_(chatModel) {}
@@ -148,19 +117,6 @@ namespace INSTINCT_LLM_NS {
                 return thought_message;
             }
         };
-//
-//        class OpenAIToolAgentThoughtOutputParser final : public BaseOutputParser<AgentThought> {
-//        public:
-//            AgentThought ParseResult(const Generation &context) override {
-//                AgentThought thought_message;
-//                if (context.message().tool_calls_size() > 0) { // has more tool call requests
-//                    thought_message.mutable_continuation()->mutable_openai()->mutable_tool_call_message()->CopyFrom(context.message());
-//                    return thought_message;
-//                }
-//                thought_message.mutable_finish()->set_response(context.message().content());
-//                return thought_message;
-//            }
-//        };
 
         /**
          * Create OpenAI style tool agent
@@ -168,17 +124,8 @@ namespace INSTINCT_LLM_NS {
          * @return
          */
         static PlannerPtr CreateOpenAIToolAgentPlanner(const ChatModelPtr &chat_model) {
-//            const InputParserPtr<AgentState> input_parser = std::make_shared<OpenAIToolAgentStateInputParser>();
-//            const OutputParserPtr<AgentThought> output_parser = std::make_shared<OpenAIToolAgentThoughtOutputParser>();
-//            return CreateFunctionalChain(
-//                input_parser,
-//                output_parser,
-//                chat_model->AsModelFunction()
-//            );
             return std::make_shared<OpenAIToolAgentPlanner>(chat_model);
         }
-
-//        using PausePolicy = std::function<bool()>;
 
     public:
         OpenAIToolAgentExecutor(const PlannerPtr &planner, const WorkerPtr &worker)

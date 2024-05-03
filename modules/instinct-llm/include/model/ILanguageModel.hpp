@@ -36,7 +36,7 @@ namespace INSTINCT_LLM_NS {
          * Bind tool schemas for function tool calling APIs
          * @param function_tool_schema
          */
-        virtual void BindToolSchemas(const std::vector<FunctionToolSchema>& function_tool_schema) = 0;
+        virtual void BindToolSchemas(const std::vector<FunctionTool>& function_tool_schema) = 0;
     };
 
     namespace details {

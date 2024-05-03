@@ -3,7 +3,7 @@
 //
 #include <gtest/gtest.h>
 
-#include "agent/react/Agent.hpp"
+#include "agent/patterns/react/Agent.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "toolkit/LocalToolkit.hpp"
 #include "toolkit/builtin/LLMMath.hpp"
@@ -39,7 +39,7 @@ namespace INSTINCT_LLM_NS {
 
         const std::string prompt = "How to make a paper plane?";
         auto state = agent_executor->InitializeState(prompt);
-        const auto input_parse = agent_executor->GetPlaner()->GetInputParser();
+        const auto input_parse = CreateReACTAgentInputParser();
 
         // empty state
         const auto ctx1 = input_parse->ParseInput(state);
@@ -51,7 +51,7 @@ namespace INSTINCT_LLM_NS {
 
         // with thought and observation
         auto* step = state.add_previous_steps();
-        auto* react_thought = step->mutable_thought()->mutable_react();
+        auto* react_thought = step->mutable_thought()->mutable_continuation()->mutable_react();
         react_thought->set_thought(R"(The user is asking for instructions on how to make a paper airplane. This is not a factual query, so I cannot provide a direct answer from my knowledge base.
 However, I can look up a reliable source for such instructions. I will use the "search" tool to find a trusted guide on making a basic paper airplane.)");
         react_thought->mutable_invocation()->set_name("Search");
@@ -98,11 +98,11 @@ Thought: )");
         Generation generation;
         generation.set_text(output);
         const auto thought1 = thought_parser->ParseResult(generation);
-        ASSERT_TRUE(thought1.has_react());
-        ASSERT_TRUE(thought1.react().has_invocation());
-        ASSERT_EQ(thought1.react().thought(), "This question appears to be asking for the current average price of roses in the market, and then what the price should be if one were to increase it by 15%. I will assume that the question is being asked in Chinese, with \"目前市场上\" translating to \"current market\", \"玫瑰花\" translating to \"roses\", and \"平均价格\" translating to \"average price\".");
-        ASSERT_EQ(thought1.react().invocation().name(), "Search");
-        ASSERT_EQ(thought1.react().invocation().input(), "{\"query\":\"current average price of roses in the market\", \"result_limit\":1, \"result_offset\":0}");
+        ASSERT_TRUE(thought1.has_continuation() && thought1.continuation().has_react());
+        ASSERT_TRUE(thought1.continuation().react().has_invocation());
+        ASSERT_EQ(thought1.continuation().react().thought(), "This question appears to be asking for the current average price of roses in the market, and then what the price should be if one were to increase it by 15%. I will assume that the question is being asked in Chinese, with \"目前市场上\" translating to \"current market\", \"玫瑰花\" translating to \"roses\", and \"平均价格\" translating to \"average price\".");
+        ASSERT_EQ(thought1.continuation().react().invocation().name(), "Search");
+        ASSERT_EQ(thought1.continuation().react().invocation().input(), "{\"query\":\"current average price of roses in the market\", \"result_limit\":1, \"result_offset\":0}");
     }
 
     TEST_F(ReACTAgentTest, StreamSteps) {
@@ -127,8 +127,8 @@ Thought: )");
         const auto state = agent_executor->InitializeState("How to make a paper plane?");
         const auto final_state = agent_executor->Invoke(state);
         LOG_INFO("final state: {}", final_state.ShortDebugString());
-        ASSERT_TRUE(final_state.previous_steps().rbegin()->has_finish());
-        ASSERT_FALSE(final_state.previous_steps().rbegin()->finish().has_error());
+        ASSERT_TRUE(final_state.previous_steps().rbegin()->has_thought() && final_state.previous_steps().rbegin()->thought().has_finish());
+        ASSERT_FALSE(final_state.previous_steps().rbegin()->thought().finish().has_error());
     }
 
 

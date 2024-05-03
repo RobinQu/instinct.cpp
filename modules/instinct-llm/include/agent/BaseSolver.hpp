@@ -10,7 +10,7 @@
 #include "functional/BaseRunnable.hpp"
 
 namespace INSTINCT_LLM_NS {
-    class BaseSolver : public BaseRunnable<AgentState, AgentFinishStepMessage> {
+    class BaseSolver : public BaseRunnable<AgentState, AgentFinish> {
 
     };
     using SolverPtr = std::shared_ptr<BaseSolver>;

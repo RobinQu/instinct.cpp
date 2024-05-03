@@ -14,14 +14,16 @@ namespace INSTINCT_LLM_NS {
 
     class LambdaFunctionTool final: public BaseFunctionTool {
         FunctionToolFn fn_;
-        FunctionToolSchema schema_;
+        FunctionTool schema_;
 
     public:
-        LambdaFunctionTool(const FunctionToolSchema &schema, FunctionToolFn fn)
-            : BaseFunctionTool(), fn_(std::move(fn)), schema_(schema) {
+        LambdaFunctionTool(FunctionTool schema, FunctionToolFn fn,  const FunctionToolOptions &options = {})
+            : BaseFunctionTool(options),
+              fn_(std::move(fn)),
+              schema_(std::move(schema)) {
         }
 
-        [[nodiscard]] const FunctionToolSchema & GetSchema() const override {
+        [[nodiscard]] const FunctionTool & GetSchema() const override {
             return schema_;
         }
 
@@ -30,7 +32,7 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
-    static FunctionToolPtr CreateFunctionTool(const FunctionToolSchema& schema, FunctionToolFn fn) {
+    static FunctionToolPtr CreateFunctionTool(const FunctionTool& schema, FunctionToolFn fn) {
         return std::make_shared<LambdaFunctionTool>(
             schema,
             std::move(fn)

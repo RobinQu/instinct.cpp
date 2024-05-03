@@ -5,7 +5,6 @@
 #ifndef BASEAGENTEXECUTOR_HPP
 #define BASEAGENTEXECUTOR_HPP
 
-#include <utility>
 
 #include "IAgentExecutor.hpp"
 
@@ -17,7 +16,7 @@ namespace INSTINCT_LLM_NS {
         PlannerPtr planner_;
         WorkerPtr worker_;
         // SolverPtr solver_;
-        std::vector<FunctionToolSchema> all_schemas_;
+        std::vector<FunctionTool> all_schemas_;
     public:
         BaseAgentExecutor(PlannerPtr planner, WorkerPtr worker)
             : planner_(std::move(planner)),

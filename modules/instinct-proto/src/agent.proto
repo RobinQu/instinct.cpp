@@ -5,19 +5,19 @@ import "chat_completion_api.proto";
 //import "assistant_api_v2.proto";
 
 package instinct.llm;
-
-message FunctionToolArgument {
-  string name = 1;
-  string description = 2;
-  string type = 3;
-  bool required = 4;
-}
-
-message FunctionToolSchema {
-  string name = 1;
-  string description = 2;
-  repeated FunctionToolArgument arguments = 3;
-}
+//
+//message FunctionToolArgument {
+//  string name = 1;
+//  string description = 2;
+//  string type = 3;
+//  bool required = 4;
+//}
+//
+//message FunctionToolSchema {
+//  string name = 1;
+//  string description = 2;
+//  repeated FunctionToolArgument arguments = 3;
+//}
 
 message FunctionToolInvocation {
   string name = 1;
@@ -128,7 +128,8 @@ message AgentState {
   repeated AgentStep previous_steps = 1;
   llm.PromptValue input = 2;
   // code_interpreter and file_search should be translated to FunctionTool format
-  repeated FunctionToolSchema function_tools = 3;
+  repeated llm.FunctionTool function_tools = 3;
+  string id = 4;
 }
 
 message SearchToolRequest {

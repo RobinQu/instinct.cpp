@@ -243,7 +243,7 @@ namespace INSTINCT_CORE_NS {
             const std::vector<HttpRequest>& calls,
             ThreadPool& pool) override {
             const u_int64_t n = calls.size();
-            return pool.submit_sequence(0ul, n, [&,total=calls.size()](auto i) {
+            return pool.submit_sequence(u_int64_t{0}, n, [&,total=calls.size()](auto i) {
                 LOG_DEBUG("Executing {} of {} requests", i+1, total);
                 return this->Execute(calls[i]);
             });

@@ -11,6 +11,7 @@
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
 #include "database/IDataMapper.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
+#include "tool/FunctionToolUtils.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;
@@ -20,49 +21,68 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         DataMapperPtr<RunObject, std::string> run_data_mapper_;
         DataMapperPtr<RunStepObject, std::string> run_step_data_mapper_;
         DataMapperPtr<MessageObject, std::string> message_data_mapper_;
+        // DataMapperPtr<AssistantObject, std::string> assistant_data_mapper_;
         CommonTaskSchedulerPtr task_scheduler_;
+        StateManagerPtr state_manager_;
     public:
         RunServiceImpl(const DataMapperPtr<ThreadObject, std::string> &thread_data_mapper,
             const DataMapperPtr<RunObject, std::string> &run_data_mapper,
             const DataMapperPtr<RunStepObject, std::string> &run_step_data_mapper,
             const DataMapperPtr<MessageObject, std::string>& message_data_mapper,
+            // const DataMapperPtr<AssistantObject, std::string>& assistant_data_mapper,
             const CommonTaskSchedulerPtr& task_scheduler
             )
             : thread_data_mapper_(thread_data_mapper),
               run_data_mapper_(run_data_mapper),
               run_step_data_mapper_(run_step_data_mapper),
               message_data_mapper_(message_data_mapper),
+              // assistant_data_mapper_(assistant_data_mapper),
               task_scheduler_(task_scheduler) {
         }
 
-        std::optional<RunObject> CreateThreadAndRun(const CreateThreadAndRunRequest &create_thread_and_run_request) override { // TODO with transaction
+        std::optional<RunObject> CreateThreadAndRun(const CreateThreadAndRunRequest &create_thread_and_run_request) override {
+            // TODO with transaction
+            const auto& thread_object = create_thread_and_run_request.thread();
             assert_not_blank(create_thread_and_run_request.assistant_id(), "should provide assistant id");
             assert_true(create_thread_and_run_request.has_thread(), "should provide thread data");
+            assert_gt(thread_object.messages_size(), 0, "should have thread messages");
+
+            // validate message sequence.
+            // 1. First and last message should be user message.
+            // 2. Two sequential messages of same kind are forbidden.
+            bool is_user_message = false;
+            for(const auto& msg: create_thread_and_run_request.thread().messages()) {
+                if (msg.role() == user) {
+                    assert_true(!is_user_message, "illegal sequence of user messages");
+                }
+                if (msg.role() == assistant) {
+                    assert_true(is_user_message, "illegal sequence of assistan messages");
+                }
+                is_user_message = msg.role() == user;
+            }
+
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(create_thread_and_run_request, context, {.keep_default_values = true});
             const auto run_id = details::generate_next_object_id("run");
 
             // create thread
-            const auto& thread_object = create_thread_and_run_request.thread();
             const auto thread_id = details::generate_next_object_id("thread");;
             context["thread"]["id"] = thread_id;
             EntitySQLUtils::InsertOneThread(thread_data_mapper_, context["thread"]);
 
-            // create additional messages
-            if (thread_object.messages_size() > 0) {
-                SQLContext insert_messages_context;
-                insert_messages_context["messages"] = context["thread"]["messages"];
-                for (auto& msg_obj: insert_messages_context["messages"]) {
-                    msg_obj["id"] = details::generate_next_object_id("message");
-                    msg_obj["thread_id"] = thread_id;
-                    if (!msg_obj.contains("status")) {
-                        msg_obj["status"] = "completed";
-                    }
-                    msg_obj["run_id"] = run_id;
+            // create messages
+            SQLContext insert_messages_context;
+            insert_messages_context["messages"] = context["thread"]["messages"];
+            for (auto& msg_obj: insert_messages_context["messages"]) {
+                msg_obj["id"] = details::generate_next_object_id("message");
+                msg_obj["thread_id"] = thread_id;
+                if (!msg_obj.contains("status")) {
+                    msg_obj["status"] = "completed";
                 }
-                const auto msg_ids = EntitySQLUtils::InsertManyMessages(message_data_mapper_, insert_messages_context);
-                assert_true(msg_ids.size() == thread_object.messages_size(), "should have saved all additional messages");
+                msg_obj["run_id"] = run_id;
             }
+            const auto msg_ids = EntitySQLUtils::InsertManyMessages(message_data_mapper_, insert_messages_context);
+            assert_true(msg_ids.size() == thread_object.messages_size(), "should have saved all additional messages");
 
             // create run
             context["id"] = run_id;
@@ -72,17 +92,28 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             context["thread_id"] = thread_id;
             EntitySQLUtils::InsertOneRun(run_data_mapper_, context);
 
-            // kick off agent execution
-            task_scheduler_->Enqueue({
-                .task_id = run_id,
-                .category = RunObjectTaskHandler::CATEGORY
-            });
-
-            // return
+            // get run object
             GetRunRequest get_run_request;
             get_run_request.set_run_id(run_id);
             get_run_request.set_thread_id(thread_id);
-            return RetrieveRun(get_run_request);
+            const auto run_object =  RetrieveRun(get_run_request);
+
+            if (run_object.has_value()) {
+                // create empty state
+                AgentState initial_state;
+                initial_state.set_id(run_id);
+                state_manager_->Save(initial_state);
+
+                // kick off agent execution
+                task_scheduler_->Enqueue({
+                    .task_id = run_id,
+                    .category = RunObjectTaskHandler::CATEGORY,
+                    .payload = ProtobufUtils::Serialize(run_object.value())
+                });
+            }
+
+            // retrun
+            return run_object;
         }
 
         std::optional<RunObject> CreateRun(const CreateRunRequest &create_request) override {
@@ -302,6 +333,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(get_run_step_request, context);
             return EntitySQLUtils::GetRunStep(run_step_data_mapper_, context);
+        }
+
+        std::optional<RunStepObject> CreateRunStep(const RunStepObject &create_request) override {
+
+        }
+
+        std::optional<RunStepObject> ModifyRunStep(const ModifyRunStepRequest &modify_reequest) override {
+
         }
     };
 }

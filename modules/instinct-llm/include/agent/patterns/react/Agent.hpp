@@ -16,7 +16,7 @@
 #include "chain/LLMChain.hpp"
 #include "chain/MessageChain.hpp"
 #include "chat_model/BaseChatModel.hpp"
-#include "agent_executor/BaseAgentExecutor.hpp"
+#include "agent/executor/BaseAgentExecutor.hpp"
 #include "functional/StepFunctions.hpp"
 #include "prompt/PlainChatPromptTemplate.hpp"
 #include "functional/Xn.hpp"
