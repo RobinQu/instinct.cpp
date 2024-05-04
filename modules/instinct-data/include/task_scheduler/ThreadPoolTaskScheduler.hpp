@@ -15,22 +15,28 @@ namespace INSTINCT_DATA_NS {
 
     template<typename T>
     class ThreadPoolTaskScheduler final: public BaseTaskScheduler<T> {
-        unsigned int consumer_thread_count_;
-        std::vector<std::thread> consumer_threads_;
-        volatile bool running_;
 
     public:
         using Task = typename ITaskScheduler<T>::Task;
         using TaskQueuePtr = typename ITaskScheduler<T>::TaskQueuePtr;
         using TaskHandlerCallbacksPtr = typename ITaskScheduler<T>::TaskHandlerCallbacksPtr;
 
+    private:
+        unsigned int consumer_thread_count_;
+        std::vector<std::thread> consumer_threads_;
+        volatile bool running_;
+        TaskQueuePtr queue_;
+    public:
+
+
         ThreadPoolTaskScheduler(
             const TaskQueuePtr &queue,
             const TaskHandlerCallbacksPtr& callbacks,
             const unsigned int consumer_thread_count):
-            BaseTaskScheduler<T>(queue, callbacks),
+            BaseTaskScheduler<T>(callbacks),
             consumer_thread_count_(consumer_thread_count),
-            running_(false) {
+            running_(false),
+            queue_(queue) {
         }
 
         ~ThreadPoolTaskScheduler() override {
@@ -43,7 +49,7 @@ namespace INSTINCT_DATA_NS {
             while (n-->0) {
                 consumer_threads_.emplace_back([&] {
                     while (running_) {
-                        if(Task task; this->GetQueue()->Dequeue(task)) {
+                        if(Task task; queue_->Dequeue(task)) {
                             bool handled = false;
                             for (const auto& handler: this->ListHandlers()) {
                                 try {
@@ -74,6 +80,14 @@ namespace INSTINCT_DATA_NS {
             }
         }
 
+        TaskQueuePtr GetQueue() const {
+            return queue_;
+        }
+
+        void Enqueue(const Task &task) override {
+            queue_->Enqueue(task);
+        }
+
         std::future<std::vector<Task>> Terminate() override {
             return std::async(std::launch::async, [&] {
                 running_ = false;
@@ -82,7 +96,7 @@ namespace INSTINCT_DATA_NS {
                         t.join();
                     }
                 }
-                return this->GetQueue()->Drain();
+                return queue_->Drain();
             });
         }
     };

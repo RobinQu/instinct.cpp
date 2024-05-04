@@ -16,7 +16,6 @@ namespace INSTINCT_DATA_NS {
         using TaskQueuePtr = typename ITaskScheduler<T>::TaskQueuePtr;
         using TaskHandlerPtr = typename ITaskScheduler<T>::TaskHandlerPtr;
         using TaskHandlerCallbacksPtr = typename BaseTaskScheduler::TaskHandlerCallbacksPtr;
-        TaskQueuePtr queue_;
         std::vector<TaskHandlerPtr> task_handlers_;
         TaskHandlerCallbacksPtr callbacks_;
     public:
@@ -32,16 +31,12 @@ namespace INSTINCT_DATA_NS {
         };
 
 
-        BaseTaskScheduler(const TaskQueuePtr &queue, const TaskHandlerCallbacksPtr& callbacks)
-            : queue_(queue), callbacks_(callbacks) {
+        explicit BaseTaskScheduler(const TaskHandlerCallbacksPtr& callbacks): callbacks_(callbacks) {
             if (!callbacks_) {
                 callbacks_ = std::make_shared<NoOpTaskHandlerCallbacks>();
             }
         }
 
-        TaskQueuePtr GetQueue() const override {
-            return queue_;
-        }
 
         bool RegisterHandler(const TaskHandlerPtr &handler) override {
             task_handlers_.push_back(handler);
@@ -60,10 +55,6 @@ namespace INSTINCT_DATA_NS {
 
         const std::vector<TaskHandlerPtr>& ListHandlers() const override {
             return task_handlers_;
-        }
-
-        void Enqueue(const typename ITaskScheduler<T>::Task &task) override {
-            queue_->Enqueue(task);
         }
 
         TaskHandlerCallbacksPtr GetTaskHandlerCallbacks() const override {

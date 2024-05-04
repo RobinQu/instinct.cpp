@@ -64,7 +64,6 @@ namespace INSTINCT_DATA_NS {
         virtual ~ITaskScheduler()=default;
         ITaskScheduler() = default;
 
-        virtual TaskQueuePtr GetQueue() const = 0;;
         virtual bool RegisterHandler(const TaskHandlerPtr& handler)=0;
         virtual bool RemoveHandler(const TaskHandlerPtr& handler)=0;
         virtual const std::vector<TaskHandlerPtr>& ListHandlers() const=0;

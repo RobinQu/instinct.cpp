@@ -115,7 +115,7 @@ namespace INSTINCT_DATA_NS {
 
     TEST_F(TestThreadPoolTaskScheduler, DrainTasks) {
         constexpr int thread_count = 2, task_count = 10;
-        const auto task_scheduler =  CreateThreadPoolTaskScheduler(thread_count);
+        const auto task_scheduler = CreateThreadPoolTaskScheduler(thread_count);
         task_scheduler->RegisterHandler(std::make_shared<HandlerC>());
         task_scheduler->Start();
         int n = task_count;
@@ -123,11 +123,13 @@ namespace INSTINCT_DATA_NS {
             task_scheduler->Enqueue({.task_id = StringUtils::GenerateUUIDString(), .category = "c"});
         }
 
-        const auto drained = task_scheduler->GetQueue()->Drain();
-        ASSERT_EQ(drained.size(), task_count-thread_count);
+        if (const auto& thread_pool_scheduler = std::dynamic_pointer_cast<ThreadPoolTaskScheduler<std::string>>(task_scheduler)) {
+            const auto drained = thread_pool_scheduler->GetQueue()->Drain();
+            ASSERT_EQ(drained.size(), task_count-thread_count);
 
-        const auto drained2 = task_scheduler->Terminate().get();
-        ASSERT_TRUE(drained2.empty());
+            const auto drained2 = task_scheduler->Terminate().get();
+            ASSERT_TRUE(drained2.empty());
+        }
     }
 
     TEST_F(TestThreadPoolTaskScheduler, Callbacks) {
