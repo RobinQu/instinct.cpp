@@ -17,7 +17,7 @@ namespace INSTINCT_DATA_NS {
     };
 
     TEST_F(DuckDBConnectionPoolTest, TestAcquireRelease) {
-        auto pool = CreateDuckDBConnectionPool(mem_db_, {.intial_connection_count = 2});
+        auto pool = CreateDuckDBConnectionPool(mem_db_, {.initial_connection_count = 2});
         auto c1 = pool->Acquire();
         auto c2 = pool->Acquire();
 
@@ -35,7 +35,7 @@ namespace INSTINCT_DATA_NS {
     }
 
     TEST_F(DuckDBConnectionPoolTest, TestConnectionGarud) {
-        const auto pool = CreateDuckDBConnectionPool(mem_db_, {.intial_connection_count = 2});
+        const auto pool = CreateDuckDBConnectionPool(mem_db_, {.initial_connection_count = 2});
         pool->Acquire();
         {
             const auto c = pool->Acquire();

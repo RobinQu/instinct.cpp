@@ -14,7 +14,6 @@
 #include <fmtlog/fmtlog.h>
 #include <BS_thread_pool.hpp>
 
-
 #define INSTINCT_CORE_NS instinct::core
 
 // another set of marcos to hide log implementation
@@ -54,29 +53,6 @@ namespace INSTINCT_CORE_NS {
     template <typename T>
     concept IsProtobufMessage = std::derived_from<T, google::protobuf::Message>;
 
-
-    class InstinctException: public std::runtime_error {
-        std::string reason_;
-
-    public:
-        explicit InstinctException(const std::string& basic_string)
-            : std::runtime_error(basic_string), reason_(basic_string) {
-        }
-
-        explicit InstinctException(const char* const string)
-            : std::runtime_error(string), reason_(string) {
-        }
-
-        explicit InstinctException(const runtime_error& runtime_error, std::string  basic_string)
-            : std::runtime_error(runtime_error),reason_(std::move(basic_string)) {
-
-        }
-
-        [[nodiscard]] const char* what() const noexcept override {
-            return reason_.data();
-        }
-    };
-
     static const std::string METADATA_SCHEMA_PARENT_DOC_ID_KEY = "parent_doc_id";
 
     static const std::string METADATA_SCHEMA_PAGE_NO_KEY = "page_no";
@@ -93,7 +69,6 @@ namespace INSTINCT_CORE_NS {
     /**
      * Heper function to support continuation for future, which is not available even in C++ 20.
      * https://stackoverflow.com/questions/14489935/implementing-futurethen-equivalent-for-asynchronous-execution-in-c11
-     * @tparam T
      * @tparam Work
      * @param f
      * @param w

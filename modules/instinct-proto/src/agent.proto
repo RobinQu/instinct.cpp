@@ -93,8 +93,9 @@ message AgentFinish {
   string response = 1;
   bool has_error = 2;
   string exception = 3;
-}
 
+  google.protobuf.Any details = 100;
+}
 
 message AgentThought {
   oneof value {

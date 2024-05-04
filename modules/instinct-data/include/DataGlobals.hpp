@@ -83,26 +83,26 @@ namespace INSTINCT_DATA_NS {
 
     static void assert_query_ok(const duckdb::unique_ptr<duckdb::MaterializedQueryResult>& result) {
         if (!check_query_ok(result)) {
-            throw InstinctException(result->GetError());
+            throw ClientException(result->GetError());
         }
     }
 
     static void assert_query_ok(const duckdb::unique_ptr<duckdb::QueryResult>& result) {
         if (const auto error = result->GetErrorObject(); error.HasError()) {
-            throw InstinctException(result->GetError());
+            throw ClientException(result->GetError());
         }
     }
 
     static void assert_prepared_ok(const duckdb::unique_ptr<duckdb::PreparedStatement>& result,
                                    const std::string& msg = "Failed to prepare statement") {
         if (const auto error = result->GetErrorObject(); error.HasError()) {
-            throw InstinctException(msg + " " + result->GetError());
+            throw ClientException(msg + " " + result->GetError());
         }
     }
 
     static void assert_status_ok(const OSSStatus& status) {
         if (status.has_error()) {
-            throw InstinctException(fmt::format("ObjectStore operation failed. error_type={} ,message={}", to_string(status.error_type()), status.message()));
+            throw ClientException(fmt::format("ObjectStore operation failed. error_type={} ,message={}", to_string(status.error_type()), status.message()));
         }
     }
 

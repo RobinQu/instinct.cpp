@@ -15,6 +15,9 @@
 #include "Assertions.hpp"
 #include <unicode/regex.h>
 
+#include "exception/ClientException.hpp"
+#include "exception/InstinctException.hpp"
+
 
 namespace INSTINCT_CORE_NS {
     using namespace U_ICU_NAMESPACE;
@@ -235,7 +238,7 @@ namespace INSTINCT_CORE_NS {
 
     static void assert_not_blank(const std::string& v, const std::string& msg = "given string cannot be blank") {
         if (StringUtils::IsBlankString(v)) {
-            throw InstinctException(msg);
+            throw ClientException(msg);
         }
     }
 }

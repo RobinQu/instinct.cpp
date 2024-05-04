@@ -51,7 +51,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             });
 
             // upload endpoint is accepting multipart-formdata, not Restful
-            server.GetHttpLibServer().Post("/v1/files", [&](const auto& req, auto& res, const ContentReader &content_reader) {
+            server.GetHttpLibServer().Post("/v1/files", [&](const Request& req, Response& res, const ContentReader &content_reader) {
                 if (req.is_multipart_form_data()) {
                   // NOTE: `content_reader` is blocking until every form data field is read
                     std::unordered_map<std::string, TempFile> files;
@@ -60,7 +60,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     std::vector<std::string> field_names;
                     std::unordered_map<std::string, std::string> params;
                     bool is_file = false;
-
                     content_reader(
                     [&](const MultipartFormData &field) {
                         field_names.push_back(field.name);
@@ -82,6 +81,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         } else {
                             params[field_names.back()] += std::string {data, data_length};
                         }
+                        return true;
                     });
 
                     if (files.empty()) {

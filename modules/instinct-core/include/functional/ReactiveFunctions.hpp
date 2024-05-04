@@ -8,6 +8,7 @@
 
 #include <rpp/rpp.hpp>
 #include "CoreGlobals.hpp"
+#include "exception/InstinctException.hpp"
 
 namespace INSTINCT_CORE_NS {
     template<typename T>

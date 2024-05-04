@@ -81,7 +81,7 @@ namespace INSTINCT_LLM_NS {
         class OpenAIToolAgentPlanner final: public BaseRunnable<AgentState, AgentThought> {
             ChatModelPtr chat_model_;
         public:
-            explicit OpenAIToolAgentPlanner(const ChatModelPtr &chatModel) : chat_model_(chatModel) {}
+            explicit OpenAIToolAgentPlanner(ChatModelPtr chatModel) : chat_model_(std::move(chatModel)) {}
 
             AgentThought Invoke(const AgentState &state) override {
                 chat_model_->BindToolSchemas({state.function_tools().begin(), state.function_tools().end()});
@@ -127,15 +127,34 @@ namespace INSTINCT_LLM_NS {
             return std::make_shared<OpenAIToolAgentPlanner>(chat_model);
         }
 
+
     public:
-        OpenAIToolAgentExecutor(const PlannerPtr &planner, const WorkerPtr &worker)
-            : BaseAgentExecutor(planner, worker) {
+        /**
+         * Functional callback, which is invoked after a step is generated from agent execuctor.
+         * Retrun false to terminate execution loop.
+         *
+         */
+        using StopPredicate = std::function<bool(const AgentState&, AgentStep&)>;
+
+
+        /**
+         * Default predicate for OpenAIToolAgentExecutor. It won't stop agent from resolving next step.
+         * @return
+         */
+        static bool NoStopPredicate(const AgentState&, AgentStep&) {
+            return false;
+        }
+
+        OpenAIToolAgentExecutor(const PlannerPtr &planner, const WorkerPtr &worker, StopPredicate should_early_stop = NoStopPredicate)
+            : BaseAgentExecutor(planner, worker), should_early_stop_(std::move(should_early_stop)) {
         }
 
         OpenAIToolAgentExecutor(const ChatModelPtr &chat_model,
-                                const std::vector<FunctionToolkitPtr> &toolkits): BaseAgentExecutor(
+                                const std::vector<FunctionToolkitPtr> &toolkits,
+                                StopPredicate should_early_stop = NoStopPredicate): BaseAgentExecutor(
             CreateOpenAIToolAgentPlanner(chat_model),
-            CreateOpenAIToolAgentWorker(toolkits)
+            CreateOpenAIToolAgentWorker(toolkits)),
+            should_early_stop_(std::move(should_early_stop)
         ) {
             for(const auto& tk: toolkits) {
                 chat_model->BindTools(tk);
@@ -144,6 +163,11 @@ namespace INSTINCT_LLM_NS {
 
         AgentStep ResolveNextStep(AgentState &state) override {
             AgentStep agent_step;
+            // check if early stop is required
+            if (!should_early_stop_(state, agent_step)) {
+                return agent_step;
+            }
+
             // while not is_last:
             //  do ChatCompletion with messages -> message
             //  is_last = messages.function_call is None
@@ -175,7 +199,7 @@ namespace INSTINCT_LLM_NS {
                 }
             }
 
-            // if last step is paused and finished, it cannot be executed again
+            // if last step is paused or finished, it cannot be executed again
             if (last_step.has_thought()
                     && last_step.thought().has_continuation()
                     && last_step.thought().continuation().has_openai()
@@ -196,9 +220,8 @@ namespace INSTINCT_LLM_NS {
                         }
                     }
                 }
-                bool all_done = completed == tool_call_objects.size();
 
-                if (!all_done) { // return a pause step
+                if (completed == tool_call_objects.size()) { // return a pause step
                     auto* pause = agent_step.mutable_thought()->mutable_pause()->mutable_openai();
                     pause->mutable_tool_call_message()->CopyFrom(tool_call_message);
                     pause->mutable_completed()->CopyFrom(observation_message.openai().tool_messages());
@@ -215,13 +238,14 @@ namespace INSTINCT_LLM_NS {
         }
 
     private:
-
+        StopPredicate should_early_stop_;
     };
 
     static AgentExecutorPtr CreateOpenAIToolAgentExecutor(
         const ChatModelPtr &chat_model,
-        const std::vector<FunctionToolkitPtr> &toolkits) {
-        return std::make_shared<OpenAIToolAgentExecutor>(chat_model, toolkits);
+        const std::vector<FunctionToolkitPtr> &toolkits,
+        const OpenAIToolAgentExecutor::StopPredicate& stop_predicate = OpenAIToolAgentExecutor::NoStopPredicate) {
+        return std::make_shared<OpenAIToolAgentExecutor>(chat_model, toolkits, stop_predicate);
     }
 }
 

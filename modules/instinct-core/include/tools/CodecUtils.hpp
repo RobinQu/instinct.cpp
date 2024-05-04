@@ -8,7 +8,7 @@
 #include <libbase64.h>
 
 #include "CoreGlobals.hpp"
-
+#include "exception/InstinctException.hpp"
 
 namespace INSTINCT_CORE_NS {
     class CodecUtils final {

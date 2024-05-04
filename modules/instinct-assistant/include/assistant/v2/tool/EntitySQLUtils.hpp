@@ -307,7 +307,7 @@ returning (id);
             assert_true(msg_obj["content"]["type"] == "text" || msg_obj["content"]["type"] == "image_file", "content type for message should be text or image_file.");
             assert_true((msg_obj.at("role").get<std::string>() == "human" || msg_obj.at("role").get<std::string>() == "assistant"), "should provide correct role for message");
 
-            return data_mapper->InsertMany(R"(
+            return data_mapper->InsertOne(R"(
 insert into instinct_thread_message(id, thread_id, status, incomplete_details, completed_at, incompleted_at, role, content, assistant_id, run_id, attachments, metadata) values
 (
     {{text(id)}},

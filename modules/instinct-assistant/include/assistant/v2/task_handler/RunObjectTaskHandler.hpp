@@ -94,8 +94,30 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     }
 
                     LOG_WARN("Illegal message from agent: {}", last_step->ShortDebugString());
+                }, [&](const std::exception_ptr& e) {
+                    // translate exception to AgentFinish
+                    AgentFinish agent_finish;
+                    agent_finish.set_has_error(true);
+                    RunEarlyStopDetails run_early_stop_details;
+                    run_early_stop_details.set_is_failed(true);
+                    try {
+                        std::rethrow_exception(e);
+                    } catch (const ClientException& client_exception) {
+                        run_early_stop_details.mutable_error()->set_type(invalid_request_error);
+                        run_early_stop_details.mutable_error()->set_message(client_exception.what());
+                    } catch (const InstinctException& instinct_exception) {
+                        run_early_stop_details.mutable_error()->set_type(server_error);
+                        run_early_stop_details.mutable_error()->set_message(instinct_exception.what());
+                    } catch (const std::runtime_error& runtime_error) {
+                        run_early_stop_details.mutable_error()->set_type(server_error);
+                        run_early_stop_details.mutable_error()->set_message(runtime_error.what());
+                    } catch (...) {
+                        run_early_stop_details.mutable_error()->set_type(server_error);
+                        run_early_stop_details.mutable_error()->set_message("Uncaught exception");
+                    }
+                    agent_finish.mutable_details()->PackFrom(run_early_stop_details);
+                    OnAgentFinish_(agent_finish, run_object);
                 });
-
         }
 
 
@@ -108,7 +130,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
          * @param run_object
          * @return
          */
-        bool CheckPreconditions_(const RunObject& run_object) { // NOLINT(*-convert-member-functions-to-static)
+        // ReSharper disable once CppMemberFunctionMayBeStatic
+        bool CheckPreconditions_(const RunObject& run_object) const { // NOLINT(*-convert-member-functions-to-static)
             return run_object.status() == RunObject_RunObjectStatus_in_progress || run_object.status() == RunObject_RunObjectStatus_requires_action;
         }
 
@@ -117,9 +140,46 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
          * @param run_object
          * @return
          */
-        AgentExecutorPtr BuildAgentExecutor_(const RunObject& run_object) {
+        [[nodiscard]] AgentExecutorPtr BuildAgentExecutor_(const RunObject& run_object) const {
             // no built-in toolkit for now
-            return CreateOpenAIToolAgentExecutor(chat_model_, {});
+            return CreateOpenAIToolAgentExecutor(chat_model_, {}, [&](const AgentState& state, AgentStep& step) {
+                return CheckRunObjectForExecution_(run_object.thread_id(), run_object.id(), state, step);
+            });
+        }
+
+        /**
+         * Predicate if early stop is required for run object
+         * @param thread_id
+         * @param run_id
+         * @param state
+         * @param step
+         * @return
+         */
+        bool CheckRunObjectForExecution_(const std::string& thread_id, const std::string& run_id, const AgentState& state, AgentStep& step) const {
+            GetRunRequest get_run_request;
+            get_run_request.set_run_id(run_id);
+            get_run_request.set_thread_id(thread_id);
+            const auto get_run_resp = run_service_->RetrieveRun(get_run_request);
+            RunEarlyStopDetails run_early_stop_details;
+            if (get_run_resp.has_value()) {
+                if (get_run_resp->status() == RunObject_RunObjectStatus_cancelling) {
+                    run_early_stop_details.set_is_cancelled(true);
+                    // save to any field
+                    step.mutable_thought()->mutable_finish()->mutable_details()->PackFrom(run_early_stop_details);
+                    return true;
+                }
+                if (get_run_resp->status() == RunObject_RunObjectStatus_expired) {
+                    run_early_stop_details.set_is_expired(true);
+                    // save to any field
+                    step.mutable_thought()->mutable_finish()->mutable_details()->PackFrom(run_early_stop_details);
+                    return true;
+                }
+            } else {
+                run_early_stop_details.set_is_missing(true);
+                step.mutable_thought()->mutable_finish()->mutable_details()->PackFrom(run_early_stop_details);
+                return false;
+            }
+            return false;
         }
 
 
@@ -131,7 +191,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
          * @param agent_continuation
          * @param run_object
          */
-        void OnAgentContinuation(const AgentContinuation& agent_continuation, const RunObject& run_object) {
+        void OnAgentContinuation(const AgentContinuation& agent_continuation, const RunObject& run_object) const {
             LOG_INFO("OnAgentContinuation Start, run_object={}", run_object.ShortDebugString());
 
             RunStepObject run_step_object;
@@ -181,7 +241,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             LOG_INFO("OnAgentContinuation Done, run_object={}", run_object.ShortDebugString());
         }
 
-        std::optional<std::pair<RunStepObject, MessageObject>> CreateMessageStep_(const std::string& content, const RunObject& run_object) {
+        [[nodiscard]] std::optional<std::pair<RunStepObject, MessageObject>> CreateMessageStep_(const std::string& content, const RunObject& run_object) const {
             // TODO need transaction
             CreateMessageRequest create_message_request;
             create_message_request.set_thread_id(run_object.thread_id());
@@ -344,8 +404,20 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 modify_run_step_request.set_thread_id(run_object.thread_id());
                 modify_run_step_request.set_failed_at(ChronoUtils::GetCurrentTimeMillis());
                 modify_run_step_request.set_status(RunStepObject_RunStepStatus_failed);
-                // TODO set correct error type
-                modify_run_step_request.mutable_last_error()->set_type(invalid_request_error);
+
+                if (finish_message.has_details() && finish_message.details().Is<RunEarlyStopDetails>()) { // find error data from details
+                    RunEarlyStopDetails run_early_stop_details;
+                    finish_message.details().UnpackTo(&run_early_stop_details);
+                    if (run_early_stop_details.has_error()) {
+                        modify_run_step_request.mutable_last_error()->CopyFrom(run_early_stop_details.error());
+                    }
+                }
+                if (!modify_run_step_request.has_last_error()) {
+                    // fallback to invalid_request_error
+                    LOG_WARN("last_error is not set correctly. run_object={}", run_object.ShortDebugString());
+                    modify_run_step_request.mutable_last_error()->set_type(invalid_request_error);
+                }
+
                 modify_run_step_request.mutable_last_error()->set_message(finish_message.exception());
                 if (const auto &modify_run_step_resp = run_service_->ModifyRunStep(modify_run_step_request); !modify_run_step_resp.has_value()) {
                     LOG_ERROR("Failed to update run step object. modify_run_step_request={}", modify_run_step_request.ShortDebugString());
@@ -368,14 +440,27 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             modify_run_step_request.set_step_id(last_run_step_opt->id());
             modify_run_step_request.set_thread_id(run_object.thread_id());
             modify_run_step_request.set_completed_at(ChronoUtils::GetCurrentTimeMillis());
-            modify_run_step_request.set_status(RunStepObject_RunStepStatus_completed);
+            if (finish_message.has_details() && finish_message.details().Is<RunEarlyStopDetails>()) { // has early stopped
+                RunEarlyStopDetails run_early_stop_details;
+                finish_message.details().UnpackTo(&run_early_stop_details);
+                if (run_early_stop_details.is_cancelled()) {
+                    modify_run_step_request.set_status(RunStepObject_RunStepStatus_cancelled);
+                }
+                if (run_early_stop_details.is_expired()) {
+                    modify_run_step_request.set_expired_at(RunStepObject_RunStepStatus_expired);
+                }
+            } else {
+                modify_run_step_request.set_status(RunStepObject_RunStepStatus_completed);
+            }
+
             if (const auto &modify_run_step_resp = run_service_->ModifyRunStep(modify_run_step_request); !modify_run_step_resp.has_value()) {
                 LOG_ERROR("Failed to update run step object. modify_run_step_request={}", modify_run_step_request.ShortDebugString());
                 return;
             }
 
             // create message step
-            CreateMessageStep_(finish_message.response(), run_object);
+            const auto create_message_step_resp = CreateMessageStep_(finish_message.response(), run_object);
+            assert_true(create_message_step_resp.has_value(), "should have message step created");
 
 
             // update run object with status of `completed`
