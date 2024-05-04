@@ -13,7 +13,10 @@
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;
 
-    class RunObjectTaskHandler final: public CommonTaskScheduler::ITaskHandler {
+    /**
+     * Task handler for run objects using `OpenAIToolAgentExecutor`.
+     */
+    class OpenAIToolAgentRunObjectTaskHandler final: public CommonTaskScheduler::ITaskHandler {
         RunServicePtr run_service_;
         MessageServicePtr message_service_;
         AssistantServicePtr assistant_service_;
@@ -23,7 +26,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     public:
         static inline std::string CATEGORY = "run_object";
 
-        RunObjectTaskHandler(RunServicePtr run_service, MessageServicePtr message_service,
+        OpenAIToolAgentRunObjectTaskHandler(RunServicePtr run_service, MessageServicePtr message_service,
             AssistantServicePtr assistant_service, ChatModelPtr chat_model, FunctionToolkitPtr built_in_toolkit)
             : run_service_(std::move(run_service)),
               message_service_(std::move(message_service)),
@@ -51,7 +54,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 return;
             }
 
-            const auto state_opt = RecoverAgentState_(run_object);
+            const auto state_opt = RecoverAgentState(run_object);
             if (!state_opt) {
                 LOG_ERROR("Failed to recover state with run object: {}", run_object.ShortDebugString());
                 return;
@@ -117,6 +120,23 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     agent_finish.mutable_details()->PackFrom(run_early_stop_details);
                     OnAgentFinish_(agent_finish, run_object);
                 });
+        }
+
+
+        [[nodiscard]] std::optional<AgentState> RecoverAgentState(const RunObject& run_object) const {
+            AgentState state;
+            if (!LoadAgentStateFromRun_(run_object, state)) {
+                LOG_ERROR("Cannot load agent state from run object: {}", run_object.ShortDebugString());
+                return std::nullopt;
+            }
+
+            // load function tools
+            if (!LoadFunctionTools_(run_object, state)) {
+                LOG_ERROR("Cannot load function tool schamas for agent state from run object: {}", run_object.ShortDebugString());
+                return std::nullopt;
+            }
+
+            return state;
         }
 
 
@@ -474,50 +494,41 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             return std::nullopt;
         }
 
-        std::optional<AgentState> RecoverAgentState_(const RunObject& run_object) {
-            const auto last_run_step_object = RetrieveLastRunStep_(run_object);
-            if (!last_run_step_object.has_value()) {
-                LOG_ERROR("Cannot find last run step for run object: {}", run_object.ShortDebugString());
-                return std::nullopt;
+
+        bool LoadFunctionTools_(const RunObject& run_object, AgentState& state) const {
+            std::vector<FunctionTool> function_tools;
+            // 1. find tools on assistant
+            GetAssistantRequest get_assistant_request;
+            get_assistant_request.set_assistant_id(run_object.assistant_id());
+            const auto assistant = assistant_service_->RetrieveAssistant(get_assistant_request);
+
+            if (!assistant) {
+                LOG_ERROR("Cannot find assistant object for run_object: {}", run_object.ShortDebugString());
+                return false;
             }
 
-            AgentState state;
-            if (!LoadAgentStateFromRun_(run_object, state)) {
-                LOG_ERROR("Cannot load agent state from run object: {}", run_object.ShortDebugString());
-                return std::nullopt;
-            }
-
-            // load function tools
-            {
-                std::vector<FunctionTool> function_tools;
-                // 1. find tools on assistant
-                GetAssistantRequest get_assistant_request;
-                get_assistant_request.set_assistant_id(run_object.assistant_id());
-                const auto assistant = assistant_service_->RetrieveAssistant(get_assistant_request);
-                assert_true(assistant.has_value(), "should have found assistant");
-                for (const auto& assistant_tool: assistant->tools()) {
-                    if (assistant_tool.type() == function) {
-                        function_tools.push_back(assistant_tool.function());
-                    }
-                }
-
-                // 2. find tools on run object
-                for (const auto& assistant_tool: run_object.tools()) {
-                    if (assistant_tool.type() == function) {
-                        function_tools.push_back(assistant_tool.function());
-                    }
-                }
-
-                // 3. filter and transfrom to function tool schema
-                const auto final_function_tools = std::ranges::unique(function_tools, [](const FunctionTool& a, const FunctionTool& b) {
-                    return a.name() == b.name();
-                });
-                LOG_DEBUG("Found {} function tools for agent state, id={}", final_function_tools.size(), state.id());
-                for (auto& function_tool: final_function_tools) {
-                    state.mutable_function_tools()->Add()->CopyFrom(function_tool);
+            for (const auto& assistant_tool: assistant->tools()) {
+                if (assistant_tool.type() == function) {
+                    function_tools.push_back(assistant_tool.function());
                 }
             }
-            return state;
+
+            // 2. find tools on run object
+            for (const auto& assistant_tool: run_object.tools()) {
+                if (assistant_tool.type() == function) {
+                    function_tools.push_back(assistant_tool.function());
+                }
+            }
+
+            // 3. filter and transfrom to function tool schema
+            const auto final_function_tools = std::ranges::unique(function_tools, [](const FunctionTool& a, const FunctionTool& b) {
+                return a.name() == b.name();
+            });
+            LOG_DEBUG("Found {} function tools for agent state, id={}", final_function_tools.size(), state.id());
+            for (auto& function_tool: final_function_tools) {
+                state.mutable_function_tools()->Add()->CopyFrom(function_tool);
+            }
+            return true;
         }
 
         /**
@@ -676,7 +687,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         [[nodiscard]] std::optional<MessageObject> GetLatestUserMessageObject_(const std::string& thread_id) const {
-            ListMessageRequest list_message_request;
+            ListMessagesRequest list_message_request;
             list_message_request.set_thread_id(thread_id);
             list_message_request.set_order(desc);
             ListMessageResponse list_message_response;

@@ -13,16 +13,12 @@
 namespace INSTINCT_ASSISTANT_NS::v2 {
     class RunServiceTest: public BaseAssistantApiTest {
     public:
-        RunServicePtr CreateService() {
-            return std::make_shared<RunServiceImpl>(thread_data_mapper, run_data_mapper, run_step_data_mapper, message_data_mapper, task_scheduler_);
-        }
-
-        AssistantServicePtr assistant_service = std::make_shared<AssistantServiceImpl>(assistant_data_mapper);
+        AssistantServicePtr assistant_service = CreateAssistantService();
     };
 
     TEST_F(RunServiceTest, SimpleCRUDWihtRunObjects) {
         util::MessageDifferencer message_differencer;
-        const auto run_service = CreateService();
+        const auto run_service = CreateRunService();
 
         // create assistant
         AssistantObject create_assistant_request;
@@ -37,7 +33,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         msg->set_role(user);
         msg->mutable_content()->mutable_text()->set_value("What's the population of India?");
         msg->mutable_content()->set_type(MessageObject_MessageContentType_text);
-
         const auto obj2 = run_service->CreateThreadAndRun(create_thread_and_run_request1);
         LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
 
@@ -96,7 +91,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
 
     TEST_F(RunServiceTest, SimpleCRUDWithRunStepObjects) {
-        const auto run_service = CreateService();
+        const auto run_service = CreateRunService();
         google::protobuf::util::MessageDifferencer message_differencer;
 
         // create asssitant

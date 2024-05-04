@@ -10,14 +10,11 @@
 namespace INSTINCT_ASSISTANT_NS {
 
     class AssistantServiceTest: public BaseAssistantApiTest {
-    public:
-        AssistantServicePtr CreateService() {
-            return std::make_shared<AssistantServiceImpl>(assistant_data_mapper);
-        }
+
     };
 
     TEST_F(AssistantServiceTest, SimpleCRUD) {
-        auto assistant_service = CreateService();
+        auto assistant_service = CreateAssistantService();
 
         // create
         AssistantObject create_request;

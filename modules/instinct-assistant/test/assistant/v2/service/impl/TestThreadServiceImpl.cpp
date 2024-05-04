@@ -8,14 +8,11 @@
 
 namespace INSTINCT_ASSISTANT_NS {
     class ThreadServiceTest: public BaseAssistantApiTest {
-    public:
-        ThreadServicePtr CreateService() {
-            return std::make_shared<ThreadServiceImpl>(thread_data_mapper, message_data_mapper);
-        }
+
     };
 
     TEST_F(ThreadServiceTest, SimpleCRUD) {
-        const auto thread_service = CreateService();
+        const auto thread_service = CreateThreadService();
 
         // insert one thread without messsages
         ThreadObject create_request1;

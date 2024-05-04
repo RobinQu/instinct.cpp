@@ -194,9 +194,10 @@ message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, Modify
 
   MessageStatus status = 5;
   enum MessageStatus {
-    completed = 0;
-    in_progress = 1;
-    incomplete = 2;
+    unknown_message_status = 0;
+    completed = 1;
+    in_progress = 2;
+    incomplete = 3;
   }
 
   IncompleteDetails incomplete_details =  6;
@@ -279,14 +280,14 @@ message MessageAttachment {
   repeated AssistantToolType tools = 2;
 }
 
-message ListMessageRequest {
-  string thread_id = 1;
-  int32 limit = 2;
-  ListRequestOrder order = 3;
-  string after = 4;
-  string before = 5;
-  string run_id = 6;
-}
+//message ListMessageRequest {
+//  string thread_id = 1;
+//  int32 limit = 2;
+//  ListRequestOrder order = 3;
+//  string after = 4;
+//  string before = 5;
+//  string run_id = 6;
+//}
 
 message ListMessageResponse {
   string object = 1;

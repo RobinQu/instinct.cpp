@@ -192,13 +192,13 @@ set
     {% if exists("metadata") %}
     , metadata = {{stringify(metadata)}}
     {% endif %}
-where message_id = {{text(message_id)}} and thread_id = {{text(thread_id)}};
+where id = {{text(message_id)}} and thread_id = {{text(thread_id)}};
 )", context);
         }
 
         template<typename PrimaryKey = std::string>
         static std::optional<MessageObject> SelectOneMessages(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
-            return data_mapper->SelectOne("select * from instinct_message where id = {{text(id)}} and thread_id={{text(thread_id)}};", context);
+            return data_mapper->SelectOne("select * from instinct_thread_message where id = {{text(message_id)}} and thread_id={{text(thread_id)}};", context);
         }
 
         template<typename PrimaryKey = std::string>
@@ -216,7 +216,7 @@ thread_id = {{text(thread_id)}}
 {% if exists("before") and is_not_blank("before") %}
 , before < {{text(before)}}
 {% endif %}
-{% if exiists("order") %}
+{% if exists("order") %}
     {% if order == "asc" %}
     order by created_at asc
     {% else %}
@@ -305,12 +305,13 @@ returning (id);
             assistant::details::check_presence(msg_obj, {"id", "thread_id", "content", "role", "status"});
             assert_true(msg_obj.at("content").is_object(), "should provide content");
             assert_true(msg_obj["content"]["type"] == "text" || msg_obj["content"]["type"] == "image_file", "content type for message should be text or image_file.");
-            assert_true((msg_obj.at("role").get<std::string>() == "human" || msg_obj.at("role").get<std::string>() == "assistant"), "should provide correct role for message");
+            assert_true((msg_obj.at("role").get<std::string>() == "user" || msg_obj.at("role").get<std::string>() == "assistant"), "should provide correct role for message");
 
             return data_mapper->InsertOne(R"(
 insert into instinct_thread_message(id, thread_id, status, incomplete_details, completed_at, incompleted_at, role, content, assistant_id, run_id, attachments, metadata) values
 (
     {{text(id)}},
+    {{text(thread_id)}},
     {{text(status)}},
 {% if exists("incomplete_details") %}
     {{stringify(incomplete_details)}},
@@ -343,12 +344,12 @@ insert into instinct_thread_message(id, thread_id, status, incomplete_details, c
 {% else %}
     NULL,
 {% endif %}
-{% exists("attachments") %}
+{% if exists("attachments") %}
     {{stringify(attachments)}},
 {% else %}
     NULL,
 {% endif %}
-{% exists("metadata") %}
+{% if exists("metadata") %}
     {{stringify(metadata)}}
 {% else %}
     NULL

@@ -8,7 +8,14 @@
 
 #include <gtest/gtest.h>
 #include "AssistantGlobals.hpp"
+#include "assistant/v2/service/IFileService.hpp"
+#include "assistant/v2/service/IRunService.hpp"
+#include "assistant/v2/service/IThreadService.hpp"
 #include "assistant/v2/service/impl/AssistantServiceImpl.hpp"
+#include "assistant/v2/service/impl/FileServiceImpl.hpp"
+#include "assistant/v2/service/impl/MessageServiceImpl.hpp"
+#include "assistant/v2/service/impl/RunServiceImpl.hpp"
+#include "assistant/v2/service/impl/ThreadServiceImpl.hpp"
 #include "database/DBUtils.hpp"
 #include "database/duckdb/DuckDBConnectionPool.hpp"
 #include "database/duckdb/DuckDBDataMapper.hpp"
@@ -53,6 +60,28 @@ namespace INSTINCT_ASSISTANT_NS {
 
         // no queue is assigned here, so it will create a in-memory queue by default
         CommonTaskSchedulerPtr task_scheduler_ = CreateThreadPoolTaskScheduler();
+
+
+        AssistantServicePtr CreateAssistantService() {
+            return std::make_shared<AssistantServiceImpl>(assistant_data_mapper);
+        }
+
+        FileServicePtr CreateFileService() {
+            return std::make_shared<FileServiceImpl>(file_data_mapper, filesystem_object_store_);
+        }
+
+        RunServicePtr CreateRunService() {
+            return std::make_shared<RunServiceImpl>(thread_data_mapper, run_data_mapper, run_step_data_mapper, message_data_mapper, task_scheduler_);
+        }
+
+        ThreadServicePtr CreateThreadService() {
+            return std::make_shared<ThreadServiceImpl>(thread_data_mapper, message_data_mapper);
+        }
+
+        MessageServicePtr CreateMessageService() {
+            return std::make_shared<MessageServiceImpl>(message_data_mapper);
+        }
+
     };
 
 

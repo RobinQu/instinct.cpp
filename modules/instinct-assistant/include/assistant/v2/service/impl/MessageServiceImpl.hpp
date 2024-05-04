@@ -18,7 +18,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         explicit MessageServiceImpl(const DataMapperPtr<MessageObject, std::string> &data_mapper) : data_mapper_(
                 data_mapper) {}
 
-        ListMessageResponse ListMessages(const ListMessageRequest &list_request) override {
+        ListMessageResponse ListMessages(const ListMessagesRequest &list_request) override {
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(list_request, context);
 
@@ -58,11 +58,19 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         std::optional<MessageObject> CreateMessage(const CreateMessageRequest &create_request) override {
             const auto& thread_id = create_request.thread_id();
             assert_not_blank(thread_id, "should provide thread_id");
+
+            MessageObject message_object;
+            message_object.set_thread_id(create_request.thread_id());
+            message_object.mutable_content()->mutable_text()->set_value(create_request.content());
+            message_object.mutable_content()->set_type(MessageObject_MessageContentType_text);
+            message_object.set_role(create_request.role());
+            message_object.set_status(MessageObject_MessageStatus_completed);
+
             SQLContext context;
-            ProtobufUtils::ConvertMessageToJsonObject(create_request, context);
+            ProtobufUtils::ConvertMessageToJsonObject(message_object, context);
 
             // create msg id
-            auto id = details::generate_next_object_id("message");;
+            auto id = details::generate_next_object_id("msg");
             context["id"] = id;
 
             // insert

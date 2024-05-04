@@ -10,15 +10,12 @@
 
 namespace INSTINCT_ASSISTANT_NS {
     class FileServiceTest: public BaseAssistantApiTest {
-    protected:
-        FileServicePtr CreateService() {
-            return std::make_shared<FileServiceImpl>(file_data_mapper, filesystem_object_store_);
-        }
+
     };
 
 
     TEST_F(FileServiceTest, SimpleCRUD) {
-        const auto file_service = CreateService();
+        const auto file_service = CreateFileService();
 
         // upload file 1
         UploadFileRequest upload_file_request1;
