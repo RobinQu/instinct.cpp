@@ -8,8 +8,6 @@
 
 #include <gtest/gtest.h>
 #include "AssistantGlobals.hpp"
-#include "agent/state/InMemoryStateManager.hpp"
-#include "agent/state/IStateManager.hpp"
 #include "assistant/v2/service/impl/AssistantServiceImpl.hpp"
 #include "database/DBUtils.hpp"
 #include "database/duckdb/DuckDBConnectionPool.hpp"
@@ -55,8 +53,6 @@ namespace INSTINCT_ASSISTANT_NS {
 
         // no queue is assigned here, so it will create a in-memory queue by default
         CommonTaskSchedulerPtr task_scheduler_ = CreateThreadPoolTaskScheduler();
-
-        StateManagerPtr state_manager_ = std::make_shared<InMemoryStateManager>();
     };
 
 

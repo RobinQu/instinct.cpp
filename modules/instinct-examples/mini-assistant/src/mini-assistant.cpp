@@ -63,7 +63,6 @@ namespace instinct::examples::mini_assistant {
                 context.run_data_mapper,
                 context.run_step_data_mapper,
                 context.message_data_mapper,
-                nullptr,
                 context.task_scheduler
                 );
             const auto assistant_service = std::make_shared<AssistantServiceImpl>(context.assistant_data_mapper);

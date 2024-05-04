@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 package instinct.llm;
-import "core.proto";
 
 
 message Message {

@@ -14,7 +14,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     class RunServiceTest: public BaseAssistantApiTest {
     public:
         RunServicePtr CreateService() {
-            return std::make_shared<RunServiceImpl>(thread_data_mapper, run_data_mapper, run_step_data_mapper, message_data_mapper, state_manager_, task_scheduler_);
+            return std::make_shared<RunServiceImpl>(thread_data_mapper, run_data_mapper, run_step_data_mapper, message_data_mapper, task_scheduler_);
         }
 
         AssistantServicePtr assistant_service = std::make_shared<AssistantServiceImpl>(assistant_data_mapper);

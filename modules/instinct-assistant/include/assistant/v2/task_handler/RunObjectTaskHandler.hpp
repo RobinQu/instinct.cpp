@@ -9,7 +9,6 @@
 #include "agent/executor/BaseAgentExecutor.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 #include "agent/patterns/openai_tool/Agent.hpp"
-#include "agent/state/IStateManager.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;
@@ -20,20 +19,17 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         AssistantServicePtr assistant_service_;
         ChatModelPtr  chat_model_;
         FunctionToolkitPtr built_in_toolkit_;
-        StateManagerPtr state_manager_;
 
     public:
         static inline std::string CATEGORY = "run_object";
 
         RunObjectTaskHandler(RunServicePtr run_service, MessageServicePtr message_service,
-            AssistantServicePtr assistant_service, ChatModelPtr chat_model, FunctionToolkitPtr built_in_toolkit,
-            StateManagerPtr state_manager)
+            AssistantServicePtr assistant_service, ChatModelPtr chat_model, FunctionToolkitPtr built_in_toolkit)
             : run_service_(std::move(run_service)),
               message_service_(std::move(message_service)),
               assistant_service_(std::move(assistant_service)),
               chat_model_(std::move(chat_model)),
-              built_in_toolkit_(std::move(built_in_toolkit)),
-              state_manager_(std::move(state_manager)) {
+              built_in_toolkit_(std::move(built_in_toolkit)) {
         }
 
         bool Accept(const ITaskScheduler<std::string>::Task &task) override {
@@ -49,8 +45,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 return;
             }
 
+            // update run object to status of `in_progress`
+            if(UpdateRunObjectStatus(run_object.thread_id(), run_object.id(), RunObject_RunObjectStatus_in_progress)) {
+                LOG_ERROR("Illegal response for updating run object: {}", run_object.ShortDebugString());
+                return;
+            }
+
             const auto state_opt = RecoverAgentState_(run_object);
-            if (!state_opt.has_value()) {
+            if (!state_opt) {
                 LOG_ERROR("Failed to recover state with run object: {}", run_object.ShortDebugString());
                 return;
             }
@@ -62,8 +64,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             executor->Stream(state)
                 | rpp::operators::as_blocking()
                 | rpp::operators::subscribe([&](const AgentState& current_state) {
-                    // persist current state
-                    state_manager_->Save(current_state);
 
                     // respond to state changes
                     const auto last_step = current_state.previous_steps().rbegin();
@@ -97,9 +97,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 }, [&](const std::exception_ptr& e) {
                     // translate exception to AgentFinish
                     AgentFinish agent_finish;
-                    agent_finish.set_has_error(true);
+                    agent_finish.set_is_failed(true);
                     RunEarlyStopDetails run_early_stop_details;
-                    run_early_stop_details.set_is_failed(true);
                     try {
                         std::rethrow_exception(e);
                     } catch (const ClientException& client_exception) {
@@ -125,14 +124,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         /**
          * Check following conditions:
-         * 1. run object is in status of `in_progress` or `requires_action`.
+         * 1. run object is in status of `queued` or `requires_action`.
          * 2. file resources referenced are valid
          * @param run_object
          * @return
          */
         // ReSharper disable once CppMemberFunctionMayBeStatic
-        bool CheckPreconditions_(const RunObject& run_object) const { // NOLINT(*-convert-member-functions-to-static)
-            return run_object.status() == RunObject_RunObjectStatus_in_progress || run_object.status() == RunObject_RunObjectStatus_requires_action;
+        [[nodiscard]] bool CheckPreconditions_(const RunObject& run_object) const { // NOLINT(*-convert-member-functions-to-static)
+            return run_object.status() == RunObject_RunObjectStatus_queued || run_object.status() == RunObject_RunObjectStatus_requires_action;
         }
 
         /**
@@ -161,21 +160,23 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             get_run_request.set_thread_id(thread_id);
             const auto get_run_resp = run_service_->RetrieveRun(get_run_request);
             RunEarlyStopDetails run_early_stop_details;
+            auto *finish = step.mutable_thought()->mutable_finish();
             if (get_run_resp.has_value()) {
                 if (get_run_resp->status() == RunObject_RunObjectStatus_cancelling) {
-                    run_early_stop_details.set_is_cancelled(true);
                     // save to any field
-                    step.mutable_thought()->mutable_finish()->mutable_details()->PackFrom(run_early_stop_details);
+                    finish->mutable_details()->PackFrom(run_early_stop_details);
+                    finish->set_is_cancelled(true);
                     return true;
                 }
                 if (get_run_resp->status() == RunObject_RunObjectStatus_expired) {
-                    run_early_stop_details.set_is_expired(true);
+                    finish->set_is_expired(true);
                     // save to any field
                     step.mutable_thought()->mutable_finish()->mutable_details()->PackFrom(run_early_stop_details);
                     return true;
                 }
             } else {
-                run_early_stop_details.set_is_missing(true);
+                run_early_stop_details.mutable_error()->set_type(invalid_request_error);
+                finish->set_is_failed(true);
                 step.mutable_thought()->mutable_finish()->mutable_details()->PackFrom(run_early_stop_details);
                 return false;
             }
@@ -228,17 +229,20 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     }
             }
 
-            ModifyRunRequest modify_run_request;
-            modify_run_request.set_run_id(run_object.id());
-            modify_run_request.set_thread_id(run_object.thread_id());
-            modify_run_request.set_status(RunObject_RunObjectStatus_in_progress);
-            if(const auto modify_run_resp = run_service_->ModifyRun(modify_run_request);
-                !modify_run_resp.has_value()) {
-                LOG_ERROR("Illegal response for updating run object: {}", modify_run_request.ShortDebugString());
+            if(UpdateRunObjectStatus(run_object.thread_id(), run_object.id(), RunObject_RunObjectStatus_in_progress)) {
+                LOG_ERROR("Illegal response for updating run object: {}", run_object.ShortDebugString());
                 return;
             }
 
             LOG_INFO("OnAgentContinuation Done, run_object={}", run_object.ShortDebugString());
+        }
+
+        [[nodiscard]] std::optional<RunObject> UpdateRunObjectStatus(const std::string& thread_id, const std::string& run_id, const RunObject_RunObjectStatus status) const {
+            ModifyRunRequest modify_run_request;
+            modify_run_request.set_run_id(run_id);
+            modify_run_request.set_thread_id(thread_id);
+            modify_run_request.set_status(RunObject_RunObjectStatus_in_progress);
+            return run_service_->ModifyRun(modify_run_request);
         }
 
         [[nodiscard]] std::optional<std::pair<RunStepObject, MessageObject>> CreateMessageStep_(const std::string& content, const RunObject& run_object) const {
@@ -309,12 +313,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             }
 
             // update run object
-            ModifyRunRequest modify_run_request;
-            modify_run_request.set_thread_id(run_object.thread_id());
-            modify_run_request.set_run_id(run_object.id());
-            modify_run_request.set_status(RunObject_RunObjectStatus_requires_action);
-            if(const auto modify_run_resp = run_service_->ModifyRun(modify_run_request); !modify_run_resp.has_value()) {
-                LOG_ERROR("Illegal response for update run object: {}", modify_run_request.ShortDebugString());
+            if(UpdateRunObjectStatus(run_object.thread_id(), run_object.id(), RunObject_RunObjectStatus_requires_action)) {
+                LOG_ERROR("Illegal response for update run object: {}", run_object.ShortDebugString());
                 return;
             }
             LOG_INFO("OnAgentPause Completed, run_object={}", run_object.ShortDebugString());
@@ -329,30 +329,25 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         void OnAgentObservation_(const AgentObservation& observation, const RunObject& run_object) {
             LOG_INFO("OnAgentObservation Start, run_object={}", run_object.ShortDebugString());
 
-            // update status of run object to `in_progress`
-            ModifyRunRequest modify_run_request;
-            modify_run_request.set_run_id(run_object.id());
-            modify_run_request.set_thread_id(run_object.thread_id());
-            modify_run_request.set_status(RunObject_RunObjectStatus_in_progress);
-
-            if (const auto modify_run_resp = run_service_->ModifyRun(modify_run_request); !modify_run_resp.has_value()) {
-                LOG_ERROR("Cannot update run object. modify_run_request={}", modify_run_request.ShortDebugString());
+            const auto last_run_step = RetrieveLastRunStep_(run_object);
+            if (!last_run_step) {
+                LOG_ERROR("Cannot find last run step for run object: {}", run_object.ShortDebugString());
                 return;
             }
 
-            const auto last_run_step_opt = RetrieveLastRunStep_(run_object);
-            if (!last_run_step_opt.has_value()) {
-                LOG_ERROR("Cannot find last run step for run object: {}", run_object.ShortDebugString());
+            // update status of run object to `in_progress`
+            if (UpdateRunObjectStatus(run_object.thread_id(), run_object.id(), RunObject_RunObjectStatus_in_progress)) {
+                LOG_ERROR("Cannot update run object. run_object={}", run_object.ShortDebugString());
                 return;
             }
 
             // update run step with tool call outputs
             ModifyRunStepRequest modify_run_step_request;
             modify_run_step_request.set_run_id(run_object.id());
-            modify_run_step_request.set_step_id(last_run_step_opt->id());
+            modify_run_step_request.set_step_id(last_run_step->id());
             modify_run_step_request.set_thread_id(run_object.thread_id());
             auto* step_details = modify_run_step_request.mutable_step_details();
-            step_details->CopyFrom(last_run_step_opt->step_details());
+            step_details->CopyFrom(last_run_step->step_details());
 
             // TODO support code interpreter and file serach
             for(const auto& tool_message: observation.openai().tool_messages()) {
@@ -395,13 +390,17 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             }
 
             // TODO needs transaction
+            ModifyRunStepRequest modify_run_step_request;
+            modify_run_step_request.set_run_id(run_object.id());
+            modify_run_step_request.set_step_id(last_run_step_opt->id());
+            modify_run_step_request.set_thread_id(run_object.thread_id());
 
-            if (finish_message.has_error()) {
+            ModifyRunRequest modify_run_request;
+            modify_run_request.set_run_id(run_object.id());
+            modify_run_request.set_thread_id(run_object.thread_id());
+
+            if (finish_message.is_failed()) {
                 // update last run step object with status of `failed`
-                ModifyRunStepRequest modify_run_step_request;
-                modify_run_step_request.set_run_id(run_object.id());
-                modify_run_step_request.set_step_id(last_run_step_opt->id());
-                modify_run_step_request.set_thread_id(run_object.thread_id());
                 modify_run_step_request.set_failed_at(ChronoUtils::GetCurrentTimeMillis());
                 modify_run_step_request.set_status(RunStepObject_RunStepStatus_failed);
 
@@ -418,60 +417,46 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     modify_run_step_request.mutable_last_error()->set_type(invalid_request_error);
                 }
 
-                modify_run_step_request.mutable_last_error()->set_message(finish_message.exception());
-                if (const auto &modify_run_step_resp = run_service_->ModifyRunStep(modify_run_step_request); !modify_run_step_resp.has_value()) {
-                    LOG_ERROR("Failed to update run step object. modify_run_step_request={}", modify_run_step_request.ShortDebugString());
-                    return;
-                }
 
                 // update run object with status of `failed`
-                ModifyRunRequest modify_run_request;
-                modify_run_request.set_run_id(run_object.id());
-                modify_run_request.set_thread_id(run_object.thread_id());
                 modify_run_request.set_status(RunObject_RunObjectStatus_failed);
                 if (const auto modify_run_resp = run_service_->ModifyRun(modify_run_request); !modify_run_resp.has_value()) {
                     LOG_ERROR("Failed to update run object. modify_run_request={}", modify_run_request.ShortDebugString());
                     return;
                 }
-            }
-            // update last run step object with status of `completed`
-            ModifyRunStepRequest modify_run_step_request;
-            modify_run_step_request.set_run_id(run_object.id());
-            modify_run_step_request.set_step_id(last_run_step_opt->id());
-            modify_run_step_request.set_thread_id(run_object.thread_id());
-            modify_run_step_request.set_completed_at(ChronoUtils::GetCurrentTimeMillis());
-            if (finish_message.has_details() && finish_message.details().Is<RunEarlyStopDetails>()) { // has early stopped
-                RunEarlyStopDetails run_early_stop_details;
-                finish_message.details().UnpackTo(&run_early_stop_details);
-                if (run_early_stop_details.is_cancelled()) {
-                    modify_run_step_request.set_status(RunStepObject_RunStepStatus_cancelled);
-                }
-                if (run_early_stop_details.is_expired()) {
-                    modify_run_step_request.set_expired_at(RunStepObject_RunStepStatus_expired);
-                }
+            } else if (finish_message.is_cancelled()) {
+                modify_run_step_request.set_status(RunStepObject_RunStepStatus_cancelled);
+                modify_run_step_request.set_cancelled_at(ChronoUtils::GetCurrentTimeMillis());
+                modify_run_request.set_status(RunObject_RunObjectStatus_cancelled);
+            } else if (finish_message.is_expired()) {
+                modify_run_step_request.set_expired_at(RunStepObject_RunStepStatus_expired);
+                modify_run_step_request.set_expired_at(ChronoUtils::GetCurrentTimeMillis());
+                modify_run_step_request.set_status(RunStepObject_RunStepStatus_expired);
             } else {
+                // update last run step object with status of `completed`
+                modify_run_step_request.set_completed_at(ChronoUtils::GetCurrentTimeMillis());
                 modify_run_step_request.set_status(RunStepObject_RunStepStatus_completed);
+                modify_run_request.set_status(RunObject_RunObjectStatus_completed);
+
+                // create message step
+                if (CreateMessageStep_(finish_message.response(), run_object)) {
+                    LOG_ERROR("Failed to create message and run step. modify_run_request={}", modify_run_request.ShortDebugString());
+                    return;
+                }
             }
 
-            if (const auto &modify_run_step_resp = run_service_->ModifyRunStep(modify_run_step_request); !modify_run_step_resp.has_value()) {
+            // update run step
+            if (run_service_->ModifyRunStep(modify_run_step_request)) {
                 LOG_ERROR("Failed to update run step object. modify_run_step_request={}", modify_run_step_request.ShortDebugString());
                 return;
             }
 
-            // create message step
-            const auto create_message_step_resp = CreateMessageStep_(finish_message.response(), run_object);
-            assert_true(create_message_step_resp.has_value(), "should have message step created");
-
-
             // update run object with status of `completed`
-            ModifyRunRequest modify_run_request;
-            modify_run_request.set_run_id(run_object.id());
-            modify_run_request.set_thread_id(run_object.thread_id());
-            modify_run_request.set_status(RunObject_RunObjectStatus_completed);
-            if (const auto modify_run_resp = run_service_->ModifyRun(modify_run_request); !modify_run_resp.has_value()) {
+            if (run_service_->ModifyRun(modify_run_request)) {
                 LOG_ERROR("Failed to update run object. modify_run_request={}", modify_run_request.ShortDebugString());
                 return;
             }
+
             LOG_INFO("OnAgentFinish Done, run_object={}", run_object.ShortDebugString());
         }
 
@@ -489,18 +474,21 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             return std::nullopt;
         }
 
-
         std::optional<AgentState> RecoverAgentState_(const RunObject& run_object) {
-            auto state = state_manager_->Load(run_object.id()).get();
             const auto last_run_step_object = RetrieveLastRunStep_(run_object);
             if (!last_run_step_object.has_value()) {
                 LOG_ERROR("Cannot find last run step for run object: {}", run_object.ShortDebugString());
                 return std::nullopt;
             }
 
+            AgentState state;
+            if (!LoadAgentStateFromRun_(run_object, state)) {
+                LOG_ERROR("Cannot load agent state from run object: {}", run_object.ShortDebugString());
+                return std::nullopt;
+            }
+
             // load function tools
             {
-                // create intial agent state
                 std::vector<FunctionTool> function_tools;
                 // 1. find tools on assistant
                 GetAssistantRequest get_assistant_request;
@@ -529,41 +517,188 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     state.mutable_function_tools()->Add()->CopyFrom(function_tool);
                 }
             }
-
-
-            // handle pause step
-            {
-                // fill in complted function call data which is updated by users
-                // see instinct::assistant::v2::RunServiceImpl::SubmitToolOutputs
-                if (const auto last_step = state.mutable_previous_steps()->rbegin();
-                        last_step->has_thought()
-                        && last_step->thought().has_pause()
-                        && last_step->thought().pause().has_openai()) {
-                    if (last_run_step_object->type() == RunStepObject_RunStepType_tool_calls) {
-                        // clear completed list first
-                        last_step->mutable_thought()->mutable_pause()->mutable_openai()->clear_completed();
-                        for(const auto& tool_request: last_step->thought().pause().openai().tool_call_message().tool_calls()) {
-                            if (!tool_request.has_function()) {
-                                continue;
-                            }
-                            for(const auto& tool_call: last_run_step_object->step_details().tool_calls()) {
-                                if (tool_call.type() == function && tool_request.id() == tool_call.id()) {
-                                    // append to completed list if both id and type are matched
-                                    auto* tool_message = last_step->mutable_thought()->mutable_pause()->mutable_openai()->mutable_completed()->Add();
-                                    tool_message->set_role("tool");
-                                    tool_message->set_content(tool_call.function().output());
-                                }
-                            }
-                        }
-                        LOG_DEBUG("Found {} completed, {} requested. last_run_step_object={}", last_step->thought().pause().openai().completed_size(), last_step->thought().pause().openai().tool_call_message().tool_calls_size(), last_run_step_object->ShortDebugString());
-                    } else {
-                        return std::nullopt;
-                    }
-                }
-            }
-
             return state;
         }
+
+        /**
+         * this function is called when object is in static state when no messages are generating and function tools are running.
+         * @param run_object
+         * @param state
+         * @return true if state is loaded correctly
+         */
+        bool LoadAgentStateFromRun_(const RunObject& run_object, AgentState& state) const {
+            // user last message as input
+            const auto last_user_message = GetLatestUserMessageObject_(run_object.thread_id());
+            if (!last_user_message) {
+                LOG_ERROR("No user message found for run object: {}", run_object.ShortDebugString());
+                return false;
+            }
+            auto* input_message = state.mutable_input()->mutable_chat()->add_messages();
+            input_message->set_role("user");
+            input_message->set_content(last_user_message->content().text().value());
+
+            // find steps
+            AgentStep* last_step = nullptr;
+            AgentContinuation* last_continuation = nullptr;
+            AgentPause* last_pause = nullptr;
+
+            auto run_step_objects = ListAllSteps_(run_object.thread_id(), run_object.id());
+            auto n = run_step_objects.size();
+            for (int i=0;i<n;++i) {
+                const auto& step = run_step_objects.at(i);
+
+                if (step.type() == RunStepObject_RunStepType_tool_calls) {
+                    assert_positive(step.step_details().tool_calls_size(), "should have tool calls in a run step");
+
+                    // create continuation
+                    last_step = state.mutable_previous_steps()->Add();
+                    last_continuation = last_step->mutable_thought()->mutable_continuation();
+                    auto* tool_call_request = last_continuation->mutable_openai()->mutable_tool_call_message();
+                    for (const auto& tool_call: step.step_details().tool_calls()) {
+                        // TODO support code-interpreter and file-search
+                        if (tool_call.type() == function) {
+                            auto* call_request = tool_call_request->add_tool_calls();
+                            call_request->set_type(ToolCallObjectType::function);
+                            call_request->set_id(tool_call.id());
+                            call_request->mutable_function()->set_name(tool_call.function().name());
+                            call_request->mutable_function()->set_arguments(tool_call.function().arguments());
+                        }
+                    }
+
+                    if (i-1>=0) { // look backward for message
+                        if (const auto& last_run_step = run_step_objects.at(i-1); last_run_step.type() == RunStepObject_RunStepType_message_creation) {
+                            if (const auto message_obj = GetMessageObject_(run_object.thread_id(), last_run_step.step_details().message_creation().message_id())) { // update thought text line if last message is found
+                                tool_call_request->set_content(message_obj->content().text().value());
+                            }
+                        }
+                    }
+
+                    if (step.status() == RunStepObject_RunStepStatus_completed) {
+                        // create observation
+                        last_step = state.mutable_previous_steps()->Add();
+                        auto* openai_obsercation = last_step->mutable_observation()->mutable_openai();
+                        for (const auto& tool_call: step.step_details().tool_calls()) {
+                            if (tool_call.type() == function) {
+                                auto* tool_messsage = openai_obsercation->add_tool_messages();
+                                tool_messsage->set_content(tool_call.function().output());
+                                tool_messsage->set_role("tool");
+                            }
+                        }
+                    }
+
+                    if (step.status() == RunStepObject_RunStepStatus_in_progress) {
+                        // because only run objects with status of `queued` and `requires_action` are allowed to be added to task scheduler
+                        assert_true(i == n-1 && run_object.status() == RunObject_RunObjectStatus_requires_action, "it should be last step and run_object is in status of `requires_action`");
+                        // create pause
+                        last_step = state.mutable_previous_steps()->Add();
+                        last_pause = last_step->mutable_thought()->mutable_pause();
+                        last_pause->mutable_openai()->mutable_tool_call_message()->CopyFrom(*tool_call_request);
+                        // TODO support code-interpreter and file-search
+                        // add tool messages for completed function tool calls, including those submitted by user
+                        for (const auto& tool_call: step.step_details().tool_calls()) {
+                            if (tool_call.type() == function) {
+                                auto* tool_messsage = last_pause->mutable_openai()->add_completed();
+                                tool_messsage->set_content(tool_call.function().output());
+                                tool_messsage->set_role("tool");
+                                tool_messsage->set_tool_call_id(tool_call.id());
+                            }
+                        }
+                        LOG_DEBUG("{}/{} completed tool calls in run step. thread_id={}, run_id={}, step_id={}", last_pause->openai().completed_size(), last_pause->openai().tool_call_message().tool_calls_size(), run_object.thread_id(), run_object.id(), step.id());
+                    }
+
+                    if (step.status() == RunStepObject_RunStepStatus_cancelled) {
+                        assert_true(i == n-1 && run_object.status() == RunObject_RunObjectStatus_cancelled, "it should be last step and run object should be status of cancelled");
+                        last_step = state.mutable_previous_steps()->Add();
+                        auto* finish = last_step->mutable_thought()->mutable_finish();
+                        finish->set_is_cancelled(true);
+                    }
+
+                    if (step.status() == RunStepObject_RunStepStatus_expired) {
+                        assert_true(i == n-1 && run_object.status() == RunObject_RunObjectStatus_expired, "it should be last step and run object should be status of expired");
+                        last_step = state.mutable_previous_steps()->Add();
+                        auto* finish = last_step->mutable_thought()->mutable_finish();
+                        finish->set_is_expired(true);
+                    }
+
+                    if (step.status() == RunStepObject_RunStepStatus_failed) {
+                        assert_true(i == n-1 && run_object.status() == RunObject_RunObjectStatus_failed, "it should be last step and run object should be status of failed");
+                        last_step = state.mutable_previous_steps()->Add();
+                        auto* finish = last_step->mutable_thought()->mutable_finish();
+                        finish->set_is_failed(true);
+                        if (step.has_last_error()) {
+                            RunEarlyStopDetails run_early_stop_details;
+                            run_early_stop_details.mutable_error()->CopyFrom(step.last_error());
+                            finish->mutable_details()->PackFrom(run_early_stop_details);
+                        }
+                    }
+
+                }
+
+                if (step.type() == RunStepObject_RunStepType_message_creation) {
+                    if (i == n-1 && run_object.status() == RunObject_RunObjectStatus_completed) { // last message
+                        if (const auto message_obj = GetMessageObject_(run_object.thread_id(), step.step_details().message_creation().message_id())) {
+                            last_step = state.mutable_previous_steps()->Add();
+                            last_step->mutable_thought()->mutable_finish()->set_response(message_obj->content().text().value());
+                        }
+                    }
+                    // other messages are fetched in `tool_calls` branch
+                }
+
+
+            }
+            return true;
+        }
+
+
+        [[nodiscard]] std::optional<MessageObject> GetMessageObject_(const std::string& thread_id, const std::string& message_id) const {
+            GetMessageRequest get_message_request;
+            get_message_request.set_thread_id(thread_id);
+            get_message_request.set_message_id(message_id);
+            return message_service_->RetrieveMessage(get_message_request);
+        }
+
+        [[nodiscard]] std::vector<RunStepObject> ListAllSteps_(const std::string& thread_id, const std::string& run_id) const {
+            std::vector<RunStepObject> run_step_objects;
+            ListRunStepsRequest list_run_steps_request;
+            list_run_steps_request.set_order(asc);
+            list_run_steps_request.set_run_id(run_id);
+            list_run_steps_request.set_thread_id(thread_id);
+            ListRunStepsResponse list_run_steps_resp;
+            list_run_steps_resp.set_has_more(true);
+            do {
+                if (list_run_steps_resp.data_size() > 0) {
+                    list_run_steps_request.set_after(list_run_steps_resp.data().rbegin()->id());
+                }
+                list_run_steps_resp = run_service_->ListRunSteps(list_run_steps_request);
+                run_step_objects.insert(run_step_objects.end(), list_run_steps_resp.data().begin(), list_run_steps_resp.data().end());
+            } while (list_run_steps_resp.has_more());
+            return run_step_objects;
+        }
+
+        [[nodiscard]] std::optional<MessageObject> GetLatestUserMessageObject_(const std::string& thread_id) const {
+            ListMessageRequest list_message_request;
+            list_message_request.set_thread_id(thread_id);
+            list_message_request.set_order(desc);
+            ListMessageResponse list_message_response;
+            list_message_response.set_has_more(true);
+            do {
+                if (list_message_response.data_size()>0) {
+                    list_message_request.set_after(list_message_response.data().rbegin()->id());
+                }
+                list_message_response = message_service_->ListMessages(list_message_request);
+                for (const auto& msg: list_message_response.data()) {
+                    if (msg.role() == user) {
+                        return msg;
+                    }
+                }
+            } while (list_message_response.has_more());
+            return std::nullopt;
+        }
+
+
+
+
+
     };
 }
 

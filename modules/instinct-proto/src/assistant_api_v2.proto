@@ -570,10 +570,6 @@ message CancelRunRequest {
 
 // custom detail data for AgentFinish
 message RunEarlyStopDetails {
-  bool is_cancelled = 1;
-  bool is_expired = 2;
-  bool is_failed = 3;
-  bool is_missing = 4;
   RunStepError error = 5;
 }
 

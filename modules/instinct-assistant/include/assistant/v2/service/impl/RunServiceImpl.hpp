@@ -22,20 +22,17 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         DataMapperPtr<MessageObject, std::string> message_data_mapper_;
         // DataMapperPtr<AssistantObject, std::string> assistant_data_mapper_;
         CommonTaskSchedulerPtr task_scheduler_;
-        StateManagerPtr state_manager_;
     public:
         RunServiceImpl(const DataMapperPtr<ThreadObject, std::string> &thread_data_mapper,
             const DataMapperPtr<RunObject, std::string> &run_data_mapper,
             const DataMapperPtr<RunStepObject, std::string> &run_step_data_mapper,
             const DataMapperPtr<MessageObject, std::string>& message_data_mapper,
-            const StateManagerPtr& state_manager,
             const CommonTaskSchedulerPtr& task_scheduler
             )
             : thread_data_mapper_(thread_data_mapper),
               run_data_mapper_(run_data_mapper),
               run_step_data_mapper_(run_step_data_mapper),
               message_data_mapper_(message_data_mapper),
-              state_manager_(state_manager),
               task_scheduler_(task_scheduler) {
         }
 
@@ -98,11 +95,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             const auto run_object =  RetrieveRun(get_run_request);
 
             if (run_object.has_value()) {
-                // create empty state
-                AgentState initial_state;
-                initial_state.set_id(run_id);
-                state_manager_->Save(initial_state);
-
                 // kick off agent execution
                 task_scheduler_->Enqueue({
                     .task_id = run_id,
@@ -147,11 +139,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             context["response_format"] = "auto";
             context["truncation_strategy"] = nlohmann::ordered_json::parse(R"({"type":"auto"})");
             EntitySQLUtils::InsertOneRun(run_data_mapper_, context);
-
-            // create empty state
-            AgentState initial_state;
-            initial_state.set_id(run_id);
-            state_manager_->Save(initial_state);
 
             // start agent exeuction
             task_scheduler_->Enqueue({

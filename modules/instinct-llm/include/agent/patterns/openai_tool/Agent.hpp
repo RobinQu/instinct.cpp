@@ -223,7 +223,7 @@ namespace INSTINCT_LLM_NS {
                     }
                 }
 
-                if (completed == tool_call_objects.size()) { // return a pause step
+                if (completed != tool_call_objects.size()) { // return a pause step
                     auto* pause = agent_step.mutable_thought()->mutable_pause()->mutable_openai();
                     pause->mutable_tool_call_message()->CopyFrom(tool_call_message);
                     pause->mutable_completed()->CopyFrom(observation_message.openai().tool_messages());

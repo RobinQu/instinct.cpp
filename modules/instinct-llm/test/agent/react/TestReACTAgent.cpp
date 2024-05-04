@@ -128,7 +128,7 @@ Thought: )");
         const auto final_state = agent_executor->Invoke(state);
         LOG_INFO("final state: {}", final_state.ShortDebugString());
         ASSERT_TRUE(final_state.previous_steps().rbegin()->has_thought() && final_state.previous_steps().rbegin()->thought().has_finish());
-        ASSERT_FALSE(final_state.previous_steps().rbegin()->thought().finish().has_error());
+        ASSERT_FALSE(final_state.previous_steps().rbegin()->thought().finish().is_failed());
     }
 
 
