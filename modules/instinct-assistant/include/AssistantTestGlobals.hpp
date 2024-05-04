@@ -28,7 +28,7 @@ namespace INSTINCT_ASSISTANT_NS {
             SetupLogging();
             const auto status = DBUtils::ExecuteSQL(migration_dir / "001" / "up.sql", connection_pool_);
             assert_query_ok(status);
-            LOG_INFO("database is intialized at {}", db_file_path);
+            LOG_INFO("database is initialized at {}", db_file_path);
         }
 
         std::filesystem::path db_file_path = std::filesystem::temp_directory_path() / fmt::format("assistant_test_{}.db", ChronoUtils::GetCurrentTimeMillis());

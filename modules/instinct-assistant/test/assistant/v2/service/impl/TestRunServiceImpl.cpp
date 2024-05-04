@@ -24,10 +24,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         util::MessageDifferencer message_differencer;
         const auto run_service = CreateService();
 
-        // create asssitant
-        AssistantObject create_assitant_request;
-        create_assitant_request.set_model("ollama/llama3:latest");
-        const auto obj1 = assistant_service->CreateAssistant(create_assitant_request);
+        // create assistant
+        AssistantObject create_assistant_request;
+        create_assistant_request.set_model("ollama/llama3:latest");
+        const auto obj1 = assistant_service->CreateAssistant(create_assistant_request);
         LOG_INFO("CreateAssistant returned: {}", obj1->ShortDebugString());
 
         // create thread and run

@@ -10,7 +10,7 @@
 
 namespace INSTINCT_DATA_NS {
     /**
-     * A sketon interface for multi-consumer task queue
+     * A skeleton interface for multi-consumer task queue
      * @tparam Payload
      */
     template<typename Payload>

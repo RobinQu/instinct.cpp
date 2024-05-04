@@ -11,7 +11,7 @@ namespace INSTINCT_DATA_NS {
     using namespace std::chrono_literals;
 
     struct ConnectionPoolOptions {
-        int intial_connection_count = 5;
+        int initial_connection_count = 5;
         std::chrono::minutes max_idle_duration = 60min;
         std::chrono::seconds max_wait_duration_for_acquire = 3s;
     };
@@ -47,7 +47,7 @@ namespace INSTINCT_DATA_NS {
         }
 
         void Initialize() override {
-            auto count = options_.intial_connection_count;
+            auto count = options_.initial_connection_count;
             LOG_INFO("Init pool with {} connections", count);
             while (count-->0) {
                 pool_.push_back(this->Create());

@@ -35,8 +35,6 @@ namespace INSTINCT_SERVER_NS {
     using HttpLibController = HttpController<HttpLibServer>;
     using HttpLibControllerPtr = std::shared_ptr<HttpLibController>;
 
-
-
     class HttpLibServer final: public IManagedServer<HttpLibServer> {
         ServerOptions options_;
         Server server_;
@@ -45,7 +43,7 @@ namespace INSTINCT_SERVER_NS {
         static void RegisterSignalHandlers() {
             static bool DONE = false;
             if (!DONE) { // register only once
-                LOG_INFO("Regsiter signal handlers");
+                LOG_INFO("Register signal handlers");
                 DONE = true;
                 std::signal(SIGINT, [](int signal) {
                     GracefullyShutdownRunningHttpServers();
@@ -155,6 +153,8 @@ namespace INSTINCT_SERVER_NS {
         }
 
     };
+
+    using HttpLibServerPtr = std::shared_ptr<HttpLibServer>;
 
     static void GracefullyShutdownRunningHttpServers() {
         for (auto& server: RUNNING_HTTP_SERVERS) {

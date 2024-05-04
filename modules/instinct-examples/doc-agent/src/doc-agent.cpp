@@ -23,7 +23,7 @@
 #include "tools/Assertions.hpp"
 
 
-namespace insintct::exmaples::doc_agent {
+namespace instinct::examples::doc_agent {
     using namespace INSTINCT_RETRIEVAL_NS;
     using namespace INSTINCT_SERVER_NS;
     using namespace INSTINCT_LLM_NS;
@@ -432,7 +432,7 @@ Question: {standalone_question}
 
 int main(int argc, char** argv) {
     using namespace CLI;
-    using namespace insintct::exmaples::doc_agent;
+    using namespace instinct::examples::doc_agent;
     App app{
         "🤖 DocAgent: Chat with your documents locally with privacy. "
     };
