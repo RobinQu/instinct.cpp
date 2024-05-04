@@ -524,7 +524,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             const auto final_function_tools = std::ranges::unique(function_tools, [](const FunctionTool& a, const FunctionTool& b) {
                 return a.name() == b.name();
             });
-            LOG_DEBUG("Found {} function tools for agent state, id={}", final_function_tools.size(), state.id());
+            LOG_DEBUG("Found {} function tools for run object: {}", final_function_tools.size(), run_object.ShortDebugString());
             for (auto& function_tool: final_function_tools) {
                 state.mutable_function_tools()->Add()->CopyFrom(function_tool);
             }

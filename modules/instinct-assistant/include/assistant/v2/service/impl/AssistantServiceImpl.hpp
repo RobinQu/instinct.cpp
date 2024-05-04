@@ -39,14 +39,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 response.set_has_more(true);
             } else {
                 response.set_has_more(false);
-                if (n>1) {
+                if (n>0) {
                     response.mutable_data()->Add(assistants.begin(), assistants.end());
                     response.set_first_id(assistants.front().id());
                     response.set_last_id(assistants.back().id());
-                } else if (n==1) {
-                    response.mutable_data()->Add()->CopyFrom(assistants.front());
-                    response.set_first_id(assistants.front().id());
-                    response.set_last_id(assistants.front().id());
                 }
                 // do nothing if n == 0
             }

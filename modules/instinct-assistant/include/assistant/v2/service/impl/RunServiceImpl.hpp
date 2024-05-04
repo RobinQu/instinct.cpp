@@ -313,9 +313,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 list_run_steps_response.set_has_more(true);
             } else {
                 list_run_steps_response.set_has_more(false);
-                list_run_steps_response.mutable_data()->Add(run_step_list.begin(), run_step_list.end());
-                list_run_steps_response.set_first_id(run_step_list.front().id());
-                list_run_steps_response.set_last_id(run_step_list.back().id());
+                if (n>0) {
+                    list_run_steps_response.mutable_data()->Add(run_step_list.begin(), run_step_list.end());
+                    list_run_steps_response.set_first_id(run_step_list.front().id());
+                    list_run_steps_response.set_last_id(run_step_list.back().id());
+                }
             }
             return list_run_steps_response;
         }

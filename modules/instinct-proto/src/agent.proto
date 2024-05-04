@@ -120,7 +120,6 @@ message AgentState {
   llm.PromptValue input = 2;
   // code_interpreter and file_search should be translated to FunctionTool format
   repeated llm.FunctionTool function_tools = 3;
-  string id = 4;
 }
 
 message SearchToolRequest {

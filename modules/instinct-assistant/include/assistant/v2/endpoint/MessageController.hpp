@@ -16,7 +16,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         void Mount(HttpLibServer &server) override {
-            server.GetRoute<ListMessageRequest, ListMessageResponse>("/v1/threads/:thread_id/messags", [&](ListMessageRequest& req, const HttpLibSession& session) {
+            server.GetRoute<ListMessagesRequest, ListMessageResponse>("/v1/threads/:thread_id/messags", [&](ListMessagesRequest& req, const HttpLibSession& session) {
                 req.set_thread_id(session.request.path_params.at("thread_id"));
                 const auto resp = facade_.message->ListMessages(req);
                 session.Respond(resp);
