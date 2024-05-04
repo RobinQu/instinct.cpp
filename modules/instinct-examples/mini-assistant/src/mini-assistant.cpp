@@ -1,7 +1,6 @@
 //
 // Created by RobinQu on 2024/4/19.
 //
-
 #include <CLI/CLI.hpp>
 
 
@@ -118,6 +117,23 @@ int main(int argc, char** argv) {
     app.add_option("--db_file_path", application_options.db_file_path, "Path for DuckDB database file.");
     app.add_option("--file_store_path", application_options.file_store_path, "Path for root directory of local object store.");
 
+    // log level
+    bool enable_verbose_log;
+    app.add_flag("-v,--verbose", enable_verbose_log, "A flag to enable verbose log");
+
+    // parse input
+    CLI11_PARSE(app, argc, argv);
+
+    // setup logging
+    if (enable_verbose_log) {
+        fmtlog::setLogLevel(fmtlog::DBG);
+        LOG_INFO("Verbose logging is enabled.");
+    } else {
+        LOG_INFO("Logging level is default to INFO");
+    }
+    fmtlog::startPollingThread();
+
+    // build context and start http server
     MiniAssistantApplicationContextFactory factory {application_options};
     const auto context = factory.GetInstance();
     context.http_server->StartAndWait();
