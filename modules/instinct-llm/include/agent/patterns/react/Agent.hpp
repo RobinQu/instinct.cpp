@@ -104,9 +104,35 @@ Thought: {agent_scratchpad})"
      * It will loop these procedures until final answer is generated or max loop count is reached.
      */
     class ReACTAgentExecutor final: public BaseAgentExecutor {
+        PlannerPtr planner_;
+        WorkerPtr worker_;
+        ChatModelPtr chat_model_;
+        std::vector<FunctionTool> all_schemas_;
     public:
-        ReACTAgentExecutor(const PlannerPtr &planner, const WorkerPtr &worker)
-            : BaseAgentExecutor(planner, worker) {
+        ReACTAgentExecutor(
+            const ChatModelPtr &chat_model,
+            const std::vector<FunctionToolkitPtr> &toolkits,
+            const PromptTemplatePtr& prompt_template = nullptr
+        ):
+            planner_(CreateReACTPlanner(chat_model, prompt_template)),
+            worker_(CreateReACTToolWorker(toolkits)),
+            chat_model_(chat_model)
+        {
+            for (const auto& tk: toolkits) {
+                all_schemas_.insert(all_schemas_.end(), tk->GetAllFunctionToolSchema().begin(), tk->GetAllFunctionToolSchema().end());
+            }
+            chat_model_->BindToolSchemas(all_schemas_);
+        }
+
+        /**
+         * Create `AgentState` with user prompt. This is a convenient method for Ad-hoc style execution. In a distributed agent server, `AgentState` should recover from ongoing request session.
+         * @param input
+         * @return Initial state
+         */
+        AgentState InitializeState(const PromptValueVariant& input) override {
+            auto agent_state = BaseAgentExecutor::InitializeState(input);
+            agent_state.mutable_function_tools()->Add(all_schemas_.begin(), all_schemas_.end());
+            return agent_state;
         }
 
         AgentStep ResolveNextStep(AgentState &state) override {
@@ -117,7 +143,7 @@ Thought: {agent_scratchpad})"
             // 1. if no previous steps exist
             // 2. if last step is observation
             if (step_count == 0 || state.previous_steps(step_count-1).has_observation()) {
-                const auto thought = GetPlaner()->Invoke(state);
+                const auto thought = planner_->Invoke(state);
                 LOG_DEBUG("ReACT thought: {}", thought.ShortDebugString());
                 agent_step.mutable_thought()->CopyFrom(thought);
                 // save this step
@@ -132,7 +158,7 @@ Thought: {agent_scratchpad})"
 
                 if (thought.has_continuation() && thought.continuation().has_react()) {
                     // if last step is thought and contain invocation request, let's run function then.
-                    const auto observation = GetWorker()->Invoke(thought);
+                    const auto observation = worker_->Invoke(thought);
                     LOG_DEBUG("ReACT observation: {}", observation.ShortDebugString());
                     agent_step.mutable_observation()->CopyFrom(observation);
                     // save this step
@@ -153,8 +179,9 @@ Thought: {agent_scratchpad})"
         const PromptTemplatePtr& prompt_template = nullptr
         ) {
         return std::make_shared<ReACTAgentExecutor>(
-            CreateReACTPlanner(chat_model, prompt_template),
-            CreateReACTToolWorker(toolkits)
+            chat_model,
+            toolkits,
+            prompt_template
             );
     }
 

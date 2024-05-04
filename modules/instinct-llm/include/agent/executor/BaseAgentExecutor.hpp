@@ -13,34 +13,8 @@ namespace INSTINCT_LLM_NS {
      * Base class for executor that handles state transitions of given agent.
      */
     class BaseAgentExecutor: public virtual IAgentExecutor, public BaseRunnable<AgentState, AgentState> {
-        PlannerPtr planner_;
-        WorkerPtr worker_;
-        // SolverPtr solver_;
-        std::vector<FunctionTool> all_schemas_;
     public:
-        BaseAgentExecutor(PlannerPtr planner, WorkerPtr worker)
-            : planner_(std::move(planner)),
-              worker_(std::move(worker)) {
-            // do a copy for schema in toolkits
-            for (const auto& tk: worker_->GetFunctionToolkits()) {
-                for(const auto& schema: tk->GetAllFunctionToolSchema()) {
-                    all_schemas_.push_back(schema);
-                }
-            }
-        }
 
-        /**
-         * Create `AgentState` with user prompt. This is a convenient method for Ad-hoc style execution. In a distributed agent server, `AgentState` should recover from ongoing request session.
-         * @param input
-         * @return Initial state
-         */
-        AgentState InitializeState(const PromptValueVariant& input) {
-            const auto pv = MessageUtils::ConvertPromptValueVariantToPromptValue(input);
-            AgentState agent_state;
-            agent_state.mutable_input()->CopyFrom(pv);
-            agent_state.mutable_function_tools()->Add(all_schemas_.begin(), all_schemas_.end());
-            return agent_state;
-        }
 
         /**
          * Return the final step for given state
@@ -56,6 +30,13 @@ namespace INSTINCT_LLM_NS {
                     state = final_state;
                 });
             return state;
+        }
+
+        virtual AgentState InitializeState(const PromptValueVariant& input) {
+            const auto pv = MessageUtils::ConvertPromptValueVariantToPromptValue(input);
+            AgentState agent_state;
+            agent_state.mutable_input()->CopyFrom(pv);
+            return agent_state;
         }
 
         /**
@@ -83,13 +64,6 @@ namespace INSTINCT_LLM_NS {
             });
         }
 
-        [[nodiscard]] PlannerPtr GetPlaner() const override {
-            return planner_;
-        }
-
-        [[nodiscard]] WorkerPtr GetWorker() const override {
-            return worker_;
-        }
 
     };
 

@@ -145,17 +145,19 @@ namespace INSTINCT_LLM_NS {
             return false;
         }
 
-        OpenAIToolAgentExecutor(const PlannerPtr &planner, const WorkerPtr &worker, StopPredicate should_early_stop = NoStopPredicate)
-            : BaseAgentExecutor(planner, worker), should_early_stop_(std::move(should_early_stop)) {
+        OpenAIToolAgentExecutor(PlannerPtr planner, WorkerPtr worker, StopPredicate should_early_stop = NoStopPredicate):
+            should_early_stop_(std::move(should_early_stop)),
+            planner_(std::move(planner)),
+            worker_(std::move(worker)) {
         }
 
         OpenAIToolAgentExecutor(const ChatModelPtr &chat_model,
                                 const std::vector<FunctionToolkitPtr> &toolkits,
-                                StopPredicate should_early_stop = NoStopPredicate): BaseAgentExecutor(
-            CreateOpenAIToolAgentPlanner(chat_model),
-            CreateOpenAIToolAgentWorker(toolkits)),
-            should_early_stop_(std::move(should_early_stop)
-        ) {
+                                StopPredicate should_early_stop = NoStopPredicate):
+            should_early_stop_(std::move(should_early_stop)),
+            planner_(CreateOpenAIToolAgentPlanner(chat_model)),
+            worker_(CreateOpenAIToolAgentWorker(toolkits))
+        {
             for(const auto& tk: toolkits) {
                 chat_model->BindTools(tk);
             }
@@ -175,7 +177,7 @@ namespace INSTINCT_LLM_NS {
             const auto last_step = state.previous_steps(n - 1);
             if (n == 0 || last_step.has_observation()) {
                 // do planing
-                AgentThought thought_step = GetPlaner()->Invoke(state);
+                AgentThought thought_step = planner_->Invoke(state);
                 agent_step.mutable_thought()->CopyFrom(thought_step);
                 state.add_previous_steps()->CopyFrom(agent_step);
                 return agent_step;
@@ -211,7 +213,7 @@ namespace INSTINCT_LLM_NS {
                 const auto& thought_step = last_step.thought();
 
                 // worker should filter out unsupported tool
-                const auto observation_message = GetWorker()->Invoke(thought_step);
+                const auto observation_message = worker_->Invoke(thought_step);
                 int completed = 0;
                 for(const auto& tool_call: tool_call_objects) {
                     for(const auto& tool_message: observation_message.openai().tool_messages()) {
@@ -239,6 +241,8 @@ namespace INSTINCT_LLM_NS {
 
     private:
         StopPredicate should_early_stop_;
+        PlannerPtr planner_;
+        WorkerPtr worker_;
     };
 
     static AgentExecutorPtr CreateOpenAIToolAgentExecutor(
