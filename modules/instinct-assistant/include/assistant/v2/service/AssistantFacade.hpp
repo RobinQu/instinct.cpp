@@ -19,8 +19,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         FileServicePtr file;
         RunServicePtr run;
         ThreadServicePtr thread;
-        VectorStoreServicePtr vector_store;
         MessageServicePtr message;
+        VectorStoreServicePtr vector_store;
     };
 }
 

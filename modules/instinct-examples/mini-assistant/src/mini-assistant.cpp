@@ -7,6 +7,10 @@
 
 #include "server/httplib/HttpLibServer.hpp"
 #include "assistant/v2/endpoint/AssistantController.hpp"
+#include "assistant/v2/endpoint/FileController.hpp"
+#include "assistant/v2/endpoint/MessageController.hpp"
+#include "assistant/v2/endpoint/RunController.hpp"
+#include "assistant/v2/endpoint/ThreadController.hpp"
 #include "assistant/v2/tool/IApplicaitonContextFactory.hpp"
 #include "assistant/v2/service/impl/AssistantServiceImpl.hpp"
 #include "assistant/v2/service/impl/FileServiceImpl.hpp"
@@ -25,9 +29,10 @@ namespace instinct::examples::mini_assistant {
         ConnectionPoolOptions connection_pool;
         std::filesystem::path db_file_path;
         std::filesystem::path file_store_path;
+        FileServiceOptions file_service;
     };
 
-    class MiniAssistantApplicationContextFactory: public IApplicationContextFactory<duckdb::Connection, duckdb::unique_ptr<duckdb::MaterializedQueryResult>> {
+    class MiniAssistantApplicationContextFactory final: public IApplicationContextFactory<duckdb::Connection, duckdb::unique_ptr<duckdb::MaterializedQueryResult>> {
         ApplicationOptions options_;
     public:
         explicit MiniAssistantApplicationContextFactory(ApplicationOptions applicationOptions)
@@ -35,7 +40,9 @@ namespace instinct::examples::mini_assistant {
 
         ApplicationContext GetInstance() override {
             ApplicationContext context;
-            DuckDBPtr duck_db_ = std::make_shared<DuckDB>(options_.db_file_path);
+
+            // configure database
+            const auto duck_db_ = std::make_shared<DuckDB>(options_.db_file_path);
             context.connection_pool = CreateDuckDBConnectionPool(duck_db_, options_.connection_pool);
             context.assistant_data_mapper = CreateDuckDBDataMapper<AssistantObject, std::string>(context.connection_pool);
             context.thread_data_mapper = CreateDuckDBDataMapper<ThreadObject, std::string>(context.connection_pool);
@@ -43,14 +50,47 @@ namespace instinct::examples::mini_assistant {
             context.file_data_mapper = CreateDuckDBDataMapper<FileObject, std::string>(context.connection_pool);
             context.run_data_mapper = CreateDuckDBDataMapper<RunObject, std::string>(context.connection_pool);
             context.run_step_data_mapper = CreateDuckDBDataMapper<RunStepObject, std::string>(context.connection_pool);
-            context.task_scheduler = CreateThreadPoolTaskScheduler();
             context.object_store = std::make_shared<FileSystemObjectStore>(options_.file_store_path);
 
+            // configure task scheduler
+            context.task_scheduler = CreateThreadPoolTaskScheduler();
 
+            // configure services
             const auto thread_service = std::make_shared<ThreadServiceImpl>(context.thread_data_mapper, context.message_data_mapper);
             const auto message_service = std::make_shared<MessageServiceImpl>(context.message_data_mapper);
+            const auto file_service = std::make_shared<FileServiceImpl>(context.file_data_mapper, context.object_store, options_.file_service);
+            const auto run_service = std::make_shared<RunServiceImpl>(
+                context.thread_data_mapper,
+                context.run_data_mapper,
+                context.run_step_data_mapper,
+                context.message_data_mapper,
+                nullptr,
+                context.task_scheduler
+                );
+            const auto assistant_service = std::make_shared<AssistantServiceImpl>(context.assistant_data_mapper);
+            context.assistant_facade = {
+                .assistant = assistant_service,
+                .file = file_service,
+                .run = run_service,
+                .thread = thread_service,
+                .message = message_service,
+                .vector_store = nullptr
+            };
 
-            
+            // configure http server
+            const auto http_server = std::make_shared<HttpLibServer>(options_.server);
+            const auto assistant_controller = std::make_shared<AssistantController>(context.assistant_facade);
+            const auto file_controller = std::make_shared<FileController>(context.assistant_facade);
+            const auto message_controller = std::make_shared<MessageController>(context.assistant_facade);
+            const auto run_controller = std::make_shared<RunController>(context.assistant_facade);
+            const auto thread_controller = std::make_shared<ThreadController>(context.assistant_facade);
+            http_server->Use(assistant_controller);
+            http_server->Use(file_controller);
+            http_server->Use(message_controller);
+            http_server->Use(run_controller);
+            http_server->Use(thread_controller);
+            context.http_server = http_server;
+
             return context;
         }
     };
