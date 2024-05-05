@@ -26,7 +26,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // limit + 1 to check if there is more records that match the conditions
             auto limit = list_request.limit() <= 0 ? DEFAULT_LIST_LIMIT + 1 : list_request.limit() + 1;
             context["limit"] = limit;
-            if (list_request.limit() == unknown_list_request_order) {
+            if (list_request.order() == unknown_list_request_order) {
                 context["order"] = "desc";
             }
             auto assistants = EntitySQLUtils::GetManyAssistant(data_mapper_, context);

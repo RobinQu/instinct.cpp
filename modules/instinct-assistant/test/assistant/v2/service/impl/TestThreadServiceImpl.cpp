@@ -13,6 +13,7 @@ namespace INSTINCT_ASSISTANT_NS {
 
     TEST_F(ThreadServiceTest, SimpleCRUD) {
         const auto thread_service = CreateThreadService();
+        const auto message_service = CreateMessageService();
 
         // insert one thread without messsages
         ThreadObject create_request1;
@@ -34,6 +35,12 @@ This scattering of light is what makes the sky look blue in our perception. You 
         msg2->set_role(assistant);
         auto obj2 = thread_service->CreateThread(create_request2);
         LOG_INFO("insert one returned: {}", obj2->ShortDebugString());
+        ListMessagesRequest list_messages_request;
+        list_messages_request.set_thread_id(obj2->id());
+        list_messages_request.set_order(desc);
+        const auto obj6 = message_service->ListMessages(list_messages_request);
+        auto& msg2_in_list = obj6.data(1);
+        ASSERT_EQ(msg2_in_list.content().text().value(), msg2->content().text().value());
 
         // get thread
         GetThreadRequest get_thread_request;
