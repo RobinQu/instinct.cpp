@@ -172,8 +172,93 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     }
 
     TEST_F(TestOpenAIToolAgentRunObjectTaskHandler, RecoverAgentStateWithFailedSteps) {
+        google::protobuf::util::MessageDifferencer message_differencer;
 
+        // create assistant
+        AssistantObject create_assistant_request;
+        create_assistant_request.set_model("gpt3.5-turbo");
+        auto* tool1 = create_assistant_request.mutable_tools()->Add();
+        tool1->set_type(function);
+        tool1->mutable_function()->set_name("foo");
+        tool1->mutable_function()->set_description("foo foo");
+        const auto obj1 = assistant_service_->CreateAssistant(create_assistant_request);
+        LOG_INFO("CreateAssistant returned: {}", obj1->ShortDebugString());
 
+        // create thread and run
+        const std::string prompt_line = "What's the population of India?";
+        CreateThreadAndRunRequest create_thread_and_run_request1;
+        create_thread_and_run_request1.set_assistant_id(obj1->id());
+        auto* msg = create_thread_and_run_request1.mutable_thread()->add_messages();
+        msg->set_role(user);
+        msg->mutable_content()->mutable_text()->set_value(prompt_line);
+        msg->mutable_content()->set_type(MessageObject_MessageContentType_text);
+        const auto obj2 = run_service_->CreateThreadAndRun(create_thread_and_run_request1);
+        LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
+
+        // create hanlder
+        const auto task_handler = CreateTaskHandler();
+
+        // create single step with one tool call but no output
+        // 1.update run status to requires_action
+        ModifyRunRequest modify_run_request;
+        modify_run_request.set_run_id(obj2->id());
+        modify_run_request.set_thread_id(obj2->thread_id());
+        modify_run_request.set_status(RunObject_RunObjectStatus_requires_action);
+        const auto obj3 = run_service_->ModifyRun(modify_run_request);
+        ASSERT_TRUE(obj3);
+        // 2. create run step with tool call
+        RunStepObject create_run_step_request;
+        create_run_step_request.set_status(RunStepObject_RunStepStatus_in_progress);
+        create_run_step_request.set_run_id(obj2->id());
+        create_run_step_request.set_thread_id(obj2->thread_id());
+        create_run_step_request.set_type(RunStepObject_RunStepType_tool_calls);
+        auto* tool_call = create_run_step_request.mutable_step_details()->add_tool_calls();
+        tool_call->set_id("call-1");
+        tool_call->mutable_function()->set_name("foo");
+        tool_call->set_type(function);
+        tool_call->mutable_function()->set_arguments("{}");
+        const auto create_run_step_response = run_service_->CreateRunStep(create_run_step_request);
+        ASSERT_TRUE(create_run_step_response);
+
+        // epxect finish with cancallation
+        ModifyRunStepRequest modify_run_step_request;
+        modify_run_step_request.set_run_id(obj3->id());
+        modify_run_step_request.set_thread_id(obj3->thread_id());
+        modify_run_step_request.set_status(RunStepObject_RunStepStatus_cancelled);
+        modify_run_step_request.set_step_id(create_run_step_response->id());
+        ASSERT_TRUE(run_service_->ModifyRunStep(modify_run_step_request));
+        modify_run_request.set_status(RunObject_RunObjectStatus_cancelled);
+        const auto obj4 = run_service_->ModifyRun(modify_run_request);
+        ASSERT_TRUE(obj4);
+        const auto state4 = task_handler->RecoverAgentState(obj4.value());
+        LOG_INFO("RecoverAgentState returned: {}", state4->ShortDebugString());
+        ASSERT_EQ(state4->previous_steps_size(), 2);
+        const auto& finish_step = state4->previous_steps(1).thought().finish();
+        ASSERT_TRUE(finish_step.is_cancelled());
+
+        // expect finish with expiration
+        modify_run_request.set_status(RunObject_RunObjectStatus_expired);
+        const auto obj5 = run_service_->ModifyRun(modify_run_request);
+        ASSERT_TRUE(obj5);
+        modify_run_step_request.set_status(RunStepObject_RunStepStatus_expired);
+        ASSERT_TRUE(run_service_->ModifyRunStep(modify_run_step_request));
+        const auto state5 = task_handler->RecoverAgentState(obj5.value());
+        LOG_INFO("RecoverAgentState returned: {}", state5->ShortDebugString());
+        ASSERT_EQ(state5->previous_steps_size(), 2);
+        const auto& finish_step2 = state5->previous_steps(1).thought().finish();
+        ASSERT_TRUE(finish_step2.is_expired());
+
+        // expect finish with failure
+        modify_run_request.set_status(RunObject_RunObjectStatus_failed);
+        const auto obj6 = run_service_->ModifyRun(modify_run_request);
+        ASSERT_TRUE(obj6);
+        modify_run_step_request.set_status(RunStepObject_RunStepStatus_failed);
+        ASSERT_TRUE(run_service_->ModifyRunStep(modify_run_step_request));
+        const auto state6 = task_handler->RecoverAgentState(obj6.value());
+        LOG_INFO("RecoverAgentState returned: {}", state6->ShortDebugString());
+        ASSERT_EQ(state6->previous_steps_size(), 2);
+        const auto& finish_step3 = state6->previous_steps(1).thought().finish();
+        ASSERT_TRUE(finish_step3.is_failed());
     }
 
 

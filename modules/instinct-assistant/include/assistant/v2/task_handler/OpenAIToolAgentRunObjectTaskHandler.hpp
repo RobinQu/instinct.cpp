@@ -182,7 +182,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             RunEarlyStopDetails run_early_stop_details;
             auto *finish = step.mutable_thought()->mutable_finish();
             if (get_run_resp.has_value()) {
-                if (get_run_resp->status() == RunObject_RunObjectStatus_cancelling) {
+                if (get_run_resp->status() == RunObject_RunObjectStatus_cancelling
+                    || get_run_resp->status() == RunObject_RunObjectStatus_cancelled
+                    // it's unlikely for a `canceled` run object to be passed in, but just in case of that, we choose to set it to `cancelled` again.
+                    ) {
                     // save to any field
                     finish->mutable_details()->PackFrom(run_early_stop_details);
                     finish->set_is_cancelled(true);
@@ -366,6 +369,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             modify_run_step_request.set_run_id(run_object.id());
             modify_run_step_request.set_step_id(last_run_step->id());
             modify_run_step_request.set_thread_id(run_object.thread_id());
+            modify_run_step_request.set_status(RunStepObject_RunStepStatus_completed);
             auto* step_details = modify_run_step_request.mutable_step_details();
             step_details->CopyFrom(last_run_step->step_details());
 
@@ -383,6 +387,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 LOG_ERROR("Illegal response for updating run step object: {}", modify_run_step_request.ShortDebugString());
                 return;
             }
+
             LOG_INFO("OnAgentObservation Done, run_object={}", run_object.ShortDebugString());
         }
 
@@ -538,6 +543,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
          * @return true if state is loaded correctly
          */
         bool LoadAgentStateFromRun_(const RunObject& run_object, AgentState& state) const {
+            if (run_object.status() == RunObject_RunObjectStatus_cancelling || run_object.status() == RunObject_RunObjectStatus_in_progress) {
+                LOG_ERROR("Cannot handle run object that is canelling");
+                return false;
+            }
+
             // user last message as input
             const auto last_user_message = GetLatestUserMessageObject_(run_object.thread_id());
             if (!last_user_message) {
@@ -559,7 +569,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 const auto& step = run_step_objects.at(i);
 
                 if (step.type() == RunStepObject_RunStepType_tool_calls) {
-                    assert_positive(step.step_details().tool_calls_size(), "should have tool calls in a run step");
+                    if (step.step_details().tool_calls_size() <= 0) {
+                        LOG_ERROR("should have tool calls in a run step");
+                        return false;
+                    }
+                    // assert_positive(step.step_details().tool_calls_size(), "should have tool calls in a run step");
 
                     // create continuation
                     last_step = state.mutable_previous_steps()->Add();
@@ -599,8 +613,16 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
                     if (step.status() == RunStepObject_RunStepStatus_in_progress) {
                         // because only run objects with status of `queued` and `requires_action` are allowed to be added to task scheduler
-                        assert_true(i == n-1, "it should be last step.");
-                        assert_true(run_object.status() == RunObject_RunObjectStatus_requires_action, "run_object should be in status of requires_action");
+                        // assert_true(i == n-1, "it should be last step.");
+                        // assert_true(run_object.status() == RunObject_RunObjectStatus_requires_action, "run_object should be in status of requires_action");
+                        if (i != n-1) {
+                            LOG_ERROR("it should be last step.");
+                            return false;
+                        }
+                        if (run_object.status() != RunObject_RunObjectStatus_requires_action) {
+                            LOG_ERROR("run_object should be in status of requires_action");
+                            return false;
+                        }
                         // create pause
                         last_step = state.mutable_previous_steps()->Add();
                         last_pause = last_step->mutable_thought()->mutable_pause();
@@ -619,21 +641,48 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     }
 
                     if (step.status() == RunStepObject_RunStepStatus_cancelled) {
-                        assert_true(i == n-1 && run_object.status() == RunObject_RunObjectStatus_cancelled, "it should be last step and run object should be status of cancelled");
+                        // assert_true(i == n-1, "it should be last step");
+                        // assert_true(run_object.status() == RunObject_RunObjectStatus_cancelled, "run object should be cancelled");
+                        if (i != n-1) {
+                            LOG_ERROR("it should be last step.");
+                            return false;
+                        }
+                        if (run_object.status() != RunObject_RunObjectStatus_cancelled) {
+                            LOG_ERROR("run_object should be in status of cancelled");
+                            return false;
+                        }
                         last_step = state.mutable_previous_steps()->Add();
                         auto* finish = last_step->mutable_thought()->mutable_finish();
                         finish->set_is_cancelled(true);
                     }
 
                     if (step.status() == RunStepObject_RunStepStatus_expired) {
-                        assert_true(i == n-1 && run_object.status() == RunObject_RunObjectStatus_expired, "it should be last step and run object should be status of expired");
+                        // assert_true(i == n-1, "it should be last step");
+                        // assert_true(run_object.status() == RunObject_RunObjectStatus_expired, "run object should be expired");
+                        if (i != n-1) {
+                            LOG_ERROR("it should be last step.");
+                            return false;
+                        }
+                        if (run_object.status() != RunObject_RunObjectStatus_expired) {
+                            LOG_ERROR("run_object should be in status of expired");
+                            return false;
+                        }
                         last_step = state.mutable_previous_steps()->Add();
                         auto* finish = last_step->mutable_thought()->mutable_finish();
                         finish->set_is_expired(true);
                     }
 
                     if (step.status() == RunStepObject_RunStepStatus_failed) {
-                        assert_true(i == n-1 && run_object.status() == RunObject_RunObjectStatus_failed, "it should be last step and run object should be status of failed");
+                        // assert_true(i == n-1, "it should be last step");
+                        // assert_true(run_object.status() == RunObject_RunObjectStatus_failed, "run object should be failed");
+                        if (i != n-1) {
+                            LOG_ERROR("it should be last step.");
+                            return false;
+                        }
+                        if (run_object.status() != RunObject_RunObjectStatus_failed) {
+                            LOG_ERROR("run_object should be in status of failed");
+                            return false;
+                        }
                         last_step = state.mutable_previous_steps()->Add();
                         auto* finish = last_step->mutable_thought()->mutable_finish();
                         finish->set_is_failed(true);
