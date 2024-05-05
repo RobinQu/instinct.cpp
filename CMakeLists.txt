@@ -75,6 +75,7 @@ if(BUILD_TESTING)
     find_package(GTest REQUIRED)
 endif ()
 
+include(cmake/CMakeRC.cmake)
 
 # project modules
 add_subdirectory(modules/instinct-proto)

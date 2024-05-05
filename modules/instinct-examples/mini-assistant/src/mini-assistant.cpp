@@ -2,7 +2,11 @@
 // Created by RobinQu on 2024/4/19.
 //
 #include <CLI/CLI.hpp>
+#include <cmrc/cmrc.hpp>
 
+#include "database/DBUtils.hpp"
+
+CMRC_DECLARE(instinct::assistant);
 
 #include "server/httplib/HttpLibServer.hpp"
 #include "assistant/v2/endpoint/AssistantController.hpp"
@@ -10,12 +14,14 @@
 #include "assistant/v2/endpoint/MessageController.hpp"
 #include "assistant/v2/endpoint/RunController.hpp"
 #include "assistant/v2/endpoint/ThreadController.hpp"
-#include "assistant/v2/tool/IApplicaitonContextFactory.hpp"
+#include "assistant/v2/tool/IApplicationContextFactory.hpp"
 #include "assistant/v2/service/impl/AssistantServiceImpl.hpp"
 #include "assistant/v2/service/impl/FileServiceImpl.hpp"
 #include "assistant/v2/service/impl/MessageServiceImpl.hpp"
 #include "assistant/v2/service/impl/RunServiceImpl.hpp"
 #include "assistant/v2/service/impl/ThreadServiceImpl.hpp"
+
+
 
 
 namespace instinct::examples::mini_assistant {
@@ -107,9 +113,6 @@ int main(int argc, char** argv) {
     argv = app.ensure_utf8(argv);
     app.set_help_all_flag("--help-all", "Expand all help");
 
-    // requires at least one sub-command
-    app.require_subcommand();
-
     ApplicationOptions application_options;
     app.add_option("-p,--port", application_options.server.port, "Port number which API server will listen")
             ->default_val("9091");
@@ -135,5 +138,14 @@ int main(int argc, char** argv) {
     // build context and start http server
     MiniAssistantApplicationContextFactory factory {application_options};
     const auto context = factory.GetInstance();
+
+    // db migration
+    auto fs = cmrc::instinct::assistant::get_filesystem();
+    auto sql_file = fs.open("db_migration/001/up.sql");
+    const auto sql_line = std::string {sql_file.begin(), sql_file.end()};
+    LOG_DEBUG("initialize database at {} with sql:\n {}", application_options.db_file_path, sql_line);
+    DBUtils::ExecuteSQL(sql_line, context.connection_pool);
+
+    // start server
     context.http_server->StartAndWait();
 }

@@ -25,6 +25,11 @@ namespace INSTINCT_DATA_NS {
         template<typename ConnectionImpl, typename QueryResultImpl>
         static QueryResultImpl ExecuteSQL(const std::filesystem::path& sql_path, const ConnectionPoolPtr<ConnectionImpl, QueryResultImpl> connection_pool, const SQLContext& context = {}) {
             const auto sql_line = IOUtils::ReadString(sql_path);
+            return ExecuteSQL(sql_line, connection_pool, context);
+        }
+
+        template<typename ConnectionImpl, typename QueryResultImpl>
+        static QueryResultImpl ExecuteSQL(const std::string& sql_line, const ConnectionPoolPtr<ConnectionImpl, QueryResultImpl> connection_pool, const SQLContext& context = {}) {
             const auto conn = connection_pool->Acquire();
             QueryResultImpl result;
             try {
