@@ -14,9 +14,8 @@
 #include "toolkit/BaseSearchTool.hpp"
 #include "tools/ChronoUtils.hpp"
 
-namespace instinct::test {
+namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
-    using namespace INSTINCT_LLM_NS;
 
     static Embedding make_zero_vector(const size_t dim=128) {
         Embedding embedding (dim);
@@ -236,6 +235,95 @@ talking non-sense
             return response;
         }
     };
+
+
+     class GetNightlyHotelPrice final: public BaseFunctionTool {
+            FunctionTool schema_;
+
+        public:
+            explicit GetNightlyHotelPrice(const FunctionToolOptions &options = {})
+                : BaseFunctionTool(options) {
+                ProtobufUtils::Deserialize(R"(
+{
+    "name": "get_nightly_hotel_price",
+    "description": "Get hotel room price for a given city",
+    "parameters": {
+        "type":"object",
+        "properties": {
+            "city": {
+                "type": "string",
+                "description": "The city to get flight prices for"
+            }
+        },
+        "required" : ["city"]
+    }
+}
+)", schema_);
+            }
+
+            [[nodiscard]] const FunctionTool & GetSchema() const override {
+                return schema_;
+            }
+
+            std::string Execute(const std::string &action_input) override {
+                static std::unordered_map<std::string, float> price_maps {
+                    {"New York", 300},
+                    {"Paris", 200},
+                    {"Tokyo", 300}
+                };
+                const auto args = nlohmann::json::parse(action_input);
+                const auto city = args.at("city").get<std::string>();
+                nlohmann::json resp;
+                resp["city"] = city;
+                resp["hotel_price"] = price_maps.at(city);
+                return resp.dump();
+            }
+        };
+
+        class GetFlightPriceTool final: public BaseFunctionTool {
+            FunctionTool schema_;
+
+        public:
+            explicit GetFlightPriceTool(const FunctionToolOptions &options = {})
+                : BaseFunctionTool(options) {
+                ProtobufUtils::Deserialize(R"(
+{
+    "name": "get_flight_price",
+    "description": "Get flight price for a given city",
+    "parameters": {
+        "type":"object",
+        "properties": {
+            "city": {
+                "type": "string",
+                "description": "The city to get flight prices for"
+            }
+        },
+        "required" : ["city"]
+    }
+}
+)", schema_);
+            }
+
+            [[nodiscard]] const FunctionTool & GetSchema() const override {
+                return schema_;
+            }
+
+            std::string Execute(const std::string &action_input) override {
+                static std::unordered_map<std::string, float> price_maps {
+                            {"New York", 450},
+                            {"Paris", 750},
+                            {"Tokyo", 1200}
+                };
+                const auto args = nlohmann::json::parse(action_input);
+                const auto city = args.at("city").get<std::string>();
+                nlohmann::json resp;
+                resp["city"] = city;
+                resp["flight_price"] = price_maps.at(city);
+                return resp.dump();
+            }
+        };
+
+
 }
 
 

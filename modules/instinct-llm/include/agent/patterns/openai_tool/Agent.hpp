@@ -39,36 +39,38 @@ namespace INSTINCT_LLM_NS {
                     }
                 }
 
-                // only execute tool call that has matching tools in worker
-                auto multi_futures = thread_pool_.submit_sequence(0, tool_request_msg.tool_calls_size(), [&](auto i) {
-                    const auto &call = filtered_tool_calls.at(i);
-                    FunctionToolInvocation invocation;
-                    invocation.set_id(call.id());
-                    invocation.set_name(call.function().name());
-                    invocation.set_input(call.function().arguments());
-                    for (const auto &tk: GetFunctionToolkits()) {
-                        if (tk->LookupFunctionTool({.by_name = call.function().name()})) {
-                            return tk->Invoke(invocation);
-                        }
-                    }
-                    // impossible to reach here
-                    throw InstinctException(fmt::format("Unresolved invocation: id={}, name={}", invocation.id(),
-                                                        invocation.name()));
-                });
-
                 AgentObservation observation_message;
-                auto *observation = observation_message.mutable_openai();;
-                for (auto &future: multi_futures) {
-                    const auto tool_result = future.get();
-                    if (tool_result.has_error()) {
-                        LOG_ERROR("invocation failed: id={}, exception={}", tool_result.invocation_id(), tool_result.exception());
-                        throw InstinctException(tool_result.exception());
+                auto *observation = observation_message.mutable_openai();
+                // it's possible we have empty tool calls after fitering
+                if (!filtered_tool_calls.empty()) {
+                    // only execute tool call that has matching tools in worker
+                    auto multi_futures = thread_pool_.submit_sequence(0, tool_request_msg.tool_calls_size(), [&](auto i) {
+                        const auto &call = filtered_tool_calls.at(i);
+                        FunctionToolInvocation invocation;
+                        invocation.set_id(call.id());
+                        invocation.set_name(call.function().name());
+                        invocation.set_input(call.function().arguments());
+                        for (const auto &tk: GetFunctionToolkits()) {
+                            if (tk->LookupFunctionTool({.by_name = call.function().name()})) {
+                                return tk->Invoke(invocation);
+                            }
+                        }
+                        // impossible to reach here
+                        throw InstinctException(fmt::format("Unresolved invocation: id={}, name={}", invocation.id(),
+                                                            invocation.name()));
+                    });
+                    for (auto &future: multi_futures) {
+                        const auto tool_result = future.get();
+                        if (tool_result.has_error()) {
+                            LOG_ERROR("invocation failed: id={}, exception={}", tool_result.invocation_id(), tool_result.exception());
+                            throw InstinctException(tool_result.exception());
+                        }
+                        Message function_message;
+                        function_message.set_role("tool");
+                        function_message.set_tool_call_id(tool_result.invocation_id());
+                        function_message.set_content(tool_result.return_value());
+                        observation->add_tool_messages()->CopyFrom(function_message);
                     }
-                    Message function_message;
-                    function_message.set_role("tool");
-                    function_message.set_tool_call_id(tool_result.invocation_id());
-                    function_message.set_content(tool_result.return_value());
-                    observation->add_tool_messages()->CopyFrom(function_message);
                 }
                 return observation_message;
             }
@@ -166,7 +168,7 @@ namespace INSTINCT_LLM_NS {
         AgentStep ResolveNextStep(AgentState &state) override {
             AgentStep agent_step;
             // check if early stop is required
-            if (!should_early_stop_(state, agent_step)) {
+            if (should_early_stop_(state, agent_step)) {
                 return agent_step;
             }
 
@@ -174,15 +176,15 @@ namespace INSTINCT_LLM_NS {
             //  do ChatCompletion with messages -> message
             //  is_last = messages.function_call is None
             const auto n = state.previous_steps_size();
-            const auto last_step = state.previous_steps(n - 1);
-            if (n == 0 || last_step.has_observation()) {
+            if (n == 0 || state.previous_steps(n - 1).has_observation()) {
                 // do planing
-                AgentThought thought_step = planner_->Invoke(state);
+                const AgentThought thought_step = planner_->Invoke(state);
                 agent_step.mutable_thought()->CopyFrom(thought_step);
                 state.add_previous_steps()->CopyFrom(agent_step);
                 return agent_step;
             }
 
+            const auto last_step = state.previous_steps(n - 1);
             if (last_step.has_thought()
                 && last_step.thought().has_pause()
                 && last_step.thought().pause().has_openai()
@@ -195,7 +197,7 @@ namespace INSTINCT_LLM_NS {
                     // lift to observation
                     OpenAIToolAgentObservation observation_message;
                     observation_message.mutable_tool_messages()->CopyFrom(pause.completed());
-                    agent_step.mutable_observation()->CopyFrom(observation_message);
+                    agent_step.mutable_observation()->mutable_openai()->CopyFrom(observation_message);
                     state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
                 }
@@ -227,6 +229,7 @@ namespace INSTINCT_LLM_NS {
                     auto* pause = agent_step.mutable_thought()->mutable_pause()->mutable_openai();
                     pause->mutable_tool_call_message()->CopyFrom(tool_call_message);
                     pause->mutable_completed()->CopyFrom(observation_message.openai().tool_messages());
+                    state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
                 }
 

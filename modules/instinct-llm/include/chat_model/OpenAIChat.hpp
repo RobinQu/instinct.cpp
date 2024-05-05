@@ -29,6 +29,7 @@ namespace INSTINCT_LLM_NS {
         }
 
         void BindToolSchemas(const std::vector<FunctionTool> &function_tool_schema) override {
+            function_tools_.clear();
             for(const auto& function_tool: function_tool_schema) {
                 OpenAIChatCompletionRequest_ChatCompletionTool tool;
                 tool.set_type("function");

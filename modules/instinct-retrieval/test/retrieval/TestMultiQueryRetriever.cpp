@@ -19,13 +19,13 @@ namespace INSTINCT_RETRIEVAL_NS {
         void SetUp() override {
             SetupLogging();
 
-            auto root_path = instinct::test::ensure_random_temp_folder();
+            auto root_path = INSTINCT_LLM_NS::ensure_random_temp_folder();
             // corpus data is copied to build tree in CMakeLists.txt
             asset_dir_ = std::filesystem::current_path() / "_corpus";
 
             std::cout << "MultiQueryRetrieverTest at " << root_path << std::endl;
 
-            llm_ = instinct::test::create_pesudo_chat_model();
+            llm_ = INSTINCT_LLM_NS::create_pesudo_chat_model();
 
             size_t dimension = 4096;
 
@@ -33,7 +33,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 //            schema_builder->DefineString("parent_doc_id");
             auto meta_schema = schema_builder->Build();
 
-            EmbeddingsPtr embedding_model = instinct::test::create_pesudo_embedding_model(dimension);
+            EmbeddingsPtr embedding_model = INSTINCT_LLM_NS::create_pesudo_embedding_model(dimension);
 
             DuckDBStoreOptions vector_db_options = {
                     .table_name = "doc_table",

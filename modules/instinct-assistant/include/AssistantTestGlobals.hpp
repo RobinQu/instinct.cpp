@@ -70,8 +70,8 @@ namespace INSTINCT_ASSISTANT_NS {
             return std::make_shared<FileServiceImpl>(file_data_mapper, filesystem_object_store_);
         }
 
-        RunServicePtr CreateRunService() {
-            return std::make_shared<RunServiceImpl>(thread_data_mapper, run_data_mapper, run_step_data_mapper, message_data_mapper, task_scheduler_);
+        RunServicePtr CreateRunServiceWithoutScheduler() {
+            return std::make_shared<RunServiceImpl>(thread_data_mapper, run_data_mapper, run_step_data_mapper, message_data_mapper, nullptr);
         }
 
         ThreadServicePtr CreateThreadService() {
@@ -83,6 +83,9 @@ namespace INSTINCT_ASSISTANT_NS {
         }
 
     };
+
+
+
 
 
 

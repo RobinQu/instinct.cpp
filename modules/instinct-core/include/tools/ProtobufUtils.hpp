@@ -286,13 +286,27 @@ namespace INSTINCT_CORE_NS {
                     }
 
                     case FieldDescriptor::CPPTYPE_MESSAGE: {
-                        // LOG_DEBUG("full_name={}, type_name={}, message_type().type_name={}, is_map={}, is_repeated={}", field_descriptor->full_name(), field_descriptor->type_name(), field_descriptor->message_type()->full_name(), field_descriptor->is_map(), field_descriptor->is_repeated());
                         if(field_descriptor->is_repeated()) {
                             for(int j=0;j<repeated_field_size;++j) {
                                 auto& message_item = reflection->GetRepeatedMessage(message, field_descriptor, j);
-                                nlohmann::ordered_json sub_obj;
-                                ConvertMessageToJsonObject(message_item, sub_obj, options);
-                                json_object[field_name].push_back(sub_obj);
+                                if (field_descriptor->is_map()) {
+                                    auto* entry_descriptor = message_item.GetDescriptor();
+                                    auto* entry_reflection = message_item.GetReflection();
+                                    auto key_name = entry_reflection->GetString(message_item, entry_descriptor->map_key());
+
+                                    if (entry_descriptor->map_value()->type() == FieldDescriptor::TYPE_MESSAGE) {
+                                        auto& value_message = entry_reflection->GetMessage(message_item, entry_descriptor->map_value());
+                                        nlohmann::ordered_json sub_obj;
+                                        ConvertMessageToJsonObject(value_message, sub_obj, options);
+                                        json_object[field_name][key_name] = sub_obj;
+                                    } else {
+                                        LOG_ERROR("Type of entry value should be message. Other type is not supported.");
+                                    }
+                                } else {
+                                    nlohmann::ordered_json sub_obj;
+                                    ConvertMessageToJsonObject(message_item, sub_obj, options);
+                                    json_object[field_name].push_back(sub_obj);
+                                }
                             }
                         } else {
                             if (reflection->HasField(message, field_descriptor)) {

@@ -99,7 +99,7 @@ namespace INSTINCT_DATA_NS {
                     }
                     auto *field_descriptor = descriptor->FindFieldByName(name);
                     if (!field_descriptor) {
-                        LOG_WARN("field name {} not found in entity but exist in column data", name);
+                        LOG_WARN("field name {} not found in entity but exist in column data for type {}", name, descriptor->full_name());
                         continue;
                     }
                     if (row.iterator.chunk->GetValue(i, row.row).IsNull()) {

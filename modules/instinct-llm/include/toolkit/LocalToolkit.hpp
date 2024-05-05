@@ -45,8 +45,11 @@ namespace INSTINCT_LLM_NS {
 
         FunctionToolPtr LookupFunctionTool(const FunctionToolLookupOptions &options) override {
             assert_true(StringUtils::IsNotBlankString(options.by_name), "Lookup by name is supported only.");
-            assert_true(functions_map_.contains(options.by_name), fmt::format("should name an existing function tool. name={}", options.by_name));
-            return functions_map_.at(options.by_name);
+            if (functions_map_.contains(options.by_name)) {
+                return functions_map_.at(options.by_name);
+            }
+            return nullptr;
+
         }
     };
 

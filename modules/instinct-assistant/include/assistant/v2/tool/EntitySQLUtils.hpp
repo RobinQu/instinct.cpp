@@ -485,6 +485,9 @@ set
     {% if exists("metadata") %}
     , metadata = {{stringify(metadata)}}
     {% endif %}
+    {% if exists("required_action") %}
+    , required_action = {{stringify(required_action)}}
+    {% endif %}
 where thread_id = {{text(thread_id)}} and id = {{text(run_id)}};
             )", context);
         }

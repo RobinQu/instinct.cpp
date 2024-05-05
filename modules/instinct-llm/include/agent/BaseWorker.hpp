@@ -14,7 +14,10 @@ namespace INSTINCT_LLM_NS {
     public:
         explicit BaseWorker(const std::vector<FunctionToolkitPtr> &toolkits)
             : toolkits_(toolkits) {
-            assert_true(!toolkits.empty(), "toolkits cannot be empty");
+            // assert_true(!toolkits.empty(), "toolkits cannot be empty");
+            if(toolkits.empty()) {
+                LOG_WARN("toolkits are empty");
+            }
         }
 
         /**

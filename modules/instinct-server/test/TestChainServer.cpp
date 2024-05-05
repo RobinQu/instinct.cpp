@@ -17,7 +17,7 @@ namespace INSTINCT_SERVER_NS {
     protected:
         void SetUp() override {
             SetupLogging();
-            auto llm = CreateOpenAIChatModel(instinct::test::DEFAULT_NITRO_SERVER_CONFIGURATION);
+            auto llm = CreateOpenAIChatModel(INSTINCT_LLM_NS::DEFAULT_NITRO_SERVER_CONFIGURATION);
             chain1_ = CreateTextChain(llm);
         }
         TextChainPtr chain1_;

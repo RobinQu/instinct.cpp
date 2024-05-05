@@ -3,6 +3,7 @@
 //
 #include <gtest/gtest.h>
 #include "LLMGlobals.hpp"
+#include "LLMTestGlobals.hpp"
 #include "agent/patterns/openai_tool/Agent.hpp"
 #include "agent/executor/BaseAgentExecutor.hpp"
 #include "chat_model/OpenAIChat.hpp"
@@ -10,94 +11,11 @@
 
 namespace INSTINCT_LLM_NS {
     class OpenAIToolAgentTest: public testing::Test {
-        class GetNightlyHotelPrice final: public BaseFunctionTool {
-            FunctionTool schema_;
-
-        public:
-            explicit GetNightlyHotelPrice(const FunctionToolOptions &options = {})
-                : BaseFunctionTool(options) {
-                ProtobufUtils::Deserialize(R"(
-{
-    "name": "get_nightly_hotel_price",
-    "description": "Get hotel room price for a given city",
-    "arguments": [
-        {
-            "name" :"city",
-            "type": "string",
-            "description": "The city to get hotel prices for",
-            "required": true
-        }
-    ]
-}
-)", schema_);
-            }
-
-            [[nodiscard]] const FunctionTool & GetSchema() const override {
-                return schema_;
-            }
-
-            std::string Execute(const std::string &action_input) override {
-                static std::unordered_map<std::string, float> price_maps {
-                    {"New York", 300},
-                    {"Paris", 200},
-                    {"Tokyo", 300}
-                };
-                const auto args = nlohmann::json::parse(action_input);
-                const auto city = args.at("city").get<std::string>();
-                nlohmann::json resp;
-                resp["city"] = city;
-                resp["hotel_price"] = price_maps.at(city);
-                return resp.dump();
-            }
-        };
-
-        class GetFlightPriceTool final: public BaseFunctionTool {
-            FunctionTool schema_;
-
-        public:
-            explicit GetFlightPriceTool(const FunctionToolOptions &options = {})
-                : BaseFunctionTool(options) {
-                ProtobufUtils::Deserialize(R"(
-{
-    "name": "get_flight_price",
-    "description": "Get flight price for a given city",
-    "arguments": [
-        {
-            "name" :"city",
-            "type": "string",
-            "description": "The city to get flight prices for",
-            "required": true
-        }
-    ]
-}
-)", schema_);
-            }
-
-            [[nodiscard]] const FunctionTool & GetSchema() const override {
-                return schema_;
-            }
-
-            std::string Execute(const std::string &action_input) override {
-                static std::unordered_map<std::string, float> price_maps {
-                            {"New York", 450},
-                            {"Paris", 750},
-                            {"Tokyo", 1200}
-                };
-                const auto args = nlohmann::json::parse(action_input);
-                const auto city = args.at("city").get<std::string>();
-                nlohmann::json resp;
-                resp["city"] = city;
-                resp["flight_price"] = price_maps.at(city);
-                return resp.dump();
-            }
-        };
-
 
     protected:
         void SetUp() override {
             SetupLogging();
         }
-
         ChatModelPtr chat_model = CreateOpenAIChatModel();
         FunctionToolkitPtr tool_kit = CreateLocalToolkit(
             std::make_shared<GetFlightPriceTool>(),

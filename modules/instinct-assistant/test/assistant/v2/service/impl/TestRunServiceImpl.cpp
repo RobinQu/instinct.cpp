@@ -18,7 +18,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
     TEST_F(RunServiceTest, SimpleCRUDWihtRunObjects) {
         util::MessageDifferencer message_differencer;
-        const auto run_service = CreateRunService();
+        const auto run_service = CreateRunServiceWithoutScheduler();
 
         // create assistant
         AssistantObject create_assistant_request;
@@ -91,7 +91,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
 
     TEST_F(RunServiceTest, SimpleCRUDWithRunStepObjects) {
-        const auto run_service = CreateRunService();
+        const auto run_service = CreateRunServiceWithoutScheduler();
         google::protobuf::util::MessageDifferencer message_differencer;
 
         // create asssitant

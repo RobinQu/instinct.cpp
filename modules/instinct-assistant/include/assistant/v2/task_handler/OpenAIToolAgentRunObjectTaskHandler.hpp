@@ -13,6 +13,8 @@
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;
 
+    using ChatModelProvider = std::function<ChatModelPtr(const RunObject&)>;
+
     /**
      * Task handler for run objects using `OpenAIToolAgentExecutor`.
      */
@@ -20,18 +22,18 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         RunServicePtr run_service_;
         MessageServicePtr message_service_;
         AssistantServicePtr assistant_service_;
-        ChatModelPtr  chat_model_;
+        ChatModelProvider chat_model_provider_;
         FunctionToolkitPtr built_in_toolkit_;
 
     public:
         static inline std::string CATEGORY = "run_object";
 
         OpenAIToolAgentRunObjectTaskHandler(RunServicePtr run_service, MessageServicePtr message_service,
-            AssistantServicePtr assistant_service, ChatModelPtr chat_model, FunctionToolkitPtr built_in_toolkit)
+            AssistantServicePtr assistant_service, ChatModelProvider chat_model_provider, FunctionToolkitPtr built_in_toolkit)
             : run_service_(std::move(run_service)),
               message_service_(std::move(message_service)),
               assistant_service_(std::move(assistant_service)),
-              chat_model_(std::move(chat_model)),
+              chat_model_provider_(std::move(chat_model_provider)),
               built_in_toolkit_(std::move(built_in_toolkit)) {
         }
 
@@ -49,7 +51,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             }
 
             // update run object to status of `in_progress`
-            if(UpdateRunObjectStatus(run_object.thread_id(), run_object.id(), RunObject_RunObjectStatus_in_progress)) {
+            if(!UpdateRunObjectStatus(run_object.thread_id(), run_object.id(), RunObject_RunObjectStatus_in_progress)) {
                 LOG_ERROR("Illegal response for updating run object: {}", run_object.ShortDebugString());
                 return;
             }
@@ -151,7 +153,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
          */
         // ReSharper disable once CppMemberFunctionMayBeStatic
         [[nodiscard]] bool CheckPreconditions_(const RunObject& run_object) const { // NOLINT(*-convert-member-functions-to-static)
-            return run_object.status() == RunObject_RunObjectStatus_queued || run_object.status() == RunObject_RunObjectStatus_requires_action;
+            return !(run_object.status() == RunObject_RunObjectStatus_queued || run_object.status() == RunObject_RunObjectStatus_requires_action);
         }
 
         /**
@@ -160,8 +162,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
          * @return
          */
         [[nodiscard]] AgentExecutorPtr BuildAgentExecutor_(const RunObject& run_object) const {
-            // no built-in toolkit for now
-            return CreateOpenAIToolAgentExecutor(chat_model_, {}, [&](const AgentState& state, AgentStep& step) {
+            return CreateOpenAIToolAgentExecutor(
+                chat_model_provider_(run_object),
+                {built_in_toolkit_},
+                [&](const AgentState& state, AgentStep& step) {
                 return CheckRunObjectForExecution_(run_object.thread_id(), run_object.id(), state, step);
             });
         }
@@ -223,12 +227,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             run_step_object.set_run_id(run_object.id());
             run_step_object.set_type(RunStepObject_RunStepType_tool_calls);
             run_step_object.set_assistant_id(run_object.assistant_id());
+            run_step_object.set_status(RunStepObject_RunStepStatus_in_progress);
             auto* step_details = run_step_object.mutable_step_details();
 
             // create step with message if tool message has content string
             if (StringUtils::IsNotBlankString(agent_continuation.openai().tool_call_message().content())) {
-                if (const auto resp = CreateMessageStep_(agent_continuation.openai().tool_call_message().content(), run_object);
-                    !resp.has_value()) {
+                if (!CreateMessageStep_(agent_continuation.openai().tool_call_message().content(), run_object)) {
                     LOG_ERROR("Illegal reponse for creating step object with message. tool_call_message={}, run_object={}", agent_continuation.openai().tool_call_message().DebugString(), run_object.ShortDebugString());
                     return;
                 }
@@ -245,14 +249,13 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     function_call->set_name(tool_request.function().name());
                     function_call->set_arguments(tool_request.function().arguments());
                 }
-                if (const auto create_run_resp = run_service_->CreateRunStep(run_step_object);
-                    !create_run_resp.has_value()) {
+                if (!run_service_->CreateRunStep(run_step_object)) {
                     LOG_ERROR("Illegal response for creating run step object: {}", run_step_object.ShortDebugString());
                     return;
                     }
             }
 
-            if(UpdateRunObjectStatus(run_object.thread_id(), run_object.id(), RunObject_RunObjectStatus_in_progress)) {
+            if(!UpdateRunObjectStatus(run_step_object.thread_id(), run_step_object.run_id(), RunObject_RunObjectStatus_in_progress)) {
                 LOG_ERROR("Illegal response for updating run object: {}", run_object.ShortDebugString());
                 return;
             }
@@ -264,7 +267,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             ModifyRunRequest modify_run_request;
             modify_run_request.set_run_id(run_id);
             modify_run_request.set_thread_id(thread_id);
-            modify_run_request.set_status(RunObject_RunObjectStatus_in_progress);
+            modify_run_request.set_status(status);
             return run_service_->ModifyRun(modify_run_request);
         }
 
@@ -286,9 +289,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             run_step_object.set_assistant_id(run_object.assistant_id());
             run_step_object.set_type(RunStepObject_RunStepType_message_creation);
             run_step_object.mutable_step_details()->set_type(RunStepObject_RunStepType_message_creation);
+            run_step_object.set_status(RunStepObject_RunStepStatus_completed);
             run_step_object.mutable_step_details()->mutable_message_creation()->set_message_id(message_object->id());
             const auto create_run_step_resp = run_service_->CreateRunStep(run_step_object);
-            if(!create_run_step_resp.has_value()) {
+            if(!create_run_step_resp) {
                 LOG_ERROR("Cannot create run step, run_step_object={}", run_step_object.ShortDebugString());
                 return std::nullopt;
             }
@@ -307,7 +311,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         void OnAgentPause_(const AgentPause& agent_pause, const RunObject& run_object) {
             LOG_INFO("OnAgentPause Start, run_object={}", run_object.ShortDebugString());
             const auto last_run_step_opt = RetrieveLastRunStep_(run_object);
-            if (!last_run_step_opt.has_value()) {
+            if (!last_run_step_opt) {
                 LOG_ERROR("Cannot find last run step for run object: {}", run_object.ShortDebugString());
                 return;
             }
@@ -320,23 +324,46 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             auto* step_details = modify_run_step_request.mutable_step_details();
             step_details->CopyFrom(last_run_step_opt->step_details());
 
-            // TODO support code interpreter and file serach
-            for(const auto& tool_message: agent_pause.openai().completed()) {
-                for(int i=0;i<step_details->tool_calls_size();++i) {
-                    if (auto* tool_call = step_details->mutable_tool_calls(i);
-                        tool_call->id() == tool_message.tool_call_id()) {
-                        tool_call->mutable_function()->set_output(tool_message.content());
-                    }
+            ModifyRunRequest modify_run_request;
+            modify_run_request.set_run_id(run_object.id());
+            modify_run_request.set_thread_id(run_object.thread_id());
+            modify_run_request.set_status(RunObject_RunObjectStatus_requires_action);
+            modify_run_request.mutable_required_action()->set_type(RunObject_RequiredActionType_submit_tool_outputs);
+
+            // find unfinished tool calls
+            for(const auto& tool_call: agent_pause.openai().tool_call_message().tool_calls()) {
+                bool done = false;
+                for(const auto& tool_message: agent_pause.openai().completed()) {
+                    done = tool_message.tool_call_id() == tool_call.id();
+                }
+                if (!done) {
+                    auto* tool_request = modify_run_request.mutable_required_action()->mutable_submit_tool_outputs()->mutable_tool_calls()->Add();
+                    tool_request->set_type(ToolCallObjectType::function);
+                    tool_request->mutable_function()->set_name(tool_call.function().name());
+                    tool_request->mutable_function()->set_arguments(tool_call.function().arguments());
+                    tool_request->set_id(tool_call.id());
                 }
             }
-            if (const auto modify_run_stpe_resp = run_service_->ModifyRunStep(modify_run_step_request);
-                !modify_run_stpe_resp.has_value()) {
+
+            // update finished tool calls
+            for(const auto& tool_message: agent_pause.openai().completed()) {
+                for(auto& tool_call_in_step_detail: *step_details->mutable_tool_calls()) {
+                    if (tool_call_in_step_detail.id() == tool_message.tool_call_id()) {
+                        if (tool_call_in_step_detail.type() == AssistantToolType::function) {
+                            tool_call_in_step_detail.mutable_function()->set_output(tool_message.content());
+                        }
+                    }
+                    // TODO support code interpreter and file serach
+                }
+            }
+
+            if (!run_service_->ModifyRunStep(modify_run_step_request)) {
                 LOG_ERROR("Illegal response for updating run step object: {}", modify_run_step_request.ShortDebugString());
                 return;
             }
 
             // update run object
-            if(UpdateRunObjectStatus(run_object.thread_id(), run_object.id(), RunObject_RunObjectStatus_requires_action)) {
+            if(!run_service_->ModifyRun(modify_run_request)) {
                 LOG_ERROR("Illegal response for update run object: {}", run_object.ShortDebugString());
                 return;
             }
@@ -359,7 +386,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             }
 
             // update status of run object to `in_progress`
-            if (UpdateRunObjectStatus(run_object.thread_id(), run_object.id(), RunObject_RunObjectStatus_in_progress)) {
+            if (!UpdateRunObjectStatus(run_object.thread_id(), run_object.id(), RunObject_RunObjectStatus_in_progress)) {
                 LOG_ERROR("Cannot update run object. run_object={}", run_object.ShortDebugString());
                 return;
             }
@@ -382,8 +409,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         }
                 }
             }
-            if (const auto modify_run_stpe_resp = run_service_->ModifyRunStep(modify_run_step_request);
-                !modify_run_stpe_resp.has_value()) {
+            if (!run_service_->ModifyRunStep(modify_run_step_request)) {
                 LOG_ERROR("Illegal response for updating run step object: {}", modify_run_step_request.ShortDebugString());
                 return;
             }
@@ -409,7 +435,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             LOG_INFO("OnAgentFinish Start, run_object={}", run_object.ShortDebugString());
 
             const auto last_run_step_opt = RetrieveLastRunStep_(run_object);
-            if (!last_run_step_opt.has_value()) {
+            if (!last_run_step_opt) {
                 LOG_ERROR("Cannot find last run step for run object: {}", run_object.ShortDebugString());
                 return;
             }
@@ -464,20 +490,20 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 modify_run_request.set_status(RunObject_RunObjectStatus_completed);
 
                 // create message step
-                if (CreateMessageStep_(finish_message.response(), run_object)) {
+                if (!CreateMessageStep_(finish_message.response(), run_object)) {
                     LOG_ERROR("Failed to create message and run step. modify_run_request={}", modify_run_request.ShortDebugString());
                     return;
                 }
             }
 
             // update run step
-            if (run_service_->ModifyRunStep(modify_run_step_request)) {
+            if (!run_service_->ModifyRunStep(modify_run_step_request)) {
                 LOG_ERROR("Failed to update run step object. modify_run_step_request={}", modify_run_step_request.ShortDebugString());
                 return;
             }
 
             // update run object with status of `completed`
-            if (run_service_->ModifyRun(modify_run_request)) {
+            if (!run_service_->ModifyRun(modify_run_request)) {
                 LOG_ERROR("Failed to update run object. modify_run_request={}", modify_run_request.ShortDebugString());
                 return;
             }
@@ -489,7 +515,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         // ReSharper disable once CppMemberFunctionMayBeConst
         std::optional<RunStepObject> RetrieveLastRunStep_(const RunObject& run_object) {
             ListRunStepsRequest list_run_steps_request;
-            list_run_steps_request.set_order(asc);
+            list_run_steps_request.set_order(desc);
             list_run_steps_request.set_run_id(run_object.id());
             list_run_steps_request.set_thread_id(run_object.thread_id());
             const auto list_run_steps_resp = run_service_->ListRunSteps(list_run_steps_request);
@@ -526,11 +552,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             }
 
             // 3. filter and transfrom to function tool schema
-            const auto final_function_tools = std::ranges::unique(function_tools, [](const FunctionTool& a, const FunctionTool& b) {
+            const auto ret = std::ranges::unique(function_tools, [](const FunctionTool& a, const FunctionTool& b) {
                 return a.name() == b.name();
             });
-            LOG_DEBUG("Found {} function tools for run object: {}", final_function_tools.size(), run_object.ShortDebugString());
-            for (auto& function_tool: final_function_tools) {
+            function_tools.erase(ret.begin(), ret.end());
+            LOG_DEBUG("Found {} function tools for run object: {}", function_tools.size(), run_object.ShortDebugString());
+            for (auto& function_tool: function_tools) {
                 state.mutable_function_tools()->Add()->CopyFrom(function_tool);
             }
             return true;
@@ -579,6 +606,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     last_step = state.mutable_previous_steps()->Add();
                     last_continuation = last_step->mutable_thought()->mutable_continuation();
                     auto* tool_call_request = last_continuation->mutable_openai()->mutable_tool_call_message();
+                    tool_call_request->set_role("assistant");
                     for (const auto& tool_call: step.step_details().tool_calls()) {
                         // TODO support code-interpreter and file-search
                         if (tool_call.type() == function) {
@@ -601,12 +629,13 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     if (step.status() == RunStepObject_RunStepStatus_completed) {
                         // create observation
                         last_step = state.mutable_previous_steps()->Add();
-                        auto* openai_obsercation = last_step->mutable_observation()->mutable_openai();
+                        auto* openai_observation = last_step->mutable_observation()->mutable_openai();
                         for (const auto& tool_call: step.step_details().tool_calls()) {
                             if (tool_call.type() == function) {
-                                auto* tool_messsage = openai_obsercation->add_tool_messages();
+                                auto* tool_messsage = openai_observation->add_tool_messages();
                                 tool_messsage->set_content(tool_call.function().output());
                                 tool_messsage->set_role("tool");
+                                tool_messsage->set_tool_call_id(tool_call.id());
                             }
                         }
                     }

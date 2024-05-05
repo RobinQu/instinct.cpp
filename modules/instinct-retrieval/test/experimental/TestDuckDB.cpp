@@ -157,7 +157,7 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
         auto asset_dir_path = std::filesystem::current_path() / "_assets";
 
         // init db
-        auto db_path =  instinct::test::ensure_random_temp_folder() / "duckdb_test.db";
+        auto db_path =  INSTINCT_LLM_NS::ensure_random_temp_folder() / "duckdb_test.db";
         std::cout << "test db at " << db_path << std::endl;
         DuckDB db(db_path.string());
         Connection con(db);

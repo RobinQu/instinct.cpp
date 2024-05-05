@@ -94,15 +94,16 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             get_run_request.set_thread_id(thread_id);
             const auto run_object =  RetrieveRun(get_run_request);
 
-            if (run_object.has_value()) {
+            if (run_object && task_scheduler_) {
                 // kick off agent execution
                 task_scheduler_->Enqueue({
                     .task_id = run_id,
                     .category = OpenAIToolAgentRunObjectTaskHandler::CATEGORY,
                     .payload = ProtobufUtils::Serialize(run_object.value())
                 });
+            } else {
+                LOG_WARN("run object is not scheduled as conditions not matched. {}", create_thread_and_run_request.ShortDebugString());
             }
-
             // retrun
             return run_object;
         }
@@ -140,17 +141,25 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             context["truncation_strategy"] = nlohmann::ordered_json::parse(R"({"type":"auto"})");
             EntitySQLUtils::InsertOneRun(run_data_mapper_, context);
 
-            // start agent exeuction
-            task_scheduler_->Enqueue({
-                .task_id = run_id,
-                .category = OpenAIToolAgentRunObjectTaskHandler::CATEGORY
-            });
+
 
             // return
             GetRunRequest get_run_request;
             get_run_request.set_run_id(run_id);
             get_run_request.set_thread_id(create_request.thread_id());
-            return RetrieveRun(get_run_request);
+            const auto run_object = RetrieveRun(get_run_request);
+
+            if (run_object && task_scheduler_) {
+                // start agent exeuction
+                task_scheduler_->Enqueue({
+                    .task_id = run_id,
+                    .category = OpenAIToolAgentRunObjectTaskHandler::CATEGORY,
+                    .payload = ProtobufUtils::Serialize(run_object.value())
+                });
+            } else {
+                LOG_WARN("run object is not scheduled as conditions not matched. {}", create_request.ShortDebugString());
+            }
+            return run_object;
         }
 
         ListRunsResponse ListRuns(const ListRunsRequest &list_request) override {
@@ -189,6 +198,19 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<RunObject> ModifyRun(const ModifyRunRequest &modify_run_request) override {
+            assert_not_blank(modify_run_request.thread_id(), "should provide thread_id");
+            assert_not_blank(modify_run_request.run_id(), "should provide run_id");
+            if (modify_run_request.has_required_action()) {
+                for(const auto& tool_call: modify_run_request.required_action().submit_tool_outputs().tool_calls()) {
+                    assert_true(tool_call.type() != 0, "should have type on tool call");
+                    assert_not_blank(tool_call.id(), "should have id on tool call");
+                    if (tool_call.has_function()) {
+                        assert_not_blank(tool_call.function().name(), "should have non blank name on function");
+                        assert_not_blank(tool_call.function().arguments(), "should have non blank name on arguments");
+                    }
+                }
+            }
+
             // update
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(modify_run_request, context);
@@ -229,22 +251,27 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             assert_true(last_run_step.status() == RunStepObject_RunStepStatus_in_progress, fmt::format("Last run step should be in status of 'in_progress'."));
 
             // do a copy and filter
-            auto copied_run_step = last_run_step;
-            auto function_step_details_view = (*copied_run_step.mutable_step_details()->mutable_tool_calls()) | std::views::filter([](const RunStepObject_RunStepDetails_ToolCallDetail& detail) {
-                    return detail.type() == function;
+            auto function_step_details_view = run_object->required_action().submit_tool_outputs().tool_calls() | std::views::filter([](const llm::ToolCallObject& detail) {
+                    return detail.type() == ToolCallObjectType::function;
             });
             auto size = std::ranges::distance(function_step_details_view);
             assert_true(size > 0, fmt::format("should have at at least one tool call for thread_id={}, run_id={}, run_step_id={}", thread_id, run_id, last_run_step.id()));
 
             // collect call ids
-            auto function_Step_details_ids_view = function_step_details_view | std::views::transform([](const RunStepObject_RunStepDetails_ToolCallDetail& detail) {
+            auto function_Step_details_ids_view = function_step_details_view | std::views::transform([](const ToolCallObject& detail) {
                 return detail.id();
             });
             std::unordered_set<std::string> function_call_ids {function_Step_details_ids_view.begin(), function_Step_details_ids_view.end()};
 
             // set tool output result in step_details
+            ModifyRunStepRequest modify_run_step_request;
+            modify_run_step_request.mutable_step_details()->CopyFrom(last_run_step.step_details());
+            modify_run_step_request.set_thread_id(thread_id);
+            modify_run_step_request.set_run_id(run_id);
+            modify_run_step_request.set_step_id(last_run_step.id());
+
             for(const auto& tool_output: sub_request.tool_outputs()) {
-                for(auto& function_step_detail: function_step_details_view) {
+                for(auto& function_step_detail: *modify_run_step_request.mutable_step_details()->mutable_tool_calls()) {
                     if (function_step_detail.id() == tool_output.tool_call_id()) {
                         function_call_ids.erase(function_step_detail.id());
                         function_step_detail.mutable_function()->set_output(tool_output.output());
@@ -255,28 +282,22 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             assert_true(function_call_ids.empty(), fmt::format("should provide results for all function calls. thread_id={}, run_id={}, run_step_id={}, tool_call_ids={}", thread_id, run_id, last_run_step.id(), StringUtils::JoinWith(function_call_ids, ",")));
 
             // update run step object
-            SQLContext update_run_step_object_context;
-            ProtobufUtils::ConvertMessageToJsonObject(copied_run_step, update_run_step_object_context);
-            auto count = EntitySQLUtils::UpdateRunStep(run_step_data_mapper_, update_run_step_object_context);
-            assert_true(count == 1, fmt::format("should have run step object updated. thread_id={}, run_id={}, run_step_id={}", thread_id, run_id, last_run_step.id()));
+            assert_true(this->ModifyRunStep(modify_run_step_request), fmt::format("should have run step object updated. thread_id={}, run_id={}, run_step_id={}", thread_id, run_id, last_run_step.id()));
 
-            // resume agent execution
-            task_scheduler_->Enqueue({
-                .task_id = run_id,
-                .category = OpenAIToolAgentRunObjectTaskHandler::CATEGORY
-            });
-
-            // update run object
-            // status is updated just to signal the change. in fact, actual handling is implemented in `RunObjectTaskHandler`.
-            SQLContext update_run_object_context;
-            update_run_object_context["thread_id"] = thread_id;
-            update_run_object_context["run_id"] = run_id;
-            update_run_object_context["status"] = "in_progress";
-            count = EntitySQLUtils::UpdateRun(run_data_mapper_, update_run_object_context);
-            assert_true(count == 1, fmt::format("should have run object updated. thread_id={}, run_id={}, run_step_id={}", thread_id, run_id, last_run_step.id()));
+            const auto returned_object = RetrieveRun(get_run_request);
+            if (task_scheduler_ && returned_object) {
+                // resume agent execution
+                task_scheduler_->Enqueue({
+                    .task_id = run_id,
+                    .category = OpenAIToolAgentRunObjectTaskHandler::CATEGORY,
+                    .payload = ProtobufUtils::Serialize(returned_object.value())
+                });
+            } else {
+                LOG_WARN("run object is not scheduled as conditions not matched. submit_request={}", sub_request.ShortDebugString());
+            }
 
             // return
-            return RetrieveRun(get_run_request);
+            return returned_object;
         }
 
         std::optional<RunObject> CancelRun(const CancelRunRequest &cancel_request) override {
