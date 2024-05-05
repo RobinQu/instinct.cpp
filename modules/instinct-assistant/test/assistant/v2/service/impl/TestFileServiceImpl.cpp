@@ -32,8 +32,8 @@ namespace INSTINCT_ASSISTANT_NS {
 
         // upload file 2
         UploadFileRequest upload_file_request2;
-        const auto sql_String = IOUtils::ReadString(migration_dir / "001" / "up.sql");
-        upload_file_request2.set_file_content(sql_String);
+        const auto sql_string = "select * from tbl";
+        upload_file_request2.set_file_content(sql_string);
         upload_file_request2.set_filename("up.sql");
         upload_file_request2.set_purpose(assistants_output);
         const auto obj2 = file_service->UploadFile(upload_file_request2);

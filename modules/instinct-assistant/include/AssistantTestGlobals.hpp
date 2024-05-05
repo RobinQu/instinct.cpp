@@ -5,6 +5,8 @@
 #ifndef AGENTTESTGLOBALS_HPP
 #define AGENTTESTGLOBALS_HPP
 
+#include <cmrc/cmrc.hpp>
+CMRC_DECLARE(instinct::assistant);
 
 #include <gtest/gtest.h>
 #include "AssistantGlobals.hpp"
@@ -31,10 +33,14 @@ namespace INSTINCT_ASSISTANT_NS {
     protected:
         void SetUp() override {
             SetupLogging();
-            const auto status = DBUtils::ExecuteSQL(migration_dir / "001" / "up.sql", connection_pool_);
+            auto sql_file = embeded_fs.open("db_migration/001/up.sql");
+            const auto sql_line = std::string {sql_file.begin(), sql_file.end()};
+            const auto status = DBUtils::ExecuteSQL(sql_line, connection_pool_);
             assert_query_ok(status);
             LOG_INFO("database is initialized at {}", db_file_path);
         }
+
+        cmrc::embedded_filesystem embeded_fs = cmrc::instinct::assistant::get_filesystem();
 
         std::filesystem::path db_file_path = std::filesystem::temp_directory_path() / fmt::format("assistant_test_{}.db", ChronoUtils::GetCurrentTimeMillis());
 
@@ -54,7 +60,7 @@ namespace INSTINCT_ASSISTANT_NS {
 
         DataMapperPtr<RunStepObject, std::string> run_step_data_mapper = CreateDuckDBDataMapper<RunStepObject, std::string>(connection_pool_);
 
-        std::filesystem::path migration_dir = std::filesystem::current_path() / "_assets" / "db_migration";
+        // std::filesystem::path migration_dir = std::filesystem::current_path() / "_assets" / "db_migration";
 
         ObjectStorePtr filesystem_object_store_ = std::make_shared<FileSystemObjectStore>(std::filesystem::temp_directory_path() / "assistant_api_test");
 
