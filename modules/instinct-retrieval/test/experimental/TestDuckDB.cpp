@@ -230,4 +230,24 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
         delete[] xt;
     }
 
+    TEST(DuckDB, TestEscapeSQL) {
+        DuckDB db(nullptr);
+        Connection conn(db);
+
+        const auto sqlline =  fmt::format(
+            R"(select {} as json;)",
+            "'" + StringUtils::EscapeSQLText(R"({"a":"{\"foo\": \"bar\"}"})") + "'"
+            );
+        const auto query_result = conn.Query(sqlline);
+        query_result->Print();
+        for (auto& r: *query_result) {
+            const auto v = r.GetValue<std::string>(0);
+            auto j1 = nlohmann::json::parse(v);
+            ASSERT_TRUE(j1.contains("a"));
+            auto j2 = nlohmann::json::parse(j1.at("a").get<std::string>());
+            ASSERT_TRUE(j2.contains("foo"));
+            ASSERT_EQ(j2.at("foo").get<std::string>(), "bar");
+        }
+    }
+
 }

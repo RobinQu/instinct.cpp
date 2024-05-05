@@ -210,6 +210,7 @@ namespace INSTINCT_CORE_NS {
          * @return escaped string that's safe for sql text value
          */
         static std::string EscapeSQLText(const std::string& s) {
+
             const std::unordered_map<char, std::string> CHARS_ESCAPE_MAP {
                     {'\0' , "\\0"},
                     {'\b'   , "\\b"},
@@ -219,10 +220,21 @@ namespace INSTINCT_CORE_NS {
                     {'\r'   , "\\r"},
                     {'\v'   , "\\v"},
                     {'\x1a' , "\\Z"},
-                    {'\''    , "\'\'"},
-                     {'\"'    , "\"\""},
-                    {'\\' , "\\\\"}
+                    {'\''    , "\\\'"},
+                     {'"'    , "\""},
+                    {'\\' , "\\"}
             };
+            // auto words_begin = std::sregex_iterator(s.begin(), s.end(), CHARS_REGEX);
+            // auto words_end = std::sregex_iterator();
+            // for(std::sregex_iterator i = words_begin; i != words_end; ++i) {
+            //     const std::smatch& match = *i;
+            //     std::string match_str = match.str();
+            //     if (CHARS_ESCAPE_MAP.contains(match_str[0])) {
+            //
+            //     }
+            //
+            // }
+
             std::string copied;
             for(const auto c: s) {
                 if (CHARS_ESCAPE_MAP.contains(c)) {
