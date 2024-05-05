@@ -532,7 +532,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         /**
-         * this function is called when object is in static state when no messages are generating and function tools are running.
+         * this function is called when run object is in static state. It means no messages are generating and function tools are running.
          * @param run_object
          * @param state
          * @return true if state is loaded correctly
@@ -599,7 +599,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
                     if (step.status() == RunStepObject_RunStepStatus_in_progress) {
                         // because only run objects with status of `queued` and `requires_action` are allowed to be added to task scheduler
-                        assert_true(i == n-1 && run_object.status() == RunObject_RunObjectStatus_requires_action, "it should be last step and run_object is in status of `requires_action`");
+                        assert_true(i == n-1, "it should be last step.");
+                        assert_true(run_object.status() == RunObject_RunObjectStatus_requires_action, "run_object should be in status of requires_action");
                         // create pause
                         last_step = state.mutable_previous_steps()->Add();
                         last_pause = last_step->mutable_thought()->mutable_pause();
@@ -607,7 +608,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         // TODO support code-interpreter and file-search
                         // add tool messages for completed function tool calls, including those submitted by user
                         for (const auto& tool_call: step.step_details().tool_calls()) {
-                            if (tool_call.type() == function) {
+                            if (tool_call.type() == function && StringUtils::IsNotBlankString(tool_call.function().output())) {
                                 auto* tool_messsage = last_pause->mutable_openai()->add_completed();
                                 tool_messsage->set_content(tool_call.function().output());
                                 tool_messsage->set_role("tool");

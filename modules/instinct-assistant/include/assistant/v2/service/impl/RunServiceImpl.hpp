@@ -331,12 +331,22 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         std::optional<RunStepObject> CreateRunStep(const RunStepObject &create_request) override {
             assert_not_blank(create_request.run_id(), "should provide run_id");
             assert_not_blank(create_request.thread_id(), "should provide thread_id");
+            assert_true(create_request.status()!=0, "should provide status");
+            assert_true(create_request.type()!=0, "should provide type");
+            for(const auto& tool_call: create_request.step_details().tool_calls()) {
+                assert_true(tool_call.type()!=0, "should have correct tool call type");
+                if (tool_call.has_function()) {
+                    assert_not_blank(tool_call.function().name(), "should provide name for tool call");
+                    assert_not_blank(tool_call.function().arguments(), "should provide arguments for tool call");
+                }
+            }
+
 
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(create_request, context);
             const auto run_step_id = details::generate_next_object_id("run_step");;
             context["id"] = run_step_id;
-            EntitySQLUtils::CreateRunStep(run_step_data_mapper_, context);
+            EntitySQLUtils::InsertOneRunStep(run_step_data_mapper_, context);
             GetRunStepRequest get_run_step_request;
             get_run_step_request.set_run_id(create_request.run_id());
             get_run_step_request.set_step_id(run_step_id);

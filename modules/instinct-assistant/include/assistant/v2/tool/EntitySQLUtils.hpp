@@ -524,15 +524,20 @@ limit 1;
         }
 
         template<typename PrimaryKey = std::string>
-        static PrimaryKey CreateRunStep(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static PrimaryKey InsertOneRunStep(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->InsertOne(R"(
-insert into instinct_thread_run_step(id, thread_id, run_id, type, status)
+insert into instinct_thread_run_step(id, thread_id, run_id, type, status, step_details)
 values (
     {{text(id)}},
     {{text(thread_id)}},
     {{text(run_id)}},
     {{text(type)}},
-    {{text(status)}}
+    {{text(status)}},
+{% if exists("step_details") %}
+    {{stringify(step_details)}}
+{% else %}
+    NULL
+{% endif %}
 )
 returning (id);
             )", context);

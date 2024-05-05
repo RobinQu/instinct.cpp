@@ -41,10 +41,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 list_message_response.mutable_data()->Add(messages_list.begin(), messages_list.end()-1);
             } else { // all results should be returned
                 list_message_response.set_has_more(false);
-                if (n > 0) { // at least two
+                if (n > 0) {
                     list_message_response.set_first_id(messages_list.front().id());
                     list_message_response.set_last_id(messages_list.back().id());
-                    list_message_response.mutable_data()->Add(messages_list.begin(), messages_list.end()-1);
+                    list_message_response.mutable_data()->Add(messages_list.begin(), messages_list.end());
                 }
                 // do nothing if n == 0
             }
