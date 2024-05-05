@@ -34,7 +34,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
     };
 
-    TEST_F(TestOpenAIToolAgentRunObjectTaskHandler, RecoverAgentState) {
+    TEST_F(TestOpenAIToolAgentRunObjectTaskHandler, RecoverAgentStateWithSuccessfulSteps) {
         google::protobuf::util::MessageDifferencer message_differencer;
 
         // create assistant
@@ -111,6 +111,67 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         ASSERT_EQ(pause_step.thought().pause().openai().tool_call_message().tool_calls_size(), 1);
         ASSERT_TRUE(message_differencer.Compare(pause_step.thought().pause().openai().tool_call_message(), continuation_step.thought().continuation().openai().tool_call_message()));
 
+
+        // expect to get observation step
+        // 1. fill output to step_details to mock generation of observation
+        ModifyRunStepRequest modify_run_step_request;
+        tool_call->mutable_function()->set_output("bar");
+        modify_run_step_request.set_step_id(create_run_step_response->id());
+        modify_run_step_request.set_thread_id(obj2->thread_id());
+        modify_run_step_request.set_run_id(obj2->id());
+        modify_run_step_request.mutable_step_details()->mutable_tool_calls()->Add()->CopyFrom(*tool_call);
+        modify_run_step_request.set_status(RunStepObject_RunStepStatus_completed);
+        const auto obj4 = run_service_->ModifyRunStep(modify_run_step_request);
+        ASSERT_TRUE(obj4);
+        // 2. mock run object
+        modify_run_request.set_status(RunObject_RunObjectStatus_in_progress);
+        ASSERT_TRUE(run_service_->ModifyRun(modify_run_request));
+        // 3. assertions
+        const auto state3 = task_handler->RecoverAgentState(obj3.value());
+        LOG_INFO("RecoverAgentState returned: {}", state3->ShortDebugString());
+        ASSERT_EQ(state3->previous_steps_size(), 2); // only one continuation and one obsercation. pause is lost as it's intermediate state.
+        ASSERT_TRUE(message_differencer.Compare(state3->previous_steps(0), state2->previous_steps(0)));
+        auto& obsercation_step = state3->previous_steps(1);
+        ASSERT_TRUE(obsercation_step.has_observation());
+        ASSERT_TRUE(obsercation_step.observation().has_openai());
+        ASSERT_EQ(obsercation_step.observation().openai().tool_messages_size(), 1);
+        ASSERT_EQ(obsercation_step.observation().openai().tool_messages(0).content(), "bar");
+
+        // expect to get agent finish with successful response
+        // 1. mock message
+        CreateMessageRequest create_message_request;
+        create_message_request.set_thread_id(obj3->thread_id());
+        create_message_request.set_content("hello!");
+        create_message_request.set_role(assistant);
+        const auto obj7 = message_service_->CreateMessage(create_message_request);
+        ASSERT_TRUE(obj7);
+        // 2. mock run step
+        RunStepObject create_run_step_request2;
+        create_run_step_request2.set_status(RunStepObject_RunStepStatus_completed);
+        create_run_step_request2.set_run_id(obj2->id());
+        create_run_step_request2.set_thread_id(obj2->thread_id());
+        create_run_step_request2.set_type(RunStepObject_RunStepType_message_creation);
+        create_run_step_request2.mutable_step_details()->mutable_message_creation()->set_message_id(obj7->id());
+        const auto& obj6 = run_service_->CreateRunStep(create_run_step_request2);
+        ASSERT_TRUE(obj6);
+        // 3. mock run object
+        modify_run_request.set_status(RunObject_RunObjectStatus_completed);
+        const auto obj5 = run_service_->ModifyRun(modify_run_request);
+        ASSERT_TRUE(obj5);
+        // 3. assertions
+        const auto state4 = task_handler->RecoverAgentState(obj5.value());
+        LOG_INFO("RecoverAgentState returned: {}", state4->ShortDebugString());
+        ASSERT_EQ(state4->previous_steps_size(), 3); // only one continuation and one obsercation. pause is lost as it's intermediate state.
+        ASSERT_TRUE(message_differencer.Compare(state4->previous_steps(0), state3->previous_steps(0)));
+        ASSERT_TRUE(message_differencer.Compare(state4->previous_steps(1), state3->previous_steps(1)));
+        auto& finish_step = state4->previous_steps(2);
+        ASSERT_TRUE(finish_step.has_thought());
+        ASSERT_TRUE(finish_step.thought().has_finish());
+        ASSERT_EQ(finish_step.thought().finish().response(), "hello!");
+
+    }
+
+    TEST_F(TestOpenAIToolAgentRunObjectTaskHandler, RecoverAgentStateWithFailedSteps) {
 
 
     }

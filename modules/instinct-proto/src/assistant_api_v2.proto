@@ -29,6 +29,7 @@ message AssistantObject { // CreateAssistantRequest, GetAssistantResponse, Modif
   AssistantToolResources tool_resources = 11;
   int64 created_at = 12;
   int64 modified_at = 13;
+  string object = 14;
 }
 
 enum AssistantToolType {

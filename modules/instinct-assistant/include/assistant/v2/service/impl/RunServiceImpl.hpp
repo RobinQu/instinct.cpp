@@ -299,7 +299,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             ProtobufUtils::ConvertMessageToJsonObject(list_run_steps_request, context);
             auto limit = list_run_steps_request.limit() <= 0 ? DEFAULT_LIST_LIMIT + 1 : list_run_steps_request.limit() + 1;
             context["limit"] = limit;
-            if (list_run_steps_request.limit() == unknown_list_request_order) {
+            if (list_run_steps_request.order() == unknown_list_request_order) {
                 context["order"] = "desc";
             }
             const auto run_step_list = EntitySQLUtils::SelectManyRunSteps(run_step_data_mapper_, context);
@@ -333,12 +333,18 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             assert_not_blank(create_request.thread_id(), "should provide thread_id");
             assert_true(create_request.status()!=0, "should provide status");
             assert_true(create_request.type()!=0, "should provide type");
-            for(const auto& tool_call: create_request.step_details().tool_calls()) {
-                assert_true(tool_call.type()!=0, "should have correct tool call type");
-                if (tool_call.has_function()) {
-                    assert_not_blank(tool_call.function().name(), "should provide name for tool call");
-                    assert_not_blank(tool_call.function().arguments(), "should provide arguments for tool call");
+            if (create_request.type() == RunStepObject_RunStepType_tool_calls) {
+                for(const auto& tool_call: create_request.step_details().tool_calls()) {
+                    assert_true(tool_call.type()!=0, "should have correct tool call type");
+                    if (tool_call.has_function()) {
+                        assert_not_blank(tool_call.function().name(), "should provide name for tool call");
+                        assert_not_blank(tool_call.function().arguments(), "should provide arguments for tool call");
+                    }
                 }
+            }
+            if (create_request.type() == RunStepObject_RunStepType_message_creation) {
+                assert_true(create_request.step_details().has_message_creation(), "should provide message_creation object");
+                assert_not_blank(create_request.step_details().message_creation().message_id(), "should provide message_id");
             }
 
 
@@ -355,6 +361,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<RunStepObject> ModifyRunStep(const ModifyRunStepRequest &modify_reequest) override {
+            assert_not_blank(modify_reequest.run_id(), "should provide run_id");
+            assert_not_blank(modify_reequest.thread_id(), "should provide thread_id");
+            assert_not_blank(modify_reequest.step_id(), "should provide step_id");
+
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(modify_reequest, context);
             EntitySQLUtils::UpdateRunStep(run_step_data_mapper_, context);

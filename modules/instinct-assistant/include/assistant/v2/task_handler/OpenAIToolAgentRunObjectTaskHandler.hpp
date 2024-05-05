@@ -341,8 +341,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         /**
-         * 1. update run object to status of `in_progress` in case it's previously `required_action`.
-         * 2. update of run step object with `step_details` of completed tool call results.
+         * 1. update run object to status of `completed`
+         * 2. update of run step object with `step_details` of completed tool call results and status of `completed`
          * @param observation
          * @param run_object
          */
