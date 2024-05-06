@@ -45,7 +45,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             RunObject run_object;
             ProtobufUtils::Deserialize(task.payload, run_object);
 
-            if (CheckPreconditions_(run_object)) {
+            if (!CheckPreconditions_(run_object)) {
                 LOG_WARN("Precondition failure for run object: {}", run_object.ShortDebugString());
                 return;
             }
@@ -146,14 +146,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         /**
          * Check following conditions:
-         * 1. run object is in status of `queued` or `requires_action`.
+         * 1. run object is in status of `queued`
          * 2. file resources referenced are valid
          * @param run_object
          * @return
          */
         // ReSharper disable once CppMemberFunctionMayBeStatic
         [[nodiscard]] bool CheckPreconditions_(const RunObject& run_object) const { // NOLINT(*-convert-member-functions-to-static)
-            return !(run_object.status() == RunObject_RunObjectStatus_queued || run_object.status() == RunObject_RunObjectStatus_requires_action);
+            return run_object.status() == RunObject_RunObjectStatus_queued;
         }
 
         /**
@@ -657,14 +657,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
                     if (step.status() == RunStepObject_RunStepStatus_in_progress) {
                         // because only run objects with status of `queued` and `requires_action` are allowed to be added to task scheduler
-                        // assert_true(i == n-1, "it should be last step.");
-                        // assert_true(run_object.status() == RunObject_RunObjectStatus_requires_action, "run_object should be in status of requires_action");
                         if (i != n-1) {
                             LOG_ERROR("it should be last step.");
                             return false;
                         }
-                        if (run_object.status() != RunObject_RunObjectStatus_requires_action) {
-                            LOG_ERROR("run_object should be in status of requires_action");
+                        if (run_object.status() != RunObject_RunObjectStatus_queued) {
+                            LOG_ERROR("run_object should be in status of queued");
                             return false;
                         }
                         // create pause

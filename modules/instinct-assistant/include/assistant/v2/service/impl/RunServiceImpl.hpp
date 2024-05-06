@@ -281,7 +281,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // update run step object
             assert_true(this->ModifyRunStep(modify_run_step_request), fmt::format("should have run step object updated. thread_id={}, run_id={}, run_step_id={}", thread_id, run_id, last_run_step.id()));
 
-            const auto returned_object = RetrieveRun(get_run_request);
+
+            // update run object to `queued` so that it can be picked up again in task handler
+            ModifyRunRequest modify_run_request;
+            modify_run_request.set_run_id(run_id);
+            modify_run_request.set_thread_id(thread_id);
+            modify_run_request.set_status(RunObject_RunObjectStatus_queued);
+            const auto returned_object = this->ModifyRun(modify_run_request);
+
             if (task_scheduler_ && returned_object) {
                 // resume agent execution
                 task_scheduler_->Enqueue({

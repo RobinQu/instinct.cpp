@@ -19,6 +19,10 @@ INSTINCT_SERVER_NS {
                 try {
                     std::rethrow_exception(ep);
                 } catch (const ClientException& ex) {
+#ifdef NDEBUG
+#else
+                    LOG_ERROR("ClientException caught in hanlder: {}", ex.message());
+#endif
                     HttpLibSession::Respond(res, ex.message(), 400);
                 } catch(const InstinctException& ex) {
                     LOG_ERROR("Exception caught in hanlder: {}, stacktrace \n", ex.message());
