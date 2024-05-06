@@ -233,8 +233,10 @@ limit {{limit}};
             for(const auto& msg_obj: context["messages"]) {
                 assistant::details::check_presence(msg_obj, {"id", "thread_id", "content", "role", "status"});
                 assert_not_blank(msg_obj["thread_id"], "should provide thread_id");
-                assert_true(msg_obj.at("content").is_object(), "should provide content");
-                assert_true(msg_obj["content"]["type"] == "text" || msg_obj["content"]["type"] == "image_file", "content type for message should be text or image_file.");
+                assert_true(msg_obj.at("content").is_array(), "should provide content");
+                for(const auto& content_item: msg_obj.at("content")) {
+                    assert_true(content_item["type"] == "text" || content_item["type"] == "image_file", "content type for message should be text or image_file.");
+                }
                 assert_true((msg_obj.at("role").get<std::string>() == "user" || msg_obj.at("role").get<std::string>() == "assistant"), "should provide correct role for message");
             }
             return data_mapper->InsertMany(R"(
@@ -303,8 +305,11 @@ returning (id);
         template<typename PrimaryKey = std::string>
         static PrimaryKey InsertOneMessages(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& msg_obj) {
             assistant::details::check_presence(msg_obj, {"id", "thread_id", "content", "role", "status"});
-            assert_true(msg_obj.at("content").is_object(), "should provide content");
-            assert_true(msg_obj["content"]["type"] == "text" || msg_obj["content"]["type"] == "image_file", "content type for message should be text or image_file.");
+            assert_true(msg_obj.at("content").is_array(), "should provide content");
+            for(const auto& content_item: msg_obj.at("content")) {
+                assert_true(content_item["type"] == "text" || content_item["type"] == "image_file", "content type for message should be text or image_file.");
+            }
+
             assert_true((msg_obj.at("role").get<std::string>() == "user" || msg_obj.at("role").get<std::string>() == "assistant"), "should provide correct role for message");
 
             return data_mapper->InsertOne(R"(

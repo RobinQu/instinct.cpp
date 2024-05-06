@@ -95,7 +95,7 @@ def test_with_multiple_thread_and_run():
     def pretty_print(messages):
         print("# Messages")
         for m in messages:
-            print(f"{m.role}: {m.content.text.value}")
+            print(f"{m.role}: {m.content[0].text.value}")
         print()
 
     # Emulating concurrent user requests
