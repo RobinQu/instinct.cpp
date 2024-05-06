@@ -134,7 +134,7 @@ int main(int argc, char** argv) {
 
 
     App app{
-            "mini-assistant - Local Assistant API at your service"
+            "🐬 mini-assistant - Local Assistant API at your service"
     };
     argv = app.ensure_utf8(argv);
     app.set_help_all_flag("--help-all", "Expand all help");

@@ -20,7 +20,7 @@ INSTINCT_SERVER_NS {
                 try {
                     std::rethrow_exception(ep);
                 } catch (const ClientException& ex) {
-                    LOG_ERROR("Exception caught with stacktrace:");
+                    LOG_ERROR("Exception caught in hanlder: {}, stacktrace \n", ex.message());
 #ifdef NDEBUG
                     ex.trace().print(std::cerr);
 #else
@@ -29,7 +29,7 @@ INSTINCT_SERVER_NS {
                     error_response["message"] = ex.message();
                     res.status = StatusCode::BadRequest_400;
                 } catch(const InstinctException& ex) {
-                    LOG_ERROR("Exception caught with stacktrace:");
+                    LOG_ERROR("Exception caught in hanlder: {}, stacktrace \n", ex.message());
 #ifdef NDEBUG
                     ex.trace().print(std::cerr);
 #else
@@ -38,7 +38,7 @@ INSTINCT_SERVER_NS {
                     error_response["message"] = ex.message();
                     res.status = StatusCode::InternalServerError_500;
                 } catch (const cpptrace::exception& ex) {
-                    LOG_ERROR("Exception caught with stacktrace:");
+                    LOG_ERROR("Exception caught in hanlder: {}, stacktrace \n", ex.message());
 #ifdef NDEBUG
                     ex.trace().print(std::cerr);
 #else

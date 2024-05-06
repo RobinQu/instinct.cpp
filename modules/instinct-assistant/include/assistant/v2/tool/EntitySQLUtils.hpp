@@ -206,16 +206,16 @@ where id = {{text(message_id)}} and thread_id = {{text(thread_id)}};
             return data_mapper->SelectMany(R"(
 select * from instinct_thread_message
 where
-thread_id = {{text(thread_id)}}
-{% if exists("run_id") and is_not_blank("run_id") %}
-, run_id = {{text(run_id)}}
-{% endif %}
-{% if exists("after") and is_not_blank("after") %}
-, after > {{text(after)}}
-{% endif %}
-{% if exists("before") and is_not_blank("before") %}
-, before < {{text(before)}}
-{% endif %}
+    thread_id = {{text(thread_id)}}
+    {% if exists("run_id") and is_not_blank("run_id") %}
+    and run_id = {{text(run_id)}}
+    {% endif %}
+    {% if exists("after") and is_not_blank("after") %}
+    and id > {{text(after)}}
+    {% endif %}
+    {% if exists("before") and is_not_blank("before") %}
+    and id < {{text(before)}}
+    {% endif %}
 {% if exists("order") %}
     {% if order == "asc" %}
     order by created_at asc
@@ -498,13 +498,14 @@ where thread_id = {{text(thread_id)}} and id = {{text(run_id)}};
             assert_true(context.contains("thread_id"), "should provide thread_id");
             return data_mapper->SelectMany(R"(
 select * from instinct_thread_run
-where thread_id = {{text(thread_id)}}
-{% if exists("after") and is_not_blank(after) %}
-and id > after
-{% endif %}
-{% if exists("before") and is_not_blank(before) %}
-and id < before
-{% endif %}
+where
+    thread_id = {{text(thread_id)}}
+    {% if exists("after") and is_not_blank(after) %}
+    and id > after
+    {% endif %}
+    {% if exists("before") and is_not_blank(before) %}
+    and id < before
+    {% endif %}
 {% if order == "asc" %}
 order by created_at asc
 {% endif %}
