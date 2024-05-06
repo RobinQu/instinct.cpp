@@ -26,7 +26,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 session.Respond(facade_.assistant->ListAssistants(req));
             });
 
-            server.PostRoute<AssistantObject, AssistantObject>("/v1/assitants", [&](const AssistantObject& req, const HttpLibSession& session) {
+            server.PostRoute<AssistantObject, AssistantObject>("/v1/assistants", [&](const AssistantObject& req, const HttpLibSession& session) {
                 auto v = facade_.assistant->CreateAssistant(req);
                 if (v.has_value()) {
                     session.Respond(v.value());
@@ -35,7 +35,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 }
             });
 
-            server.GetRoute<GetAssistantRequest, AssistantObject>("/v1/assitants/:assitant_id", [&](GetAssistantRequest& req, const HttpLibSession& session) {
+            server.GetRoute<GetAssistantRequest, AssistantObject>("/v1/assistants/:assitant_id", [&](GetAssistantRequest& req, const HttpLibSession& session) {
                 req.set_assistant_id(session.request.path_params.at("assistant_id"));
                 const auto resp = facade_.assistant->RetrieveAssistant(req);
                 if (resp.has_value()) {
@@ -55,7 +55,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 }
             });
 
-            server.DeleteRoute<DeleteAssistantRequest, DeleteAssistantResponse>("/v1/assitants/:assistant:id", [&](DeleteAssistantRequest& req, const HttpLibSession& session) {
+            server.DeleteRoute<DeleteAssistantRequest, DeleteAssistantResponse>("/v1/assistants/:assistant:id", [&](DeleteAssistantRequest& req, const HttpLibSession& session) {
                 req.set_assistant_id(session.request.path_params.at("assistant_id"));
                 session.Respond(facade_.assistant->DeleteAssistant(req));
             });

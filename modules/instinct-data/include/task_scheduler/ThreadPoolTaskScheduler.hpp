@@ -45,6 +45,7 @@ namespace INSTINCT_DATA_NS {
 
         void Start() override {
             int n = consumer_thread_count_;
+            LOG_INFO("ThreadPoolTaskScheduler started with {} threads", n);
             running_ = true;
             while (n-->0) {
                 consumer_threads_.emplace_back([&] {
@@ -104,6 +105,9 @@ namespace INSTINCT_DATA_NS {
     using CommonTaskScheduler = ITaskScheduler<std::string>;
     using CommonTaskSchedulerPtr = TaskSchedulerPtr<std::string>;
 
+    template<typename Payload>
+    std::set<TaskSchedulerPtr<Payload>> TASK_SCHEDULERS;
+
     template<typename Payload=std::string>
     static TaskSchedulerPtr<Payload> CreateThreadPoolTaskScheduler(
         const unsigned int consumer_thread_count = std::thread::hardware_concurrency(),
@@ -112,7 +116,18 @@ namespace INSTINCT_DATA_NS {
         if (!task_queue) {
             task_queue = CreateInProcessQueue<Payload>();
         }
-        return std::make_shared<ThreadPoolTaskScheduler<Payload>>(task_queue, task_handler_callbacks, consumer_thread_count);
+        const auto scheduler = std::make_shared<ThreadPoolTaskScheduler<Payload>>(task_queue, task_handler_callbacks, consumer_thread_count);
+        TASK_SCHEDULERS<Payload>.insert(scheduler);
+        return scheduler;
+    }
+
+    template<typename Payload=std::string>
+    static void GracefullyShutdownThreadPoolTaskSchedulers() {
+        for(const auto& schedueler: TASK_SCHEDULERS<Payload>) {
+            if (const auto ret = schedueler->Terminate().get();!ret.empty()) {
+                LOG_INFO("Scheduler terminated with {} remaining task(s)", ret.size());
+            }
+        }
     }
 
 }

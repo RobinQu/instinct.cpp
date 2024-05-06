@@ -47,8 +47,7 @@ namespace instinct::examples::mini_assistant {
                 : options_(std::move(applicationOptions)) {}
 
         ApplicationContext GetInstance() override {
-            ApplicationContext context;
-
+            static ApplicationContext context;
             // configure database
             const auto duck_db_ = std::make_shared<DuckDB>(options_.db_file_path);
             context.connection_pool = CreateDuckDBConnectionPool(duck_db_, options_.connection_pool);
@@ -62,6 +61,7 @@ namespace instinct::examples::mini_assistant {
 
             // configure task scheduler
             context.task_scheduler = CreateThreadPoolTaskScheduler();
+            context.task_scheduler->Start();
 
             // configure services
             const auto thread_service = std::make_shared<ThreadServiceImpl>(context.thread_data_mapper, context.message_data_mapper);
@@ -110,7 +110,6 @@ namespace instinct::examples::mini_assistant {
             http_server->Use(thread_controller);
             http_server->Use(error_controller);
             context.http_server = http_server;
-
             return context;
         }
     };
@@ -150,6 +149,18 @@ int main(int argc, char** argv) {
         LOG_INFO("Logging level is default to INFO");
     }
     fmtlog::startPollingThread();
+
+    // register shutdown handler
+    std::signal(SIGINT, [](int signal) {
+        LOG_INFO("Begin shutdown after SIGINT");
+        GracefullyShutdownRunningHttpServers();
+        GracefullyShutdownThreadPoolTaskSchedulers();
+    });
+    std::signal(SIGTERM, [](int signal) {
+        LOG_INFO("Begin shutdown after SIGTERM");
+        GracefullyShutdownRunningHttpServers();
+        GracefullyShutdownThreadPoolTaskSchedulers();
+    });
 
     // build context and start http server
     MiniAssistantApplicationContextFactory factory {application_options};

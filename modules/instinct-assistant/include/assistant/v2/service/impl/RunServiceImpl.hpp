@@ -141,8 +141,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             context["truncation_strategy"] = nlohmann::ordered_json::parse(R"({"type":"auto"})");
             EntitySQLUtils::InsertOneRun(run_data_mapper_, context);
 
-
-
             // return
             GetRunRequest get_run_request;
             get_run_request.set_run_id(run_id);

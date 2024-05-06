@@ -61,7 +61,6 @@ CREATE TABLE IF NOT EXISTS instinct_thread_run(
     model VARCHAR,
     instructions VARCHAR,
     usage VARCHAR,
-    tool_resources VARCHAR,
     tools VARCHAR,
     temperature FLOAT,
     top_p FLOAT,
