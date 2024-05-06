@@ -7,7 +7,6 @@
 #include "AssistantTestGlobals.hpp"
 #include "LLMTestGlobals.hpp"
 #include "assistant/v2/service/IRunService.hpp"
-#include "assistant/v2/service/impl/RunServiceImpl.hpp"
 #include "assistant/v2/task_handler/OpenAIToolAgentRunObjectTaskHandler.hpp"
 #include "chat_model/OpenAIChat.hpp"
 #include "toolkit/LocalToolkit.hpp"
@@ -61,7 +60,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         const auto obj2 = run_service_->CreateThreadAndRun(create_thread_and_run_request1);
         LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
 
-        // create hanlder
+        // create handler
         const auto task_handler = CreateTaskHandler();
 
         // recover from initial state
@@ -132,7 +131,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         // 3. assertions
         const auto state3 = task_handler->RecoverAgentState(obj3.value());
         LOG_INFO("RecoverAgentState returned: {}", state3->ShortDebugString());
-        ASSERT_EQ(state3->previous_steps_size(), 2); // only one continuation and one obsercation. pause is lost as it's intermediate state.
+        ASSERT_EQ(state3->previous_steps_size(), 2); // only one continuation and one observation. pause is lost as it's intermediate state.
         ASSERT_TRUE(message_differencer.Compare(state3->previous_steps(0), state2->previous_steps(0)));
         auto& obsercation_step = state3->previous_steps(1);
         ASSERT_TRUE(obsercation_step.has_observation());
@@ -164,7 +163,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         // 3. assertions
         const auto state4 = task_handler->RecoverAgentState(obj5.value());
         LOG_INFO("RecoverAgentState returned: {}", state4->ShortDebugString());
-        ASSERT_EQ(state4->previous_steps_size(), 3); // only one continuation and one obsercation. pause is lost as it's intermediate state.
+        ASSERT_EQ(state4->previous_steps_size(), 3); // only one continuation and one observation. pause is lost as it's intermediate state.
         ASSERT_TRUE(message_differencer.Compare(state4->previous_steps(0), state3->previous_steps(0)));
         ASSERT_TRUE(message_differencer.Compare(state4->previous_steps(1), state3->previous_steps(1)));
         auto& finish_step = state4->previous_steps(2);
@@ -198,7 +197,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         const auto obj2 = run_service_->CreateThreadAndRun(create_thread_and_run_request1);
         LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
 
-        // create hanlder
+        // create handler
         const auto task_handler = CreateTaskHandler();
 
         // create single step with one tool call but no output
@@ -223,7 +222,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         const auto create_run_step_response = run_service_->CreateRunStep(create_run_step_request);
         ASSERT_TRUE(create_run_step_response);
 
-        // epxect finish with cancallation
+        // expect finish with cancellation
         ModifyRunStepRequest modify_run_step_request;
         modify_run_step_request.set_run_id(obj3->id());
         modify_run_step_request.set_thread_id(obj3->thread_id());
