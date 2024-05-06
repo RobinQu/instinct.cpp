@@ -76,7 +76,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         ModifyRunRequest modify_run_request;
         modify_run_request.set_run_id(obj2->id());
         modify_run_request.set_thread_id(obj2->thread_id());
-        modify_run_request.set_status(RunObject_RunObjectStatus_requires_action);
+        modify_run_request.set_status(RunObject_RunObjectStatus_queued);
         const auto obj3 = run_service_->ModifyRun(modify_run_request);
         ASSERT_TRUE(obj3);
         // 2. create run step with tool call
