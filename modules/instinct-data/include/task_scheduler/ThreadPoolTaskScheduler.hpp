@@ -100,8 +100,9 @@ namespace INSTINCT_DATA_NS {
                     }
                 }
             }
-            LOG_WARN("unhandled task found: id={}, category={}", task.task_id, task.category);
+
             if (!handled && !has_exception) {
+                LOG_WARN("unhandled task found: id={}, category={}", task.task_id, task.category);
                 try {
                     this->GetTaskHandlerCallbacks()->OnUnhandledTask(task);
                 } catch (...) {

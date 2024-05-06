@@ -31,8 +31,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         create_thread_and_run_request1.set_assistant_id(obj1->id());
         auto* msg = create_thread_and_run_request1.mutable_thread()->add_messages();
         msg->set_role(user);
-        msg->mutable_content()->mutable_text()->set_value("What's the population of India?");
-        msg->mutable_content()->set_type(MessageObject_MessageContentType_text);
+        auto* content = msg->add_content();
+        content->mutable_text()->set_value("What's the population of India?");
+        content->set_type(MessageObject_MessageContentType_text);
         const auto obj2 = run_service->CreateThreadAndRun(create_thread_and_run_request1);
         LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
 
@@ -41,9 +42,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         create_run_request1.set_assistant_id(obj1->id());
         create_run_request1.set_thread_id(obj2->thread_id());
         auto* msg2 = create_run_request1.mutable_additional_messages()->Add();
+        auto* content2 = msg2->add_content();
         msg2->set_role(user);
-        msg2->mutable_content()->mutable_text()->set_value("How many planets in solar system?");
-        msg2->mutable_content()->set_type(MessageObject_MessageContentType_text);
+        content2->mutable_text()->set_value("How many planets in solar system?");
+        content2->set_type(MessageObject_MessageContentType_text);
         const auto obj3 = run_service->CreateRun(create_run_request1);
         LOG_INFO("CreateRun returned: {}", obj3->ShortDebugString());
 
@@ -105,8 +107,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         create_thread_and_run_request1.set_assistant_id(obj1->id());
         auto* msg = create_thread_and_run_request1.mutable_thread()->add_messages();
         msg->set_role(user);
-        msg->mutable_content()->mutable_text()->set_value("What's the population of India?");
-        msg->mutable_content()->set_type(MessageObject_MessageContentType_text);
+        auto* content = msg->add_content();
+        content->mutable_text()->set_value("What's the population of India?");
+        content->set_type(MessageObject_MessageContentType_text);
         const auto obj2 = run_service->CreateThreadAndRun(create_thread_and_run_request1);
         LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
 

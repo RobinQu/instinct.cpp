@@ -586,9 +586,13 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 LOG_ERROR("No user message found for run object: {}", run_object.ShortDebugString());
                 return false;
             }
+            if (last_user_message->content_size() <= 0) {
+                LOG_ERROR("No valid message content found in user message: {}", last_user_message->ShortDebugString());
+                return false;
+            }
             auto* input_message = state.mutable_input()->mutable_chat()->add_messages();
             input_message->set_role("user");
-            input_message->set_content(last_user_message->content().text().value());
+            input_message->set_content(last_user_message->content(0).text().value());
 
             // find steps
             AgentStep* last_step = nullptr;
@@ -626,7 +630,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     if (i-1>=0) { // look backward for message
                         if (const auto& last_run_step = run_step_objects.at(i-1); last_run_step.type() == RunStepObject_RunStepType_message_creation) {
                             if (const auto message_obj = GetMessageObject_(run_object.thread_id(), last_run_step.step_details().message_creation().message_id())) { // update thought text line if last message is found
-                                tool_call_request->set_content(message_obj->content().text().value());
+                                if (message_obj->content_size()>0) {
+                                    tool_call_request->set_content(message_obj->content(0).text().value());
+                                } else {
+                                    LOG_WARN("Empty message found: {}", message_obj->ShortDebugString());
+                                }
+
                             }
                         }
                     }
@@ -733,7 +742,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     if (i == n-1 && run_object.status() == RunObject_RunObjectStatus_completed) { // last message
                         if (const auto message_obj = GetMessageObject_(run_object.thread_id(), step.step_details().message_creation().message_id())) {
                             last_step = state.mutable_previous_steps()->Add();
-                            last_step->mutable_thought()->mutable_finish()->set_response(message_obj->content().text().value());
+                            if (message_obj->content_size()>0) {
+                                last_step->mutable_thought()->mutable_finish()->set_response(message_obj->content(0).text().value());
+                            }
                         }
                     }
                     // other messages are fetched in `tool_calls` branch

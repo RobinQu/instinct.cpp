@@ -1,10 +1,10 @@
 import logging
-logging.basicConfig(level=logging.DEBUG)
-
-
 import pytest
 import json
 import time
+from openai import OpenAI
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def show_json(obj):
@@ -26,8 +26,6 @@ def test_with_messages_only():
     https://github.com/openai/openai-cookbook/blob/main/examples/Assistants_API_overview_python.ipynb
     :return:
     """
-    from openai import OpenAI
-
     # default to read api key from env
     client = OpenAI(
         base_url="http://localhost:9091/v1"
@@ -63,6 +61,70 @@ def test_with_messages_only():
         thread_id=thread.id, order="asc", after=message.id
     )
     show_json(messages)
+
+
+def test_with_multiple_thread_and_run():
+    client = OpenAI(base_url="http://localhost:9091/v1")
+
+    assistant = client.beta.assistants.create(
+        name="Math Tutor",
+        instructions="You are a personal math tutor. Answer questions briefly, in a sentence or less.",
+        model="gpt-3.5-turbo",
+    )
+
+    MATH_ASSISTANT_ID = assistant.id  # or a hard-coded ID like "asst-..."
+
+    def submit_message(assistant_id, thread, user_message):
+        client.beta.threads.messages.create(
+            thread_id=thread.id, role="user", content=user_message
+        )
+        return client.beta.threads.runs.create(
+            thread_id=thread.id,
+            assistant_id=assistant_id,
+        )
+
+    def get_response(thread):
+        return client.beta.threads.messages.list(thread_id=thread.id, order="asc")
+
+    def create_thread_and_run(user_input):
+        thread = client.beta.threads.create()
+        run = submit_message(MATH_ASSISTANT_ID, thread, user_input)
+        return thread, run
+
+    # Pretty printing helper
+    def pretty_print(messages):
+        print("# Messages")
+        for m in messages:
+            print(f"{m.role}: {m.content.text.value}")
+        print()
+
+    # Emulating concurrent user requests
+    thread1, run1 = create_thread_and_run(
+        "I need to solve the equation `3x + 11 = 14`. Can you help me?"
+    )
+    thread2, run2 = create_thread_and_run("Could you explain linear algebra to me?")
+    thread3, run3 = create_thread_and_run("I don't like math. What can I do?")
+
+    # Wait for Run 1
+    run1 = wait_on_run(client, run1, thread1)
+    pretty_print(get_response(thread1))
+
+    # Wait for Run 2
+    run2 = wait_on_run(client, run2, thread2)
+    pretty_print(get_response(thread2))
+
+    # Wait for Run 3
+    run3 = wait_on_run(client, run3, thread3)
+    pretty_print(get_response(thread3))
+
+    # Thank our assistant on Thread 3 :)
+    run4 = submit_message(MATH_ASSISTANT_ID, thread3, "Thank you!")
+    run4 = wait_on_run(client, run4, thread3)
+    pretty_print(get_response(thread3))
+
+
+
+
 
 
 

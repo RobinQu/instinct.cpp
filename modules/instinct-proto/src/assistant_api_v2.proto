@@ -205,7 +205,7 @@ message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, Modify
   int64 completed_at = 7;
   int64 incompleted_at = 8;
   MessageRole role = 9;
-  MessageContent content = 10;
+  repeated MessageContent content = 10;
 
   enum MessageContentType {
     unknown_message_content_type = 0;

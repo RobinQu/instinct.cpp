@@ -55,8 +55,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         create_thread_and_run_request1.set_assistant_id(obj1->id());
         auto* msg = create_thread_and_run_request1.mutable_thread()->add_messages();
         msg->set_role(user);
-        msg->mutable_content()->mutable_text()->set_value(prompt_line);
-        msg->mutable_content()->set_type(MessageObject_MessageContentType_text);
+        auto* content = msg->add_content();
+        content->mutable_text()->set_value(prompt_line);
+        content->set_type(MessageObject_MessageContentType_text);
         const auto obj2 = run_service_->CreateThreadAndRun(create_thread_and_run_request1);
         LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
 
@@ -192,8 +193,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         create_thread_and_run_request1.set_assistant_id(obj1->id());
         auto* msg = create_thread_and_run_request1.mutable_thread()->add_messages();
         msg->set_role(user);
-        msg->mutable_content()->mutable_text()->set_value(prompt_line);
-        msg->mutable_content()->set_type(MessageObject_MessageContentType_text);
+        auto* content = msg->add_content();
+        content->mutable_text()->set_value(prompt_line);
+        content->set_type(MessageObject_MessageContentType_text);
         const auto obj2 = run_service_->CreateThreadAndRun(create_thread_and_run_request1);
         LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
 
@@ -288,8 +290,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         create_thread_and_run_request1.set_assistant_id(obj1->id());
         auto* msg = create_thread_and_run_request1.mutable_thread()->add_messages();
         msg->set_role(user);
-        msg->mutable_content()->mutable_text()->set_value(prompt_line);
-        msg->mutable_content()->set_type(MessageObject_MessageContentType_text);
+        auto* content = msg->add_content();
+        content->mutable_text()->set_value(prompt_line);
+        content->set_type(MessageObject_MessageContentType_text);
         const auto obj2 = run_service_->CreateThreadAndRun(create_thread_and_run_request1);
         LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
 
@@ -362,10 +365,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         get_message_request.set_thread_id(obj5->thread_id());
         get_message_request.set_message_id(list_run_step_response2.data(1).step_details().message_creation().message_id());
         const auto obj6 = message_service_->RetrieveMessage(get_message_request);
-        ASSERT_TRUE(obj6->has_content());
-        ASSERT_TRUE(obj6->content().has_text());
-        LOG_INFO("final output: {}", obj6->content().text().value());
-        ASSERT_TRUE(StringUtils::IsNotBlankString(obj6->content().text().value()));
+        ASSERT_TRUE(obj6->content_size()>0);
+        ASSERT_TRUE(obj6->content(0).has_text());
+        LOG_INFO("final output: {}", obj6->content(0).text().value());
+        ASSERT_TRUE(StringUtils::IsNotBlankString(obj6->content(0).text().value()));
     }
 
 

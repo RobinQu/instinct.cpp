@@ -20,8 +20,9 @@ namespace INSTINCT_CORE_NS {
         assistant::v2::MessageObject message;
         message.set_assistant_id("assistant-123");
         message.set_id("msg-123");
-        message.mutable_content()->set_type(assistant::v2::MessageObject_MessageContentType::MessageObject_MessageContentType_text);
-        message.mutable_content()->mutable_text()->set_value("hahha");
+        auto*msg = message.add_content();
+        msg->set_type(assistant::v2::MessageObject_MessageContentType::MessageObject_MessageContentType_text);
+        msg->mutable_text()->set_value("hahha");
 
         auto *fields = message.mutable_metadata()->mutable_fields();
         fields->emplace("nullable_key", Value {});
@@ -61,7 +62,6 @@ namespace INSTINCT_CORE_NS {
     }
 
     TEST_F(ProtobufUtilsTest, Reflection) {
-
         const auto descriptor = assistant::v2::AssistantObject::GetDescriptor();
         const auto reflection = assistant::v2::AssistantObject::GetReflection();
 

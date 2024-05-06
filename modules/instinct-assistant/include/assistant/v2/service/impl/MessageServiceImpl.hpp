@@ -57,8 +57,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
             MessageObject message_object;
             message_object.set_thread_id(create_request.thread_id());
-            message_object.mutable_content()->mutable_text()->set_value(create_request.content());
-            message_object.mutable_content()->set_type(MessageObject_MessageContentType_text);
+            auto* msg = message_object.add_content();
+            msg->mutable_text()->set_value(create_request.content());
+            msg->set_type(MessageObject_MessageContentType_text);
             message_object.set_role(create_request.role());
             message_object.set_status(MessageObject_MessageStatus_completed);
 

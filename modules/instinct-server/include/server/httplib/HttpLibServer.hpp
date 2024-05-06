@@ -114,7 +114,8 @@ namespace INSTINCT_SERVER_NS {
         requires std::is_invocable_r_v<void, Fn, Req&, HttpLibSession&>
         void PostRoute(const std::string& path, Fn&& fn) {
             LOG_INFO("Route added:  POST {}", path);
-            GetHttpLibServer().Post(path, [&,fn](const Request& req, Response& resp) {
+            GetHttpLibServer().Post(path, [&,fn,path](const Request& req, Response& resp) {
+                LOG_DEBUG("--> POST {}", path);
                 assert_not_blank(req.body, "request body cannot be empty");
                 auto req_entity = EntityConverter::template Deserialize<Req>(req.body);
                 const HttpLibSession session {req, resp};
@@ -123,6 +124,7 @@ namespace INSTINCT_SERVER_NS {
                 } catch (const std::runtime_error& e) {
                     session.Respond(e.what(), 500);
                 }
+                LOG_DEBUG("<-- POST {}", path);
             });
         }
 
@@ -130,7 +132,8 @@ namespace INSTINCT_SERVER_NS {
         requires std::is_invocable_r_v<void, Fn, Req&, HttpLibSession&>
         void GetRoute(const std::string& path, Fn&& fn) {
             LOG_INFO("Route added:  GET {}", path);
-            GetHttpLibServer().Get(path, [&,fn](const Request& req, Response& resp) {
+            GetHttpLibServer().Get(path, [&,fn,path](const Request& req, Response& resp) {
+                LOG_DEBUG("--> GET {}", path);
                 const HttpLibSession session {req, resp};
                 try {
                     Req req_entity;
@@ -138,6 +141,7 @@ namespace INSTINCT_SERVER_NS {
                 } catch (const std::runtime_error& e) {
                     session.Respond(e.what(), 500);
                 }
+                LOG_DEBUG("<-- GET {}", path);
             });
         }
 
@@ -145,7 +149,8 @@ namespace INSTINCT_SERVER_NS {
         requires std::is_invocable_r_v<void, Fn, Req&, HttpLibSession&>
         void DeleteRoute(const std::string& path, Fn&& fn) {
             LOG_INFO("Route added:  DELETE {}", path);
-            GetHttpLibServer().Delete(path, [&,fn](const Request& req, Response& resp) {
+            GetHttpLibServer().Delete(path, [&,fn,path](const Request& req, Response& resp) {
+                LOG_DEBUG("--> DELETE {}", path);
                 assert_not_blank(req.body, "request body cannot be empty");
                 auto req_entity = EntityConverter::template Deserialize<Req>(req.body);
                 const HttpLibSession session {req, resp};
@@ -154,6 +159,7 @@ namespace INSTINCT_SERVER_NS {
                 } catch (const std::runtime_error& e) {
                     session.Respond(e.what(), 500);
                 }
+                LOG_DEBUG("<-- DELETE {}", path);
             });
         }
 
