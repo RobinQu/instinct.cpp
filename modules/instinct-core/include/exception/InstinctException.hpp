@@ -4,29 +4,14 @@
 
 #ifndef INSTINCTEXCEPTION_HPP
 #define INSTINCTEXCEPTION_HPP
-
+#include <cpptrace/cpptrace.hpp>
 #include "CoreGlobals.hpp"
 
 namespace INSTINCT_CORE_NS {
-    class InstinctException: public std::runtime_error {
-        std::string reason_;
-
+    class InstinctException: public cpptrace::exception_with_message {
     public:
-        explicit InstinctException(const std::string& basic_string)
-            : std::runtime_error(basic_string), reason_(basic_string) {
-        }
-
-        explicit InstinctException(const char* const string)
-            : std::runtime_error(string), reason_(string) {
-        }
-
-        explicit InstinctException(const runtime_error& runtime_error, std::string  basic_string)
-            : std::runtime_error(runtime_error),reason_(std::move(basic_string)) {
-
-        }
-
-        [[nodiscard]] const char* what() const noexcept override {
-            return reason_.data();
+        explicit InstinctException(std::string reason)
+            : cpptrace::exception_with_message(std::move(reason)) {
         }
     };
 }

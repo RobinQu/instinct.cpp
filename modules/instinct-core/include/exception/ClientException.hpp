@@ -17,15 +17,6 @@ namespace INSTINCT_CORE_NS {
         explicit ClientException(const std::string &basic_string)
             : InstinctException(basic_string) {
         }
-
-        explicit ClientException(const char *string)
-            : InstinctException(string) {
-        }
-
-        ClientException(const runtime_error &runtime_error, std::string basic_string)
-            : InstinctException(runtime_error, std::move(basic_string)) {
-        }
-
     };
 }
 

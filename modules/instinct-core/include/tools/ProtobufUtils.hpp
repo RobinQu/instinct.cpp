@@ -364,7 +364,7 @@ namespace INSTINCT_CORE_NS {
         static void Serialize(const Message& obj, std::string& param_string) {
             util::JsonPrintOptions json_print_options;
             json_print_options.preserve_proto_field_names = true;
-            json_print_options.always_print_primitive_fields = true;
+            // json_print_options.always_print_primitive_fields = true;
             const auto status = util::MessageToJsonString(obj, &param_string, json_print_options);
             if (!status.ok()) {
                 LOG_DEBUG("Serialize failed message obj. reason: {}, original string: {}", status.message().as_string(), obj.DebugString());
@@ -376,7 +376,7 @@ namespace INSTINCT_CORE_NS {
             std::string param_string;
             util::JsonPrintOptions json_print_options;
             json_print_options.preserve_proto_field_names = true;
-            json_print_options.always_print_primitive_fields = true;
+            // json_print_options.always_print_primitive_fields = true;
             const auto status = util::MessageToJsonString(obj, &param_string, json_print_options);
             if (!status.ok()) {
                 LOG_DEBUG("Serialize failed message obj. reason: {}, original string: {}", status.message().as_string(), obj.DebugString());

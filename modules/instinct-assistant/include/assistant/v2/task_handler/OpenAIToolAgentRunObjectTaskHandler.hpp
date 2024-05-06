@@ -433,73 +433,78 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
          */
         void OnAgentFinish_(const AgentFinish& finish_message, const RunObject& run_object) {
             LOG_INFO("OnAgentFinish Start, run_object={}", run_object.ShortDebugString());
-
-            const auto last_run_step_opt = RetrieveLastRunStep_(run_object);
-            if (!last_run_step_opt) {
-                LOG_ERROR("Cannot find last run step for run object: {}", run_object.ShortDebugString());
-                return;
-            }
-
             // TODO needs transaction
-            ModifyRunStepRequest modify_run_step_request;
-            modify_run_step_request.set_run_id(run_object.id());
-            modify_run_step_request.set_step_id(last_run_step_opt->id());
-            modify_run_step_request.set_thread_id(run_object.thread_id());
 
             ModifyRunRequest modify_run_request;
             modify_run_request.set_run_id(run_object.id());
             modify_run_request.set_thread_id(run_object.thread_id());
 
-            if (finish_message.is_failed()) {
-                // update last run step object with status of `failed`
-                modify_run_step_request.set_failed_at(ChronoUtils::GetCurrentTimeMillis());
-                modify_run_step_request.set_status(RunStepObject_RunStepStatus_failed);
-
-                if (finish_message.has_details() && finish_message.details().Is<RunEarlyStopDetails>()) { // find error data from details
-                    RunEarlyStopDetails run_early_stop_details;
-                    finish_message.details().UnpackTo(&run_early_stop_details);
-                    if (run_early_stop_details.has_error()) {
-                        modify_run_step_request.mutable_last_error()->CopyFrom(run_early_stop_details.error());
+            // finish with no previous step
+            if (const auto last_run_step = RetrieveLastRunStep_(run_object); !last_run_step) {
+                if (finish_message.is_failed()) {
+                    modify_run_request.set_status(RunObject_RunObjectStatus_failed);
+                } else if (finish_message.is_cancelled()) {
+                    modify_run_request.set_status(RunObject_RunObjectStatus_cancelled);
+                } else if (finish_message.is_expired()) {
+                    modify_run_request.set_status(RunObject_RunObjectStatus_expired);
+                } else {
+                    modify_run_request.set_status(RunObject_RunObjectStatus_completed);
+                    if(!CreateMessageStep_(finish_message.response(), run_object)) {
+                        LOG_ERROR("Cannot create message for final answer. run_object={}", run_object.ShortDebugString());
+                        return;
                     }
                 }
-                if (!modify_run_step_request.has_last_error()) {
-                    // fallback to invalid_request_error
-                    LOG_WARN("last_error is not set correctly. run_object={}", run_object.ShortDebugString());
-                    modify_run_step_request.mutable_last_error()->set_type(invalid_request_error);
+            } else { // another branch which has previous steps
+                ModifyRunStepRequest modify_run_step_request;
+                modify_run_step_request.set_run_id(run_object.id());
+                modify_run_step_request.set_step_id(last_run_step->id());
+                modify_run_step_request.set_thread_id(run_object.thread_id());
+
+                if (finish_message.is_failed()) {
+                    // update last run step object with status of `failed`
+                    modify_run_step_request.set_failed_at(ChronoUtils::GetCurrentTimeMillis());
+                    modify_run_step_request.set_status(RunStepObject_RunStepStatus_failed);
+
+                    if (finish_message.has_details() && finish_message.details().Is<RunEarlyStopDetails>()) { // find error data from details
+                        RunEarlyStopDetails run_early_stop_details;
+                        finish_message.details().UnpackTo(&run_early_stop_details);
+                        if (run_early_stop_details.has_error()) {
+                            modify_run_step_request.mutable_last_error()->CopyFrom(run_early_stop_details.error());
+                        }
+                    }
+                    if (!modify_run_step_request.has_last_error()) {
+                        // fallback to invalid_request_error
+                        LOG_WARN("last_error is not set correctly. run_object={}", run_object.ShortDebugString());
+                        modify_run_step_request.mutable_last_error()->set_type(invalid_request_error);
+                    }
+                    // update run object with status of `failed`
+                    modify_run_request.set_status(RunObject_RunObjectStatus_failed);
+                } else if (finish_message.is_cancelled()) {
+                    modify_run_step_request.set_status(RunStepObject_RunStepStatus_cancelled);
+                    modify_run_step_request.set_cancelled_at(ChronoUtils::GetCurrentTimeMillis());
+                    modify_run_request.set_status(RunObject_RunObjectStatus_cancelled);
+                } else if (finish_message.is_expired()) {
+                    modify_run_step_request.set_expired_at(ChronoUtils::GetCurrentTimeMillis());
+                    modify_run_step_request.set_status(RunStepObject_RunStepStatus_expired);
+                    modify_run_request.set_status(RunObject_RunObjectStatus_expired);
+                } else {
+                    // update last run step object with status of `completed`
+                    modify_run_step_request.set_completed_at(ChronoUtils::GetCurrentTimeMillis());
+                    modify_run_step_request.set_status(RunStepObject_RunStepStatus_completed);
+                    modify_run_request.set_status(RunObject_RunObjectStatus_completed);
+
+                    // create message step
+                    if (!CreateMessageStep_(finish_message.response(), run_object)) {
+                        LOG_ERROR("Failed to create message and run step. modify_run_request={}", modify_run_request.ShortDebugString());
+                        return;
+                    }
                 }
 
-
-                // update run object with status of `failed`
-                modify_run_request.set_status(RunObject_RunObjectStatus_failed);
-                if (const auto modify_run_resp = run_service_->ModifyRun(modify_run_request); !modify_run_resp.has_value()) {
-                    LOG_ERROR("Failed to update run object. modify_run_request={}", modify_run_request.ShortDebugString());
+                // update run step
+                if (!run_service_->ModifyRunStep(modify_run_step_request)) {
+                    LOG_ERROR("Failed to update run step object. modify_run_step_request={}", modify_run_step_request.ShortDebugString());
                     return;
                 }
-            } else if (finish_message.is_cancelled()) {
-                modify_run_step_request.set_status(RunStepObject_RunStepStatus_cancelled);
-                modify_run_step_request.set_cancelled_at(ChronoUtils::GetCurrentTimeMillis());
-                modify_run_request.set_status(RunObject_RunObjectStatus_cancelled);
-            } else if (finish_message.is_expired()) {
-                modify_run_step_request.set_expired_at(RunStepObject_RunStepStatus_expired);
-                modify_run_step_request.set_expired_at(ChronoUtils::GetCurrentTimeMillis());
-                modify_run_step_request.set_status(RunStepObject_RunStepStatus_expired);
-            } else {
-                // update last run step object with status of `completed`
-                modify_run_step_request.set_completed_at(ChronoUtils::GetCurrentTimeMillis());
-                modify_run_step_request.set_status(RunStepObject_RunStepStatus_completed);
-                modify_run_request.set_status(RunObject_RunObjectStatus_completed);
-
-                // create message step
-                if (!CreateMessageStep_(finish_message.response(), run_object)) {
-                    LOG_ERROR("Failed to create message and run step. modify_run_request={}", modify_run_request.ShortDebugString());
-                    return;
-                }
-            }
-
-            // update run step
-            if (!run_service_->ModifyRunStep(modify_run_step_request)) {
-                LOG_ERROR("Failed to update run step object. modify_run_step_request={}", modify_run_step_request.ShortDebugString());
-                return;
             }
 
             // update run object with status of `completed`

@@ -5,6 +5,7 @@
 #ifndef DEFAULTERRORCONTROLLER_HPP
 #define DEFAULTERRORCONTROLLER_HPP
 
+#include <iostream>
 #include "HttpLibServer.hpp"
 #include "../IMountable.hpp"
 
@@ -19,10 +20,34 @@ INSTINCT_SERVER_NS {
                 try {
                     std::rethrow_exception(ep);
                 } catch (const ClientException& ex) {
-                    error_response["message"] = ex.what();
+                    LOG_ERROR("Exception caught with stacktrace:");
+#ifdef NDEBUG
+                    ex.trace().print(std::cerr);
+#else
+                    ex.trace().print_with_snippets(std::cerr);
+#endif
+                    error_response["message"] = ex.message();
                     res.status = StatusCode::BadRequest_400;
+                } catch(const InstinctException& ex) {
+                    LOG_ERROR("Exception caught with stacktrace:");
+#ifdef NDEBUG
+                    ex.trace().print(std::cerr);
+#else
+                    ex.trace().print_with_snippets(std::cerr);
+#endif
+                    error_response["message"] = ex.message();
+                    res.status = StatusCode::InternalServerError_500;
+                } catch (const cpptrace::exception& ex) {
+                    LOG_ERROR("Exception caught with stacktrace:");
+#ifdef NDEBUG
+                    ex.trace().print(std::cerr);
+#else
+                    ex.trace().print_with_snippets(std::cerr);
+#endif
+                    error_response["message"] = ex.message();
+                    res.status = StatusCode::InternalServerError_500;
                 } catch (const std::exception& ex) {
-                    LOG_ERROR("Uncaought excetion found. ex.what={}", ex.what());
+                    LOG_ERROR("Uncaought std::excetion found. ex.what={}", ex.what());
                     res.status = StatusCode::InternalServerError_500;
                     error_response["message"] = ex.what();
                 } catch (...) {

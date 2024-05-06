@@ -43,28 +43,20 @@ def test_with_messages_only():
     thread = client.beta.threads.create()
     show_json(thread)
 
-    run = client.beta.threads.runs.create(
-        thread_id=thread.id,
-        assistant_id=assistant.id,
-    )
-    show_json(run)
-
-    run = wait_on_run(client, run, thread)
-    show_json(run)
-
     # Create a message to append to our thread
     message = client.beta.threads.messages.create(
         thread_id=thread.id, role="user", content="Could you explain this to me?"
     )
+    show_json(message)
 
     # Execute our run
     run = client.beta.threads.runs.create(
         thread_id=thread.id,
         assistant_id=assistant.id,
     )
-
     # Wait for completion
-    wait_on_run(client, run, thread)
+    run = wait_on_run(client, run, thread)
+    show_json(run)
 
     # Retrieve all the messages added after our last user message
     messages = client.beta.threads.messages.list(

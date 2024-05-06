@@ -129,6 +129,10 @@ int main(int argc, char** argv) {
     using namespace CLI;
     using namespace instinct::examples::mini_assistant;
 
+    // register terminate handler to print dead message
+    cpptrace::register_terminate_handler();
+
+
     App app{
             "mini-assistant - Local Assistant API at your service"
     };

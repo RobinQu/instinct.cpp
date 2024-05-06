@@ -78,6 +78,7 @@ namespace INSTINCT_DATA_NS {
     private:
         void HandleTask_(const Task& task) {
             bool handled = false;
+            bool has_exception = false;
             for (const auto &handler: this->ListHandlers()) {
                 try {
                     if (handler->Accept(task)) {
@@ -90,6 +91,7 @@ namespace INSTINCT_DATA_NS {
                         }
                     }
                 } catch (std::runtime_error &e) {
+                    has_exception = true;
                     LOG_WARN("failed task found: id={}, category={}, e.what={}", task.task_id,
                              task.category, e.what());
                     try {
@@ -99,7 +101,7 @@ namespace INSTINCT_DATA_NS {
                 }
             }
             LOG_WARN("unhandled task found: id={}, category={}", task.task_id, task.category);
-            if (!handled) {
+            if (!handled && !has_exception) {
                 try {
                     this->GetTaskHandlerCallbacks()->OnUnhandledTask(task);
                 } catch (...) {

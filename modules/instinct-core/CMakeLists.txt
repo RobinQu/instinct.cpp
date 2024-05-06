@@ -68,6 +68,7 @@ find_package(uriparser REQUIRED)
 find_package(CURL REQUIRED)
 find_package(hash-library REQUIRED)
 find_package(base64)
+find_package(cpptrace REQUIRED)
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         bshoshany-thread-pool::bshoshany-thread-pool
@@ -85,6 +86,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         uriparser::uriparser
         hash-library::hash-library
         pantor::inja
+        cpptrace::cpptrace
 )
 
 #set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES
