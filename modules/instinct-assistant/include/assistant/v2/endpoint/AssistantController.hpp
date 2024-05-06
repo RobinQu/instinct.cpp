@@ -55,7 +55,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 }
             });
 
-            server.DeleteRoute<DeleteAssistantRequest, DeleteAssistantResponse>("/v1/assistants/:assistant:id", [&](DeleteAssistantRequest& req, const HttpLibSession& session) {
+            server.DeleteRoute<DeleteAssistantRequest, DeleteAssistantResponse>("/v1/assistants/:assistant_id", [&](DeleteAssistantRequest& req, const HttpLibSession& session) {
                 req.set_assistant_id(session.request.path_params.at("assistant_id"));
                 session.Respond(facade_.assistant->DeleteAssistant(req));
             });

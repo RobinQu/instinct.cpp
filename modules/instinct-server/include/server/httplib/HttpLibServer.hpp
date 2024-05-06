@@ -39,6 +39,24 @@ namespace INSTINCT_SERVER_NS {
         ServerOptions options_;
         Server server_;
         HttpLibServerLifeCycleManager life_cycle_manager_;
+
+
+        class log_guard {
+            std::string method_;
+            std::string path_;
+        public:
+            log_guard(std::string method, std::string path)
+                : method_(std::move(method)),
+                  path_(std::move(path)) {
+                LOG_DEBUG("--> {} {}", method_, path_);
+            }
+
+            ~log_guard() {
+                LOG_DEBUG("<-- {} {}", method_, path_);
+            }
+        };
+
+
     public:
         static void RegisterSignalHandlers() {
             static bool DONE = false;
@@ -115,16 +133,13 @@ namespace INSTINCT_SERVER_NS {
         void PostRoute(const std::string& path, Fn&& fn) {
             LOG_INFO("Route added:  POST {}", path);
             GetHttpLibServer().Post(path, [&,fn,path](const Request& req, Response& resp) {
-                LOG_DEBUG("--> POST {}", path);
+                log_guard log {"POST", path};
                 assert_not_blank(req.body, "request body cannot be empty");
                 auto req_entity = EntityConverter::template Deserialize<Req>(req.body);
                 const HttpLibSession session {req, resp};
-                try {
+                CPPTRACE_WRAP_BLOCK(
                     std::invoke(fn, req_entity, session);
-                } catch (const std::runtime_error& e) {
-                    session.Respond(e.what(), 500);
-                }
-                LOG_DEBUG("<-- POST {}", path);
+                );
             });
         }
 
@@ -133,15 +148,12 @@ namespace INSTINCT_SERVER_NS {
         void GetRoute(const std::string& path, Fn&& fn) {
             LOG_INFO("Route added:  GET {}", path);
             GetHttpLibServer().Get(path, [&,fn,path](const Request& req, Response& resp) {
-                LOG_DEBUG("--> GET {}", path);
+                log_guard log {"GET", path};
                 const HttpLibSession session {req, resp};
-                try {
-                    Req req_entity;
+                Req req_entity;
+                CPPTRACE_WRAP_BLOCK(
                     std::invoke(fn, req_entity, session);
-                } catch (const std::runtime_error& e) {
-                    session.Respond(e.what(), 500);
-                }
-                LOG_DEBUG("<-- GET {}", path);
+                );
             });
         }
 
@@ -150,16 +162,12 @@ namespace INSTINCT_SERVER_NS {
         void DeleteRoute(const std::string& path, Fn&& fn) {
             LOG_INFO("Route added:  DELETE {}", path);
             GetHttpLibServer().Delete(path, [&,fn,path](const Request& req, Response& resp) {
-                LOG_DEBUG("--> DELETE {}", path);
-                assert_not_blank(req.body, "request body cannot be empty");
-                auto req_entity = EntityConverter::template Deserialize<Req>(req.body);
+                log_guard log {"DELETE", path};
                 const HttpLibSession session {req, resp};
-                try {
+                Req req_entity;
+                CPPTRACE_WRAP_BLOCK(
                     std::invoke(fn, req_entity, session);
-                } catch (const std::runtime_error& e) {
-                    session.Respond(e.what(), 500);
-                }
-                LOG_DEBUG("<-- DELETE {}", path);
+                );
             });
         }
 

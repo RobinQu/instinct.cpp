@@ -64,7 +64,7 @@ namespace instinct::examples::mini_assistant {
             context.task_scheduler->Start();
 
             // configure services
-            const auto thread_service = std::make_shared<ThreadServiceImpl>(context.thread_data_mapper, context.message_data_mapper);
+            const auto thread_service = std::make_shared<ThreadServiceImpl>(context.thread_data_mapper, context.message_data_mapper, context.run_data_mapper, context.run_step_data_mapper);
             const auto message_service = std::make_shared<MessageServiceImpl>(context.message_data_mapper);
             const auto file_service = std::make_shared<FileServiceImpl>(context.file_data_mapper, context.object_store, options_.file_service);
             const auto run_service = std::make_shared<RunServiceImpl>(

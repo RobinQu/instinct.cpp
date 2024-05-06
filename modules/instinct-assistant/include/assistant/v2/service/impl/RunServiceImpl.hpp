@@ -20,7 +20,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         DataMapperPtr<RunObject, std::string> run_data_mapper_;
         DataMapperPtr<RunStepObject, std::string> run_step_data_mapper_;
         DataMapperPtr<MessageObject, std::string> message_data_mapper_;
-        // DataMapperPtr<AssistantObject, std::string> assistant_data_mapper_;
         CommonTaskSchedulerPtr task_scheduler_;
     public:
         RunServiceImpl(const DataMapperPtr<ThreadObject, std::string> &thread_data_mapper,

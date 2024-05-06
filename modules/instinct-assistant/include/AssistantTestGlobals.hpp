@@ -81,7 +81,7 @@ namespace INSTINCT_ASSISTANT_NS {
         }
 
         ThreadServicePtr CreateThreadService() {
-            return std::make_shared<ThreadServiceImpl>(thread_data_mapper, message_data_mapper);
+            return std::make_shared<ThreadServiceImpl>(thread_data_mapper, message_data_mapper, run_data_mapper, run_step_data_mapper);
         }
 
         MessageServicePtr CreateMessageService() {

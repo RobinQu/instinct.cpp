@@ -302,6 +302,14 @@ returning (id);
 )", context);
         }
 
+
+        template<typename PrimaryKey = std::string>
+        static size_t DeleteManyMessages(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            return data_mapper->Execute(R"(
+delete from instinct_thread_message where thread_id = {{text(thread_id)}};
+            )", context);
+        }
+
         template<typename PrimaryKey = std::string>
         static PrimaryKey InsertOneMessages(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& msg_obj) {
             assistant::details::check_presence(msg_obj, {"id", "thread_id", "content", "role", "status"});
@@ -511,6 +519,13 @@ where
     {% if exists("before") and is_not_blank(before) %}
     and id < before
     {% endif %}
+    {% if exists("possible_statuses")  %}
+    and status in (
+        {% for status in possible_statuses %}
+        {{text(status)}},
+        {% endfor %}
+    )
+    {% endif %}
 {% if order == "asc" %}
 order by created_at asc
 {% endif %}
@@ -532,6 +547,14 @@ limit 1;
             )", context);
         }
 
+
+        template<typename PrimaryKey = std::string>
+        static size_t DeleteManyRuns(const DataMapperPtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            return data_mapper->Execute(R"(
+delete from instinct_thread_run where thread_id = {{text(thread_id)}};
+            )", context);
+        }
+
         template<typename PrimaryKey = std::string>
         static PrimaryKey InsertOneRunStep(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->InsertOne(R"(
@@ -549,6 +572,14 @@ values (
 {% endif %}
 )
 returning (id);
+            )", context);
+        }
+
+
+        template<typename PrimaryKey = std::string>
+        static size_t DeleteManyRunSteps(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+            return data_mapper->Execute(R"(
+delete from instinct_thread_run_step where thread_id = {{text(thread_id)}};
             )", context);
         }
 

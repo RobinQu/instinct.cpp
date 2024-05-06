@@ -16,7 +16,6 @@ INSTINCT_SERVER_NS {
         void Mount(HttpLibServer &server) override {
             LOG_INFO("Mount DefaultErrorController");
             server.GetHttpLibServer().set_exception_handler([](const auto &req, auto &res, const std::exception_ptr &ep) {
-                nlohmann::json error_response;
                 try {
                     std::rethrow_exception(ep);
                 } catch (const ClientException& ex) {
@@ -26,8 +25,7 @@ INSTINCT_SERVER_NS {
 #else
                     ex.trace().print_with_snippets(std::cerr);
 #endif
-                    error_response["message"] = ex.message();
-                    res.status = StatusCode::BadRequest_400;
+                    HttpLibSession::Respond(res, ex.message(), 500);
                 } catch(const InstinctException& ex) {
                     LOG_ERROR("Exception caught in hanlder: {}, stacktrace \n", ex.message());
 #ifdef NDEBUG
@@ -35,8 +33,7 @@ INSTINCT_SERVER_NS {
 #else
                     ex.trace().print_with_snippets(std::cerr);
 #endif
-                    error_response["message"] = ex.message();
-                    res.status = StatusCode::InternalServerError_500;
+                    HttpLibSession::Respond(res, ex.message(), 500);
                 } catch (const cpptrace::exception& ex) {
                     LOG_ERROR("Exception caught in hanlder: {}, stacktrace \n", ex.message());
 #ifdef NDEBUG
@@ -44,18 +41,13 @@ INSTINCT_SERVER_NS {
 #else
                     ex.trace().print_with_snippets(std::cerr);
 #endif
-                    error_response["message"] = ex.message();
-                    res.status = StatusCode::InternalServerError_500;
+                    HttpLibSession::Respond(res, ex.message(), 500);
                 } catch (const std::exception& ex) {
-                    LOG_ERROR("Uncaought std::excetion found. ex.what={}", ex.what());
-                    res.status = StatusCode::InternalServerError_500;
-                    error_response["message"] = ex.what();
+                    LOG_ERROR("Uncaught std::excetion found. ex.what={}", ex.what());
+                    HttpLibSession::Respond(res, ex.what(), 500);
                 } catch (...) {
-                    res.status = StatusCode::InternalServerError_500;
-                    error_response["message"] = "Unkown exception occured.";
+                    HttpLibSession::Respond(res, "Unkown exception occured.", 500);
                 }
-                res.set_content(error_response.dump(), HTTP_CONTENT_TYPES.at(kJSON));
-
             });
         }
     };

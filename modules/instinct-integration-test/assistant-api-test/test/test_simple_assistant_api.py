@@ -75,6 +75,10 @@ def test_with_messages_only():
     )
     show_json(messages)
 
+    # delete all records
+    client.beta.threads.delete(thread_id=thread.id)
+    client.beta.assistants.delete(assistant_id=assistant.id)
+
 
 def test_with_multiple_thread_and_run():
     assistant = client.beta.assistants.create(
@@ -124,6 +128,11 @@ def test_with_multiple_thread_and_run():
     run4 = submit_message(MATH_ASSISTANT_ID, thread3, "Thank you!")
     run4 = wait_on_run(run4, thread3)
     pretty_print(get_response(thread3))
+
+    client.beta.threads.delete(thread_id=thread1.id)
+    client.beta.threads.delete(thread_id=thread2.id)
+    client.beta.threads.delete(thread_id=thread3.id)
+    client.beta.assistants.delete(assistant_id=MATH_ASSISTANT_ID)
 
 
 def test_function_tools():
@@ -179,7 +188,7 @@ def test_function_tools():
                             },
                             "choices": {"type": "array", "items": {"type": "string"}},
                         },
-                        "required": ["question_text"],
+                        "required": ["question_text", "question_type"],
                     },
                 },
             },
@@ -239,6 +248,9 @@ def test_function_tools():
 
     run = wait_on_run(run, thread)
     pretty_print(get_response(thread))
+
+    client.beta.threads.delete(thread_id=thread.id)
+    client.beta.assistants.delete(assistant_id=MATH_ASSISTANT_ID)
 
 
 

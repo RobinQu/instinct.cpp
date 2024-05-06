@@ -310,6 +310,9 @@ message CreateMessageRequest {
 
   google.protobuf.Struct metadata = 5;
 
+  // optional
+  string assistant_id = 6;
+
 }
 
 

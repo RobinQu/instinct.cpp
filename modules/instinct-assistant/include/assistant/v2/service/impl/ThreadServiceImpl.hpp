@@ -4,7 +4,6 @@
 
 #ifndef THREADSERVICEIMPL_HPP
 #define THREADSERVICEIMPL_HPP
-#include "assistant/v2/service/IMessageService.hpp"
 #include "assistant/v2/service/IThreadService.hpp"
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
 
@@ -13,11 +12,19 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     class ThreadServiceImpl final: public IThreadService {
         DataMapperPtr<ThreadObject, std::string> thread_data_mapper_;
         DataMapperPtr<MessageObject, std::string> message_data_mapper_;
+        DataMapperPtr<RunObject, std::string> run_data_mapper_;
+        DataMapperPtr<RunStepObject, std::string> run_step_data_mapper_;
     public:
-        ThreadServiceImpl(const DataMapperPtr<ThreadObject, std::string> &thread_data_mapper,
-            const DataMapperPtr<MessageObject, std::string> &message_data_mapper)
+        ThreadServiceImpl(
+            const DataMapperPtr<ThreadObject, std::string> &thread_data_mapper,
+            const DataMapperPtr<MessageObject, std::string> &message_data_mapper,
+            const DataMapperPtr<RunObject, std::string>& run_data_mapper,
+            const DataMapperPtr<RunStepObject, std::string>& run_step_data_mapper
+            )
             : thread_data_mapper_(thread_data_mapper),
-              message_data_mapper_(message_data_mapper) {
+              message_data_mapper_(message_data_mapper),
+              run_data_mapper_(run_data_mapper),
+              run_step_data_mapper_(run_step_data_mapper) {
         }
 
         std::optional<ThreadObject> CreateThread(const ThreadObject &create_request) override {
@@ -68,7 +75,44 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         DeleteThreadResponse DeleteThread(const DeleteThreadRequest &delete_request) override {
+            // TODO needs transaction
             assert_not_blank(delete_request.thread_id(), "should provide thread id for  deletion");
+
+            // check if there are any active run objects
+            SQLContext check_runs_context;
+            check_runs_context["thread_id"] = delete_request.thread_id();
+            check_runs_context["possible_statuses"] = std::vector<std::string> { "in_progress", "cancelling" };
+            check_runs_context["order"] = "desc";
+            check_runs_context["limit"] = 1;
+            const auto transition_runs = EntitySQLUtils::SelectManyRuns(run_data_mapper_, check_runs_context);
+            assert_true(
+                transition_runs.empty(),
+                fmt::format(
+                    "Some run objects in this thread are in active state which prevents delete of this thread. thread_id={}, run_ids={}",
+                    delete_request.thread_id(),
+                    StringUtils::JoinWith(
+                        transition_runs | std::views::transform([](const RunObject& run) { return run.id();}),
+                        ","
+                    )
+                )
+            );
+
+            // delete run objects
+            SQLContext delete_runs_context;
+            delete_runs_context["thread_id"] = delete_request.thread_id();
+            EntitySQLUtils::DeleteManyRuns(run_data_mapper_, delete_runs_context);
+
+            // delete run steps
+            SQLContext delete_run_steps_context;
+            delete_run_steps_context["thread_id"] = delete_request.thread_id();
+            EntitySQLUtils::DeleteManyRunSteps(run_step_data_mapper_, delete_run_steps_context);
+
+            // delete messages
+            SQLContext delete_messages_context;
+            delete_messages_context["thread_id"] = delete_request.thread_id();
+            EntitySQLUtils::DeleteManyMessages(message_data_mapper_, delete_messages_context);
+
+            // delete thread itself
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(delete_request, context);
             const auto count = EntitySQLUtils::DeleteThread(thread_data_mapper_, context);
