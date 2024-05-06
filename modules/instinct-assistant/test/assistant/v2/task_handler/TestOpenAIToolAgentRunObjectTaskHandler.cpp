@@ -133,11 +133,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         LOG_INFO("RecoverAgentState returned: {}", state3->ShortDebugString());
         ASSERT_EQ(state3->previous_steps_size(), 2); // only one continuation and one observation. pause is lost as it's intermediate state.
         ASSERT_TRUE(message_differencer.Compare(state3->previous_steps(0), state2->previous_steps(0)));
-        auto& obsercation_step = state3->previous_steps(1);
-        ASSERT_TRUE(obsercation_step.has_observation());
-        ASSERT_TRUE(obsercation_step.observation().has_openai());
-        ASSERT_EQ(obsercation_step.observation().openai().tool_messages_size(), 1);
-        ASSERT_EQ(obsercation_step.observation().openai().tool_messages(0).content(), "bar");
+        auto& observation_step = state3->previous_steps(1);
+        ASSERT_TRUE(observation_step.has_observation());
+        ASSERT_TRUE(observation_step.observation().has_openai());
+        ASSERT_EQ(observation_step.observation().openai().tool_messages_size(), 1);
+        ASSERT_EQ(observation_step.observation().openai().tool_messages(0).content(), "bar");
 
         // expect to get agent finish with successful response
         // 1. mock message

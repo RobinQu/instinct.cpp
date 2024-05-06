@@ -109,11 +109,11 @@ talking non-sense
     };
 
 
-    class PesuodoEmbeddings final: public IEmbeddingModel {
+    class PesudoEmbeddings final: public IEmbeddingModel {
         std::unordered_map<std::string, Embedding> caches_ = {};
         size_t dim_;
     public:
-        explicit PesuodoEmbeddings(const size_t dim = 512)
+        explicit PesudoEmbeddings(const size_t dim = 512)
                 : dim_(dim) {
         }
 
@@ -153,8 +153,8 @@ talking non-sense
         return std::make_shared<PesudoLLM>();
     }
 
-    static std::shared_ptr<PesuodoEmbeddings> create_pesudo_embedding_model(size_t dim = 512) {
-        return std::make_shared<PesuodoEmbeddings>(dim);
+    static std::shared_ptr<PesudoEmbeddings> create_pesudo_embedding_model(size_t dim = 512) {
+        return std::make_shared<PesudoEmbeddings>(dim);
     }
 
     static OpenAIConfiguration DEFAULT_NITRO_SERVER_CONFIGURATION = {
