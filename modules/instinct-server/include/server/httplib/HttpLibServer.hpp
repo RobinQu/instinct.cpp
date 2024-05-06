@@ -132,8 +132,8 @@ namespace INSTINCT_SERVER_NS {
         requires std::is_invocable_r_v<void, Fn, Req&, HttpLibSession&>
         void PostRoute(const std::string& path, Fn&& fn) {
             LOG_INFO("Route added:  POST {}", path);
-            GetHttpLibServer().Post(path, [&,fn,path](const Request& req, Response& resp) {
-                log_guard log {"POST", path};
+            GetHttpLibServer().Post(path, [&,fn](const Request& req, Response& resp) {
+                log_guard log {"POST", req.path};
                 assert_not_blank(req.body, "request body cannot be empty");
                 auto req_entity = EntityConverter::template Deserialize<Req>(req.body);
                 const HttpLibSession session {req, resp};
@@ -147,8 +147,8 @@ namespace INSTINCT_SERVER_NS {
         requires std::is_invocable_r_v<void, Fn, Req&, HttpLibSession&>
         void GetRoute(const std::string& path, Fn&& fn) {
             LOG_INFO("Route added:  GET {}", path);
-            GetHttpLibServer().Get(path, [&,fn,path](const Request& req, Response& resp) {
-                log_guard log {"GET", path};
+            GetHttpLibServer().Get(path, [&,fn](const Request& req, Response& resp) {
+                log_guard log {"GET", req.path};
                 const HttpLibSession session {req, resp};
                 Req req_entity;
                 CPPTRACE_WRAP_BLOCK(
@@ -161,8 +161,8 @@ namespace INSTINCT_SERVER_NS {
         requires std::is_invocable_r_v<void, Fn, Req&, HttpLibSession&>
         void DeleteRoute(const std::string& path, Fn&& fn) {
             LOG_INFO("Route added:  DELETE {}", path);
-            GetHttpLibServer().Delete(path, [&,fn,path](const Request& req, Response& resp) {
-                log_guard log {"DELETE", path};
+            GetHttpLibServer().Delete(path, [&,fn](const Request& req, Response& resp) {
+                log_guard log {"DELETE", req.path};
                 const HttpLibSession session {req, resp};
                 Req req_entity;
                 CPPTRACE_WRAP_BLOCK(
