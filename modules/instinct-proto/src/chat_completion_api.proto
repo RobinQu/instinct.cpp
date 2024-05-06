@@ -53,12 +53,16 @@ message FunctionTool {
    */
   FunctionParametersSchema parameters = 3;
   message FunctionParametersSchema {
-    string type = 1; // always 'object'
-    map<string, FunctionParameterSchema> properties = 2;
-    message FunctionParameterSchema {
-      string type = 1;
-      string description = 2;
-    }
+    string type = 1;
+    // required for object type
+    map<string, FunctionParametersSchema> properties = 2;
+    // required for array type
+    FunctionParametersSchema items = 3;
+    string description = 4;
+    // optional for object type
+    repeated string required = 5;
+    // optional for string enum type
+    repeated string enum = 6;
   }
   repeated string required = 4;
 }

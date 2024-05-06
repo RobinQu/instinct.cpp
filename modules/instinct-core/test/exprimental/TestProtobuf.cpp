@@ -8,7 +8,7 @@
 namespace INSTINCT_CORE_NS {
     TEST(ProtobufTest, JSONConversion) {
         instinct::assistant::v2::AssistantObject ao;
-        auto fields = ao.mutable_metadata()->mutable_fields();
+        const auto fields = ao.mutable_metadata()->mutable_fields();
         google::protobuf::Value v;
         v.set_bool_value(false);
         fields->emplace("k", v);

@@ -60,7 +60,7 @@ namespace INSTINCT_LLM_NS {
                     // only output required fields
                     continue;
                 }
-                FunctionTool_FunctionParametersSchema_FunctionParameterSchema parameters_schema;
+                FunctionTool_FunctionParametersSchema parameters_schema;
                 switch (field_descriptor->cpp_type()) {
                     case FieldDescriptor::CPPTYPE_INT32:
                     case FieldDescriptor::CPPTYPE_INT64:
@@ -79,7 +79,7 @@ namespace INSTINCT_LLM_NS {
                         parameters_schema.set_type("string");
                         break;
                     default:
-                        // don't setting arg_type
+                        // nested types are not supported yet
                         break;
                 }
                 properties->emplace(field_descriptor->name(), parameters_schema);
