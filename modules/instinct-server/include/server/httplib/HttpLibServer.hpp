@@ -29,13 +29,13 @@ namespace INSTINCT_SERVER_NS {
     /**
      * un-managed pointers to `HttpLibServer`
      */
-    static std::set<HttpLibServer*> RUNNING_HTTP_SERVERS;
+    static std::vector<std::weak_ptr<HttpLibServer>> RUNNING_HTTP_SERVERS;
 
 
     using HttpLibController = HttpController<HttpLibServer>;
     using HttpLibControllerPtr = std::shared_ptr<HttpLibController>;
 
-    class HttpLibServer final: public IManagedServer<HttpLibServer> {
+    class HttpLibServer final: public IManagedServer<HttpLibServer>, public std::enable_shared_from_this<HttpLibServer> {
         ServerOptions options_;
         Server server_;
         HttpLibServerLifeCycleManager life_cycle_manager_;
@@ -81,7 +81,7 @@ namespace INSTINCT_SERVER_NS {
             } else {
                 port = server_.bind_to_any_port(options_.host);
             }
-            RUNNING_HTTP_SERVERS.insert(this);
+            RUNNING_HTTP_SERVERS.push_back(this->shared_from_this());
             life_cycle_manager_.OnServerStart(*this, port);
             LOG_INFO("Server is up and running at port {}", port);
             return port;
@@ -90,7 +90,7 @@ namespace INSTINCT_SERVER_NS {
         void Shutdown() override {
             LOG_INFO("Server is shutting down");
             life_cycle_manager_.BeforeServerClose(*this);
-            RUNNING_HTTP_SERVERS.erase(this);
+            RUNNING_HTTP_SERVERS.push_back(this->shared_from_this());
             server_.stop();
             life_cycle_manager_.AfterServerClose(*this);
         }
@@ -163,7 +163,9 @@ namespace INSTINCT_SERVER_NS {
 
     static void GracefullyShutdownRunningHttpServers() {
         for (auto& server: RUNNING_HTTP_SERVERS) {
-            server->Shutdown();
+            if (const auto ptr = server.lock()) {
+                ptr->Shutdown();
+            }
         }
     }
 }

@@ -116,6 +116,13 @@ namespace instinct::examples::mini_assistant {
 
 }
 
+static void graceful_shutdown(int signal) {
+    LOG_INFO("Begin shutdown due to signal {}", signal);
+    instinct::server::GracefullyShutdownRunningHttpServers();
+    instinct::data::GracefullyShutdownThreadPoolTaskSchedulers();
+    std::exit(0);
+}
+
 int main(int argc, char** argv) {
     using namespace INSTINCT_SERVER_NS;
     using namespace INSTINCT_ASSISTANT_NS::v2;
@@ -151,16 +158,8 @@ int main(int argc, char** argv) {
     fmtlog::startPollingThread();
 
     // register shutdown handler
-    std::signal(SIGINT, [](int signal) {
-        LOG_INFO("Begin shutdown after SIGINT");
-        GracefullyShutdownRunningHttpServers();
-        GracefullyShutdownThreadPoolTaskSchedulers();
-    });
-    std::signal(SIGTERM, [](int signal) {
-        LOG_INFO("Begin shutdown after SIGTERM");
-        GracefullyShutdownRunningHttpServers();
-        GracefullyShutdownThreadPoolTaskSchedulers();
-    });
+    std::signal(SIGINT, graceful_shutdown);
+    std::signal(SIGTERM, graceful_shutdown);
 
     // build context and start http server
     MiniAssistantApplicationContextFactory factory {application_options};
