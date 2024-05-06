@@ -17,6 +17,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/server/HttpController.hpp
         include/server/HttpServerException.hpp
         include/server/httplib/HttpLibSession.hpp
+        include/server/httplib/DefaultErrorController.hpp
 )
 
 find_package(httplib)

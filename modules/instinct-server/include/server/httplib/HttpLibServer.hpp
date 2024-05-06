@@ -101,19 +101,21 @@ namespace INSTINCT_SERVER_NS {
         }
 
         void Use(const MountablePtr<HttpLibServer> &mountable) override {
-
             if (const auto controller = std::dynamic_pointer_cast<HttpLibController>(mountable)) {
                 life_cycle_manager_.AddServerLifeCylce(controller);
                 controller->Mount(*this);
+            } else {
+                mountable->Mount(*this);
             }
-
         }
 
 
         template<typename Req, typename Res, typename Fn, typename EntityConverter=ProtobufUtils>
         requires std::is_invocable_r_v<void, Fn, Req&, HttpLibSession&>
         void PostRoute(const std::string& path, Fn&& fn) {
+            LOG_INFO("Route added:  POST {}", path);
             GetHttpLibServer().Post(path, [&,fn](const Request& req, Response& resp) {
+                assert_not_blank(req.body, "request body cannot be empty");
                 auto req_entity = EntityConverter::template Deserialize<Req>(req.body);
                 const HttpLibSession session {req, resp};
                 try {
@@ -127,10 +129,11 @@ namespace INSTINCT_SERVER_NS {
         template<typename Req, typename Res, typename Fn, typename EntityConverter=ProtobufUtils>
         requires std::is_invocable_r_v<void, Fn, Req&, HttpLibSession&>
         void GetRoute(const std::string& path, Fn&& fn) {
+            LOG_INFO("Route added:  GET {}", path);
             GetHttpLibServer().Get(path, [&,fn](const Request& req, Response& resp) {
-                auto req_entity = EntityConverter::template Deserialize<Req>(req.body);
                 const HttpLibSession session {req, resp};
                 try {
+                    Req req_entity;
                     std::invoke(fn, req_entity, session);
                 } catch (const std::runtime_error& e) {
                     session.Respond(e.what(), 500);
@@ -141,7 +144,9 @@ namespace INSTINCT_SERVER_NS {
         template<typename Req, typename Res, typename Fn, typename EntityConverter=ProtobufUtils>
         requires std::is_invocable_r_v<void, Fn, Req&, HttpLibSession&>
         void DeleteRoute(const std::string& path, Fn&& fn) {
+            LOG_INFO("Route added:  DELETE {}", path);
             GetHttpLibServer().Delete(path, [&,fn](const Request& req, Response& resp) {
+                assert_not_blank(req.body, "request body cannot be empty");
                 auto req_entity = EntityConverter::template Deserialize<Req>(req.body);
                 const HttpLibSession session {req, resp};
                 try {

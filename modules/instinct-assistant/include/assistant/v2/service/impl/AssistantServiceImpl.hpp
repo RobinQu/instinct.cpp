@@ -65,7 +65,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 context["response_format"] = "auto";
             }
 
-            auto id = details::generate_next_object_id("assistant");
+            auto id = details::generate_next_object_id("asst");
             context["id"] = id;
             EntitySQLUtils::InsertOneAssistant(data_mapper_, context);
 

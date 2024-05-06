@@ -11,6 +11,7 @@
 #include "object_store/FileSystemObjectStore.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 #include "assistant/v2/service/AssistantFacade.hpp"
+#include "assistant/v2/task_handler/OpenAIToolAgentRunObjectTaskHandler.hpp"
 #include "server/httplib/HttpLibServer.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
@@ -41,6 +42,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             TaskSchedulerPtr<TaskPayload> task_scheduler;
             AssistantFacade assistant_facade;
             HttpLibServerPtr http_server;
+            TaskHandlerPtr<TaskPayload> run_object_task_handler;
         };
 
         IApplicationContextFactory() = default;

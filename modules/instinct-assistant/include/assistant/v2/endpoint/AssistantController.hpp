@@ -7,6 +7,7 @@
 
 #include "BaseController.hpp"
 #include "assistant/v2/service/AssistantFacade.hpp"
+#include "assistant/v2/tool/RequestUtils.hpp"
 #include "server/httplib/HttpLibServer.hpp"
 
 
@@ -20,7 +21,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         void Mount(HttpLibServer &server) override {
-            server.GetRoute<ListAssistantsRequest, ListAssistantsResponse>("/assistants", [&](const ListAssistantsRequest& req, const HttpLibSession& session) {
+            server.GetRoute<ListAssistantsRequest, ListAssistantsResponse>("/v1/assistants", [&](ListAssistantsRequest& req, const HttpLibSession& session) {
+                RequestUtils::LoadPaginationParameters(session.request, req);
                 session.Respond(facade_.assistant->ListAssistants(req));
             });
 

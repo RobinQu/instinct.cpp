@@ -6,6 +6,7 @@
 #define RUNSTEPCONTROLLER_HPP
 
 #include "BaseController.hpp"
+#include "assistant/v2/tool/RequestUtils.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 
@@ -17,6 +18,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         void Mount(HttpLibServer &server) override {
             server.GetRoute<ListRunStepsRequest, ListRunStepsResponse>("/v1/threads/:thread_id/runs/:run_id/steps", [&](ListRunStepsRequest& req, const HttpLibSession& session) {
+                RequestUtils::LoadPaginationParameters(session.request, req);
                 req.set_thread_id(session.request.path_params.at("thread_id"));
                 req.set_run_id(session.request.path_params.at("run_id"));
                 const auto resp = facade_.run->ListRunSteps(req);

@@ -19,7 +19,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         void Mount(HttpLibServer &server) override {
-            server.GetRoute<ListFilesRequest, ListFilesResponse>("/v1/files", [&](const ListFilesRequest& req, const HttpLibSession& session) {
+            server.GetRoute<ListFilesRequest, ListFilesResponse>("/v1/files", [&](ListFilesRequest& req, const HttpLibSession& session) {
+                if (session.request.has_param("purpose") && StringUtils::IsNotBlankString(session.request.get_param_value("purpose"))) {
+                    FileObjectPurpose purpose;
+                    FileObjectPurpose_Parse(session.request.get_param_value("purpose"), &purpose);
+                    req.set_purpose(purpose);
+                }
                 const auto resp = facade_.file->ListFiles(req);
                 session.Respond(resp);
             });

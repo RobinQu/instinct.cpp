@@ -4,7 +4,10 @@
 #include <CLI/CLI.hpp>
 #include <cmrc/cmrc.hpp>
 
+#include "chat_model/OpenAIChat.hpp"
 #include "database/DBUtils.hpp"
+#include "server/httplib/DefaultErrorController.hpp"
+#include "toolkit/LocalToolkit.hpp"
 
 CMRC_DECLARE(instinct::assistant);
 
@@ -81,6 +84,17 @@ namespace instinct::examples::mini_assistant {
                 .vector_store = nullptr
             };
 
+            // configure task handler for run objects
+            auto builtin_toolkit = CreateLocalToolkit({});
+            context.run_object_task_handler = std::make_shared<OpenAIToolAgentRunObjectTaskHandler>(
+                run_service,
+                message_service,
+                assistant_service,
+                [](const RunObject&) { return CreateOpenAIChatModel(); },
+                builtin_toolkit
+                );
+            context.task_scheduler->RegisterHandler(context.run_object_task_handler);
+
             // configure http server
             const auto http_server = std::make_shared<HttpLibServer>(options_.server);
             const auto assistant_controller = std::make_shared<AssistantController>(context.assistant_facade);
@@ -88,11 +102,13 @@ namespace instinct::examples::mini_assistant {
             const auto message_controller = std::make_shared<MessageController>(context.assistant_facade);
             const auto run_controller = std::make_shared<RunController>(context.assistant_facade);
             const auto thread_controller = std::make_shared<ThreadController>(context.assistant_facade);
+            const auto error_controller = std::make_shared<DefaultErrorController>();
             http_server->Use(assistant_controller);
             http_server->Use(file_controller);
             http_server->Use(message_controller);
             http_server->Use(run_controller);
             http_server->Use(thread_controller);
+            http_server->Use(error_controller);
             context.http_server = http_server;
 
             return context;

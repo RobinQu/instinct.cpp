@@ -32,7 +32,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             if(create_request.messages_size()) {
                 // generate mesage ids
                 for(auto& msg_obj: context["messages"]) {
-                    msg_obj["id"] = details::generate_next_object_id("message");
+                    msg_obj["id"] = details::generate_next_object_id("msg");
                     msg_obj["thread_id"] = thread_id;
                     // manually inserted messages are all completed
                     msg_obj["completed_at"] = ChronoUtils::GetCurrentTimeMillis();

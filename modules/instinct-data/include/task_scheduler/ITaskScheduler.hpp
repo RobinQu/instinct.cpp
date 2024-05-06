@@ -89,6 +89,9 @@ namespace INSTINCT_DATA_NS {
 
     template<typename Payload>
     using TaskSchedulerPtr = std::shared_ptr<ITaskScheduler<Payload>>;
+
+    template<typename Payload>
+    using TaskHandlerPtr = std::shared_ptr<typename ITaskScheduler<Payload>::ITaskHandler>;
 }
 
 #endif //ITASKSCHEDULER_HPP

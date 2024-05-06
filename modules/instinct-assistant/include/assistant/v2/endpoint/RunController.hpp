@@ -18,6 +18,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         void Mount(HttpLibServer &server) override {
             server.PostRoute<CreateRunRequest, RunObject>("/v1/threads/:thread_id/runs", [&](CreateRunRequest& req, const HttpLibSession& session) {
                 req.set_thread_id(session.request.path_params.at("thread_id"));
+                RequestUtils::LoadPaginationParameters(session.request, req);
                 const auto resp = facade_.run->CreateRun(req);
                 if (resp.has_value()) {
                     session.Respond(resp.value());

@@ -70,7 +70,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             SQLContext insert_messages_context;
             insert_messages_context["messages"] = context["thread"]["messages"];
             for (auto& msg_obj: insert_messages_context["messages"]) {
-                msg_obj["id"] = details::generate_next_object_id("message");
+                msg_obj["id"] = details::generate_next_object_id("msg");
                 msg_obj["thread_id"] = thread_id;
                 if (!msg_obj.contains("status")) {
                     msg_obj["status"] = "completed";
@@ -119,7 +119,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // create additional messages
             if (create_request.additional_messages_size() > 0) {
                 for(auto& msg_obj: context["additional_messages"]) {
-                    msg_obj["id"] = details::generate_next_object_id("message");
+                    msg_obj["id"] = details::generate_next_object_id("msg");
                     msg_obj["thread_id"] = create_request.thread_id();
                     msg_obj["run_id"] = run_id;
                     if (!msg_obj.contains("status")) {

@@ -44,7 +44,7 @@ namespace INSTINCT_ASSISTANT_NS {
         namespace details {
             static std::string generate_next_object_id(const std::string_view& prefix) {
                 static SnowflakeIDGenerator<1534832906275L> generator;
-                return fmt::format("{}-{}", prefix, generator.NextID());
+                return fmt::format("{}_{}", prefix, generator.NextID());
             }
 
             static std::string map_file_object_key(FileObjectPurpose purpose, const std::string& file_id) {
