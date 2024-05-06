@@ -1,0 +1,299 @@
+{
+  "run": {
+    "id": "run_nHjr9mg8UqB9tuz9VN84ezbo",
+    "assistant_id": "asst_rmswEYiC7tJTMw3CkHL2x5qn",
+    "cancelled_at": null,
+    "completed_at": null,
+    "created_at": 1714358701,
+    "expires_at": null,
+    "failed_at": 1714358716,
+    "incomplete_details": null,
+    "instructions": "",
+    "last_error": {
+      "code": "invalid_prompt",
+      "message": "Sorry! We've encountered an issue with repetitive patterns in your prompt. Please try again with a different prompt."
+    },
+    "max_completion_tokens": null,
+    "max_prompt_tokens": null,
+    "metadata": {},
+    "model": "gpt-3.5-turbo-16k",
+    "object": "thread.run",
+    "required_action": null,
+    "response_format": "auto",
+    "started_at": 1714358701,
+    "status": "failed",
+    "thread_id": "thread_yI8ronxIqJRrcGGJvT3YSXVs",
+    "tool_choice": "auto",
+    "tools": [
+      {
+        "type": "code_interpreter"
+      }
+    ],
+    "truncation_strategy": {
+      "type": "auto",
+      "last_messages": null
+    },
+    "usage": {
+      "completion_tokens": 309,
+      "prompt_tokens": 8462,
+      "total_tokens": 8771
+    },
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "tool_resources": {}
+  },
+  "steps": {
+    "data": [
+      {
+        "id": "step_yZ8NxOxe6NnCHbTEIJBDosA5",
+        "assistant_id": "asst_rmswEYiC7tJTMw3CkHL2x5qn",
+        "cancelled_at": null,
+        "completed_at": null,
+        "created_at": 1714358714,
+        "failed_at": 1714358716,
+        "last_error": {
+          "code": "invalid_prompt",
+          "message": "Sorry! We've encountered an issue with repetitive patterns in your prompt. Please try again with a different prompt."
+        },
+        "object": "thread.run.step",
+        "run_id": "run_nHjr9mg8UqB9tuz9VN84ezbo",
+        "status": "failed",
+        "step_details": {
+          "tool_calls": [
+            {
+              "id": "call_biJ7xKqqVuRynArDOAC2VjY6",
+              "code_interpreter": {
+                "input": "# Read the file using a different approach\nwith open(file_path, 'r', encoding='latin-1') as file:\n    lines = file.readlines()\n\nlines",
+                "outputs": [
+                  {
+                    "logs": "03\u00b2\u00d9\u00f4\u00faj\u00b2\u00dc{\u00c0\\x8c\u00b2-\\x96\u00ac\\x8e\u00d1?p\\x8e\u00b2\\x86F`\u00e1<X\u00da\u00a9\\\\hD\u00a4\u00d7\u00b0\u00e2^\u00c8\u00b5X\\x01\u00bf\\x1d\\x8d\u00ee\u00b8t6\\x82\\x8dyl5\u00d8t\u00f2\\x08\\x95\u00d8\\x98\\x98=\u00ed\u00e8\u00f3\\x81$\\x80A\\x96\u00cd\\x0f\\x81\\xadW\u00c9\\x84\u00f7FK\\x11\\x89\\x94o\\xad\u00fa\u00e5\\x92\\x1f\\x1d\\n',\n '\u00caL1Xk\\x8f7\\x84\u00c1x\u00a7C\u00bb\u00f3\u00b7\u00c11\u00ef\\x95J\\x13\u00b4\\x82l!B|\\x11\\n',\n 'a\u00f0\\x9d\u00e1\\x9f.\u00ac?\\x9c[\\x17\u00e7E:(]Ui\\t\u00ca\u00c9MC\\x15(\u00d0\\x07\\x10\\n',\n 'k\\x80\u00d8\\x98\"\\xadE#\u00b4\u00fd\u00e6>\u00e3\\x9f\\x82\\x91\u00a7e<0H{\u00be$\u00dc\u00c3\\x11\u00e9\\x7f\\x03O\u00cf\u00cb\\x11\\x92L\\x8f!\u00c6\u00bd\\x01\\x1c\u00ba\u00ecI\u00b4\u00cf\u00b9\\x16\\x01\u00d4[\\x0c4\\x19\\x83\\x03\u00fc\u00d4\u00ee\u00e1\\x90\u00c2\u00c8yM-2p\\x11N\u00ba\u00e7\u00fc\u00a9o\\x17\u00c1y\u00a4\\t\\x0e\u00f0\\x7f\\x80\u00ef\\x11m\u00b3sOB\\x10\u00a2\\x86\u00d3\\x90v5\u00fb\u00c9\\x91\u00a6\u00ff\u00e2\\x13C{\u00bf(P\\x1d\u00de<\u00ddg\u00d3/\\x00\\x00\\x00\u00ff\u00ff\\x03\\x00PK\\x03\\x04\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\u00b5U0#\u00f4\\x00\\x00\\x00L\\x02\\x00\\x00\\x0b\\x00\\x08\\x02_rels/.rels \u00a2\\x04\\x02(\\xa0\\x00\\x02\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\u00ac\\x92MO\u00c30\\x0c\\x86\u00efH\u00fc\\x87\u00c8\u00f7\u00d5\u00dd\\x90\\x10BKwAH\u00bb!T~\\x80I\u00dc\\x0f\u00b5\\x8d\u00a3$\\x1b\u00dd\u00bf\\'\\x1c\\x10T\\x1a\\x83\\x03G\\x7f\u00bd~\u00fc\u00ca\u00db\u00dd<\\x8d\u00ea\u00c8!\u00f6\u00e24\u00ac\\x8b\\x12\\x14;#\u00b6w\\xad\\x86\\x97\u00faqu\\x07*&r\\x96Fq\u00ac\u00e1\u00c4\\x11v\u00d5\u00f5\u00d5\u00f6\\x99GJy(v\u00bd\\x8f*\u00ab\u00b8\u00a8\u00a1K\u00c9\u00df#F\u00d3\u00f1D\u00b1\\x10\u00cf.W\\x1a\\t\\x13\u00a5\\x1c\\x86\\x16=\\x99\\x81Z\u00c6MY\u00deb\u00f8\u00ae\\x01\u00d5BS\u00ed\\xad\\x86\u00b0\u00b77\\xa0\u00ea\\x93\u00cf\\x9b\\x7f\u00d7\\x96\u00a6\u00e9\\n',\n '?\\x889L\u00ec\u00d2\\x99\\x15\u00c8sbg\u00d9\u00ae|\u00c8l!\u00f5\u00f9\\x1aUSh9i\u00b0b\\x9er:\"y_dl\u00c0\u00f3D\\x9b\u00bf\\x13\u00fd|-N\\x9c\u00c8R\"4\\x12\u00f82\u00cfG\u00c7%\\xa0\u00f5\\x7fZ\u00b44\u00f1\u00cb\\x9dy\u00c47\\t\u00c3\u00ab\u00c8\u00f0\u00c9\\x82\\x8b\\x1f\u00a8\u00de\\x01\\x00\\x00\u00ff\u00ff\\x03\\x00PK\\x03\\x04\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\\x92\\x07\\x94\u00ec\\x04\\x01\\x00\\x00?\\x03\\x00\\x00\\x1a\\x00\\x08\\x01xl/_rels/workbook.xml.rels \u00a2\\x04\\x01(\\xa0\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\u00ac\\x92\u00cbj\u00c40\\x0cE\u00f7\\x85\u00fe\\x83\u00d1\u00beq2}P\\x86qf\u00d1R\\x98m\\x9b~\\x80p\\x948Lb\\x07[}\u00e4\u00efkR:\u00c9\u00c0\\x90n\u00b21H\u00c2\u00f7\\x1e\\x89\u00bb\u00db\\x7fw\\xad\u00f8$\\x1f\\x1ag\\x15dI\\n',\n \"\\x82\u00acveck\\x05\u00ef\u00c5\u00cb\u00cd#\\x88\u00c0hKl\\x9d%\\x05\\x03\\x05\u00d8\u00e7\u00d7W\u00bbWj\\x91\u00e3\u00a7`\\x9a>\\x88\u00a8b\\x83\\x02\u00c3\u00dco\u00a5\\x0c\u00daP\\x87!q=\u00d98\u00a9\\x9c\u00ef\\x90c\u00e9k\u00d9\u00a3>bMr\\x93\u00a6\\x0f\u00d2\u00cf5 ?\u00d3\\x14\\x87R\\x81?\\x94\u00b7 \\x8a\u00a1\\x8f\u00ce\u00ffk\u00bb\u00aaj4=;\u00fd\u00d1\\x91\u00e5\\x0b\\x162\u00f0\u00d0\u00c6\\x05D\\x81\u00be&V\u00f0['\\x91\\x11\u00e4e\u00fb\u00cd\\x9a\u00f6\\x1c\u00cfB\\x93\u00fbX\u00ca\u00f1\u00cd\\x96\\x18\u00b25\\x19\u00be\\x9c?\\x06C\u00c4\\x13\u00c7\u00a9\\x15\u00e48Y\\x84\u00b9_\\x13Fc\u00ab\\x9f\\x0c6v\\x829\u00b5\\x96.r\u00b7j(\\x0cz*\u00df\u00d8\u00c7\u00cc\u00cf\u00b31o\u00ff\u00c1\u00c8\u00b3\u00d8\u00e7?\\x00\\x00\\x00\u00ff\u00ff\\x03\\x00PK\\x03\\x04\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\\x11\u00a6\\x91js\\x03\\x00\\x00\u00c4\\x08\\x00\\x00\\x0f\\x00\\x00\\x00xl/workbook.xml\u00acUmo\u00a38\\x10\u00fe~\u00d2\u00fd\\x07\u00e4\u00ef\u00d46o!\u00a8t\\x15B\u00d0UjWU\\x9am\u00ef>U\\x0e8\u00c5*\u00e0\u00ac1M\u00aaj\u00ff\u00fb\\x8dIH\u00db\u00cd\u00e9\\x94\u00eb^\\x94\u00d8\u00b1gx\u00fc\u00cc\u00cc3\u00e6\u00fc\u00cb\u00b6\u00ae\u00acg\u00aeZ!\\x9b\\x18\u00d13\\x82,\u00de\u00e4\u00b2\\x10\u00cdc\\x8c\u00be-2;DV\u00abYS\u00b0J6<F/\u00bcE_.~\u00ff\u00ed|#\u00d5\u00d3R\u00ca'\\x0b\\x00\\x9a6F\u00a5\u00d6\u00eb\\x08\u00e36/y\u00cd\u00da3\u00b9\u00e6\\n\",\n 'XVR\u00d5L\u00c3R=\u00e2v\\xad8+\u00da\\x92s]W\u00d8!$\u00c05\\x13\\n',\n '\u00da!D\u00ea\\x14\\x0c\u00b9Z\\x89\\x9c\u00a72\u00efj\u00de\u00e8\\x1d\\x88\u00e2\\x15\u00d3@\u00bf-\u00c5\u00ba\\x1d\u00d0\u00ea\u00fc\\x14\u00b8\\x9a\u00a9\u00a7nm\u00e7\u00b2^\\x03\u00c4RTB\u00bf\u00f4\\xa0\u00c8\u00aa\u00f3\u00e8\u00f2\u00b1\\x91\\x8a-+\\x08{K}k\u00ab\u00e0\\x1b\u00c0\\x8f\\x12\\x18\\x9c\u00e1$0\\x1d\\x1dU\\x8b\\\\\u00c9V\u00ae\u00f4\\x19@\u00e3\\x1d\u00e9\u00a3\u00f8)\u00c1\\x94~H\u00c1\u00f68\\x07\u00a7!yX\u00f1gajx`\u00a5\\x82O\u00b2\\n',\n '\\x0eX\u00c1\\x1b\\x18%\u00bf\\x8cFAZ\u00bdV\"H\u00de\\'\u00d1\u00fc\\x037\\x07]\\x9c\u00afD\u00c5\u00efv\u00d2\u00b5\u00d8z\u00fd\\x95\u00d5\u00a6R\\x15\u00b2*\u00d6\u00eaY!4/b4\\x82\u00a5\u00dc\u00f0\\x0f\\x1b\u00aa[\\'\\x9d\u00a8\u00c0J\\t\u00a5\\x1e\u00c2\\x17\\x079\u00df(\u00ab\u00e0+\u00d6Uz\\x01B\\x1e\u00e0c\u00e4\\x10\u00c7%\u00c4x\\x820&\\x95\u00e6\u00aaa\\x9aOe\u00a3A\\x87\u00fb\u00b8~Us=\u00f6\u00b4\\x94\\xa0pk\u00ce\u00bfwBqh,\u00d0\\x17\u00c4\\n',\n '#\u00cb#\u00b6lo\\x98.\\xadNU1\u00c2\u00dfZ\\x08\\x1e+\u00b9\\x14\u00cd\u00f7\\x0e\\x0fM\u00d1\u00e2w\u00cad\u00c7m\u00f0\\x1f\u00b4\u00c9r\\x130\\x86\\x88w\u00acv\u00ff\\x7f\\x8e\\x1e\u00c8\u00a9h\u00d0\u00df\\x8dV\\x16\u00fc\u00bfL\u00af\\xa0\\x06\u00b7\u00ec\\x19*\\x02u/\u00f6\\n',\n '{iR\u00ee>4\u00b9\\x8a\u00e8\u00c3\u00ab\\x9f$~8v|\u00db\u00f1\\x9c\u00cc\u00f6SojO\\x08\\x1d\u00d9\u00d4\u00cbFAF\u00ddYJ\u00c7? \\x18\\x15D\u00b9d\\x9d.\u00f7\u00c56\u00d01\u00f2\\xa0\u00b2G\u00a6k\u00b6\\x1d,\\x94D\\x9d(\u00deh\u00bc\\x92\u00fd\u00c76\u00f3O\u00c3`\u00fba\\x026\u00d7\u00da\\x9d\u00e0\\x9b\u00f6M\\x16fim\u00efES\u00c8M\\x8cB\\x12BP/\\x87\u00a5c\\x96\\x9b\u00dex/\\n',\n ']B\\x90!q\\x0e{\\x7fp\u00f1X\\x02c\u00ea\\x07\\x81i\\x02\u00e5\\x18f1zu\u00c7\u00ce\\x94\\x92$\u00b4S\u00eaz\u00b6K=\u00d7\\x1e\u00bbcb\\x87\\x19q\u00a6\\x19I\u00c9\\x98\\x04=#\u00fc\\x8eR\\x7f\\x81\\x02\u00b5~\u00b6\\x9a^\u00f4\u00b7\u00e6R\u00a5pS\\x9b\u00b9O2\u00b2Td\u00ceP\\x97\\x05\u00ed\\x8b8<\\x96\u00b3*\\x07\\x91\\x9b\u00a9w\\x0c)q\u00c6\u00c6\\x83o\u00f5U\u00ab\u00fb\\x19\u00f4%\\x80\\x1e\u00f5\u00c8dD\u00c6\\x9eMf\u00aeo{P*;\u00f4\\\\\u00c7\\x9ez\u00a93\u00f3G\u00b3t\\x96\u00f8\u00a6>\u00e6\\x05\\x10\u00fd\\x1f\u00d7`/\u00f3hx\u00b3\\x18\\x96%Sz\u00a1X\u00fe\\x04\u00ef\u00a39_%\u00ac\\x05A\u00ed\\x02\\x02\u00be\u00ef\u00c9\\x82\\x94\\x12\\x02\\t\u00b5\u00bd\\x8cf\u00b6G!\\x8dI\\x12x \u00ab\u00cc\u00f5G4\\x9d\u00ce\u00fc\u00ec\\x8d\u00ac\\t\\x7f\u00f5\u00c9K(\u00c4\u00fd\u00d3\\x9c\u00e9\\x0e\\x1a\u00d4\u00f4f\u00bf\\x8e\u00cc\\x98\u00edw\\x0f\\x9b\u00ab\u00dd\u00c6\u00beN\\x1fz/\\x9a\u00a7&\u00ef\u00fb\u00a7\u00ff\u00cd\u00f1\\x16\u00a2\u00af\u00f8\\x89\u00ce\u00d9\u00dd\\x89\\x8e\u00d3\u00af\u00d7\\x8b\u00eb\\x13}\u00aff\\x8b\\x87\u00fb\u00ecT\u00e7\u00c9u\\x92NN\u00f7\\x9f\u00cc\u00e7\\x93\u00bf\\x16\u00b3?\\x87#\u00f0?&\\x14\u00f7\\x057c/S<\u00c8\u00e4\u00e2o\\x00\\x00\\x00\u00ff\u00ff\\x03\\x00PK\\x03\\x04\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\\x1a\\x06\u00ab\u00d0v\\x01\\x00\\x003\\x02\\x00\\x00\\x14\\x00\\x00\\x00xl/sharedStrings.xml|Q\u00c9N\u00c2@\\x18\u00be\\x9b\u00f8\\x0eM\u00efP\u00e4`\\x8c)\u00e5`\u00e2\\x13\u00e8\\x0340B\\x13:Ef0z\u00e3\\x02R0\\x84`\\x82\\x14\u00d9\\x04\\x01\u00bd\\x08\u00b8\\x04S\\x96\\x83\u00cf\u00c2\u00cc\u00d0\\x13\u00af\u00e0\\x10\\x12L \\x98\u00fc\\x97\u00f9\u00e6[\u00feE\u00f6_\u00eb\\x11\u00e1\\n',\n '\u00c4\\x90f@\\x9fx\u00e0\u00f6\\x88\\x02\\x80\\x01#\u00a8\u00c1\\x90O<?;u\\x1d\\x89\\x02\u00c2*\\x0c\u00aa\\x11\\x03\\x02\\x9fx\\x03\\x90\u00e8W\u00f6\u00f7d\\x84\u00b0\u00c0\u00b5\\x10\u00f9\u00c40\u00c6\u00d1cIB\\x810\u00d0U\u00e46\u00a2\\x00\u00f2\\x9f\\x0b#\u00a6\u00ab\\x98?c!\\tEc@\\n',\n '\u00a20\\x00X\\x8fH^\\x8f\u00e7P\u00d2U\\n',\n '\\x8aB\u00c0\\x88C\u00ccsyl\\x1cj\\x97qp\u00b2\\x06\\x14\\x19i\\x8a\\x8c\\x15Z\u00b1Y\u00fbE\\x96\u00b0\"KKd\\x85\u00b2n}>\u00e9l\u00a2N\u00c7\u00a2\\x8d\u00b1s{G\u00b3&y\u00ee:\u00c9\\x02\u00b1\\x1f\u00b6H\\xad\\x1a\\xad\u00b6I\u00cf\u00a6\u00cd$\u00a7\\x92ibfg\u00ffs\u00e2f\u00ec\u00a3\u00c8\u00bdI\u00c9d\u00dd\u00c4\u00daXX\\x8c\u00d3^j\\x95\\x17csS>\u00fb\\x9e\u00d0A\\x9d\u00e5Lgj\u00d1j\\x9f~>\u00ce3\\x96\\x8b\u00f4\u00cbN9O\\x06\\x032H\u00ee\u00d6r\\x7f\\x96O\u00b1B\\x8d6\\x8a?\u00c3\\x15{\\x9e-\u00f0\u00a2_Cj\u00f5\u00c8[\\x936\u00d2\u00bb\u00f5\u00b4\\x94\u00a2\u00a5\\x1c)V\u00f8\\x94\u00cc\\x1amMVz\\'\u00bd\u00c2\u00fc\u00a9\u00c5\u00cc\u00d7\u00ed\u00b63\u00cb\\x0c\u00f3\\x9e\u00ef\\x96\u00e4F|\u00f5\u00a4b\u00ff\\x91$~t\u00e5\\x17\\x00\\x00\u00ff\u00ff\\x03\\x00PK\\x03\\x04\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\u00b9\\x16\u00bfd\u00a9\\x02\\x00\\x00W\\x06\\x00\\x00\\n',\n '\\x00\\x00\\x00xl/styles.xml\u00a4Umk\u00db0\\x10\u00fe>\u00d8\\x7f\\x10\u00fa\u00ee\u00cav\u00e3,\\t\u00b6K\u00d3\u00d4P\u00e8\u00ca\\xa0\\x1d\u00ec\u00abb\u00cb\\x89\u00a8^\\x8c\u00a4\u00a4\u00ce\u00c6\u00fe{Ov^\\x1c:\u00b6\u00d1~\\x89O\u00a7\u00d3s\u00cf\u00dd#]\u00d2\u00abV\\n',\n '\u00b4e\u00c6r\\xad2\\x1c]\\x84\\x181U\u00ea\\x8a\u00abU\\x86\u00bf?\\x15\u00c1\\x04#\u00eb\u00a8\u00aa\u00a8\u00d0\\x8aex\u00c7,\u00be\u00ca?\\x7fJ\\xad\u00db\\t\u00f6\u00b8f\u00cc!\\x80P6\u00c3k\u00e7\\x9a\\x19!\u00b6\\\\3I\u00ed\\x85n\\x98\\x82\\x9dZ\\x1bI\\x1d,\u00cd\\x8a\u00d8\u00c60ZY\\x7fH\\n',\n '\\x12\\x87\u00e1\\x98H\u00ca\\x15\u00ee\\x11f\u00b2\u00fc\\x1f\\x10I\u00cd\u00f3\u00a6\\tJ-\\x1b\u00ea\u00f8\\x92\\x0b\u00eev\\x1d\\x16F\u00b2\\x9c\u00dd\\xad\\x946t)\\x80j\\x1b\\x8dh\\x89\u00dahlb\u00d4\\x9aC\\x92\u00ce\u00fb&\\x8f\u00e4\u00a5\u00d1V\u00d7\u00ee\\x02p\\x89\u00aek^\u00b2\u00b7t\u00a7dJhyB\\x02\u00e4\u00f7!E\\t\\t\u00e3\u00b3\u00da[\u00f3N\u00a4\\x111l\u00cb\u00bd|8Ok\\xad\\x9cE\u00a5\u00de(\\x07b\\x02Q\u00df\\x82\u00d9\u00b3\u00d2/\u00aa\u00f0[\u00de\u00d9G\u00e5\u00a9\u00fd\\x89\u00b6T\\x80\\'\u00c6$OK-\u00b4A\\x0e\u00a4\\x83\u00ceE\u00de\u00a3\u00a8d}\u00c4u\u00e3\u00b4E\\x0f\u00d4\\x18\u00fd\u00e2wj*\u00b9\u00d8\u00f5{\u00dd\u00e1N\u00f2}\u00b0\u00e4 \\x80\\x8f\"\\x9e\u00cc\u00fec\u00e1\\x10\\x17\u00e2H-\u00f6,\u00c0\\x91\u00a7\\xa0\u00a1cF\\x15\u00b0@{\u00fbi\u00d7\\x00\\x07\\x05\u00d7\\xad\\x87\u00e9\u00e2\u00fe\\x11\u00bd2t\\x17\u00c5\u00c9\u00e0\\x00\u00e9\\x12\u00e6\u00e9R\\x9b\\n',\n '\u00ae\u00f7\u00a9)\\x07W\\x9e\\n',\n 'V; j\u00f8j\u00ed\u00bfN7\u00f0\u00bb\u00d4\u00ce\u00c1\\x15\u00c8\u00d3\\x8a\u00d3\\x95VT\u00f8Rz\\x90\u00a3\\x01\u00e5\\x94L\\x88G\u00ff\\x04~\u00d4g\u00d8m\\x8d\u00d4F\\x16\u00d2\u00ddU\\x19\\x86\u00c7\u00e4\\x9bp0\u00a1\\x90\u00bd\u00d9\u00e3\u00f5\\x0b\\x8f?D\u00eb\u00b1?\\x0c\\x8b\u00da\u00fa\\x1c\\x1f\\x10\\x07\u00b4\u00cfH\\x1f\u00d3#/z\\x86\\x1f\u00fc\\x9b\\x15p}\u00f6\\x10h\u00b9\u00e1\u00c2q\u00f5\\x07\u00c2\\x80Y\u00b5\u00a7\\x16\\x84^\\x01\u00e7\u00df_\u00d7\\x9cc\\x16\u00e8D\u00c5j\u00ba\\x11\u00ee\u00e9\u00b8\\x99\u00e1\\x93\u00fd\\x95U|#\u00e3c\u00d47\u00be\u00d5\u00ae\\x83\u00c8\u00f0\u00c9\u00be\u00f7JEc\\x9f\\x83\u00b5\u00ee\u00de\u00c2\u00f5\\x82/\u00da\\x18\\x9e\u00e1_\u00b7\u00f3/\u00d3\u00c5m\\x11\\x07\\x93p>\\tF\\x97,\\t\u00a6\u00c9|\\x11$\u00a3\\x9b\u00f9bQL\u00c38\u00bc\u00f9=\\x98\\x02\\x1f\\x98\\x01\u00dd\u00d0\u00caSx]3+`R\\x98}\u00b1\u00fb\\x12\\x1fO\u00be\\x0c\\x0f\\x16=\u00fd\u00ee\\x8e\\x02\u00ed!\u00f7i<\\x0e\u00af\\x93(\\x0c\\x8a\u00cb0\\n',\n \"Fc:\\t&\u00e3\u00cb$(\\x92(^\\x8cG\u00f3\u00db\u00a4H\\x06\u00dc\\x93w\u00ce\\x8a\\x90DQ?u<\u00f9d\u00e6\u00b8d\\x82\u00ab\\x83V\\x07\\x85\\x86^\\x10\\t\\x96\\x7f)\\x82\\x1c\\x94 \u00a7\\x7f\\x84\u00fc\\x15\\x00\\x00\u00ff\u00ff\\x03\\x00PK\\x03\\x04\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\\x14\\x08\u00b5\\x80P\\x03\\x00\\x00v\\x08\\x00\\x00\\x18\\x00\\x00\\x00xl/worksheets/sheet1.xml\\x9c\\x93\u00db\\x8e\\x9b0\\x10\\x86\u00ef+\u00f5\\x1d,\u00df\\x13\\x03!\u00b4\\xa0\\x90\\x15I6\u00ea\u00deU=^\\x1b3\\x04+6\u00a6\u00b6sR\u00d5w\u00ef@\\x94\u00ecJ\u00b9\\x89V\\x1c4\\x8c\u00ed\u00ef\\x9f\u00c1\u00bf\u00e7O'\\xad\u00c8\\x01\u00ac\\x93\u00a6+h4\\t)\\x81N\\x98Zv\u00db\\x82\u00fe\u00fc\u00b1\\t>S\u00e2<\u00efj\u00aeL\\x07\\x05=\\x83\u00a3O\\x8b\\x8f\\x1f\u00e6Gcw\u00ae\\x05\u00f0\\x04\\t\\x9d+h\u00eb}\\x9f3\u00e6D\\x0b\\x9a\u00bb\\x89\u00e9\u00a1\u00c3\\x91\u00c6X\u00cd=~\u00da-s\u00bd\\x05^\\x8f\\x8b\u00b4bq\\x18\u00a6Ls\u00d9\u00d1\\x0b!\u00b7\\x8f0L\u00d3H\\x01k#\u00f6\\x1a:\\x7f\\x81XP\u00dcc\u00fd\u00ae\\x95\u00bd\u00bb\u00d2\u00b4x\\x04\u00a7\u00b9\u00dd\u00ed\u00fb@\\x18\u00dd#\u00a2\\x92J\u00fa\u00f3\\x08\u00a5D\\x8b\u00fce\u00db\\x19\u00cb+\\x85}\\x9f\u00a2\\x84\\x0br\u00b2x\u00c7\u00f8L\u00af2c\u00feNIKa\\x8d3\\x8d\\x9f \\x99]j\u00beo?c\\x19\u00e3\u00e2F\u00ba\u00ef\u00ff!L\\x940\\x0b\\x079l\u00e0+*~_I\u00d1\u00ec\u00c6\\x8a_a\u00d3w\u00c2\u00d2\\x1bl\u00f8]6\u00df\u00cb\u00ba\\xa0\\x7f\\x93,\u00c5+\u00ce\\x828z.\\x83\u00e5,\\x89\\x82r\\x15\\x87\u00c1\u00ac\u00dc,\u00b3O\u00cbx\\x1d\\x96\u00e5?\u00ba\\x98\u00d7\\x12wx\u00e8\\x8aXh\\n\",\n 'ZF\u00f9s\\x14R\u00b6\\x98\\x8f\\x06\u00fa%\u00e1\u00e8\u00de\u00c4\u00c4\u00f3\u00ea;(\\x10\\x1eP$\u00a2d\u00f0ge\u00ccn\\x98\u00f8\\x82\u00a9\\x10\\x91n\\x9c0 \u00b9\u00f0\u00f2\\x00+P\u00aa\\xa0\u00eb\\x04-\u00feg\\x14\u00c1\\x10\\x05\u00d8M\u00e1m|U\u00db\\x8c\\x8e\u00fejI\u00c5\\x1d\u00ac\\x8c\u00fa-k\u00df\u00a2$\\x9e\\x9c\\x1a\\x1a\u00beW\u00fe\\x9b9~\\x01\u00b9m=fS\u00ec|\u00b0N^\\x9f\u00d7\u00e0\\x04z\\x16K\\x99\u00c4\\x83\\x8c0\\n',\n '\\x99\u00f8&Z\\x0eg\\x0f-\u00c7O\\x97\u00da/\u00c8i6\\x89\u00d2$L\u00e3\\x19%b\u00ef\u00bc\u00d1W\\xad\u00b1\u00caq\u00fd\\x7f\\x00\\x00\\x00\u00ff\u00ff\\x00\\x00\\x00\u00ff\u00ff\\x94\\x94Mn\\x830\\x10\\x85\u00af\\x82X\u00b5\\x9b\\x18\\x83\\x7f\\x91c\u00a9V\u00ba\u00ec\u00aa\u00ea\\x01\\x10%\u00ea*\\xadbD\u00d2\u00dbw0h,,\"\u00d5;\u00ecy\u00f0\u00bd\u00d1\\x9b\u00c1\u00f8\u00afa\\x18O\u00dd\u00d8Ys\u00fd\u00be\\x15\u00d7cI\u00cb\u00c2\u00fft\\x17\\x0fO-/\\x8b;e]\u00df~\u00fe\\x9e\\x06\u00df\\x0f\\x97\u00f1XV\\x87\u00ba\u00b4\u00a6\\x9f\u00a5/\\xa0\\x85\\x1b\\x0f\u00e7\u00c9V\\x86L\u00d6\\x90~\\xad9\\x1an\u00a5\\x94b[x\\x9d\\x0bg\u00fb\u00fe\u00f1\u00f6\u00e4Z\u00f7l\u00c8y~\\x9bJ\\xad\u00d9\\x81\u00a3\\x94\\x80\\x1b\u00b4TgX\\x02-Z\u00a2\\x89\u00a5\u00d9\u00f8d\\x1bN\u00e5>\u00a7\u00c9\u00e0\\x80\\x169u\u00c2i\\x02G\u00a8\\x07\\x18\\x96\\x81\\x01-b\\x9a\\x04\u00c3\\x02F)\u00bd\u00df\\n',\n '\\x84\u00f7\u00ef A\\x8b\\x18\\x96`x\u00c0PZ\u00c767\u00e9\\x88\\x0c\\x0eh\\x91\\x13\u00c3\\x0e\u00c3\u00e4\u00c4\u00c2\\x11*N\u00d2\\x86#38\\xa0EN2\\x7fN\\x06\\x8e\u00e6\u00b1\u00cf\\n',\n 'Fe`@\\x8b\\x98\\x18\u00f6\u00d2\\x8eZ\\x87`?\\x1c\\x9dA\\x01-RT\\x12\\x8e^\u00c3Q\u00fa\u00d1\u00f2\u00d0*g\u00a1A\\x8c\u00ac8WKG\u00f0\u00a5\u00b0\u00aa4\\x1d\\x04\\x12\u00ff\"\\x7f\\x00\\x00\\x00\u00ff\u00ff\\x00\\x00\\x00\u00ff\u00ff\u00b2)HLO\u00f5M,J\u00cf\u00cc+V\u00c8IM+\u00b1U2\u00d03WR(\u00caL\u00cf\\x80\u00b1K\u00f2\\x0b\u00c0\u00a2\u00a6J\\n',\n 'I\u00f9%%\u00f9\u00b90^FjbJj\\x11\\x88g\u00ac\u00a4\\x90\\x96\\x9f_\\x02\u00e3\u00e8\u00db\u00d9\u00e8\\x97\u00e7\\x17e\\x17g\u00a4\u00a6\\x96\u00d8\\x01\\x00\\x00\\x00\u00ff\u00ff\\x03\\x00PK\\x03\\x04\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\u00f6`\u00b4A\u00b8\\x07\\x00\\x00\\x11\"\\x00\\x00\\x13\\x00\\x00\\x00xl/theme/theme1.xml\u00ecZ\u00cd\\x8f\\x1b\u00b7\\x15\u00bf\\x07\u00c8\u00ff@\u00cc]\u00d6\u00cc\u00e8{a9\u00d0\u00a77\u00f6\u00eez\u00e1\\x95]\u00e4HI\\x94\\x86^\u00cep@R\u00bb+\\x14\\x01\\n',\n '\u00e7\u00d4K\\x81\\x02i\u00d1K\\x81\u00dez(\\x8a\\x06h\\x80\\x06\u00b9\u00e4\\x8f1`#M\u00ff\\x88<rF\\x9a\u00e1\\x8a\\x8a\u00bd\u00fe@\\x92bw/3\u00d4\u00ef=\u00fe\u00e6\u00bd\u00c7\u00c77\\x8fs\u00f7\\x93\u00ab\\x98\u00a1\\x0b\"$\u00e5I\u00d7\\x0b\u00ee\u00f8\\x1e\"\u00c9\\x8c\u00cfi\u00b2\u00eczO&\u00e3J\u00dbCR\u00e1d\\x8e\\x19OH\u00d7[\\x13\u00e9}r\u00ef\u00e3\\x8f\u00ee\u00e2\\x03\\x15\\x91\\x98 \\x90O\u00e4\\x01\u00eez\\x91R\u00e9A\u00b5*g0\\x8c\u00e5\\x1d\\x9e\\x92\\x04~[p\\x11c\\x05\u00b7bY\\x9d\\x0b|\\tzcV\\n',\n '}\u00bfY\\x8d1M<\\x94\u00e0\\x18\u00d4>Z,\u00e8\\x8c\\xa0\\x89V\u00e9\u00dd\u00db(\\x1f1\u00b8M\\x94\u00d4\\x033&\u00ce\u00b4jbI\\x18\u00ec\u00fc<\u00d0\\x08\u00b9\\x96\\x03&\u00d0\\x05f]\\x0f\u00e6\\x99\u00f3\u00cb\\t\u00b9R\\x1ebX*\u00f8\u00a1\u00eb\u00f9\u00e6\u00cf\u00ab\u00de\u00bb[\u00c5\\x07\u00b9\\x10S{dKrc\u00f3\\x97\u00cb\u00e5\\x02\u00f3\u00f3\u00d0\u00cc)\\x96\u00d3\u00ed\u00a4\u00fe(l\u00d7\\x83\\xad~\\x03`j\\x177j\u00eb\u00ff\\xad>\\x03\u00c0\u00b3\\x19<i\u00c6\u00a5\u00ac3h4\u00fdv\\x98cK\\xa0\u00ec\u00d2\u00a1\u00bb\u00d3\\n',\n \"j6\u00be\u00a4\u00bf\u00b6\u00c39\u00e84\u00fba\u00dd\u00d2o@\\x99\u00fe\u00fa\u00ee3\\x8e;\u00a3a\u00c3\u00c2\\x1bP\\x86o\u00ec\u00e0{~\u00d8\u00ef\u00d4,\u00bc\\x01e\u00f8\u00e6\\x0e\u00be>\u00ea\u00b5\u00c2\\x91\\x857\\xa0\\x88\u00d1\u00e4|\\x17\u00ddl\u00b5\u00db\u00cd\\x1c\u00bd\\x85,8;t\u00c2;\u00cd\u00a6\u00df\\x1a\u00e6\u00f0\\x02\\x05\u00d1\u00b0\\x8d.=\u00c5\\x82'j_\u00ac\u00c5\u00f8\\x19\\x17c\\x00h \u00c3\\x8a&H\\xadS\u00b2\u00c03\\x88\u00e2^\u00aa\u00b8DC*S\\x86\u00d7\\x1eJq\u00c2%\\x0c\u00fba\\x10@\u00e8\u00d5\u00fdp\u00fbo,\\x8e\\x0f\\x08.Ik^\u00c0D\u00ee\\x0ci>H\u00ce\\x04MU\u00d7{\\x00Z\u00bd\\x12\u00e4\u00e57\u00df\u00bcx\u00fe\u00f5\\x8b\u00e7\u00ffy\u00f1\u00c5\\x17/\\x9e\u00ff\\x0b\\x1d\u00d1e\u00a42U\\x96\u00dc!N\\x96e\u00b9\\x1f\u00fe\u00fe\u00c7\u00ff\u00fd\u00f5w\u00e8\u00bf\u00ff\u00fe\u00db\\x0f_\u00fe\u00c9\\x8d\\x97e\u00fc\u00ab\\x7f\u00fe\u00fe\u00d5\u00b7\u00df\u00fd\\x94zXj\\x85)^\u00fe\u00f9\u00abW_\\x7f\u00f5\u00f2/\\x7f\u00f8\u00fe\\x1f_:\u00b4\u00f7\\x04\\x9e\\x96\u00e1\\x13\\x1a\\x13\\x89N\u00c8%z\u00cccx@c\\n\",\n '\\x9b?\\x99\\x8a\\x9bIL\"L-\\t\\x1c\\x81n\\x87\u00ea\\x91\\x8a,\u00e0\u00c9\\x1a3\\x17\u00aeOl\\x13>\\x15\\x90e\\\\\u00c0\u00fb\u00abg\\x16\u00d7\u00b3H\u00ac\\x14u\u00cc\u00fc0\\x8a-\u00e01\u00e7\u00ac\u00cf\\x85\u00d3\\x00\\x0f\u00f5\\\\%\\x0bOV\u00c9\u00d2=\u00b9X\\x95q\\x8f1\u00bep\u00cd=\u00c0\\x89\u00e5\u00e0\u00d1*\\x85\u00f4J]*\\x07\\x11\u00b1h\\x9e2\\x9c(\u00bc$\\tQH\u00ff\u00c6\u00cf\\tq<\u00ddg\\x94Zv=\u00a63\u00c1%_(\u00f4\\x19E}L\\x9d&\\x99\u00d0\u00a9\\x15H\\x85\u00d0!\\x8d\u00c1/k\\x17Ap\u00b5e\\x9b\u00e3\u00a7\u00a8\u00cf\\x99\u00eb\u00a9\\x87\u00e4\u00c2F\u00c2\u00b2\u00c0\u00ccA~B\\x98e\u00c6\u00fbx\u00a5p\u00ecR9\u00c11+\\x1b\u00fc\\x08\u00ab\u00c8E\u00f2l-fe\u00dcH*\u00f0\u00f4\\x920\\x8eFs\"\u00a5K\u00e6\\x91\\x80\u00e7-9\u00fd!\\x86\u00c4\u00e6t\u00fb1[\u00c76R(z\u00ee\u00d2y\\x849/#\\x87\u00fc|\\x10\u00e18ur\u00a6IT\u00c6~*\u00cf!D1:\u00e5\u00ca\\x05?\u00e6\u00f6\\n',\n '\u00d1\u00f7\u00e0\\x07\\x9c\u00ecu\u00f7SJ,w\u00bf>\\x11<\\x81\\x04W\u00a6T\\x04\\x88\u00fee%\\x1c\u00be\u00bcO\u00b8\u00bd\\x1e\u00d7l\\x81\\x89+\u00cb\u00f4Dle\u00d7\\x9e\\xa0\u00ce\u00e8\u00e8\u00af\\x96Vh\\x1f\\x11\u00c2\u00f0%\\x9e\\x13\\x82\\x9e|\u00ea`\u00d0\u00e7\u00a9e\u00f3\\x82\u00f4\\x83\\x08\u00b2\u00ca!q\\x05\u00d6\\x03l\u00c7\u00aa\u00beO\\x88\\x842I\u00d75\u00bb)\u00f2\\x88J+d\u00cf\u00c8\\x92\u00ef\u00e1s\u00bc\u00be\\x96x\u00d68\\x89\u00b1\u00d8\u00a7\u00f9\\x04\u00bcn\\x85\u00eeT\u00c0btPx\u00c4f\u00e7e\u00e0\\t\\x85\u00f2\\x0f\u00e2\u00c5i\\x94G\\x12t\\x94\\x82{\u00b4O\u00ebi\\x84\\xad\u00bdK\u00dfKw\u00bc\u00ae\\x85\u00e5\u00bf7Yc\u00b0.\\x9f\u00ddt]\\x82\\x0c\u00b9\u00b1\\x0c$\u00f67\u00b6\u00cd\\x043k\\x82\"`&\\x98\u00a2#W\u00ba\\x05\\x11\u00cb\u00fd\\x85\\x88\u00deW\\x8d\u00d8\u00ca)\u00b7\u00b0\\x17m\u00e1\\x06(\\x8c\u00acz\\'\u00a6\u00c9\u00eb\\x8a\\x9f\\x13,\\x04\u00bf\u00fcyj\\x9f\\x0fV\u00f5\u00b8\\x15\u00bfK\u00bd\u00b3/\u00af\\x1c^\u00abr\u00f6\u00e1~\\x85\u00b5\u00cd\\x10\u00af\\x92S\\x02\u00db\u00c9n\u00e2\u00ba-mnK\\x1b\u00ef\u00ff\u00be\u00b4\u00d9\u00b7\\x96o\\x0b\\x9a\u00db\\x82\u00e6\u00b6\\xa0q\u00bd\\x82}\\x90\\x82\u00a6\u00a8a\\xa0\u00bc)Z=\u00a6\u00f1\\x13\u00ef\u00ed\u00fb,(cgj\u00cd\u00c8\\x914\\xad\\x1f\\t\u00af5\u00f31\\x0c\\x9a\\x9e\\x94iLn\u00fb\\x80i\\x04\\x97\u00fay`\\x02\\x0b\u00b7\\x14\u00d8\u00c8 \u00c1\u00d5o\u00a8\\x8a\u00ce\"\\x9cB\\x7f(0]\u00cc\u00a5\u00ccU/%J\u00b9\\x84\u00b6\\x91\\x196\u00fdTrM\u00b7i>\\xad\u00e2c>\u00cf\u00da\\x9d\u00a6\u00bf\u00e4g&\\x94X\\x15\u00e3~\\x03\\x1aO\u00d98\u00b4\u00aaT\\x86n\u00b6\u00f2A\u00cdoC\u00dd\u00b0]\\x9aV\u00eb\\x86\\x80\\x96\u00bd\\t\\x89\u00d2d6\\x89\\x9a\\x83Dk3\u00f8\\x1a\\x12\u00bas\u00f6~Xt\\x1c,\u00daZ\u00fd\u00c6U;\u00a6\\x00j[\u00af\u00c0{7\\x82\u00b7\u00f5\u00ae\u00d7\u00a8g\\x8c\\xa0#\\x075\u00fa\\\\\u00fb)s\u00f5\u00c6\u00bb\u00da9\u00ef\u00d5\u00d3\u00fb\\x8c\u00c9\u00ca\\x11\\x00\\xad\u00c5]Ow4\u00d7\u00bd\\x8f\u00a7\\x9f.\\x0b\u00b57\u00f0\u00b4E\u00c28%\\x0b+\\x9b\\x84\u00f1\\x95)\u00f0d\\x04o\u00c3yt\\x96\u00fb\u00ee?\\x15p7\u00f5u\u00a7p\u00a9EO\\x9bb\u00b3\\x1a\\n',\n '\\x1a\\xad\u00f6\\x87\u00f0\u00b5N\"\u00d7r\\x03K\u00ca\\x99\\x82%\u00e8\\x12\u00d6x\\x08\\x8b\u00ceC3\\x9cv\u00bd\\x05\u00f4\\x8d\u00e12N!x\u00a4~\u00f7\u00c2l\\t\\x87/3%\u00b2\\x15\u00ff6\u00a9%\\x15R\\n',\n '\u00b1\\x8c2\\x8b\\x9b\u00ac\\x93\u00f9\\'\u00a6\\x8a\\x08\u00c4h\u00dc\u00f5\u00f4\u00f3o\u00c3\\x81%&\\x89d\u00e4:\u00b0t\\x7f\u00a9\u00e4B\u00bd\u00e0~i\u00e4\u00c0\u00eb\u00b6\\x97\u00c9bAf\u00aa\u00ec\u00f7\u00d2\\x88\u00b6tv\\x0b)>K\\x16\u00ce_\\x8d\u00f8\u00db\\x83\u00b5$_\\x81\u00bb\u00cf\u00a2\u00f9%\\x9a\u00b2\\x95x\\x8c!\u00c4\\x1a\\xad@{wN%\\x1c\\x1f\\x04\\x99\u00ab\u00e7\\x14\u00ce\u00c3\u00b6\\x99\u00ac\\x88\u00bfk;S\\x9e\u00fd\\xadC\u00ae\"\\x1fc\\x96F8\u00dfR\u00ca\u00d9<\\x83\\x9b\\n',\n 'eK\u00c7\u00dcmmP\u00ba\u00cb\\x9f\\x19\\x0c\u00bak\u00c2\u00e9R\u00ef\u00b0\u00ef\u00bc\u00ed\u00be~\u00af\u00d6\\x96+\u00f6\u00c7N\u00b1iZiEo\\x9b\u00eel\u00fa\u00e1v\u00f9\\x12\u00abb\\x17\u00b5Xe\u00b9\u00fbz\u00ce\u00edl\\x92\\x1d\\x04\u00aas\\x9bx\u00f7\u00bd\u00bfD\\xad\\x98\u00cc\u00a2\u00a6\\x19\u00ef\u00e6a\\x9d\u00b4\u00f3Q\\x9b\u00da{\u00ac\\x08J\u00bbOs\\x8f\u00dd\u00b6\\x9b\\x84\u00d3\\x12o\u00bb\u00f5\\x83\u00dc\u00f5\u00a8\u00d5;\u00c4\u00a6\u00b04\\x81o\\x0e\u00ce\u00cbg\u00db|\u00fa\\x0c\\x92\u00c7\\x10N\\x11W,;\u00edf\\t\u00dc\\x99\u00d22=\\x15\u00c6\u00b7S>_\u00e7\\x97Lf\\x89&\u00f3\u00b9.J\u00b3T\u00fe\\x98,\\x10\\x9d_u\u00bd\u00d0U9\u00e6\\x87\u00c7y5\u00c0\\x12@\\x9b\\x9a\\x17V\u00d8V\u00d0Y\u00ed\u00d9\\x82z\u00b3\u00cbE\u00b3\\x05\u00bb\\x15\u00ce\u00ca\u00d8k\u00f5\u00aa-\u00bc\\x95\u00d8\\x1c\u00b3n\\x85Mk\u00d1E[]mN\u00d4u\\xadnf\u00d6\\x0e\u00cb\\x9e\u00da\u00a4ac)\u00b8\u00da\u00b5\"\u00b4\u00c9\\x05\\x86\u00d29;\u00cc\u00cdr/\u00e4\\x99+\\x95W\u00dap\\x85V\\x82v\u00bd\u00df\u00fa\\x8d^}\\x106\\x06\\x15\u00bf\u00dd\\x18U\u00ea\u00b5\u00ba_i7z\u00b5J\u00af\u00d1\u00a8\\x05\u00a3F\u00e0\\x0f\u00fb\u00e1\u00e7@OEq\u00d0\u00c8\u00be|\\x18\u00c3i\\x10[\u00e7\u00df?\\x98\u00f1\\x9do \u00e2\u00cd\\x81\u00d7\\x9d\\x19\\x8f\u00ab\u00dc|\u00e3P5\u00de7\u00df@\\x04\u00e1\u00feo \u00c0\\x91@+\\x1c\\x05\u00f5\u00b0\\x17\\x0e*\\x83a\u00d0\u00ac\u00d4\u00c3a\u00b3\u00d2n\u00d5z\\x95A\u00d8\\x1c\\x86=\u00d8\u00b4\\x9b\u00e3\u00de\u00e7\\x1e\u00ba0\u00e0\\xa0?\\x1c\\x8e\u00c7\\x8d\u00b0\u00d2\\x1c\\x00\u00ae\u00ee\u00f7\\x1a\\x95^\u00bf6\u00a84\u00db\u00a3~8\\x0eF\u00f5\u00a1\\x0f\u00e0|\u00fb\u00b9\\x82\u00b7\\x18\\x9dss[\u00c0\u00a5\u00e1u\u00efG\\x00\\x00\\x00\u00ff\u00ff\\x03\\x00PK\\x03\\x04\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\u00c2^Y\\x08\\x90\\x01\\x00\\x00\\x1b\\x03\\x00\\x00\\x10\\x00\\x08\\x01docProps/app.xml \u00a2\\x04\\x01(\\xa0\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x9c\\x92Mo\u00db0\\x0c\\x86\u00ef\\x03\u00fa\\x1f\\x0c\u00dd\\x1b9mQ\\x0c\\x81\u00acbHW\u00f4\u00b0b\\x01\\x92vgN\u00a6c\u00a1\u00b2$\\x88\u00ac\\x91\u00ec\u00d7O\u00b6\u00d1\u00d4\u00d9v\u00da\\x8d\\x1f/^>\u00a2\u00a8\u00ee\\x0e\\x9d+zLd\\x83\u00af\u00c4rQ\\x8a\\x02\u00bd\\t\u00b5\u00f5\u00fbJ<\u00ef\\x1e.?\\x8b\\x82\\x18|\\n',\n '.x\u00ac\u00c4\\x11I\u00dc\u00e9\\x8bOj\\x93B\u00c4\u00c4\\x16\u00a9\u00c8\\x16\\x9e*\u00d12\u00c7\\x95\\x94dZ\u00ec\\x80\\x16\u00b9\u00eds\u00a7\\t\u00a9\\x03\u00cei\u00da\u00cb\u00d04\u00d6\u00e0}0o\\x1dz\\x96Wey+\u00f1\u00c0\u00e8k\u00ac/\u00e3\u00c9PL\\x8e\u00ab\\x9e\u00ff\u00d7\u00b4\\x0ef\u00e0\u00a3\\x97\u00dd1f`\\xad\u00be\u00c4\u00e8\u00ac\\x01\u00ce\u00af\u00d4O\u00d6\u00a4@\u00a1\u00e1\u00e2\\t\\x8c\u00f5\\x1c\u00a8-\u00be\\x1e\\x0c:%\u00e72\\x959\u00b7h\u00de\\x92\u00e5\u00a3.\\x95\\x9c\u00a7jk\u00c0\u00e1:\\x8f\u00d0\\n',\n '8B%?\\n',\n '\u00ea\\x11aX\u00df\\x06l\"\\xadz^\u00f5h8\u00a4\\x82\u00ec\u00af\u00bc\u00c0+Q\u00fc\\x04\u00c2\\x01\u00ac\\x12=$\\x0b\\x9e3\u00e0 \\x9b\\x921v\\x918\u00e9\\x1f!\u00bdR\\x8b\u00c8\u00a4d\\x16L\u00c51\\x9ck\u00e7\u00b1\u00bd\u00d1\u00cbQ\\x90\\x83s\u00e1`0\\x81\u00e4\u00c69\u00e2\u00ce\u00b2C\u00fa\u00del \u00f1?\\x88\\x97s\u00e2\\x91a\u00e2\\x9dp\u00b6\\x03\u00df4s\u00ce7>9O\u00fa\u00c3{\\x1d\u00ba\\x08\u00fe\\x98\\x1b\u00a7\u00e8\\x9b\u00f5\u00af\u00f4\\x1cw\u00e1\\x1e\\x18\u00df\u00d7y^T\u00db\\x16\\x12\u00d6\u00f9\\x07N\u00eb>\\x15\u00d4c\u00dedr\\x83\u00c9\u00ba\\x05\u00bf\u00c7\u00fa]\u00f3wc8\\x83\\x97\u00e9\u00d6\u00f5\u00f2vQ^\\x97\u00f9_g5%?\u00aeZ\u00ff\\x06\\x00\\x00\u00ff\u00ff\\x03\\x00PK\\x03\\x04\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00AA\\x7fCD\\x01\\x00\\x00_\\x02\\x00\\x00\\x11\\x00\\x08\\x01docProps/core.xml \u00a2\\x04\\x01(\\xa0\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x8c\\x92\u00c1N\u00c30\\x10D\u00efH\u00fcC\u00e4{\u00e28\u00a5\\x05\u00ac$\\x95\\x00\u00f5\u00d4J \\x8a@\u00dc,{\\x9bF$\u00b6e\u00bb\u00a4\u00fd{\\x9c\u00a4M\\x83\u00ca\\x81\u00a3wf\u00df\u00ce\u00ae\\x9c\u00ce\u00f7u\\x15|\\x83\u00b1\u00a5\\x92\\x19\"Q\\x8c\\x02\\x90\\\\\\x89R\\x16\\x19z[/\u00c2;\\x14X\u00c7\u00a4`\\x95\\x92\\x90\u00a1\\x03X4\u00cf\u00af\u00afR\u00ae)W\\x06\\x9e\\x8d\u00d2`\\\\\\t6\u00f0$i)\u00d7\\x19\u00da:\u00a7)\u00c6\\x96o\u00a1f6\u00f2\\x0e\u00e9\u00c5\\x8d25s\u00fei\\n',\n '\u00ac\\x19\u00ffb\\x05\u00e0$\\x8eg\u00b8\\x06\u00c7\\x04s\\x0c\u00b7\u00c0P\\x0fDtD\\n',\n '> \u00f5\u00ceT\\x1d@p\\x0c\\x15\u00d4 \\x9d\u00c5$\"\u00f8\u00ecu`j\u00fbgC\u00a7\\x8c\\x9cu\u00e9\\x0e\u00da\u00eft\\x8c;f\\x0b\u00de\\x8b\\x83{o\u00cb\u00c1\u00d84M\u00d4L\u00ba\\x18>?\u00c1\\x1f\u00ab\u00e5k\u00b7jX\u00ca\u00f6V\\x1cP\\x9e\\n',\n 'N\u00b9\\x01\u00e6\\x94\u00c9\\x97J\\x16\u00c1\u00cb.\u00c5\u00a3Z{\u00bf\\x8aY\u00b7\u00f2\u00a7\u00de\\x94 \\x1e\\x0eg\u00db\u00a5\u00e4i]\u00f8\\x1e\\t\"\u00f0qh\\x1f\u00fe\u00a4\u00bcO\\x1e\\x9f\u00d6\\x0b\\x94\\'qr\\x13\u00c6$$\u00f7\u00eb8\u00a1dB\u00a7\u00b3\u00cfv\u00f2\u00af\u00fe6^_\u00a8\\x8f\u00f3\u00ffG$\\t\\x9d\u00de\u00d2\u00e4vD<\\x01\u00f2\\x14_|\\x89\u00fc\\x07\\x00\\x00\u00ff\u00ff\\x03\\x00PK\\x03\\x04\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\u00f2~u\\x08\\x95\\x00\\x00\\x00\u00a9\\x00\\x00\\x00\\x10\\x00\\x00\\x00xl/calcChain.xml<\\x8eA\\n',\n '\\x021\\x10\\x04\u00ef\\x82\\x7f\\x08swg\u00d7\\x83\\x88$\u00d9\\x83\u00e8\\x0b\u00f4\\x01!;\\x9a@2Y2A\u00f4\u00f7\u00c6\\x8b\\x97\\x86\u00a2\u00a1\u00ba\u00f5\u00fc\u00ceI\u00bd\u00a8J,l`\\x1aFP\u00c4\u00be,\\x91\\x9f\\x06\u00ee\u00b7\u00eb\u00ee\\x08J\\x9a\u00e3\u00c5\u00a5\u00c2d\u00e0C\\x02\u00b3\u00ddn\u00b4w\u00c9\\x9f\\x83\\x8b\u00ac\u00ba\\x81\u00c5@hm=!\\x8a\\x0f\\x94\\x9d\\x0ce%\u00ee\u00cd\u00a3\u00d4\u00ecZ\u00c7\u00faDY+\u00b9E\\x02Q\u00cb\\t\u00f7\u00e3x\u00c0\u00dc\\x05`\u00b5W\u00d5\u00c0e\\x02\\x15\u00fb\\x07P\u00e9\\x97h5\u00feG\u00ec\\x17\\x00\\x00\u00ff\u00ff\\x03\\x00PK\\x01\\x02-\\x00\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\\x9e,lok\\x01\\x00\\x00\\x10\\x05\\x00\\x00\\x13\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00[Content_Types].xmlPK\\x01\\x02-\\x00\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\u00b5U0#\u00f4\\x00\\x00\\x00L\\x02\\x00\\x00\\x0b\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\u00a4\\x03\\x00\\x00_rels/.relsPK\\x01\\x02-\\x00\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\\x92\\x07\\x94\u00ec\\x04\\x01\\x00\\x00?\\x03\\x00\\x00\\x1a\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\u00c9\\x06\\x00\\x00xl/_rels/workbook.xml.relsPK\\x01\\x02-\\x00\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\\x11\u00a6\\x91js\\x03\\x00\\x00\u00c4\\x08\\x00\\x00\\x0f\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\n',\n '\\t\\x00\\x00xl/workbook.xmlPK\\x01\\x02-\\x00\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\\x1a\\x06\u00ab\u00d0v\\x01\\x00\\x003\\x02\\x00\\x00\\x14\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\xad\\x0c\\x00\\x00xl/sharedStrings.xmlPK\\x01\\x02-\\x00\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\u00b9\\x16\u00bfd\u00a9\\x02\\x00\\x00W\\x06\\x00\\x00\\n',\n '\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00U\\x0e\\x00\\x00xl/styles.xmlPK\\x01\\x02-\\x00\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\\x14\\x08\u00b5\\x80P\\x03\\x00\\x00v\\x08\\x00\\x00\\x18\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00)\\x11\\x00\\x00xl/worksheets/sheet1.xmlPK\\x01\\x02-\\x00\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\u00f6`\u00b4A\u00b8\\x07\\x00\\x00\\x11\"\\x00\\x00\\x13\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\u00af\\x14\\x00\\x00xl/theme/theme1.xmlPK\\x01\\x02-\\x00\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\u00c2^Y\\x08\\x90\\x01\\x00\\x00\\x1b\\x03\\x00\\x00\\x10\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x98\\x1c\\x00\\x00docProps/app.xmlPK\\x01\\x02-\\x00\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00AA\\x7fCD\\x01\\x00\\x00_\\x02\\x00\\x00\\x11\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00^\\x1f\\x00\\x00docProps/core.xmlPK\\x01\\x02-\\x00\\x14\\x00\\x06\\x00\\x08\\x00\\x00\\x00!\\x00\u00f2~u\\x08\\x95\\x00\\x00\\x00\u00a9\\x00\\x00\\x00\\x10\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\u00d9!\\x00\\x00xl/calcChain.xmlPK\\x05\\x06\\x00\\x00\\x00\\x00\\x0b\\x00\\x0b\\x00\u00be\\x02\\x00\\x00\\x9c\"\\x00\\x00\\x00\\x00']",
+                    "type": "logs"
+                  }
+                ]
+              },
+              "type": "code_interpreter"
+            }
+          ],
+          "type": "tool_calls"
+        },
+        "thread_id": "thread_yI8ronxIqJRrcGGJvT3YSXVs",
+        "type": "tool_calls",
+        "usage": {
+          "completion_tokens": 39,
+          "prompt_tokens": 2613,
+          "total_tokens": 2652
+        },
+        "expires_at": null
+      },
+      {
+        "id": "step_8HqkN7oqQyjWqjNCspPMUYe6",
+        "assistant_id": "asst_rmswEYiC7tJTMw3CkHL2x5qn",
+        "cancelled_at": null,
+        "completed_at": 1714358714,
+        "created_at": 1714358712,
+        "failed_at": null,
+        "last_error": null,
+        "object": "thread.run.step",
+        "run_id": "run_nHjr9mg8UqB9tuz9VN84ezbo",
+        "status": "completed",
+        "step_details": {
+          "message_creation": {
+            "message_id": "msg_uwlstHHqRmSNHLaRTMhacdrg"
+          },
+          "type": "message_creation"
+        },
+        "thread_id": "thread_yI8ronxIqJRrcGGJvT3YSXVs",
+        "type": "message_creation",
+        "usage": {
+          "completion_tokens": 50,
+          "prompt_tokens": 2561,
+          "total_tokens": 2611
+        },
+        "expires_at": null
+      },
+      {
+        "id": "step_vaRRB3FCxdJ95rCjioljv6UU",
+        "assistant_id": "asst_rmswEYiC7tJTMw3CkHL2x5qn",
+        "cancelled_at": null,
+        "completed_at": 1714358712,
+        "created_at": 1714358710,
+        "failed_at": null,
+        "last_error": null,
+        "object": "thread.run.step",
+        "run_id": "run_nHjr9mg8UqB9tuz9VN84ezbo",
+        "status": "completed",
+        "step_details": {
+          "tool_calls": [
+            {
+              "id": "call_Dc9UQ22LF9oFNFC1dn2L36LV",
+              "code_interpreter": {
+                "input": "# Try reading the file using a different encoding\r\ndf = pd.read_csv(file_path, header=None, names=['Item', 'Price'], encoding='latin-1')\r\n\r\n# Find the most expensive item\r\nmost_expensive_item = df[df['Price'] == df['Price'].max()]['Item'].values[0]\r\nmost_expensive_item",
+                "outputs": [
+                  {
+                    "logs": "---------------------------------------------------------------------------\nParserError                               Traceback (most recent call last)\nCell In[2], line 2\n      1 # Try reading the file using a different encoding\n----> 2 df = pd.read_csv(file_path, header=None, names=['Item', 'Price'], encoding='latin-1')\n      4 # Find the most expensive item\n      5 most_expensive_item = df[df['Price'] == df['Price'].max()]['Item'].values[0]\n\nFile ~/.local/lib/python3.11/site-packages/pandas/util/_decorators.py:211, in deprecate_kwarg.<locals>._deprecate_kwarg.<locals>.wrapper(*args, **kwargs)\n    209     else:\n    210         kwargs[new_arg_name] = new_arg_value\n--> 211 return func(*args, **kwargs)\n\nFile ~/.local/lib/python3.11/site-packages/pandas/util/_decorators.py:331, in deprecate_nonkeyword_arguments.<locals>.decorate.<locals>.wrapper(*args, **kwargs)\n    325 if len(args) > num_allow_args:\n    326     warnings.warn(\n    327         msg.format(arguments=_format_argument_list(allow_args)),\n    328         FutureWarning,\n    329         stacklevel=find_stack_level(),\n    330     )\n--> 331 return func(*args, **kwargs)\n\nFile ~/.local/lib/python3.11/site-packages/pandas/io/parsers/readers.py:950, in read_csv(filepath_or_buffer, sep, delimiter, header, names, index_col, usecols, squeeze, prefix, mangle_dupe_cols, dtype, engine, converters, true_values, false_values, skipinitialspace, skiprows, skipfooter, nrows, na_values, keep_default_na, na_filter, verbose, skip_blank_lines, parse_dates, infer_datetime_format, keep_date_col, date_parser, dayfirst, cache_dates, iterator, chunksize, compression, thousands, decimal, lineterminator, quotechar, quoting, doublequote, escapechar, comment, encoding, encoding_errors, dialect, error_bad_lines, warn_bad_lines, on_bad_lines, delim_whitespace, low_memory, memory_map, float_precision, storage_options)\n    935 kwds_defaults = _refine_defaults_read(\n    936     dialect,\n    937     delimiter,\n   (...)\n    946     defaults={\"delimiter\": \",\"},\n    947 )\n    948 kwds.update(kwds_defaults)\n--> 950 return _read(filepath_or_buffer, kwds)\n\nFile ~/.local/lib/python3.11/site-packages/pandas/io/parsers/readers.py:611, in _read(filepath_or_buffer, kwds)\n    608     return parser\n    610 with parser:\n--> 611     return parser.read(nrows)\n\nFile ~/.local/lib/python3.11/site-packages/pandas/io/parsers/readers.py:1778, in TextFileReader.read(self, nrows)\n   1771 nrows = validate_integer(\"nrows\", nrows)\n   1772 try:\n   1773     # error: \"ParserBase\" has no attribute \"read\"\n   1774     (\n   1775         index,\n   1776         columns,\n   1777         col_dict,\n-> 1778     ) = self._engine.read(  # type: ignore[attr-defined]\n   1779         nrows\n   1780     )\n   1781 except Exception:\n   1782     self.close()\n\nFile ~/.local/lib/python3.11/site-packages/pandas/io/parsers/c_parser_wrapper.py:230, in CParserWrapper.read(self, nrows)\n    228 try:\n    229     if self.low_memory:\n--> 230         chunks = self._reader.read_low_memory(nrows)\n    231         # destructive to chunks\n    232         data = _concatenate_chunks(chunks)\n\nFile ~/.local/lib/python3.11/site-packages/pandas/_libs/parsers.pyx:808, in pandas._libs.parsers.TextReader.read_low_memory()\n\nFile ~/.local/lib/python3.11/site-packages/pandas/_libs/parsers.pyx:866, in pandas._libs.parsers.TextReader._read_rows()\n\nFile ~/.local/lib/python3.11/site-packages/pandas/_libs/parsers.pyx:852, in pandas._libs.parsers.TextReader._tokenize_rows()\n\nFile ~/.local/lib/python3.11/site-packages/pandas/_libs/parsers.pyx:1973, in pandas._libs.parsers.raise_parser_error()\n\nParserError: Error tokenizing data. C error: Expected 2 fields in line 17, saw 3\n\n",
+                    "type": "logs"
+                  }
+                ]
+              },
+              "type": "code_interpreter"
+            }
+          ],
+          "type": "tool_calls"
+        },
+        "thread_id": "thread_yI8ronxIqJRrcGGJvT3YSXVs",
+        "type": "tool_calls",
+        "usage": {
+          "completion_tokens": 75,
+          "prompt_tokens": 1523,
+          "total_tokens": 1598
+        },
+        "expires_at": null
+      },
+      {
+        "id": "step_3BcW98qurjuD2htAWGkgNMph",
+        "assistant_id": "asst_rmswEYiC7tJTMw3CkHL2x5qn",
+        "cancelled_at": null,
+        "completed_at": 1714358710,
+        "created_at": 1714358709,
+        "failed_at": null,
+        "last_error": null,
+        "object": "thread.run.step",
+        "run_id": "run_nHjr9mg8UqB9tuz9VN84ezbo",
+        "status": "completed",
+        "step_details": {
+          "message_creation": {
+            "message_id": "msg_Isf2ox0FPFr1bBYj5ycEA4eB"
+          },
+          "type": "message_creation"
+        },
+        "thread_id": "thread_yI8ronxIqJRrcGGJvT3YSXVs",
+        "type": "message_creation",
+        "usage": {
+          "completion_tokens": 49,
+          "prompt_tokens": 1472,
+          "total_tokens": 1521
+        },
+        "expires_at": null
+      },
+      {
+        "id": "step_3xWeLRZfE4L6YoXfSa7cLlmX",
+        "assistant_id": "asst_rmswEYiC7tJTMw3CkHL2x5qn",
+        "cancelled_at": null,
+        "completed_at": 1714358709,
+        "created_at": 1714358702,
+        "failed_at": null,
+        "last_error": null,
+        "object": "thread.run.step",
+        "run_id": "run_nHjr9mg8UqB9tuz9VN84ezbo",
+        "status": "completed",
+        "step_details": {
+          "tool_calls": [
+            {
+              "id": "call_0NTwG2Tg995WHlfl9UhxV9XR",
+              "code_interpreter": {
+                "input": "import pandas as pd\n\n# Read the file\nfile_path = '/mnt/data/file-foQvYDydvucrvahdDmXWZspB'\ndf = pd.read_csv(file_path, header=None, names=['Item', 'Price'])\n\n# Find the most expensive item\nmost_expensive_item = df[df['Price'] == df['Price'].max()]['Item'].values[0]\nmost_expensive_item",
+                "outputs": [
+                  {
+                    "logs": "---------------------------------------------------------------------------\nUnicodeDecodeError                        Traceback (most recent call last)\nCell In[1], line 5\n      3 # Read the file\n      4 file_path = '/mnt/data/file-foQvYDydvucrvahdDmXWZspB'\n----> 5 df = pd.read_csv(file_path, header=None, names=['Item', 'Price'])\n      7 # Find the most expensive item\n      8 most_expensive_item = df[df['Price'] == df['Price'].max()]['Item'].values[0]\n\nFile ~/.local/lib/python3.11/site-packages/pandas/util/_decorators.py:211, in deprecate_kwarg.<locals>._deprecate_kwarg.<locals>.wrapper(*args, **kwargs)\n    209     else:\n    210         kwargs[new_arg_name] = new_arg_value\n--> 211 return func(*args, **kwargs)\n\nFile ~/.local/lib/python3.11/site-packages/pandas/util/_decorators.py:331, in deprecate_nonkeyword_arguments.<locals>.decorate.<locals>.wrapper(*args, **kwargs)\n    325 if len(args) > num_allow_args:\n    326     warnings.warn(\n    327         msg.format(arguments=_format_argument_list(allow_args)),\n    328         FutureWarning,\n    329         stacklevel=find_stack_level(),\n    330     )\n--> 331 return func(*args, **kwargs)\n\nFile ~/.local/lib/python3.11/site-packages/pandas/io/parsers/readers.py:950, in read_csv(filepath_or_buffer, sep, delimiter, header, names, index_col, usecols, squeeze, prefix, mangle_dupe_cols, dtype, engine, converters, true_values, false_values, skipinitialspace, skiprows, skipfooter, nrows, na_values, keep_default_na, na_filter, verbose, skip_blank_lines, parse_dates, infer_datetime_format, keep_date_col, date_parser, dayfirst, cache_dates, iterator, chunksize, compression, thousands, decimal, lineterminator, quotechar, quoting, doublequote, escapechar, comment, encoding, encoding_errors, dialect, error_bad_lines, warn_bad_lines, on_bad_lines, delim_whitespace, low_memory, memory_map, float_precision, storage_options)\n    935 kwds_defaults = _refine_defaults_read(\n    936     dialect,\n    937     delimiter,\n   (...)\n    946     defaults={\"delimiter\": \",\"},\n    947 )\n    948 kwds.update(kwds_defaults)\n--> 950 return _read(filepath_or_buffer, kwds)\n\nFile ~/.local/lib/python3.11/site-packages/pandas/io/parsers/readers.py:605, in _read(filepath_or_buffer, kwds)\n    602 _validate_names(kwds.get(\"names\", None))\n    604 # Create the parser.\n--> 605 parser = TextFileReader(filepath_or_buffer, **kwds)\n    607 if chunksize or iterator:\n    608     return parser\n\nFile ~/.local/lib/python3.11/site-packages/pandas/io/parsers/readers.py:1442, in TextFileReader.__init__(self, f, engine, **kwds)\n   1439     self.options[\"has_index_names\"] = kwds[\"has_index_names\"]\n   1441 self.handles: IOHandles | None = None\n-> 1442 self._engine = self._make_engine(f, self.engine)\n\nFile ~/.local/lib/python3.11/site-packages/pandas/io/parsers/readers.py:1753, in TextFileReader._make_engine(self, f, engine)\n   1750     raise ValueError(msg)\n   1752 try:\n-> 1753     return mapping[engine](f, **self.options)\n   1754 except Exception:\n   1755     if self.handles is not None:\n\nFile ~/.local/lib/python3.11/site-packages/pandas/io/parsers/c_parser_wrapper.py:79, in CParserWrapper.__init__(self, src, **kwds)\n     76     kwds.pop(key, None)\n     78 kwds[\"dtype\"] = ensure_dtype_objs(kwds.get(\"dtype\", None))\n---> 79 self._reader = parsers.TextReader(src, **kwds)\n     81 self.unnamed_cols = self._reader.unnamed_cols\n     83 # error: Cannot determine type of 'names'\n\nFile ~/.local/lib/python3.11/site-packages/pandas/_libs/parsers.pyx:547, in pandas._libs.parsers.TextReader.__cinit__()\n\nFile ~/.local/lib/python3.11/site-packages/pandas/_libs/parsers.pyx:737, in pandas._libs.parsers.TextReader._get_header()\n\nFile ~/.local/lib/python3.11/site-packages/pandas/_libs/parsers.pyx:852, in pandas._libs.parsers.TextReader._tokenize_rows()\n\nFile ~/.local/lib/python3.11/site-packages/pandas/_libs/parsers.pyx:1965, in pandas._libs.parsers.raise_parser_error()\n\nUnicodeDecodeError: 'utf-8' codec can't decode byte 0x9e in position 14: invalid start byte\n",
+                    "type": "logs"
+                  }
+                ]
+              },
+              "type": "code_interpreter"
+            }
+          ],
+          "type": "tool_calls"
+        },
+        "thread_id": "thread_yI8ronxIqJRrcGGJvT3YSXVs",
+        "type": "tool_calls",
+        "usage": {
+          "completion_tokens": 96,
+          "prompt_tokens": 293,
+          "total_tokens": 389
+        },
+        "expires_at": null
+      }
+    ],
+    "object": "list",
+    "first_id": "step_yZ8NxOxe6NnCHbTEIJBDosA5",
+    "last_id": "step_3xWeLRZfE4L6YoXfSa7cLlmX",
+    "has_more": false
+  },
+  "messages": {
+    "data": [
+      {
+        "id": "msg_uwlstHHqRmSNHLaRTMhacdrg",
+        "assistant_id": "asst_rmswEYiC7tJTMw3CkHL2x5qn",
+        "attachments": [],
+        "content": [
+          {
+            "text": {
+              "annotations": [],
+              "value": "It seems that there is an issue with the file formatting. The error message suggests that there is an unexpected number of fields in line 17. Let me investigate the file to determine the cause of the issue and find the most expensive item."
+            },
+            "type": "text"
+          }
+        ],
+        "created_at": 1714358712,
+        "metadata": {},
+        "object": "thread.message",
+        "role": "assistant",
+        "run_id": "run_nHjr9mg8UqB9tuz9VN84ezbo",
+        "thread_id": "thread_yI8ronxIqJRrcGGJvT3YSXVs"
+      },
+      {
+        "id": "msg_Isf2ox0FPFr1bBYj5ycEA4eB",
+        "assistant_id": "asst_rmswEYiC7tJTMw3CkHL2x5qn",
+        "attachments": [],
+        "content": [
+          {
+            "text": {
+              "annotations": [],
+              "value": "It seems that there was an error while trying to read the file. The error message suggests that there may be an encoding issue with the file. Let me try reading the file using a different encoding to see if that resolves the issue."
+            },
+            "type": "text"
+          }
+        ],
+        "created_at": 1714358709,
+        "metadata": {},
+        "object": "thread.message",
+        "role": "assistant",
+        "run_id": "run_nHjr9mg8UqB9tuz9VN84ezbo",
+        "thread_id": "thread_yI8ronxIqJRrcGGJvT3YSXVs"
+      },
+      {
+        "id": "msg_Et68Bz56XkgGFkXduDLXMzHK",
+        "assistant_id": null,
+        "attachments": [
+          {
+            "file_id": "file-foQvYDydvucrvahdDmXWZspB",
+            "tools": [
+              {
+                "type": "code_interpreter"
+              }
+            ]
+          }
+        ],
+        "content": [
+          {
+            "text": {
+              "annotations": [],
+              "value": "Attached file is a list of expenses during a trip to Yunan province, China. First column contains item details and second column contains prices in RMB. \n\nPlease tell me the most expensive item during the trip."
+            },
+            "type": "text"
+          }
+        ],
+        "created_at": 1714358700,
+        "metadata": {},
+        "object": "thread.message",
+        "role": "user",
+        "run_id": null,
+        "thread_id": "thread_yI8ronxIqJRrcGGJvT3YSXVs"
+      }
+    ],
+    "object": "list",
+    "first_id": "msg_uwlstHHqRmSNHLaRTMhacdrg",
+    "last_id": "msg_Et68Bz56XkgGFkXduDLXMzHK",
+    "has_more": false
+  }
+}

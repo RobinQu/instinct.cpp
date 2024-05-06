@@ -1,0 +1,171 @@
+{
+  "run": {
+    "id": "run_vbvEBpJu0GQfkELkYHYWJ30Z",
+    "assistant_id": "asst_rmswEYiC7tJTMw3CkHL2x5qn",
+    "cancelled_at": null,
+    "completed_at": 1714358436,
+    "created_at": 1714358429,
+    "expires_at": null,
+    "failed_at": null,
+    "incomplete_details": null,
+    "instructions": "",
+    "last_error": null,
+    "max_completion_tokens": null,
+    "max_prompt_tokens": null,
+    "metadata": {},
+    "model": "gpt-3.5-turbo-16k",
+    "object": "thread.run",
+    "required_action": null,
+    "response_format": "auto",
+    "started_at": 1714358430,
+    "status": "completed",
+    "thread_id": "thread_ZKcuR3Dj4rUnJKucq1jbRpAi",
+    "tool_choice": "auto",
+    "tools": [
+      {
+        "type": "code_interpreter"
+      }
+    ],
+    "truncation_strategy": {
+      "type": "auto",
+      "last_messages": null
+    },
+    "usage": {
+      "completion_tokens": 129,
+      "prompt_tokens": 728,
+      "total_tokens": 857
+    },
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "tool_resources": {}
+  },
+  "steps": {
+    "data": [
+      {
+        "id": "step_V2BZsdD8Ljz6Kpshi7lKlLw9",
+        "assistant_id": "asst_rmswEYiC7tJTMw3CkHL2x5qn",
+        "cancelled_at": null,
+        "completed_at": 1714358436,
+        "created_at": 1714358436,
+        "failed_at": null,
+        "last_error": null,
+        "object": "thread.run.step",
+        "run_id": "run_vbvEBpJu0GQfkELkYHYWJ30Z",
+        "status": "completed",
+        "step_details": {
+          "message_creation": {
+            "message_id": "msg_6xNxAGF15YnzbZvMQC0v71zz"
+          },
+          "type": "message_creation"
+        },
+        "thread_id": "thread_ZKcuR3Dj4rUnJKucq1jbRpAi",
+        "type": "message_creation",
+        "usage": {
+          "completion_tokens": 33,
+          "prompt_tokens": 421,
+          "total_tokens": 454
+        },
+        "expires_at": null
+      },
+      {
+        "id": "step_UlBEz0uIGUo5IAIZ1MVX89Of",
+        "assistant_id": "asst_rmswEYiC7tJTMw3CkHL2x5qn",
+        "cancelled_at": null,
+        "completed_at": 1714358436,
+        "created_at": 1714358431,
+        "failed_at": null,
+        "last_error": null,
+        "object": "thread.run.step",
+        "run_id": "run_vbvEBpJu0GQfkELkYHYWJ30Z",
+        "status": "completed",
+        "step_details": {
+          "tool_calls": [
+            {
+              "id": "call_OcM5gi5BniEgb3PKSPoEmLm7",
+              "code_interpreter": {
+                "input": "import pandas as pd\r\n\r\n# Read the file\r\ndf = pd.read_excel('/mnt/data/file-tL53BgmaZgRtxg085HxTDc0C', header=None)\r\n\r\n# Find the most expensive item\r\nmost_expensive_item = df.loc[df[1].idxmax(), 0]\r\nmost_expensive_price = df.loc[df[1].idxmax(), 1]\r\n\r\nmost_expensive_item, most_expensive_price",
+                "outputs": [
+                  {
+                    "logs": "('\u673a\u7968', 7776.0)",
+                    "type": "logs"
+                  }
+                ]
+              },
+              "type": "code_interpreter"
+            }
+          ],
+          "type": "tool_calls"
+        },
+        "thread_id": "thread_ZKcuR3Dj4rUnJKucq1jbRpAi",
+        "type": "tool_calls",
+        "usage": {
+          "completion_tokens": 96,
+          "prompt_tokens": 307,
+          "total_tokens": 403
+        },
+        "expires_at": null
+      }
+    ],
+    "object": "list",
+    "first_id": "step_V2BZsdD8Ljz6Kpshi7lKlLw9",
+    "last_id": "step_UlBEz0uIGUo5IAIZ1MVX89Of",
+    "has_more": false
+  },
+  "messages": {
+    "data": [
+      {
+        "id": "msg_6xNxAGF15YnzbZvMQC0v71zz",
+        "assistant_id": "asst_rmswEYiC7tJTMw3CkHL2x5qn",
+        "attachments": [],
+        "content": [
+          {
+            "text": {
+              "annotations": [],
+              "value": "The most expensive item during the trip to Yunan province, China is the airplane ticket (\u673a\u7968) with a price of RMB 7776."
+            },
+            "type": "text"
+          }
+        ],
+        "created_at": 1714358436,
+        "metadata": {},
+        "object": "thread.message",
+        "role": "assistant",
+        "run_id": "run_vbvEBpJu0GQfkELkYHYWJ30Z",
+        "thread_id": "thread_ZKcuR3Dj4rUnJKucq1jbRpAi"
+      },
+      {
+        "id": "msg_8FB7rUSovLYNXtRRVoCKMNHG",
+        "assistant_id": null,
+        "attachments": [
+          {
+            "file_id": "file-tL53BgmaZgRtxg085HxTDc0C",
+            "tools": [
+              {
+                "type": "code_interpreter"
+              }
+            ]
+          }
+        ],
+        "content": [
+          {
+            "text": {
+              "annotations": [],
+              "value": "\nAttached file is a list of expenses during a trip to Yunan province, China. First column contains item details and second column contains prices in RMB. No column name headers exist in sheet, so the first column is also a valid data row of expense item.\n\nPlease tell me the most expensive item during the trip."
+            },
+            "type": "text"
+          }
+        ],
+        "created_at": 1714358428,
+        "metadata": {},
+        "object": "thread.message",
+        "role": "user",
+        "run_id": null,
+        "thread_id": "thread_ZKcuR3Dj4rUnJKucq1jbRpAi"
+      }
+    ],
+    "object": "list",
+    "first_id": "msg_6xNxAGF15YnzbZvMQC0v71zz",
+    "last_id": "msg_8FB7rUSovLYNXtRRVoCKMNHG",
+    "has_more": false
+  }
+}

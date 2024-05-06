@@ -1,0 +1,172 @@
+{
+  "run": {
+    "id": "run_L8xbEsSWb9bCdKaBPOBQq7at",
+    "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+    "cancelled_at": null,
+    "completed_at": 1714280633,
+    "created_at": 1714280632,
+    "expires_at": null,
+    "failed_at": null,
+    "incomplete_details": null,
+    "instructions": "You are a personal math tutor. When asked a math question, write and run code to answer the question.",
+    "last_error": null,
+    "max_completion_tokens": null,
+    "max_prompt_tokens": null,
+    "metadata": {},
+    "model": "gpt-3.5-turbo-0125",
+    "object": "thread.run",
+    "required_action": null,
+    "response_format": "auto",
+    "started_at": 1714280632,
+    "status": "completed",
+    "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+    "tool_choice": "auto",
+    "tools": [
+      {
+        "type": "code_interpreter"
+      }
+    ],
+    "truncation_strategy": {
+      "type": "auto",
+      "last_messages": null
+    },
+    "usage": {
+      "completion_tokens": 18,
+      "prompt_tokens": 554,
+      "total_tokens": 572
+    },
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "tool_resources": {}
+  },
+  "messages": [
+    {
+      "id": "msg_R7vnkbP3d5GExW9jFdCzc5ea",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "attachments": [],
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "If you have any more questions or need further assistance, feel free to ask!"
+          },
+          "type": "text"
+        }
+      ],
+      "created_at": 1714280633,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_L8xbEsSWb9bCdKaBPOBQq7at",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5"
+    },
+    {
+      "id": "msg_sXAX13hFu2BVtMg7NcNWEUnk",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "attachments": [],
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "The total price of food items in the Excel file is 18 RMB."
+          },
+          "type": "text"
+        }
+      ],
+      "created_at": 1714280631,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5"
+    },
+    {
+      "id": "msg_ICUXzEbBYXwuwGT1G8rIYwMH",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "attachments": [],
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "The Excel file contains the following columns: Item, Quantity, Unit, Category, Price (RMB), and SubTotal. To calculate the total price of food items, we need to sum the 'SubTotal' values for rows where the 'Category' is 'Food'. Let's calculate this total."
+          },
+          "type": "text"
+        }
+      ],
+      "created_at": 1714280628,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5"
+    },
+    {
+      "id": "msg_aRmwfvK2gIX0xz8bBgc20Ws5",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "attachments": [],
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "I will first need to take a look at the contents of the Excel file to understand its structure and data. Let's read the file and display its contents."
+          },
+          "type": "text"
+        }
+      ],
+      "created_at": 1714280621,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_cGmFtvSDAVFFh8Kcfu5VMi8h",
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5"
+    },
+    {
+      "id": "msg_hCarhFVATCrxfzI927E8Ly4Y",
+      "assistant_id": null,
+      "attachments": [],
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "Please calculate total price of food items in the excel file?"
+          },
+          "type": "text"
+        }
+      ],
+      "created_at": 1714280620,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "user",
+      "run_id": null,
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5"
+    }
+  ],
+  "run_steps": [
+    {
+      "id": "step_dRBlWt3YAsh9fr2Ni0KxCno7",
+      "assistant_id": "asst_FILHYRfgGpiC6SNatTfWt0BI",
+      "cancelled_at": null,
+      "completed_at": 1714280633,
+      "created_at": 1714280633,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_L8xbEsSWb9bCdKaBPOBQq7at",
+      "status": "completed",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_R7vnkbP3d5GExW9jFdCzc5ea"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_hr57M2To5roEu61UyCXMW4n5",
+      "type": "message_creation",
+      "usage": {
+        "completion_tokens": 18,
+        "prompt_tokens": 554,
+        "total_tokens": 572
+      },
+      "expires_at": null
+    }
+  ]
+}

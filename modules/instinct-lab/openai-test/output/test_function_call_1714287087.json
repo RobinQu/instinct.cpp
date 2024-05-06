@@ -1,0 +1,2602 @@
+[
+  {
+    "data": {
+      "id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714287090,
+      "expires_at": 1714287690,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a weather bot. Use the provided functions to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": null,
+      "status": "queued",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "tool_choice": "auto",
+      "tools": [
+        {
+          "function": {
+            "name": "get_current_temperature",
+            "description": "Get the current temperature for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "Celsius",
+                    "Fahrenheit"
+                  ],
+                  "description": "The temperature unit to use. Infer this from the user's location."
+                }
+              },
+              "required": [
+                "location",
+                "unit"
+              ]
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "name": "get_rain_probability",
+            "description": "Get the probability of rain for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                }
+              },
+              "required": [
+                "location"
+              ]
+            }
+          },
+          "type": "function"
+        }
+      ],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.created"
+  },
+  {
+    "data": {
+      "id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714287090,
+      "expires_at": 1714287690,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a weather bot. Use the provided functions to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": null,
+      "status": "queued",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "tool_choice": "auto",
+      "tools": [
+        {
+          "function": {
+            "name": "get_current_temperature",
+            "description": "Get the current temperature for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "Celsius",
+                    "Fahrenheit"
+                  ],
+                  "description": "The temperature unit to use. Infer this from the user's location."
+                }
+              },
+              "required": [
+                "location",
+                "unit"
+              ]
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "name": "get_rain_probability",
+            "description": "Get the probability of rain for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                }
+              },
+              "required": [
+                "location"
+              ]
+            }
+          },
+          "type": "function"
+        }
+      ],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.queued"
+  },
+  {
+    "data": {
+      "id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714287090,
+      "expires_at": 1714287690,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a weather bot. Use the provided functions to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": 1714287090,
+      "status": "in_progress",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "tool_choice": "auto",
+      "tools": [
+        {
+          "function": {
+            "name": "get_current_temperature",
+            "description": "Get the current temperature for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "Celsius",
+                    "Fahrenheit"
+                  ],
+                  "description": "The temperature unit to use. Infer this from the user's location."
+                }
+              },
+              "required": [
+                "location",
+                "unit"
+              ]
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "name": "get_rain_probability",
+            "description": "Get the probability of rain for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                }
+              },
+              "required": [
+                "location"
+              ]
+            }
+          },
+          "type": "function"
+        }
+      ],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.in_progress"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714287091,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "in_progress",
+      "step_details": {
+        "tool_calls": [],
+        "type": "tool_calls"
+      },
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "type": "tool_calls",
+      "usage": null,
+      "expires_at": 1714287690
+    },
+    "event": "thread.run.step.created"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714287091,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "in_progress",
+      "step_details": {
+        "tool_calls": [],
+        "type": "tool_calls"
+      },
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "type": "tool_calls",
+      "usage": null,
+      "expires_at": 1714287690
+    },
+    "event": "thread.run.step.in_progress"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "function",
+              "id": "call_56NH3mAZEbEw6yw9qGvfzWkN",
+              "function": {
+                "arguments": "",
+                "name": "get_current_temperature",
+                "output": null
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "function",
+              "function": {
+                "arguments": "{\"lo"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "function",
+              "function": {
+                "arguments": "catio"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "function",
+              "function": {
+                "arguments": "n\": \"S"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "function",
+              "function": {
+                "arguments": "an F"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "function",
+              "function": {
+                "arguments": "ranci"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "function",
+              "function": {
+                "arguments": "sco, C"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "function",
+              "function": {
+                "arguments": "A\", "
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "function",
+              "function": {
+                "arguments": "\"unit"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "function",
+              "function": {
+                "arguments": "\": \"Ce"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "function",
+              "function": {
+                "arguments": "lsiu"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 0,
+              "type": "function",
+              "function": {
+                "arguments": "s\"}"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 1,
+              "type": "function",
+              "id": "call_kA4yKyvGWXSX5IVbHZzgMGb8",
+              "function": {
+                "arguments": "",
+                "name": "get_rain_probability",
+                "output": null
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 1,
+              "type": "function",
+              "function": {
+                "arguments": "{\"lo"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 1,
+              "type": "function",
+              "function": {
+                "arguments": "catio"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 1,
+              "type": "function",
+              "function": {
+                "arguments": "n\": \"S"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 1,
+              "type": "function",
+              "function": {
+                "arguments": "an F"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 1,
+              "type": "function",
+              "function": {
+                "arguments": "ranci"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 1,
+              "type": "function",
+              "function": {
+                "arguments": "sco, C"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "delta": {
+        "step_details": {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "index": 1,
+              "type": "function",
+              "function": {
+                "arguments": "A\"}"
+              }
+            }
+          ]
+        }
+      },
+      "object": "thread.run.step.delta"
+    },
+    "event": "thread.run.step.delta"
+  },
+  {
+    "data": {
+      "id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714287090,
+      "expires_at": 1714287690,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a weather bot. Use the provided functions to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": {
+        "submit_tool_outputs": {
+          "tool_calls": [
+            {
+              "id": "call_56NH3mAZEbEw6yw9qGvfzWkN",
+              "function": {
+                "arguments": "{\"location\": \"San Francisco, CA\", \"unit\": \"Celsius\"}",
+                "name": "get_current_temperature"
+              },
+              "type": "function"
+            },
+            {
+              "id": "call_kA4yKyvGWXSX5IVbHZzgMGb8",
+              "function": {
+                "arguments": "{\"location\": \"San Francisco, CA\"}",
+                "name": "get_rain_probability"
+              },
+              "type": "function"
+            }
+          ]
+        },
+        "type": "submit_tool_outputs"
+      },
+      "response_format": "auto",
+      "started_at": 1714287090,
+      "status": "requires_action",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "tool_choice": "auto",
+      "tools": [
+        {
+          "function": {
+            "name": "get_current_temperature",
+            "description": "Get the current temperature for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "Celsius",
+                    "Fahrenheit"
+                  ],
+                  "description": "The temperature unit to use. Infer this from the user's location."
+                }
+              },
+              "required": [
+                "location",
+                "unit"
+              ]
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "name": "get_rain_probability",
+            "description": "Get the probability of rain for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                }
+              },
+              "required": [
+                "location"
+              ]
+            }
+          },
+          "type": "function"
+        }
+      ],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.requires_action"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": 1714287093,
+      "created_at": 1714287091,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "completed",
+      "step_details": {
+        "tool_calls": [
+          {
+            "id": "call_56NH3mAZEbEw6yw9qGvfzWkN",
+            "function": {
+              "arguments": "{\"location\": \"San Francisco, CA\", \"unit\": \"Celsius\"}",
+              "name": "get_current_temperature",
+              "output": "57"
+            },
+            "type": "function"
+          },
+          {
+            "id": "call_kA4yKyvGWXSX5IVbHZzgMGb8",
+            "function": {
+              "arguments": "{\"location\": \"San Francisco, CA\"}",
+              "name": "get_rain_probability",
+              "output": "0.06"
+            },
+            "type": "function"
+          }
+        ],
+        "type": "tool_calls"
+      },
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "type": "tool_calls",
+      "usage": {
+        "completion_tokens": 58,
+        "prompt_tokens": 359,
+        "total_tokens": 417
+      },
+      "expires_at": 1714287690
+    },
+    "event": "thread.run.step.completed"
+  },
+  {
+    "data": {
+      "id": "step_huBSvShY9BFDK043Wwo2eHbO",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": 1714287093,
+      "created_at": 1714287091,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "completed",
+      "step_details": {
+        "tool_calls": [
+          {
+            "id": "call_56NH3mAZEbEw6yw9qGvfzWkN",
+            "function": {
+              "arguments": "{\"location\": \"San Francisco, CA\", \"unit\": \"Celsius\"}",
+              "name": "get_current_temperature",
+              "output": "57"
+            },
+            "type": "function"
+          },
+          {
+            "id": "call_kA4yKyvGWXSX5IVbHZzgMGb8",
+            "function": {
+              "arguments": "{\"location\": \"San Francisco, CA\"}",
+              "name": "get_rain_probability",
+              "output": "0.06"
+            },
+            "type": "function"
+          }
+        ],
+        "type": "tool_calls"
+      },
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "type": "tool_calls",
+      "usage": {
+        "completion_tokens": 58,
+        "prompt_tokens": 359,
+        "total_tokens": 417
+      },
+      "expires_at": 1714287690
+    },
+    "event": "thread.run.step.completed"
+  },
+  {
+    "data": {
+      "id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714287090,
+      "expires_at": 1714287690,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a weather bot. Use the provided functions to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": 1714287090,
+      "status": "queued",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "tool_choice": "auto",
+      "tools": [
+        {
+          "function": {
+            "name": "get_current_temperature",
+            "description": "Get the current temperature for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "Celsius",
+                    "Fahrenheit"
+                  ],
+                  "description": "The temperature unit to use. Infer this from the user's location."
+                }
+              },
+              "required": [
+                "location",
+                "unit"
+              ]
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "name": "get_rain_probability",
+            "description": "Get the probability of rain for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                }
+              },
+              "required": [
+                "location"
+              ]
+            }
+          },
+          "type": "function"
+        }
+      ],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.queued"
+  },
+  {
+    "data": {
+      "id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714287090,
+      "expires_at": 1714287690,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a weather bot. Use the provided functions to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": 1714287090,
+      "status": "queued",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "tool_choice": "auto",
+      "tools": [
+        {
+          "function": {
+            "name": "get_current_temperature",
+            "description": "Get the current temperature for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "Celsius",
+                    "Fahrenheit"
+                  ],
+                  "description": "The temperature unit to use. Infer this from the user's location."
+                }
+              },
+              "required": [
+                "location",
+                "unit"
+              ]
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "name": "get_rain_probability",
+            "description": "Get the probability of rain for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                }
+              },
+              "required": [
+                "location"
+              ]
+            }
+          },
+          "type": "function"
+        }
+      ],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.queued"
+  },
+  {
+    "data": {
+      "id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714287090,
+      "expires_at": 1714287690,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a weather bot. Use the provided functions to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": 1714287094,
+      "status": "in_progress",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "tool_choice": "auto",
+      "tools": [
+        {
+          "function": {
+            "name": "get_current_temperature",
+            "description": "Get the current temperature for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "Celsius",
+                    "Fahrenheit"
+                  ],
+                  "description": "The temperature unit to use. Infer this from the user's location."
+                }
+              },
+              "required": [
+                "location",
+                "unit"
+              ]
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "name": "get_rain_probability",
+            "description": "Get the probability of rain for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                }
+              },
+              "required": [
+                "location"
+              ]
+            }
+          },
+          "type": "function"
+        }
+      ],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.in_progress"
+  },
+  {
+    "data": {
+      "id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714287090,
+      "expires_at": 1714287690,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a weather bot. Use the provided functions to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": 1714287094,
+      "status": "in_progress",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "tool_choice": "auto",
+      "tools": [
+        {
+          "function": {
+            "name": "get_current_temperature",
+            "description": "Get the current temperature for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "Celsius",
+                    "Fahrenheit"
+                  ],
+                  "description": "The temperature unit to use. Infer this from the user's location."
+                }
+              },
+              "required": [
+                "location",
+                "unit"
+              ]
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "name": "get_rain_probability",
+            "description": "Get the probability of rain for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                }
+              },
+              "required": [
+                "location"
+              ]
+            }
+          },
+          "type": "function"
+        }
+      ],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": null,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.in_progress"
+  },
+  {
+    "data": {
+      "id": "step_yLlunvvIARx0wfPuBqjxqUkG",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714287095,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "in_progress",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_EaAgpV7iR5xqlELT4ApR8jhy"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "type": "message_creation",
+      "usage": null,
+      "expires_at": 1714287690
+    },
+    "event": "thread.run.step.created"
+  },
+  {
+    "data": {
+      "id": "step_yLlunvvIARx0wfPuBqjxqUkG",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714287095,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "in_progress",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_EaAgpV7iR5xqlELT4ApR8jhy"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "type": "message_creation",
+      "usage": null,
+      "expires_at": 1714287690
+    },
+    "event": "thread.run.step.created"
+  },
+  {
+    "data": {
+      "id": "step_yLlunvvIARx0wfPuBqjxqUkG",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714287095,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "in_progress",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_EaAgpV7iR5xqlELT4ApR8jhy"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "type": "message_creation",
+      "usage": null,
+      "expires_at": 1714287690
+    },
+    "event": "thread.run.step.in_progress"
+  },
+  {
+    "data": {
+      "id": "step_yLlunvvIARx0wfPuBqjxqUkG",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": null,
+      "created_at": 1714287095,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "in_progress",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_EaAgpV7iR5xqlELT4ApR8jhy"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "type": "message_creation",
+      "usage": null,
+      "expires_at": 1714287690
+    },
+    "event": "thread.run.step.in_progress"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "attachments": [],
+      "completed_at": null,
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "The current temperature in San Francisco is 57\u00b0F, and there is a 6% probability of rain today."
+          },
+          "type": "text",
+          "index": 0
+        }
+      ],
+      "created_at": 1714287095,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "in_progress",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X"
+    },
+    "event": "thread.message.created"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "attachments": [],
+      "completed_at": null,
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "The current temperature in San Francisco is 57\u00b0F, and there is a 6% probability of rain today."
+          },
+          "type": "text",
+          "index": 0
+        }
+      ],
+      "created_at": 1714287095,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "in_progress",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X"
+    },
+    "event": "thread.message.created"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "attachments": [],
+      "completed_at": null,
+      "content": [],
+      "created_at": 1714287095,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "in_progress",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X"
+    },
+    "event": "thread.message.in_progress"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "attachments": [],
+      "completed_at": null,
+      "content": [],
+      "created_at": 1714287095,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "in_progress",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X"
+    },
+    "event": "thread.message.in_progress"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "annotations": [],
+              "value": "The"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "annotations": [],
+              "value": "The"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " current"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " current"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " temperature"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " temperature"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " in"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " in"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " San"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " San"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " Francisco"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " Francisco"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " is"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " is"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " "
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " "
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "57"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "57"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "\u00b0F"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "\u00b0F"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": ","
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": ","
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " and"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " and"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " there"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " there"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " is"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " is"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " a"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " a"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " "
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " "
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "6"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "6"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "%"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "%"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " probability"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " probability"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " of"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " of"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " rain"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " rain"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " today"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": " today"
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "."
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "delta": {
+        "content": [
+          {
+            "index": 0,
+            "type": "text",
+            "text": {
+              "value": "."
+            }
+          }
+        ]
+      },
+      "object": "thread.message.delta"
+    },
+    "event": "thread.message.delta"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "attachments": [],
+      "completed_at": 1714287095,
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "The current temperature in San Francisco is 57\u00b0F, and there is a 6% probability of rain today."
+          },
+          "type": "text"
+        }
+      ],
+      "created_at": 1714287095,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "completed",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X"
+    },
+    "event": "thread.message.completed"
+  },
+  {
+    "data": {
+      "id": "msg_EaAgpV7iR5xqlELT4ApR8jhy",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "attachments": [],
+      "completed_at": 1714287095,
+      "content": [
+        {
+          "text": {
+            "annotations": [],
+            "value": "The current temperature in San Francisco is 57\u00b0F, and there is a 6% probability of rain today."
+          },
+          "type": "text"
+        }
+      ],
+      "created_at": 1714287095,
+      "incomplete_at": null,
+      "incomplete_details": null,
+      "metadata": {},
+      "object": "thread.message",
+      "role": "assistant",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "completed",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X"
+    },
+    "event": "thread.message.completed"
+  },
+  {
+    "data": {
+      "id": "step_yLlunvvIARx0wfPuBqjxqUkG",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": 1714287095,
+      "created_at": 1714287095,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "completed",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_EaAgpV7iR5xqlELT4ApR8jhy"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "type": "message_creation",
+      "usage": {
+        "completion_tokens": 25,
+        "prompt_tokens": 434,
+        "total_tokens": 459
+      },
+      "expires_at": 1714287690
+    },
+    "event": "thread.run.step.completed"
+  },
+  {
+    "data": {
+      "id": "step_yLlunvvIARx0wfPuBqjxqUkG",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": 1714287095,
+      "created_at": 1714287095,
+      "failed_at": null,
+      "last_error": null,
+      "object": "thread.run.step",
+      "run_id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "status": "completed",
+      "step_details": {
+        "message_creation": {
+          "message_id": "msg_EaAgpV7iR5xqlELT4ApR8jhy"
+        },
+        "type": "message_creation"
+      },
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "type": "message_creation",
+      "usage": {
+        "completion_tokens": 25,
+        "prompt_tokens": 434,
+        "total_tokens": 459
+      },
+      "expires_at": 1714287690
+    },
+    "event": "thread.run.step.completed"
+  },
+  {
+    "data": {
+      "id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": 1714287095,
+      "created_at": 1714287090,
+      "expires_at": null,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a weather bot. Use the provided functions to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": 1714287094,
+      "status": "completed",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "tool_choice": "auto",
+      "tools": [
+        {
+          "function": {
+            "name": "get_current_temperature",
+            "description": "Get the current temperature for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "Celsius",
+                    "Fahrenheit"
+                  ],
+                  "description": "The temperature unit to use. Infer this from the user's location."
+                }
+              },
+              "required": [
+                "location",
+                "unit"
+              ]
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "name": "get_rain_probability",
+            "description": "Get the probability of rain for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                }
+              },
+              "required": [
+                "location"
+              ]
+            }
+          },
+          "type": "function"
+        }
+      ],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": {
+        "completion_tokens": 83,
+        "prompt_tokens": 793,
+        "total_tokens": 876
+      },
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.completed"
+  },
+  {
+    "data": {
+      "id": "run_OX8PiNcKZYYMPQyuuQy6bpoF",
+      "assistant_id": "asst_5hM8Oul1yxzAjBEmhNADVD8o",
+      "cancelled_at": null,
+      "completed_at": 1714287095,
+      "created_at": 1714287090,
+      "expires_at": null,
+      "failed_at": null,
+      "incomplete_details": null,
+      "instructions": "You are a weather bot. Use the provided functions to answer questions.",
+      "last_error": null,
+      "max_completion_tokens": null,
+      "max_prompt_tokens": null,
+      "metadata": {},
+      "model": "gpt-3.5-turbo-0125",
+      "object": "thread.run",
+      "required_action": null,
+      "response_format": "auto",
+      "started_at": 1714287094,
+      "status": "completed",
+      "thread_id": "thread_90l4HjZ6Z9ISCQBXYaS2HX0X",
+      "tool_choice": "auto",
+      "tools": [
+        {
+          "function": {
+            "name": "get_current_temperature",
+            "description": "Get the current temperature for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "Celsius",
+                    "Fahrenheit"
+                  ],
+                  "description": "The temperature unit to use. Infer this from the user's location."
+                }
+              },
+              "required": [
+                "location",
+                "unit"
+              ]
+            }
+          },
+          "type": "function"
+        },
+        {
+          "function": {
+            "name": "get_rain_probability",
+            "description": "Get the probability of rain for a specific location",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "description": "The city and state, e.g., San Francisco, CA"
+                }
+              },
+              "required": [
+                "location"
+              ]
+            }
+          },
+          "type": "function"
+        }
+      ],
+      "truncation_strategy": {
+        "type": "auto",
+        "last_messages": null
+      },
+      "usage": {
+        "completion_tokens": 83,
+        "prompt_tokens": 793,
+        "total_tokens": 876
+      },
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "tool_resources": {
+        "code_interpreter": {
+          "file_ids": []
+        }
+      }
+    },
+    "event": "thread.run.completed"
+  }
+]
