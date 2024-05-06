@@ -295,11 +295,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
 
 
-        // create hanlder and task
+        // create handler and task
         const auto task_handler = CreateTaskHandler();
         CommonTaskScheduler::Task task {
-            .category =  OpenAIToolAgentRunObjectTaskHandler::CATEGORY,
             .task_id = obj2->id(),
+            .category =  OpenAIToolAgentRunObjectTaskHandler::CATEGORY,
             .payload = ProtobufUtils::Serialize(obj2.value())
         };
 
@@ -346,8 +346,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         // handle again with obj4
         task = {
-            .category =  OpenAIToolAgentRunObjectTaskHandler::CATEGORY,
             .task_id = obj2->id(),
+            .category =  OpenAIToolAgentRunObjectTaskHandler::CATEGORY,
             .payload = ProtobufUtils::Serialize(obj4.value())
         };
         task_handler->Handle(task);

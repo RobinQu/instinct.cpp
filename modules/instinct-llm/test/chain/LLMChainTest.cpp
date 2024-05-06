@@ -19,8 +19,8 @@ namespace INSTINCT_LLM_NS {
     protected:
         void SetUp() override {
             SetupLogging();
-            chat_model_ = test::create_pesudo_chat_model();
-            llm_ = test::create_pesudo_llm();
+            chat_model_ = create_pesudo_chat_model();
+            llm_ = create_pesudo_llm();
             chat_prompt_template_ = CreatePlainChatPromptTemplate({
                 {kSystem, "You are a help assistant who will try your best to answer user's question."},
                 {kHuman, "why is the sky blue?"},

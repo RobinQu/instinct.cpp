@@ -22,7 +22,7 @@ namespace  INSTINCT_RETRIEVAL_NS {
             SetupLogging();
 
             size_t dim = 4096;
-            embedding_model_ = test::create_pesudo_embedding_model(dim);
+            embedding_model_ = create_pesudo_embedding_model(dim);
             const auto db_file_path = std::filesystem::temp_directory_path() / (
                                     ChronoUtils::GetCurrentTimestampString() + ".db");
 
@@ -35,7 +35,7 @@ namespace  INSTINCT_RETRIEVAL_NS {
             retriever_ = CreateVectorStoreRetriever(vector_store);
             chat_memory_ = std::make_shared<EphemeralChatMemory>();
 
-            ChatModelPtr chat_model = test::create_pesudo_chat_model();
+            ChatModelPtr chat_model = create_pesudo_chat_model();
 
             const auto question_prompt_template =
                 CreatePlainChatPromptTemplate({

@@ -13,6 +13,11 @@ namespace INSTINCT_CORE_NS {
         explicit InstinctException(std::string reason)
             : cpptrace::exception_with_message(std::move(reason)) {
         }
+
+        InstinctException(const std::runtime_error& runtime_error, const std::string& message):
+            cpptrace::exception_with_message(message + " \nNested exception: " + runtime_error.what() )  {
+
+        }
     };
 }
 
