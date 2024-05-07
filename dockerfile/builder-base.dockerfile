@@ -38,6 +38,7 @@ SHELL ["conda", "run", "/bin/bash", "-c"]
 RUN conda install -y -c conda-forge conan cmake
 
 # copy conan profile
-COPY ./dockerfile/conan-profile/ /root/.conan2/profiles/
+COPY ./dockerfile/conan-profile/ /tmp/
+RUN mkdir -p /root/.conan2/profiles/ && cp /tmp/$(uname -m)/* /root/.conan2/profiles/
 
 ENTRYPOINT ["/bin/bash"]

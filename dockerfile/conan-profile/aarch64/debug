@@ -1,0 +1,8 @@
+[settings]
+arch=armv8
+build_type=Debug
+compiler=gcc
+compiler.cppstd=gnu20
+compiler.libcxx=libstdc++11
+compiler.version=12
+os=Linux

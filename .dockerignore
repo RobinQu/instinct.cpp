@@ -10,3 +10,4 @@ modules/instinct-examples/doc-agent/test/rag_evaluation/output
 .env
 .ipynb_checkpoints
 modules/instinct-lab/openai-test/output
+dockerfile/*.dockerfile
