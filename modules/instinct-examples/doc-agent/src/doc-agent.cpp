@@ -444,10 +444,10 @@ int main(int argc, char** argv) {
 
     // llm_provider_options for both chat model and embedding model
     LLMProviderOptions chat_model_provider_options;
-    BuildChatModelProviderOptionGroup(app.add_option_group("🧠 Provider for embedding model"), chat_model_provider_options);
+    BuildChatModelProviderOptionGroup(app.add_option_group("🧠 Provider for chat model"), chat_model_provider_options);
 
     LLMProviderOptions embedding_model_provider_options;
-    BuildEmbeddingProviderOptionGroup(app.add_option_group("🧠 Provider for chat model"), embedding_model_provider_options);
+    BuildEmbeddingProviderOptionGroup(app.add_option_group("🧠 Provider for embedding model"), embedding_model_provider_options);
 
     // retriever options
     RetrieverOptions retriever_options;

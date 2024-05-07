@@ -21,8 +21,14 @@ Possible solutions are:
 2. Store timestamps as `int` in database and declare it `int` in C++ data field.
 3. Store timestamps as `TIMESTAMP` with nano-second precision and do conversion during JSON serialization.
 
-As there is heavy use of `google::protobuf::utils::MessageObjectToString` for JSON serialization and we've got no ways to modify how it works. So option 3 means much work on re-write serialization.
 
-In terms of `TIMESTAMP_S`, it seems to be exclusive to DuckDB. It's not even supported in other popular database like MySQL, PostgresQL, which should be considered as data storage later by `instinct.cpp`.
+Discussions about these solutions:
+* There is heavy use of `google::protobuf::utils::MessageToJsonString` for JSON serialization, but we've got no ways to modify how it works ([protobuf/issues/8952](https://github.com/protocolbuffers/protobuf/issues/8952)). A more sophisticated handling is required in `ProtobufUtils::Serialize` other than invoking `google::protobuf::utils::MessageToJsonString` directly.
+* In terms of `TIMESTAMP_S`, it seems to be exclusive to DuckDB. It's not even supported in other popular database like MySQL, PostgresQL, which should be considered as data storage later by `instinct.cpp`.
+* `int` storage in database has many [pitfalls](https://stackoverflow.com/questions/21499504/epoch-vs-date-and-time-in-mysql). e.g. Year 2038 problem, time zone, leap year, etc. 
 
-So option 2 becomes the only viable solution right now.
+
+Conclusion:
+1. Store date as `TIMESTAMP` in database
+2. Declare field as `int64` in protobuf message, so it's lossless for timestamps.
+3. Custom serialization for presentation. (**WIP**)

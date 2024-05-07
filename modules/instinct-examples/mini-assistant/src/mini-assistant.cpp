@@ -4,7 +4,9 @@
 #include <CLI/CLI.hpp>
 #include <cmrc/cmrc.hpp>
 
+#include "chat_model/OllamaChat.hpp"
 #include "chat_model/OpenAIChat.hpp"
+#include "commons/OllamaCommons.hpp"
 #include "database/DBUtils.hpp"
 #include "server/httplib/DefaultErrorController.hpp"
 #include "toolkit/LocalToolkit.hpp"
@@ -32,13 +34,31 @@ namespace instinct::examples::mini_assistant {
     using namespace INSTINCT_LLM_NS;
     using namespace INSTINCT_ASSISTANT_NS::v2;
 
+    // defualt values are required
+    struct LLMProviderOptions {
+        std::string provider_name = "openai";
+        OpenAIConfiguration openai = {};
+        OllamaConfiguration ollama = {};
+    };
+
     struct ApplicationOptions {
+        LLMProviderOptions llm_provider;
         ServerOptions server;
         ConnectionPoolOptions connection_pool;
         std::filesystem::path db_file_path;
         std::filesystem::path file_store_path;
         FileServiceOptions file_service;
     };
+
+    static ChatModelPtr CreateChatModel(const LLMProviderOptions& options) {
+        if (options.provider_name == "ollama") {
+            return CreateOllamaChatModel(options.ollama);
+        }
+        if (options.provider_name == "openai") {
+            return CreateOpenAIChatModel(options.openai);
+        }
+        return nullptr;
+    }
 
     class MiniAssistantApplicationContextFactory final: public IApplicationContextFactory<duckdb::Connection, duckdb::unique_ptr<duckdb::MaterializedQueryResult>> {
         ApplicationOptions options_;
@@ -90,7 +110,7 @@ namespace instinct::examples::mini_assistant {
                 run_service,
                 message_service,
                 assistant_service,
-                [](const RunObject&) { return CreateOpenAIChatModel(); },
+                [&](const RunObject&) { return CreateChatModel(options_.llm_provider); },
                 builtin_toolkit
                 );
             context.task_scheduler->RegisterHandler(context.run_object_task_handler);
@@ -114,14 +134,58 @@ namespace instinct::examples::mini_assistant {
         }
     };
 
+
+    static void graceful_shutdown(int signal) {
+        LOG_INFO("Begin shutdown due to signal {}", signal);
+        instinct::server::GracefullyShutdownRunningHttpServers();
+        instinct::data::GracefullyShutdownThreadPoolTaskSchedulers();
+        std::exit(0);
+    }
+
+    static const std::map<std::string, HttpProtocol> protocol_map{
+                        {"http", kHTTP},
+                        {"https", kHTTPS}
+    };
+
+    static void BuildChatModelProviderOptionGroup(
+            CLI::Option_group* llm_provider_ogroup,
+            OpenAIConfiguration& provider_options) {
+        llm_provider_ogroup->description("OpenAI API, or any OpenAI API compatible servers are supported. Defaults to OpenAI public server.");
+
+        llm_provider_ogroup->add_option("--openai_api_key", provider_options.api_key, "API key for comercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.");
+        llm_provider_ogroup->add_option("--openai_host", provider_options.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.")
+                ->default_val(OPENAI_DEFAULT_ENDPOINT.host);
+        llm_provider_ogroup->add_option("--openai_port", provider_options.endpoint.port, "Port number for API service.")
+                ->default_val(OPENAI_DEFAULT_ENDPOINT.port);
+        llm_provider_ogroup->add_option("--openai_protocol", provider_options.endpoint.protocol, "HTTP protocol for API service.")
+                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
+                ->default_val(OPENAI_DEFAULT_ENDPOINT.protocol);
+        llm_provider_ogroup->add_option("--openai_model_name", provider_options.model_name, "Specify name of the model to be used.")
+                ->default_val(OPENAI_DEFAULT_MODEL_NAME);
+    }
+
+    static void BuildChatModelProviderOptionGroup(
+        CLI::Option_group* llm_provider_ogroup,
+        OllamaConfiguration& provider_options) {
+        llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported. Defaults to a local running Ollama service using llama2:latest model.");
+        llm_provider_ogroup->add_option("--ollama_host", provider_options.endpoint.host, "Host name for Ollama API endpoint.")
+                ->default_val(OLLAMA_ENDPOINT.host);
+        llm_provider_ogroup->add_option("--ollama_port", provider_options.endpoint.port, "Port number for Ollama API endpoint.")
+                ->default_val(OLLAMA_ENDPOINT.port);
+        llm_provider_ogroup->add_option("--chat_model_protocol", provider_options.endpoint.protocol, "HTTP protocol for Ollama API endpoint.")
+                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
+                ->default_val(OLLAMA_ENDPOINT.protocol);
+        llm_provider_ogroup->add_option("--chat_model_model_name", provider_options.model_name, "Specify name of the model to be used.")
+                ->default_val(OLLAMA_DEFUALT_MODEL_NAME);
+    }
+
+
+
 }
 
-static void graceful_shutdown(int signal) {
-    LOG_INFO("Begin shutdown due to signal {}", signal);
-    instinct::server::GracefullyShutdownRunningHttpServers();
-    instinct::data::GracefullyShutdownThreadPoolTaskSchedulers();
-    std::exit(0);
-}
+
+
+
 
 int main(int argc, char** argv) {
     using namespace INSTINCT_SERVER_NS;
@@ -144,6 +208,13 @@ int main(int argc, char** argv) {
             ->default_val("9091");
     app.add_option("--db_file_path", application_options.db_file_path, "Path for DuckDB database file.");
     app.add_option("--file_store_path", application_options.file_store_path, "Path for root directory of local object store.");
+
+    app.add_option("--model_provider", application_options.llm_provider.provider_name,
+                                            "Specify chat model to use for chat completion. ")
+                    ->check(CLI::IsMember({"ollama", "openai"}, CLI::ignore_case))
+                    ->default_val("openai");
+    BuildChatModelProviderOptionGroup(app.add_option_group("🧠 OpenAI configuration"), application_options.llm_provider.openai);
+    BuildChatModelProviderOptionGroup(app.add_option_group("🧠 Ollama configuration"), application_options.llm_provider.ollama);
 
     // log level
     bool enable_verbose_log;
