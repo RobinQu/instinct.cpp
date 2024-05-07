@@ -152,7 +152,7 @@ namespace instinct::examples::mini_assistant {
             OpenAIConfiguration& provider_options) {
         llm_provider_ogroup->description("OpenAI API, or any OpenAI API compatible servers are supported. Defaults to OpenAI public server.");
 
-        llm_provider_ogroup->add_option("--openai_api_key", provider_options.api_key, "API key for comercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.");
+        llm_provider_ogroup->add_option("--openai_api_key", provider_options.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.");
         llm_provider_ogroup->add_option("--openai_host", provider_options.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.")
                 ->default_val(OPENAI_DEFAULT_ENDPOINT.host);
         llm_provider_ogroup->add_option("--openai_port", provider_options.endpoint.port, "Port number for API service.")
@@ -244,7 +244,7 @@ int main(int argc, char** argv) {
     auto fs = cmrc::instinct::assistant::get_filesystem();
     auto sql_file = fs.open("db_migration/001/up.sql");
     const auto sql_line = std::string {sql_file.begin(), sql_file.end()};
-    LOG_DEBUG("initialize database at {} with sql:\n {}", application_options.db_file_path, sql_line);
+    LOG_DEBUG("Initialize database at {} with sql:\n {}", application_options.db_file_path, sql_line);
     DBUtils::ExecuteSQL(sql_line, context.connection_pool);
 
     // start server

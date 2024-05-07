@@ -26,7 +26,7 @@ docker run robinqu/mini-assistant:latest \
 ```
 
 
-## Working with assistant-api SDK from OpenAI
+## Working with `OpenAI SDK`
 
 ```python
 from openai import OpenAI
@@ -62,7 +62,7 @@ Options:
 [Option Group: 🧠 OpenAI configuration]
   OpenAI API, or any OpenAI API compatible servers are supported. Defaults to OpenAI public server.
   Options:
-    --openai_api_key TEXT       API key for comercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.
+    --openai_api_key TEXT       API key for commercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.
     --openai_host TEXT [api.openai.com]
                                 Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.
     --openai_port INT [443]     Port number for API service.

@@ -1,0 +1,12 @@
+.github
+build
+cmake-*
+.idea
+.DS_Store
+__pycache__
+CMakeUserPresets.json
+modules/instinct-examples/doc-agent/test/rag_evaluation/data
+modules/instinct-examples/doc-agent/test/rag_evaluation/output
+.env
+.ipynb_checkpoints
+modules/instinct-lab/openai-test/output

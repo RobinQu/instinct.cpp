@@ -365,7 +365,7 @@ Question: {standalone_question}
             {"http", kHTTP},
             {"https", kHTTPS}
         };
-        llm_provider_ogroup->add_option("--embedding_model_api_key", provider_options.api_key, "API key for comercial services like OpenAI. Leave blank for services without ACL.");
+        llm_provider_ogroup->add_option("--embedding_model_api_key", provider_options.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL.");
         llm_provider_ogroup->add_option("--embedding_model_host", provider_options.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.")
                 ->default_val(OLLAMA_ENDPOINT.host);
         llm_provider_ogroup->add_option("--embedding_model_port", provider_options.port, "Port number for API service.")
