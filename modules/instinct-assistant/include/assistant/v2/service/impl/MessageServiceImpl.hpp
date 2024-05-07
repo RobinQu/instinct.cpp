@@ -57,6 +57,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
             MessageObject message_object;
             message_object.set_thread_id(create_request.thread_id());
+            message_object.set_completed_at(ChronoUtils::GetCurrentEpochMicroSeconds());
             auto* msg = message_object.add_content();
             msg->mutable_text()->set_value(create_request.content());
             msg->set_type(MessageObject_MessageContentType_text);

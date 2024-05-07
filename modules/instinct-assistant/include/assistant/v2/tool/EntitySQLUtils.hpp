@@ -292,7 +292,7 @@ insert into instinct_thread_message(
     NULL,
 {% endif %}
 {% if existsIn(msg, "metadata") %}
-    {{stringify(msg.metadata)}}
+    {{stringify(msg.metadata)}},
 {% else %}
     NULL,
 {% endif %}
@@ -331,12 +331,12 @@ insert into instinct_thread_message(id, thread_id, status, incomplete_details, c
 {% else %}
     NULL,
 {% endif %}
-{% if exists("completed_at") and msg.completed_at %}
+{% if exists("completed_at") and completed_at %}
     {{timestamp(completed_at)}},
 {% else %}
     NULL,
 {% endif %}
-{% if exists("incompleted_at") and msg.incompleted_at %}
+{% if exists("incompleted_at") and incompleted_at %}
     {{timestamp(incompleted_at)}},
 {% else %}
     NULL,
@@ -363,9 +363,9 @@ insert into instinct_thread_message(id, thread_id, status, incomplete_details, c
     NULL,
 {% endif %}
 {% if exists("metadata") %}
-    {{stringify(metadata)}}
+    {{stringify(metadata)}},
 {% else %}
-    NULL
+    NULL,
 {% endif %}
 )
 returning (id);
@@ -500,6 +500,21 @@ set
     {% endif %}
     {% if exists("required_action") %}
     , required_action = {{stringify(required_action)}}
+    {% endif %}
+    {% if exists("started_at") and started_at > 0 %}
+    , started_at = {{timestamp(started_at)}}
+    {% endif %}
+    {% if exists("expires_at") and expires_at > 0 %}
+    , expires_at = {{timestamp(expires_at)}}
+    {% endif %}
+    {% if exists("cancelled_at") and cancelled_at > 0 %}
+    , cancelled_at = {{timestamp(cancelled_at)}}
+    {% endif %}
+    {% if exists("failed_at") and failed_at > 0 %}
+    , failed_at = {{timestamp(failed_at)}}
+    {% endif %}
+    {% if exists("completed_at") and completed_at > 0 %}
+    , completed_at = {{timestamp(completed_at)}}
     {% endif %}
 where thread_id = {{text(thread_id)}} and id = {{text(run_id)}};
             )", context);

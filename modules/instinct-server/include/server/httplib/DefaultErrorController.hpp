@@ -39,7 +39,8 @@ INSTINCT_SERVER_NS {
 #else
                     ex.trace().print_with_snippets(std::cerr);
 #endif
-                    HttpLibSession::Respond(res, ex.message(), 500);
+                    // we cannot print message into response as it contains stacktraces
+                    HttpLibSession::Respond(res, "Unexpected exception occured.", 500);
                 } catch (const std::exception& ex) {
                     LOG_ERROR("Uncaught std::excetion found. ex.what={}", ex.what());
                     HttpLibSession::Respond(res, ex.what(), 500);

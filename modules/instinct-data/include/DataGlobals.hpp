@@ -55,12 +55,14 @@ namespace INSTINCT_DATA_NS {
                 }
                 return std::string {"NULL"};
             });
-            env->set_trim_blocks(true);
+
             env->add_callback("timestamp", 1, [](const inja::Arguments& args) {
                 const auto v = args.at(0)->get<int64_t>();
-                // milli or micro?
-                return "'" + Timestamp::ToString(Timestamp::FromEpochMs(v)) + "'";
+                // TIMESTAMP in sql database has micro-second precision
+                return "'" + Timestamp::ToString(Timestamp::FromEpochMicroSeconds(v)) + "'";
             });
+
+            env->set_trim_blocks(true);
             env->set_lstrip_blocks(true);
             return env;
         }

@@ -418,8 +418,8 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
   int64 expires_at = 10;
   int64 cancelled_at = 11;
   int64 failed_at = 12;
-  int32 completed_at = 13;
-  uint64 incomplete_at = 14;
+  int64 completed_at = 13;
+  int64 incomplete_at = 14;
   IncompleteDetails incomplete_details = 15;
   string model = 16;
   string instructions = 17;
@@ -440,16 +440,11 @@ message RunObject { // CreateThreadAndRunResponse, CreateRunResponse, RetrieveRu
 
   // "auto" or JSON string of ToolChoice
   string tool_choice = 26;
-//  message ToolChoice {
-//    AssistantToolType type = 1;
-//    ToolChoiceFunction function = 2;
-//    message ToolChoiceFunction {
-//      string name = 1;
-//    }
-//  }
+
   // "auto" or JSON string of ResponseFormat
   string response_format = 27;
-//  ResponseFormat response_format = 26;
+
+  int64 started_at = 28;
 }
 
 enum CommonErrorType {
@@ -547,6 +542,13 @@ message ModifyRunRequest {
 
   // only used internally
   RunObject.RequiredAction required_action = 5;
+
+  int64 started_at = 6;
+  int64 expires_at = 7;
+  int64 cancelled_at = 8;
+  int64 failed_at = 9;
+  int64 completed_at = 10;
+
 }
 
 message SubmitToolOutputsToRunRequest { // When a run has the `status: "requires_action"` and `required_action.type` is `submit_tool_outputs`, this endpoint can be used to submit the outputs from the tool calls once they're all completed. All outputs must be submitted in a single request.
@@ -903,7 +905,7 @@ message VectorStoreFile { // CreateVectorFileResponse
   string id = 1;
   string object = 2;
   int64 created_at = 3;
-  int32 modified_at = 4;
+  int64 modified_at = 4;
   string vector_store_id = 5;
   VectorStoreFileStatus status = 6;
   VectorStoreFileError last_error = 7;
@@ -1031,7 +1033,7 @@ message FileObject { // UploadFileResponse, RetrieveFileResponse
   string object = 2;
   int64 created_at = 3;
   int64 modified_at = 4;
-  int64 bytes = 5;
+  int32 bytes = 5;
   string filename = 6;
   FileObjectPurpose purpose = 7;
 }

@@ -105,7 +105,6 @@ namespace INSTINCT_DATA_NS {
                     if (row.iterator.chunk->GetValue(i, row.row).IsNull()) {
                         continue;
                     }
-                    // assert_true(field_descriptor, "should have found field_ descriptor by column name: " + name);
                     switch (field_descriptor->cpp_type()) {
                         case FieldDescriptor::CPPTYPE_STRING: {
                             reflection->SetString(&entity, field_descriptor, row.GetValue<std::string>(i));

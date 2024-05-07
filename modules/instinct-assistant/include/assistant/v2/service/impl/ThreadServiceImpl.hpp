@@ -42,7 +42,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     msg_obj["id"] = details::generate_next_object_id("msg");
                     msg_obj["thread_id"] = thread_id;
                     // manually inserted messages are all completed
-                    msg_obj["completed_at"] = ChronoUtils::GetCurrentTimeMillis();
+                    msg_obj["completed_at"] = ChronoUtils::GetCurrentEpochMicroSeconds();
                 }
                 // create mesages
                 EntitySQLUtils::InsertManyMessages(message_data_mapper_, context);

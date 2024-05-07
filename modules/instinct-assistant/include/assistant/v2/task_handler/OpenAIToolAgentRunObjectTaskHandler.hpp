@@ -50,8 +50,16 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 return;
             }
 
-            // update run object to status of `in_progress`
-            if(!UpdateRunObjectStatus(run_object.thread_id(), run_object.id(), RunObject_RunObjectStatus_in_progress)) {
+            // update run object with `status` and `started_at`
+            using namespace std::chrono_literals;
+            ModifyRunRequest modify_run_request;
+            modify_run_request.set_run_id(run_object.id());
+            modify_run_request.set_thread_id(run_object.thread_id());
+            modify_run_request.set_status(RunObject_RunObjectStatus_in_progress);
+            modify_run_request.set_started_at(ChronoUtils::GetCurrentEpochMicroSeconds());
+            // expect to expire at 10 mins later
+            modify_run_request.set_expires_at(ChronoUtils::GetLaterEpoch<std::chrono::microseconds>(10min));
+            if(!run_service_->ModifyRun(modify_run_request)) {
                 LOG_ERROR("Illegal response for updating run object: {}", run_object.ShortDebugString());
                 return;
             }
@@ -69,7 +77,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             executor->Stream(state)
                 | rpp::operators::as_blocking()
                 | rpp::operators::subscribe([&](const AgentState& current_state) {
-
                     // respond to state changes
                     const auto last_step = current_state.previous_steps().rbegin();
                     if (last_step->has_thought()) {
@@ -444,12 +451,15 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             if (const auto last_run_step = RetrieveLastRunStep_(run_object); !last_run_step) {
                 if (finish_message.is_failed()) {
                     modify_run_request.set_status(RunObject_RunObjectStatus_failed);
+                    modify_run_request.set_failed_at(ChronoUtils::GetCurrentEpochMicroSeconds());
                 } else if (finish_message.is_cancelled()) {
                     modify_run_request.set_status(RunObject_RunObjectStatus_cancelled);
+                    modify_run_request.set_cancelled_at(ChronoUtils::GetCurrentEpochMicroSeconds());
                 } else if (finish_message.is_expired()) {
                     modify_run_request.set_status(RunObject_RunObjectStatus_expired);
                 } else {
                     modify_run_request.set_status(RunObject_RunObjectStatus_completed);
+                    modify_run_request.set_completed_at(ChronoUtils::GetCurrentEpochMicroSeconds());
                     if(!CreateMessageStep_(finish_message.response(), run_object)) {
                         LOG_ERROR("Cannot create message for final answer. run_object={}", run_object.ShortDebugString());
                         return;
@@ -463,7 +473,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
                 if (finish_message.is_failed()) {
                     // update last run step object with status of `failed`
-                    modify_run_step_request.set_failed_at(ChronoUtils::GetCurrentTimeMillis());
+                    modify_run_step_request.set_failed_at(ChronoUtils::GetCurrentEpochMicroSeconds());
                     modify_run_step_request.set_status(RunStepObject_RunStepStatus_failed);
 
                     if (finish_message.has_details() && finish_message.details().Is<RunEarlyStopDetails>()) { // find error data from details
@@ -480,19 +490,22 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     }
                     // update run object with status of `failed`
                     modify_run_request.set_status(RunObject_RunObjectStatus_failed);
+                    modify_run_request.set_failed_at(ChronoUtils::GetCurrentEpochMicroSeconds());
                 } else if (finish_message.is_cancelled()) {
                     modify_run_step_request.set_status(RunStepObject_RunStepStatus_cancelled);
-                    modify_run_step_request.set_cancelled_at(ChronoUtils::GetCurrentTimeMillis());
+                    modify_run_step_request.set_cancelled_at(ChronoUtils::GetCurrentEpochMicroSeconds());
                     modify_run_request.set_status(RunObject_RunObjectStatus_cancelled);
+                    modify_run_request.set_cancelled_at(ChronoUtils::GetCurrentEpochMicroSeconds());
                 } else if (finish_message.is_expired()) {
-                    modify_run_step_request.set_expired_at(ChronoUtils::GetCurrentTimeMillis());
+                    modify_run_step_request.set_expired_at(ChronoUtils::GetCurrentEpochMicroSeconds());
                     modify_run_step_request.set_status(RunStepObject_RunStepStatus_expired);
                     modify_run_request.set_status(RunObject_RunObjectStatus_expired);
                 } else {
                     // update last run step object with status of `completed`
-                    modify_run_step_request.set_completed_at(ChronoUtils::GetCurrentTimeMillis());
+                    modify_run_step_request.set_completed_at(ChronoUtils::GetCurrentEpochMicroSeconds());
                     modify_run_step_request.set_status(RunStepObject_RunStepStatus_completed);
                     modify_run_request.set_status(RunObject_RunObjectStatus_completed);
+                    modify_run_request.set_completed_at(ChronoUtils::GetCurrentEpochMicroSeconds());
 
                     // create message step
                     if (!CreateMessageStep_(finish_message.response(), run_object)) {
