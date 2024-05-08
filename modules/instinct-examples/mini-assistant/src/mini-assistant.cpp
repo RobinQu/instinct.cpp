@@ -206,8 +206,8 @@ int main(int argc, char** argv) {
     ApplicationOptions application_options;
     app.add_option("-p,--port", application_options.server.port, "Port number which API server will listen")
             ->default_val("9091");
-    app.add_option("--db_file_path", application_options.db_file_path, "Path for DuckDB database file.");
-    app.add_option("--file_store_path", application_options.file_store_path, "Path for root directory of local object store.");
+    app.add_option("--db_file_path", application_options.db_file_path, "Path for DuckDB database file.")->required();
+    app.add_option("--file_store_path", application_options.file_store_path, "Path for root directory of local object store.")->required()->check(CLI::ExistingDirectory);
 
     app.add_option("--model_provider", application_options.llm_provider.provider_name,
                                             "Specify chat model to use for chat completion. ")

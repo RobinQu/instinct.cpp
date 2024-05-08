@@ -26,8 +26,8 @@ find_package(Threads REQUIRED)
 # add CTest
 include(CTest)
 
-add_compile_options(-fsanitize=address)
-add_link_options(-fsanitize=address)
+#add_compile_options(-fsanitize=address)
+#add_link_options(-fsanitize=address)
 
 
 # control where libraries and executables are placed during the build.

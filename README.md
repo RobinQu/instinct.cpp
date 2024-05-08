@@ -8,7 +8,7 @@
 
 ## Features
 
-![Components of insticnt.cpp](docs/components.png)
+![Components of instinct.cpp](docs/components.png)
 
 What `instinct.cpp` offer:
 
