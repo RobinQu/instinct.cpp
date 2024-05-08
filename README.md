@@ -38,8 +38,6 @@ For library itself:
 ## Roadmap
 
 Complete project plan is tracked at [Github Project](https://github.com/users/RobinQu/projects/1/views/1?layout=board).
-# instinct.cpp
-
 
 | Milestone                                                     | Features                                                                                             | DDL  |
 |---------------------------------------------------------------|------------------------------------------------------------------------------------------------------|------|
