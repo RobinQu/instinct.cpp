@@ -20,7 +20,7 @@ namespace INSTINCT_SERVER_NS {
     using namespace httplib;
 
     struct ServerOptions {
-        std::string host = "localhost";
+        std::string host = "0.0.0.0";
         int port = 0;
     };
 

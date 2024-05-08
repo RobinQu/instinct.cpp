@@ -12,17 +12,23 @@ Download binary package from [release page](https://github.com/RobinQu/instinct.
 ./mini-assistant \
   --file_store_path=/tmp/mini-assistant-files/  \
   --db_file_path=/tmp/mini-assistant.db \
-  -p 9091
+  -p 9091 \
+  --verbose
 ```
 
 ### Option 2: Using Docker
 
 ```shell
-docker run robinqu/mini-assistant:latest \
-  -v /tmp/mini-assistant:/data \
-  -p 9091:9091
-  --file_store_path=/tmp/mini-assistant-files/ \
-  --db_file_path=/tmp/mini-assistant.db -p 9091
+docker run --rm \
+  -v /tmp/mini-assistant-db:/data/db \
+  -v /tmp/mini-assistant-files:/data/files \
+  -p 9091:9091 \
+  -e OPENAI_API_KEY=${OPENAI_API_KEY} \
+  robinqu/instinct-mini-assistant:latest \
+  --file_store_path=/data/files \
+  --db_file_path=/data/db/mini-assistant.db \
+  -p 9091 \
+  --verbose
 ```
 
 
