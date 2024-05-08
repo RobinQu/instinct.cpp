@@ -19,7 +19,7 @@ RUN --mount=type=cache,id=id=conan-$TARGETARCH$TARGETVARIANT,target=/root/.conan
 RUN --mount=type=cache,id=id=conan-$TARGETARCH$TARGETVARIANT,target=/root/.conan2,sharing=locked \
     cd build && \
     cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release && \
-    cmake --build .
+    cmake --build . -j $(nproc)
 
 
 FROM ubuntu:$UBUNTU_VERSION

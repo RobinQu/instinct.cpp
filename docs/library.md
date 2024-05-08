@@ -18,7 +18,7 @@ This project relies on [conan](https://conan.io/) to resolve dependencies. To bu
 conan install . --build=missing --output-folder=build
 cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-cmake --build .
+cmake --build . -j $(nproc)
 ```
 
 
