@@ -19,7 +19,7 @@
         * `instinct-llm` module
             * `OpenAIToolAgentExecutor`: Agent executor based on OpenAI function calling API.
         * `insitinct-server` module
-            * Error controller for `HttpLibServer` and `DefaultErrorController` implmentation.
+            * Error controller for `HttpLibServer` and `DefaultErrorController` implementation.
             * `HttpLibSession` struct for route handler.
 * Improvements
     * `instinct-llm` module
