@@ -48,14 +48,16 @@ assistant = client.beta.assistants.create(
 
 ```text
 🐬 mini-assistant - Local Assistant API at your service
-Usage: /Users/robinqu/Workspace/github/robinqu/instinct.cpp/build/modules/instinct-examples/mini-assistant/mini-assistant [OPTIONS]
+Usage: mini-assistant [OPTIONS]
 
 Options:
   -h,--help                   Print this help message and exit
   --help-all                  Expand all help
   -p,--port INT [9091]        Port number which API server will listen
-  --db_file_path TEXT         Path for DuckDB database file.
-  --file_store_path TEXT      Path for root directory of local object store.
+  --db_file_path TEXT REQUIRED
+                              Path for DuckDB database file.
+  --file_store_path TEXT:DIR REQUIRED
+                              Path for root directory of local object store.
   --model_provider TEXT:{ollama,openai} [openai]
                               Specify chat model to use for chat completion.
   -v,--verbose                A flag to enable verbose log
@@ -86,10 +88,9 @@ Options:
 ## Implementation details
 
 * A thread pool based task scheduler is used to handle jobs for `run` objects.
-* DuckDB is used for convention structured data as well as vector data. Many improvements can be done here: [Item#62004973](https://github.com/users/RobinQu/projects/1/views/1?pane=issue&itemId=62004973). 
-* More technical details can be found in [docs/assistant_api.md](../../../docs/assistant_api.md).
-* Current limitations and known issues:
-  * Only function tools are supported. `file-search` is next to come. `code-interpreter` is scheduled as later.
-  * Things will be fixed in next release:
-    * Function calling requires OpenAI's `gpt-3.5` or `gpt-4` series. Function calling with opensourced LLMs is possible, and it's on top of my TODO list.
-    * All timestamps are currently printed in microsecond precision while it's printed in epoch seconds in official APIs.
+* DuckDB is used for convention structured data as well as vector data. Many improvements can be done. [More details](https://github.com/users/RobinQu/projects/1/views/1?pane=issue&itemId=62004973). 
+* More technical details about Assistant API can be found in [docs/assistant_api.md](../../../docs/assistant_api.md).
+* known issues:
+  * Function calling requires OpenAI's `gpt-3.5` or `gpt-4` series. Function calling with opensourced LLMs is possible, and it's on top of my TODO list.
+  * All timestamps are currently printed in microsecond precision while it's printed in epoch seconds in official APIs.
+  * Only function tool is supported. `file-search` is next to come. `code-interpreter` is scheduled as later.
