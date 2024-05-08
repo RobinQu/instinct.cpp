@@ -26,5 +26,5 @@ FROM ubuntu:$UBUNTU_VERSION
 
 WORKDIR /app
 COPY --from=builder /src/build/modules/instinct-examples/mini-assistant/mini-assistant /app/
-ENTRYPOINT /app/mini-assistant
+ENTRYPOINT ["/app/mini-assistant"]
 
