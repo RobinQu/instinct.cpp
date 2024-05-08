@@ -4,8 +4,8 @@ cmake-*
 __pycache__
 build
 CMakeUserPresets.json
-modules/instinct-examples/doc-agent/test/rag_evaluation/data
-modules/instinct-examples/doc-agent/test/rag_evaluation/output
+modules/instinct-lab/rag_evaluation/output/
+modules/instinct-lab/rag_evaluation/data
 .env
 .ipynb_checkpoints
 modules/instinct-lab/openai-test/output
