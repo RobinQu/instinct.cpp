@@ -14,8 +14,6 @@ class InstinctCppRecipe(ConanFile):
     def validate(self):
         check_min_cppstd(self, 20)
 
-    def build_requirements(self):
-        self.tool_requires("cmake/3.27.9")
 
     def requirements(self):
         self.requires("hash-library/8.0")
