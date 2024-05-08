@@ -31,8 +31,10 @@
 
 
 ```text
-3c6418a1e8ffd97893b0767ae533f98966a18debc1643aa2544682fdfbf2cec1  mini-assistant-macos-arm64v8.tar.gz
-
+cff7ddc64c37aa1fbe7a772a99ab6461f1d8cd93f802897d586586cc74b1f45d  mini-assistant_macos-arm64.tar.gz
+73d265ea05aa52d2bd1325c21965ad2accb629fbe218a8ba2f240b88f4a19967  mini-assistant_linux-amd64.tar.gz
+872157a97a25551ed4d5768f64018aa38f6a7e3b9516286e2592687744e32bf2  doc-agent_linux-amd64.tar.gz
+79c4c7b178bafa560a4a8f7721d8f8361f35e624240972d793577687ecb49368  doc-agent_macos-arm64.tar.gz
 ```
 
 
