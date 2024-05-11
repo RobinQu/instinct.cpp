@@ -13,13 +13,11 @@ namespace INSTINCT_LLM_NS {
      */
     class LocalFunctionToolkit final: public BaseFunctionToolkit  {
         std::unordered_map<std::string, FunctionToolPtr> functions_map_;
+        std::vector<FunctionTool> function_tools_;
 
     public:
-        std::vector<FunctionTool> GetAllFunctionToolSchema() override {
-            auto view = std::views::values(functions_map_) | std::views::transform([](const auto& tool) {
-                return tool->GetSchema();
-            });
-            return {view.begin(), view.end()};
+        [[nodiscard]] const std::vector<FunctionTool>& GetAllFunctionToolSchema() const override  {
+            return function_tools_;
         }
 
         bool RegisterFunctionTool(const FunctionToolPtr &function_tool) override {
@@ -28,6 +26,7 @@ namespace INSTINCT_LLM_NS {
                 return false;
             }
             functions_map_[fn_name] = function_tool;
+            function_tools_.push_back(function_tool->GetSchema());
             return true;
         }
 
@@ -35,6 +34,9 @@ namespace INSTINCT_LLM_NS {
             if (!functions_map_.contains(name)) {
                 return false;
             }
+            std::erase_if(function_tools_, [&](const FunctionTool& tool) {
+                return tool.name() == name;
+            });
             return functions_map_.erase(name);
         }
 

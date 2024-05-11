@@ -26,7 +26,7 @@ namespace INSTINCT_LLM_NS {
         virtual bool UnregisterFunctionTool(const std::string& name) = 0;
         virtual std::unordered_set<std::string> GetFunctionToolNames() = 0;
         virtual FunctionToolPtr LookupFunctionTool(const FunctionToolLookupOptions& options) = 0;
-        virtual std::vector<FunctionTool> GetAllFunctionToolSchema() = 0;
+        [[nodiscard]] virtual const std::vector<FunctionTool>& GetAllFunctionToolSchema() const = 0;
     };
 
 

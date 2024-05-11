@@ -53,6 +53,8 @@ namespace INSTINCT_LLM_NS {
 
 
        int max_tokens;
+
+       std::vector<std::string> stop_words = {};
     };
 
     static const std::string DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT = "/v1/chat/completions";

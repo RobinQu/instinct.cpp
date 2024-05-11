@@ -91,6 +91,7 @@ namespace INSTINCT_LLM_NS {
             }
             req.mutable_tools()->Add(function_tools_.begin(), function_tools_.end());
             req.set_stream(stream);
+            req.mutable_stop()->Add(configuration_.stop_words.begin(), configuration_.stop_words.end());
             return req;
         }
 

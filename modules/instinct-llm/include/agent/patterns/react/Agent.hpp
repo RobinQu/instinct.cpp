@@ -126,7 +126,6 @@ Thought: {agent_scratchpad})"
             for (const auto& tk: toolkits) {
                 all_schemas_.insert(all_schemas_.end(), tk->GetAllFunctionToolSchema().begin(), tk->GetAllFunctionToolSchema().end());
             }
-            chat_model_->BindToolSchemas(all_schemas_);
         }
 
         /**

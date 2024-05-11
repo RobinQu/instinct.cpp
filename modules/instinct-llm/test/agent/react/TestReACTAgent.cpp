@@ -5,6 +5,7 @@
 
 #include "agent/patterns/react/Agent.hpp"
 #include "chat_model/OllamaChat.hpp"
+#include "chat_model/OpenAIChat.hpp"
 #include "toolkit/LocalToolkit.hpp"
 #include "toolkit/builtin/LLMMath.hpp"
 #include "toolkit/builtin/SerpAPI.hpp"
@@ -18,10 +19,16 @@ namespace INSTINCT_LLM_NS {
             const auto search = CreateSerpAPI({
                 .apikey = SystemUtils::GetEnv("SERP_API_KEY")
             });
-            chat_model_ = CreateOllamaChatModel({
-                                                        .model_name = "mixtral:latest",
+            // chat_model_ = CreateOllamaChatModel({
+            //                                             .model_name = "mixtral:latest",
+            //     .temperature = 0,
+            //     .stop_words = {{"Observation:"}}
+            // });
+
+            // relies on OpenAI or other auto-configured service
+            chat_model_ = CreateOpenAIChatModel({
                 .temperature = 0,
-                .stop_words = {{"Observation:"}}
+                .stop_words = { {"Observation:" }}
             });
             const auto calculator = CreateLLMMath(chat_model_, {.max_attempts = 2});
             toolkit_ = CreateLocalToolkit({ search, calculator });
@@ -45,8 +52,8 @@ namespace INSTINCT_LLM_NS {
         const auto ctx1 = input_parse->ParseInput(state);
         ASSERT_EQ(ctx1->RequireMappingData().at("input")->RequirePrimitive<std::string>(), prompt);
         ASSERT_EQ(ctx1->RequireMappingData().at("agent_scratchpad")->RequirePrimitive<std::string>(), "");
-        ASSERT_EQ(ctx1->RequireMappingData().at("tools")->RequirePrimitive<std::string>(), "Calculator: Useful for when you need to answer questions about math. args={\"math_question\":\"string\"}\nSearch: A search engine. Useful for when you need to answer questions about current events. Input should be a search query. args={\"query\":\"string\"}");
-        ASSERT_EQ(ctx1->RequireMappingData().at("tool_names")->RequirePrimitive<std::string>(), "Calculator,Search");
+        ASSERT_EQ(ctx1->RequireMappingData().at("tools")->RequirePrimitive<std::string>(), "Search: A search engine. Useful for when you need to answer questions about current events. Input should be a search query. arg={\"properties\":{\"query\":{\"type\":\"string\"}}}\nCalculator: Useful for when you need to answer questions about math. arg={\"properties\":{\"math_question\":{\"type\":\"string\"}}}");
+        ASSERT_EQ(ctx1->RequireMappingData().at("tool_names")->RequirePrimitive<std::string>(), "Search,Calculator");
 
 
         // with thought and observation
