@@ -7,72 +7,104 @@ import "chat_completion_api.proto";
 package instinct.llm;
 
 
-message FunctionToolInvocation {
-  string name = 1;
-  /**
-  action input from planer llm, which could be a JSON string ,or simple string literal
-   */
-  string input = 2;
-
-  string id = 3;
-}
+//message FunctionToolInvocation {
+//  string name = 1;
+//  /**
+//  action input from planer llm, which could be a JSON string ,or simple string literal
+//   */
+//  string input = 2;
+//
+//  string id = 3;
+//}
 
 message FunctionToolSelfCheckResponse {
   bool passed = 2;
 }
 
-message FunctionToolResult {
+message FunctionToolResult { // this is useful for toolkit related classes, tool message cannot represent invoke result lossless.
   string invocation_id = 1;
   string return_value = 2;
   bool has_error = 3;
   string exception = 4;
 }
+//
+//message ReACTAgentContinuation {
+//  string thought = 1;
+//  FunctionToolInvocation invocation = 2;
+////  string final_answer = 3;
+//}
+//
+//message ReACTAgentObservation {
+//  FunctionToolResult result = 1;
+//}
 
-message ReACTAgentContinuation {
-  string thought = 1;
-  FunctionToolInvocation invocation = 2;
-//  string final_answer = 3;
-}
+//
+//message LLMCompilerToolCallCustomData {// custom data for llm.Message::custom
+//  // index in function graph
+//  int64 index = 1;
+//}
+//
+//message LLMCompilerTask {
+//  int64 index = 1;
+//  ToolCallObject tool_call_object = 2;
+//  repeated int64 dependencies = 3;
+//  string tool_call_id = 4;
+//}
+//
+//message LLMCompilerContinuation {
+//  map<int64, LLMCompilerTask> task_graph = 1;
+//}
+//
+//message LLMCompilerPause {
+//  map<int64, LLMCompilerTask> task_graph = 1;
+//  repeated llm.Message completed = 2;
+//}
+//
+//message LLMCompilerObservation {
+//  repeated llm.Message tool_messages = 1;
+//}
+//
+//message OpenAIToolAgentContinuation {
+//
+//}
 
-message ReACTAgentObservation {
-  FunctionToolResult result = 1;
-}
-
-message LLMCompilerContinuation {}
-
-message LLMCompilerObservation {}
-
-message OpenAIToolAgentContinuation {
-  llm.Message tool_call_message = 1; // should be a message container tool call requests
-  repeated llm.FunctionTool functions = 2; // possible function tools
-}
-
-message OpenAIToolAgentObservation {
-  repeated llm.Message tool_messages = 1; // completed tool calls
-}
-
-message OpenAIToolAgentPause {
-  repeated llm.Message completed = 1; // should be a tool message
-  llm.Message tool_call_message = 2; // original tool call requests
-
-}
+//message OpenAIToolAgentObservation {
+//  repeated llm.Message tool_messages = 1; // completed tool calls
+//}
+//
+//message OpenAIToolAgentPause {
+//  repeated llm.Message completed = 1; // should be a group of completed tool message
+//  llm.Message tool_call_message = 2; // original tool call requests
+//
+//}
 
 message AgentContinuation {
   // thought for officially supported implementations
-  oneof value {
-    ReACTAgentContinuation react = 1;
-    LLMCompilerContinuation llm_compiler = 2;
-    OpenAIToolAgentContinuation openai = 3;
-  }
+//  oneof value {
+//    ReACTAgentContinuation react = 1;
+//    LLMCompilerContinuation llm_compiler = 2;
+//    OpenAIToolAgentContinuation openai = 3;
+//  }
+
+
+
+  llm.Message tool_call_message = 1; // should be a message container tool call requests
+  repeated llm.FunctionTool functions = 2; // possible function tools
+
+
   // reserved for user defined thought
   google.protobuf.Any custom = 100;
 }
 
 message AgentPause {
   // currently only openai tool agent supports pausing
-  oneof value {
-      OpenAIToolAgentPause openai = 1;
-  }
+//  oneof value {
+//      OpenAIToolAgentPause openai = 1;
+//  }
+
+  repeated llm.Message completed = 1; // should be a group of completed tool message
+  llm.Message tool_call_message = 2; // original tool call requests
+
   // reserved for user defined thought
   google.protobuf.Any custom = 100;
 }
@@ -97,11 +129,15 @@ message AgentThought {
 
 message AgentObservation {
   // thought for officially supported implementations
-  oneof value {
-    ReACTAgentObservation react = 1;
-    LLMCompilerObservation llm_compiler = 2;
-    OpenAIToolAgentObservation openai = 3; // should be a tool message
-  }
+//  oneof value {
+//    ReACTAgentObservation react = 1;
+//    LLMCompilerObservation llm_compiler = 2;
+//    OpenAIToolAgentObservation openai = 3; // should be a tool message
+//  }
+
+
+  repeated llm.Message tool_messages = 1; // completed tool calls
+
 
   // reserved for user defined observation
   google.protobuf.Any custom = 100;

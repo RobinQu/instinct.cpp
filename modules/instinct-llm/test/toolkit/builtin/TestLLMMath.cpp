@@ -22,8 +22,8 @@ namespace INSTINCT_AGENT_NS {
         [[nodiscard]] std::string Calculate(const std::string& question) const {
             CaculatorToolRequest request;
             request.set_math_question(question);
-            FunctionToolInvocation invocation;
-            invocation.set_input(ProtobufUtils::Serialize(request));
+            ToolCallObject invocation;
+            invocation.mutable_function()->set_arguments(ProtobufUtils::Serialize(request));
             const auto resp = math->Invoke(invocation);
             // const auto calc_resp = ProtobufUtils::Deserialize<CalculatorToolResponse>(resp.return_value());
             // return calc_resp.value();

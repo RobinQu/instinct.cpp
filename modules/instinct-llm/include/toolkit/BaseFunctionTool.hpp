@@ -29,14 +29,14 @@ namespace INSTINCT_LLM_NS {
     /**
      * Expects a `FunctionToolInvocation` message from context, and returns `FunctionToolResult` message.
      */
-    class BaseFunctionTool: public virtual IFunctionTool, public BaseRunnable<FunctionToolInvocation, FunctionToolResult> {
+    class BaseFunctionTool: public virtual IFunctionTool, public BaseRunnable<ToolCallObject, FunctionToolResult> {
         FunctionToolOptions options_;
     public:
         explicit BaseFunctionTool(const FunctionToolOptions &options)
             : options_(options) {
         }
 
-        FunctionToolResult Invoke(const FunctionToolInvocation &invocation) override {
+        FunctionToolResult Invoke(const ToolCallObject &invocation) override {
             return InvokeWithRetry_(invocation, 0);
         }
 
@@ -53,7 +53,7 @@ namespace INSTINCT_LLM_NS {
         }
 
     private:
-        FunctionToolResult InvokeWithRetry_(const FunctionToolInvocation &invocation, const uint8_t retry_count) {
+        FunctionToolResult InvokeWithRetry_(const ToolCallObject &invocation, const uint8_t retry_count) {
             // if (retry_count > options_.max_attempts) {
             //     throw InstinctException(fmt::format("Abort function tool as max attempts reached. name={},id={}", invocation.name(), invocation.id()));
             // }
@@ -66,7 +66,7 @@ namespace INSTINCT_LLM_NS {
             LOG_DEBUG("Begin to function tool: name={},id={}", GetSchema().name(), result.invocation_id());
             const long t1 = ChronoUtils::GetCurrentTimeMillis();
             try {
-                result.set_return_value(Execute(invocation.input()));
+                result.set_return_value(Execute(invocation.function().arguments()));
                 LOG_DEBUG("Finish function tool: name={},id={},elapsed={}ms", GetSchema().name(), result.invocation_id(), ChronoUtils::GetCurrentTimeMillis() -  t1);
             } catch (const std::runtime_error& e) {
                 if (retry_count+1 < options_.max_attempts) {

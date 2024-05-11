@@ -56,11 +56,12 @@ namespace INSTINCT_LLM_NS {
             }
 
             if (StringUtils::IsNotBlankString(action_name) && StringUtils::IsNotBlankString(thought)) {
-                auto* invocation = thought_message.mutable_continuation()->mutable_react()->mutable_invocation();
-                invocation->set_name(action_name);
-                invocation->set_input(action_input);
-                invocation->set_id(StringUtils::GenerateUUIDString());
-                thought_message.mutable_continuation()->mutable_react()->set_thought(thought);
+                auto* invocation = thought_message.mutable_continuation()->mutable_tool_call_message();
+                invocation->set_content(thought);
+                auto* tool_call = invocation->mutable_tool_calls()->Add();
+                tool_call->mutable_function()->set_name(action_name);
+                tool_call->mutable_function()->set_arguments(action_input);
+                tool_call->set_id(StringUtils::GenerateUUIDString());
                 return thought_message;
             }
             if (StringUtils::IsNotBlankString(final_answer)) {

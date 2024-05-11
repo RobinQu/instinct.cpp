@@ -19,10 +19,10 @@ namespace INSTINCT_AGENT_NS {
         }
 
         std::string Query(const std::string& text) {
-            FunctionToolInvocation invocation;
+            ToolCallObject invocation;
             SearchToolRequest search_tool_request;
             search_tool_request.set_query(text);
-            invocation.set_input(ProtobufUtils::Serialize(search_tool_request));
+            invocation.mutable_function()->set_arguments(ProtobufUtils::Serialize(search_tool_request));
             const auto result = serp_api->Invoke(invocation);
             assert_true(!result.has_error());
             return result.return_value();

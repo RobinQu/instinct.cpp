@@ -81,13 +81,13 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     const auto last_step = current_state.previous_steps().rbegin();
                     if (last_step->has_thought()) {
                         if (last_step->thought().has_continuation()
-                            && last_step->thought().continuation().openai().has_tool_call_message()) { // should contain thought of calling code interpreter and file search, which are invoked automatically
+                            && last_step->thought().continuation().has_tool_call_message()) { // should contain thought of calling code interpreter and file search, which are invoked automatically
                             OnAgentContinuation(last_step->thought().continuation(), run_object);
                             return;
                         }
 
                         if (last_step->thought().has_pause()
-                            && last_step->thought().pause().has_openai()) { // should contain thought of calling function tools
+                            && last_step->thought().pause().has_tool_call_message()) { // should contain thought of calling function tools
                             OnAgentPause_(last_step->thought().pause(), run_object);
                             return;
                         }
@@ -98,7 +98,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         }
                     }
 
-                    if (last_step->has_observation() && last_step->observation().has_openai()) {
+                    if (last_step->has_observation() && last_step->observation().tool_messages_size() > 0) {
                         // 1. function tool call results are submitted
                         // 2. or only contain tool calls for code interpreter and file search
                         OnAgentObservation_(last_step->observation(), run_object);
@@ -238,17 +238,17 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             auto* step_details = run_step_object.mutable_step_details();
 
             // create step with message if tool message has content string
-            if (StringUtils::IsNotBlankString(agent_continuation.openai().tool_call_message().content())) {
-                if (!CreateMessageStep_(agent_continuation.openai().tool_call_message().content(), run_object)) {
-                    LOG_ERROR("Illegal reponse for creating step object with message. tool_call_message={}, run_object={}", agent_continuation.openai().tool_call_message().DebugString(), run_object.ShortDebugString());
+            if (StringUtils::IsNotBlankString(agent_continuation.tool_call_message().content())) {
+                if (!CreateMessageStep_(agent_continuation.tool_call_message().content(), run_object)) {
+                    LOG_ERROR("Illegal reponse for creating step object with message. tool_call_message={}, run_object={}", agent_continuation.tool_call_message().DebugString(), run_object.ShortDebugString());
                     return;
                 }
             }
 
             // create step with tool step if tool message contains tool call requests
-            if (agent_continuation.openai().tool_call_message().tool_calls_size() > 0) {
+            if (agent_continuation.tool_call_message().tool_calls_size() > 0) {
                 // TODO support code interpreter and file serach
-                for(const auto& tool_request: agent_continuation.openai().tool_call_message().tool_calls()) {
+                for(const auto& tool_request: agent_continuation.tool_call_message().tool_calls()) {
                     auto* tool_call_detail = step_details->mutable_tool_calls()->Add();
                     tool_call_detail->set_id(tool_request.id());
                     tool_call_detail->set_type(function);
@@ -339,9 +339,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             modify_run_request.mutable_required_action()->set_type(RunObject_RequiredActionType_submit_tool_outputs);
 
             // find unfinished tool calls
-            for(const auto& tool_call: agent_pause.openai().tool_call_message().tool_calls()) {
+            for(const auto& tool_call: agent_pause.tool_call_message().tool_calls()) {
                 bool done = false;
-                for(const auto& tool_message: agent_pause.openai().completed()) {
+                for(const auto& tool_message: agent_pause.completed()) {
                     done = tool_message.tool_call_id() == tool_call.id();
                 }
                 if (!done) {
@@ -354,7 +354,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             }
 
             // update finished tool calls
-            for(const auto& tool_message: agent_pause.openai().completed()) {
+            for(const auto& tool_message: agent_pause.completed()) {
                 for(auto& tool_call_in_step_detail: *step_details->mutable_tool_calls()) {
                     if (tool_call_in_step_detail.id() == tool_message.tool_call_id()) {
                         if (tool_call_in_step_detail.type() == AssistantToolType::function) {
@@ -409,7 +409,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             step_details->CopyFrom(last_run_step->step_details());
 
             // TODO support code interpreter and file serach
-            for(const auto& tool_message: observation.openai().tool_messages()) {
+            for(const auto& tool_message: observation.tool_messages()) {
                 for(int i=0;i<step_details->tool_calls_size();++i) {
                     if (auto* tool_call = step_details->mutable_tool_calls(i);
                         tool_call->id() == tool_message.tool_call_id()) {
@@ -628,7 +628,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     // create continuation
                     last_step = state.mutable_previous_steps()->Add();
                     last_continuation = last_step->mutable_thought()->mutable_continuation();
-                    auto* tool_call_request = last_continuation->mutable_openai()->mutable_tool_call_message();
+                    auto* tool_call_request = last_continuation->mutable_tool_call_message();
                     tool_call_request->set_role("assistant");
                     for (const auto& tool_call: step.step_details().tool_calls()) {
                         // TODO support code-interpreter and file-search
@@ -657,7 +657,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     if (step.status() == RunStepObject_RunStepStatus_completed) {
                         // create observation
                         last_step = state.mutable_previous_steps()->Add();
-                        auto* openai_observation = last_step->mutable_observation()->mutable_openai();
+                        auto* openai_observation = last_step->mutable_observation();
                         for (const auto& tool_call: step.step_details().tool_calls()) {
                             if (tool_call.type() == function) {
                                 auto* tool_messsage = openai_observation->add_tool_messages();
@@ -681,18 +681,18 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         // create pause
                         last_step = state.mutable_previous_steps()->Add();
                         last_pause = last_step->mutable_thought()->mutable_pause();
-                        last_pause->mutable_openai()->mutable_tool_call_message()->CopyFrom(*tool_call_request);
+                        last_pause->mutable_tool_call_message()->CopyFrom(*tool_call_request);
                         // TODO support code-interpreter and file-search
                         // add tool messages for completed function tool calls, including those submitted by user
                         for (const auto& tool_call: step.step_details().tool_calls()) {
                             if (tool_call.type() == function && StringUtils::IsNotBlankString(tool_call.function().output())) {
-                                auto* tool_messsage = last_pause->mutable_openai()->add_completed();
+                                auto* tool_messsage = last_pause->add_completed();
                                 tool_messsage->set_content(tool_call.function().output());
                                 tool_messsage->set_role("tool");
                                 tool_messsage->set_tool_call_id(tool_call.id());
                             }
                         }
-                        LOG_DEBUG("{}/{} completed tool calls in run step. thread_id={}, run_id={}, step_id={}", last_pause->openai().completed_size(), last_pause->openai().tool_call_message().tool_calls_size(), run_object.thread_id(), run_object.id(), step.id());
+                        LOG_DEBUG("{}/{} completed tool calls in run step. thread_id={}, run_id={}, step_id={}", last_pause->completed_size(), last_pause->tool_call_message().tool_calls_size(), run_object.thread_id(), run_object.id(), step.id());
                     }
 
                     if (step.status() == RunStepObject_RunStepStatus_cancelled) {

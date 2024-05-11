@@ -35,19 +35,24 @@ namespace INSTINCT_LLM_NS {
 
         AgentObservation Invoke(const AgentThought &input) override {
             AgentObservation observation_message;
-            assert_true(input.has_continuation() && input.continuation().has_react(), "should have continuation for ReACT executor.");
-            const auto& invocation = input.continuation().react().invocation();
+            assert_true(input.has_continuation() && input.continuation().has_tool_call_message() && input.continuation().tool_call_message().tool_calls_size()>0, "should have continuation for ReACT executor.");
+            // only use first tool call
+            const auto& invocation = input.continuation().tool_call_message().tool_calls(0);
             for(const auto& tk: GetFunctionToolkits()) {
-                if (tk->LookupFunctionTool({.by_name = input.continuation().react().invocation().name()})) {
+                if (tk->LookupFunctionTool({.by_name = invocation.function().name()})) {
                     const auto fn_result = tk->Invoke(invocation);
-                    observation_message.mutable_react()
-                        ->mutable_result()
-                        ->CopyFrom(fn_result);
+                    if (fn_result.has_error()) {
+                        // TODO more delicate handling
+                        throw InstinctException(fmt::format("Function execution failed. invocation: {}, exception: {}", invocation.ShortDebugString(), fn_result.exception()));
+                    }
+                    auto *tool_message = observation_message.mutable_tool_messages()->Add();
+                    tool_message->set_content(fn_result.return_value());
+                    tool_message->set_tool_call_id(fn_result.invocation_id());
                     return observation_message;
                 }
             }
 
-            throw InstinctException(fmt::format("Unresolved invocation: id={}, name={}", invocation.id(), invocation.name()));
+            throw InstinctException(fmt::format("Unresolved invocation: id={}, name={}", invocation.id(), invocation.function().name()));
         }
 
     };
@@ -156,7 +161,7 @@ Thought: {agent_scratchpad})"
 
                 assert_true(thought.has_continuation(), "thought should have continuation");
 
-                if (thought.has_continuation() && thought.continuation().has_react()) {
+                if (thought.has_continuation() && thought.continuation().has_tool_call_message()) {
                     // if last step is thought and contain invocation request, let's run function then.
                     const auto observation = worker_->Invoke(thought);
                     LOG_DEBUG("ReACT observation: {}", observation.ShortDebugString());

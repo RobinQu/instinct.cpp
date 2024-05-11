@@ -51,15 +51,16 @@ namespace INSTINCT_LLM_NS {
 
         // with thought and observation
         auto* step = state.add_previous_steps();
-        auto* react_thought = step->mutable_thought()->mutable_continuation()->mutable_react();
-        react_thought->set_thought(R"(The user is asking for instructions on how to make a paper airplane. This is not a factual query, so I cannot provide a direct answer from my knowledge base.
+        auto* react_thought = step->mutable_thought()->mutable_continuation();
+        react_thought->mutable_tool_call_message()->set_content(R"(The user is asking for instructions on how to make a paper airplane. This is not a factual query, so I cannot provide a direct answer from my knowledge base.
 However, I can look up a reliable source for such instructions. I will use the "search" tool to find a trusted guide on making a basic paper airplane.)");
-        react_thought->mutable_invocation()->set_name("Search");
-        react_thought->mutable_invocation()->set_input(R"({"query": "how to make a simple paper airplane"}{start_of_response})");
+        // react_thought->mutable_tool_call_message()->mutable_custom()->PackFrom(custom_data);
+        auto* tool_call = react_thought->mutable_tool_call_message()->add_tool_calls();
+        tool_call->mutable_function()->set_name("Search");
+        tool_call->mutable_function()->set_arguments(R"({"query": "how to make a simple paper airplane"}{start_of_response})");
         step = state.add_previous_steps();
-        auto* react_observation = step->mutable_observation()->mutable_react();
-        react_observation->mutable_result()->set_has_error(false);
-        react_observation->mutable_result()->set_return_value(R"(The top result is a Wikipedia How-To guide on origami, which includes steps to make a simple paper airplane.
+        auto* react_observation = step->mutable_observation()->mutable_tool_messages()->Add();
+        react_observation->set_content(R"(The top result is a Wikipedia How-To guide on origami, which includes steps to make a simple paper airplane.
 
 1. Start with a rectangular piece of paper, such as an A4 or letter size sheet. If it's not already, fold it in half lengthwise and then unfold it.
 2. Fold the top two corners down so they meet the center crease. This will make the top point of the plane.
@@ -98,11 +99,11 @@ Thought: )");
         Generation generation;
         generation.set_text(output);
         const auto thought1 = thought_parser->ParseResult(generation);
-        ASSERT_TRUE(thought1.has_continuation() && thought1.continuation().has_react());
-        ASSERT_TRUE(thought1.continuation().react().has_invocation());
-        ASSERT_EQ(thought1.continuation().react().thought(), "This question appears to be asking for the current average price of roses in the market, and then what the price should be if one were to increase it by 15%. I will assume that the question is being asked in Chinese, with \"目前市场上\" translating to \"current market\", \"玫瑰花\" translating to \"roses\", and \"平均价格\" translating to \"average price\".");
-        ASSERT_EQ(thought1.continuation().react().invocation().name(), "Search");
-        ASSERT_EQ(thought1.continuation().react().invocation().input(), "{\"query\":\"current average price of roses in the market\", \"result_limit\":1, \"result_offset\":0}");
+        ASSERT_TRUE(thought1.has_continuation() && thought1.continuation().has_tool_call_message());
+        ASSERT_TRUE(thought1.continuation().tool_call_message().tool_calls_size()>0);
+        ASSERT_EQ(thought1.continuation().tool_call_message().content(), "This question appears to be asking for the current average price of roses in the market, and then what the price should be if one were to increase it by 15%. I will assume that the question is being asked in Chinese, with \"目前市场上\" translating to \"current market\", \"玫瑰花\" translating to \"roses\", and \"平均价格\" translating to \"average price\".");
+        ASSERT_EQ(thought1.continuation().tool_call_message().tool_calls(0).function().name(), "Search");
+        ASSERT_EQ(thought1.continuation().tool_call_message().tool_calls(0).function().arguments(), "{\"query\":\"current average price of roses in the market\", \"result_limit\":1, \"result_offset\":0}");
     }
 
     TEST_F(ReACTAgentTest, StreamSteps) {

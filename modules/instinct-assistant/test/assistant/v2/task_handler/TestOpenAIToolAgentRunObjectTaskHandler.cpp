@@ -99,20 +99,19 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         const auto& continuation_step = state2->previous_steps(0);
         ASSERT_TRUE(continuation_step.has_thought());
         ASSERT_TRUE(continuation_step.thought().has_continuation());
-        ASSERT_TRUE(continuation_step.thought().continuation().has_openai());
-        ASSERT_TRUE(continuation_step.thought().continuation().openai().has_tool_call_message());
-        ASSERT_EQ(continuation_step.thought().continuation().openai().tool_call_message().tool_calls_size(), 1);
-        const auto& call1 = continuation_step.thought().continuation().openai().tool_call_message().tool_calls(0);
+
+        ASSERT_TRUE(continuation_step.thought().continuation().has_tool_call_message());
+        ASSERT_EQ(continuation_step.thought().continuation().tool_call_message().tool_calls_size(), 1);
+        const auto& call1 = continuation_step.thought().continuation().tool_call_message().tool_calls(0);
         ASSERT_EQ(call1.id(), "call-1");
         ASSERT_EQ(call1.function().name(), "foo");
         ASSERT_EQ(call1.function().arguments(), "{}");
         const auto& pause_step = state2->previous_steps(1);
         ASSERT_TRUE(pause_step.has_thought());
         ASSERT_TRUE(pause_step.thought().has_pause());
-        ASSERT_TRUE(pause_step.thought().pause().has_openai());
-        ASSERT_EQ(pause_step.thought().pause().openai().completed_size(), 0);
-        ASSERT_EQ(pause_step.thought().pause().openai().tool_call_message().tool_calls_size(), 1);
-        ASSERT_TRUE(message_differencer.Compare(pause_step.thought().pause().openai().tool_call_message(), continuation_step.thought().continuation().openai().tool_call_message()));
+        ASSERT_EQ(pause_step.thought().pause().completed_size(), 0);
+        ASSERT_EQ(pause_step.thought().pause().tool_call_message().tool_calls_size(), 1);
+        ASSERT_TRUE(message_differencer.Compare(pause_step.thought().pause().tool_call_message(), continuation_step.thought().continuation().tool_call_message()));
 
 
         // expect to get observation step
@@ -136,9 +135,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         ASSERT_TRUE(message_differencer.Compare(state3->previous_steps(0), state2->previous_steps(0)));
         auto& observation_step = state3->previous_steps(1);
         ASSERT_TRUE(observation_step.has_observation());
-        ASSERT_TRUE(observation_step.observation().has_openai());
-        ASSERT_EQ(observation_step.observation().openai().tool_messages_size(), 1);
-        ASSERT_EQ(observation_step.observation().openai().tool_messages(0).content(), "bar");
+        ASSERT_EQ(observation_step.observation().tool_messages_size(), 1);
+        ASSERT_EQ(observation_step.observation().tool_messages(0).content(), "bar");
 
         // expect to get agent finish with successful response
         // 1. mock message
@@ -332,10 +330,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         submit_tool_outputs_to_run_request.set_run_id(obj3->id());
         submit_tool_outputs_to_run_request.set_stream(false);
         for(const auto& tool_call: list_run_step_response.data(0).step_details().tool_calls()) {
-            FunctionToolInvocation function_tool_invocation;
+            ToolCallObject function_tool_invocation;
             function_tool_invocation.set_id(tool_call.id());
-            function_tool_invocation.set_name(tool_call.function().name());
-            function_tool_invocation.set_input(tool_call.function().arguments());
+            function_tool_invocation.mutable_function()->set_name(tool_call.function().name());
+            function_tool_invocation.mutable_function()->set_arguments(tool_call.function().arguments());
             FunctionToolResult function_tool_result = tool_kit->Invoke(function_tool_invocation);
             ASSERT_FALSE(function_tool_result.has_error());
             ASSERT_TRUE(StringUtils::IsNotBlankString(function_tool_result.return_value()));

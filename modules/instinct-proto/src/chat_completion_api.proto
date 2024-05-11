@@ -1,5 +1,5 @@
 syntax = "proto3";
-
+import "google/protobuf/any.proto";
 package instinct.llm;
 
 
@@ -21,6 +21,13 @@ message Message {
   Tool call that this message is responding to.
    */
   string tool_call_id = 5;
+
+
+  /**
+  custom data for different function calling agent.
+  e.g. LLM Compiler relies on extra numeric index to build function graph.
+   */
+  google.protobuf.Any custom = 100;
 }
 
 message ToolCallObject {

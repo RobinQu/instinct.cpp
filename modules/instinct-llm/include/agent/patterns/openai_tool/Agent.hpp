@@ -28,7 +28,7 @@ namespace INSTINCT_LLM_NS {
             }
 
             AgentObservation Invoke(const AgentThought &input) override {
-                const auto &tool_request_msg = input.continuation().openai().tool_call_message();
+                const auto &tool_request_msg = input.continuation().tool_call_message();
 
                 std::vector<ToolCallObject> filtered_tool_calls;
                 for (const auto& call: tool_request_msg.tool_calls()) {
@@ -39,25 +39,20 @@ namespace INSTINCT_LLM_NS {
                     }
                 }
 
-                AgentObservation observation_message;
-                auto *observation = observation_message.mutable_openai();
+                AgentObservation observation;
                 // it's possible we have empty tool calls after fitering
                 if (!filtered_tool_calls.empty()) {
                     // only execute tool call that has matching tools in worker
                     auto multi_futures = thread_pool_.submit_sequence(0, tool_request_msg.tool_calls_size(), [&](auto i) {
                         const auto &call = filtered_tool_calls.at(i);
-                        FunctionToolInvocation invocation;
-                        invocation.set_id(call.id());
-                        invocation.set_name(call.function().name());
-                        invocation.set_input(call.function().arguments());
                         for (const auto &tk: GetFunctionToolkits()) {
                             if (tk->LookupFunctionTool({.by_name = call.function().name()})) {
-                                return tk->Invoke(invocation);
+                                return tk->Invoke(call);
                             }
                         }
                         // impossible to reach here
-                        throw InstinctException(fmt::format("Unresolved invocation: id={}, name={}", invocation.id(),
-                                                            invocation.name()));
+                        throw InstinctException(fmt::format("Unresolved invocation: id={}, name={}", call.id(),
+                                                            call.function().name()));
                     });
                     for (auto &future: multi_futures) {
                         const auto tool_result = future.get();
@@ -69,10 +64,10 @@ namespace INSTINCT_LLM_NS {
                         function_message.set_role("tool");
                         function_message.set_tool_call_id(tool_result.invocation_id());
                         function_message.set_content(tool_result.return_value());
-                        observation->add_tool_messages()->CopyFrom(function_message);
+                        observation.add_tool_messages()->CopyFrom(function_message);
                     }
                 }
-                return observation_message;
+                return observation;
             }
         };
 
@@ -94,16 +89,15 @@ namespace INSTINCT_LLM_NS {
                     // add tool call message ChatCompletion api
                     if (step.has_thought()
                         && step.thought().has_continuation()
-                        && step.thought().continuation().has_openai()
-                        && step.thought().continuation().openai().has_tool_call_message()) {
+                        && step.thought().continuation().has_tool_call_message()) {
                         prompt_value.mutable_chat()->add_messages()->CopyFrom(
-                                step.thought().continuation().openai().tool_call_message()
+                                step.thought().continuation().tool_call_message()
                         );
                     }
-                    if (step.has_observation() && step.observation().has_openai() && step.observation().openai().
+                    if (step.has_observation() && step.observation().
                             tool_messages_size() > 0) {
                         // add tool call results
-                        for (const auto &msg: step.observation().openai().tool_messages()) {
+                        for (const auto &msg: step.observation().tool_messages()) {
                             prompt_value.mutable_chat()->add_messages()->CopyFrom(msg);
                         }
                     }
@@ -112,7 +106,7 @@ namespace INSTINCT_LLM_NS {
                 const auto message = chat_model_->Invoke(prompt_value);
                 AgentThought thought_message;
                 if (message.tool_calls_size() > 0) { // has more tool call requests
-                    thought_message.mutable_continuation()->mutable_openai()->mutable_tool_call_message()->CopyFrom(message);
+                    thought_message.mutable_continuation()->mutable_tool_call_message()->CopyFrom(message);
                     return thought_message;
                 }
                 thought_message.mutable_finish()->set_response(message.content());
@@ -187,17 +181,14 @@ namespace INSTINCT_LLM_NS {
             const auto last_step = state.previous_steps(n - 1);
             if (last_step.has_thought()
                 && last_step.thought().has_pause()
-                && last_step.thought().pause().has_openai()
-                && last_step.thought().pause().openai().has_tool_call_message()
+                && last_step.thought().pause().has_tool_call_message()
                     ) {
                 // for pause step, user should submit rest of tool results through IRunService::SubmitToolOutputs.
                 // so we just check if all tools are done here
-                const auto& pause = last_step.thought().pause().openai();
+                const auto& pause = last_step.thought().pause();
                 if (pause.tool_call_message().tool_calls_size() == pause.completed_size()) {
                     // lift to observation
-                    OpenAIToolAgentObservation observation_message;
-                    observation_message.mutable_tool_messages()->CopyFrom(pause.completed());
-                    agent_step.mutable_observation()->mutable_openai()->CopyFrom(observation_message);
+                    agent_step.mutable_observation()->mutable_tool_messages()->CopyFrom(pause.completed());
                     state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
                 }
@@ -206,11 +197,10 @@ namespace INSTINCT_LLM_NS {
             // if last step is paused or finished, it cannot be executed again
             if (last_step.has_thought()
                     && last_step.thought().has_continuation()
-                    && last_step.thought().continuation().has_openai()
-                    && last_step.thought().continuation().openai().has_tool_call_message()
-                    && last_step.thought().continuation().openai().tool_call_message().tool_calls_size() > 0
+                    && last_step.thought().continuation().has_tool_call_message()
+                    && last_step.thought().continuation().tool_call_message().tool_calls_size() > 0
                     ) {
-                const auto& tool_call_message = last_step.thought().continuation().openai().tool_call_message();
+                const auto& tool_call_message = last_step.thought().continuation().tool_call_message();
                 const auto& tool_call_objects = tool_call_message.tool_calls();
                 const auto& thought_step = last_step.thought();
 
@@ -218,7 +208,7 @@ namespace INSTINCT_LLM_NS {
                 const auto observation_message = worker_->Invoke(thought_step);
                 int completed = 0;
                 for(const auto& tool_call: tool_call_objects) {
-                    for(const auto& tool_message: observation_message.openai().tool_messages()) {
+                    for(const auto& tool_message: observation_message.tool_messages()) {
                         if (tool_message.tool_call_id() == tool_call.id()) {
                             completed++;
                         }
@@ -226,9 +216,9 @@ namespace INSTINCT_LLM_NS {
                 }
 
                 if (completed != tool_call_objects.size()) { // return a pause step
-                    auto* pause = agent_step.mutable_thought()->mutable_pause()->mutable_openai();
+                    auto* pause = agent_step.mutable_thought()->mutable_pause();
                     pause->mutable_tool_call_message()->CopyFrom(tool_call_message);
-                    pause->mutable_completed()->CopyFrom(observation_message.openai().tool_messages());
+                    pause->mutable_completed()->CopyFrom(observation_message.tool_messages());
                     state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
                 }

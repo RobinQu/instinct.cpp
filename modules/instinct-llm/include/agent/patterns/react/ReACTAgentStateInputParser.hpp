@@ -20,17 +20,18 @@ namespace INSTINCT_LLM_NS {
             for(int i=0; i<n; ++i) {
                 const auto& step = agent_state.previous_steps(i);
                 if (step.has_thought()) {
-                    const auto& react_thought = step.thought().continuation().react();
-                    scratch_pad += react_thought.thought();
-                    scratch_pad += "\nAction: " + react_thought.invocation().name();
-                    scratch_pad += "\nAction Input: " + react_thought.invocation().input();
+                    const auto& react_thought = step.thought().continuation();
+                    scratch_pad += react_thought.tool_call_message().content();
+                    const auto& function_object = react_thought.tool_call_message().tool_calls(0).function();
+                    scratch_pad += "\nAction: " + function_object.name();
+                    scratch_pad += "\nAction Input: " + function_object.arguments();
                 }
 
                 if (step.has_observation()) {
-                    const auto& react_observation = step.observation().react();
+                    const auto& react_observation = step.observation();
                     // failed invocation should be skipped first
-                    assert_true(!react_observation.result().has_error(), "should provide succssful observation");
-                    scratch_pad += "\nObservation: " + react_observation.result().return_value();
+                    assert_true(react_observation.tool_messages_size()>0, "should provide succssful observation");
+                    scratch_pad += "\nObservation: " + react_observation.tool_messages(0).content();
                     scratch_pad += "\nThought: ";
                 }
             }

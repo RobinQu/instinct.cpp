@@ -7,10 +7,10 @@
 #include "IFunctionToolkit.hpp"
 
 namespace INSTINCT_LLM_NS {
-    class BaseFunctionToolkit: public virtual IFunctionToolKit, public BaseRunnable<FunctionToolInvocation, FunctionToolResult> {
+    class BaseFunctionToolkit: public virtual IFunctionToolKit, public BaseRunnable<ToolCallObject, FunctionToolResult> {
     public:
-        FunctionToolResult Invoke(const FunctionToolInvocation &invocation) override {
-            const auto& fn_name = invocation.name();
+        FunctionToolResult Invoke(const ToolCallObject &invocation) override {
+            const auto& fn_name = invocation.function().name();
             if (const auto fn_tool = this->LookupFunctionTool({.by_name = fn_name})) {
                 return fn_tool->Invoke(invocation);
             }

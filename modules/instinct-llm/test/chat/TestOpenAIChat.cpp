@@ -71,10 +71,10 @@ namespace INSTINCT_LLM_NS {
                 // add tool_call message
                 messages.add_messages()->CopyFrom(msg);
                 for(const auto& call: msg.tool_calls()) {
-                    FunctionToolInvocation invocation;
+                    ToolCallObject invocation;
                     invocation.set_id(call.id());
-                    invocation.set_name(call.function().name());
-                    invocation.set_input(call.function().arguments());
+                    invocation.mutable_function()->set_name(call.function().name());
+                    invocation.mutable_function()->set_arguments(call.function().arguments());
                     const auto result = toolkit->Invoke(invocation);
                     llm::Message function_message;
                     if (result.has_error()) {
