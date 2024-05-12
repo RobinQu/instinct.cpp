@@ -14,7 +14,7 @@ namespace INSTINCT_LLM_NS {
     /**
      * agent executor that relies on a model with built-in tool calling API
      */
-    class OpenAIToolAgentExecutor final : public BaseAgentExecutor {
+    class OpenAIToolAgentExecutor : public BaseAgentExecutor {
 
         /**
          * Tool executor that supports parallel tool calling using thread pool
@@ -178,7 +178,7 @@ namespace INSTINCT_LLM_NS {
                 return agent_step;
             }
 
-            const auto last_step = state.previous_steps(n - 1);
+            const auto& last_step = state.previous_steps(n - 1);
             if (last_step.has_thought()
                 && last_step.thought().has_pause()
                 && last_step.thought().pause().has_tool_call_message()

@@ -71,6 +71,9 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/toolkit/builtin/LLMMath.hpp
         include/agent/patterns/openai_tool/Agent.hpp
         include/agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp
+        include/agent/patterns/llm_compiler/LLMCompilerPlaner.hpp
+        include/agent/patterns/llm_compiler/LLMCompilerJoiner.hpp
+        include/agent/patterns/llm_compiler/LLMCompilerWorker.hpp
 )
 
 find_package(exprtk REQUIRED)
