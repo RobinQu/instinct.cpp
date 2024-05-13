@@ -34,7 +34,7 @@ namespace INSTINCT_LLM_NS {
 
     public:
 
-        explicit BaseOutputParser(OutputParserOptions options = {})
+        explicit BaseOutputParser(const OutputParserOptions& options)
                 : options_(options) {
 
             // instruction function doesn't depend on any keys to output format instruction.

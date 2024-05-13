@@ -8,7 +8,7 @@
 #include "AssistantGlobals.hpp"
 #include "agent/executor/BaseAgentExecutor.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
-#include "agent/patterns/openai_tool/Agent.hpp"
+#include "agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;

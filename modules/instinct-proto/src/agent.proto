@@ -23,12 +23,26 @@ message LLMCompilerToolCallCustomData {// custom data for llm.Message.custom
   int64 index = 1;
 }
 
+message LLMCompilerTaskGraph { //used in llm.AgentContinuation.custom, llm.AgentPause.custom
+  repeated LLMCompilerTask tasks = 1;
+  message LLMCompilerTask {
+    int64 index = 1;
+    ToolCallObject tool_call = 2;
+    repeated int64 dependencies = 3;
+    // optional message to save result
+    llm.Message result = 4;
+  }
+}
 
+message LLMCompilerJoinerResult { // used in llm.AgentFinish.details
+  bool is_replan = 1;
+  bool is_final = 2;
+  string joiner_scratchpad = 3;
+}
 
 message AgentContinuation {
   llm.Message tool_call_message = 1; // should be a message container tool call requests
-  repeated llm.FunctionTool functions = 2; // possible function tools
-
+//  repeated llm.FunctionTool functions = 2; // possible function tools
 
   // reserved for user defined thought
   google.protobuf.Any custom = 100;

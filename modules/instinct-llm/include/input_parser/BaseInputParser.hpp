@@ -33,7 +33,7 @@ namespace INSTINCT_LLM_NS {
             public BaseRunnable<T, JSONContextPtr> {
         InputParserOptions options_;
     public:
-        explicit BaseInputParser(InputParserOptions options = {}) : options_(std::move(options)) {}
+        explicit BaseInputParser(InputParserOptions options) : options_(std::move(options)) {}
 
         [[nodiscard]] const InputParserOptions& GetOptions() const  {
             return options_;

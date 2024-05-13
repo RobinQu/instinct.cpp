@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include "LLMGlobals.hpp"
 #include "LLMTestGlobals.hpp"
-#include "agent/patterns/openai_tool/Agent.hpp"
+#include "agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp"
 #include "agent/executor/BaseAgentExecutor.hpp"
 #include "chat_model/OpenAIChat.hpp"
 #include "toolkit/LocalToolkit.hpp"

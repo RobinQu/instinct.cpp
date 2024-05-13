@@ -10,6 +10,22 @@
 
 namespace INSTINCT_LLM_NS {
     /**
+     * Functional callback, which is invoked after a step is generated from agent execuctor.
+     * Retrun false to terminate execution loop.
+     *
+     */
+    using StopPredicate = std::function<bool(const AgentState&, AgentStep&)>;
+
+
+    /**
+     * Default predicate for OpenAIToolAgentExecutor. It won't stop agent from resolving next step.
+     * @return
+     */
+    static bool NoStopPredicate(const AgentState&, AgentStep&) {
+        return false;
+    }
+
+    /**
      * Base class for executor that handles state transitions of given agent.
      */
     class BaseAgentExecutor: public virtual IAgentExecutor, public BaseRunnable<AgentState, AgentState> {

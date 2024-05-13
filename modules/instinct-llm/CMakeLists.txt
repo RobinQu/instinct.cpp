@@ -69,11 +69,15 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/toolkit/BaseSearchTool.hpp
         include/toolkit/builtin/SerpAPI.hpp
         include/toolkit/builtin/LLMMath.hpp
-        include/agent/patterns/openai_tool/Agent.hpp
+        include/agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp
         include/agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp
         include/agent/patterns/llm_compiler/LLMCompilerPlaner.hpp
         include/agent/patterns/llm_compiler/LLMCompilerJoiner.hpp
         include/agent/patterns/llm_compiler/LLMCompilerWorker.hpp
+        include/agent/patterns/openai_tool/OpenAIToolAgentWorker.hpp
+        include/agent/patterns/openai_tool/OpenAIToolAgentPlanner.hpp
+        include/agent/patterns/llm_compiler/LLMCompilerAgnetStateInputParser.hpp
+        include/agent/patterns/llm_compiler/LLMCompilerThoughtOutputParser.hpp
 )
 
 find_package(exprtk REQUIRED)

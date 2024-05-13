@@ -1,27 +1,41 @@
 //
-// Created by RobinQu on 2024/5/8.
+// Created by RobinQu on 2024/4/28.
 //
 
-#ifndef LLMCOMPILERAGENTEXECUTOR_HPP
-#define LLMCOMPILERAGENTEXECUTOR_HPP
+#ifndef OPENAITOOLAGENTEXECUTOR_HPP
+#define OPENAITOOLAGENTEXECUTOR_HPP
 
-#include "LLMCompilerJoiner.hpp"
 #include "LLMGlobals.hpp"
+#include "OpenAIToolAgentPlanner.hpp"
+#include "OpenAIToolAgentWorker.hpp"
 #include "agent/executor/BaseAgentExecutor.hpp"
-#include "agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp"
+#include "chain/MessageChain.hpp"
+#include "chat_model/BaseChatModel.hpp"
 
 namespace INSTINCT_LLM_NS {
-    class LLMCompilerAgentExectuor final: public BaseAgentExecutor{
-        StopPredicate should_early_stop_;
-        PlannerPtr planner_;
-        WorkerPtr worker_;
-        JoinerPtr joiner_;
+    /**
+     * agent executor that relies on a model with built-in tool calling API
+     */
+    class OpenAIToolAgentExecutor final: public BaseAgentExecutor {
 
     public:
-        LLMCompilerAgentExectuor(StopPredicate should_early_stop, PlannerPtr planner, WorkerPtr worker)
-            : should_early_stop_(std::move(should_early_stop)),
-              planner_(std::move(planner)),
-              worker_(std::move(worker)) {
+
+        OpenAIToolAgentExecutor(PlannerPtr planner, WorkerPtr worker, StopPredicate should_early_stop = NoStopPredicate):
+            should_early_stop_(std::move(should_early_stop)),
+            planner_(std::move(planner)),
+            worker_(std::move(worker)) {
+        }
+
+        OpenAIToolAgentExecutor(const ChatModelPtr &chat_model,
+                                const std::vector<FunctionToolkitPtr> &toolkits,
+                                StopPredicate should_early_stop = NoStopPredicate):
+            should_early_stop_(std::move(should_early_stop)),
+            planner_(CreateOpenAIToolAgentPlanner(chat_model)),
+            worker_(CreateOpenAIToolAgentWorker(toolkits))
+        {
+            for(const auto& tk: toolkits) {
+                chat_model->BindTools(tk);
+            }
         }
 
         AgentStep ResolveNextStep(AgentState &state) override {
@@ -35,37 +49,15 @@ namespace INSTINCT_LLM_NS {
             //  do ChatCompletion with messages -> message
             //  is_last = messages.function_call is None
             const auto n = state.previous_steps_size();
-            if (n == 0) {
-                // do initial planing
+            if (n == 0 || state.previous_steps(n - 1).has_observation()) {
+                // do planing
                 const AgentThought thought_step = planner_->Invoke(state);
                 agent_step.mutable_thought()->CopyFrom(thought_step);
                 state.add_previous_steps()->CopyFrom(agent_step);
                 return agent_step;
             }
+
             const auto& last_step = state.previous_steps(n - 1);
-
-            // here's the tricky part to make joiner work
-            if(last_step.has_observation()) {
-                // do join with observation
-                const auto joiner_thought_step = joiner_->Invoke(state);
-                // join always return a finish step we cannot return directly to outter loop, other wise agent will terminate with unfinished state.
-                assert_true(joiner_thought_step.has_finish(), "Joiner should always returns a finish step");
-                assert_true(joiner_thought_step.finish().details().Is<LLMCompilerJoinerResult>(), "should be LLMCompilerJoinerResult type for detail field joiner result");
-                agent_step.mutable_thought()->CopyFrom(joiner_thought_step);
-                state.add_previous_steps()->CopyFrom(agent_step);
-                LLMCompilerJoinerResult joiner_result;
-                joiner_thought_step.finish().details().UnpackTo(&joiner_result);
-                if (joiner_result.is_final()) { // agent has final answer, so we could directly return
-                    return agent_step;
-                }
-                assert_true(joiner_result.is_replan(), "should be either finished or requesting re-plan");
-                // if we have to replan, we should plan again and return thought message for continuation
-                const AgentThought thought_step = planner_->Invoke(state);
-                agent_step.mutable_thought()->CopyFrom(thought_step);
-                state.add_previous_steps()->CopyFrom(agent_step);
-                return agent_step;
-            }
-
             if (last_step.has_thought()
                 && last_step.thought().has_pause()
                 && last_step.thought().pause().has_tool_call_message()
@@ -79,14 +71,10 @@ namespace INSTINCT_LLM_NS {
                     state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
                 }
-
-                // If some calls are not finished, we turn it into continuation for worker to schedule again without adding any step
-                auto* continuatiaon = agent_step.mutable_thought()->mutable_continuation();
-                continuatiaon->mutable_tool_call_message()->CopyFrom(last_step.thought().pause().tool_call_message());
-                continuatiaon->mutable_custom()->PackFrom(pause.custom());
-                state.mutable_previous_steps(n-1)->clear_thought();
-                state.mutable_previous_steps(n-1)->CopyFrom(agent_step);
-                return agent_step;
+                const auto call_ids_view = pause.tool_call_message().tool_calls() | std::views::transform([](const ToolCallObject& tool_call) {
+                    return tool_call.id();
+                });
+                LOG_WARN("Some tool calls are not finished. Expected {}, Finished {}, Tool call ids: {}", pause.tool_call_message().tool_calls_size(), pause.completed_size(), StringUtils::JoinWith(call_ids_view, ","));
             }
 
             // if last step is paused or finished, it cannot be executed again
@@ -99,9 +87,7 @@ namespace INSTINCT_LLM_NS {
                 const auto& tool_call_objects = tool_call_message.tool_calls();
                 const auto& thought_step = last_step.thought();
 
-                // worker will take care of
-                // 1. execution of built-in tools
-                // 2. scheduling of DAG and run tasks at its best after some results are submited
+                // worker should filter out unsupported tool
                 const auto observation_message = worker_->Invoke(thought_step);
                 int completed = 0;
                 for(const auto& tool_call: tool_call_objects) {
@@ -128,17 +114,20 @@ namespace INSTINCT_LLM_NS {
             LOG_DEBUG("illegal state: {}", state.ShortDebugString());
             throw InstinctException("IllegalState for OpenAIToolAgentExecutor");
         }
+
+    private:
+        StopPredicate should_early_stop_;
+        PlannerPtr planner_;
+        WorkerPtr worker_;
     };
 
-    static AgentExecutorPtr CreateLLMCompilerAgentExecutor(const ChatModelPtr &chat_model,
+    static AgentExecutorPtr CreateOpenAIToolAgentExecutor(
+        const ChatModelPtr &chat_model,
         const std::vector<FunctionToolkitPtr> &toolkits,
         const StopPredicate& stop_predicate = NoStopPredicate) {
-        return std::make_shared<LLMCompilerAgentExectuor>();
-
+        return std::make_shared<OpenAIToolAgentExecutor>(chat_model, toolkits, stop_predicate);
     }
-
-
-
 }
 
-#endif //LLMCOMPILERAGENTEXECUTOR_HPP
+
+#endif //OPENAITOOLAGENTEXECUTOR_HPP
