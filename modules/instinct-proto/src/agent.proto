@@ -65,7 +65,10 @@ message AgentFinish {
   bool is_cancelled = 2;
   bool is_expired = 3;
   bool is_failed = 4;
-  google.protobuf.Any details = 100;
+  // this is for error details
+  google.protobuf.Any details = 6;
+  // this is for custom step data
+  google.protobuf.Any custom = 100;
 }
 
 message AgentThought {

@@ -478,7 +478,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 modify_run_step_request.set_thread_id(run_object.thread_id());
                 modify_run_step_request.mutable_step_details()->CopyFrom(last_run_step->step_details());
                 // update custom data
-                modify_run_step_request.mutable_step_details()->mutable_custom()->CopyFrom(finish_message.details());
+                modify_run_step_request.mutable_step_details()->mutable_custom()->CopyFrom(finish_message.custom());
 
                 if (finish_message.is_failed()) {
                     // update last run step object with status of `failed`
@@ -722,7 +722,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         }
                         last_step = state.mutable_previous_steps()->Add();
                         auto* finish = last_step->mutable_thought()->mutable_finish();
-                        finish->mutable_details()->CopyFrom(step.step_details().custom());
+                        finish->mutable_custom()->CopyFrom(step.step_details().custom());
+                        finish->mutable_details()->PackFrom(step.last_error());
                         finish->set_is_cancelled(true);
                     }
 
@@ -739,7 +740,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         }
                         last_step = state.mutable_previous_steps()->Add();
                         auto* finish = last_step->mutable_thought()->mutable_finish();
-                        finish->mutable_details()->CopyFrom(step.step_details().custom());
+                        finish->mutable_custom()->CopyFrom(step.step_details().custom());
+                        finish->mutable_details()->PackFrom(step.last_error());
                         finish->set_is_expired(true);
                     }
 
@@ -756,7 +758,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         }
                         last_step = state.mutable_previous_steps()->Add();
                         auto* finish = last_step->mutable_thought()->mutable_finish();
-                        finish->mutable_details()->CopyFrom(step.step_details().custom());
+                        finish->mutable_custom()->CopyFrom(step.step_details().custom());
+                        finish->mutable_details()->PackFrom(step.last_error());
                         finish->set_is_failed(true);
                         if (step.has_last_error()) {
                             RunEarlyStopDetails run_early_stop_details;

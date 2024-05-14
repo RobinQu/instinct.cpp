@@ -38,9 +38,9 @@ namespace INSTINCT_LLM_NS {
                     if (step.has_thought() && step.thought().has_finish()) {
                         context_string += "Previous Plan: \n\n";
                         const auto previous_joiner_thought = step.thought().finish().response();
-                        assert_true(step.thought().finish().details().Is<LLMCompilerTaskGraph>(), "should have LLMCompilerTaskGraph in custom data");
+                        assert_true(step.thought().finish().custom().Is<LLMCompilerTaskGraph>(), "should have LLMCompilerTaskGraph in custom data");
                         LLMCompilerTaskGraph graph;
-                        step.thought().finish().details().UnpackTo(&graph);
+                        step.thought().finish().custom().UnpackTo(&graph);
                         // add previous plan details
                         TaskGraphUtils::BuildAgentScrachPad(graph, context_string);
                         // add joiner thought for previous plan

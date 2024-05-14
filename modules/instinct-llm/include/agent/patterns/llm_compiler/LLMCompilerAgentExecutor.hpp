@@ -84,7 +84,7 @@ namespace INSTINCT_LLM_NS {
                 auto* finish_step = agent_step.mutable_thought()->mutable_finish();
                 finish_step->set_response(joiner_result.response());
                 // copy graph data in finish step
-                finish_step->mutable_details()->CopyFrom(graph);
+                finish_step->mutable_custom()->CopyFrom(graph);
                 state.add_previous_steps()->CopyFrom(agent_step);
                 return agent_step;
             }

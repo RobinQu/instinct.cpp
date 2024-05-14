@@ -18,6 +18,7 @@
 #include "chain/MessageChain.hpp"
 #include "toolkit/BaseFunctionTool.hpp"
 #include "tools/SnowflakeIDGenerator.hpp"
+#include "LLMGlobals.hpp"
 
 namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_CORE_NS;
@@ -45,11 +46,11 @@ namespace INSTINCT_ASSISTANT_NS {
                 const auto partition_id = file_id.back() % 10;
                 return fmt::format("{}/{}/{}", to_string(purpose), partition_id, file_id);
             }
+            using INSTINCT_LLM_NS::details::generate_next_object_id;
+
         }
 
         static constexpr int DEFAULT_LIST_LIMIT = 20;
-
-
 
     }
 
