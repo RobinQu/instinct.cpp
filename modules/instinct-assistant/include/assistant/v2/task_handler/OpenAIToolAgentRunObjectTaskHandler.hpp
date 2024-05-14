@@ -236,6 +236,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             run_step_object.set_assistant_id(run_object.assistant_id());
             run_step_object.set_status(RunStepObject_RunStepStatus_in_progress);
             auto* step_details = run_step_object.mutable_step_details();
+            // save custom data
+            step_details->mutable_custom()->CopyFrom(agent_continuation.custom());
 
             // create step with message if tool message has content string
             if (StringUtils::IsNotBlankString(agent_continuation.tool_call_message().content())) {
@@ -331,6 +333,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             modify_run_step_request.set_thread_id(run_object.thread_id());
             auto* step_details = modify_run_step_request.mutable_step_details();
             step_details->CopyFrom(last_run_step_opt->step_details());
+            // update custom data
+            step_details->mutable_custom()->CopyFrom(agent_pause.custom());
 
             ModifyRunRequest modify_run_request;
             modify_run_request.set_run_id(run_object.id());
@@ -407,6 +411,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             modify_run_step_request.set_status(RunStepObject_RunStepStatus_completed);
             auto* step_details = modify_run_step_request.mutable_step_details();
             step_details->CopyFrom(last_run_step->step_details());
+            // update custom data
+            step_details->mutable_custom()->CopyFrom(observation.custom());
 
             // TODO support code interpreter and file serach
             for(const auto& tool_message: observation.tool_messages()) {
@@ -470,6 +476,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 modify_run_step_request.set_run_id(run_object.id());
                 modify_run_step_request.set_step_id(last_run_step->id());
                 modify_run_step_request.set_thread_id(run_object.thread_id());
+                modify_run_step_request.mutable_step_details()->CopyFrom(last_run_step->step_details());
+                // update custom data
+                modify_run_step_request.mutable_step_details()->mutable_custom()->CopyFrom(finish_message.details());
 
                 if (finish_message.is_failed()) {
                     // update last run step object with status of `failed`
@@ -623,11 +632,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         LOG_ERROR("should have tool calls in a run step");
                         return false;
                     }
-                    // assert_positive(step.step_details().tool_calls_size(), "should have tool calls in a run step");
 
                     // create continuation
                     last_step = state.mutable_previous_steps()->Add();
                     last_continuation = last_step->mutable_thought()->mutable_continuation();
+                    // load custom data for this step
+                    last_continuation->mutable_custom()->CopyFrom(step.step_details().custom());
                     auto* tool_call_request = last_continuation->mutable_tool_call_message();
                     tool_call_request->set_role("assistant");
                     for (const auto& tool_call: step.step_details().tool_calls()) {
@@ -658,6 +668,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         // create observation
                         last_step = state.mutable_previous_steps()->Add();
                         auto* openai_observation = last_step->mutable_observation();
+                        // load custom data for observation
+                        openai_observation->mutable_custom()->CopyFrom(step.step_details().custom());
                         for (const auto& tool_call: step.step_details().tool_calls()) {
                             if (tool_call.type() == function) {
                                 auto* tool_messsage = openai_observation->add_tool_messages();
@@ -681,6 +693,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         // create pause
                         last_step = state.mutable_previous_steps()->Add();
                         last_pause = last_step->mutable_thought()->mutable_pause();
+                        // load custom data for pause step
+                        last_pause->mutable_custom()->CopyFrom(step.step_details().custom());
                         last_pause->mutable_tool_call_message()->CopyFrom(*tool_call_request);
                         // TODO support code-interpreter and file-search
                         // add tool messages for completed function tool calls, including those submitted by user
@@ -708,6 +722,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         }
                         last_step = state.mutable_previous_steps()->Add();
                         auto* finish = last_step->mutable_thought()->mutable_finish();
+                        finish->mutable_details()->CopyFrom(step.step_details().custom());
                         finish->set_is_cancelled(true);
                     }
 
@@ -724,6 +739,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         }
                         last_step = state.mutable_previous_steps()->Add();
                         auto* finish = last_step->mutable_thought()->mutable_finish();
+                        finish->mutable_details()->CopyFrom(step.step_details().custom());
                         finish->set_is_expired(true);
                     }
 
@@ -740,6 +756,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         }
                         last_step = state.mutable_previous_steps()->Add();
                         auto* finish = last_step->mutable_thought()->mutable_finish();
+                        finish->mutable_details()->CopyFrom(step.step_details().custom());
                         finish->set_is_failed(true);
                         if (step.has_last_error()) {
                             RunEarlyStopDetails run_early_stop_details;

@@ -26,7 +26,7 @@ namespace INSTINCT_LLM_NS {
                     const bool match = std::ranges::all_of(task.dependencies(), [&](const auto& idx) {
                        return finished.contains(idx);
                     });
-                    if (match) {
+                    if (match || task.dependencies_size() == 0) { // has no deps or all deps are fulfilled
                         next_task_ids.push_back(task.index());
                     }
                 }
@@ -35,7 +35,17 @@ namespace INSTINCT_LLM_NS {
 
 
         static void BuildToolCallRequest(const LLMCompilerTaskGraph& graph, const std::vector<int64_t>& next_task_ids, Message* tool_call_request) {
-
+            std::unordered_map<int64, int> id_index;
+            for(int i=0;i<graph.tasks_size();++i) {
+                const auto& task = graph.tasks(i);
+                id_index[task.index()] = i;
+            }
+            for(const auto& id: next_task_ids) {
+                assert_true(id_index.contains(id), fmt::format("Assigned task id should exist in graph. id={}", id));
+                auto &task = graph.tasks(id_index[id]);
+                tool_call_request->add_tool_calls()->CopyFrom(task.tool_call());
+                tool_call_request->set_role("assistant");
+            }
         }
 
         struct ScrtchPadFormatOptions {

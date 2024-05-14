@@ -18,7 +18,7 @@ namespace INSTINCT_LLM_NS {
 
         AgentThought ParseResult(const Generation &context) override {
             const auto content = MessageUtils::StringifyGeneration(context);
-            static std::regex ACTION_PATTERN {R"(^(\d+)\.\s*(.+)$)"};
+            static std::regex ACTION_PATTERN {R"(^(\d+)\.\s*(.+):(.+)$)"};
             static std::regex DEP_PATTERN {R"(\${?(\d)}?)"};
 
             AgentThought thought_message;
@@ -30,20 +30,23 @@ namespace INSTINCT_LLM_NS {
                     // skip blank line
                     continue;
                 }
-                if (std::smatch idx_match; std::regex_match(line, idx_match, ACTION_PATTERN)) { // action line
-                    if (idx_match.length() == 3) {
+                if (std::smatch action_match; std::regex_match(line, action_match, ACTION_PATTERN)) { // action line
+                    if (action_match.length() == 4) {
                         // first item is whole match, second item is matched group and third item is action JSON
-                        const auto idx_string = idx_match[1].str();
+                        const auto idx_string = action_match[1].str();
                         auto idx = std::stol(idx_string);
                         auto* task = graph.mutable_tasks()->Add();
                         task->set_index(idx);
-                        const auto action_json_string = idx_match[2].str();
+                        const auto action_name_string = action_match[1].str();
+                        const auto action_json_string = action_match[2].str();
                         auto* tool_call_object = task->mutable_tool_call();
-                        ProtobufUtils::Deserialize(action_json_string, *tool_call_object->mutable_function());
+                        tool_call_object->mutable_function()->set_name(action_name_string);
+                        tool_call_object->mutable_function()->set_arguments(action_json_string);
                         tool_call_object->set_type(ToolCallObjectType::function);
+                        tool_call_object->set_id(details::generate_next_object_id("call"));
                         // find deps by parsing arguments string
                         const auto dep_matches = StringUtils::MatchPattern(tool_call_object->mutable_function()->arguments(), DEP_PATTERN);
-                        for (const auto& dep_match:dep_matches) {
+                        for (const auto& dep_match: dep_matches) {
                             if (dep_match.length() == 2) {
                                 auto dep_idx = std::stol(dep_match[1].str());
                                 assert_true(dep_idx < idx, "Resolved invalid dependeant task index.");

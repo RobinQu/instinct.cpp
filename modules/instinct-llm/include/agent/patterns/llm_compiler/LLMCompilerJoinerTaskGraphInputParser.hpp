@@ -13,7 +13,6 @@ namespace INSTINCT_LLM_NS {
     public:
         explicit LLMCompilerJoinerTaskGraphInputParser(InputParserOptions options)
             : BaseInputParser<LLMCompilerTaskGraph>(std::move(options)) {
-
         }
 
         JSONContextPtr ParseInput(const LLMCompilerTaskGraph &graph) override {

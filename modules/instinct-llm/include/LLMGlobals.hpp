@@ -10,6 +10,7 @@
 #include <agent.pb.h>
 #include "CoreGlobals.hpp"
 #include "tools/ProtobufUtils.hpp"
+#include "tools/SnowflakeIDGenerator.hpp"
 #include "tools/StringUtils.hpp"
 
 #define INSTINCT_LLM_NS instinct::llm
@@ -148,6 +149,15 @@ namespace INSTINCT_LLM_NS {
         });
         return StringUtils::JoinWith(fn_desc_view, "\n");
     }
+
+
+    namespace details {
+        static std::string generate_next_object_id(const std::string_view& prefix) {
+            static SnowflakeIDGenerator<1534832906275L> generator;
+            return fmt::format("{}_{}", prefix, generator.NextID());
+        }
+    }
+
 
 }
 

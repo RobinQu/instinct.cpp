@@ -18,7 +18,7 @@ namespace INSTINCT_LLM_NS {
         int max_replan = 6; // max count for running replaner
     };
 
-    class LLMCompilerAgentExectuor final: public BaseAgentExecutor{
+    class LLMCompilerAgentExectuor final: public BaseAgentExecutor {
         StopPredicate should_early_stop_;
         PlannerPtr planner_;
         WorkerPtr worker_;
@@ -54,7 +54,7 @@ namespace INSTINCT_LLM_NS {
             if(last_step.has_observation()) {
                 // recover task graph
                 LLMCompilerTaskGraph graph;
-                assert_true(last_step.observation().custom().Is<LLMCompilerTaskGraph>(), "should have LLMCompilerTaskGraph as cumstom data");
+                assert_true(last_step.observation().custom().Is<LLMCompilerTaskGraph>(), "should have LLMCompilerTaskGraph as cumstom data in the observation step");
                 last_step.observation().custom().UnpackTo(&graph);
 
                 std::vector<int64_t> next_ids;
@@ -62,24 +62,29 @@ namespace INSTINCT_LLM_NS {
                 if (!next_ids.empty()) { // current function graph is not finished, we have to generate another thought to continue
                     auto* tool_call_requests = agent_step.mutable_thought()->mutable_continuation()->mutable_tool_call_message();
                     TaskGraphUtils::BuildToolCallRequest(graph, next_ids, tool_call_requests);
+                    // save task graph data in the new thought step
+                    agent_step.mutable_thought()->mutable_continuation()->mutable_custom()->CopyFrom(graph);
                     state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
                 }
 
                 // the function graph is exhausted, we can run joiner
+                graph.set_question(MessageUtils::ExtractLatestPromptString(state.input()));
                 const auto joiner_result = joiner_->Invoke(graph);
                 if (joiner_result.is_replan()) {
                     // if we have to replan, we should plan again and return thought message for continuation
-                    const AgentThought thought_step = planner_->Invoke(state);
+                    AgentThought thought_step = planner_->Invoke(state);
+                    assert_true(thought_step.continuation().custom().Is<LLMCompilerTaskGraph>(), "should have LLMCompilerTaskGraph as custom data in the thought message");
                     agent_step.mutable_thought()->CopyFrom(thought_step);
                     state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
-
                 }
 
                 // agent has final answer, so we could directly return
                 auto* finish_step = agent_step.mutable_thought()->mutable_finish();
                 finish_step->set_response(joiner_result.response());
+                // copy graph data in finish step
+                finish_step->mutable_details()->CopyFrom(graph);
                 state.add_previous_steps()->CopyFrom(agent_step);
                 return agent_step;
             }
@@ -91,9 +96,12 @@ namespace INSTINCT_LLM_NS {
                 // for pause step, user should submit rest of tool results through IRunService::SubmitToolOutputs.
                 // so we just check if all tools are done here
                 const auto& pause = last_step.thought().pause();
+                assert_true(pause.custom().Is<LLMCompilerTaskGraph>(), "should contain LLMCompilerTaskGraph in custom data in the pause step");
                 if (pause.tool_call_message().tool_calls_size() == pause.completed_size()) {
                     // lift to observation
                     agent_step.mutable_observation()->mutable_tool_messages()->CopyFrom(pause.completed());
+                    // copy task graph data
+                    agent_step.mutable_observation()->mutable_custom()->CopyFrom(pause.custom());
                     state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
                 }
@@ -108,10 +116,9 @@ namespace INSTINCT_LLM_NS {
                 const auto& tool_call_message = last_step.thought().continuation().tool_call_message();
                 const auto& tool_call_objects = tool_call_message.tool_calls();
                 const auto& thought_step = last_step.thought();
+                assert_true(thought_step.continuation().custom().Is<LLMCompilerTaskGraph>(), "should contain LLMCompilerTaskGraph in custom data in the thought step");
 
-                // worker will take care of
-                // 1. execution of built-in tools
-                // 2. scheduling of DAG and run tasks at its best after some results are submited
+                // worker will take care of execution of built-in tools
                 const auto observation_message = worker_->Invoke(thought_step);
                 int completed = 0;
                 for(const auto& tool_call: tool_call_objects) {
@@ -121,12 +128,14 @@ namespace INSTINCT_LLM_NS {
                         }
                     }
                 }
-
-                if (completed != tool_call_objects.size()) { // return a pause step
+                // obviously some of tools are handled to users and we return a pause step to wait for tool results
+                if (completed != tool_call_objects.size()) {
                     auto* pause = agent_step.mutable_thought()->mutable_pause();
                     pause->mutable_tool_call_message()->CopyFrom(tool_call_message);
                     pause->mutable_completed()->CopyFrom(observation_message.tool_messages());
                     state.add_previous_steps()->CopyFrom(agent_step);
+                    // save task graph to custom
+                    pause->mutable_custom()->CopyFrom(thought_step.continuation().custom());
                     return agent_step;
                 }
 

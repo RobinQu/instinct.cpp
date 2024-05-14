@@ -34,6 +34,7 @@ message LLMCompilerTaskGraph { //used in llm.AgentContinuation.custom, llm.Agent
     // optional message to save result
     llm.Message result = 5;
   }
+  // question field is only used in joiner
   string question = 2;
 }
 

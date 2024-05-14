@@ -7,7 +7,6 @@
 #include "CoreGlobals.hpp"
 
 #include <cstdint>
-#include <chrono>
 #include <stdexcept>
 #include <mutex>
 
