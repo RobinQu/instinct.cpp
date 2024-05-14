@@ -6,6 +6,7 @@
 #define LLMCOMPILERAGNETSTATEINPUTPARSER_HPP
 
 #include "LLMGlobals.hpp"
+#include "TaskGraphUtils.hpp"
 #include "functional/JSONContextPolicy.hpp"
 #include "input_parser/BaseInputParser.hpp"
 #include "prompt/MessageUtils.hpp"
@@ -30,34 +31,24 @@ namespace INSTINCT_LLM_NS {
                 tool_descriptions += fmt::format("{}. {}: {}, arguments JSON schema: {}",  function_tool.name(), function_tool.description(), ProtobufUtils::Serialize(function_tool.parameters()));
             }
 
-            bool replan = false;
+            bool replan = agent_state.previous_steps(n-1).thought().has_finish();
             std::string context_string;
-            // if state has last step and it's finish step, then we have to replan
-            if (n>0 && agent_state.previous_steps(n-1).thought().has_finish()) {
-                replan = true;
-                std::unordered_map<std::string, ToolCallObject> tool_calls;
+            if (replan) {
                 for (const auto& step: agent_state.previous_steps()) {
-                    if (step.has_thought() && step.thought().has_continuation()) {
-                        for (const auto& call_object: step.thought().continuation().tool_call_message().tool_calls()) {
-                            tool_calls[call_object.id()] = call_object;
-                        }
+                    if (step.has_thought() && step.thought().has_finish()) {
+                        context_string += "Previous Plan: \n\n";
+                        const auto previous_joiner_thought = step.thought().finish().response();
+                        assert_true(step.thought().finish().details().Is<LLMCompilerTaskGraph>(), "should have LLMCompilerTaskGraph in custom data");
+                        LLMCompilerTaskGraph graph;
+                        step.thought().finish().details().UnpackTo(&graph);
+                        // add previous plan details
+                        TaskGraphUtils::BuildAgentScrachPad(graph, context_string);
+                        // add joiner thought for previous plan
+                        context_string += fmt::format("Thought: {}\n", previous_joiner_thought);
                     }
-                    if (step.has_observation()) {
-                        context_string += "Previsous Plan: \n\n";
-                        for(int i=0;i<step.observation().tool_messages_size();++i) {
-                            const auto& tool_result = step.observation().tool_messages(i);
-                            if (tool_calls.contains(tool_result.tool_call_id())) {
-                                const auto& tool_call = tool_calls.at(tool_result.tool_call_id());
-                                context_string += fmt::format("{}. {}", i, ProtobufUtils::Serialize(tool_call.function()));
-                                context_string += fmt::format("Observation: {}\n", tool_result.content());
-                            } else {
-                                LOG_WARN("Unmatched observation for tool call id: {}", tool_result.tool_call_id());
-                            }
-                        }
-                    }
-                    context_string += "\n\n";
                 }
             }
+            context_string += "Current Plan:\n\n";
 
             // return context
             return CreateJSONContext({

@@ -17,10 +17,11 @@ message FunctionToolResult { // this is useful for toolkit related classes, tool
   string exception = 4;
 }
 
-
-message LLMCompilerToolCallCustomData {// custom data for llm.Message.custom
+message LLMCompilerToolCallCustomData {// custom data for llm.Message.custom, assistant.v2.RunStepDetails.ToolCallDetail.custom
   // index in function graph
   int64 index = 1;
+  string thought = 2;
+  repeated int64 dependencies = 3;
 }
 
 message LLMCompilerTaskGraph { //used in llm.AgentContinuation.custom, llm.AgentPause.custom
@@ -29,15 +30,17 @@ message LLMCompilerTaskGraph { //used in llm.AgentContinuation.custom, llm.Agent
     int64 index = 1;
     ToolCallObject tool_call = 2;
     repeated int64 dependencies = 3;
+    string thought = 4;
     // optional message to save result
-    llm.Message result = 4;
+    llm.Message result = 5;
   }
+  string question = 2;
 }
 
 message LLMCompilerJoinerResult { // used in llm.AgentFinish.details
   bool is_replan = 1;
-  bool is_final = 2;
-  string joiner_scratchpad = 3;
+//  bool is_final = 2;
+  string response = 3;
 }
 
 message AgentContinuation {
@@ -79,7 +82,6 @@ message AgentObservation {
   // reserved for user defined observation
   google.protobuf.Any custom = 100;
 }
-
 
 message AgentStep {
   oneof value {

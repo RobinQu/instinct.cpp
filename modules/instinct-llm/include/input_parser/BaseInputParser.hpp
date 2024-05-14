@@ -43,7 +43,6 @@ namespace INSTINCT_LLM_NS {
             return this->ParseInput(input);
         }
 
-
         void Configure(const InputParserOptions &options) override {
             options_ = options;
         }

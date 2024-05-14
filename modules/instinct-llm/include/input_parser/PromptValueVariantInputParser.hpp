@@ -13,6 +13,11 @@ namespace INSTINCT_LLM_NS {
 
     class PromptValueVariantInputParser final: public BaseInputParser<PromptValueVariant> {
     public:
+        explicit PromptValueVariantInputParser(InputParserOptions options = {})
+            : BaseInputParser<std::variant<StringPromptValue, ChatPromptValue, PromptValue, MessageList, Message, std::
+            string>>(std::move(options)) {
+        }
+
         JSONContextPtr ParseInput(const PromptValueVariant &input) override {
             auto ctx = CreateJSONContext();
             ctx->ProducePrimitive(details::conv_prompt_value_variant_to_string(input));
@@ -20,8 +25,8 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
-    static InputParserPtr<PromptValueVariant> CreatePromptVariantInputParser() {
-        return std::make_shared<PromptValueVariantInputParser>();
+    static InputParserPtr<PromptValueVariant> CreatePromptVariantInputParser(const InputParserOptions& options = {}) {
+        return std::make_shared<PromptValueVariantInputParser>(options);
     }
 
 }

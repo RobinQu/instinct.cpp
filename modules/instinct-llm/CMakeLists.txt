@@ -78,6 +78,9 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/agent/patterns/openai_tool/OpenAIToolAgentPlanner.hpp
         include/agent/patterns/llm_compiler/LLMCompilerAgnetStateInputParser.hpp
         include/agent/patterns/llm_compiler/LLMCompilerThoughtOutputParser.hpp
+        include/agent/patterns/llm_compiler/TaskGraphUtils.hpp
+        include/agent/patterns/llm_compiler/LLMCompilerJoinerTaskGraphInputParser.hpp
+        include/agent/patterns/llm_compiler/LLMCompilerJoinerResultOutputParser.hpp
 )
 
 find_package(exprtk REQUIRED)

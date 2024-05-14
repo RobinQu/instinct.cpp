@@ -12,6 +12,10 @@ namespace INSTINCT_LLM_NS {
     class StringOutputParser final: public BaseOutputParser<std::string> {
 
     public:
+        explicit StringOutputParser(const OutputParserOptions &options = {})
+            : BaseOutputParser<std::string>(options) {
+        }
+
         std::string ParseResult(const Generation &generation) override {
             if (generation.has_message()) {
                 return generation.message().content();
@@ -24,15 +28,10 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
-    static OutputParserPtr<std::string> CreateStringOutputParser() {
-        return std::make_shared<StringOutputParser>();
+    static OutputParserPtr<std::string> CreateStringOutputParser(const OutputParserOptions& options = {}) {
+        return std::make_shared<StringOutputParser>(options);
     }
 }
 
-// namespace xn::output {
-//     static INSTINCT_LLM_NS::OutputParserPtr<std::string> string_output_parser {
-//         return INSTINCT_LLM_NS::CreateStringOutputParser();
-//     };
-// }
 
 #endif //INSTINCT_STRINGOUTPUTPARSER_HPP

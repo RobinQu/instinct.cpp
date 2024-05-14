@@ -1,6 +1,5 @@
 syntax = "proto3";
-//import "google/protobuf/empty.proto";
-//import "google/protobuf/api.proto";
+import "google/protobuf/any.proto";
 import "google/protobuf/struct.proto";
 import "chat_completion_api.proto";
 
@@ -701,7 +700,11 @@ message RunStepObject { // GetRunStepResponse
         string arguments = 2;
         string output = 3;
       }
+
+      google.protobuf.Any custom = 6;
     }
+
+    google.protobuf.Any custom = 4;
   }
 
   RunStepError last_error = 10;

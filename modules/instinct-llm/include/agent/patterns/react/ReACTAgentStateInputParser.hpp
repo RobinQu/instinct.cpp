@@ -12,6 +12,10 @@ namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_LLM_NS;
     class ReACTAgentStateInputParser final: public BaseInputParser<AgentState> {
     public:
+        explicit ReACTAgentStateInputParser(InputParserOptions options)
+            : BaseInputParser<AgentState>(std::move(options)) {
+        }
+
         JSONContextPtr ParseInput(const AgentState &agent_state) override {
             std::string scratch_pad;
             const int n = agent_state.previous_steps_size();
@@ -54,8 +58,8 @@ namespace INSTINCT_LLM_NS {
     };
 
 
-    static InputParserPtr<AgentState> CreateReACTAgentInputParser() {
-        return std::make_shared<ReACTAgentStateInputParser>();
+    static InputParserPtr<AgentState> CreateReACTAgentInputParser(const InputParserOptions& options = {}) {
+        return std::make_shared<ReACTAgentStateInputParser>(options);
     }
 }
 

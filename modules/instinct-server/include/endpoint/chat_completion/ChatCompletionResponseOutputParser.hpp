@@ -18,6 +18,10 @@ namespace INSTINCT_SERVER_NS {
      */
     class ChatCompletionResponseOutputParser final: public BaseOutputParser<OpenAIChatCompletionResponse> {
     public:
+        explicit ChatCompletionResponseOutputParser(const OutputParserOptions &options = {})
+            : BaseOutputParser<OpenAIChatCompletionResponse>(options) {
+        }
+
         OpenAIChatCompletionResponse ParseResult(const Generation& context) override {
             OpenAIChatCompletionResponse response;
             response.set_id(fmt::format("chatcmpl-{}", ChronoUtils::GetCurrentTimeMillis()));

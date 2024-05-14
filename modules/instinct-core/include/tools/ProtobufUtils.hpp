@@ -354,7 +354,7 @@ namespace INSTINCT_CORE_NS {
             util::JsonParseOptions options;
             options.ignore_unknown_fields = true;
             options.case_insensitive_enum_parsing = true;
-            auto status = util::JsonStringToMessage(buf, &result, options);
+            const auto status = util::JsonStringToMessage(buf, &result, options);
             if (!status.ok()) {
                 LOG_DEBUG("Deserialize failed. reason: {}, orginal string: {}", status.message().as_string(), buf);
             }
