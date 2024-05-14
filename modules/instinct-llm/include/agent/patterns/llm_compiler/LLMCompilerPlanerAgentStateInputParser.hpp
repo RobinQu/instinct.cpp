@@ -14,9 +14,9 @@
 
 namespace INSTINCT_LLM_NS {
 
-    class LLMCompilerAgnetStateInputParser final: public BaseInputParser<AgentState> {
+    class LLMCompilerPlanerAgentStateInputParser final: public BaseInputParser<AgentState> {
     public:
-        explicit LLMCompilerAgnetStateInputParser(InputParserOptions options)
+        explicit LLMCompilerPlanerAgentStateInputParser(InputParserOptions options)
             : BaseInputParser<AgentState>(std::move(options)) {
         }
 
@@ -62,8 +62,8 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
-    static InputParserPtr<AgentState> CreateLLMCompilerInputParser(const InputParserOptions& options = {}) {
-        return std::make_shared<LLMCompilerAgnetStateInputParser>(options);
+    static InputParserPtr<AgentState> CreateLLMCompilerPlanerAgentStateInputParser(const InputParserOptions& options = {}) {
+        return std::make_shared<LLMCompilerPlanerAgentStateInputParser>(options);
     }
 
 }

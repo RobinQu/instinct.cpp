@@ -7,7 +7,6 @@
 
 
 #include <agent.pb.h>
-#include <sys/stat.h>
 
 #include "LLMGlobals.hpp"
 #include "ReACTAgentStateInputParser.hpp"

@@ -4,6 +4,8 @@
 
 #ifndef LLMCOMPILERPLANER_HPP
 #define LLMCOMPILERPLANER_HPP
+#include "LLMCompilerPlanerAgentStateInputParser.hpp"
+#include "LLMCompilerPlanerThoughtOutputParser.hpp"
 #include "LLMGlobals.hpp"
 #include "agent/executor/IAgentExecutor.hpp"
 #include "chat_model/BaseChatModel.hpp"
@@ -26,24 +28,14 @@ namespace INSTINCT_LLM_NS {
      * 2.1 if `join` gives out final result, we return thought with final message
      * 2.2 if `join` gives out replan request, we run LLM with replan prompt.
     */
-    class LLMCompilerPlaner final: public BaseRunnable<AgentState, AgentThought> {
-        ChatModelPtr chat_model_;
-
-    public:
-        AgentThought Invoke(const AgentState &state) override {
-            chat_model_->BindToolSchemas({state.function_tools().begin(), state.function_tools().end()});
-            const auto n = state.previous_steps_size();
-
-
-        }
-    };
-
-
     static PlannerPtr CreateLLMCompilerPlaner(
         const ChatModelPtr &chat_model,
         const std::vector<FunctionToolkitPtr> &built_in_toolkits,
         PromptTemplatePtr prompt_template = nullptr
     ) {
+        for (const auto &tk: built_in_toolkits) {
+            chat_model->BindTools(tk);
+        }
         if (!prompt_template) {
             prompt_template = CreatePlainChatPromptTemplate({
                 {
@@ -90,9 +82,9 @@ Question: {question}
                 }
             });
         }
-        //
-
-        return CreateFunctionalChain();
+        const auto input_parser = CreateLLMCompilerPlanerAgentStateInputParser();
+        const auto output_parser = CreateLLMCompilerPlanerThoughtOutputParser();
+        return CreateFunctionalChain(input_parser, output_parser, prompt_template | chat_model->AsModelFunction());
 
     }
 }

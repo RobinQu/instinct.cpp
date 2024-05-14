@@ -7,8 +7,6 @@
 
 
 #include "../../LLMGlobals.hpp"
-#include "../BaseSolver.hpp"
-#include "../BaseWorker.hpp"
 #include "../../chain/MessageChain.hpp"
 
 namespace INSTINCT_LLM_NS {

@@ -64,7 +64,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/agent/executor/IAgentExecutor.hpp
         include/agent/executor/BaseAgentExecutor.hpp
         include/agent/BaseWorker.hpp
-        include/agent/BaseSolver.hpp
         include/toolkit/ProtoMessageFunctionTool.hpp
         include/toolkit/BaseSearchTool.hpp
         include/toolkit/builtin/SerpAPI.hpp
@@ -73,14 +72,13 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp
         include/agent/patterns/llm_compiler/LLMCompilerPlaner.hpp
         include/agent/patterns/llm_compiler/LLMCompilerJoiner.hpp
-        include/agent/patterns/llm_compiler/LLMCompilerWorker.hpp
-        include/agent/patterns/openai_tool/OpenAIToolAgentWorker.hpp
         include/agent/patterns/openai_tool/OpenAIToolAgentPlanner.hpp
-        include/agent/patterns/llm_compiler/LLMCompilerAgnetStateInputParser.hpp
-        include/agent/patterns/llm_compiler/LLMCompilerThoughtOutputParser.hpp
+        include/agent/patterns/llm_compiler/LLMCompilerPlanerAgentStateInputParser.hpp
+        include/agent/patterns/llm_compiler/LLMCompilerPlanerThoughtOutputParser.hpp
         include/agent/patterns/llm_compiler/TaskGraphUtils.hpp
         include/agent/patterns/llm_compiler/LLMCompilerJoinerTaskGraphInputParser.hpp
         include/agent/patterns/llm_compiler/LLMCompilerJoinerResultOutputParser.hpp
+        include/agent/LocalToolkitsWorker.hpp
 )
 
 find_package(exprtk REQUIRED)

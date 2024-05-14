@@ -6,6 +6,7 @@
 #define LLMCOMPILERAGENTEXECUTOR_HPP
 
 #include "LLMCompilerJoiner.hpp"
+#include "LLMCompilerPlaner.hpp"
 #include "LLMGlobals.hpp"
 #include "TaskGraphUtils.hpp"
 #include "agent/executor/BaseAgentExecutor.hpp"
@@ -139,13 +140,16 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
-    static AgentExecutorPtr CreateLLMCompilerAgentExecutor(const ChatModelPtr &chat_model,
+    static AgentExecutorPtr CreateLLMCompilerAgentExecutor(
+        const ChatModelPtr &chat_model,
         const std::vector<FunctionToolkitPtr> &toolkits,
-        const StopPredicate& stop_predicate = NoStopPredicate) {
-        return std::make_shared<LLMCompilerAgentExectuor>();
-
+        const StopPredicate& stop_predicate = NoStopPredicate,
+        const LLMCompilerOptions& options = {}
+        ) {
+        auto planer = CreateLLMCompilerPlaner(chat_model, toolkits);
+        auto worker = CreateLocalToolkitsWorker(toolkits);
+        return std::make_shared<LLMCompilerAgentExectuor>(stop_predicate, planer, worker, options);
     }
-
 
 
 }

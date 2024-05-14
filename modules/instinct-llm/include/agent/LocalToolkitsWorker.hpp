@@ -1,27 +1,23 @@
 //
-// Created by RobinQu on 2024/5/13.
+// Created by RobinQu on 2024/5/14.
 //
 
-#ifndef OPENAITOOLAGENTWORKER_HPP
-#define OPENAITOOLAGENTWORKER_HPP
+#ifndef LOCALTOOLKITSWORKER_HPP
+#define LOCALTOOLKITSWORKER_HPP
 
+#include "BaseWorker.hpp"
 #include "LLMGlobals.hpp"
-#include "agent/BaseWorker.hpp"
 
 namespace INSTINCT_LLM_NS {
+    class LocalToolkitsWorker final: public BaseWorker {
+        ThreadPool thread_pool_;
 
-        /**
-         * Tool executor that supports parallel tool calling using thread pool
-         */
-        class OpenAIToolAgentWorker final : public BaseWorker {
-            ThreadPool thread_pool_;
+    public:
+        explicit LocalToolkitsWorker(const std::vector<FunctionToolkitPtr> &toolkits)
+            : BaseWorker(toolkits) {
+        }
 
-        public:
-            explicit OpenAIToolAgentWorker(const std::vector<FunctionToolkitPtr> &toolkits)
-                : BaseWorker(toolkits) {
-            }
-
-            AgentObservation Invoke(const AgentThought &input) override {
+        AgentObservation Invoke(const AgentThought &input) override {
                 const auto &tool_request_msg = input.continuation().tool_call_message();
 
                 std::vector<ToolCallObject> filtered_tool_calls;
@@ -37,7 +33,7 @@ namespace INSTINCT_LLM_NS {
                 // it's possible we have empty tool calls after fitering
                 if (!filtered_tool_calls.empty()) {
                     // only execute tool call that has matching tools in worker
-                    auto multi_futures = thread_pool_.submit_sequence(0, tool_request_msg.tool_calls_size(), [&](auto i) {
+                    for (auto multi_futures = thread_pool_.submit_sequence(0, tool_request_msg.tool_calls_size(), [&](auto i) {
                         const auto &call = filtered_tool_calls.at(i);
                         for (const auto &tk: GetFunctionToolkits()) {
                             if (tk->LookupFunctionTool({.by_name = call.function().name()})) {
@@ -47,8 +43,7 @@ namespace INSTINCT_LLM_NS {
                         // impossible to reach here
                         throw InstinctException(fmt::format("Unresolved invocation: id={}, name={}", call.id(),
                                                             call.function().name()));
-                    });
-                    for (auto &future: multi_futures) {
+                    }); auto &future: multi_futures) {
                         const auto tool_result = future.get();
                         if (tool_result.has_error()) {
                             LOG_ERROR("invocation failed: id={}, exception={}", tool_result.invocation_id(), tool_result.exception());
@@ -63,13 +58,14 @@ namespace INSTINCT_LLM_NS {
                 }
                 return observation;
             }
-        };
 
-        static WorkerPtr CreateOpenAIToolAgentWorker(const std::vector<FunctionToolkitPtr> &toolkits) {
-            return std::make_shared<OpenAIToolAgentWorker>(toolkits);
-        }
+    };
 
+
+    static WorkerPtr CreateLocalToolkitsWorker(const std::vector<FunctionToolkitPtr> &toolkits) {
+        return std::make_shared<LocalToolkitsWorker>(toolkits);
+    }
 }
 
 
-#endif //OPENAITOOLAGENTWORKER_HPP
+#endif //LOCALTOOLKITSWORKER_HPP

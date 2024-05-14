@@ -7,7 +7,7 @@
 
 #include "LLMGlobals.hpp"
 #include "OpenAIToolAgentPlanner.hpp"
-#include "OpenAIToolAgentWorker.hpp"
+#include "agent/LocalToolkitsWorker.hpp"
 #include "agent/executor/BaseAgentExecutor.hpp"
 #include "chain/MessageChain.hpp"
 #include "chat_model/BaseChatModel.hpp"
@@ -31,7 +31,7 @@ namespace INSTINCT_LLM_NS {
                                 StopPredicate should_early_stop = NoStopPredicate):
             should_early_stop_(std::move(should_early_stop)),
             planner_(CreateOpenAIToolAgentPlanner(chat_model)),
-            worker_(CreateOpenAIToolAgentWorker(toolkits))
+            worker_(CreateLocalToolkitsWorker(toolkits))
         {
             for(const auto& tk: toolkits) {
                 chat_model->BindTools(tk);

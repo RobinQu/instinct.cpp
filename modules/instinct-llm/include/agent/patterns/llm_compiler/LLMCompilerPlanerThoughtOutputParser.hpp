@@ -10,9 +10,9 @@
 #include "prompt/MessageUtils.hpp"
 
 namespace INSTINCT_LLM_NS {
-    class LLMCompilerThoughtOutputParser final: public BaseOutputParser<AgentThought> {
+    class LLMCompilerPlanerThoughtOutputParser final: public BaseOutputParser<AgentThought> {
     public:
-        explicit LLMCompilerThoughtOutputParser(const OutputParserOptions &options)
+        explicit LLMCompilerPlanerThoughtOutputParser(const OutputParserOptions &options)
             : BaseOutputParser<AgentThought>(options) {
         }
 
@@ -66,8 +66,8 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
-    static OutputParserPtr<AgentThought> CreateLLMCompilerOutputParser(const OutputParserOptions& options = {}) {
-        return std::make_shared<LLMCompilerThoughtOutputParser>(options);
+    static OutputParserPtr<AgentThought> CreateLLMCompilerPlanerThoughtOutputParser(const OutputParserOptions& options = {}) {
+        return std::make_shared<LLMCompilerPlanerThoughtOutputParser>(options);
     }
 }
 
