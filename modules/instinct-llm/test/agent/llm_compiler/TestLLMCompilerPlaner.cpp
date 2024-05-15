@@ -158,7 +158,7 @@ namespace INSTINCT_LLM_NS {
 
 
     TEST_F(LLMCompilerPlanTest, Planning) {
-        auto planner = CreateLLMCompilerPlaner(chat_model_, {});
+        const auto planner = CreateLLMCompilerPlaner(chat_model_);
         AgentState state;
         for(const auto& tool: toolkit_->GetAllFunctionToolSchema()) {
             state.add_function_tools()->CopyFrom(tool);

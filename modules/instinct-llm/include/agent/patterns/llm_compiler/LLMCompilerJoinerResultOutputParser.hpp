@@ -26,30 +26,37 @@ namespace INSTINCT_LLM_NS {
         }
 
         LLMCompilerJoinerResult ParseResult(const Generation &context) override {
-            static std::regex NEWLINE_SEP({"\n"});
+            static std::regex NEWLINE_SEP {"\n"};
+            static std::regex ACTION_REGEX {R"(Action:\s*(.+)\((.*)\))"};
             const auto content = MessageUtils::StringifyGeneration(context);
-            std::string thought;
-            bool is_replan = false;
+            LLMCompilerJoinerResult joiner_result;
             for (const auto& line: StringUtils::ReSplit(content, NEWLINE_SEP)) {
-                if (line.starts_with(options_.action_token)) {
-                    const auto begin_idx = line.find_first_of("(");
-                    const auto end_idx = line.find_last_of(")");
-                    if (begin_idx != std::string::npos && end_idx != std::string::npos) {
-                        const auto action = line.substr(begin_idx+1, end_idx);
-                        is_replan = action.find(options_.replan_action_name) != std::string::npos;
+                auto trimmed_line = StringUtils::Trim(line);
+                if (StringUtils::IsBlankString(trimmed_line)) {
+                    continue;
+                }
+                if (trimmed_line.starts_with(options_.thought_token)) {
+                    const auto thought = StringUtils::Trim(trimmed_line.substr(options_.thought_token.size()));
+                    joiner_result.set_thought(thought);
+                }
+                if (std::smatch action_match; std::regex_match(trimmed_line, action_match, ACTION_REGEX)) {
+                    if (action_match.size() >= 3) {
+                        // item one is matched line
+                        // item two is action name
+                        const auto action = action_match[1].str();
+                        joiner_result.set_is_replan(action.find(options_.replan_action_name) != std::string::npos);
+                        // item three is answer
+                        joiner_result.set_answer(action_match[2].str());
                     }
                 }
-                if (line.starts_with(options_.thought_token)) {
-                    thought = line.substr(options_.thought_token.size());
-                }
             }
-
-            LLMCompilerJoinerResult joiner_result;
-            joiner_result.set_response(thought);
-            joiner_result.set_is_replan(is_replan);
             return joiner_result;
         }
     };
+
+    static OutputParserPtr<LLMCompilerJoinerResult> CreateLLMCompilerJoinerResultOutputParser(const LLMCompilerJoinerResultOutputParserOptions &options = {}) {
+        return std::make_shared<LLMCompilerJoinerResultOutputParser>(options);
+    }
 
 
 }

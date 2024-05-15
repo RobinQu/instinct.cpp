@@ -44,8 +44,8 @@ message LLMCompilerTaskGraph { //used in llm.AgentContinuation.custom, llm.Agent
 
 message LLMCompilerJoinerResult { // used in llm.AgentFinish.details
   bool is_replan = 1;
-//  bool is_final = 2;
-  string response = 3;
+  string answer = 2;
+  string thought = 3;
 }
 
 message AgentContinuation {

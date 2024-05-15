@@ -30,12 +30,8 @@ namespace INSTINCT_LLM_NS {
     */
     static PlannerPtr CreateLLMCompilerPlaner(
         const ChatModelPtr &chat_model,
-        const std::vector<FunctionToolkitPtr> &built_in_toolkits,
         PromptTemplatePtr prompt_template = nullptr
     ) {
-        for (const auto &tk: built_in_toolkits) {
-            chat_model->BindTools(tk);
-        }
         if (!prompt_template) {
             prompt_template = CreatePlainChatPromptTemplate({
                 {

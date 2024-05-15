@@ -85,7 +85,7 @@ namespace INSTINCT_LLM_NS {
 
                 // agent has final answer, so we could directly return
                 auto* finish_step = agent_step.mutable_thought()->mutable_finish();
-                finish_step->set_response(joiner_result.response());
+                finish_step->set_response(joiner_result.answer());
                 // copy graph data in finish step
                 finish_step->mutable_custom()->CopyFrom(graph);
                 state.add_previous_steps()->CopyFrom(agent_step);
@@ -158,7 +158,7 @@ namespace INSTINCT_LLM_NS {
         const StopPredicate& stop_predicate = NoStopPredicate,
         const LLMCompilerOptions& options = {}
         ) {
-        auto planer = CreateLLMCompilerPlaner(chat_model, toolkits);
+        auto planer = CreateLLMCompilerPlaner(chat_model);
         auto worker = CreateLocalToolkitsWorker(toolkits);
         return std::make_shared<LLMCompilerAgentExectuor>(stop_predicate, planer, worker, options);
     }

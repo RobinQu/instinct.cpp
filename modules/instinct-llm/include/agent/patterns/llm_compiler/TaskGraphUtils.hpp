@@ -62,14 +62,14 @@ namespace INSTINCT_LLM_NS {
                 if (task.tool_call().function().name() == "join") {
                     continue;
                 }
-                if (options.include_thgouth && StringUtils::IsNotBlankString(task.thought())) {
-                    output += fmt::format("Thought: {}\n", task.thought());
-                }
-                const auto idx = options.include_action_id ? fmt::format("{}.", task.index()) : "";
-                if (options.inlcude_aciton) {
-                    output += fmt::format("{}{} {}\n", idx, task.tool_call().function().name(),  task.tool_call().function().arguments());
-                }
                 if (StringUtils::IsNotBlankString(task.result().content())) {
+                    if (options.include_thgouth && StringUtils::IsNotBlankString(task.thought())) {
+                        output += fmt::format("Thought: {}\n", task.thought());
+                    }
+                    const auto idx = options.include_action_id ? fmt::format("{}.", task.index()) : "";
+                    if (options.inlcude_aciton) {
+                        output += fmt::format("{}{}({})\n", idx, task.tool_call().function().name(), task.tool_call().function().arguments());
+                    }
                     output += fmt::format("Observation: {}\n", task.result().content());
                 }
             }

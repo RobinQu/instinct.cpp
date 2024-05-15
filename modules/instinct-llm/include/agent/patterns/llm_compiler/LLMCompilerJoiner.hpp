@@ -7,6 +7,7 @@
 
 #include "LLMCompilerJoinerResultOutputParser.hpp"
 #include "LLMCompilerJoinerTaskGraphInputParser.hpp"
+#include "LLMCompilerPlanerThoughtOutputParser.hpp"
 #include "LLMGlobals.hpp"
 #include "chain/MessageChain.hpp"
 #include "chat_model/BaseChatModel.hpp"
@@ -32,7 +33,8 @@ namespace INSTINCT_LLM_NS {
 - If you are unable to give a satisfactory finishing answer, replan to get the required information. Respond in the following format:
 
 Thought: <reason about the task results and whether you have sufficient information to answer the question>
-Action: <action to take>
+Action: <action to take>(<final answer>)
+
 Available actions:
  (1) Finish(the final answer to return to the user): returns the answer and finishes the task.
  (2) Replan(the reasoning and other information that will help you plan again. Can be a line of any length): instructs why we must replan
@@ -41,11 +43,6 @@ Available actions:
 
 Using the above previous actions, decide whether to replan or finish. If all the required information is present. You may finish. If you have made many attempts to find the information without success, admit so and respond with whatever information you have gathered so the user can work well with you.
 
-{% if exists("examples") %}
-Here are some examples:
-{exmaples}
-{% endif %}
-
 Question: {question}
 
 {agent_scrathpad}
@@ -53,8 +50,8 @@ Question: {question}
 )"}
             });
         }
-        const InputParserPtr<LLMCompilerTaskGraph> input_parser = std::make_shared<LLMCompilerJoinerTaskGraphInputParser>(input_parser_options);
-        const OutputParserPtr<LLMCompilerJoinerResult> output_parser = std::make_shared<LLMCompilerJoinerResultOutputParser>(output_parser_options);
+        const auto input_parser = CreateLLMCompilerJoinerTaskGraphInputParser(input_parser_options);
+        const auto output_parser = CreateLLMCompilerJoinerResultOutputParser(output_parser_options);
         return CreateFunctionalChain(input_parser, output_parser, chat_prompt_template | chat_model->AsModelFunction());
     }
 

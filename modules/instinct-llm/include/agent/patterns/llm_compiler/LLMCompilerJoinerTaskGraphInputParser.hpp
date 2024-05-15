@@ -22,10 +22,15 @@ namespace INSTINCT_LLM_NS {
                 {"question", graph.question()},
                 {"agent_scrathpad", scratchpad},
                 // TODO examples should contain tool usages, which are not defined at this stage
-                {"examples", ""}
+                {"examples", ""},
+                {"messages", ""}
             });
         }
     };
+
+    static InputParserPtr<LLMCompilerTaskGraph> CreateLLMCompilerJoinerTaskGraphInputParser(const InputParserOptions& options = {}) {
+        return std::make_shared<LLMCompilerJoinerTaskGraphInputParser>(options);
+    }
 
 }
 #endif //LLMCOMPILERJOINERTASKGRAPHINPUTPARSER_HPP
