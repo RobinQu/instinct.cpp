@@ -53,31 +53,19 @@ namespace INSTINCT_LLM_NS {
 - The action descriptions contain the guidelines. You MUST strictly follow those guidelines when you use the actions.
 - Each action in the plan should strictly be one of the above types.
 - Each action MUST have a unique ID, which is strictly increasing.
-- Input to the action is formatted as JSON blob with 'name' and 'arguments' keys.
+- Respond with the task list in the following format: ID. action_name(JSON blob of action input).
 - If inputs for actions are outputs from preceding actions,  always use the format $id to denote the ID of the previous action whose output will be used as the input.
 - Always call join as the last action in the plan. Say '<END_OF_PLAN>' after you call join in a new line.
 - Ensure the plan maximizes parallelization.
 - Only use the provided action types. If a query cannot be addressed using these, invoke the join action for the next steps.
 - Never introduce new actions other than the ones provided.
-{% if repaln  %}
-- You are given "Previous Plan" which is the plan that the previous agent created along with the execution results (given as Observation) of each plan and a general thought (given as Thought) about the executed results. You MUST use these information to create the next plan under "Current Plan".
-- When starting the Current Plan, you should start with "Thought" that outlines the strategy for the next plan.
-- In the Current Plan, you should NEVER repeat the actions that are already executed in the Previous Plan.
+{replan}
 
-{% context %}
-
-{% endif %}
-
-
-Remember, ONLY respond with the task list in the following format:
-ID. JSON blob of action input
-
-{% if exists("exmaples") %}
-Here are some examples:
 {exmaples}
-{% endif %}
 
 Question: {question}
+
+{context}
 )"
                 }
             });

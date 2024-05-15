@@ -340,11 +340,11 @@ talking non-sense
                 .apikey = SystemUtils::GetEnv("SERP_API_KEY")
             });
 
-        ChatModelPtr model_for_tool_ = CreateOpenAIChatModel({
+        ChatModelPtr chat_model_ = CreateOpenAIChatModel({
                 .temperature = 0
             });
 
-        FunctionToolPtr calculator_tool_ = CreateLLMMath(model_for_tool_, {.max_attempts = 2});
+        FunctionToolPtr calculator_tool_ = CreateLLMMath(chat_model_, {.max_attempts = 2});
 
         FunctionToolkitPtr toolkit_ = CreateLocalToolkit({ search_tool_, calculator_tool_ });
 

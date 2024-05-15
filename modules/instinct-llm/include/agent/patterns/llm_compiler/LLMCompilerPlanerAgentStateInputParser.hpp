@@ -14,10 +14,20 @@
 
 namespace INSTINCT_LLM_NS {
 
+    struct LLMCompilerPlanerAgentStateInputParserOptions {
+        std::string replan_prompt = R"(- You are given "Previous Plan" which is the plan that the previous agent created along with the execution results (given as Observation) of each plan and a general thought (given as Thought) about the executed results. You MUST use these information to create the next plan under "Current Plan".
+- When starting the Current Plan, you should start with "Thought" that outlines the strategy for the next plan.
+- In the Current Plan, you should NEVER repeat the actions that are already executed in the Previous Plan.
+- You must continue the task index from the end of the previous one. Do not repeat task indices.)";
+        InputParserOptions base_options;
+
+    };
+
     class LLMCompilerPlanerAgentStateInputParser final: public BaseInputParser<AgentState> {
+        LLMCompilerPlanerAgentStateInputParserOptions options_;
     public:
-        explicit LLMCompilerPlanerAgentStateInputParser(InputParserOptions options)
-            : BaseInputParser<AgentState>(std::move(options)) {
+        explicit LLMCompilerPlanerAgentStateInputParser(LLMCompilerPlanerAgentStateInputParserOptions options)
+            : BaseInputParser<AgentState>(std::move(options.base_options)), options_(options) {
         }
 
         JSONContextPtr ParseInput(const AgentState &agent_state) override {
@@ -26,8 +36,8 @@ namespace INSTINCT_LLM_NS {
 
             // generate tool descriptions
             std::string tool_descriptions;
-            for (int i=0; i<agent_state.function_tools_size(); ++i) {
-                const auto& function_tool = agent_state.function_tools(i);
+            for (int i=1; i<=agent_state.function_tools_size(); ++i) {
+                const auto& function_tool = agent_state.function_tools(i-1);
                 tool_descriptions += fmt::format("{}. {}: {}, arguments JSON schema: {}", i,  function_tool.name(), function_tool.description(), ProtobufUtils::Serialize(function_tool.parameters()));
             }
 
@@ -60,13 +70,14 @@ namespace INSTINCT_LLM_NS {
                 // plus for for extra `join` function
                 {"num_tools", agent_state.function_tools_size() + 1 },
                 {"tool_descriptions", tool_descriptions},
-                {"replan", replan},
-                {"context", context_string}
+                {"replan", replan ? options_.replan_prompt: ""},
+                {"context", context_string},
+                {"exmaples", ""}
             });
         }
     };
 
-    static InputParserPtr<AgentState> CreateLLMCompilerPlanerAgentStateInputParser(const InputParserOptions& options = {}) {
+    static InputParserPtr<AgentState> CreateLLMCompilerPlanerAgentStateInputParser(const LLMCompilerPlanerAgentStateInputParserOptions& options = {}) {
         return std::make_shared<LLMCompilerPlanerAgentStateInputParser>(options);
     }
 

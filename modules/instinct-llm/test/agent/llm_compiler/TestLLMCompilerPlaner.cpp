@@ -3,6 +3,7 @@
 //
 #include <gtest/gtest.h>
 #include "LLMTestGlobals.hpp"
+#include "agent/patterns/llm_compiler/LLMCompilerPlaner.hpp"
 #include "agent/patterns/llm_compiler/LLMCompilerPlanerAgentStateInputParser.hpp"
 #include "agent/patterns/llm_compiler/LLMCompilerPlanerThoughtOutputParser.hpp"
 
@@ -23,10 +24,9 @@ namespace INSTINCT_LLM_NS {
         for(const auto& tool: toolkit_->GetAllFunctionToolSchema()) {
             state.add_function_tools()->CopyFrom(tool);
         }
-
         auto* msg = state.mutable_input()->mutable_chat()->add_messages();
         msg->set_content("How much more expensive of gold price in Hongkong compared to that in New York?");
-        msg->set_role("human");
+        msg->set_role("user");
         const auto ctx1 = input_parser->ParseInput(state);
         ASSERT_EQ(ctx1->RequireMappingData().at("question")->RequirePrimitive<std::string>(), msg->content());
         ASSERT_EQ(ctx1->RequireMappingData().at("num_tools")->RequirePrimitive<int>(), 3);
@@ -135,7 +135,7 @@ namespace INSTINCT_LLM_NS {
     }
 
     TEST_F(LLMCompilerPlanTest, ParseOutputThought) {
-        auto output_parser = CreateLLMCompilerPlanerThoughtOutputParser();
+        const auto output_parser = CreateLLMCompilerPlanerThoughtOutputParser();
         Generation generation;
         generation.set_text(R"(1. search({"query": "gold price in Hongkong"})
 2. search({"query": "gold price in New York"})
@@ -157,7 +157,23 @@ namespace INSTINCT_LLM_NS {
     }
 
 
+    TEST_F(LLMCompilerPlanTest, Planning) {
+        auto planner = CreateLLMCompilerPlaner(chat_model_, {});
+        AgentState state;
+        for(const auto& tool: toolkit_->GetAllFunctionToolSchema()) {
+            state.add_function_tools()->CopyFrom(tool);
+        }
+        auto* msg = state.mutable_input()->mutable_chat()->add_messages();
+        msg->set_content("How much more expensive of gold price in Hongkong compared to that in New York?");
+        msg->set_role("user");
+        const AgentThought thought = planner->Invoke(state);
+        ASSERT_TRUE(thought.continuation().custom().Is<LLMCompilerTaskGraph>());
+        LLMCompilerTaskGraph graph;
+        thought.continuation().custom().UnpackTo(&graph);
+        LOG_INFO("graph={}", graph.ShortDebugString());
 
-
+        ASSERT_EQ(graph.tasks_size(), 3);
+        ASSERT_EQ(graph.tasks().rbegin()->tool_call().function().name(), "join");
+    }
 
 }

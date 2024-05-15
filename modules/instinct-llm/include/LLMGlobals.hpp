@@ -112,7 +112,7 @@ namespace INSTINCT_LLM_NS {
      */
     static MessageRoleNameMapping DEFAULT_ROLE_NAME_MAPPING =  {
         {kAsisstant, "assistant"},
-        {kHuman, "human"},
+        {kHuman, "user"},
         {kSystem, "system"},
         {kFunction, "function"},
         {kTool, "tool"}
