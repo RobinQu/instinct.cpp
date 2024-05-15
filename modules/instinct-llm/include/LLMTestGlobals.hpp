@@ -334,7 +334,7 @@ talking non-sense
             DoSetUp();
         }
 
-        virtual void DoSetUp() = 0;
+        virtual void DoSetUp() {}
 
         FunctionToolPtr search_tool_ = CreateSerpAPI({
                 .apikey = SystemUtils::GetEnv("SERP_API_KEY")

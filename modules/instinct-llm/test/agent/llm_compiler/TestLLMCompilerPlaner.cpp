@@ -94,7 +94,7 @@ namespace INSTINCT_LLM_NS {
         task3->mutable_result()->set_content(R"(Failed to calculate: What's '11 USD for 1 Gram' minus '10 USD for 1 Gram'. Please provide float numbers as input.)");
         observation_step2->mutable_observation()->add_tool_messages()->CopyFrom(task3->result());
         graph.mutable_joiner_result()->set_is_replan(true);
-        graph.mutable_joiner_result()->set_response("I have to do the final math with numbers");
+        graph.mutable_joiner_result()->set_thought("I have to do the final math with numbers");
         observation_step2->mutable_observation()->mutable_custom()->PackFrom(graph);
 
         // 4. run replan

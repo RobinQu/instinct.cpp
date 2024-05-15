@@ -28,10 +28,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 run_service_,
                 message_service_,
                 assistant_service_,
-                [&](const RunObject&) {
-                    return CreateOpenAIChatModel();
-                },
-                builtin_toolkit_
+                [&](const RunObject&, const StopPredicate& stop_predicate) {
+                    // still use CreateOpenAIToolAgentExecutor for more stable result
+                    return CreateOpenAIToolAgentExecutor(chat_model_, {builtin_toolkit_}, stop_predicate);
+                }
             );
         }
     };

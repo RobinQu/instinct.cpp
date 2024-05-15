@@ -13,7 +13,7 @@
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;
 
-    using ChatModelProvider = std::function<ChatModelPtr(const RunObject&)>;
+    using AgentExecutorProvider = std::function<AgentExecutorPtr(const RunObject&, const StopPredicate& stop_predicate)>;
 
     /**
      * Task handler for run objects using `OpenAIToolAgentExecutor`.
@@ -22,19 +22,18 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         RunServicePtr run_service_;
         MessageServicePtr message_service_;
         AssistantServicePtr assistant_service_;
-        ChatModelProvider chat_model_provider_;
-        FunctionToolkitPtr built_in_toolkit_;
+        AgentExecutorProvider agent_executor_provider_;
 
     public:
         static inline std::string CATEGORY = "run_object";
 
         OpenAIToolAgentRunObjectTaskHandler(RunServicePtr run_service, MessageServicePtr message_service,
-            AssistantServicePtr assistant_service, ChatModelProvider chat_model_provider, FunctionToolkitPtr built_in_toolkit)
+            AssistantServicePtr assistant_service, AgentExecutorProvider agent_executor_provider)
             : run_service_(std::move(run_service)),
               message_service_(std::move(message_service)),
               assistant_service_(std::move(assistant_service)),
-              chat_model_provider_(std::move(chat_model_provider)),
-              built_in_toolkit_(std::move(built_in_toolkit)) {
+              agent_executor_provider_(std::move(agent_executor_provider)
+              ) {
         }
 
         bool Accept(const ITaskScheduler<std::string>::Task &task) override {
@@ -70,11 +69,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 return;
             }
 
-            const auto& state = state_opt.value();
-            const auto executor = BuildAgentExecutor_(run_object);
+            const auto executor = agent_executor_provider_(run_object,
+                [&](const AgentState& state, AgentStep& step) {
+                    return CheckRunObjectForExecution_(run_object.thread_id(), run_object.id(), state, step);
+                }
+            );
 
             // execute possible steps
-            executor->Stream(state)
+            executor->Stream(state_opt.value())
                 | rpp::operators::as_blocking()
                 | rpp::operators::subscribe([&](const AgentState& current_state) {
                     // respond to state changes
@@ -163,19 +165,19 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             return run_object.status() == RunObject_RunObjectStatus_queued;
         }
 
-        /**
-         * Just return `OpenAIToolAgentExecutor`
-         * @param run_object
-         * @return
-         */
-        [[nodiscard]] AgentExecutorPtr BuildAgentExecutor_(const RunObject& run_object) const {
-            return CreateOpenAIToolAgentExecutor(
-                chat_model_provider_(run_object),
-                {built_in_toolkit_},
-                [&](const AgentState& state, AgentStep& step) {
-                return CheckRunObjectForExecution_(run_object.thread_id(), run_object.id(), state, step);
-            });
-        }
+        // /**
+        //  * Just return `OpenAIToolAgentExecutor`
+        //  * @param run_object
+        //  * @return
+        //  */
+        // [[nodiscard]] AgentExecutorPtr BuildAgentExecutor_(const RunObject& run_object) const {
+        //     return CreateOpenAIToolAgentExecutor(
+        //         chat_model_provider_(run_object),
+        //         {built_in_toolkit_},
+        //         [&](const AgentState& state, AgentStep& step) {
+        //         return CheckRunObjectForExecution_(run_object.thread_id(), run_object.id(), state, step);
+        //     });
+        // }
 
         /**
          * Predicate if early stop is required for run object

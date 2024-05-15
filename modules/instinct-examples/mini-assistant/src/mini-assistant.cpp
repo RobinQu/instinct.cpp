@@ -4,6 +4,7 @@
 #include <CLI/CLI.hpp>
 #include <cmrc/cmrc.hpp>
 
+#include "agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "chat_model/OpenAIChat.hpp"
 #include "commons/OllamaCommons.hpp"
@@ -41,6 +42,11 @@ namespace instinct::examples::mini_assistant {
         OllamaConfiguration ollama = {};
     };
 
+    struct AgentExecutorOptions {
+        std::string agent_executor_name = "llm_compiler";
+        LLMCompilerOptions llm_compiler = {};
+    };
+
     struct ApplicationOptions {
         LLMProviderOptions llm_provider;
         ServerOptions server;
@@ -48,6 +54,7 @@ namespace instinct::examples::mini_assistant {
         std::filesystem::path db_file_path;
         std::filesystem::path file_store_path;
         FileServiceOptions file_service;
+        AgentExecutorOptions agent_executor;
     };
 
     static ChatModelPtr CreateChatModel(const LLMProviderOptions& options) {
@@ -58,6 +65,15 @@ namespace instinct::examples::mini_assistant {
             return CreateOpenAIChatModel(options.openai);
         }
         return nullptr;
+    }
+
+    static AgentExecutorPtr CreateAgentExecutor(const AgentExecutorOptions& options, const ChatModelPtr& chat_model, const StopPredicate& predicate) {
+        if(options.agent_executor_name == "llm_compiler") {
+            // TODO currently build with empty toolkit. we have to add `file-search` and `code-interpreter` in the future
+            return CreateLLMCompilerAgentExecutor(chat_model, {}, predicate, options.llm_compiler);
+        }
+        assert_true(std::dynamic_pointer_cast<OpenAIChat>(chat_model), "Should be Chat model of OpenAI when openai_tool_agent_executor");
+        return CreateOpenAIToolAgentExecutor(chat_model, {}, predicate);
     }
 
     class MiniAssistantApplicationContextFactory final: public IApplicationContextFactory<duckdb::Connection, duckdb::unique_ptr<duckdb::MaterializedQueryResult>> {
@@ -110,8 +126,10 @@ namespace instinct::examples::mini_assistant {
                 run_service,
                 message_service,
                 assistant_service,
-                [&](const RunObject&) { return CreateChatModel(options_.llm_provider); },
-                builtin_toolkit
+                [&](const RunObject&, const StopPredicate& stop_predicate) {
+                    const auto chat_model = CreateChatModel(options_.llm_provider);
+                    return CreateAgentExecutor(options_.agent_executor, chat_model, stop_predicate);
+                }
                 );
             context.task_scheduler->RegisterHandler(context.run_object_task_handler);
 
@@ -167,7 +185,7 @@ namespace instinct::examples::mini_assistant {
     static void BuildChatModelProviderOptionGroup(
         CLI::Option_group* llm_provider_ogroup,
         OllamaConfiguration& provider_options) {
-        llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported. Defaults to a local running Ollama service using llama2:latest model.");
+        llm_provider_ogroup->description("Configuration options for Ollama service.");
         llm_provider_ogroup->add_option("--ollama_host", provider_options.endpoint.host, "Host name for Ollama API endpoint.")
                 ->default_val(OLLAMA_ENDPOINT.host);
         llm_provider_ogroup->add_option("--ollama_port", provider_options.endpoint.port, "Port number for Ollama API endpoint.")
@@ -177,6 +195,14 @@ namespace instinct::examples::mini_assistant {
                 ->default_val(OLLAMA_ENDPOINT.protocol);
         llm_provider_ogroup->add_option("--chat_model_model_name", provider_options.model_name, "Specify name of the model to be used.")
                 ->default_val(OLLAMA_DEFUALT_MODEL_NAME);
+    }
+
+    static void BuildAgentExecutorOptionsGroup(
+        CLI::Option_group* agent_executor_option_group,
+        LLMCompilerOptions& llm_compiler_option
+    ) {
+        agent_executor_option_group->description("Options for LLMCompilier-based agent executor");
+        agent_executor_option_group->add_option("--max_replan", llm_compiler_option.max_replan, "Max count for replan")->default_val(6);
     }
 
 
@@ -215,6 +241,12 @@ int main(int argc, char** argv) {
                     ->default_val("openai");
     BuildChatModelProviderOptionGroup(app.add_option_group("🧠 OpenAI configuration"), application_options.llm_provider.openai);
     BuildChatModelProviderOptionGroup(app.add_option_group("🧠 Ollama configuration"), application_options.llm_provider.ollama);
+
+    app.add_option("--agent_executor_type", application_options.agent_executor.agent_executor_name, "Sepcify agent executor type. `llm_compiler` enables paralle function calling with opensourced models like mistral series and llama series, while `openai_tool` relies on official OpenAI function calling capability to direct agent workflow.")
+        ->required()
+        ->check(CLI::IsMember({"llm_compiler", "openai_tool"}, CLI::ignore_case))
+        ->default_val("llm_compiler");
+    BuildAgentExecutorOptionsGroup(app.add_option_group("Options for LLMCompilerAgentExectuor"), application_options.agent_executor.llm_compiler);
 
     // log level
     bool enable_verbose_log;
