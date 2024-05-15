@@ -36,6 +36,10 @@ message LLMCompilerTaskGraph { //used in llm.AgentContinuation.custom, llm.Agent
   }
   // question field is only used in joiner
   string question = 2;
+
+  // field for joiner result
+  LLMCompilerJoinerResult joiner_result = 3;
+
 }
 
 message LLMCompilerJoinerResult { // used in llm.AgentFinish.details

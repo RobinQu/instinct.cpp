@@ -261,7 +261,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 if (!run_service_->CreateRunStep(run_step_object)) {
                     LOG_ERROR("Illegal response for creating run step object: {}", run_step_object.ShortDebugString());
                     return;
-                    }
+                }
             }
 
             if(!UpdateRunObjectStatus(run_step_object.thread_id(), run_step_object.run_id(), RunObject_RunObjectStatus_in_progress)) {

@@ -8,6 +8,14 @@
 #include "LLMGlobals.hpp"
 
 namespace INSTINCT_LLM_NS {
+
+    struct ScrtchPadFormatOptions {
+        bool inlcude_aciton = true;
+        bool include_thgouth = true;
+        bool include_action_id = false;
+    };
+
+
     /**
      * a utility class that handles task fetching
      */
@@ -48,14 +56,12 @@ namespace INSTINCT_LLM_NS {
             }
         }
 
-        struct ScrtchPadFormatOptions {
-            bool inlcude_aciton = true;
-            bool include_thgouth = true;
-            bool include_action_id = false;
-        };
 
         static void BuildAgentScrachPad(const LLMCompilerTaskGraph& graph, std::string& output, const ScrtchPadFormatOptions& options = {}) {
             for (const auto& task: graph.tasks()) {
+                if (task.tool_call().function().name() == "join") {
+                    continue;
+                }
                 if (options.include_thgouth && StringUtils::IsNotBlankString(task.thought())) {
                     output += fmt::format("Thought: {}\n", task.thought());
                 }

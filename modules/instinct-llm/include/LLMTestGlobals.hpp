@@ -12,6 +12,9 @@
 #include "llm/BaseLLM.hpp"
 #include "llm/OpenAILLM.hpp"
 #include "toolkit/BaseSearchTool.hpp"
+#include "toolkit/LocalToolkit.hpp"
+#include "toolkit/builtin/LLMMath.hpp"
+#include "toolkit/builtin/SerpAPI.hpp"
 #include "tools/ChronoUtils.hpp"
 
 namespace INSTINCT_LLM_NS {
@@ -322,6 +325,30 @@ talking non-sense
                 return resp.dump();
             }
         };
+
+
+    class BaseAgentTest: public testing::Test {
+    protected:
+        void SetUp() override {
+            SetupLogging();
+            DoSetUp();
+        }
+
+        virtual void DoSetUp() = 0;
+
+        FunctionToolPtr search_tool_ = CreateSerpAPI({
+                .apikey = SystemUtils::GetEnv("SERP_API_KEY")
+            });
+
+        ChatModelPtr model_for_tool_ = CreateOpenAIChatModel({
+                .temperature = 0
+            });
+
+        FunctionToolPtr calculator_tool_ = CreateLLMMath(model_for_tool_, {.max_attempts = 2});
+
+        FunctionToolkitPtr toolkit_ = CreateLocalToolkit({ search_tool_, calculator_tool_ });
+
+    };
 
 
 }

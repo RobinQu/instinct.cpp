@@ -28,23 +28,27 @@ namespace INSTINCT_LLM_NS {
             std::string tool_descriptions;
             for (int i=0; i<agent_state.function_tools_size(); ++i) {
                 const auto& function_tool = agent_state.function_tools(i);
-                tool_descriptions += fmt::format("{}. {}: {}, arguments JSON schema: {}",  function_tool.name(), function_tool.description(), ProtobufUtils::Serialize(function_tool.parameters()));
+                tool_descriptions += fmt::format("{}. {}: {}, arguments JSON schema: {}", i,  function_tool.name(), function_tool.description(), ProtobufUtils::Serialize(function_tool.parameters()));
             }
 
-            bool replan = agent_state.previous_steps(n-1).thought().has_finish();
+            // to check is_replan preciesely
+            bool replan = n>0 && agent_state.previous_steps(n-1).has_observation();
             std::string context_string;
             if (replan) {
                 for (const auto& step: agent_state.previous_steps()) {
-                    if (step.has_thought() && step.thought().has_finish()) {
+                    if (step.has_observation()) {
                         context_string += "Previous Plan: \n\n";
-                        const auto previous_joiner_thought = step.thought().finish().response();
-                        assert_true(step.thought().finish().custom().Is<LLMCompilerTaskGraph>(), "should have LLMCompilerTaskGraph in custom data");
+                        assert_true(step.observation().custom().Is<LLMCompilerTaskGraph>(), "should have LLMCompilerTaskGraph in custom data");
                         LLMCompilerTaskGraph graph;
-                        step.thought().finish().custom().UnpackTo(&graph);
-                        // add previous plan details
-                        TaskGraphUtils::BuildAgentScrachPad(graph, context_string);
-                        // add joiner thought for previous plan
-                        context_string += fmt::format("Thought: {}\n", previous_joiner_thought);
+                        step.observation().custom().UnpackTo(&graph);
+                        // only accept observation with replan flag, as other observation are not complete for whole task graph
+                        if (graph.joiner_result().is_replan()) {
+                            auto& previous_joiner_thought = graph.joiner_result().response();
+                            // add previous plan details
+                            TaskGraphUtils::BuildAgentScrachPad(graph, context_string, {.include_action_id = true});
+                            // add joiner thought for previous plan
+                            context_string += fmt::format("\n\nThought: {}\n\n", previous_joiner_thought);
+                        }
                     }
                 }
             }
@@ -56,7 +60,7 @@ namespace INSTINCT_LLM_NS {
                 // plus for for extra `join` function
                 {"num_tools", agent_state.function_tools_size() + 1 },
                 {"tool_descriptions", tool_descriptions},
-                {"repaln", replan},
+                {"replan", replan},
                 {"context", context_string}
             });
         }

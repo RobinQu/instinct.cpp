@@ -3,6 +3,7 @@
 //
 #include <gtest/gtest.h>
 
+#include "LLMTestGlobals.hpp"
 #include "agent/patterns/react/Agent.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "chat_model/OpenAIChat.hpp"
@@ -12,29 +13,17 @@
 #include "tools/SystemUtils.hpp"
 
 namespace INSTINCT_LLM_NS {
-    class ReACTAgentTest: public testing::Test {
+    class ReACTAgentTest: public BaseAgentTest {
     protected:
         void SetUp() override {
             SetupLogging();
-            const auto search = CreateSerpAPI({
-                .apikey = SystemUtils::GetEnv("SERP_API_KEY")
-            });
-            // chat_model_ = CreateOllamaChatModel({
-            //                                             .model_name = "mixtral:latest",
-            //     .temperature = 0,
-            //     .stop_words = {{"Observation:"}}
-            // });
-
             // relies on OpenAI or other auto-configured service
             chat_model_ = CreateOpenAIChatModel({
                 .temperature = 0,
                 .stop_words = { {"Observation:" }}
             });
-            const auto calculator = CreateLLMMath(chat_model_, {.max_attempts = 2});
-            toolkit_ = CreateLocalToolkit({ search, calculator });
         }
 
-        FunctionToolkitPtr toolkit_;
         ChatModelPtr chat_model_;
     };
 

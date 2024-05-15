@@ -69,8 +69,11 @@ namespace INSTINCT_LLM_NS {
                 }
 
                 // the function graph is exhausted, we can run joiner
+                // hack1: set question for joiner manually
                 graph.set_question(MessageUtils::ExtractLatestPromptString(state.input()));
                 const auto joiner_result = joiner_->Invoke(graph);
+                // hack2: save joiner thought in graph
+                graph.mutable_joiner_result()->CopyFrom(joiner_result);
                 if (joiner_result.is_replan()) {
                     // if we have to replan, we should plan again and return thought message for continuation
                     AgentThought thought_step = planner_->Invoke(state);
