@@ -53,7 +53,7 @@ namespace INSTINCT_LLM_NS {
                         step.observation().custom().UnpackTo(&graph);
                         // only accept observation with replan flag, as other observation are not complete for whole task graph
                         if (graph.joiner_result().is_replan()) {
-                            auto& previous_joiner_thought = graph.joiner_result().response();
+                            auto& previous_joiner_thought = graph.joiner_result().thought();
                             // add previous plan details
                             TaskGraphUtils::BuildAgentScrachPad(graph, context_string, {.include_action_id = true});
                             // add joiner thought for previous plan

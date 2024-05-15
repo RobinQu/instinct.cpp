@@ -30,6 +30,9 @@ namespace INSTINCT_LLM_NS {
                 }
             }
             for (const auto& task: graph.tasks()) {
+                if (task.tool_call().function().name() == "join") {
+                    continue;
+                }
                 if (!finished.contains(task.index())) {
                     const bool match = std::ranges::all_of(task.dependencies(), [&](const auto& idx) {
                        return finished.contains(idx);

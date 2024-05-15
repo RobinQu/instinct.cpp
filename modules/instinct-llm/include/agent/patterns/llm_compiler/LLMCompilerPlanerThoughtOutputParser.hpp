@@ -18,6 +18,7 @@ namespace INSTINCT_LLM_NS {
 
         AgentThought ParseResult(const Generation &context) override {
             const auto content = MessageUtils::StringifyGeneration(context);
+            LOG_DEBUG("planner raw output: {}", content);
             static std::regex ACTION_PATTERN {R"(^(\d+)\.\s*(.+)\((.*)\)$)"};
             static std::regex DEP_PATTERN {R"(\$\{?(\d)\}?)"};
             static std::regex NEW_LINE_SEP { "\n"};

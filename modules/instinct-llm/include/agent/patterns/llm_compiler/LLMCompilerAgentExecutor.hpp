@@ -26,10 +26,11 @@ namespace INSTINCT_LLM_NS {
         LLMCompilerOptions options_;
 
     public:
-        LLMCompilerAgentExectuor(StopPredicate should_early_stop, PlannerPtr planner, WorkerPtr worker, const LLMCompilerOptions& options)
+        LLMCompilerAgentExectuor(StopPredicate should_early_stop, PlannerPtr planner, WorkerPtr worker, JoinerPtr joiner, const LLMCompilerOptions& options)
             : should_early_stop_(std::move(should_early_stop)),
               planner_(std::move(planner)),
               worker_(std::move(worker)),
+              joiner_(std::move(joiner)),
               options_(options) {
         }
 
@@ -63,7 +64,7 @@ namespace INSTINCT_LLM_NS {
                     auto* tool_call_requests = agent_step.mutable_thought()->mutable_continuation()->mutable_tool_call_message();
                     TaskGraphUtils::BuildToolCallRequest(graph, next_ids, tool_call_requests);
                     // save task graph data in the new thought step
-                    agent_step.mutable_thought()->mutable_continuation()->mutable_custom()->CopyFrom(graph);
+                    agent_step.mutable_thought()->mutable_continuation()->mutable_custom()->PackFrom(graph);
                     state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
                 }
@@ -87,7 +88,7 @@ namespace INSTINCT_LLM_NS {
                 auto* finish_step = agent_step.mutable_thought()->mutable_finish();
                 finish_step->set_response(joiner_result.answer());
                 // copy graph data in finish step
-                finish_step->mutable_custom()->CopyFrom(graph);
+                finish_step->mutable_custom()->PackFrom(graph);
                 state.add_previous_steps()->CopyFrom(agent_step);
                 return agent_step;
             }
@@ -131,6 +132,18 @@ namespace INSTINCT_LLM_NS {
                         }
                     }
                 }
+
+                // update result in taks graph
+                LLMCompilerTaskGraph graph;
+                thought_step.continuation().custom().UnpackTo(&graph);
+                for(auto& task: *graph.mutable_tasks()) {
+                    for(const auto& tool_message: observation_message.tool_messages()) {
+                        if (tool_message.tool_call_id() == task.tool_call().id()) {
+                            task.mutable_result()->CopyFrom(tool_message);
+                        }
+                    }
+                }
+
                 // obviously some of tools are handled to users and we return a pause step to wait for tool results
                 if (completed != tool_call_objects.size()) {
                     auto* pause = agent_step.mutable_thought()->mutable_pause();
@@ -138,17 +151,18 @@ namespace INSTINCT_LLM_NS {
                     pause->mutable_completed()->CopyFrom(observation_message.tool_messages());
                     state.add_previous_steps()->CopyFrom(agent_step);
                     // save task graph to custom
-                    pause->mutable_custom()->CopyFrom(thought_step.continuation().custom());
+                    pause->mutable_custom()->PackFrom(graph);
                     return agent_step;
                 }
 
                 agent_step.mutable_observation()->CopyFrom(observation_message);
+                agent_step.mutable_observation()->mutable_custom()->PackFrom(graph);
                 state.add_previous_steps()->CopyFrom(agent_step);
                 return agent_step;
             }
 
             LOG_DEBUG("illegal state: {}", state.ShortDebugString());
-            throw InstinctException("IllegalState for OpenAIToolAgentExecutor");
+            throw InstinctException("IllegalState for LLMCompilerAgentExectuor");
         }
     };
 
@@ -160,7 +174,8 @@ namespace INSTINCT_LLM_NS {
         ) {
         auto planer = CreateLLMCompilerPlaner(chat_model);
         auto worker = CreateLocalToolkitsWorker(toolkits);
-        return std::make_shared<LLMCompilerAgentExectuor>(stop_predicate, planer, worker, options);
+        auto joiner = CreateLLMCompilerJoiner(chat_model);
+        return std::make_shared<LLMCompilerAgentExectuor>(stop_predicate, planer, worker, joiner, options);
     }
 
 
