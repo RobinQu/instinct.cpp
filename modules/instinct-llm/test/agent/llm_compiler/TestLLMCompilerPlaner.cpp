@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 #include "LLMTestGlobals.hpp"
 #include "agent/patterns/llm_compiler/LLMCompilerPlanerAgentStateInputParser.hpp"
+#include "agent/patterns/llm_compiler/LLMCompilerPlanerThoughtOutputParser.hpp"
 
 
 namespace INSTINCT_LLM_NS {
@@ -131,8 +132,31 @@ namespace INSTINCT_LLM_NS {
         // observation_step_3->mutable_observation()->add_tool_messages()->CopyFrom(task5->result());
         // observation_step_3->mutable_observation()->mutable_custom()->PackFrom(graph2);
         //
-
     }
+
+    TEST_F(LLMCompilerPlanTest, ParseOutputThought) {
+        auto output_parser = CreateLLMCompilerPlanerThoughtOutputParser();
+        Generation generation;
+        generation.set_text(R"(1. search({"query": "gold price in Hongkong"})
+2. search({"query": "gold price in New York"})
+3. calculate({"question": "What's $1 minus $2?"})
+4. join()
+)");
+        const auto thought = output_parser->ParseResult(generation);
+        ASSERT_TRUE(thought.continuation().custom().Is<LLMCompilerTaskGraph>());
+        LLMCompilerTaskGraph graph;
+        thought.continuation().custom().UnpackTo(&graph);
+        ASSERT_EQ(graph.tasks_size(), 4);
+        ASSERT_EQ(graph.tasks(0).tool_call().function().name(), "search");
+        ASSERT_EQ(graph.tasks(1).tool_call().function().name(), "search");
+        ASSERT_EQ(graph.tasks(2).tool_call().function().name(), "calculate");
+        ASSERT_EQ(graph.tasks(2).tool_call().function().arguments(), R"({"question": "What's $1 minus $2?"})");
+        ASSERT_EQ(to_vector(graph.tasks(2).dependencies()), std::vector<int64_t>({1,2} ));
+        ASSERT_EQ(graph.tasks(3).tool_call().function().name(), "join");
+        ASSERT_EQ(to_vector(graph.tasks(3).dependencies()), std::vector<int64_t>({1,2,3} ));
+    }
+
+
 
 
 

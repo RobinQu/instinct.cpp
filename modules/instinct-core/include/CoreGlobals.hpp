@@ -80,6 +80,15 @@ namespace INSTINCT_CORE_NS {
         return std::async([=]{ w(f.get()); });
     }
 
+    template<typename T>
+    static std::vector<T> to_vector(const google::protobuf::RepeatedField<T>& input) {
+        std::vector<T> result;
+        for(const auto& item: input) {
+            result.push_back(item);
+        }
+        return result;
+    }
+
 
 }
 
