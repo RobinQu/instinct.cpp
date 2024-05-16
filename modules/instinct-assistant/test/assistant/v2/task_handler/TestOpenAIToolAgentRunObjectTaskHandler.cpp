@@ -55,9 +55,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         create_thread_and_run_request1.set_assistant_id(obj1->id());
         auto* msg = create_thread_and_run_request1.mutable_thread()->add_messages();
         msg->set_role(user);
-        auto* content = msg->add_content();
-        content->mutable_text()->set_value(prompt_line);
-        content->set_type(MessageObject_MessageContentType_text);
+        // auto* content = msg->add_content();
+        // content->mutable_text()->set_value(prompt_line);
+        // content->set_type(MessageObject_MessageContentType_text);
+        msg->set_content(prompt_line);
         const auto obj2 = run_service_->CreateThreadAndRun(create_thread_and_run_request1);
         LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
 
@@ -191,9 +192,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         create_thread_and_run_request1.set_assistant_id(obj1->id());
         auto* msg = create_thread_and_run_request1.mutable_thread()->add_messages();
         msg->set_role(user);
-        auto* content = msg->add_content();
-        content->mutable_text()->set_value(prompt_line);
-        content->set_type(MessageObject_MessageContentType_text);
+        // auto* content = msg->add_content();
+        // content->mutable_text()->set_value(prompt_line);
+        // content->set_type(MessageObject_MessageContentType_text);
+        msg->set_content(prompt_line);
         const auto obj2 = run_service_->CreateThreadAndRun(create_thread_and_run_request1);
         LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
 
@@ -288,9 +290,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         create_thread_and_run_request1.set_assistant_id(obj1->id());
         auto* msg = create_thread_and_run_request1.mutable_thread()->add_messages();
         msg->set_role(user);
-        auto* content = msg->add_content();
-        content->mutable_text()->set_value(prompt_line);
-        content->set_type(MessageObject_MessageContentType_text);
+        // auto* content = msg->add_content();
+        // content->mutable_text()->set_value(prompt_line);
+        // content->set_type(MessageObject_MessageContentType_text);
+        msg->set_content(prompt_line);
         const auto obj2 = run_service_->CreateThreadAndRun(create_thread_and_run_request1);
         LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
 

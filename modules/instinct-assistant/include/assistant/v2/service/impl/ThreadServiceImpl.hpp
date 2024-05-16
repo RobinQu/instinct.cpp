@@ -29,26 +29,37 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         std::optional<ThreadObject> CreateThread(const ThreadObject &create_request) override {
             // TODO with transaction
-            SQLContext context;
-            ProtobufUtils::ConvertMessageToJsonObject(create_request, context, {.keep_default_values = true});
-
             // generate thread id
             auto thread_id = details::generate_next_object_id("thread");
-            context["id"] = thread_id;
 
             if(create_request.messages_size()) {
-                // generate mesage ids
-                for(auto& msg_obj: context["messages"]) {
-                    msg_obj["id"] = details::generate_next_object_id("msg");
-                    msg_obj["thread_id"] = thread_id;
-                    // manually inserted messages are all completed
-                    msg_obj["completed_at"] = ChronoUtils::GetCurrentEpochMicroSeconds();
+                const auto new_messages_view = create_request.messages() | std::views::transform([&](const CreateMessageRequest& request) {
+                    MessageObject message_object;
+                    message_object.set_id(details::generate_next_object_id("msg"));
+                    message_object.set_role(request.role());
+                    auto* content = message_object.add_content();
+                    content->set_type(MessageObject_MessageContentType_text);
+                    content->mutable_text()->set_value(request.content());
+                    message_object.set_status(MessageObject_MessageStatus_completed);
+                    message_object.set_thread_id(thread_id);
+                    message_object.set_completed_at(ChronoUtils::GetCurrentEpochMicroSeconds());
+                    return message_object;
+                });
+
+                SQLContext create_messages_context;
+                for(const auto& msg: new_messages_view) {
+                    SQLContext obj;
+                    ProtobufUtils::ConvertMessageToJsonObject(msg, obj);
+                    create_messages_context["messages"].push_back(obj);
                 }
                 // create mesages
-                EntitySQLUtils::InsertManyMessages(message_data_mapper_, context);
+                EntitySQLUtils::InsertManyMessages(message_data_mapper_, create_messages_context);
             }
 
             // create thread
+            SQLContext context;
+            ProtobufUtils::ConvertMessageToJsonObject(create_request, context, {.keep_default_values = true});
+            context["id"] = thread_id;
             EntitySQLUtils::InsertOneThread(thread_data_mapper_, context);
 
             // return thread

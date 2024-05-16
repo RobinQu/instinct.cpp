@@ -121,10 +121,12 @@ message ThreadObject { // CreateThreadRequest, GetThreadResponse, ModifyThreadRe
   string object = 2;
   int64 created_at = 3;
   int64 modified_at = 4;
-  repeated MessageObject messages = 5;
+  repeated CreateMessageRequest messages = 5;
   AssistantToolResources tool_resources = 6;
   google.protobuf.Struct metadata = 7;
 }
+
+
 
 message GetThreadRequest {
   // The ID of the thread to retrieve.
@@ -489,7 +491,7 @@ message CreateRunRequest {
   string assistant_id = 1;
   string instructions = 2;
   string additional_instructions = 3;
-  repeated MessageObject additional_messages = 4;
+  repeated CreateMessageRequest additional_messages = 4;
   repeated AssistantToolObject tools = 5;
   google.protobuf.Struct metadata = 6;
   float temperature = 7;

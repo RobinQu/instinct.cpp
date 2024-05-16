@@ -23,14 +23,14 @@ namespace INSTINCT_ASSISTANT_NS {
         // insert one thread with two messages
         ThreadObject create_request2;
         const auto msg1 = create_request2.add_messages();
-        auto* content = msg1->add_content();
-        content->set_type(MessageObject_MessageContentType_text);
-        content->mutable_text()->set_value("Why sky is blue?");
+        // auto* content = msg1->add_content();
+        // content->set_type(MessageObject_MessageContentType_text);
+        msg1->set_content("Why sky is blue?");
         msg1->set_role(user);
         const auto msg2 = create_request2.add_messages();
-        auto* content2 = msg2->add_content();
-        content2->set_type(MessageObject_MessageContentType_text);
-        content2->mutable_text()->set_value(R"( The sky appears blue because of a process called Rayleigh scattering. As sunlight reaches Earth's atmosphere, it is made up of different colors, which are represented in the light spectrum as having different wavelengths. Blue and violet light have the shortest wavelengths and are scattered in all directions by the gas molecules in the earth's atmosphere.
+        // auto* content2 = msg2->add_content();
+        // content2->set_type(MessageObject_MessageContentType_text);
+        msg2->set_content(R"( The sky appears blue because of a process called Rayleigh scattering. As sunlight reaches Earth's atmosphere, it is made up of different colors, which are represented in the light spectrum as having different wavelengths. Blue and violet light have the shortest wavelengths and are scattered in all directions by the gas molecules in the earth's atmosphere.
 
 This scattering of light is what makes the sky look blue in our perception. You might wonder why we don't see a violet sky, given that violet light is scattered more than blue light. This is because our eyes are more sensitive to blue light and because sunlight reaches us with less violet light to begin with. Additionally, some of the violet light gets absorbed by the ozone layer in the atmosphere. As a result, when we look at the sky, we perceive it as blue, not violet.)");
         msg2->set_role(assistant);
@@ -41,7 +41,7 @@ This scattering of light is what makes the sky look blue in our perception. You 
         list_messages_request.set_order(desc);
         const auto obj6 = message_service->ListMessages(list_messages_request);
         auto& msg2_in_list = obj6.data(1);
-        ASSERT_EQ(msg2_in_list.content(0).text().value(), msg2->content(0).text().value());
+        ASSERT_EQ(msg2_in_list.content(0).text().value(), msg2->content());
 
         // get thread
         GetThreadRequest get_thread_request;

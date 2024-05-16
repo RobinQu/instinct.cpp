@@ -70,9 +70,11 @@ namespace instinct::examples::mini_assistant {
     static AgentExecutorPtr CreateAgentExecutor(const AgentExecutorOptions& options, const ChatModelPtr& chat_model, const StopPredicate& predicate) {
         if(options.agent_executor_name == "llm_compiler") {
             // TODO currently build with empty toolkit. we have to add `file-search` and `code-interpreter` in the future
+            LOG_INFO("Create LLMCompilerAgentExectuor");
             return CreateLLMCompilerAgentExecutor(chat_model, {}, predicate, options.llm_compiler);
         }
         assert_true(std::dynamic_pointer_cast<OpenAIChat>(chat_model), "Should be Chat model of OpenAI when openai_tool_agent_executor");
+        LOG_INFO("Create OpenAIToolAgentExecutor");
         return CreateOpenAIToolAgentExecutor(chat_model, {}, predicate);
     }
 
@@ -130,7 +132,7 @@ namespace instinct::examples::mini_assistant {
                     const auto chat_model = CreateChatModel(options_.llm_provider);
                     return CreateAgentExecutor(options_.agent_executor, chat_model, stop_predicate);
                 }
-                );
+            );
             context.task_scheduler->RegisterHandler(context.run_object_task_handler);
 
             // configure http server
@@ -242,8 +244,7 @@ int main(int argc, char** argv) {
     BuildChatModelProviderOptionGroup(app.add_option_group("🧠 OpenAI configuration"), application_options.llm_provider.openai);
     BuildChatModelProviderOptionGroup(app.add_option_group("🧠 Ollama configuration"), application_options.llm_provider.ollama);
 
-    app.add_option("--agent_executor_type", application_options.agent_executor.agent_executor_name, "Sepcify agent executor type. `llm_compiler` enables paralle function calling with opensourced models like mistral series and llama series, while `openai_tool` relies on official OpenAI function calling capability to direct agent workflow.")
-        ->required()
+    app.add_option("--agent_executor_type", application_options.agent_executor.agent_executor_name, "Sepcify agent executor type. `llm_compiler` enables parallel function calling with opensourced models like mistral series and llama series, while `openai_tool` relies on official OpenAI function calling capability to direct agent workflow.")
         ->check(CLI::IsMember({"llm_compiler", "openai_tool"}, CLI::ignore_case))
         ->default_val("llm_compiler");
     BuildAgentExecutorOptionsGroup(app.add_option_group("Options for LLMCompilerAgentExectuor"), application_options.agent_executor.llm_compiler);

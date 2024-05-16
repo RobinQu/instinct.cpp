@@ -66,15 +66,24 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             EntitySQLUtils::InsertOneThread(thread_data_mapper_, context["thread"]);
 
             // create messages
+            auto new_messages_view = thread_object.messages() | std::views::transform([&](const CreateMessageRequest& request) {
+                MessageObject message_object;
+                message_object.set_id(details::generate_next_object_id("msg"));
+                message_object.set_role(request.role());
+                auto* content = message_object.add_content();
+                content->set_type(MessageObject_MessageContentType_text);
+                content->mutable_text()->set_value(request.content());
+                message_object.set_status(MessageObject_MessageStatus_completed);
+                message_object.set_run_id(run_id);
+                message_object.set_thread_id(thread_id);
+                message_object.set_completed_at(ChronoUtils::GetCurrentEpochMicroSeconds());
+                return message_object;
+            });
             SQLContext insert_messages_context;
-            insert_messages_context["messages"] = context["thread"]["messages"];
-            for (auto& msg_obj: insert_messages_context["messages"]) {
-                msg_obj["id"] = details::generate_next_object_id("msg");
-                msg_obj["thread_id"] = thread_id;
-                if (!msg_obj.contains("status")) {
-                    msg_obj["status"] = "completed";
-                }
-                msg_obj["run_id"] = run_id;
+            for(const auto& msg: new_messages_view) {
+                SQLContext obj;
+                ProtobufUtils::ConvertMessageToJsonObject(msg, obj);
+                insert_messages_context["messages"].push_back(obj);
             }
             const auto msg_ids = EntitySQLUtils::InsertManyMessages(message_data_mapper_, insert_messages_context);
             assert_true(msg_ids.size() == thread_object.messages_size(), "should have saved all additional messages");
@@ -126,7 +135,26 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     }
                 }
                 SQLContext insert_messages_context;
-                insert_messages_context["messages"] = context["additional_messages"];
+                const auto new_messages_view = create_request.additional_messages() | std::views::transform([&](const CreateMessageRequest& request) {
+                    MessageObject message_object;
+                    message_object.set_id(details::generate_next_object_id("msg"));
+                    message_object.set_role(request.role());
+                    auto* content = message_object.add_content();
+                    content->set_type(MessageObject_MessageContentType_text);
+                    content->mutable_text()->set_value(request.content());
+                    message_object.set_status(MessageObject_MessageStatus_completed);
+                    message_object.set_run_id(run_id);
+                    message_object.set_thread_id(create_request.thread_id());
+                    message_object.set_completed_at(ChronoUtils::GetCurrentEpochMicroSeconds());
+                    return message_object;
+                });
+
+                for(const auto& msg: new_messages_view) {
+                    SQLContext obj;
+                    ProtobufUtils::ConvertMessageToJsonObject(msg, obj);
+                    insert_messages_context["messages"].push_back(obj);
+                }
+
                 const auto msg_ids = EntitySQLUtils::InsertManyMessages(message_data_mapper_, insert_messages_context);
                 assert_true(msg_ids.size() == create_request.additional_messages_size(), "should have saved all additional messages");
             }

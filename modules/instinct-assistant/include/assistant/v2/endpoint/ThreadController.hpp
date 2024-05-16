@@ -19,7 +19,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 if (const auto resp = facade_.thread->CreateThread(req); resp.has_value()) {
                     session.Respond(resp.value());
                 } else {
-                    session.Respond("Thread is not retrieved after createion", 500);
+                    session.Respond("Thread is not retrieved after creation", 500);
                 }
             });
 
@@ -32,12 +32,22 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 }
             });
 
+
+            server.PostRoute<CreateThreadAndRunRequest, RunObject>("/v1/threads/runs", [&](const CreateThreadAndRunRequest& req, const HttpLibSession& session) {
+                if (const auto& resp = facade_.run->CreateThreadAndRun(req); resp.has_value()) {
+                    session.Respond(resp.value());
+                } else {
+                    session.Respond("Run object is not retrieved after creation", 500);
+                }
+            });
+
+
             server.PostRoute<ModifyThreadRequest, ThreadObject>("/v1/threads/:thread_id", [&](ModifyThreadRequest& req, const HttpLibSession& session) {
                 req.set_thread_id(session.request.path_params.at("thread_id"));
                 if (const auto resp = facade_.thread->ModifyThread(req); resp.has_value()) {
                     session.Respond(resp.value());
                 } else {
-                    session.Respond("Thread is not retrieved after createion", 500);
+                    session.Respond("Thread is not retrieved after creation", 500);
                 }
             });
 
