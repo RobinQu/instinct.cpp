@@ -24,7 +24,7 @@ namespace INSTINCT_LLM_NS {
             static std::regex NEW_LINE_SEP { "\n"};
 
             AgentThought thought_message;
-            auto* tool_call_requests = thought_message.mutable_continuation()->mutable_tool_call_message();
+
 
             LLMCompilerTaskGraph graph;
             for(const auto& line: StringUtils::ReSplit(content, NEW_LINE_SEP)) {
@@ -65,18 +65,23 @@ namespace INSTINCT_LLM_NS {
                             }
                             break;
                         }
-
-                        // for the first batch after plan or re-plan, tasks that has no depdencies are selected
-                        if (dep_matches.empty()) {
-                            tool_call_requests->add_tool_calls()->CopyFrom(*tool_call_object);
-                        }
                     }
                 }
             }
 
-            // set graph data as custom data on thought
-            thought_message.mutable_continuation()->mutable_custom()->PackFrom(graph);
-
+            if (graph.tasks_size() == 0) { // we turn it into finish step if no tasks are parsed
+                thought_message.mutable_finish()->set_response(content);
+            } else {
+                auto* tool_call_requests = thought_message.mutable_continuation()->mutable_tool_call_message();
+                for (const auto& task: graph.tasks()) {
+                    // for the first batch after plan or re-plan, tasks that has no depdencies are selected
+                    if (task.dependencies_size() == 0 && task.tool_call().function().name() != "join") {
+                        tool_call_requests->add_tool_calls()->CopyFrom(task.tool_call());
+                    }
+                }
+                // set graph data as custom data on thought
+                thought_message.mutable_continuation()->mutable_custom()->PackFrom(graph);
+            }
             // return
             return thought_message;
         }

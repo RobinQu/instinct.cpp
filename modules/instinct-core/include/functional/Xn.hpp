@@ -33,6 +33,10 @@ namespace xn {
             return std::make_shared<LambdaStepFunction>(lambda);
         }
 
+        static StepFunctionPtr branch(const StepLambda& condition, const StepFunctionPtr& branch_a, const StepFunctionPtr& branch_b) {
+            return std::make_shared<BranchStepFunction>(condition, branch_a, branch_b);
+        }
+
     }
 }
 

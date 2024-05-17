@@ -131,7 +131,29 @@ namespace INSTINCT_CORE_NS {
         }
     };
 
+    class BranchStepFunction final: public BaseStepFunction {
+        StepFunctionPtr condition_;
+        StepFunctionPtr branch_a_;
+        StepFunctionPtr branch_b_;
 
+    public:
+        BranchStepFunction(StepFunctionPtr condition, StepFunctionPtr branch_a, StepFunctionPtr branch_b)
+            : condition_(std::move(condition)),
+              branch_a_(std::move(branch_a)),
+              branch_b_(std::move(branch_b)) {
+        }
+
+        BranchStepFunction(const StepLambda& condition, StepFunctionPtr branch_a, StepFunctionPtr branch_b)
+            : BranchStepFunction(std::make_shared<LambdaStepFunction>(condition), std::move(branch_a), std::move(branch_b)) {
+        }
+
+        JSONContextPtr Invoke(const JSONContextPtr &input) override {
+            if(const auto result = condition_->Invoke(input); result->RequirePrimitive<bool>()) {
+                return branch_a_->Invoke(input);
+            }
+            return branch_b_->Invoke(input);
+        }
+    };
 
 }
 

@@ -66,9 +66,26 @@ Question: {question}
                 }
             });
         }
+
+
         const auto input_parser = CreateLLMCompilerPlanerAgentStateInputParser();
         const auto output_parser = CreateLLMCompilerPlanerThoughtOutputParser();
-        return CreateFunctionalChain(input_parser, output_parser, prompt_template | chat_model->AsModelFunction());
+
+        // if tools are provided, use LLMCompiler's prompt template
+        const auto tool_chain = prompt_template | chat_model->AsModelFunction();
+
+        // chat_chain is used if no tools are provided
+        const auto chat_template = CreatePlainChatPromptTemplate({{kHuman, "{question}"}});
+        const auto chat_chain = chat_template | chat_model->AsModelFunction();
+        const auto condition = [](const JSONContextPtr& context) {
+            // `join` is always counted
+            bool has_tools = context->RequireMappingData().at("num_tools")->RequirePrimitive<int>() > 1;
+            JSONContextPtr ret = CreateJSONContext();
+            ret->ProducePrimitive(has_tools);
+            return ret;
+        };
+        return input_parser | xn::steps::branch(condition, tool_chain, chat_chain) | output_parser;
+
 
     }
 }
