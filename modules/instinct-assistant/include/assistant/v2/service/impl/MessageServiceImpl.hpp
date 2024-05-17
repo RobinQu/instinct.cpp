@@ -34,7 +34,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             const auto n = messages_list.size();
             ListMessageResponse list_message_response;
             list_message_response.set_object("list");
-            if (n > limit) { // there is more, let's return all but last one
+            if (n>=limit) { // there is more, let's return all but last one
                 list_message_response.set_has_more(true);
                 list_message_response.set_first_id(messages_list.front().id());
                 list_message_response.set_last_id(messages_list.at(n-2).id());

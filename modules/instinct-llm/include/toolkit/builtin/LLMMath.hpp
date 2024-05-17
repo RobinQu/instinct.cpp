@@ -77,6 +77,7 @@ Question: {question})"");
                 const auto v = Evaulate_<double>(matches.front().str(1));
                 CalculatorToolResponse response;
                 response.set_answer(v);
+                LOG_DEBUG("math evaluator output: {}", v);
                 return response;
             }
             throw InstinctException("Malformed output for LLMMath");

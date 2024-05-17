@@ -79,7 +79,7 @@ namespace INSTINCT_LLM_NS {
         OpenAIChatCompletionRequest BuildRequest_(const MessageList& message_list, const bool stream) {
             OpenAIChatCompletionRequest req;
             for (const auto& msg: message_list.messages()) {
-                LOG_DEBUG("msg={}", msg.content());
+                LOG_DEBUG("msg={},tool_calls_size={}", msg.content(), msg.tool_calls_size());
                 req.add_messages()->CopyFrom(msg);
             }
             req.set_model(configuration_.model_name);

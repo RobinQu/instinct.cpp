@@ -32,7 +32,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             auto assistants = EntitySQLUtils::GetManyAssistant(data_mapper_, context);
 
             ListAssistantsResponse response;
-            if (const auto n = assistants.size(); n > limit) { // no more
+            if (const auto n = assistants.size(); n>=limit) {
                 response.set_first_id(assistants.front().id());
                 response.set_last_id(assistants[n-2].id());
                 response.mutable_data()->Add(assistants.begin(), assistants.end()-1);

@@ -52,8 +52,8 @@ namespace INSTINCT_LLM_NS {
     private:
         void GenerateFunctionSchema_() {
             const auto* descriptor = Input::GetDescriptor();
+            schema_.mutable_parameters()->set_type("object");
             auto* properties = schema_.mutable_parameters()->mutable_properties();
-
             for(int i=0;i<descriptor->field_count();++i) {
                 const auto& field_descriptor = descriptor->field(i);
                 if (field_descriptor->has_optional_keyword() && !GetOptions().with_optional_arguments) {

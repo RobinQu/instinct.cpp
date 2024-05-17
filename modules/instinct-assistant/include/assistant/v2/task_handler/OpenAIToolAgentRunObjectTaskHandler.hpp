@@ -13,7 +13,9 @@
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;
 
-    using AgentExecutorProvider = std::function<AgentExecutorPtr(const RunObject&, const StopPredicate& stop_predicate)>;
+    using ChatModelProvider = std::function<ChatModelPtr(const std::optional<std::string>& model_name_override)>;
+
+    using AgentExecutorProvider = std::function<AgentExecutorPtr(const ChatModelPtr& chat_model, const StopPredicate& stop_predicate)>;
 
     /**
      * Task handler for run objects using `OpenAIToolAgentExecutor`.
@@ -22,16 +24,18 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         RunServicePtr run_service_;
         MessageServicePtr message_service_;
         AssistantServicePtr assistant_service_;
+        ChatModelProvider chat_model_provider_;
         AgentExecutorProvider agent_executor_provider_;
 
     public:
         static inline std::string CATEGORY = "run_object";
 
         OpenAIToolAgentRunObjectTaskHandler(RunServicePtr run_service, MessageServicePtr message_service,
-            AssistantServicePtr assistant_service, AgentExecutorProvider agent_executor_provider)
+            AssistantServicePtr assistant_service, ChatModelProvider chat_model_provider, AgentExecutorProvider agent_executor_provider)
             : run_service_(std::move(run_service)),
               message_service_(std::move(message_service)),
               assistant_service_(std::move(assistant_service)),
+              chat_model_provider_(chat_model_provider),
               agent_executor_provider_(std::move(agent_executor_provider)
               ) {
         }
@@ -69,11 +73,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 return;
             }
 
-            const auto executor = agent_executor_provider_(run_object,
-                [&](const AgentState& state, AgentStep& step) {
-                    return CheckRunObjectForExecution_(run_object.thread_id(), run_object.id(), state, step);
-                }
-            );
+            const auto executor = BuildAgentExecutor_(run_object);
+            if(!executor) {
+                LOG_ERROR("Failed to create agent executor with run object: {}", run_object.ShortDebugString());
+                return;
+            }
 
             // execute possible steps
             executor->Stream(state_opt.value())
@@ -165,19 +169,32 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             return run_object.status() == RunObject_RunObjectStatus_queued;
         }
 
-        // /**
-        //  * Just return `OpenAIToolAgentExecutor`
-        //  * @param run_object
-        //  * @return
-        //  */
-        // [[nodiscard]] AgentExecutorPtr BuildAgentExecutor_(const RunObject& run_object) const {
-        //     return CreateOpenAIToolAgentExecutor(
-        //         chat_model_provider_(run_object),
-        //         {built_in_toolkit_},
-        //         [&](const AgentState& state, AgentStep& step) {
-        //         return CheckRunObjectForExecution_(run_object.thread_id(), run_object.id(), state, step);
-        //     });
-        // }
+        /**
+         * Just return `OpenAIToolAgentExecutor`
+         * @param run_object
+         * @return
+         */
+        [[nodiscard]] AgentExecutorPtr BuildAgentExecutor_(const RunObject& run_object) const {
+            GetAssistantRequest get_assistant_request;
+            get_assistant_request.set_assistant_id(run_object.assistant_id());
+            const auto assistant_obj = assistant_service_->RetrieveAssistant(get_assistant_request);
+            if (!assistant_obj) {
+                LOG_ERROR("Failed to get assistant object with id: {}", run_object.assistant_id());
+                return nullptr;
+            }
+            std::optional<std::string> model_name_override;
+            if (StringUtils::IsNotBlankString(run_object.model())) {
+                model_name_override = run_object.model();
+            } else if(StringUtils::IsNotBlankString(assistant_obj->model())) {
+                model_name_override = assistant_obj->model();
+            }
+            const auto chat_model = chat_model_provider_(model_name_override);
+            return agent_executor_provider_(chat_model,
+                [&](const AgentState& state, AgentStep& step) {
+                    return CheckRunObjectForExecution_(run_object.thread_id(), run_object.id(), state, step);
+                }
+            );
+        }
 
         /**
          * Predicate if early stop is required for run object

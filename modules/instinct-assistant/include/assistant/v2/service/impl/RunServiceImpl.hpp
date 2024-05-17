@@ -94,6 +94,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             context["response_format"] = "auto";
             context["truncation_strategy"] = nlohmann::ordered_json::parse(R"({"type":"auto"})");
             context["thread_id"] = thread_id;
+            context["assistant_id"] = create_thread_and_run_request.assistant_id();
             EntitySQLUtils::InsertOneRun(run_data_mapper_, context);
 
             // get run object
@@ -166,6 +167,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             context["status"] = "queued";
             context["response_format"] = "auto";
             context["truncation_strategy"] = nlohmann::ordered_json::parse(R"({"type":"auto"})");
+            context["assistant_id"] = create_request.assistant_id();
             EntitySQLUtils::InsertOneRun(run_data_mapper_, context);
 
             // return
@@ -199,7 +201,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             const auto n = run_list.size();
             ListRunsResponse list_runs_response;
             list_runs_response.set_object("list");
-            if (n > limit) {
+            if (n>=limit) {
                 list_runs_response.set_has_more(true);
                 list_runs_response.set_first_id(run_list.front().id());
                 list_runs_response.set_last_id(run_list.at(n-2).id());
@@ -359,10 +361,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
             ListRunStepsResponse list_run_steps_response;
             list_run_steps_response.set_object("list");
-            if (const auto n = run_step_list.size(); n>limit) {
+            if (const auto n = run_step_list.size(); n>=limit) {
                 list_run_steps_response.set_first_id(run_step_list.front().id());
                 list_run_steps_response.set_last_id(run_step_list[n-2].id());
-                list_run_steps_response.mutable_data()->Add(run_step_list.begin(), run_step_list.end());
+                list_run_steps_response.mutable_data()->Add(run_step_list.begin(), run_step_list.end()-1);
                 list_run_steps_response.set_has_more(true);
             } else {
                 list_run_steps_response.set_has_more(false);

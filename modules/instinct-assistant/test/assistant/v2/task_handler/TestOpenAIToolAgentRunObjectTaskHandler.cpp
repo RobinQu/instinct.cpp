@@ -28,7 +28,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 run_service_,
                 message_service_,
                 assistant_service_,
-                [&](const RunObject&, const StopPredicate& stop_predicate) {
+                [&](const auto& model_name) {return chat_model_;},
+                [&](const ChatModelPtr& chat_model, const StopPredicate& stop_predicate) {
                     // still use CreateOpenAIToolAgentExecutor for more stable result
                     return CreateOpenAIToolAgentExecutor(chat_model_, {builtin_toolkit_}, stop_predicate);
                 }
@@ -41,7 +42,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         // create assistant
         AssistantObject create_assistant_request;
-        create_assistant_request.set_model("gpt3.5-turbo");
+        create_assistant_request.set_model("gpt-3.5-turbo");
         auto* tool1 = create_assistant_request.mutable_tools()->Add();
         tool1->set_type(function);
         tool1->mutable_function()->set_name("foo");
@@ -178,7 +179,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         // create assistant
         AssistantObject create_assistant_request;
-        create_assistant_request.set_model("gpt3.5-turbo");
+        create_assistant_request.set_model("gpt-3.5-turbo");
         auto* tool1 = create_assistant_request.mutable_tools()->Add();
         tool1->set_type(function);
         tool1->mutable_function()->set_name("foo");
@@ -269,12 +270,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         // create tools
         FunctionToolkitPtr tool_kit = CreateLocalToolkit(
             std::make_shared<GetFlightPriceTool>(),
-            std::make_shared<GetNightlyHotelPrice>()
+            std::make_shared<GetNightlyHotelPrice>(),
+            // need a new chat model instance without tools
+            std::make_shared<LLMMath>(CreateOpenAIChatModel())
         );
 
         // create assistant with tools
         AssistantObject create_assistant_request;
-        create_assistant_request.set_model("gpt3.5-turbo");
+        create_assistant_request.set_model("gpt-3.5-turbo");
         for (const auto& tool_schema: tool_kit->GetAllFunctionToolSchema()) {
             auto* assistant_tool = create_assistant_request.mutable_tools()->Add();
             assistant_tool->set_type(function);
@@ -285,7 +288,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         ASSERT_EQ(obj1->tools_size(), tool_kit->GetAllFunctionToolSchema().size());
 
         // create thread and run
-        const std::string prompt_line = "How much would a 3 day trip to New York, Paris, and Tokyo cost?";
+        const std::string prompt_line = "How much would a 3 day trip cost to each city of New York, Paris, and Tokyo?";
         CreateThreadAndRunRequest create_thread_and_run_request1;
         create_thread_and_run_request1.set_assistant_id(obj1->id());
         auto* msg = create_thread_and_run_request1.mutable_thread()->add_messages();
@@ -296,7 +299,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         msg->set_content(prompt_line);
         const auto obj2 = run_service_->CreateThreadAndRun(create_thread_and_run_request1);
         LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
-
 
         // create handler and task
         const auto task_handler = CreateTaskHandler();
@@ -316,55 +318,64 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         GetRunRequest get_run_request;
         get_run_request.set_thread_id(obj2->thread_id());
         get_run_request.set_run_id(obj2->id());
-        const auto obj3 = run_service_->RetrieveRun(get_run_request);
+        auto obj3 = run_service_->RetrieveRun(get_run_request);
         ASSERT_EQ(obj3->status(), RunObject_RunObjectStatus_requires_action);
 
-        ListRunStepsRequest list_run_steps_request;
-        list_run_steps_request.set_thread_id(obj2->thread_id());
-        list_run_steps_request.set_run_id(obj2->id());
-        list_run_steps_request.set_order(asc);
-        const auto list_run_step_response = run_service_->ListRunSteps(list_run_steps_request);
-        ASSERT_EQ(list_run_step_response.data_size(), 1);
-        ASSERT_TRUE(list_run_step_response.data(0).step_details().tool_calls_size()>0);
+        while (obj3->status() == RunObject_RunObjectStatus_requires_action) {
+            ListRunStepsRequest list_run_steps_request;
+            list_run_steps_request.set_thread_id(obj2->thread_id());
+            list_run_steps_request.set_run_id(obj2->id());
+            list_run_steps_request.set_order(desc);
+            const auto list_run_step_response = run_service_->ListRunSteps(list_run_steps_request);
+            // ASSERT_GT(list_run_step_response.data_size(), 1);
+            ASSERT_TRUE(list_run_step_response.data(0).step_details().tool_calls_size()>0);
 
-        // submit function tool results
-        SubmitToolOutputsToRunRequest submit_tool_outputs_to_run_request;
-        submit_tool_outputs_to_run_request.set_thread_id(obj2->thread_id());
-        submit_tool_outputs_to_run_request.set_run_id(obj3->id());
-        submit_tool_outputs_to_run_request.set_stream(false);
-        for(const auto& tool_call: list_run_step_response.data(0).step_details().tool_calls()) {
-            ToolCallObject function_tool_invocation;
-            function_tool_invocation.set_id(tool_call.id());
-            function_tool_invocation.mutable_function()->set_name(tool_call.function().name());
-            function_tool_invocation.mutable_function()->set_arguments(tool_call.function().arguments());
-            FunctionToolResult function_tool_result = tool_kit->Invoke(function_tool_invocation);
-            ASSERT_FALSE(function_tool_result.has_error());
-            ASSERT_TRUE(StringUtils::IsNotBlankString(function_tool_result.return_value()));
-            auto *output = submit_tool_outputs_to_run_request.mutable_tool_outputs()->Add();
-            output->set_tool_call_id(tool_call.id());
-            output->set_output(function_tool_result.return_value());
+            // submit function tool results
+            SubmitToolOutputsToRunRequest submit_tool_outputs_to_run_request;
+            submit_tool_outputs_to_run_request.set_thread_id(obj2->thread_id());
+            submit_tool_outputs_to_run_request.set_run_id(obj3->id());
+            submit_tool_outputs_to_run_request.set_stream(false);
+            for(const auto& tool_call: list_run_step_response.data(0).step_details().tool_calls()) {
+                ToolCallObject function_tool_invocation;
+                function_tool_invocation.set_id(tool_call.id());
+                function_tool_invocation.mutable_function()->set_name(tool_call.function().name());
+                function_tool_invocation.mutable_function()->set_arguments(tool_call.function().arguments());
+                FunctionToolResult function_tool_result = tool_kit->Invoke(function_tool_invocation);
+                ASSERT_FALSE(function_tool_result.has_error());
+                ASSERT_TRUE(StringUtils::IsNotBlankString(function_tool_result.return_value()));
+                auto *output = submit_tool_outputs_to_run_request.mutable_tool_outputs()->Add();
+                output->set_tool_call_id(tool_call.id());
+                output->set_output(function_tool_result.return_value());
+            }
+            const auto obj4 = run_service_->SubmitToolOutputs(submit_tool_outputs_to_run_request);
+            ASSERT_TRUE(obj4);
+            // handle again with obj4
+            task = {
+                .task_id = obj2->id(),
+                .category =  OpenAIToolAgentRunObjectTaskHandler::CATEGORY,
+                .payload = ProtobufUtils::Serialize(obj4.value())
+            };
+            task_handler->Handle(task);
+
+            // get latest run object
+            obj3 = run_service_->RetrieveRun(get_run_request);
         }
-        const auto obj4 = run_service_->SubmitToolOutputs(submit_tool_outputs_to_run_request);
-        ASSERT_TRUE(obj4);
 
-        // handle again with obj4
-        task = {
-            .task_id = obj2->id(),
-            .category =  OpenAIToolAgentRunObjectTaskHandler::CATEGORY,
-            .payload = ProtobufUtils::Serialize(obj4.value())
-        };
-        task_handler->Handle(task);
 
         // assertions
         const auto obj5 = run_service_->RetrieveRun(get_run_request);
         ASSERT_EQ(obj5->status(), RunObject_RunObjectStatus_completed);
+        ListRunStepsRequest list_run_steps_request;
+        list_run_steps_request.set_thread_id(obj2->thread_id());
+        list_run_steps_request.set_run_id(obj2->id());
+        list_run_steps_request.set_order(desc);
         const auto list_run_step_response2 = run_service_->ListRunSteps(list_run_steps_request);
-        ASSERT_EQ(list_run_step_response2.data_size(), 2);
-        ASSERT_TRUE(list_run_step_response2.data(0).step_details().tool_calls_size()>0);
-        ASSERT_TRUE(list_run_step_response2.data(1).step_details().has_message_creation());
+        ASSERT_GE(list_run_step_response2.data_size(), 2); // could be three or two
+        // latest step must be result message
+        ASSERT_TRUE(list_run_step_response2.data(0).step_details().has_message_creation());
         GetMessageRequest get_message_request;
         get_message_request.set_thread_id(obj5->thread_id());
-        get_message_request.set_message_id(list_run_step_response2.data(1).step_details().message_creation().message_id());
+        get_message_request.set_message_id(list_run_step_response2.data(0).step_details().message_creation().message_id());
         const auto obj6 = message_service_->RetrieveMessage(get_message_request);
         ASSERT_TRUE(obj6->content_size()>0);
         ASSERT_TRUE(obj6->content(0).has_text());

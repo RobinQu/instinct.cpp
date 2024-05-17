@@ -128,8 +128,15 @@ namespace instinct::examples::mini_assistant {
                 run_service,
                 message_service,
                 assistant_service,
-                [&](const RunObject&, const StopPredicate& stop_predicate) {
-                    const auto chat_model = CreateChatModel(options_.llm_provider);
+                [&](const std::optional<std::string>& model_name) {
+                    auto llm_provider_options = options_.llm_provider;
+                    if (model_name) {
+                        llm_provider_options.ollama.model_name = model_name.value();
+                        llm_provider_options.openai.model_name = model_name.value();
+                    }
+                    return CreateChatModel(llm_provider_options);
+                },
+                [&](const ChatModelPtr& chat_model, const StopPredicate& stop_predicate) {
                     return CreateAgentExecutor(options_.agent_executor, chat_model, stop_predicate);
                 }
             );
