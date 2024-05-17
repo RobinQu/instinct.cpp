@@ -214,7 +214,8 @@ namespace INSTINCT_CORE_NS {
             if (const auto code = details::make_curl_request(call, http_response); code != 0) {
                 throw HttpClientException(0, "curl request failed with return code " + std::string(curl_easy_strerror(code)));
             }
-            LOG_DEBUG("RESP: {} {}, status_code={}, body_length={}", call.method, url, http_response.status_code, http_response.body.size());
+
+            LOG_DEBUG("RESP: {} {}, status_code={}, body_length={}", call.method, url, http_response.status_code, http_response.body);
             return http_response;
         }
 

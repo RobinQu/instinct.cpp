@@ -125,6 +125,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         create_run_step_request.set_type(RunStepObject_RunStepType_message_creation);
         create_run_step_request.set_status(RunStepObject_RunStepStatus_in_progress);
         create_run_step_request.mutable_step_details()->mutable_message_creation()->set_message_id("balbalba");
+        LLMCompilerTaskGraph graph;
+        graph.set_question("bablbalbal");
+        create_run_step_request.mutable_step_details()->mutable_custom()->PackFrom(graph);
         const auto obj3 = run_service->CreateRunStep(create_run_step_request);
         LOG_INFO("CreateRunStep returned: {}", obj3->ShortDebugString());
         ASSERT_EQ(obj3->object(), "thread.run.step");

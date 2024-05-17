@@ -149,9 +149,9 @@ namespace INSTINCT_LLM_NS {
                     auto* pause = agent_step.mutable_thought()->mutable_pause();
                     pause->mutable_tool_call_message()->CopyFrom(tool_call_message);
                     pause->mutable_completed()->CopyFrom(observation_message.tool_messages());
-                    state.add_previous_steps()->CopyFrom(agent_step);
                     // save task graph to custom
                     pause->mutable_custom()->PackFrom(graph);
+                    state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
                 }
 
@@ -175,6 +175,7 @@ namespace INSTINCT_LLM_NS {
         auto planer = CreateLLMCompilerPlaner(chat_model);
         auto worker = CreateLocalToolkitsWorker(toolkits);
         auto joiner = CreateLLMCompilerJoiner(chat_model);
+        chat_model->Configure({.stop_words = {"<END_OF_PLAN>", }});
         return std::make_shared<LLMCompilerAgentExectuor>(stop_predicate, planer, worker, joiner, options);
     }
 

@@ -7,7 +7,8 @@ from openai import OpenAI
 logging.basicConfig(level=logging.DEBUG)
 
 client = OpenAI(base_url="http://localhost:9091/v1")
-MODEL_NAME = "TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ"
+# MODEL_NAME = "TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ"
+MODEL_NAME = "gpt-4o"
 
 
 def show_json(obj):
@@ -226,30 +227,38 @@ def test_function_tools():
     thread, run = create_thread_and_run(
         "Make a quiz with 2 questions: One open ended, one multiple choice. Then, give me feedback for the responses."
     )
-    run = wait_on_run(run, thread)
-    show_json(run)
 
-    tool_call = run.required_action.submit_tool_outputs.tool_calls[0]
-    name = tool_call.function.name
-    arguments = json.loads(tool_call.function.arguments)
-    responses = display_quiz(arguments["title"], arguments["questions"])
-    print("Responses:", responses)
 
-    run = client.beta.threads.runs.submit_tool_outputs(
-        thread_id=thread.id,
-        run_id=run.id,
-        tool_outputs=[
-            {
-                "tool_call_id": tool_call.id,
-                "output": json.dumps(responses),
-            }
-        ],
-    )
-    show_json(run)
+    while True:
+        run = client.beta.threads.runs.retrieve(
+            thread_id=thread.id,
+            run_id=run.id,
+        )
+        show_json(run)
+        if run.status == "requires_action":
+            tool_output = []
+            for tool_call in run.required_action.submit_tool_outputs.tool_calls:
+                name = tool_call.function.name
+                print(f"tool function arguments: {tool_call.function.arguments}")
+                arguments = json.loads(tool_call.function.arguments)
+                responses = display_quiz(arguments["title"], arguments["questions"])
+                print("Responses:", responses)
+                tool_output.append({
+                    "tool_call_id": tool_call.id,
+                    "output": json.dumps(responses),
+                })
 
-    run = wait_on_run(run, thread)
+            run = client.beta.threads.runs.submit_tool_outputs(
+                thread_id=thread.id,
+                run_id=run.id,
+                tool_outputs=tool_output,
+            )
+        if run.status == "completed" or run.status == "failed" or run.status == "expired" or run.status == "cancelled":
+            break
+
+        time.sleep(1)
+
     pretty_print(get_response(thread))
-
     client.beta.threads.delete(thread_id=thread.id)
     client.beta.assistants.delete(assistant_id=MATH_ASSISTANT_ID)
 

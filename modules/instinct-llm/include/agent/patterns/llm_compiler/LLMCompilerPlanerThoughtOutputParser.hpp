@@ -22,10 +22,7 @@ namespace INSTINCT_LLM_NS {
             static std::regex ACTION_PATTERN {R"(^(\d+)\.\s*(.+)\((.*)\)$)"};
             static std::regex DEP_PATTERN {R"(\$\{?(\d)\}?)"};
             static std::regex NEW_LINE_SEP { "\n"};
-
             AgentThought thought_message;
-
-
             LLMCompilerTaskGraph graph;
             for(const auto& line: StringUtils::ReSplit(content, NEW_LINE_SEP)) {
                 if (StringUtils::IsBlankString(line)) {
@@ -33,6 +30,9 @@ namespace INSTINCT_LLM_NS {
                     continue;
                 }
                 const auto trimmed = StringUtils::Trim(line);
+                if (trimmed.find("<END_OF_PLAN>") != std::string::npos) {
+                    break;
+                }
                 if (std::smatch action_match; std::regex_match(trimmed, action_match, ACTION_PATTERN)) { // action line
                     if (action_match.size() >= 3) {
                         // first item is whole match, second item is matched group and third item is action JSON
@@ -70,6 +70,7 @@ namespace INSTINCT_LLM_NS {
             }
 
             if (graph.tasks_size() == 0) { // we turn it into finish step if no tasks are parsed
+                LOG_WARN("No tasks found in model output. Return finish step instread");
                 thought_message.mutable_finish()->set_response(content);
             } else {
                 auto* tool_call_requests = thought_message.mutable_continuation()->mutable_tool_call_message();

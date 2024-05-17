@@ -52,7 +52,7 @@ namespace INSTINCT_LLM_NS {
         }
 
         void Configure(const ModelOptions &options) override {
-            options_ = options;
+            options_.stop_words = options.stop_words;
         }
 
         Message Invoke(const PromptValueVariant &input) override {
