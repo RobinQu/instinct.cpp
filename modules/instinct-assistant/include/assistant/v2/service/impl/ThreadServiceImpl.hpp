@@ -28,6 +28,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<ThreadObject> CreateThread(const ThreadObject &create_request) override {
+            trace_span span {"CreateThread"};
             // TODO with transaction
             // generate thread id
             auto thread_id = details::generate_next_object_id("thread");
@@ -69,6 +70,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<ThreadObject> RetrieveThread(const GetThreadRequest &retrieve_request) override {
+            trace_span span {"RetrieveThread"};
             assert_not_blank(retrieve_request.thread_id());
             return thread_data_mapper_->SelectOne("select * from instinct_thread where id = {{text(id)}};", {
                 {"id", retrieve_request.thread_id()}
@@ -76,6 +78,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<ThreadObject> ModifyThread(const ModifyThreadRequest &modify_request) override {
+            trace_span span {"ModifyThread"};
             assert_not_blank(modify_request.thread_id(), "should provide thread id");
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(modify_request, context);
@@ -86,6 +89,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         DeleteThreadResponse DeleteThread(const DeleteThreadRequest &delete_request) override {
+            trace_span span {"DeleteThread"};
             // TODO needs transaction
             assert_not_blank(delete_request.thread_id(), "should provide thread id for  deletion");
 

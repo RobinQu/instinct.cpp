@@ -38,7 +38,7 @@ namespace INSTINCT_LLM_NS {
                 kHuman,
                 R"(Given a user query, create a plan to solve it with the utmost parallelization. Each plan should comprise an action from the following {num_tools} types:
 {tool_descriptions}
-{num_tools}. join(): Collects and combines results from prior actions. No arguments needed.
+{num_tools}. join: Collects and combines results from prior actions. No arguments needed.
 
 - Ensure the plan maximizes parallelization.
 - Each action MUST have a unique ID, which is strictly increasing.

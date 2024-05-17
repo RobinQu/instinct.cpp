@@ -21,6 +21,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         ListAssistantsResponse ListAssistants(const ListAssistantsRequest &list_request) override {
+            trace_span span {"ListAssistants"};
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(list_request, context, {.keep_default_values = true});
             // limit + 1 to check if there is more records that match the conditions
@@ -51,6 +52,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<AssistantObject> CreateAssistant(const AssistantObject &create_request) override {
+            trace_span span {"CreateAssistant"};
             assert_not_blank(create_request.model(), "should provide model name");
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(create_request, context, {.keep_default_values = true});
@@ -75,10 +77,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<AssistantObject> RetrieveAssistant(const GetAssistantRequest &get_request) override {
+            trace_span span {"RetrieveAssistant"};
             return EntitySQLUtils::GetOneAssistant(data_mapper_, {{"id", get_request.assistant_id()}});
         }
 
         DeleteAssistantResponse DeleteAssistant(const DeleteAssistantRequest &delete_request) override {
+            trace_span span {"DeleteAssistant"};
             const auto count = EntitySQLUtils::DeleteAssistant(data_mapper_, {{"id", delete_request.assistant_id()}});
 
             DeleteAssistantResponse response;
@@ -89,6 +93,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<AssistantObject> ModifyAssistant(const ModifyAssistantRequest &modify_assistant_request) override {
+            trace_span span {"ModifyAssistant"};
             assert_not_blank(modify_assistant_request.assistant_id(), "assistant id should be given");
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(modify_assistant_request, context);

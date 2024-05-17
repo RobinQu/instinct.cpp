@@ -36,6 +36,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<RunObject> CreateThreadAndRun(const CreateThreadAndRunRequest &create_thread_and_run_request) override {
+            trace_span span {"CreateThreadAndRun"};
             // TODO with transaction
             const auto& thread_object = create_thread_and_run_request.thread();
             assert_not_blank(create_thread_and_run_request.assistant_id(), "should provide assistant id");
@@ -118,6 +119,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<RunObject> CreateRun(const CreateRunRequest &create_request) override {
+            trace_span span {"CreateRun"};
             // TODO with transaction
             assert_not_blank(create_request.thread_id(), "should provide thread id");
             assert_not_blank(create_request.assistant_id(), "should provide assistant id");
@@ -190,6 +192,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         ListRunsResponse ListRuns(const ListRunsRequest &list_request) override {
+            trace_span span {"ListRuns"};
             assert_not_blank(list_request.thread_id(), "should provide thread_id");
             SQLContext context;
             // plus one for remaining check
@@ -217,6 +220,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<RunObject> RetrieveRun(const GetRunRequest &get_request) override {
+            trace_span span {"RetrieveRun"};
             assert_not_blank(get_request.thread_id(), "should provide thread id");
             assert_not_blank(get_request.run_id(), "should provide run id");
             SQLContext context;
@@ -225,6 +229,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<RunObject> ModifyRun(const ModifyRunRequest &modify_run_request) override {
+            trace_span span {"ModifyRun"};
             assert_not_blank(modify_run_request.thread_id(), "should provide thread_id");
             assert_not_blank(modify_run_request.run_id(), "should provide run_id");
             if (modify_run_request.has_required_action()) {
@@ -252,6 +257,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<RunObject> SubmitToolOutputs(const SubmitToolOutputsToRunRequest &sub_request) override {
+            trace_span span {"SubmitToolOutputs"};
             const auto& run_id = sub_request.run_id();
             const auto& thread_id = sub_request.thread_id();
             assert_not_blank(run_id, "should provide run_id");
@@ -335,6 +341,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<RunObject> CancelRun(const CancelRunRequest &cancel_request) override {
+            trace_span span {"CancelRun"};
             // update database only
             // task handler will checkout status in loop and abort if run is cancelled
             SQLContext context;
@@ -378,12 +385,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<RunStepObject> GetRunStep(const GetRunStepRequest &get_run_step_request) override {
+            trace_span span {"GetRunStep"};
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(get_run_step_request, context);
             return EntitySQLUtils::GetRunStep(run_step_data_mapper_, context);
         }
 
         std::optional<RunStepObject> CreateRunStep(const RunStepObject &create_request) override {
+            trace_span span {"CreateRunStep"};
             assert_not_blank(create_request.run_id(), "should provide run_id");
             assert_not_blank(create_request.thread_id(), "should provide thread_id");
             assert_true(create_request.status()!=0, "should provide status");
@@ -416,6 +425,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<RunStepObject> ModifyRunStep(const ModifyRunStepRequest &modify_reequest) override {
+            trace_span span {"ModifyRunStep"};
             assert_not_blank(modify_reequest.run_id(), "should provide run_id");
             assert_not_blank(modify_reequest.thread_id(), "should provide thread_id");
             assert_not_blank(modify_reequest.step_id(), "should provide step_id");

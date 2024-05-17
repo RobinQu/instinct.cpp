@@ -228,13 +228,13 @@ def test_function_tools():
         "Make a quiz with 2 questions: One open ended, one multiple choice. Then, give me feedback for the responses."
     )
 
-
     while True:
         run = client.beta.threads.runs.retrieve(
             thread_id=thread.id,
             run_id=run.id,
         )
         show_json(run)
+        assert run.status not in ("failed", "expired", "cancelled")
         if run.status == "requires_action":
             tool_output = []
             for tool_call in run.required_action.submit_tool_outputs.tool_calls:
@@ -253,7 +253,7 @@ def test_function_tools():
                 run_id=run.id,
                 tool_outputs=tool_output,
             )
-        if run.status == "completed" or run.status == "failed" or run.status == "expired" or run.status == "cancelled":
+        if run.status == "completed":
             break
 
         time.sleep(1)

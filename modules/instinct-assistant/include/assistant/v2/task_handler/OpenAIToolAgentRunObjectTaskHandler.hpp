@@ -5,6 +5,8 @@
 #ifndef RUNOBJECTHANDLER_HPP
 #define RUNOBJECTHANDLER_HPP
 
+#include <utility>
+
 #include "AssistantGlobals.hpp"
 #include "agent/executor/BaseAgentExecutor.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
@@ -35,7 +37,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             : run_service_(std::move(run_service)),
               message_service_(std::move(message_service)),
               assistant_service_(std::move(assistant_service)),
-              chat_model_provider_(chat_model_provider),
+              chat_model_provider_(std::move(chat_model_provider)),
               agent_executor_provider_(std::move(agent_executor_provider)
               ) {
         }
@@ -45,6 +47,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         void Handle(const ITaskScheduler<std::string>::Task &task) override {
+            trace_span span {"OpenAIToolAgentRunObjectTaskHandler::Handle"};
             RunObject run_object;
             ProtobufUtils::Deserialize(task.payload, run_object);
 
@@ -643,9 +646,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
             auto run_step_objects = ListAllSteps_(run_object.thread_id(), run_object.id());
             auto n = run_step_objects.size();
+            LOG_DEBUG("Found {} steps for run object. run_object={}, ids={}",
+                n,
+                run_object.ShortDebugString(),
+                StringUtils::JoinWith(run_step_objects | std::views::transform([](const RunStepObject& step) { return step.id(); }), ",")
+            );
             for (int i=0;i<n;++i) {
                 const auto& step = run_step_objects.at(i);
-
+                LOG_DEBUG("step_id={}", step.id());
                 if (step.type() == RunStepObject_RunStepType_tool_calls) {
                     if (step.step_details().tool_calls_size() <= 0) {
                         LOG_ERROR("should have tool calls in a run step");
@@ -702,7 +710,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     if (step.status() == RunStepObject_RunStepStatus_in_progress) {
                         // because only run objects with status of `queued` and `requires_action` are allowed to be added to task scheduler
                         if (i != n-1) {
-                            LOG_ERROR("it should be last step.");
+                            LOG_ERROR("it should be last step. i={}, step={}", i, step.ShortDebugString());
                             return false;
                         }
                         if (run_object.status() != RunObject_RunObjectStatus_queued) {

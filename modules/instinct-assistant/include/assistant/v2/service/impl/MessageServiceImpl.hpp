@@ -19,6 +19,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 data_mapper) {}
 
         ListMessageResponse ListMessages(const ListMessagesRequest &list_request) override {
+            trace_span span {"ListMessages"};
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(list_request, context);
 
@@ -52,6 +53,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<MessageObject> CreateMessage(const CreateMessageRequest &create_request) override {
+            trace_span span {"CreateMessage"};
             const auto& thread_id = create_request.thread_id();
             assert_not_blank(thread_id, "should provide thread_id");
 
@@ -82,12 +84,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<MessageObject> RetrieveMessage(const GetMessageRequest &get_request) override {
+            trace_span span {"RetrieveMessage"};
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(get_request, context);
             return EntitySQLUtils::SelectOneMessages(data_mapper_, context);
         }
 
         std::optional<MessageObject> ModifyMessage(const ModifyMessageRequest &modify_request) override {
+            trace_span span {"ModifyMessage"};
             assert_not_blank(modify_request.message_id(), "should provide message id");
             assert_not_blank(modify_request.thread_id(), "should provide thread id");
             SQLContext context;

@@ -32,6 +32,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         ListFilesResponse ListFiles(const ListFilesRequest &list_files_request) override {
+            trace_span span {"ListFiles"};
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(list_files_request, context);
             const auto file_list = EntitySQLUtils::SelectManyFiles(data_mapper_, context);
@@ -42,6 +43,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<FileObject> UploadFile(const UploadFileRequest &upload_file_request) override {
+            trace_span span {"UploadFile"};
             assert_true(upload_file_request.purpose() != 0, "should provide purpose");
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(upload_file_request, context, {.keep_default_values = true});
@@ -67,6 +69,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         std::optional<FileObject>
         UploadFile(const UploadFileRequest &upload_file_request, std::istream &input_stream) override {
+            trace_span span {"UploadFile"};
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(upload_file_request, context, {.keep_default_values = true});
 
@@ -90,6 +93,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         DeleteFileResponse DeleteFile(const DeleteFileRequest &delete_file_request) override {
+            trace_span span {"DeleteFile"};
             assert_not_blank(delete_file_request.file_id(), "should provide file_id");
             DeleteFileResponse response;
             response.set_object("file.deleted");
@@ -125,12 +129,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<FileObject> RetrieveFile(const RetrieveFileRequest &retrieve_file_request) override {
+            trace_span span {"RetrieveFile"};
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(retrieve_file_request, context);
             return EntitySQLUtils::SelectOneFile(data_mapper_, context);
         }
 
         std::optional<std::string> DownloadFile(const DownloadFileRequest &download_file_request) override {
+            trace_span span {"DownloadFile"};
             RetrieveFileRequest retrieve_file_request;
             retrieve_file_request.set_file_id(download_file_request.file_id());
             const auto file = RetrieveFile(retrieve_file_request);

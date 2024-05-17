@@ -61,6 +61,10 @@ namespace INSTINCT_LLM_NS {
                 std::vector<int64_t> next_ids;
                 TaskGraphUtils::FindNextTasks(graph, next_ids);
                 if (!next_ids.empty()) { // current function graph is not finished, we have to generate another thought to continue
+                    LOG_INFO("Found executable task in graph. ids={}, graph={}",
+                        StringUtils::JoinWith(next_ids, ","),
+                        graph.ShortDebugString()
+                    );
                     auto* tool_call_requests = agent_step.mutable_thought()->mutable_continuation()->mutable_tool_call_message();
                     TaskGraphUtils::BuildToolCallRequest(graph, next_ids, tool_call_requests);
                     // save task graph data in the new thought step
@@ -101,11 +105,22 @@ namespace INSTINCT_LLM_NS {
                 // so we just check if all tools are done here
                 const auto& pause = last_step.thought().pause();
                 assert_true(pause.custom().Is<LLMCompilerTaskGraph>(), "should contain LLMCompilerTaskGraph in custom data in the pause step");
+
                 if (pause.tool_call_message().tool_calls_size() == pause.completed_size()) {
+                    // update user submitted tool call result into graph
+                    LLMCompilerTaskGraph graph;
+                    pause.custom().UnpackTo(&graph);
+                    for (const auto& tool_message: pause.completed()) {
+                        for (auto& task: *graph.mutable_tasks()) {
+                            if (task.tool_call().id() == tool_message.tool_call_id()) {
+                                task.mutable_result()->CopyFrom(tool_message);
+                            }
+                        }
+                    }
                     // lift to observation
                     agent_step.mutable_observation()->mutable_tool_messages()->CopyFrom(pause.completed());
                     // copy task graph data
-                    agent_step.mutable_observation()->mutable_custom()->CopyFrom(pause.custom());
+                    agent_step.mutable_observation()->mutable_custom()->PackFrom(graph);
                     state.add_previous_steps()->CopyFrom(agent_step);
                     return agent_step;
                 }
