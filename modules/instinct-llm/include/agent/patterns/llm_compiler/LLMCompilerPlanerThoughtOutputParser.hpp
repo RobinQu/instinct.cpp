@@ -32,7 +32,8 @@ namespace INSTINCT_LLM_NS {
                     // skip blank line
                     continue;
                 }
-                if (std::smatch action_match; std::regex_match(line, action_match, ACTION_PATTERN)) { // action line
+                const auto trimmed = StringUtils::Trim(line);
+                if (std::smatch action_match; std::regex_match(trimmed, action_match, ACTION_PATTERN)) { // action line
                     if (action_match.size() >= 3) {
                         // first item is whole match, second item is matched group and third item is action JSON
                         const auto idx_string = action_match[1].str();

@@ -17,6 +17,7 @@ namespace INSTINCT_CORE_NS {
 
     namespace details {
         static bool is_protobuf_struct_type(const FieldDescriptor* field_descriptor);
+        static bool is_protobuf_any_type(const FieldDescriptor* field_descriptor);
         static void convert_protobuf_struct_to_json_object(const google::protobuf::Message& message, nlohmann::ordered_json& output_json);
 
     }
@@ -312,9 +313,16 @@ namespace INSTINCT_CORE_NS {
                             if (reflection->HasField(message, field_descriptor)) {
                                 // TODO support other well-known types
                                 nlohmann::ordered_json sub_obj;
-                                auto& sub_message = reflection->GetMessage(message, field_descriptor);
+                                const auto& sub_message = reflection->GetMessage(message, field_descriptor);
                                 if (details::is_protobuf_struct_type(field_descriptor)) {
                                     details::convert_protobuf_struct_to_json_object(sub_message, sub_obj);
+                                } else if(details::is_protobuf_any_type(field_descriptor)) {
+                                    // TODO better implementation
+                                    std::string any_string;
+                                    util::JsonPrintOptions json_print_options;
+                                    json_print_options.preserve_proto_field_names = options.keep_default_values;
+                                    google::protobuf::util::MessageToJsonString(sub_message, &any_string, json_print_options);
+                                    sub_obj = nlohmann::json::parse(any_string);
                                 } else {
                                     ConvertMessageToJsonObject(sub_message, sub_obj, options);
                                 }
@@ -392,6 +400,10 @@ namespace INSTINCT_CORE_NS {
     namespace details {
         static bool is_protobuf_struct_type(const FieldDescriptor* field_descriptor) {
             return field_descriptor->message_type()->full_name() == "google.protobuf.Struct";
+        }
+
+        static bool is_protobuf_any_type(const FieldDescriptor* field_descriptor) {
+            return field_descriptor->message_type()->full_name() == "google.protobuf.Any";
         }
 
         static bool convert_protobuf_struct_value_to_json_object(const google::protobuf::Message& value_message, nlohmann::ordered_json& value_json) { // NOLINT(*-no-recursion)

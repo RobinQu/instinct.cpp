@@ -222,7 +222,7 @@ namespace INSTINCT_CORE_NS {
                     {'\x1a' , "\\Z"},
                     {'\''    , "\'\'"},
                      {'"'    , "\""},
-                    {'\\' , "\\"}
+                    // {'\\' , "\\"}
             };
             // auto words_begin = std::sregex_iterator(s.begin(), s.end(), CHARS_REGEX);
             // auto words_end = std::sregex_iterator();

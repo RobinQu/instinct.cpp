@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 #include "CoreGlobals.hpp"
+#include <agent.pb.h>
 #include "tools/ProtobufUtils.hpp"
 
 
@@ -74,6 +75,16 @@ namespace INSTINCT_CORE_NS {
         assistant::v2::AssistantObject obj2;
         reflection->SetString(&obj2, name_field, "test2");
         std::cout << obj2.ShortDebugString() << std::endl;
+    }
+
+    TEST_F(ProtobufUtilsTest, ConvertMessageWithAny) {
+        assistant::v2::RunStepObject_RunStepDetails details;
+        llm::LLMCompilerTaskGraph graph;
+        graph.set_question("hello");
+        details.mutable_custom()->PackFrom(graph);
+        nlohmann::ordered_json obj;
+        ProtobufUtils::ConvertMessageToJsonObject(details, obj);
+        std::cout << obj.dump() << std::endl;
     }
 
 

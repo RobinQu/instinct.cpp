@@ -7,6 +7,7 @@ from openai import OpenAI
 logging.basicConfig(level=logging.DEBUG)
 
 client = OpenAI(base_url="http://localhost:9091/v1")
+MODEL_NAME = "TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ"
 
 
 def show_json(obj):
@@ -47,7 +48,7 @@ def test_with_messages_only():
     assistant = client.beta.assistants.create(
         name="Math Tutor",
         instructions="You are a personal math tutor. Answer questions briefly, in a sentence or less.",
-        model="gpt-3.5-turbo",
+        model=MODEL_NAME
     )
     show_json(assistant)
 
@@ -84,7 +85,7 @@ def test_with_multiple_thread_and_run():
     assistant = client.beta.assistants.create(
         name="Math Tutor",
         instructions="You are a personal math tutor. Answer questions briefly, in a sentence or less.",
-        model="gpt-3.5-turbo",
+        model=MODEL_NAME
     )
 
     MATH_ASSISTANT_ID = assistant.id  # or a hard-coded ID like "asst-..."
@@ -199,7 +200,7 @@ def test_function_tools():
     assistant = client.beta.assistants.create(
         name="Math Tutor",
         instructions="You are a personal math tutor. Answer questions briefly, in a sentence or less.",
-        model="gpt-3.5-turbo",
+        model=MODEL_NAME,
         tools=[
             {"type": "function", "function": function_json},
         ],
