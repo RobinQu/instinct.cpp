@@ -30,18 +30,19 @@ namespace INSTINCT_LLM_NS {
 - Thought needs to reason about the question based on the Observations in 1-2 sentences.
 - Ignore irrelevant action results.
 - If the required information is present, give a concise but complete and helpful answer to the user's question.
-- If you are unable to give a satisfactory finishing answer, replan to get the required information. Respond in the following format:
+- If you are unable to give a satisfactory finishing answer, replan to get the required information.
+
+Respond in the following format:
 
 Thought: <reason about the task results and whether you have sufficient information to answer the question>
 Action: <action to take>(<final answer>)
 
-Available actions:
+You should choose one of available actions:
  (1) Finish(the final answer to return to the user): returns the answer and finishes the task.
  (2) Replan(the reasoning and other information that will help you plan again. Can be a line of any length): instructs why we must replan
 
 {messages}
 
-Using the above previous actions, decide whether to replan or finish. If all the required information is present. You may finish. If you have made many attempts to find the information without success, admit so and respond with whatever information you have gathered so the user can work well with you.
 
 Question: {question}
 

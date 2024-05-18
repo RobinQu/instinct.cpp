@@ -73,7 +73,7 @@ namespace INSTINCT_LLM_NS {
                 {"replan", replan ? options_.replan_prompt: ""},
                 {"context", context_string},
                 // examples are needed for models less capable than GPT-3.5-turbo
-{"exmaples", R"()"}
+{"exmaples", ""}
             });
         }
     };

@@ -26,19 +26,17 @@ namespace INSTINCT_LLM_NS {
         }
 
         LLMCompilerJoinerResult ParseResult(const Generation &context) override {
-            static std::regex NEWLINE_SEP {"\n"};
             static std::regex THOUGHT_REGEX {R"(Thought:\s*(.+))"};
             static std::regex ACTION_REGEX {R"(Action:\s*(.+)\(([^\)]*)\))"};
             const auto content = MessageUtils::StringifyGeneration(context);
             LLMCompilerJoinerResult joiner_result;
 
-            std::smatch thoguht_match, action_match;
-            if (std::regex_search(content, thoguht_match, THOUGHT_REGEX)) {
+            if (std::smatch thoguht_match; std::regex_search(content, thoguht_match, THOUGHT_REGEX)) {
                 if (thoguht_match.size()>=2) {
                     joiner_result.set_thought(thoguht_match[1]);
                 }
             }
-            if (std::regex_search(content, action_match, ACTION_REGEX)) {
+            if (std::smatch action_match; std::regex_search(content, action_match, ACTION_REGEX)) {
                 if (action_match.size() >= 3) {
                     // item one is matched line
                     // item two is action name

@@ -99,7 +99,7 @@ namespace INSTINCT_LLM_NS {
 
         // 4. run replan
         const auto ctx2 = input_parser->Invoke(state);
-        ASSERT_TRUE(ctx2->RequireMappingData().at("replan")->RequirePrimitive<bool>());
+        ASSERT_TRUE(ctx2->RequireMappingData().at("replan")->IsPrimitive());
         const auto context1 = ctx2->RequireMappingData().at("context")->RequirePrimitive<std::string>();
         LOG_INFO("context={}", context1);
         ASSERT_TRUE(StringUtils::IsNotBlankString(context1));

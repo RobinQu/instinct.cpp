@@ -40,8 +40,9 @@ namespace INSTINCT_LLM_NS {
 {tool_descriptions}
 {num_tools}. join: Collects and combines results from prior actions. No arguments needed.
 
-- Ensure the plan maximizes parallelization.
+Guidelines:
 - Each action MUST have a unique ID, which is strictly increasing.
+- Ensure the plan maximizes parallelization.
 - Respond with the task list and each task takes one and only one line in the following format: ID. action_name(JSON blob of action input without new line).
 - If inputs for actions are outputs from preceding actions,  always use the format $id to denote the ID of the previous action whose output will be used as the input.
 - Only use the provided action types. If a query cannot be addressed using these, invoke the join action for the next steps.

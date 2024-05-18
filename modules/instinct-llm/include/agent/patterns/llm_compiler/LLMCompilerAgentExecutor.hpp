@@ -79,6 +79,7 @@ namespace INSTINCT_LLM_NS {
                 const auto joiner_result = joiner_->Invoke(graph);
                 // hack2: save joiner thought in graph
                 graph.mutable_joiner_result()->CopyFrom(joiner_result);
+                state.mutable_previous_steps()->rbegin()->mutable_observation()->mutable_custom()->PackFrom(graph);
                 if (joiner_result.is_replan()) {
                     // if we have to replan, we should plan again and return thought message for continuation
                     AgentThought thought_step = planner_->Invoke(state);
@@ -136,6 +137,9 @@ namespace INSTINCT_LLM_NS {
                 const auto& tool_call_objects = tool_call_message.tool_calls();
                 const auto& thought_step = last_step.thought();
                 assert_true(thought_step.continuation().custom().Is<LLMCompilerTaskGraph>(), "should contain LLMCompilerTaskGraph in custom data in the thought step");
+                LLMCompilerTaskGraph graph;
+                thought_step.continuation().custom().UnpackTo(&graph);
+                assert_gt(graph.tasks_size(), 1, "There should be more than one task in LLMCompilerTaskGraph");
 
                 // worker will take care of execution of built-in tools
                 const auto observation_message = worker_->Invoke(thought_step);
@@ -149,8 +153,6 @@ namespace INSTINCT_LLM_NS {
                 }
 
                 // update result in taks graph
-                LLMCompilerTaskGraph graph;
-                thought_step.continuation().custom().UnpackTo(&graph);
                 for(auto& task: *graph.mutable_tasks()) {
                     for(const auto& tool_message: observation_message.tool_messages()) {
                         if (tool_message.tool_call_id() == task.tool_call().id()) {

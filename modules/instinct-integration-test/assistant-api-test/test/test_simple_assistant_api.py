@@ -7,8 +7,8 @@ from openai import OpenAI
 logging.basicConfig(level=logging.DEBUG)
 
 client = OpenAI(base_url="http://localhost:9091/v1")
-# MODEL_NAME = "TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ"
-MODEL_NAME = "gpt-4o"
+MODEL_NAME = "TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ"
+# MODEL_NAME = "gpt-4o"
 
 
 def show_json(obj):

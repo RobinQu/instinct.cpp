@@ -647,10 +647,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
             auto run_step_objects = ListAllSteps_(run_object.thread_id(), run_object.id());
             auto n = run_step_objects.size();
-            LOG_DEBUG("Found {} steps for run object. run_object={}, ids={}",
+            LOG_DEBUG("Found {} steps for run object. run_object={}, run_steps={}",
                 n,
                 run_object.ShortDebugString(),
-                StringUtils::JoinWith(run_step_objects | std::views::transform([](const RunStepObject& step) { return step.id(); }), ",")
+                StringUtils::JoinWith(run_step_objects | std::views::transform([](const RunStepObject& step) { return fmt::format("[run_step.id={}, run_step.status={}, run_step.type={}]", step.id(), RunStepObject_RunStepStatus_Name(step.status()), RunStepObject_RunStepType_Name(step.type())); }), " -> ")
             );
             for (int i=0;i<n;++i) {
                 const auto& step = run_step_objects.at(i);
