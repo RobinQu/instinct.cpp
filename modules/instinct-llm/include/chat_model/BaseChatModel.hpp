@@ -51,9 +51,9 @@ namespace INSTINCT_LLM_NS {
 //            model_function_ = std::make_shared<ChatModelFunction>(shared_from_this());
         }
 
-        void Configure(const ModelOptions &options) override {
-            options_.stop_words = options.stop_words;
-        }
+        // void Configure(const ModelOptions &options) override {
+        //     options_.stop_words = options.stop_words;
+        // }
 
         Message Invoke(const PromptValueVariant &input) override {
             auto messages = details::conv_prompt_value_variant_to_message_list(input);

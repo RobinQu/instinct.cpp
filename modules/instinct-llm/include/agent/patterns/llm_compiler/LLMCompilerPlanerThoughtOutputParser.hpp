@@ -79,7 +79,7 @@ namespace INSTINCT_LLM_NS {
                 thought_message.mutable_finish()->set_response(content);
             } else {
                 LOG_DEBUG("Task graph built:\n{}", StringUtils::JoinWith(graph.tasks() | std::views::transform([](const LLMCompilerTaskGraph::LLMCompilerTask& task) {
-                    return fmt::format("index={},name={},deps={},args={}",
+                    return fmt::format("[index={},name={},deps={},args={}]",
                         task.index(),
                         task.tool_call().function().name(),
                         StringUtils::JoinWith(task.dependencies(), "\n"),

@@ -46,6 +46,7 @@ namespace INSTINCT_LLM_NS {
 
 
         static void BuildToolCallRequest(const LLMCompilerTaskGraph& graph, const std::vector<int64_t>& next_task_ids, Message* tool_call_request) {
+            static std::regex DEP_PATTERN {R"(\$\{?(\d)\}?)"};
             std::unordered_map<int64, int> id_index;
             for(int i=0;i<graph.tasks_size();++i) {
                 const auto& task = graph.tasks(i);
@@ -54,8 +55,18 @@ namespace INSTINCT_LLM_NS {
             for(const auto& id: next_task_ids) {
                 assert_true(id_index.contains(id), fmt::format("Assigned task id should exist in graph. id={}", id));
                 auto &task = graph.tasks(id_index[id]);
-                tool_call_request->add_tool_calls()->CopyFrom(task.tool_call());
+                auto* tool_call = tool_call_request->add_tool_calls();
+                tool_call->CopyFrom(task.tool_call());
                 tool_call_request->set_role("assistant");
+                // do subsituions
+                std::string args = task.tool_call().function().arguments();
+                for(const auto& match: StringUtils::MatchPattern(task.tool_call().function().arguments(), DEP_PATTERN)) {
+                    assert_gte(match.size(), 2, "should at least two parts in match");
+                    const auto action_id = std::stoi(match[1]);
+                    auto& dep_task = graph.tasks(id_index[action_id]);
+                    args = args.replace(args.find(match[1].str()), match[1].str().size(), dep_task.result().content());
+                }
+                tool_call->mutable_function()->set_arguments(args);
             }
         }
 

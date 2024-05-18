@@ -38,6 +38,10 @@ namespace INSTINCT_LLM_NS {
             }
         }
 
+        void Configure(const ModelOptions &options) override {
+            configuration_.stop_words = options.stop_words;
+        }
+
         void CallOpenAI(const MessageList& message_list, BatchedLangaugeModelResult& batched_language_model_result) {
             const auto req = BuildRequest_(message_list, false);
             const auto resp = client_.PostObject<OpenAIChatCompletionRequest, OpenAIChatCompletionResponse>(DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT, req);

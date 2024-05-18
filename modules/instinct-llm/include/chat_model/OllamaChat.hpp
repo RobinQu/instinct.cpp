@@ -49,6 +49,10 @@ namespace INSTINCT_LLM_NS {
             configuration_ = options;
         }
 
+        void Configure(const ModelOptions &options) override {
+            configuration_.stop_words = options.stop_words;
+        }
+
     private:
         LangaugeModelResult CallOllama(const MessageList& message_list) {
             OllamaChatCompletionRequest request;

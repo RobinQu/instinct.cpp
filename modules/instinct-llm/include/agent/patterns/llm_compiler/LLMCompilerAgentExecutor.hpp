@@ -192,7 +192,7 @@ namespace INSTINCT_LLM_NS {
         auto planer = CreateLLMCompilerPlaner(chat_model);
         auto worker = CreateLocalToolkitsWorker(toolkits);
         auto joiner = CreateLLMCompilerJoiner(chat_model);
-        chat_model->Configure({.stop_words = {"<END_OF_PLAN>", }});
+        chat_model->Configure({.stop_words = {"<END_OF_PLAN>"}});
         return std::make_shared<LLMCompilerAgentExectuor>(stop_predicate, planer, worker, joiner, options);
     }
 
