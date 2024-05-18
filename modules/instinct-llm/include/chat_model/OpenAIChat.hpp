@@ -48,6 +48,11 @@ namespace INSTINCT_LLM_NS {
                 single_result->set_text(choice.message().content());
                 single_result->set_is_chunk(false);
                 single_result->mutable_message()->CopyFrom(choice.message());
+
+                // unescape common characters
+                // https://www.reddit.com/r/LocalLLaMA/comments/1agrddy/has_anyone_encountered_mistrals_tendency_to_use/
+                std::string unescaped = std::regex_replace(choice.message().content(), std::regex {R"(\\_)"}, "_");
+                single_result->mutable_message()->set_content(unescaped);
             }
         }
 

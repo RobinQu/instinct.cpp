@@ -83,19 +83,22 @@ namespace INSTINCT_DATA_NS {
                 try {
                     if (handler->Accept(task)) {
                         handled = true;
-                        handler->Handle(task);
+
+                        CPPTRACE_WRAP_BLOCK(
+                            handler->Handle(task);
+                        );
 
                         try {
                             this->GetTaskHandlerCallbacks()->OnHandledTask(handler, task);
                         } catch (...) {
                         }
                     }
-                } catch (std::runtime_error &e) {
+                } catch (...) {
                     has_exception = true;
-                    LOG_WARN("failed task found: id={}, category={}, e.what={}", task.task_id,
-                             task.category, e.what());
+                    LOG_WARN("failed task found: id={}, category={}", task.task_id,
+                             task.category);
                     try {
-                        this->GetTaskHandlerCallbacks()->OnFailedTask(handler, task, e);
+                        this->GetTaskHandlerCallbacks()->OnFailedTask(handler, task, std::current_exception());
                     } catch (...) {
                     }
                 }

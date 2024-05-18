@@ -140,8 +140,8 @@ def test_with_multiple_thread_and_run():
 def test_function_tools():
     client = OpenAI(base_url="http://localhost:9091/v1")
 
-    def get_mock_response_from_user_multiple_choice():
-        return "a"
+    def get_mock_response_from_user_multiple_choice(choices: list[str]):
+        return choices[0]
 
     def get_mock_response_from_user_free_response():
         return "I don't know."
@@ -159,7 +159,7 @@ def test_function_tools():
             if q["question_type"] == "MULTIPLE_CHOICE":
                 for i, choice in enumerate(q["choices"]):
                     print(f"{i}. {choice}")
-                response = get_mock_response_from_user_multiple_choice()
+                response = get_mock_response_from_user_multiple_choice(q["choices"])
 
             # Otherwise, just get response
             elif q["question_type"] == "FREE_RESPONSE":

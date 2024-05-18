@@ -24,7 +24,7 @@ namespace INSTINCT_DATA_NS {
             void OnUnhandledTask(const typename ITaskScheduler<T>::Task &task) override {}
 
             void OnFailedTask(const typename ITaskScheduler<T>::TaskHandlerPtr &handler, const typename ITaskScheduler<T>::Task &task,
-                std::runtime_error &error) override {}
+                const std::exception_ptr &error) override {}
 
             void OnHandledTask(const typename ITaskScheduler<T>::TaskHandlerPtr &handler,
                 const typename ITaskScheduler<T>::Task &task) override {}

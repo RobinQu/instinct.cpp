@@ -54,7 +54,7 @@ namespace INSTINCT_DATA_NS {
             ITaskHandlerCallbacks(const ITaskHandlerCallbacks&)=delete;
             ITaskHandlerCallbacks(ITaskHandlerCallbacks&&)=delete;
             virtual void OnUnhandledTask(const Task& task) = 0;
-            virtual void OnFailedTask(const TaskHandlerPtr& handler, const Task& task, std::runtime_error& error) = 0;
+            virtual void OnFailedTask(const TaskHandlerPtr& handler, const Task& task, const std::exception_ptr& error) = 0;
             virtual void OnHandledTask(const TaskHandlerPtr& handler, const Task& task) = 0;
         };
         using TaskHandlerCallbacksPtr = std::shared_ptr<ITaskHandlerCallbacks>;

@@ -42,7 +42,7 @@ namespace INSTINCT_LLM_NS {
 
 - Ensure the plan maximizes parallelization.
 - Each action MUST have a unique ID, which is strictly increasing.
-- Respond with the task list in the following format: ID. action_name(JSON blob of action input).
+- Respond with the task list and each task takes one and only one line in the following format: ID. action_name(JSON blob of action input without new line).
 - If inputs for actions are outputs from preceding actions,  always use the format $id to denote the ID of the previous action whose output will be used as the input.
 - Only use the provided action types. If a query cannot be addressed using these, invoke the join action for the next steps.
 - Never introduce new actions other than the ones provided.

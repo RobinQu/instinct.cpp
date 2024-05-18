@@ -341,7 +341,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
          * @param run_object
          */
         void OnAgentPause_(const AgentPause& agent_pause, const RunObject& run_object) {
-            LOG_INFO("OnAgentPause Start, run_object={}", run_object.ShortDebugString());
+            LOG_INFO("OnAgentPause Start, agent_pause={}", agent_pause.ShortDebugString());
             const auto last_run_step_opt = RetrieveLastRunStep_(run_object);
             if (!last_run_step_opt) {
                 LOG_ERROR("Cannot find last run step for run object: {}", run_object.ShortDebugString());
@@ -401,7 +401,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 LOG_ERROR("Illegal response for update run object: {}", run_object.ShortDebugString());
                 return;
             }
-            LOG_INFO("OnAgentPause Completed, run_object={}", run_object.ShortDebugString());
+            LOG_INFO("OnAgentPause Done, agent_pause={}", agent_pause.ShortDebugString());
         }
 
         /**
@@ -411,7 +411,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
          * @param run_object
          */
         void OnAgentObservation_(const AgentObservation& observation, const RunObject& run_object) {
-            LOG_INFO("OnAgentObservation Start, run_object={}", run_object.ShortDebugString());
+            LOG_INFO("OnAgentObservation Start, observation={}", observation.ShortDebugString());
 
             const auto last_run_step = RetrieveLastRunStep_(run_object);
             if (!last_run_step) {
@@ -450,7 +450,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 return;
             }
 
-            LOG_INFO("OnAgentObservation Done, run_object={}", run_object.ShortDebugString());
+            LOG_INFO("OnAgentObservation Done, observation={}", observation.ShortDebugString());
         }
 
         /**
@@ -468,7 +468,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
          * @param run_object
          */
         void OnAgentFinish_(const AgentFinish& finish_message, const RunObject& run_object) {
-            LOG_INFO("OnAgentFinish Start, run_object={}", run_object.ShortDebugString());
+            LOG_INFO("OnAgentFinish Start, finish_message={}", finish_message.ShortDebugString());
             // TODO needs transaction
 
             ModifyRunRequest modify_run_request;
@@ -539,6 +539,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     modify_run_request.set_completed_at(ChronoUtils::GetCurrentEpochMicroSeconds());
 
                     // create message step
+                    LOG_DEBUG("Final answer resolved: response={}, run_id={}", finish_message.response(), run_object.id());
                     if (!CreateMessageStep_(finish_message.response(), run_object)) {
                         LOG_ERROR("Failed to create message and run step. modify_run_request={}", modify_run_request.ShortDebugString());
                         return;
@@ -558,7 +559,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 return;
             }
 
-            LOG_INFO("OnAgentFinish Done, run_object={}", run_object.ShortDebugString());
+            LOG_INFO("OnAgentFinish Done, finish_message={}", finish_message.ShortDebugString());
         }
 
 

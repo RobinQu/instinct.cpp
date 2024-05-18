@@ -80,7 +80,7 @@ namespace INSTINCT_DATA_NS {
         }
 
         void OnFailedTask(const ITaskScheduler<std::string>::TaskHandlerPtr &handler,
-            const ITaskScheduler<std::string>::Task &task, std::runtime_error &error) override {
+            const ITaskScheduler<std::string>::Task &task, const std::exception_ptr &error) override {
             ++failed;
         }
 
