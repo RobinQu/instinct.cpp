@@ -314,6 +314,9 @@ message CreateMessageRequest {
   // optional
   string assistant_id = 6;
 
+  // for internal use
+  string run_id = 7;
+
 }
 
 

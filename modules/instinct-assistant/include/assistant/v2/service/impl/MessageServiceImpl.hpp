@@ -64,6 +64,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             msg->mutable_text()->set_value(create_request.content());
             msg->set_type(MessageObject_MessageContentType_text);
             message_object.set_role(create_request.role());
+            message_object.set_run_id(create_request.run_id());
             message_object.set_status(MessageObject_MessageStatus_completed);
 
             SQLContext context;

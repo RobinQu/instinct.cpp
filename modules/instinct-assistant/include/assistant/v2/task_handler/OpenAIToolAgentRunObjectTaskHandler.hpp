@@ -349,6 +349,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             create_message_request.set_role(assistant);
             create_message_request.set_content(content);
             create_message_request.set_assistant_id(run_object.assistant_id());
+            create_message_request.set_run_id(run_object.id());
+
             const auto message_object = message_service_->CreateMessage(create_message_request);
             if (!message_object.has_value()) {
                 LOG_ERROR("Cannot create message for this step. run_object={}, create_message_request={}", run_object.ShortDebugString(), create_message_request.ShortDebugString());

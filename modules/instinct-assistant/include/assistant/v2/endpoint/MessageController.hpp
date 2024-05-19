@@ -19,6 +19,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             server.GetRoute<ListMessagesRequest, ListMessageResponse>("/v1/threads/:thread_id/messages", [&](ListMessagesRequest& req, const HttpLibSession& session) {
                 RequestUtils::LoadPaginationParameters(session.request, req);
                 req.set_thread_id(session.request.path_params.at("thread_id"));
+                if (session.request.path_params.contains("run_id")) {
+                    req.set_run_id(session.request.path_params.at("run_id"));
+                }
                 const auto resp = facade_.message->ListMessages(req);
                 session.Respond(resp);
             });
