@@ -5,6 +5,8 @@
 #ifndef LLMCOMPILERAGENTEXECUTOR_HPP
 #define LLMCOMPILERAGENTEXECUTOR_HPP
 
+#include <utility>
+
 #include "LLMCompilerJoiner.hpp"
 #include "LLMCompilerPlaner.hpp"
 #include "LLMGlobals.hpp"
@@ -16,6 +18,10 @@ namespace INSTINCT_LLM_NS {
 
     struct LLMCompilerOptions {
         int max_replan = 6; // max count for running replaner
+        LLMCompilerPlanerAgentStateInputParserOptions planer_input_parser = {};
+        LLMCompilerPlanerThoughtOutputParserOptions planer_output_parser = {};
+        LLMCompilerJoinerResultOutputParserOptions joiner_output_parser = {};
+        LLMCompilerJoinerTaskGraphInputParserOptions joiner_input_parser = {};
     };
 
     class LLMCompilerAgentExectuor final: public BaseAgentExecutor {
@@ -26,12 +32,12 @@ namespace INSTINCT_LLM_NS {
         LLMCompilerOptions options_;
 
     public:
-        LLMCompilerAgentExectuor(StopPredicate should_early_stop, PlannerPtr planner, WorkerPtr worker, JoinerPtr joiner, const LLMCompilerOptions& options)
+        LLMCompilerAgentExectuor(StopPredicate should_early_stop, PlannerPtr planner, WorkerPtr worker, JoinerPtr joiner, LLMCompilerOptions  options)
             : should_early_stop_(std::move(should_early_stop)),
               planner_(std::move(planner)),
               worker_(std::move(worker)),
               joiner_(std::move(joiner)),
-              options_(options) {
+              options_(std::move(options)) {
         }
 
         AgentStep ResolveNextStep(AgentState &state) override {
@@ -189,10 +195,9 @@ namespace INSTINCT_LLM_NS {
         const StopPredicate& stop_predicate = NoStopPredicate,
         const LLMCompilerOptions& options = {}
         ) {
-        auto planer = CreateLLMCompilerPlaner(chat_model);
+        auto planer = CreateLLMCompilerPlaner(chat_model, options.planer_input_parser, options.planer_output_parser);
         auto worker = CreateLocalToolkitsWorker(toolkits);
-        auto joiner = CreateLLMCompilerJoiner(chat_model);
-        chat_model->Configure({.stop_words = {"<END_OF_PLAN>"}});
+        auto joiner = CreateLLMCompilerJoiner(chat_model, options.joiner_input_parser, options.joiner_output_parser);
         return std::make_shared<LLMCompilerAgentExectuor>(stop_predicate, planer, worker, joiner, options);
     }
 

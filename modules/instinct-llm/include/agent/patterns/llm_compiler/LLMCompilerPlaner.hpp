@@ -30,6 +30,8 @@ namespace INSTINCT_LLM_NS {
     */
     static PlannerPtr CreateLLMCompilerPlaner(
         const ChatModelPtr &chat_model,
+        const LLMCompilerPlanerAgentStateInputParserOptions& input_parser_options = {},
+        const LLMCompilerPlanerThoughtOutputParserOptions& output_parse_options = {},
         PromptTemplatePtr prompt_template = nullptr
     ) {
         if (!prompt_template) {
@@ -68,9 +70,8 @@ Question: {question}
             });
         }
 
-
-        const auto input_parser = CreateLLMCompilerPlanerAgentStateInputParser();
-        const auto output_parser = CreateLLMCompilerPlanerThoughtOutputParser();
+        const auto input_parser = CreateLLMCompilerPlanerAgentStateInputParser(input_parser_options);
+        const auto output_parser = CreateLLMCompilerPlanerThoughtOutputParser(output_parse_options);
 
         // if tools are provided, use LLMCompiler's prompt template
         const auto tool_chain = prompt_template | chat_model->AsModelFunction();

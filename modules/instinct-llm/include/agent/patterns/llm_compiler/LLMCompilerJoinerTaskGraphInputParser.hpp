@@ -9,10 +9,16 @@
 #include "input_parser/BaseInputParser.hpp"
 
 namespace INSTINCT_LLM_NS {
+    struct LLMCompilerJoinerTaskGraphInputParserOptions {
+        InputParserOptions base_options = {};
+        std::string instructions;
+    };
+
     class LLMCompilerJoinerTaskGraphInputParser final: public BaseInputParser<LLMCompilerTaskGraph> {
+        LLMCompilerJoinerTaskGraphInputParserOptions options_;
     public:
-        explicit LLMCompilerJoinerTaskGraphInputParser(InputParserOptions options)
-            : BaseInputParser<LLMCompilerTaskGraph>(std::move(options)) {
+        explicit LLMCompilerJoinerTaskGraphInputParser(const LLMCompilerJoinerTaskGraphInputParserOptions& options)
+            : BaseInputParser<LLMCompilerTaskGraph>(options.base_options), options_(options) {
         }
 
         JSONContextPtr ParseInput(const LLMCompilerTaskGraph &graph) override {
@@ -21,14 +27,13 @@ namespace INSTINCT_LLM_NS {
             return CreateJSONContext({
                 {"question", graph.question()},
                 {"agent_scrathpad", scratchpad},
-                // TODO examples should contain tool usages, which are not defined at this stage
-                {"examples", ""},
-                {"messages", ""}
+                // extra instructions controlled by user input
+                {"instructions", options_.instructions},
             });
         }
     };
 
-    static InputParserPtr<LLMCompilerTaskGraph> CreateLLMCompilerJoinerTaskGraphInputParser(const InputParserOptions& options = {}) {
+    static InputParserPtr<LLMCompilerTaskGraph> CreateLLMCompilerJoinerTaskGraphInputParser(const LLMCompilerJoinerTaskGraphInputParserOptions& options = {}) {
         return std::make_shared<LLMCompilerJoinerTaskGraphInputParser>(options);
     }
 

@@ -20,11 +20,15 @@ namespace INSTINCT_LLM_NS {
 
     public:
         explicit OpenAILLM(OpenAIConfiguration configuration)
-            : BaseLLM(configuration.base_options), chat_(std::move(configuration)) {
+            : chat_(std::move(configuration)) {
         }
 
         void BindToolSchemas(const std::vector<FunctionTool> &function_tool_schema) override {
             chat_.BindToolSchemas(function_tool_schema);
+        }
+
+        void Configure(const ModelOverrides &options) override {
+            chat_.Configure(options);
         }
 
     private:

@@ -92,7 +92,10 @@ namespace INSTINCT_LLM_NS {
     }
 
 
-    struct ModelOptions {
+    struct ModelOverrides {
+        std::optional<std::string> model_name;
+        std::optional<float> top_p;
+        std::optional<float> temperature;
         std::vector<std::string> stop_words;
     };
 

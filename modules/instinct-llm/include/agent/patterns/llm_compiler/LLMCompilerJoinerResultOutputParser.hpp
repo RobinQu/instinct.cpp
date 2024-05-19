@@ -15,6 +15,7 @@ namespace INSTINCT_LLM_NS {
         std::string action_token = "Action:";
         std::string thought_token = "Thought:";
         std::string replan_action_name = "Replan";
+        bool replan_enabled = false;
         OutputParserOptions base_options = {};
     };
 

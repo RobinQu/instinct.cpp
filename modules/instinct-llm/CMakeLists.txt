@@ -79,6 +79,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/agent/patterns/llm_compiler/LLMCompilerJoinerTaskGraphInputParser.hpp
         include/agent/patterns/llm_compiler/LLMCompilerJoinerResultOutputParser.hpp
         include/agent/LocalToolkitsWorker.hpp
+        include/LLMObjectFactory.hpp
 )
 
 find_package(exprtk REQUIRED)

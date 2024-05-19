@@ -33,25 +33,16 @@ namespace INSTINCT_LLM_NS {
 
     class BaseLLM
             : public virtual ILanguageModel,
-              public virtual IConfigurable<ModelOptions>,
+              public virtual IConfigurable<ModelOverrides>,
               public BaseRunnable<PromptValueVariant, std::string>,
               public std::enable_shared_from_this<BaseLLM> {
         friend LLMStepFunction;
-
-        ModelOptions options_;
 
         virtual BatchedLangaugeModelResult Generate(const std::vector<std::string> &prompts) = 0;
 
         virtual AsyncIterator<LangaugeModelResult> StreamGenerate(const std::string &prompt) = 0;
 
     public:
-        explicit BaseLLM(const ModelOptions &options) : options_(options) {
-        }
-
-        void Configure(const ModelOptions &options) override {
-            options_ = options;
-        }
-
         std::string Invoke(
                 const PromptValueVariant &input) override {
             const auto string_prompt = details::conv_prompt_value_variant_to_string(input);

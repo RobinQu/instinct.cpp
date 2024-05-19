@@ -4,6 +4,7 @@
 #include <CLI/CLI.hpp>
 #include <cmrc/cmrc.hpp>
 
+#include "LLMObjectFactory.hpp"
 #include "agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "chat_model/OpenAIChat.hpp"
@@ -35,17 +36,6 @@ namespace instinct::examples::mini_assistant {
     using namespace INSTINCT_LLM_NS;
     using namespace INSTINCT_ASSISTANT_NS::v2;
 
-    // defualt values are required
-    struct LLMProviderOptions {
-        std::string provider_name = "openai";
-        OpenAIConfiguration openai = {};
-        OllamaConfiguration ollama = {};
-    };
-
-    struct AgentExecutorOptions {
-        std::string agent_executor_name = "llm_compiler";
-        LLMCompilerOptions llm_compiler = {};
-    };
 
     struct ApplicationOptions {
         LLMProviderOptions llm_provider;
@@ -57,26 +47,7 @@ namespace instinct::examples::mini_assistant {
         AgentExecutorOptions agent_executor;
     };
 
-    static ChatModelPtr CreateChatModel(const LLMProviderOptions& options) {
-        if (options.provider_name == "ollama") {
-            return CreateOllamaChatModel(options.ollama);
-        }
-        if (options.provider_name == "openai") {
-            return CreateOpenAIChatModel(options.openai);
-        }
-        return nullptr;
-    }
 
-    static AgentExecutorPtr CreateAgentExecutor(const AgentExecutorOptions& options, const ChatModelPtr& chat_model, const StopPredicate& predicate) {
-        if(options.agent_executor_name == "llm_compiler") {
-            // TODO currently build with empty toolkit. we have to add `file-search` and `code-interpreter` in the future
-            LOG_INFO("Create LLMCompilerAgentExectuor");
-            return CreateLLMCompilerAgentExecutor(chat_model, {}, predicate, options.llm_compiler);
-        }
-        assert_true(std::dynamic_pointer_cast<OpenAIChat>(chat_model), "Should be Chat model of OpenAI when openai_tool_agent_executor");
-        LOG_INFO("Create OpenAIToolAgentExecutor");
-        return CreateOpenAIToolAgentExecutor(chat_model, {}, predicate);
-    }
 
     class MiniAssistantApplicationContextFactory final: public IApplicationContextFactory<duckdb::Connection, duckdb::unique_ptr<duckdb::MaterializedQueryResult>> {
         ApplicationOptions options_;
@@ -128,17 +99,8 @@ namespace instinct::examples::mini_assistant {
                 run_service,
                 message_service,
                 assistant_service,
-                [&](const std::optional<std::string>& model_name) {
-                    auto llm_provider_options = options_.llm_provider;
-                    if (model_name) {
-                        llm_provider_options.ollama.model_name = model_name.value();
-                        llm_provider_options.openai.model_name = model_name.value();
-                    }
-                    return CreateChatModel(llm_provider_options);
-                },
-                [&](const ChatModelPtr& chat_model, const StopPredicate& stop_predicate) {
-                    return CreateAgentExecutor(options_.agent_executor, chat_model, stop_predicate);
-                }
+                options_.llm_provider,
+                options_.agent_executor
             );
             context.task_scheduler->RegisterHandler(context.run_object_task_handler);
 

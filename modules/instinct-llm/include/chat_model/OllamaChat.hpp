@@ -40,7 +40,6 @@ namespace INSTINCT_LLM_NS {
         OllamaConfiguration configuration_;
     public:
         explicit OllamaChat(const OllamaConfiguration& ollama_configuration = {}):
-                BaseChatModel(ollama_configuration.base_options),
                 client_(ollama_configuration.endpoint),
                 configuration_(ollama_configuration) {
         }
@@ -49,8 +48,16 @@ namespace INSTINCT_LLM_NS {
             configuration_ = options;
         }
 
-        void Configure(const ModelOptions &options) override {
-            configuration_.stop_words = options.stop_words;
+        void Configure(const ModelOverrides &options) override {
+            if (!options.stop_words.empty()) {
+                configuration_.stop_words = options.stop_words;
+            }
+            if (options.model_name) {
+                configuration_.model_name = options.model_name.value();
+            }
+            if (options.temperature) {
+                configuration_.temperature = options.temperature.value();
+            }
         }
 
     private:

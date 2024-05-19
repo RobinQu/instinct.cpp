@@ -24,7 +24,7 @@ namespace INSTINCT_LLM_NS {
         std::vector<OpenAIChatCompletionRequest_ChatCompletionTool> function_tools_;
     public:
         explicit OpenAIChat(OpenAIConfiguration configuration)
-            : BaseChatModel(configuration.base_options), configuration_(std::move(configuration)), client_(configuration_.endpoint) {
+            :  configuration_(std::move(configuration)), client_(configuration_.endpoint) {
             client_.GetDefaultHeaders().emplace("Authorization", fmt::format("Bearer {}", GetAPIKey_()));
         }
 
@@ -38,8 +38,19 @@ namespace INSTINCT_LLM_NS {
             }
         }
 
-        void Configure(const ModelOptions &options) override {
-            configuration_.stop_words = options.stop_words;
+        void Configure(const ModelOverrides &options) override {
+            if (!options.stop_words.empty()) {
+                configuration_.stop_words = options.stop_words;
+            }
+            if (options.model_name) {
+                configuration_.model_name = options.model_name.value();
+            }
+            if (options.temperature) {
+                configuration_.temperature = options.temperature.value();
+            }
+            if (options.top_p) {
+                configuration_.top_p = options.top_p.value();
+            }
         }
 
         void CallOpenAI(const MessageList& message_list, BatchedLangaugeModelResult& batched_language_model_result) {
@@ -95,6 +106,7 @@ namespace INSTINCT_LLM_NS {
             req.set_n(1);
             req.set_seed(configuration_.seed);
             req.set_temperature(configuration_.temperature);
+            req.set_top_p(configuration_.top_p);
             req.set_max_tokens(configuration_.max_tokens);
             if (configuration_.json_object) {
                 req.mutable_response_format()->set_type("json_object");

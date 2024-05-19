@@ -33,21 +33,19 @@ namespace INSTINCT_LLM_NS {
     public:
 
         explicit OllamaLLM(const OllamaConfiguration& configuration = {}):
-                BaseLLM(configuration.base_options),
                 http_client_(configuration.endpoint), configuration_(configuration) {}
-        //
-        // std::vector<TokenId> GetTokenIds(const std::string& text) override {
-        //
-        // }
-        //
-        // TokenSize GetTokenCount(const std::string& text) override {
-        //
-        // }
-        //
-        // TokenSize GetTokenCount(const Message& messages) override {
-        //
-        // }
 
+        void Configure(const ModelOverrides &options) override {
+            if (!options.stop_words.empty()) {
+                configuration_.stop_words = options.stop_words;
+            }
+            if (options.model_name) {
+                configuration_.model_name = options.model_name.value();
+            }
+            if (options.temperature) {
+                configuration_.temperature = options.temperature.value();
+            }
+        }
 
     private:
         LangaugeModelResult CallOllama(const std::string& prompt) {

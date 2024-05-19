@@ -53,6 +53,7 @@ namespace INSTINCT_LLM_NS {
         step3.thought().finish().custom().UnpackTo(&graph1);
         ASSERT_TRUE(graph1.has_joiner_result());
         ASSERT_FALSE(graph1.joiner_result().is_replan());
+        ASSERT_TRUE(StringUtils::IsNotBlankString(step3.thought().finish().response()));
         ASSERT_EQ(graph1.joiner_result().answer(), step3.thought().finish().response());
     }
 

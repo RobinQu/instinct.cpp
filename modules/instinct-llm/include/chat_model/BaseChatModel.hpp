@@ -36,20 +36,16 @@ namespace INSTINCT_LLM_NS {
 
     class BaseChatModel
             : public virtual ILanguageModel,
-              public virtual IConfigurable<ModelOptions>,
+              public virtual IConfigurable<ModelOverrides>,
               public BaseRunnable<PromptValueVariant, Message>,
               public std::enable_shared_from_this<BaseChatModel> {
         friend ChatModelFunction;
-        ModelOptions options_;
         virtual BatchedLangaugeModelResult Generate(
                         const std::vector<MessageList> &messages
                 ) = 0;
 
         virtual AsyncIterator<LangaugeModelResult> StreamGenerate(const MessageList &messages) = 0;
     public:
-        explicit BaseChatModel(ModelOptions  options) : options_(std::move(options)) {
-//            model_function_ = std::make_shared<ChatModelFunction>(shared_from_this());
-        }
 
         // void Configure(const ModelOptions &options) override {
         //     options_.stop_words = options.stop_words;

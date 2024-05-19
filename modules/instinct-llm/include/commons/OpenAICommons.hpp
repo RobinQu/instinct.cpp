@@ -21,11 +21,6 @@ namespace INSTINCT_LLM_NS {
         std::string api_key;
 
         /**
-         * options for base class
-         */
-        ModelOptions base_options = {};
-
-        /**
          * HTTP Endpoint
          */
         Endpoint endpoint = OPENAI_DEFAULT_ENDPOINT;
@@ -41,6 +36,8 @@ namespace INSTINCT_LLM_NS {
         std::string token;
 
         float temperature;
+
+        float top_p;
 
         int seed;
 

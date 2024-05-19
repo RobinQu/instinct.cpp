@@ -42,9 +42,9 @@ namespace INSTINCT_LLM_NS {
     }
 
     class PesudoLLM final: public BaseLLM {
-
     public:
-        explicit PesudoLLM(const ModelOptions &options = {}) : BaseLLM(options) {}
+        void Configure(const ModelOverrides &options) override {}
+
         void BindTools(const FunctionToolkitPtr &toolkit) override {
             throw InstinctException("Not implemented");
         }
@@ -77,7 +77,7 @@ namespace INSTINCT_LLM_NS {
 
     class PesudoChatModel final: public BaseChatModel {
     public:
-        explicit PesudoChatModel(const ModelOptions &options = {}) : BaseChatModel(options) {}
+        void Configure(const ModelOverrides &options) override {}
 
         void BindTools(const FunctionToolkitPtr &toolkit) override {
             throw InstinctException("Not implemented");

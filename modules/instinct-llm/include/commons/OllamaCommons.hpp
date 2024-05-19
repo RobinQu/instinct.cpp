@@ -33,7 +33,6 @@ namespace INSTINCT_LLM_NS {
      * runtime options for ollama. Using struct could in API other than protobuf generated classes makes it easier for users.
      */
     struct OllamaConfiguration {
-        ModelOptions base_options = {};
         std::string model_name = OLLAMA_DEFUALT_MODEL_NAME;
         Endpoint endpoint = OLLAMA_ENDPOINT;
         float temperature = 0.8f;

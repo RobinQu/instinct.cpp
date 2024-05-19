@@ -23,16 +23,16 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         FunctionToolkitPtr builtin_toolkit_ = CreateLocalToolkit({});
         ChatModelPtr chat_model_ = CreateOpenAIChatModel();
 
+
         std::shared_ptr<OpenAIToolAgentRunObjectTaskHandler> CreateTaskHandler() {
+            LLMProviderOptions llm_provider_options;
+            AgentExecutorOptions agent_executor_options;
             return std::make_shared<OpenAIToolAgentRunObjectTaskHandler>(
                 run_service_,
                 message_service_,
                 assistant_service_,
-                [&](const auto& model_name) {return chat_model_;},
-                [&](const ChatModelPtr& chat_model, const StopPredicate& stop_predicate) {
-                    // still use CreateOpenAIToolAgentExecutor for more stable result
-                    return CreateOpenAIToolAgentExecutor(chat_model_, {builtin_toolkit_}, stop_predicate);
-                }
+                llm_provider_options,
+                agent_executor_options
             );
         }
     };

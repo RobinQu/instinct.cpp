@@ -8,16 +8,28 @@
 #include <utility>
 
 #include "AssistantGlobals.hpp"
+#include "LLMObjectFactory.hpp"
 #include "agent/executor/BaseAgentExecutor.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 #include "agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp"
+#include "LLMObjectFactory.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;
 
-    using ChatModelProvider = std::function<ChatModelPtr(const std::optional<std::string>& model_name_override)>;
 
-    using AgentExecutorProvider = std::function<AgentExecutorPtr(const ChatModelPtr& chat_model, const StopPredicate& stop_predicate)>;
+
+    /**
+     * Used for runtime option overrides
+     */
+    struct AgentOverrides {
+        std::optional<std::string> model_name;
+        std::optional<std::string> instructions;
+        std::optional<float> top_p;
+        std::optional<float> temperature;
+    };
+
+    using AgentExecutorProvider = std::function<AgentExecutorPtr(const LLMProviderOptions& llm_options, const AgentExecutorOptions& options)>;
 
     /**
      * Task handler for run objects using `OpenAIToolAgentExecutor`.
@@ -26,20 +38,20 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         RunServicePtr run_service_;
         MessageServicePtr message_service_;
         AssistantServicePtr assistant_service_;
-        ChatModelProvider chat_model_provider_;
-        AgentExecutorProvider agent_executor_provider_;
+        LLMProviderOptions llm_provider_options_;
+        AgentExecutorOptions agent_executor_options_;
 
     public:
         static inline std::string CATEGORY = "run_object";
 
         OpenAIToolAgentRunObjectTaskHandler(RunServicePtr run_service, MessageServicePtr message_service,
-            AssistantServicePtr assistant_service, ChatModelProvider chat_model_provider, AgentExecutorProvider agent_executor_provider)
+            AssistantServicePtr assistant_service, LLMProviderOptions llm_provider_options, AgentExecutorOptions agent_executor_options)
             : run_service_(std::move(run_service)),
               message_service_(std::move(message_service)),
               assistant_service_(std::move(assistant_service)),
-              chat_model_provider_(std::move(chat_model_provider)),
-              agent_executor_provider_(std::move(agent_executor_provider)
-              ) {
+              llm_provider_options_(std::move(llm_provider_options)),
+                agent_executor_options_(std::move(agent_executor_options))
+        {
         }
 
         bool Accept(const ITaskScheduler<std::string>::Task &task) override {
@@ -185,18 +197,46 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 LOG_ERROR("Failed to get assistant object with id: {}", run_object.assistant_id());
                 return nullptr;
             }
-            std::optional<std::string> model_name_override;
+
+            // load model options from user objects
+            const auto chat_model = LLMObjectFactory::CreateChatModel(llm_provider_options_);
+            ModelOverrides model_overrides;
             if (StringUtils::IsNotBlankString(run_object.model())) {
-                model_name_override = run_object.model();
+                model_overrides.model_name = run_object.model();
             } else if(StringUtils::IsNotBlankString(assistant_obj->model())) {
-                model_name_override = assistant_obj->model();
+                model_overrides.model_name = assistant_obj->model();
             }
-            const auto chat_model = chat_model_provider_(model_name_override);
-            return agent_executor_provider_(chat_model,
-                [&](const AgentState& state, AgentStep& step) {
-                    return CheckRunObjectForExecution_(run_object.thread_id(), run_object.id(), state, step);
-                }
-            );
+            if (run_object.has_temperature()) {
+                model_overrides.temperature = run_object.temperature();
+            } else if (assistant_obj->has_temperature()) {
+                model_overrides.temperature = assistant_obj->temperature();
+            }
+            if (run_object.has_top_p()) {
+                model_overrides.top_p = run_object.top_p();
+            } else if(assistant_obj->has_top_p()) {
+                model_overrides.top_p = assistant_obj->top_p();
+            }
+            model_overrides.stop_words =  {"<END_OF_PLAN>", "<END_OF_RESPONSE>"};
+            chat_model->Configure(model_overrides);
+
+            // load instructions from user objects
+            auto agent_options = agent_executor_options_;
+            std::optional<std::string> instructions;
+            if (StringUtils::IsNotBlankString(run_object.instructions())) {
+                instructions = run_object.instructions();
+            } else if(StringUtils::IsNotBlankString(assistant_obj->instructions())) {
+                instructions = assistant_obj->instructions();
+            }
+            // TODO configure method for agent executor
+            if(instructions) {
+                agent_options.llm_compiler.joiner_input_parser.instructions = instructions.value();
+            }
+            StopPredicate stop_predicate =  [&](const AgentState& state, AgentStep& step) {
+                return CheckRunObjectForExecution_(run_object.thread_id(), run_object.id(), state, step);
+            };
+
+            // create agent executor
+            return  LLMObjectFactory::CreateAgentExecutor(agent_options, chat_model, stop_predicate);
         }
 
         /**
