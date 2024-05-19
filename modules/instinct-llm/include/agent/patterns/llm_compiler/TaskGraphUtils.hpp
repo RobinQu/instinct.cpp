@@ -62,9 +62,10 @@ namespace INSTINCT_LLM_NS {
                 std::string args = task.tool_call().function().arguments();
                 for(const auto& match: StringUtils::MatchPattern(task.tool_call().function().arguments(), DEP_PATTERN)) {
                     assert_gte(match.size(), 2, "should at least two parts in match");
+                    const auto place_holder_string = match[0].str();
                     const auto action_id = std::stoi(match[1]);
                     auto& dep_task = graph.tasks(id_index[action_id]);
-                    args = args.replace(args.find(match[1].str()), match[1].str().size(), dep_task.result().content());
+                    args = args.replace(args.find(place_holder_string), place_holder_string.size(), dep_task.result().content());
                 }
                 tool_call->mutable_function()->set_arguments(args);
             }

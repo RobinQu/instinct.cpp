@@ -67,7 +67,7 @@ namespace INSTINCT_LLM_NS {
                 std::vector<int64_t> next_ids;
                 TaskGraphUtils::FindNextTasks(graph, next_ids);
                 if (!next_ids.empty()) { // current function graph is not finished, we have to generate another thought to continue
-                    LOG_INFO("Found executable task in graph. ids={}, graph={}",
+                    LOG_INFO("Found executable tasks in graph. ids={}, graph={}",
                         StringUtils::JoinWith(next_ids, ","),
                         graph.ShortDebugString()
                     );

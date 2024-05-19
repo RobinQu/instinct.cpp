@@ -289,7 +289,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
          * @param run_object
          */
         void OnAgentContinuation(const AgentContinuation& agent_continuation, const RunObject& run_object) const {
-            LOG_INFO("OnAgentContinuation Start, run_object={}", run_object.ShortDebugString());
+            LOG_INFO("OnAgentContinuation Start, agent_continuation={}", agent_continuation.ShortDebugString());
 
             RunStepObject run_step_object;
             run_step_object.set_thread_id(run_object.thread_id());
@@ -331,7 +331,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 return;
             }
 
-            LOG_INFO("OnAgentContinuation Done, run_object={}", run_object.ShortDebugString());
+            LOG_INFO("OnAgentContinuation Done, agent_continuation={}", agent_continuation.ShortDebugString());
         }
 
         [[nodiscard]] std::optional<RunObject> UpdateRunObjectStatus(const std::string& thread_id, const std::string& run_id, const RunObject_RunObjectStatus status) const {
