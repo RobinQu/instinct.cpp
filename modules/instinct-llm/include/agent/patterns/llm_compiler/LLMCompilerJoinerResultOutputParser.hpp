@@ -15,6 +15,7 @@ namespace INSTINCT_LLM_NS {
         std::string action_token = "Action:";
         std::string thought_token = "Thought:";
         std::string replan_action_name = "Replan";
+        std::string answer_for_unknown = "Unknown";
         bool replan_enabled = false;
         OutputParserOptions base_options = {};
     };
@@ -47,6 +48,12 @@ namespace INSTINCT_LLM_NS {
                     joiner_result.set_answer(action_match[2].str());
                 }
             }
+
+            // normalize joiner result
+            if (!joiner_result.is_replan() && StringUtils::IsBlankString(joiner_result.answer())) {
+                joiner_result.set_answer(options_.answer_for_unknown);
+            }
+
             return joiner_result;
         }
     };

@@ -212,14 +212,14 @@ namespace INSTINCT_CORE_NS {
         static std::string EscapeSQLText(const std::string& s) {
 
             const std::unordered_map<char, std::string> CHARS_ESCAPE_MAP {
-                    {'\0' , "\\0"},
-                    {'\b'   , "\\b"},
-                    {'\f'   , "\\f"},
-                    {'\t'   , "\\t"},
-                    {'\n'   , "\\n"},
-                    {'\r'   , "\\r"},
-                    {'\v'   , "\\v"},
-                    {'\x1a' , "\\Z"},
+                    // {'\0' , "\\0"},
+                    // {'\b'   , "\\b"},
+                    // {'\f'   , "\\f"},
+                    // {'\t'   , "\\t"},
+                    // {'\n'   , "\\n"},
+                    // {'\r'   , "\\r"},
+                    // {'\v'   , "\\v"},
+                    // {'\x1a' , "\\Z"},
                     {'\''    , "\'\'"},
                      {'"'    , "\""},
                     // {'\\' , "\\"}

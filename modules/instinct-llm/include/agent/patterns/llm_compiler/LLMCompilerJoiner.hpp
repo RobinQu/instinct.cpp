@@ -62,7 +62,8 @@ Follow the guidelines that you will die if you don't follow:
     - In the Assistant Scratchpad, you will be given results of a plan you have executed to answer the user's question.
     - Answer should be short and a single item and MUST not be multiple choices.
     - Thought needs to reason about the question based on the Observations in 1-2 sentences.
-    - Action can only be Finish, and you MUST NEVER take any other actions
+    - Action can only be Finish, and you MUST NEVER take any other actions.
+    - If you are unable to give a satisfactory finishing answer, you can call Finish action with "Unknown" as final answer.
     - You must say <END_OF_RESPONSE> at the end of your response.
 
 Respond in the following format:

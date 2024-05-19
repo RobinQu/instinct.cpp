@@ -46,7 +46,7 @@ Guidelines:
 - Each action MUST have a unique ID, which is strictly increasing.
 - Ensure the plan maximizes parallelization.
 - Respond with the task list and each task takes one and only one line in the following format: ID. action_name(JSON blob of action input without new line).
-- If inputs for actions are outputs from preceding actions,  always use the format $id to denote the ID of the previous action whose output will be used as the input.
+- If inputs for actions are outputs from preceding actions,  always use the format $ID to denote the ID of the previous action whose output will be used as the input.
 - Only use the provided action types. If a query cannot be addressed using these, invoke the join action for the next steps.
 - Never introduce new actions other than the ones provided.
 - Each action described above contains input/output types and description.
@@ -56,8 +56,8 @@ Guidelines:
 - An LLM agent is called upon invoking join() to either finalize the user query or wait until the plans are executed.
 - join should always be the last action in the plan, and will be called in two scenarios:
     (a) if the answer can be determined by gathering the outputs from tasks to generate the final response.
-    (b) if the answer cannot be determined in the planning phase before you execute the plans. Guidelines:
-- Always call join as the last action in the plan. Say '<END_OF_PLAN>' after you call join in a new line.
+    (b) if the answer cannot be determined in the planning phase before you execute the plans.
+- Always call join as the last action in the plan only once. Say '<END_OF_PLAN>' after you call join in a new line.
 {replan}
 
 {exmaples}
