@@ -21,7 +21,7 @@ What `instinct.cpp` offer:
   * Integration for privacy-first LLM providers: Built-in support for [Ollama](https://ollama.com/) and other OpenAI compatible API services like [vllm](https://vllm.readthedocs.io/en/latest/), [llama.cpp server](https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md), [nitro](https://nitro.jan.ai/) and more.
   * Building blocks for common application patterns like Chatbot, RAG, LLM Agent.
   * Functional chaining components for composable LLM pipelines.
-  * Agent patterns: ReACT, Plan & Execute (**WIP**), LLMCompiler (**WIP**), ...
+  * Agent patterns: ReACT, OpenAI-based tool agent, LLMCompiler, ...
 
 ## User Guides
 
