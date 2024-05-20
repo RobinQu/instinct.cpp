@@ -18,7 +18,7 @@ What `instinct.cpp` offer:
     * `mighty-assistant-api`: (**WIP**) A cloud native implementation that is highly scalable with distributed components and multi-tenant support.  
   * [chat-agent](./modules/instinct-examples/doc-agent): A CLI application that create knowledge index with your docs (PDF,TXT,MD,...) and launch an HTTP server that is fully compatible with OpenAI `ChatCompletion`.
 * Frameworks to build LLM-based applications. Say it `langchain.cpp`.   
-  * Integration for privacy-first LLM providers: Built-in support for [Ollama](https://ollama.com/) and other OpenAI compatible API services like [nitro](https://nitro.jan.ai/) and more.
+  * Integration for privacy-first LLM providers: Built-in support for [Ollama](https://ollama.com/) and other OpenAI compatible API services like [vllm](https://vllm.readthedocs.io/en/latest/), [llama.cpp server](https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md), [nitro](https://nitro.jan.ai/) and more.
   * Building blocks for common application patterns like Chatbot, RAG, LLM Agent.
   * Functional chaining components for composable LLM pipelines.
   * Agent patterns: ReACT, Plan & Execute (**WIP**), LLMCompiler (**WIP**), ...
@@ -37,15 +37,17 @@ For library itself:
 
 ## Roadmap
 
-Complete project plan is tracked at [Github Project](https://github.com/users/RobinQu/projects/1/views/1?layout=board).
+Complete project plan is tracked at [Project kanban](https://github.com/users/RobinQu/projects/1/views/1?layout=board).
 
 | Milestone                                                     | Features                                                                                             | DDL  |
 |---------------------------------------------------------------|------------------------------------------------------------------------------------------------------|------|
 | v0.1.0                                                        | Long-short memory, PDF/TXT/DOCX ingestor, `Chain` programing paradigm, RAG reference app `doc-agent` | 3.29 |
 | [v0.1.1](https://github.com/RobinQu/instinct.cpp/milestone/1) | Performance tuning, RAG evaluation,  Function calling agent                                          | 4.16 |
 | [v0.1.2](https://github.com/RobinQu/instinct.cpp/milestone/2) | OpenAI Assistant API initial implementation, single-binary reference app `mini-assistant`            | 4.30 |
-| v0.1.3                                                        | * `mini-assistant`:  tool calls with opensourced LLMs<br>* `doc-agent` : rerank model                | 5.17 |
-| v0.1.4                                                        | * `mini-assistant`: `file-search` tool support.<br>* Benchmarks<br>* Doc site                        | 5.31 |
+| v0.1.3                                                        | * `mini-assistant`:  tool calls with opensourced LLMs<br>                                            | 5.17 |
+| v0.1.4                                                        | * `doc-agent` : rerank model<br>* `mini-assistant`: `file-search` tool support.                      | 5.31 |
+
+
 
 
 
