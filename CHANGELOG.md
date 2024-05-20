@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.1.3
+
+**Full Changelog**: https://github.com/RobinQu/instinct.cpp/commits/v0.1.3
+
+Sorry for the delay. Hacking with new agent executor costs me more time than expected. But it's fun and enlightening. As a result, work on rerank models will delay to next release.
+
+* Features
+  * New `LLMCompilerAgentExecutor` as default executor in `mini-assistant`. Please see [this notebook](https://github.com/RobinQu/instinct-notebook) for evaluation results.
+  * `POST /v1/threads/runs`, which is missed in last released endpoint, is added.
+  * `xn::steps::branch` and `BranchStepFunction` for binary branch composing.
+* Improvements
+  * Migrate `instinct-lab` to [standalone repo](https://github.com/RobinQu/instinct-notebook/). Benchmarks and experimental code will be moved there.
+  * Many typos in `mini-assistant` API endpoints.
+  * Add more trace logs in debug mode.
+  * `BaseChatModel` and `BaseLLM` supports runtime configuration with `configure(const ModelOverrides&)` method.
+  * `HttpLibServer` defaults to listen `0.0.0.0`. 
+
+
 ## v0.1.2
 
 **Full Changelog**: https://github.com/RobinQu/instinct.cpp/commits/v0.1.2
