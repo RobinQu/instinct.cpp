@@ -3,7 +3,7 @@
 ## devcontainer image
 
 ```shell
-docker bulidx build --push --platform=linux/amd64,linux/arm64 -t robinqu/instinct-cpp-devcontainer:latest -f ./dockerfile/devcontainer.dockerfile .
+docker buildx build --push --platform=linux/amd64,linux/arm64 -t robinqu/instinct-cpp-devcontainer:latest -f ./dockerfile/devcontainer.dockerfile .
 ```
 
 ## Builder image
@@ -13,7 +13,7 @@ docker bulidx build --push --platform=linux/amd64,linux/arm64 -t robinqu/instinc
 To build base image:
 
 ```shell
-docker bulidx build --push --platform=linux/amd64,linux/arm64 -t robinqu/instinct-builder-base:latest -f ./dockerfile/builder-base.dockerfile . 
+docker buildx build --push --platform=linux/amd64,linux/arm64 -t robinqu/instinct-builder-base:latest -f ./dockerfile/builder-base.dockerfile . 
 ```
 
 To run bash in builder base image:
@@ -27,7 +27,7 @@ docker run --pull=always -it --rm robinqu/instinct-builder-base:latest
 To build mini-assistant image:
 
 ```shell
-docker bulidx build --push --platform=linux/amd64,linux/arm64 -t robinqu/instinct-mini-assistant:latest -f ./dockerfile/mini-assistant.dockerfile . 
+docker buildx build --push --platform=linux/amd64,linux/arm64 -t robinqu/instinct-mini-assistant:latest -f ./dockerfile/mini-assistant.dockerfile . 
 ```
 
 To run `mini-assistant`:
