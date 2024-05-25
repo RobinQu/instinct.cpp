@@ -95,7 +95,7 @@ namespace instinct::examples::mini_assistant {
 
             // configure task handler for run objects
             auto builtin_toolkit = CreateLocalToolkit({});
-            context.run_object_task_handler = std::make_shared<OpenAIToolAgentRunObjectTaskHandler>(
+            context.run_object_task_handler = std::make_shared<RunObjectTaskHandler>(
                 run_service,
                 message_service,
                 assistant_service,

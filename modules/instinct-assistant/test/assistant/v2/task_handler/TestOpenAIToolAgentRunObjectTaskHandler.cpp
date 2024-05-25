@@ -7,7 +7,7 @@
 #include "AssistantTestGlobals.hpp"
 #include "LLMTestGlobals.hpp"
 #include "assistant/v2/service/IRunService.hpp"
-#include "assistant/v2/task_handler/OpenAIToolAgentRunObjectTaskHandler.hpp"
+#include "assistant/v2/task_handler/RunObjectTaskHandler.hpp"
 #include "chat_model/OpenAIChat.hpp"
 #include "toolkit/LocalToolkit.hpp"
 
@@ -24,10 +24,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         ChatModelPtr chat_model_ = CreateOpenAIChatModel();
 
 
-        std::shared_ptr<OpenAIToolAgentRunObjectTaskHandler> CreateTaskHandler() {
+        std::shared_ptr<RunObjectTaskHandler> CreateTaskHandler() {
             LLMProviderOptions llm_provider_options;
             AgentExecutorOptions agent_executor_options;
-            return std::make_shared<OpenAIToolAgentRunObjectTaskHandler>(
+            return std::make_shared<RunObjectTaskHandler>(
                 run_service_,
                 message_service_,
                 assistant_service_,
@@ -304,7 +304,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         const auto task_handler = CreateTaskHandler();
         CommonTaskScheduler::Task task {
             .task_id = obj2->id(),
-            .category =  OpenAIToolAgentRunObjectTaskHandler::CATEGORY,
+            .category =  RunObjectTaskHandler::CATEGORY,
             .payload = ProtobufUtils::Serialize(obj2.value())
         };
 
@@ -352,7 +352,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // handle again with obj4
             task = {
                 .task_id = obj2->id(),
-                .category =  OpenAIToolAgentRunObjectTaskHandler::CATEGORY,
+                .category =  RunObjectTaskHandler::CATEGORY,
                 .payload = ProtobufUtils::Serialize(obj4.value())
             };
             task_handler->Handle(task);

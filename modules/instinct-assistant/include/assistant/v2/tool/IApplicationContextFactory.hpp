@@ -11,7 +11,7 @@
 #include "object_store/FileSystemObjectStore.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 #include "assistant/v2/service/AssistantFacade.hpp"
-#include "assistant/v2/task_handler/OpenAIToolAgentRunObjectTaskHandler.hpp"
+#include "assistant/v2/task_handler/RunObjectTaskHandler.hpp"
 #include "server/httplib/HttpLibServer.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

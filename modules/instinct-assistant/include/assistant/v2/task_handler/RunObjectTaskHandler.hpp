@@ -34,7 +34,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     /**
      * Task handler for run objects using `OpenAIToolAgentExecutor`.
      */
-    class OpenAIToolAgentRunObjectTaskHandler final: public CommonTaskScheduler::ITaskHandler {
+    class RunObjectTaskHandler final: public CommonTaskScheduler::ITaskHandler {
         RunServicePtr run_service_;
         MessageServicePtr message_service_;
         AssistantServicePtr assistant_service_;
@@ -44,7 +44,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     public:
         static inline std::string CATEGORY = "run_object";
 
-        OpenAIToolAgentRunObjectTaskHandler(RunServicePtr run_service, MessageServicePtr message_service,
+        RunObjectTaskHandler(RunServicePtr run_service, MessageServicePtr message_service,
             AssistantServicePtr assistant_service, LLMProviderOptions llm_provider_options, AgentExecutorOptions agent_executor_options)
             : run_service_(std::move(run_service)),
               message_service_(std::move(message_service)),
