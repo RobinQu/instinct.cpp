@@ -29,6 +29,8 @@ FetchContent_Declare(
         ggml
         GIT_REPOSITORY https://github.com/ggerganov/ggml.git
         GIT_TAG f5c9599
+
+        FIND_PACKAGE_ARGS # will invoke find_package first
 )
 FetchContent_MakeAvailable(ggml)
 

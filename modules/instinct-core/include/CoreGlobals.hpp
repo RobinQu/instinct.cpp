@@ -65,6 +65,7 @@ namespace INSTINCT_CORE_NS {
     using Futures = BS::multi_future<T>;
 
     using ThreadPool = BS::thread_pool;
+    using ThreadPoolPtr = std::shared_ptr<ThreadPool>;
 
     /**
      * Heper function to support continuation for future, which is not available even in C++ 20.
