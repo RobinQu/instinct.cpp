@@ -86,6 +86,8 @@ namespace INSTINCT_TRANSFORMER_NS::tokenizer {
 
     class Processor {
     public:
+        virtual ~Processor() = default;
+
         struct TokenId {
             std::string token;
             int id;
@@ -454,7 +456,7 @@ namespace INSTINCT_TRANSFORMER_NS::tokenizer {
         int unk_id;
     };
 
-    class UnigramProcessor : public Processor {
+    class UnigramProcessor final : public Processor {
     public:
         explicit UnigramProcessor(int unk_tok_id) :
                 Processor::Processor(), unk_tok_id(unk_tok_id), tok_max_len(0) {};

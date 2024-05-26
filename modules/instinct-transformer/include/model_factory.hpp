@@ -15,6 +15,13 @@ namespace INSTINCT_TRANSFORMER_NS {
     using namespace INSTINCT_TRANSFORMER_NS::tokenizer;
     using namespace INSTINCT_TRANSFORMER_NS::models;
 
+    static std::string to_file_name(const ModelType model_type) {
+        if (model_type == ModelType::BGE_M3_RERANKER) {
+            return "bge-reranker-v2-m3.bin";
+        }
+        throw std::runtime_error("unknown model type");
+    }
+
 
     /**
      * A factory class that manages lifecycle of model instantces
@@ -25,7 +32,13 @@ namespace INSTINCT_TRANSFORMER_NS {
         */
         std::map<std::string, std::shared_ptr<ModelLoader>> model_loaders_;
         std::mutex mutex_;
+
+        static ModelFactory INSTANCE_;
     public:
+        static ModelFactory& GetInstance() {
+            return INSTANCE_;
+        }
+
         /**
          * Load model by weight file path. Same instance will be returned for single model path.
          * @param model_path

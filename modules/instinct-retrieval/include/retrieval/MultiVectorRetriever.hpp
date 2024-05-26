@@ -10,7 +10,6 @@
 #include "chain/LLMChain.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
 #include "store/IVectorStore.hpp"
-#include <fmt/ranges.h>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

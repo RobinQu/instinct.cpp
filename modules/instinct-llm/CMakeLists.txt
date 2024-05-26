@@ -80,6 +80,9 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/agent/patterns/llm_compiler/LLMCompilerJoinerResultOutputParser.hpp
         include/agent/LocalToolkitsWorker.hpp
         include/LLMObjectFactory.hpp
+        include/ranker/BaseRankingModel.hpp
+        include/model/IRankingModel.hpp
+        include/ranker/LocalRankingModel.hpp
 )
 
 find_package(exprtk REQUIRED)
@@ -106,7 +109,7 @@ target_include_directories(${LIBRARY_TARGET_NAME}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
-target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::core exprtk::exprtk)
+target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::core instinct::transformer exprtk::exprtk)
 
 install(TARGETS ${LIBRARY_TARGET_NAME}
         EXPORT  ${PROJECT_NAME}
