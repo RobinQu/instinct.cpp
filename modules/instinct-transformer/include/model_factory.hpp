@@ -15,21 +15,45 @@ namespace INSTINCT_TRANSFORMER_NS {
     using namespace INSTINCT_TRANSFORMER_NS::tokenizer;
     using namespace INSTINCT_TRANSFORMER_NS::models;
 
+
+    /**
+     * A factory class that manages lifecycle of model instantces
+     */
     class ModelFactory {
+        /**
+        * hold all loaded models
+        */
+        std::map<std::string, std::shared_ptr<ModelLoader>> model_loaders_;
+        std::mutex mutex_;
     public:
+        /**
+         * Load model by weight file path. Same instance will be returned for single model path.
+         * @param model_path
+         * @return
+         */
         std::pair<ModelPtr, TokenizerPtr> load(const std::string& model_path) {
-            ModelLoader loader {model_path};
+            std::shared_ptr<ModelLoader> loader = nullptr;
+            { // sequential access to model_loaders_
+                std::lock_guard loader_lock {mutex_};
+                if(model_loaders_.contains(model_path)) {
+                    loader = model_loaders_.at(model_path);
+                } else {
+                    loader = std::make_shared<ModelLoader>(model_path);
+                    model_loaders_.emplace(model_path, loader);
+                }
+            }
+
             // read headers
-            loader.seek(0, SEEK_SET);
-            const std::string magic = loader.read_string(4);
+            loader->seek(0, SEEK_SET);
+            const std::string magic = loader->read_string(4);
             GGML_ASSERT(magic == "ggml");
-            const auto model_type = loader.read_basic<int>();
-            const auto version = loader.read_basic<int>();
+            const auto model_type = loader->read_basic<int>();
+            const auto version = loader->read_basic<int>();
 
             switch (model_type) {
                 case ModelType::BGE_M3_RERANKER: {
                     GGML_ASSERT(version == 1);
-                    return load_<bge::Tokenizer, bge::BGEM3RerankerModel, bge::Config>(loader);
+                    return load_<bge::Tokenizer, bge::BGEM3RerankerModel, bge::Config>(*loader);
                 }
                 default:
                     // TODO throw exception

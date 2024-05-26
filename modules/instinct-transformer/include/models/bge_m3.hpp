@@ -217,7 +217,7 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
                            config.dtype
                        }
                 ),
-                transformer_(&w_ctx_, config_)
+                transformer_(&w_ctx_, config)
         {
         }
 

@@ -224,6 +224,7 @@ namespace INSTINCT_TRANSFORMER_NS::models {
                 }
 
                 tensor_dict.emplace(weight_name, tell());
+                // std::cout << "weight_name=" << weight_name << ",offset=" << tensor_dict.at(weight_name) << std::endl;
 
                 int64_t ne[4] = {1,1,1,1};
 
