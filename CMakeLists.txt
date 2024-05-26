@@ -79,6 +79,7 @@ include(cmake/CMakeRC.cmake)
 
 # project modules
 add_subdirectory(modules/instinct-proto)
+add_subdirectory(modules/instinct-transformer)
 add_subdirectory(modules/instinct-core)
 add_subdirectory(modules/instinct-llm)
 add_subdirectory(modules/instinct-retrieval)

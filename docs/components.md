@@ -2,13 +2,14 @@
 
 ## Cmake modules
 
-| Module             | Purpose                                               | Dependencies  |
-|--------------------|-------------------------------------------------------|---------------|
-| instinct-core      | functional interfaces and utilities                   | N/A           |
-| instinct-llm       | LLM provider integration, prompt templates, tokenizer | instinct-core |
-| instinct-retrieval | RAG components, notebook for evaluation               | instinct-llm  |
-| instinct-server    | HTTP server for chains                                | instinct-core |
-| instinct-examples  | Reference apps and other samples                      | ALL           |
+| Module               | Purpose                                                                                             | Dependencies  |
+|----------------------|-----------------------------------------------------------------------------------------------------|---------------|
+| instinct-core        | functional interfaces and utilities                                                                 | N/A           |
+| instinct-llm         | LLM provider integration, prompt templates, tokenizer                                               | instinct-core |
+| instinct-transformer | Built-in support for transformer-based models other than chat completion, e.g. reranker, embeddings | N/A           |
+| instinct-retrieval   | RAG components, notebook for evaluation                                                             | instinct-llm  |
+| instinct-server      | HTTP server for chains                                                                              | instinct-core |
+| instinct-examples    | Reference apps and other samples                                                                    | ALL           |
 
 
 
