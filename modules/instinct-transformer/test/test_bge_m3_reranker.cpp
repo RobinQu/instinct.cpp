@@ -5,7 +5,15 @@
 
 #include <gtest/gtest.h>
 
+#include "model_factory.hpp"
 
-TEST(BGE_M3_RERANKER, test_encoder) {
-    
+namespace INSTINCT_TRANSFORMER_NS {
+
+
+    TEST(BGE_M3_RERANKER, test_encoder) {
+        ModelFactory model_factory;
+        // model_factory.load();
+
+    }
 }
+

@@ -199,7 +199,7 @@ namespace INSTINCT_TRANSFORMER_NS::tokenizer {
 
     class BaseTokenizer {
     public:
-        explicit BaseTokenizer(const Config &config) :
+        explicit BaseTokenizer(const BaseConfig &config) :
                 bos_token_id(config.bos_token_id),
                 eos_token_id(config.eos_token_id),
                 pad_token_id(config.pad_token_id),
@@ -279,6 +279,7 @@ namespace INSTINCT_TRANSFORMER_NS::tokenizer {
         bool auto_add_bos;
         std::set<int> terminate_ids;
     };
+    using TokenizerPtr = std::shared_ptr<BaseTokenizer>;
 
     class Reader {
     public:

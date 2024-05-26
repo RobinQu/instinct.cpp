@@ -14,6 +14,9 @@
 #include <memory>
 #include <cstring>
 #include <map>
+#include <unistd.h>
+
+#include "config.hpp"
 
 
 namespace INSTINCT_TRANSFORMER_NS::models {
@@ -30,8 +33,6 @@ namespace INSTINCT_TRANSFORMER_NS::models {
 //    float tfs_z;
 //    std::string sampling;
     };
-
-
 
     ggml_tensor * ggml_init_tensor(struct ggml_tensor *tensor,
                                    enum   ggml_type      type,
@@ -113,9 +114,9 @@ namespace INSTINCT_TRANSFORMER_NS::models {
         size_t size;
         const char *ptr;
 
-        size_t offset_config;
-        size_t offset_tokenizer;
-        size_t offset_tensors;
+        int64_t offset_config;
+        int64_t offset_tokenizer;
+        int64_t offset_tensors;
         int model_type;
         int version;
         std::map<std::string, int64_t> tensor_dict;
@@ -250,13 +251,130 @@ namespace INSTINCT_TRANSFORMER_NS::models {
         }
     };
 
+    enum ModelType {
+        UNKNOWN = 0,
+        BGE_M3_RERANKER = 0x10000103
+    };
+
+    enum ModelPurpose
+    {
+        Unknown = 0,
+        TextEmbedding,
+        Ranker,
+    };
 
     class BaseModel {
     public:
+        BaseModel(const ModelType model_type, const ModelPurpose model_purpose):
+            model_type_(model_type),
+            model_purpose_(model_purpose) {}
+
         virtual ~BaseModel()=default;
-        virtual void Load(ModelLoader& loader) = 0;
+        virtual void load(ModelLoader& loader) = 0;
+        virtual float qa_rank(const GenerationConfig& generation_config, const std::vector<int> &input_ids) = 0;
+        virtual void text_embedding(const GenerationConfig& generation_config, const std::vector<int>& input_ids, std::vector<float>& output_embeding) = 0;
+    protected:
+        ModelType model_type_;
+        ModelPurpose model_purpose_;
     };
 
+    using ModelPtr = std::shared_ptr<BaseModel>;
+
+    struct ForwardContext final {
+        ggml_context *g_ctx = nullptr;
+        ggml_cgraph *g_cgraph = nullptr;
+        ggml_scratch g_scratch{};
+
+        virtual ~ForwardContext() {
+            ggml_free(g_ctx);
+        }
+    };
+
+    struct InitContext {
+        ggml_context *g_ctx;
+        ggml_type dtype;
+    };
+
+
+    template<typename TransformerModel>
+    class BaseGnerationModel: public BaseModel {
+    public:
+
+        BaseGnerationModel(
+            const ModelType model_type, const ModelPurpose model_purpose,
+            const BaseConfig& config, const size_t mem_size, const size_t scratch_size):
+                BaseModel(model_type, model_purpose),
+                GRAPH_SIZE(GGML_DEFAULT_GRAPH_SIZE),
+                batch_input(true),
+                logit_scale(-1.0f),
+                config_(config),
+                mem_size_(mem_size),
+                mem_buffer_(new char[mem_size]),
+                scratch_size_(scratch_size),
+                scratch_buffer_(new char[scratch_size]),
+                transformer_()
+        {
+            for (int i = 0; i < config.num_hidden_layers; i++)
+                layer_ids.push_back(i);
+        }
+
+        float qa_rank(const GenerationConfig &config, const std::vector<int> &input_ids) override {
+            const auto *lm = run_model(input_ids, config, 0);
+            // "lm->type must be GGML_TYPE_F32"
+            GGML_ASSERT(lm->type == GGML_TYPE_F32);
+            // "ouput must be scaler"
+            GGML_ASSERT((lm->ne[0] == 1) && (ggml_n_dims(lm) <= 1));
+
+            return *(float *)lm->data;
+        }
+
+        void text_embedding(const GenerationConfig &generation_config, const std::vector<int> &input_ids,
+            std::vector<float> &output_embeding) override {
+            throw std::runtime_error("not implemented");
+        }
+
+    protected:
+
+        virtual ggml_tensor *run_model(const std::vector<int> &input_ids,
+                                       const GenerationConfig &gen_config,
+                                       int past)
+        {
+            ForwardContext ctx;
+            ctx.g_ctx = ggml_init({.mem_size = mem_size_, .mem_buffer = mem_buffer_.get(), .no_alloc = false});
+            ctx.g_scratch = {.offs = 0, .size = scratch_size_, .data = scratch_buffer_.get()};
+
+            int n_threads = input_ids.size() >= 32 && ggml_cpu_has_blas() && !ggml_cpu_has_gpublas() ? 1 : gen_config.num_threads;
+            ctx.g_cgraph = ggml_new_graph_custom(ctx.g_ctx, GRAPH_SIZE, false);
+
+            ggml_tensor *input_ids_tensor = ggml_new_tensor_1d(ctx.g_ctx, GGML_TYPE_I32, input_ids.size());
+            std::memcpy(input_ids_tensor->data, input_ids.data(), ggml_nbytes(input_ids_tensor));
+
+            ggml_tensor *r = transformer_.Forward(&ctx, input_ids_tensor, past);
+
+            if (logit_scale > 0)
+                r = ggml_scale_inplace(ctx.g_ctx, r, logit_scale);
+
+            ggml_build_forward_expand(ctx.g_cgraph, r);
+            ggml_graph_compute_with_ctx(ctx.g_ctx, ctx.g_cgraph, n_threads);
+
+#ifdef GGML_PERF
+            ggml_graph_print(ctx.g_cgraph);
+#endif
+            return r;
+        }
+
+        BaseConfig config_;
+        size_t mem_size_;
+        std::unique_ptr<char[]> mem_buffer_; // BLAS buffer
+        size_t scratch_size_;
+        std::unique_ptr<char[]> scratch_buffer_; // intermediate tensor buffer
+    public:
+        TransformerModel transformer_;
+        size_t GRAPH_SIZE;
+        bool batch_input;
+        float logit_scale;
+        std::vector<int> layer_ids;
+    };
 
 
 }

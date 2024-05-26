@@ -28,7 +28,9 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
     using namespace INSTINCT_TRANSFORMER_NS::models;
     using namespace INSTINCT_TRANSFORMER_NS::tokenizer;
 
-    class RobertaSelfAttention: public BaseSelfAttention<BaseCachelessAttention> {
+    struct Config: BaseConfig {};
+
+    class RobertaSelfAttention final: public BaseSelfAttention<BaseCachelessAttention> {
     public:
         RobertaSelfAttention(InitContext *ctx, int hidden_size, int num_attention_heads, int max_length)
                 : RobertaSelfAttention(ctx, hidden_size, num_attention_heads, num_attention_heads, max_length) {}
@@ -55,7 +57,8 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
 
     };
 
-    class RobertaOutput: public Block {
+
+    class RobertaOutput final: public Block {
     public:
 
         RobertaOutput(InitContext *ctx, int hidden_size, bool use_bias = true): RobertaOutput(ctx, hidden_size, hidden_size, use_bias) {}
@@ -76,7 +79,8 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
 
     };
 
-    class RobertaMLP: public Block {
+
+    class RobertaMLP final: public Block {
     public:
         RobertaMLP(InitContext* init_context, int hidden_size, int intermediate_size):
                 RobertaMLP(init_context, hidden_size, intermediate_size, ActFunc::GELU, true) {}
@@ -100,7 +104,7 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
     };
 
 
-    class RobertaBlock: public Block {
+    class RobertaBlock final: public Block {
     public:
         RobertaBlock(InitContext *ctx, int hidden_size, int num_attention_heads, int intermediate_size, int num_kv_heads, int max_length)
                 : RobertaBlock(ctx, hidden_size, num_attention_heads, intermediate_size, num_kv_heads, max_length, true, true)
@@ -133,7 +137,7 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
     };
 
 
-    class RobertaClassificationHead: public Block {
+    class RobertaClassificationHead final: public Block {
     public:
         RobertaClassificationHead()=default;
         RobertaClassificationHead(InitContext *init_context, int hidden_size):
@@ -162,11 +166,10 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
     };
 
 
-
-    class XLMRoberta: public Block {
-        Config config_;
+    class XLMRoberta final: public Block {
+        BaseConfig config_;
     public:
-        XLMRoberta(InitContext* init_context, const Config& config):
+        XLMRoberta(InitContext* init_context, const BaseConfig& config):
                 config_(config),
                 word_embeddings(init_context, config.vocab_size, config.hidden_size, config.max_length),
                 layers(),
@@ -209,39 +212,26 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
 
     };
 
-    class BGEM3RerankerModel: public BaseModel {
-    public:
 
-        BGEM3RerankerModel(Config config, size_t mem_size, size_t scratch_size):
-                GRAPH_SIZE(GGML_DEFAULT_GRAPH_SIZE),
-                batch_input(true),
-                logit_scale(-1.0f),
-                config_(config),
-                mem_size_(mem_size),
-                mem_buffer_(new char[mem_size]),
-                scratch_size_(scratch_size),
-                scratch_buffer_(new char[scratch_size]),
+    class BGEM3RerankerModel final: public BaseGnerationModel<XLMRoberta> {
+    public:
+        static constexpr size_t MEM_SIZE = 812ull * 1024 * 1024;
+        static constexpr size_t SCRATCH_SIZE = 544ull * 1024 * 1024;
+
+        explicit BGEM3RerankerModel(const Config& config, const size_t mem_size = MEM_SIZE, const size_t scratch_size = SCRATCH_SIZE):
+            BaseGnerationModel(BGE_M3_RERANKER, Ranker, config, mem_size, scratch_size),
                 w_ctx_(
                         ggml_init({.mem_size = ((9 + config.num_hidden_layers * 19) * (GGML_TENSOR_SIZE + GGML_OBJECT_SIZE)), .mem_buffer = nullptr, .no_alloc = true}),
                         config.dtype
-                ),
-                transformer_(&w_ctx_, config_)
+                )
         {
+
+            transformer_ = XLMRoberta {&w_ctx_, config_};
             for (int i = 0; i < config.num_hidden_layers; i++)
                 layer_ids.push_back(i);
         }
 
-        float GetScore(const GenerationConfig& config,  const std::vector<int>& input_ids) {
-            ggml_tensor *lm = run_model(input_ids, config, 0);
-            // "lm->type must be GGML_TYPE_F32"
-            GGML_ASSERT(lm->type == GGML_TYPE_F32);
-            // "ouput must be scaler"
-            GGML_ASSERT((lm->ne[0] == 1) && (ggml_n_dims(lm) <= 1));
-
-            return *(float *)lm->data;
-        }
-
-        void Load(ModelLoader &loader) override {
+        void load(ModelLoader &loader) override {
             loader.read_tensor("embeddings.word_embeddings.weight",         transformer_.word_embeddings.word_weight);
             loader.read_tensor("embeddings.position_embeddings.weight",     transformer_.word_embeddings.position_weight);
             loader.read_tensor("embeddings.LayerNorm.weight",               transformer_.word_embeddings.ln.weight);
@@ -277,59 +267,15 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
 
             GGML_ASSERT(ggml_used_mem(w_ctx_.g_ctx) == ggml_get_mem_size(w_ctx_.g_ctx));
         }
-
-    protected:
-
-        virtual ggml_tensor *run_model(const std::vector<int> &input_ids,
-                                       const GenerationConfig &gen_config,
-                                       int past)
-        {
-            ForwardContext ctx;
-            ctx.g_ctx = ggml_init({.mem_size = mem_size_, .mem_buffer = mem_buffer_.get(), .no_alloc = false});
-            ctx.g_scratch = {.offs = 0, .size = scratch_size_, .data = scratch_buffer_.get()};
-
-            int n_threads = input_ids.size() >= 32 && ggml_cpu_has_blas() && !ggml_cpu_has_gpublas() ? 1 : gen_config.num_threads;
-            ctx.g_cgraph = ggml_new_graph_custom(ctx.g_ctx, GRAPH_SIZE, false);
-
-            ggml_tensor *input_ids_tensor = ggml_new_tensor_1d(ctx.g_ctx, GGML_TYPE_I32, input_ids.size());
-            std::memcpy(input_ids_tensor->data, input_ids.data(), ggml_nbytes(input_ids_tensor));
-
-            ggml_tensor *r = transformer_.Forward(&ctx, input_ids_tensor, past);
-
-            if (logit_scale > 0)
-                r = ggml_scale_inplace(ctx.g_ctx, r, logit_scale);
-
-            ggml_build_forward_expand(ctx.g_cgraph, r);
-            ggml_graph_compute_with_ctx(ctx.g_ctx, ctx.g_cgraph, n_threads);
-
-#ifdef GGML_PERF
-            ggml_graph_print(ctx.g_cgraph);
-#endif
-            return r;
-        }
-
-
-
     private:
-        Config config_;
-        size_t mem_size_;
-        std::unique_ptr<char[]> mem_buffer_; // BLAS buffer
-        size_t scratch_size_;
-        std::unique_ptr<char[]> scratch_buffer_; // intermediate tensor buffer
         InitContext w_ctx_; // weight context
 
-    public:
-        XLMRoberta transformer_;
-        size_t GRAPH_SIZE;
-        bool batch_input;
-        float logit_scale;
-        std::vector<int> layer_ids;
     };
 
 
-    class Tokenizer : public BaseTokenizer {
+    class Tokenizer final: public BaseTokenizer {
     public:
-        explicit Tokenizer(const Config &config) : BaseTokenizer(config) {}
+        explicit Tokenizer(const BaseConfig &config) : BaseTokenizer(config) {}
 
         size_t load(const char *buffer, int n_vocab) override {
             tp = new UnigramProcessor(eos_token_id + 1);

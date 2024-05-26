@@ -11,6 +11,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/tokenizer.hpp
         include/models/bge_m3.hpp
         include/globals.hpp
+        include/model_factory.hpp
 )
 
 add_library(

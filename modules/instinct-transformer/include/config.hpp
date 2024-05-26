@@ -9,7 +9,7 @@
 
 
 namespace INSTINCT_TRANSFORMER_NS {
-    struct Config
+    struct BaseConfig
     {
         // common attributes
         ggml_type dtype;

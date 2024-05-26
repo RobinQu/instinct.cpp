@@ -40,20 +40,6 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
     }
 
 
-    struct ForwardContext {
-        ggml_context *g_ctx = nullptr;
-        ggml_cgraph *g_cgraph = nullptr;
-        ggml_scratch g_scratch{};
-
-        virtual ~ForwardContext() {
-            ggml_free(g_ctx);
-        }
-    };
-
-    struct InitContext {
-        ggml_context *g_ctx;
-        ggml_type dtype;
-    };
 
     class Block {
     public:
