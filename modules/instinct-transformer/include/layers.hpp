@@ -18,6 +18,7 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
         RELU2
     };
 
+
     static ggml_tensor *inplace_act(ggml_context *ctx, ActFunc act, ggml_tensor *input) {
         switch (act) {
             case ActFunc::GELU:
@@ -39,6 +40,21 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
         }
     }
 
+    struct ForwardContext final {
+        ggml_context *g_ctx = nullptr;
+        ggml_cgraph *g_cgraph = nullptr;
+        ggml_scratch g_scratch{};
+
+        ~ForwardContext() {
+            ggml_free(g_ctx);
+        }
+    };
+
+
+    struct InitContext {
+        ggml_context *g_ctx;
+        ggml_type dtype;
+    };
 
 
     class Block {
@@ -47,11 +63,11 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
 
         virtual ~Block() = default;
 
-        virtual ggml_tensor *Forward(ForwardContext *ctx, ggml_tensor *input) {
+        virtual ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *input) {
             throw std::runtime_error("Not implemented");
         }
 
-        virtual ggml_tensor *Forward(ForwardContext *ctx, ggml_tensor *input, int n_past) {
+        virtual ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *input, int n_past) {
             throw std::runtime_error("Not implemented");
         };
 
@@ -81,7 +97,7 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
 
         [[nodiscard]] int out_features() const { return (int) weight->ne[1]; }
 
-        ggml_tensor *Forward(ForwardContext *ctx, ggml_tensor *input) override {
+        ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *input) override {
             ggml_tensor *output = ggml_mul_mat(ctx->g_ctx, weight, input); // [seqlen, out_features]
             ggml_mul_mat_set_prec(output, precision_);
             if (bias) {
@@ -105,7 +121,7 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
                 bias(use_bias ? ggml_new_tensor_1d(init_context->g_ctx, GGML_TYPE_F32, normalized_shape) : nullptr),
                 eps_(1e-5) {}
 
-        ggml_tensor *Forward(ForwardContext *ctx, ggml_tensor *input) override {
+        ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *input) override {
             // input: [seqlen, normalized_shape]
             ggml_tensor *output = ggml_norm_inplace(ctx->g_ctx, input, eps_);
             output = ggml_mul_inplace(ctx->g_ctx, output, weight);
@@ -145,7 +161,7 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
                 p[i] = i;
         }
 
-        ggml_tensor *Forward(ForwardContext *ctx, ggml_tensor *input, int n_past) override {
+        ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *input, int n_past) override {
             int qlen = (int) input->ne[0];
             ggml_tensor *idx = ggml_view_1d(ctx->g_ctx, indices, qlen,
                                             (n_past + pad_index) * ggml_element_size(indices));
@@ -155,7 +171,7 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
 
             ggml_tensor *output = ggml_add_inplace(ctx->g_ctx, output1, output2);
 
-            output = ln.Forward(ctx, output);
+            output = ln.forward(ctx, output);
             return output;
         }
 
@@ -192,8 +208,8 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
             pos->data = new char[ggml_nbytes(pos)]();
         }
 
-        void shift_cache(int shift, int total) {
-            shift_pending_ = ShiftPending(shift, total);
+        void shift_cache(const int shift, const int total) {
+            shift_pending_ = ShiftPending {shift, total};
         }
 
         const int num_attention_heads;
@@ -468,9 +484,9 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
                   last_attn_scores(nullptr) {
         }
 
-        using Block::Forward;
+        using Block::forward;
 
-        ggml_tensor *Forward(ForwardContext *ctx, ggml_tensor *hidden_states, int n_past) override {
+        ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *hidden_states, int n_past) override {
             const int hidden_size = BaseAttn::o_proj.in_features();
             const int qlen = (int) hidden_states->ne[1];
             const int repeat = BaseAttn::num_attention_heads / BaseAttn::num_kv_heads;
@@ -478,9 +494,9 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
 
             BaseAttn::before_forward(ctx, kv_hidden_size, n_past, qlen);
 
-            ggml_tensor *tmpq = BaseAttn::q_proj.Forward(ctx, hidden_states);
-            ggml_tensor *tmpk = BaseAttn::k_proj.Forward(ctx, hidden_states);
-            ggml_tensor *tmpv = BaseAttn::v_proj.Forward(ctx, hidden_states);
+            ggml_tensor *tmpq = BaseAttn::q_proj.forward(ctx, hidden_states);
+            ggml_tensor *tmpk = BaseAttn::k_proj.forward(ctx, hidden_states);
+            ggml_tensor *tmpv = BaseAttn::v_proj.forward(ctx, hidden_states);
 
             ggml_mul_mat_set_prec(tmpk, BaseAttn::precision_);
             ggml_mul_mat_set_prec(tmpq, BaseAttn::precision_);
@@ -488,7 +504,7 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
 
             last_attn_scores = BaseAttn::cross_attention(ctx, hidden_size, n_past, qlen, tmpq, tmpk, tmpv);
 
-            ggml_tensor *attn_output = BaseAttn::o_proj.Forward(ctx, last_attn_scores);
+            ggml_tensor *attn_output = BaseAttn::o_proj.forward(ctx, last_attn_scores);
             return attn_output;
         }
 

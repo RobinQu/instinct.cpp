@@ -48,7 +48,7 @@ namespace INSTINCT_TRANSFORMER_NS {
                 loader.seek(loader.offset_config, SEEK_SET);
 
             // load config
-            auto config = loader.read_basic<BaseConfig>();
+            auto config = loader.read_basic<Config>();
 
             // load tokenizer
             loader.offset_tokenizer = loader.tell();
@@ -67,10 +67,10 @@ namespace INSTINCT_TRANSFORMER_NS {
 
             // load model
             auto model = std::make_shared<Model>(config);
-            model.Load(loader);
+            model->load(loader);
 
             // return
-            return  {tokenizer, model};
+            return {model, tokenizer};
         }
     };
 

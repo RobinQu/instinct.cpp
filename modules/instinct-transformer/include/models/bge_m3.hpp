@@ -68,9 +68,9 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
                 norm(init_context, hidden_size) {}
 
         ggml_tensor *Forward(ForwardContext *ctx, ggml_tensor *hidden_states, ggml_tensor *attention_output) {
-            ggml_tensor *r = dense.Forward(ctx, hidden_states);
+            ggml_tensor *r = dense.forward(ctx, hidden_states);
             r = ggml_add_inplace(ctx->g_ctx, r, attention_output);
-            r = norm.Forward(ctx, r);
+            r = norm.forward(ctx, r);
             return r;
         }
 
@@ -91,8 +91,8 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
                 act(act) {}
 
 
-        ggml_tensor *Forward(ForwardContext *ctx, ggml_tensor *hidden_states) override {
-            ggml_tensor *temp = intermediate.Forward(ctx, hidden_states);
+        ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *hidden_states) override {
+            ggml_tensor *temp = intermediate.forward(ctx, hidden_states);
             temp = inplace_act(ctx->g_ctx, act, temp);
             temp = output.Forward(ctx, temp, hidden_states);
             return temp;
@@ -117,14 +117,14 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
                 output_layer_norm(init_context, hidden_size)
         {}
 
-        ggml_tensor *Forward(ForwardContext *ctx, ggml_tensor *hidden_states, int n_past) override {
-            ggml_tensor *attn_outputs = attention.Forward(ctx, hidden_states, n_past);
+        ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *hidden_states, int n_past) override {
+            ggml_tensor *attn_outputs = attention.forward(ctx, hidden_states, n_past);
 
             // see XLMRobertaSelfOutput
             ggml_tensor *sum = ggml_add(ctx->g_ctx, hidden_states, attn_outputs);
-            ggml_tensor *attention_output = post_attention_layer_norm.Forward(ctx, sum);
+            ggml_tensor *attention_output = post_attention_layer_norm.forward(ctx, sum);
 
-            ggml_tensor *r = mlp.Forward(ctx, attention_output);
+            ggml_tensor *r = mlp.forward(ctx, attention_output);
             return r;
         }
 
@@ -147,15 +147,15 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
         {}
 
 
-        ggml_tensor *Forward(ForwardContext *ctx, ggml_tensor *hidden_states) override {
+        ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *hidden_states) override {
             int hidden_size = (int)hidden_states->ne[0];
 
             // We "pool" the model by simply taking the hidden state corresponding to the first token.
             ggml_tensor *first_token_tensor = ggml_view_2d(ctx->g_ctx, hidden_states, hidden_size, 1,
                                                            hidden_size * ggml_element_size(hidden_states), 0);
-            ggml_tensor *output = dense.Forward(ctx, first_token_tensor);
+            ggml_tensor *output = dense.forward(ctx, first_token_tensor);
             output = inplace_act(ctx->g_ctx, activation, output);
-            output = out_proj.Forward(ctx, output);
+            output = out_proj.forward(ctx, output);
             output = ggml_map_custom1(ctx->g_ctx, output, ggml_compute_forward_sigmoid, 1, nullptr);
             return output;
         }
@@ -189,11 +189,11 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
             }
         }
 
-        ggml_tensor *Forward(ForwardContext *ctx, ggml_tensor *input_ids, int n_past) override {
-            ggml_tensor *hidden_states = word_embeddings.Forward(ctx, input_ids, n_past);
+        ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *input_ids, int n_past) override {
+            ggml_tensor *hidden_states = word_embeddings.forward(ctx, input_ids, n_past);
             for (auto &layer : layers) {
                 ggml_set_scratch(ctx->g_ctx, ctx->g_scratch);
-                hidden_states = layer.Forward(ctx, hidden_states, n_past);
+                hidden_states = layer.forward(ctx, hidden_states, n_past);
             }
             return final_steps(ctx, input_ids, hidden_states);
         }
@@ -206,7 +206,7 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
         ggml_tensor *final_steps(ForwardContext *ctx, ggml_tensor *input_ids, ggml_tensor *hidden_states)
         {
             ggml_set_scratch(ctx->g_ctx, {.offs = 0, .size = 0, .data = nullptr});
-            ggml_tensor *transformer_outputs = final.Forward(ctx, hidden_states);
+            ggml_tensor *transformer_outputs = final.forward(ctx, hidden_states);
             return transformer_outputs;
         }
 
@@ -221,14 +221,17 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
         explicit BGEM3RerankerModel(const Config& config, const size_t mem_size = MEM_SIZE, const size_t scratch_size = SCRATCH_SIZE):
             BaseGnerationModel(BGE_M3_RERANKER, Ranker, config, mem_size, scratch_size),
                 w_ctx_(
-                        ggml_init({.mem_size = ((9 + config.num_hidden_layers * 19) * (GGML_TENSOR_SIZE + GGML_OBJECT_SIZE)), .mem_buffer = nullptr, .no_alloc = true}),
-                        config.dtype
-                )
+                       { ggml_init({.mem_size = ((9 + config.num_hidden_layers * 19) * (GGML_TENSOR_SIZE + GGML_OBJECT_SIZE)), .mem_buffer = nullptr, .no_alloc = true}),
+                        config.dtype}
+                ),
+                transformer_(&w_ctx_, config_)
         {
-
-            transformer_ = XLMRoberta {&w_ctx_, config_};
             for (int i = 0; i < config.num_hidden_layers; i++)
                 layer_ids.push_back(i);
+        }
+
+        XLMRoberta& get_transformer() override {
+            return transformer_;
         }
 
         void load(ModelLoader &loader) override {
@@ -269,6 +272,7 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
         }
     private:
         InitContext w_ctx_; // weight context
+        XLMRoberta transformer_;
 
     };
 

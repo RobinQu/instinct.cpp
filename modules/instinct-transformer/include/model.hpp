@@ -10,16 +10,16 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <iostream>
-#include <memory>
 #include <cstring>
 #include <map>
 #include <unistd.h>
 
-#include "config.hpp"
+#include "./config.hpp"
+#include "./layers.hpp"
 
 
 namespace INSTINCT_TRANSFORMER_NS::models {
+    using namespace  INSTINCT_TRANSFORMER_NS::layers;
 
     struct GenerationConfig {
 //    int max_length;
@@ -34,10 +34,10 @@ namespace INSTINCT_TRANSFORMER_NS::models {
 //    std::string sampling;
     };
 
-    ggml_tensor * ggml_init_tensor(struct ggml_tensor *tensor,
-                                   enum   ggml_type      type,
-                                   int                   n_dims,
-                                   const int64_t       * ne)
+    static ggml_tensor * ggml_init_tensor(ggml_tensor *tensor,
+                                   const ggml_type type,
+                                   const int n_dims,
+                                   const int64_t* ne)
     {
         struct ggml_tensor *result = tensor;
 
@@ -78,7 +78,6 @@ namespace INSTINCT_TRANSFORMER_NS::models {
 
         return result;
     }
-
 
 
     class MappedFile
@@ -280,21 +279,6 @@ namespace INSTINCT_TRANSFORMER_NS::models {
 
     using ModelPtr = std::shared_ptr<BaseModel>;
 
-    struct ForwardContext final {
-        ggml_context *g_ctx = nullptr;
-        ggml_cgraph *g_cgraph = nullptr;
-        ggml_scratch g_scratch{};
-
-        virtual ~ForwardContext() {
-            ggml_free(g_ctx);
-        }
-    };
-
-    struct InitContext {
-        ggml_context *g_ctx;
-        ggml_type dtype;
-    };
-
 
     template<typename TransformerModel>
     class BaseGnerationModel: public BaseModel {
@@ -311,12 +295,13 @@ namespace INSTINCT_TRANSFORMER_NS::models {
                 mem_size_(mem_size),
                 mem_buffer_(new char[mem_size]),
                 scratch_size_(scratch_size),
-                scratch_buffer_(new char[scratch_size]),
-                transformer_()
+                scratch_buffer_(new char[scratch_size])
         {
             for (int i = 0; i < config.num_hidden_layers; i++)
                 layer_ids.push_back(i);
         }
+
+        virtual TransformerModel& get_transformer() = 0;
 
         float qa_rank(const GenerationConfig &config, const std::vector<int> &input_ids) override {
             const auto *lm = run_model(input_ids, config, 0);
@@ -349,7 +334,7 @@ namespace INSTINCT_TRANSFORMER_NS::models {
             ggml_tensor *input_ids_tensor = ggml_new_tensor_1d(ctx.g_ctx, GGML_TYPE_I32, input_ids.size());
             std::memcpy(input_ids_tensor->data, input_ids.data(), ggml_nbytes(input_ids_tensor));
 
-            ggml_tensor *r = transformer_.Forward(&ctx, input_ids_tensor, past);
+            ggml_tensor *r = get_transformer().forward(&ctx, input_ids_tensor, past);
 
             if (logit_scale > 0)
                 r = ggml_scale_inplace(ctx.g_ctx, r, logit_scale);
@@ -369,7 +354,6 @@ namespace INSTINCT_TRANSFORMER_NS::models {
         size_t scratch_size_;
         std::unique_ptr<char[]> scratch_buffer_; // intermediate tensor buffer
     public:
-        TransformerModel transformer_;
         size_t GRAPH_SIZE;
         bool batch_input;
         float logit_scale;
