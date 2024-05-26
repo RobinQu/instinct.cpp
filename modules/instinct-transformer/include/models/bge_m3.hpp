@@ -6,15 +6,6 @@
 #define CXX_TEST_BGE_M3_HPP
 #include <ggml.h>
 #include <vector>
-#include <iostream>
-#include <cmath>
-#include <memory>
-#include <cstring>
-#include <map>
-#include <set>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
 
 #include "./config.hpp"
 #include "./layers.hpp"
@@ -28,7 +19,7 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
     using namespace INSTINCT_TRANSFORMER_NS::models;
     using namespace INSTINCT_TRANSFORMER_NS::tokenizer;
 
-    struct Config: BaseConfig {};
+    struct Config: public BaseConfig {};
 
     class RobertaSelfAttention final: public BaseSelfAttention<BaseCachelessAttention> {
     public:
@@ -221,13 +212,13 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
         explicit BGEM3RerankerModel(const Config& config, const size_t mem_size = MEM_SIZE, const size_t scratch_size = SCRATCH_SIZE):
             BaseGnerationModel(BGE_M3_RERANKER, Ranker, config, mem_size, scratch_size),
                 w_ctx_(
-                       { ggml_init({.mem_size = ((9 + config.num_hidden_layers * 19) * (GGML_TENSOR_SIZE + GGML_OBJECT_SIZE)), .mem_buffer = nullptr, .no_alloc = true}),
-                        config.dtype}
+                       {
+                           ggml_init({.mem_size = ((9 + config.num_hidden_layers * 19) * (GGML_TENSOR_SIZE + GGML_OBJECT_SIZE)), .mem_buffer = nullptr, .no_alloc = true}),
+                           config.dtype
+                       }
                 ),
                 transformer_(&w_ctx_, config_)
         {
-            for (int i = 0; i < config.num_hidden_layers; i++)
-                layer_ids.push_back(i);
         }
 
         XLMRoberta& get_transformer() override {
@@ -281,13 +272,12 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge {
     public:
         explicit Tokenizer(const BaseConfig &config) : BaseTokenizer(config) {}
 
-        size_t load(const char *buffer, int n_vocab) override {
+        size_t load(const char *buffer, const int n_vocab) override {
             tp = new UnigramProcessor(eos_token_id + 1);
             tp->RegisterPreprocessor(new TextPrepNewlineToSpaces());
             tp->RegisterPreprocessor(new TextPrepDeleteMultiSpaces());
             tp->RegisterPreprocessor(new TextPrepAddLeadingSpace());
-            size_t size = tp->Load(buffer, n_vocab);
-
+            const auto size = tp->Load(buffer, n_vocab);
             return size;
         }
 

@@ -59,7 +59,7 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
 
     class Block {
     public:
-        explicit Block(ggml_prec precision = GGML_PREC_DEFAULT, int id = 0) : precision_(precision), id_(id) {}
+        explicit Block(const ggml_prec precision = GGML_PREC_DEFAULT, const int id = 0) : precision_(precision), id_(id) {}
 
         virtual ~Block() = default;
 
@@ -80,7 +80,7 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
         int id_;
     };
 
-    class Linear : public Block {
+    class Linear final: public Block {
     public:
         explicit Linear(ggml_tensor *weight = nullptr, ggml_tensor *bias = nullptr) : weight(weight), bias(bias) {}
 
@@ -111,7 +111,7 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
 
     };
 
-    class LayerNorm : public Block {
+    class LayerNorm final: public Block {
     public:
         explicit LayerNorm(ggml_tensor *weight = nullptr, ggml_tensor *bias = nullptr) : weight(weight), bias(bias),
                                                                                          eps_(1e-5f) {}
@@ -144,7 +144,7 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
         void clear() { shift = 0; }
     };
 
-    class RobertaEmbedding : public Block {
+    class RobertaEmbedding final: public Block {
     public:
         RobertaEmbedding() : word_weight(nullptr), position_weight(nullptr), indices(nullptr), pad_index(0) {}
 
@@ -398,7 +398,7 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
         Linear o_proj;
     };
 
-    class BaseCachelessAttention : public BaseAttention {
+    class BaseCachelessAttention: public BaseAttention {
     public:
         BaseCachelessAttention() = delete;
 

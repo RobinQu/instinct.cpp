@@ -9,19 +9,40 @@
 #include "model_factory.hpp"
 
 namespace INSTINCT_TRANSFORMER_NS {
-    static float get_rank_score(const TokenizerPtr& tokenizer, const ModelPtr& model, const std::string &q, const std::string& a) {
-        constexpr GenerationConfig config {.num_threads = 1};
-        std::vector<int> ids;
-        tokenizer->encode_qa(q, a, ids);
-        return model->qa_rank(config, ids);
+    class BGEM3RankerTest: public testing::Test {
+    protected:
+        const std::filesystem::path bge_m3_ranker_bin = std::filesystem::current_path() / "_assets/model_bins/bge-reranker-v2-m3.bin";
+
+        TokenizerPtr tokenizer_;
+        ModelPtr model_;
+
+        void SetUp() override {
+            load_bge_m3_ranker();
+        }
+
+        void load_bge_m3_ranker() {
+            ModelFactory model_factory;
+            std::tie(this->model_, this->tokenizer_) = model_factory.load(this->bge_m3_ranker_bin.string());
+        }
+
+        [[nodiscard]] float get_rank_score(const std::string &q, const std::string& a) const {
+            constexpr GenerationConfig config {.num_threads = 1};
+            std::vector<int> ids;
+            this->tokenizer_->encode_qa(q, a, ids);
+            return this->model_->qa_rank(config, ids);
+        }
+    };
+
+
+    TEST_F(BGEM3RankerTest, test_encoder) {
+        ASSERT_EQ(
+            tokenizer_->encode("hello"),
+            std::vector({0, 33600, 31, 2})
+        );
     }
 
-    TEST(BGE_M3_RERANKER, test_encoder) {
-        // model file is downlaoded during CMake configuration
-        std::filesystem::path bge_m3_ranker_bin = std::filesystem::current_path() / "_assets/model_bins/bge-reranker-v2-m3.bin";
-        ModelFactory model_factory;
-        auto [ranker,tokenizer] = model_factory.load(bge_m3_ranker_bin.string());
-        ASSERT_GT(get_rank_score(tokenizer, ranker, "hello", "welcome"), 0.9f);
+    TEST_F(BGEM3RankerTest, test_ranker) {
+        ASSERT_GT(get_rank_score("hello", "welcome"), 0.9f);
     }
 }
 

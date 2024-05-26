@@ -285,17 +285,20 @@ namespace INSTINCT_TRANSFORMER_NS::models {
     public:
 
         BaseGnerationModel(
-            const ModelType model_type, const ModelPurpose model_purpose,
-            const BaseConfig& config, const size_t mem_size, const size_t scratch_size):
+            const ModelType model_type,
+            const ModelPurpose model_purpose,
+            const BaseConfig& config,
+            const size_t mem_size,
+            const size_t scratch_size):
                 BaseModel(model_type, model_purpose),
-                GRAPH_SIZE(GGML_DEFAULT_GRAPH_SIZE),
-                batch_input(true),
-                logit_scale(-1.0f),
                 config_(config),
                 mem_size_(mem_size),
                 mem_buffer_(new char[mem_size]),
                 scratch_size_(scratch_size),
-                scratch_buffer_(new char[scratch_size])
+                scratch_buffer_(new char[scratch_size]),
+                graph_size(GGML_DEFAULT_GRAPH_SIZE),
+                batch_input(true),
+                logit_scale(-1.0f)
         {
             for (int i = 0; i < config.num_hidden_layers; i++)
                 layer_ids.push_back(i);
@@ -329,7 +332,7 @@ namespace INSTINCT_TRANSFORMER_NS::models {
             ctx.g_scratch = {.offs = 0, .size = scratch_size_, .data = scratch_buffer_.get()};
 
             int n_threads = input_ids.size() >= 32 && ggml_cpu_has_blas() && !ggml_cpu_has_gpublas() ? 1 : gen_config.num_threads;
-            ctx.g_cgraph = ggml_new_graph_custom(ctx.g_ctx, GRAPH_SIZE, false);
+            ctx.g_cgraph = ggml_new_graph_custom(ctx.g_ctx, graph_size, false);
 
             ggml_tensor *input_ids_tensor = ggml_new_tensor_1d(ctx.g_ctx, GGML_TYPE_I32, input_ids.size());
             std::memcpy(input_ids_tensor->data, input_ids.data(), ggml_nbytes(input_ids_tensor));
@@ -354,7 +357,7 @@ namespace INSTINCT_TRANSFORMER_NS::models {
         size_t scratch_size_;
         std::unique_ptr<char[]> scratch_buffer_; // intermediate tensor buffer
     public:
-        size_t GRAPH_SIZE;
+        size_t graph_size;
         bool batch_input;
         float logit_scale;
         std::vector<int> layer_ids;
