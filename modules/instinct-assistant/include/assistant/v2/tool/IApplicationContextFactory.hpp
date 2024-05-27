@@ -7,7 +7,7 @@
 
 #include "AssistantGlobals.hpp"
 #include "database/duckdb/DuckDBConnectionPool.hpp"
-#include "database/duckdb/DuckDBDataMapper.hpp"
+#include "database/duckdb/DuckDBDataTemplate.hpp"
 #include "object_store/FileSystemObjectStore.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 #include "assistant/v2/service/AssistantFacade.hpp"

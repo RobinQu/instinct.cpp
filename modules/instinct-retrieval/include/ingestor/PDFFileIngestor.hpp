@@ -141,7 +141,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         AsyncIterator<Document> Load() override {
             return rpp::source::create<Document>([&](const auto& observer) {
-                auto pdf_doc = PDFIUMDoc(file_path_, password_);
+                const auto pdf_doc = PDFIUMDoc(file_path_, password_);
                 const int count = pdf_doc.GetPageCount();
                 try {
                     for (int i = 0; i < count; i++) {

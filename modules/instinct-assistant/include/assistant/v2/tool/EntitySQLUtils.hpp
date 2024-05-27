@@ -6,7 +6,7 @@
 #define ENTITYSQLUTILS_HPP
 
 #include "AssistantGlobals.hpp"
-#include "database/IDataMapper.hpp"
+#include "database/IDataTemplate.hpp"
 
 
 namespace INSTINCT_ASSISTANT_NS {

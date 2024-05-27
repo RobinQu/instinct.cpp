@@ -27,6 +27,9 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/store/duckdb/DuckDBDocWithEmbeddingStore.hpp
         include/ingestor/ParquetFileIngestor.hpp
         include/retrieval/MutliPathRetriever.hpp
+        include/store/IVectorStoreOperator.hpp
+        include/store/duckdb/DuckDBVectorStoreOperator.hpp
+        include/store/VectorStoreMetadataDataMapper.hpp
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

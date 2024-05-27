@@ -142,6 +142,12 @@ Primary workflows:
 1. File ingestion: operations in `FileBatch` and `File` endpoints will trigger `FileIngestionTaskHandler`, where file is split and transformed into embeddings.
 2. Online search: `file-search` as built-in tools in run objects if explicitly requested.
 
+Primary classes:
+
+* `VectorStoreController`: manage multiple `IVectorStore` instances.
+* `FileIngestionTaskHandler`: ingest uploaded file and update corresponding `IVectorStore`.
+* `FileSearchTool`: gather user query and search against given `IVectorStore`.
+
 
 ### `code-interpreter`
 

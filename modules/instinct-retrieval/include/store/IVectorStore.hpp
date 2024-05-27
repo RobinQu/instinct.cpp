@@ -9,6 +9,7 @@
 #include "RetrievalGlobals.hpp"
 #include "model/IEmbeddingModel.hpp"
 #include "store/IDocStore.hpp"
+#include "tools/MetadataSchemaBuilder.hpp"
 
 
 namespace INSTINCT_RETRIEVAL_NS {
@@ -26,6 +27,16 @@ namespace INSTINCT_RETRIEVAL_NS {
     public:
         virtual AsyncIterator<Document> SearchDocuments(const SearchRequest& request) = 0;
         virtual EmbeddingsPtr GetEmbeddingModel() = 0;
+
+        /**
+         * Create docstore instance
+         * @return
+         */
+        virtual DocStorePtr AsDocStore(const std::string& doc_table_name, const MetadataSchemaPtr& doc_meatdata_schema) = 0;
+
+        virtual DocStorePtr AsDocStore() {
+            return AsDocStore("doc_table", CreateDocStorePresetMetdataSchema());
+        }
     };
     using VectorStorePtr = std::shared_ptr<IVectorStore>;
 

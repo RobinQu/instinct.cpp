@@ -90,6 +90,8 @@ namespace INSTINCT_CORE_NS {
         return result;
     }
 
+    static ThreadPool IO_WORKER_POOL {std::thread::hardware_concurrency() * 4};
+    static ThreadPool COMPUTE_WORKER_POOL;
 
 }
 

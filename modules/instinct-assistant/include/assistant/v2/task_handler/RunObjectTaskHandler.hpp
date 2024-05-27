@@ -59,7 +59,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         void Handle(const ITaskScheduler<std::string>::Task &task) override {
-            trace_span span {"OpenAIToolAgentRunObjectTaskHandler::Handle"};
+            trace_span span {"RunObjectTaskHandler::Handle"};
             RunObject run_object;
             ProtobufUtils::Deserialize(task.payload, run_object);
 

@@ -18,12 +18,12 @@ namespace INSTINCT_DATA_NS {
         typename T,
         typename PrimaryKey
     >
-    class IDataMapper {
+    class IDataTemplate {
     public:
-        IDataMapper()=default;
-        virtual ~IDataMapper()=default;
-        IDataMapper(IDataMapper&&)=delete;
-        IDataMapper(const IDataMapper&)=delete;
+        IDataTemplate()=default;
+        virtual ~IDataTemplate()=default;
+        IDataTemplate(IDataTemplate&&)=delete;
+        IDataTemplate(const IDataTemplate&)=delete;
 
         /**
          * Find one entity
@@ -67,7 +67,7 @@ namespace INSTINCT_DATA_NS {
     };
 
     template<typename T, typename PrimaryKey>
-    using DataMapperPtr = std::shared_ptr<IDataMapper<T,PrimaryKey>>;
+    using DataMapperPtr = std::shared_ptr<IDataTemplate<T,PrimaryKey>>;
 }
 
 

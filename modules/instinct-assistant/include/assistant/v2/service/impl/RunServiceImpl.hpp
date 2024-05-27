@@ -9,7 +9,7 @@
 #include "assistant/v2/service/IMessageService.hpp"
 #include "assistant/v2/task_handler/RunObjectTaskHandler.hpp"
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
-#include "database/IDataMapper.hpp"
+#include "database/IDataTemplate.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

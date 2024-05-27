@@ -10,7 +10,7 @@
 #include "DataGlobals.hpp"
 #include "../BaseConnectionPool.hpp"
 #include "tools/Assertions.hpp"
-#include "../IDataMapper.hpp"
+#include "../IDataTemplate.hpp"
 #include "tools/ProtobufUtils.hpp"
 
 
@@ -21,12 +21,12 @@ namespace INSTINCT_DATA_NS {
 
     template<typename Entity, typename PrimaryKey = std::string>
     requires IsProtobufMessage<Entity>
-    class DuckDBDataMapper final : public IDataMapper<Entity, PrimaryKey> {
+    class DuckDBDataTemplate final : public IDataTemplate<Entity, PrimaryKey> {
         DuckDBConnectionPoolPtr connection_pool_;
         // from sql column name to entity field name
         std::unordered_map<std::string_view, std::string_view> column_names_mapping_;
     public:
-        explicit DuckDBDataMapper(
+        explicit DuckDBDataTemplate(
             DuckDBConnectionPoolPtr connection_pool,
             const std::unordered_map<std::string_view, std::string_view> &column_names_mapping)
             :   connection_pool_(std::move(connection_pool)),
@@ -186,7 +186,7 @@ namespace INSTINCT_DATA_NS {
     DataMapperPtr<T, PrimaryKey> CreateDuckDBDataMapper(
             const DuckDBConnectionPoolPtr &connection_pool,
             const std::unordered_map<std::string_view, std::string_view> &column_names_mapping = {}) {
-        return std::make_shared<DuckDBDataMapper<T,PrimaryKey>>(connection_pool, column_names_mapping);
+        return std::make_shared<DuckDBDataTemplate<T,PrimaryKey>>(connection_pool, column_names_mapping);
     }
 }
 

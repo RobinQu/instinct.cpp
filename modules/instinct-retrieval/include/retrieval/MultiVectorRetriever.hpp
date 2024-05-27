@@ -86,12 +86,11 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void Ingest(const AsyncIterator<Document>& input) override {
-            static ThreadPool WORKER_POOL;
             Futures<void> tasks;
             input
             | rpp::operators::as_blocking()
             | rpp::operators::subscribe([&](const Document& parent_doc) {
-                auto f = WORKER_POOL.submit_task([&,parent_doc]() {
+                auto f = IO_WORKER_POOL.submit_task([&,parent_doc]() {
                     Document copied_doc = parent_doc;
                     doc_store_->AddDocument(copied_doc);
                     auto sub_docs = std::invoke(guidance_, copied_doc);

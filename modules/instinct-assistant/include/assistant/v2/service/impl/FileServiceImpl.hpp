@@ -9,7 +9,7 @@
 
 #include "../IFileService.hpp"
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
-#include "database/IDataMapper.hpp"
+#include "database/IDataTemplate.hpp"
 #include "object_store/IObjectStore.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

@@ -8,7 +8,7 @@
 #include "AssistantGlobals.hpp"
 #include "assistant/v2/service/IAssistantService.hpp"
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
-#include "database/IDataMapper.hpp"
+#include "database/IDataTemplate.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;

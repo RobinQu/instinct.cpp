@@ -9,6 +9,7 @@
 #include <retrieval.pb.h>
 
 #include "BaseDuckDBStore.hpp"
+#include "DuckDBDocStore.hpp"
 #include "DuckDBDocWithEmbeddingStore.hpp"
 #include "store/IVectorStore.hpp"
 #include "tools/Assertions.hpp"
@@ -138,6 +139,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         {
             assert_gt(options.dimension, 0);
             assert_true(embeddings_ != nullptr, "should provide embeddings object pointer");
+            assert_true(embeddings_->GetDimension() == options.dimension, "should have dimmension set correctly");
             assert_true(metadata_schema, "should have provide valid metadata schema");
             // auto internal_appender = std::make_shared<DuckDBVectorStoreInternalAppender>(embeddings_model, metadata_schema, options.bypass_unknown_fields);
 
@@ -212,6 +214,13 @@ namespace INSTINCT_RETRIEVAL_NS {
         size_t CountDocuments() override {
             return store_.CountDocuments();
         }
+
+        DocStorePtr AsDocStore(const std::string &doc_table_name,
+            const MetadataSchemaPtr &doc_meatdata_schema) override {
+            DuckDBStoreOptions options;
+            options.table_name = doc_table_name;
+            return CreateDuckDBDocStore(store_.GetDuckDB(), options, doc_meatdata_schema);
+        }
     };
 
     /**
@@ -259,10 +268,6 @@ namespace INSTINCT_RETRIEVAL_NS {
             metadata_schema
             );
     }
-
-
-
-
 
 }
 

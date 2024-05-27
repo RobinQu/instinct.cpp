@@ -2,6 +2,7 @@ syntax = "proto3";
 
 //import "llm.proto";
 import "core.proto";
+import "google/protobuf/any.proto";
 
 package instinct.retrieval;
 
@@ -37,4 +38,12 @@ message UpdateResult {
   int32 affected_rows = 1;
   repeated string returned_ids = 2;
   repeated instinct.core.Document failed_documents = 3;
+}
+
+message VectorStoreInstanceMetadata {
+  string instance_id = 1;
+  core.MetadataSchema metadata_schema = 2;
+  int64 created_at = 3;
+  int64 modified_at = 4;
+  google.protobuf.Any custom = 100;
 }

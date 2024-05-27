@@ -30,7 +30,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         )
             : ranking_model_(std::move(ranking_model)),
               retrievers_(std::move(retrievers)),
-              thread_pool_(std::move(thread_pool)){
+              thread_pool_(std::move(thread_pool)) {
             assert_gt(retrievers_.size(), 0, "should have at least one retriever");
         }
 
@@ -77,6 +77,13 @@ namespace INSTINCT_RETRIEVAL_NS {
             });
         }
     };
+
+
+    template<typename ...R>
+    static RetrieverPtr CreateMultiPathRetriever(RankingModelPtr ranking_model, R... r) {
+        std::vector retrievers {r...};
+        return std::make_shared<MultiPathRetriever>(ranking_model, retrievers, COMPUTE_WORKER_POOL);
+    }
 }
 
 

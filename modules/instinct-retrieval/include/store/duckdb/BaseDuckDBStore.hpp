@@ -52,6 +52,11 @@ namespace INSTINCT_RETRIEVAL_NS {
          * A flag to initialize `CREATE OR REPLACE TABLE` syntax during startup. If set to false, `CREATE TABLE IF NOT EXISTS` syntax will be used
          */
         bool create_or_replace_table = false;
+
+        /**
+         * Optional instance id
+         */
+        std::string instance_id;
     };
 
     namespace details {
@@ -360,7 +365,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_lt(options_.dimension, 10000, "dimension should be less than 10000");
             assert_true(!StringUtils::IsBlankString(options_.table_name), "table_name cannot be blank");
 
-            const auto sql = details::make_create_table_sql(options_.table_name, options_.dimension, metadata_schema_, options.create_or_replace_table);
+            const auto sql = details::make_create_table_sql(options_.table_name, options_.dimension, metadata_schema_, options_.create_or_replace_table);
             LOG_DEBUG("create document table with SQL: {}", sql);
 
             const auto create_table_result = connection_.Query(sql);
@@ -370,6 +375,9 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_prepared_ok(prepared_count_all_statement_, "Failed to prepare count statement");
         }
 
+        [[nodiscard]] DuckDBPtr GetDuckDB() const {
+            return db_;
+        }
 
         [[nodiscard]] const DuckDBStoreOptions& GetOptions() const {
             return options_;

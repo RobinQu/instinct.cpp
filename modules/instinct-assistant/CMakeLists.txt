@@ -35,6 +35,7 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/assistant/v2/endpoint/MessageController.hpp
         include/assistant/v2/tool/IApplicationContextFactory.hpp
         include/assistant/v2/tool/RequestUtils.hpp
+        include/assistant/v2/task_handler/FileObjectTaskHandler.hpp
 )
 
 

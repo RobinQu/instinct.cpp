@@ -1013,6 +1013,7 @@ message UploadFileRequest {
   bytes file_content = 1;
   string filename = 2;
   FileObjectPurpose purpose = 3; // fine-tune, assistants
+  string content_type = 4;
 }
 
 message DeleteFileRequest {
@@ -1044,4 +1045,5 @@ message FileObject { // UploadFileResponse, RetrieveFileResponse
   int32 bytes = 5;
   string filename = 6;
   FileObjectPurpose purpose = 7;
+  string content_type = 8;
 }
