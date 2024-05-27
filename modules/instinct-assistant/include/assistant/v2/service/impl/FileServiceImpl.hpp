@@ -20,12 +20,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     };
 
     class FileServiceImpl final: public IFileService {
-        DataMapperPtr<FileObject, std::string> data_mapper_;
+        DataTemplatePtr<FileObject, std::string> data_mapper_;
         ObjectStorePtr object_store_;
         FileServiceOptions options_;
 
     public:
-        FileServiceImpl(const DataMapperPtr<FileObject, std::string> &data_mapper, ObjectStorePtr object_store, FileServiceOptions options = {})
+        FileServiceImpl(const DataTemplatePtr<FileObject, std::string> &data_mapper, ObjectStorePtr object_store, FileServiceOptions options = {})
             : data_mapper_(data_mapper),
               object_store_(std::move(object_store)),
               options_(std::move(options)){

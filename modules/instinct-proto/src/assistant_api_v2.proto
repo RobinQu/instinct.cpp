@@ -803,6 +803,7 @@ message ModifyVectorStoreRequest {
 message DeleteVectorStoreRequest {
   // The ID of the vector store to delete.
   string vector_store_id = 1;
+  string file_id = 2;
 }
 
 message DeleteVectorStoreResponse {
@@ -868,7 +869,7 @@ message ListVectorStoreFilesRequest {
 
 message ListVectorStoreFilesResponse {
   string object = 1;
-  repeated VectorStoreFile data = 2;
+  repeated VectorStoreFileObject data = 2;
   string first_id = 3;
   string last_id = 4;
   bool has_more = 5;
@@ -909,7 +910,7 @@ enum VectorStoreFileStatus {
   cancelled = 4;
 }
 
-message VectorStoreFile { // CreateVectorFileResponse
+message VectorStoreFileObject { // CreateVectorFileResponse
   string id = 1;
   string object = 2;
   int64 created_at = 3;
@@ -922,6 +923,7 @@ message VectorStoreFile { // CreateVectorFileResponse
 message CreateVectorStoreFileRequest {
   // The ID of the vector store for which to create a File.
   string vector_store_id = 1;
+  string file_id = 2;
 }
 
 message VectorStoreFileError {

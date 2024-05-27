@@ -36,6 +36,9 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/assistant/v2/tool/IApplicationContextFactory.hpp
         include/assistant/v2/tool/RequestUtils.hpp
         include/assistant/v2/task_handler/FileObjectTaskHandler.hpp
+        include/assistant/v2/data_mapper/VectorStoreDataMapper.hpp
+        include/assistant/v2/data_mapper/VectorStoreFileDataMapper.hpp
+        include/assistant/v2/service/impl/VectorStoreServiceImpl.hpp
 )
 
 

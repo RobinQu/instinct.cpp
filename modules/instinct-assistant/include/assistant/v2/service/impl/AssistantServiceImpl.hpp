@@ -14,9 +14,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;
 
     class AssistantServiceImpl final: public IAssistantService {
-        DataMapperPtr<AssistantObject, std::string> data_mapper_;
+        DataTemplatePtr<AssistantObject, std::string> data_mapper_;
     public:
-        explicit AssistantServiceImpl(const DataMapperPtr<AssistantObject, std::string> &data_mapper)
+        explicit AssistantServiceImpl(const DataTemplatePtr<AssistantObject, std::string> &data_mapper)
             : data_mapper_(data_mapper) {
         }
 

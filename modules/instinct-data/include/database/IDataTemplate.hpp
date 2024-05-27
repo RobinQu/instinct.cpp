@@ -67,7 +67,7 @@ namespace INSTINCT_DATA_NS {
     };
 
     template<typename T, typename PrimaryKey>
-    using DataMapperPtr = std::shared_ptr<IDataTemplate<T,PrimaryKey>>;
+    using DataTemplatePtr = std::shared_ptr<IDataTemplate<T,PrimaryKey>>;
 }
 
 

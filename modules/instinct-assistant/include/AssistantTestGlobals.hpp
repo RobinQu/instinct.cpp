@@ -48,17 +48,17 @@ namespace INSTINCT_ASSISTANT_NS {
 
         DuckDBConnectionPoolPtr connection_pool_ = CreateDuckDBConnectionPool(duck_db_);
 
-        DataMapperPtr<AssistantObject, std::string> assistant_data_mapper = CreateDuckDBDataMapper<AssistantObject, std::string>(connection_pool_);
+        DataTemplatePtr<AssistantObject, std::string> assistant_data_mapper = CreateDuckDBDataMapper<AssistantObject, std::string>(connection_pool_);
 
-        DataMapperPtr<ThreadObject, std::string> thread_data_mapper = CreateDuckDBDataMapper<ThreadObject, std::string>(connection_pool_);
+        DataTemplatePtr<ThreadObject, std::string> thread_data_mapper = CreateDuckDBDataMapper<ThreadObject, std::string>(connection_pool_);
 
-        DataMapperPtr<MessageObject, std::string> message_data_mapper = CreateDuckDBDataMapper<MessageObject, std::string>(connection_pool_);
+        DataTemplatePtr<MessageObject, std::string> message_data_mapper = CreateDuckDBDataMapper<MessageObject, std::string>(connection_pool_);
 
-        DataMapperPtr<FileObject, std::string> file_data_mapper = CreateDuckDBDataMapper<FileObject, std::string>(connection_pool_);
+        DataTemplatePtr<FileObject, std::string> file_data_mapper = CreateDuckDBDataMapper<FileObject, std::string>(connection_pool_);
 
-        DataMapperPtr<RunObject, std::string> run_data_mapper = CreateDuckDBDataMapper<RunObject, std::string>(connection_pool_);
+        DataTemplatePtr<RunObject, std::string> run_data_mapper = CreateDuckDBDataMapper<RunObject, std::string>(connection_pool_);
 
-        DataMapperPtr<RunStepObject, std::string> run_step_data_mapper = CreateDuckDBDataMapper<RunStepObject, std::string>(connection_pool_);
+        DataTemplatePtr<RunStepObject, std::string> run_step_data_mapper = CreateDuckDBDataMapper<RunStepObject, std::string>(connection_pool_);
 
         // std::filesystem::path migration_dir = std::filesystem::current_path() / "_assets" / "db_migration";
 

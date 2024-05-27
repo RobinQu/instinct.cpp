@@ -18,9 +18,9 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     using namespace INSTINCT_DATA_NS;
     class VectorStoreMeatdataDataMapper {
-        DataMapperPtr<VectorStoreInstanceMetadata, std::string> data_mapper_;
+        DataTemplatePtr<VectorStoreInstanceMetadata, std::string> data_mapper_;
     public:
-        explicit VectorStoreMeatdataDataMapper(DataMapperPtr<VectorStoreInstanceMetadata, std::string> data_mapper)
+        explicit VectorStoreMeatdataDataMapper(DataTemplatePtr<VectorStoreInstanceMetadata, std::string> data_mapper)
             : data_mapper_(std::move(data_mapper)) {
         }
 

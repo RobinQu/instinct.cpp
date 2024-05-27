@@ -183,7 +183,7 @@ namespace INSTINCT_DATA_NS {
     };
 
     template<typename T, typename PrimaryKey>
-    DataMapperPtr<T, PrimaryKey> CreateDuckDBDataMapper(
+    DataTemplatePtr<T, PrimaryKey> CreateDuckDBDataMapper(
             const DuckDBConnectionPoolPtr &connection_pool,
             const std::unordered_map<std::string_view, std::string_view> &column_names_mapping = {}) {
         return std::make_shared<DuckDBDataTemplate<T,PrimaryKey>>(connection_pool, column_names_mapping);

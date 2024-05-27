@@ -24,7 +24,7 @@ namespace INSTINCT_ASSISTANT_NS {
     class EntitySQLUtils final {
     public:
         template<typename PrimaryKey = std::string>
-        static PrimaryKey InsertOneAssistant(const DataMapperPtr<AssistantObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static PrimaryKey InsertOneAssistant(const DataTemplatePtr<AssistantObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             for (const auto& field: { "id", "model", "temperature", "top_p"}) {
                 assert_true(context.contains(field), fmt::format("should provide {} in context", field));
             }
@@ -70,7 +70,7 @@ insert into instinct_assistant(
         }
 
         template<typename PrimaryKey = std::string>
-        static std::vector<AssistantObject> GetManyAssistant(const DataMapperPtr<AssistantObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static std::vector<AssistantObject> GetManyAssistant(const DataTemplatePtr<AssistantObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->SelectMany(R"(
 select * from instinct_assistant
 where 1=1
@@ -90,17 +90,17 @@ limit {{limit}};
         }
 
         template<typename PrimaryKey = std::string>
-        static std::optional<AssistantObject> GetOneAssistant(const DataMapperPtr<AssistantObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static std::optional<AssistantObject> GetOneAssistant(const DataTemplatePtr<AssistantObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->SelectOne("select * from instinct_assistant where id = {{text(id)}}", context);
         }
 
         template<typename PrimaryKey = std::string>
-        static size_t DeleteAssistant(const DataMapperPtr<AssistantObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static size_t DeleteAssistant(const DataTemplatePtr<AssistantObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->Execute("delete from instinct_assistant where id = {{text(id)}}", context);
         }
 
         template<typename PrimaryKey = std::string>
-        static size_t UpdateAssistant(const DataMapperPtr<AssistantObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static size_t UpdateAssistant(const DataTemplatePtr<AssistantObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->Execute(R"(
 update instinct_assistant
 set
@@ -139,7 +139,7 @@ where id = {{text(assistant_id)}}
 
 
         template<typename PrimaryKey = std::string>
-        static PrimaryKey InsertOneThread(const DataMapperPtr<ThreadObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static PrimaryKey InsertOneThread(const DataTemplatePtr<ThreadObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->InsertOne(R"(
 insert into instinct_thread(id
 {% if exists("tool_resources") %}
@@ -162,7 +162,7 @@ returning (id);
         }
 
         template<typename PrimaryKey = std::string>
-        static size_t UpdateThread(const DataMapperPtr<ThreadObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static size_t UpdateThread(const DataTemplatePtr<ThreadObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->Execute(R"(
 update instinct_thread
 set
@@ -178,13 +178,13 @@ where id = {{text(thread_id)}};
         }
 
         template<typename PrimaryKey = std::string>
-        static size_t DeleteThread(const DataMapperPtr<ThreadObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static size_t DeleteThread(const DataTemplatePtr<ThreadObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->Execute("delete from instinct_thread where id = {{text(thread_id)}};", context);
         }
 
 
         template<typename PrimaryKey = std::string>
-        static size_t UpdateMessage(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static size_t UpdateMessage(const DataTemplatePtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->Execute(R"(
 update instinct_thread_message
 set
@@ -197,12 +197,12 @@ where id = {{text(message_id)}} and thread_id = {{text(thread_id)}};
         }
 
         template<typename PrimaryKey = std::string>
-        static std::optional<MessageObject> SelectOneMessages(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static std::optional<MessageObject> SelectOneMessages(const DataTemplatePtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->SelectOne("select * from instinct_thread_message where id = {{text(message_id)}} and thread_id={{text(thread_id)}};", context);
         }
 
         template<typename PrimaryKey = std::string>
-        static std::vector<MessageObject> SelectManyMessages(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static std::vector<MessageObject> SelectManyMessages(const DataTemplatePtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->SelectMany(R"(
 select * from instinct_thread_message
 where
@@ -228,7 +228,7 @@ limit {{limit}};
         }
 
         template<typename PrimaryKey = std::string>
-        static std::vector<PrimaryKey> InsertManyMessages(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static std::vector<PrimaryKey> InsertManyMessages(const DataTemplatePtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             if (!context.contains("messages") || context["messages"].empty()) return {};
             for(const auto& msg_obj: context["messages"]) {
                 assistant::details::check_presence(msg_obj, {"id", "thread_id", "content", "role", "status"});
@@ -304,14 +304,14 @@ returning (id);
 
 
         template<typename PrimaryKey = std::string>
-        static size_t DeleteManyMessages(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static size_t DeleteManyMessages(const DataTemplatePtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->Execute(R"(
 delete from instinct_thread_message where thread_id = {{text(thread_id)}};
             )", context);
         }
 
         template<typename PrimaryKey = std::string>
-        static PrimaryKey InsertOneMessages(const DataMapperPtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& msg_obj) {
+        static PrimaryKey InsertOneMessages(const DataTemplatePtr<MessageObject, PrimaryKey>& data_mapper, const SQLContext& msg_obj) {
             assistant::details::check_presence(msg_obj, {"id", "thread_id", "content", "role", "status"});
             assert_true(msg_obj.at("content").is_array(), "should provide content");
             for(const auto& content_item: msg_obj.at("content")) {
@@ -373,7 +373,7 @@ returning (id);
         }
 
         template<typename PrimaryKey = std::string>
-        static PrimaryKey InsertOneFile(const DataMapperPtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static PrimaryKey InsertOneFile(const DataTemplatePtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             assistant::details::check_presence(context, {"id", "filename", "bytes", "purpose"});
             return data_mapper->InsertOne(R"(
 insert into instinct_file(id, filename, bytes, purpose) values(
@@ -386,7 +386,7 @@ insert into instinct_file(id, filename, bytes, purpose) values(
         }
 
         template<typename PrimaryKey = std::string>
-        static std::vector<FileObject> SelectManyFiles(const DataMapperPtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static std::vector<FileObject> SelectManyFiles(const DataTemplatePtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->SelectMany(R"(
 select * from instinct_file
 where 1=1
@@ -398,19 +398,19 @@ order by created_at desc
         }
 
         template<typename PrimaryKey = std::string>
-        static std::optional<FileObject> SelectOneFile(const DataMapperPtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static std::optional<FileObject> SelectOneFile(const DataTemplatePtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->SelectOne(R"(
 select * from instinct_file where id = {{text(file_id)}};
             )", context);
         }
 
         template<typename PrimaryKey = std::string>
-        static size_t DeleteFile(const DataMapperPtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static size_t DeleteFile(const DataTemplatePtr<FileObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->Execute("delete from instinct_file where id = {{text(file_id)}}", context);
         }
 
         template<typename PrimaryKey = std::string>
-        static PrimaryKey InsertOneRun(const DataMapperPtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static PrimaryKey InsertOneRun(const DataTemplatePtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             assistant::details::check_presence(context, {"thread_id", "assistant_id"});
             return data_mapper->InsertOne(R"(
 insert into instinct_thread_run(
@@ -487,7 +487,7 @@ insert into instinct_thread_run(
         }
 
         template<typename PrimaryKey = std::string>
-        static size_t UpdateRun(const DataMapperPtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static size_t UpdateRun(const DataTemplatePtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->Execute(R"(
 update instinct_thread_run
 set
@@ -522,7 +522,7 @@ where thread_id = {{text(thread_id)}} and id = {{text(run_id)}};
 
 
         template<typename PrimaryKey = std::string>
-        static std::vector<RunObject> SelectManyRuns(const DataMapperPtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static std::vector<RunObject> SelectManyRuns(const DataTemplatePtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             assert_true(context.contains("thread_id"), "should provide thread_id");
             return data_mapper->SelectMany(R"(
 select * from instinct_thread_run
@@ -552,7 +552,7 @@ limit {{limit}};
         }
 
         template<typename PrimaryKey = std::string>
-        static std::optional<RunObject> SelectOneRun(const DataMapperPtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static std::optional<RunObject> SelectOneRun(const DataTemplatePtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             assert_true(context.contains("run_id"), "should provide run id");
             assert_true(context.contains("thread_id"), "should provide thread id");
             return data_mapper->SelectOne(R"(
@@ -564,14 +564,14 @@ limit 1;
 
 
         template<typename PrimaryKey = std::string>
-        static size_t DeleteManyRuns(const DataMapperPtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static size_t DeleteManyRuns(const DataTemplatePtr<RunObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->Execute(R"(
 delete from instinct_thread_run where thread_id = {{text(thread_id)}};
             )", context);
         }
 
         template<typename PrimaryKey = std::string>
-        static PrimaryKey InsertOneRunStep(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static PrimaryKey InsertOneRunStep(const DataTemplatePtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->InsertOne(R"(
 insert into instinct_thread_run_step(id, thread_id, run_id, type, status, step_details)
 values (
@@ -592,14 +592,14 @@ returning (id);
 
 
         template<typename PrimaryKey = std::string>
-        static size_t DeleteManyRunSteps(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static size_t DeleteManyRunSteps(const DataTemplatePtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->Execute(R"(
 delete from instinct_thread_run_step where thread_id = {{text(thread_id)}};
             )", context);
         }
 
         template<typename PrimaryKey = std::string>
-        static size_t UpdateRunStep(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static size_t UpdateRunStep(const DataTemplatePtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->Execute(R"(
 update instinct_thread_run_step
 set
@@ -639,12 +639,12 @@ where
         }
 
         template<typename PrimaryKey = std::string>
-        static std::optional<RunStepObject> GetRunStep(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static std::optional<RunStepObject> GetRunStep(const DataTemplatePtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->SelectOne("select * from instinct_thread_run_step where id={{text(step_id)}} and thread_id={{text(thread_id)}} and run_id = {{text(run_id)}} limit 1;", context);
         }
 
         template<typename PrimaryKey = std::string>
-        static std::vector<RunStepObject> SelectManyRunSteps(const DataMapperPtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
+        static std::vector<RunStepObject> SelectManyRunSteps(const DataTemplatePtr<RunStepObject, PrimaryKey>& data_mapper, const SQLContext& context) {
             return data_mapper->SelectMany(R"(
 select * from instinct_thread_run_step
 where

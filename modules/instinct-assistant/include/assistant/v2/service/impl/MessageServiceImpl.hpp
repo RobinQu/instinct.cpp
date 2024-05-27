@@ -13,9 +13,9 @@
 namespace INSTINCT_ASSISTANT_NS::v2 {
 
     class MessageServiceImpl final: public IMessageService {
-        data::DataMapperPtr<MessageObject, std::string> data_mapper_;
+        data::DataTemplatePtr<MessageObject, std::string> data_mapper_;
     public:
-        explicit MessageServiceImpl(const DataMapperPtr<MessageObject, std::string> &data_mapper) : data_mapper_(
+        explicit MessageServiceImpl(const DataTemplatePtr<MessageObject, std::string> &data_mapper) : data_mapper_(
                 data_mapper) {}
 
         ListMessageResponse ListMessages(const ListMessagesRequest &list_request) override {
