@@ -104,6 +104,15 @@ namespace INSTINCT_RETRIEVAL_NS {
 
             tasks.wait();
         }
+
+        void Remove(const SearchQuery &metadata_query) override {
+            UpdateResult update_result;
+            doc_store_->DeleteDocuments(metadata_query, update_result);
+            // if (update_result.failed_documents_size() == 0) {
+            // }
+            vector_store_->DeleteDocuments(metadata_query, update_result);
+            // TODO handle exceptions
+        }
     };
 
     static StatefulRetrieverPtr CreateSummaryGuidedRetriever(

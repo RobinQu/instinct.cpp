@@ -88,7 +88,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::shared_ptr<MetadataSchema> metadata_schema = nullptr
     ) {
         if (!metadata_schema) {
-            metadata_schema = CreateDocStorePresetMetdataSchema();
+            metadata_schema = CreateDocStorePresetMetadataSchema();
         }
         return std::make_shared<DuckDBDocStore>(db, metadata_schema, options);
     }

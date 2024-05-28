@@ -16,27 +16,17 @@ namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_CORE_NS;
 
     /**
-     * Interface for document store. Forgive the poor name of `VectorStore`, which is follows convention in langchain, etc, but actually misleading actually in two ways:
+     * Interface for document store. Forgive the poor name of `VectorStore`, which is follows convention in langchain, etc., but actually misleading in two ways:
      *
      * 1. It's only an abstraction for data access operations on a single table (or a collection, or a schema, or whatever you name a container of rows), not for database-level actions.
      * 2. Document normally contains both scalar fields like int, string and vector field. But many still call it `Vector` document.
      *
-     * Building a full-fledged hybrid vector store isn't my primary goal, so `VectoreStore` classes will follow practices in other similar LLM tools.
+     * Building a full-fledged hybrid vector store isn't my primary goal, so `VectorStore` classes will follow practices in other similar LLM tools.
      */
     class IVectorStore: public IDocStore {
     public:
         virtual AsyncIterator<Document> SearchDocuments(const SearchRequest& request) = 0;
         virtual EmbeddingsPtr GetEmbeddingModel() = 0;
-
-        /**
-         * Create docstore instance
-         * @return
-         */
-        virtual DocStorePtr AsDocStore(const std::string& doc_table_name, const MetadataSchemaPtr& doc_meatdata_schema) = 0;
-
-        virtual DocStorePtr AsDocStore() {
-            return AsDocStore("doc_table", CreateDocStorePresetMetdataSchema());
-        }
     };
     using VectorStorePtr = std::shared_ptr<IVectorStore>;
 

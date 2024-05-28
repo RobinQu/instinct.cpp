@@ -38,6 +38,8 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         virtual void DeleteDocuments(const std::vector<std::string>& ids, UpdateResult& update_result) = 0;
 
+        virtual void DeleteDocuments(const SearchQuery& filter, UpdateResult& update_result) = 0;
+
         virtual AsyncIterator<Document> MultiGetDocuments(const std::vector<std::string>& ids) = 0;
 
         [[nodiscard]] virtual std::shared_ptr<MetadataSchema> GetMetadataSchema() const = 0;

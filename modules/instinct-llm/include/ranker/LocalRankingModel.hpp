@@ -16,11 +16,11 @@ namespace INSTINCT_LLM_NS {
     /**
      * This class uses models in `instinct-transfomrer` module to calculate ranking score
      */
-    class LocalRankingModel final: BaseRankingModel {
+    class LocalRankingModel final: public BaseRankingModel {
         TokenizerPtr tokenizer_;
         ModelPtr model_;
     public:
-        explicit LocalRankingModel(const ModelType model_type, const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
+        explicit LocalRankingModel(const ModelType model_type, const FileVaultPtr& file_vault) {
             const auto resource_name = "model_bins/" + to_file_name(model_type);
             const auto entry = file_vault->GetResource(resource_name).get();
             std::tie(model_, tokenizer_) = ModelFactory::GetInstance().load(entry.local_path);
@@ -34,8 +34,12 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
+    static RankingModelPtr CreateLocalRankingModel(const ModelType model_type, const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
+        return std::make_shared<LocalRankingModel>(model_type, file_vault);
+    }
 
-    static void PreloadRankingModelFiles(const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
+
+    static void PreloadRankingModelFiles(const FileVaultPtr& file_vault) {
         if(const auto resource_name = "model_bins/" + to_file_name(ModelType::BGE_M3_RERANKER); !file_vault->CheckResource(resource_name).get()) {
             FetchHttpGetResourceToFileVault(
                 DEFAULT_FILE_VAULT,

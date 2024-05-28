@@ -11,7 +11,7 @@
 
 namespace INSTINCT_CORE_NS {
     /**
-     * Disposiable temperaory file object
+     * Disposable temporary file object
      */
     class TempFile {
     public:

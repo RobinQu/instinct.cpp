@@ -19,7 +19,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         virtual VectorStorePtr CreateInstance(const std::string& instance_id) = 0;
         virtual VectorStorePtr CreateInstance(const std::string& instance_id, MetadataSchemaPtr metadata_schema) = 0;
-        virtual std::optional<VectorStorePtr> LoadInstance(const std::string& instance_id)=0;
+        virtual VectorStorePtr LoadInstance(const std::string& instance_id)=0;
         virtual std::vector<std::string> ListInstances() = 0;
         virtual bool RemoveInstance(const std::string& instance_id) = 0;
     };

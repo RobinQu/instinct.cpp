@@ -477,7 +477,9 @@ namespace INSTINCT_RETRIEVAL_NS {
             update_result.mutable_returned_ids()->Add(ids.begin(), ids.end());
         }
 
-        // using DuckDBStoreInternalPtr = std::shared_ptr<DuckDBStoreInternal>;
+        void DeleteDocuments(const SearchQuery &filter, UpdateResult &update_result) override {
+
+        }
     };
 }
 

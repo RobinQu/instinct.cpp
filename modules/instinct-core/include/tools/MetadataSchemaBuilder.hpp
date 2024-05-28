@@ -68,7 +68,7 @@ namespace INSTINCT_CORE_NS {
         }
     };
 
-    static MetadataSchemaPtr CreateDocStorePresetMetdataSchema() {
+    static MetadataSchemaPtr CreateDocStorePresetMetadataSchema() {
         const auto builder = MetadataSchemaBuilder::Create();
         builder->DefineString(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
         builder->DefineInt32(METADATA_SCHEMA_PAGE_NO_KEY);
@@ -76,7 +76,7 @@ namespace INSTINCT_CORE_NS {
         return builder->Build();
     }
 
-    static MetadataSchemaPtr CreateVectorStorePresetMetdataSchema() {
+    static MetadataSchemaPtr CreateVectorStorePresetMetadataSchema() {
         const auto builder = MetadataSchemaBuilder::Create();
         builder->DefineString(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
         return builder->Build();

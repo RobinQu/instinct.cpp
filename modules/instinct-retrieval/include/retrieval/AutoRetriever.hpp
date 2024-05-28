@@ -11,13 +11,13 @@
 #include "chain/LLMChain.hpp"
 #include "llm/BaseLLM.hpp"
 #include "output_parser/BaseOutputParser.hpp"
-#include "output_parser/MetadataQueryOutputParser.hpp"
+#include "output_parser/SearchQueryOutputParser.hpp"
 #include "store/IVectorStore.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
 
-    using MetadataFilterChainPtr = ChainPtr<MetadataQuery>;
+    using MetadataFilterChainPtr = ChainPtr<SearchQuery>;
 
     class AutoRetriever final: public ITextRetriever {
         /**
@@ -26,7 +26,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         VectorStorePtr vector_store_;
 
         /**
-         * LLMChain to genearte MetadataQuery for given text query
+         * LLMChain to genearte SearchQuery for given text query
          */
         MetadataFilterChainPtr metadata_filter_chain_ {};
     public:
@@ -37,8 +37,8 @@ namespace INSTINCT_RETRIEVAL_NS {
             const PromptTemplatePtr& prompt_template
             )
             : vector_store_(std::move(vector_store)) {
-            auto output_parser = std::make_shared<MetadataQueryOutputParser>(vector_store_->GetMetadataSchema());
-            metadata_filter_chain_ = std::make_shared<LLMChain<MetadataQuery>>(
+            auto output_parser = std::make_shared<SearchQueryOutputParser>(vector_store_->GetMetadataSchema());
+            metadata_filter_chain_ = std::make_shared<LLMChain<SearchQuery>>(
                     llm,
                     prompt_template,
                     output_parser

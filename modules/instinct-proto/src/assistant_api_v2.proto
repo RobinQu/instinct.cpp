@@ -888,6 +888,18 @@ message GetVectorStoreFileRequest {
   string vector_store_id = 2;
 }
 
+message ModifyVectorStoreFileRequest {
+  // The ID of the file being retrieved.
+  string file_id = 1;
+
+  // The ID of the vector store that the file belongs to.
+  string vector_store_id = 2;
+
+  VectorStoreFileStatus status = 6;
+
+  VectorStoreFileError last_error = 7;
+}
+
 message DeleteVectorStoreFileRequest {
   // The ID of the file to delete.
   string file_id = 1;

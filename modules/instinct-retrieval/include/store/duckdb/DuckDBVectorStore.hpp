@@ -54,7 +54,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             const std::string& table_name,
             const std::shared_ptr<MetadataSchema>& metadata_schema,
             const std::vector<float>& query_vector,
-            const MetadataQuery& metadata_filter,
+            const SearchQuery& metadata_filter,
             size_t limit = 10
         ) {
             assert_gt(limit, 0, "limit shoud be positive");
@@ -120,7 +120,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
 
     /**
-     * IVectorStore implmenetation using brute-force consine similarty executed by DuckDB instance
+     * IVectorStore implementation using brute-force cosine similarly executed by DuckDB instance
      */
     class DuckDBVectorStore final: public virtual IVectorStore {
         DuckDBDocWithEmbeddingStore store_;
@@ -139,9 +139,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         {
             assert_gt(options.dimension, 0);
             assert_true(embeddings_ != nullptr, "should provide embeddings object pointer");
-            assert_true(embeddings_->GetDimension() == options.dimension, "should have dimmension set correctly");
+            assert_true(embeddings_->GetDimension() == options.dimension, "should have dimension set correctly");
             assert_true(metadata_schema, "should have provide valid metadata schema");
-            // auto internal_appender = std::make_shared<DuckDBVectorStoreInternalAppender>(embeddings_model, metadata_schema, options.bypass_unknown_fields);
 
             auto search_sql = details::make_prepared_search_sql(options.table_name, metadata_schema);
             LOG_DEBUG("prepare search sql: {}", search_sql);
@@ -215,12 +214,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             return store_.CountDocuments();
         }
 
-        DocStorePtr AsDocStore(const std::string &doc_table_name,
-            const MetadataSchemaPtr &doc_meatdata_schema) override {
-            DuckDBStoreOptions options;
-            options.table_name = doc_table_name;
-            return CreateDuckDBDocStore(store_.GetDuckDB(), options, doc_meatdata_schema);
+        void DeleteDocuments(const SearchQuery &filter, UpdateResult &update_result) override {
+
         }
+
     };
 
     /**
@@ -238,7 +235,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             MetadataSchemaPtr metadata_schema = nullptr
         ) {
         if (!metadata_schema) {
-            metadata_schema = CreateVectorStorePresetMetdataSchema();
+            metadata_schema = CreateVectorStorePresetMetadataSchema();
         }
         return std::make_shared<DuckDBVectorStore>(
             db,

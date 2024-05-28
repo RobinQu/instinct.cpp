@@ -74,8 +74,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                     affected_row++;
                 } catch (const InstinctException& e) {
                     update_result.add_failed_documents()->CopyFrom(records[i]);
-                    // TODO with better logging facilities
-                    std::cerr << e.what() << std::endl;
+                    LOG_WARN("AppendRows error: {}", e.what());
                 }
             }
             update_result.set_affected_rows(affected_row);

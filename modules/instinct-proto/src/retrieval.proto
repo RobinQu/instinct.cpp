@@ -3,31 +3,39 @@ syntax = "proto3";
 //import "llm.proto";
 import "core.proto";
 import "google/protobuf/any.proto";
+import "google/protobuf/struct.proto";
 
 package instinct.retrieval;
 
 
-message MetadataBoolQuery {
-  repeated MetadataQuery must = 1;
-  repeated MetadataQuery should = 2;
-  repeated MetadataQuery mustNot = 3;
+message BoolQuery {
+  repeated SearchQuery must = 1;
+  repeated SearchQuery should = 2;
+  repeated SearchQuery mustNot = 3;
 }
 
-message MetadataTermQuery {
-  instinct.core.PrimitiveVariable predicate = 1;
+message TermQuery {
+  google.protobuf.Value term = 1;
+  string name = 2;
 }
 
-message MetadataQuery {
+message TermsQuery {
+  repeated google.protobuf.Value terms = 1;
+  string name = 2;
+}
+
+
+message SearchQuery {
   oneof query {
-      MetadataBoolQuery bool = 1;
-      MetadataTermQuery term = 2;
+    BoolQuery bool = 1;
+    TermQuery term = 2;
   }
 }
 
 message SearchRequest {
   string query = 1;
   int32 top_k = 2;
-  MetadataQuery metadata_filter = 3;
+  SearchQuery metadata_filter = 3;
 }
 
 message SearchResponse {

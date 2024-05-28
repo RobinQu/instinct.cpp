@@ -26,6 +26,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         }
 
+
+        std::vector<VectorStoreFileObject> ListVectorStoreFiles(const std::string& vector_store_id, const RangeOf<std::string> auto& file_ids) {
+
+        }
+
         std::vector<VectorStoreFileObject> ListVectorStoreFiles(const std::string& vector_store_id) {
 
         }

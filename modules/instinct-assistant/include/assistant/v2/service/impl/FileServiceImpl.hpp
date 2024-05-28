@@ -5,7 +5,6 @@
 #ifndef FILESERVICEIMPL_HPP
 #define FILESERVICEIMPL_HPP
 
-#include <utility>
 
 #include "../IFileService.hpp"
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
@@ -154,6 +153,17 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             return buf;
         }
 
+        void DownloadFile(const DownloadFileRequest &download_file_request,
+            std::ostream &output_stream) override {
+            trace_span span {"DownloadFile"};
+            RetrieveFileRequest retrieve_file_request;
+            retrieve_file_request.set_file_id(download_file_request.file_id());
+            const auto file = RetrieveFile(retrieve_file_request);
+            assert_true(file, fmt::format("Attempted to download non-existing file: bucket={}, file_id={}", options_.bucket_name, download_file_request.file_id()));
+            const auto object_key = details::map_file_object_key(file->purpose(), file->id());
+            const auto status = object_store_->GetObject(options_.bucket_name, object_key, output_stream);
+            assert_status_ok(status);
+        }
     };
 }
 
