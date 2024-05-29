@@ -118,7 +118,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             return response;
         }
 
-        ListVectorStoreFilesResponse ListVectorStoreFiles(const ListVectorStoresRequest &req) override {
+        ListVectorStoreFilesResponse ListVectorStoreFiles(const ListVectorStoreFilesRequest &req) override {
             trace_span span {"ListVectorStoreFiles"};
             return vector_store_file_data_mapper_->ListVectorStoreFiles(req);
         }
@@ -147,7 +147,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             return vector_store_file_data_mapper_->GetVectorStoreFile(req.vector_store_id(), req.file_id());
         }
 
-        DeleteVectorStoreFileResponse DeleteVectorStoreFile(const DeleteVectorStoreRequest &req) override {
+        DeleteVectorStoreFileResponse DeleteVectorStoreFile(const DeleteVectorStoreFileRequest &req) override {
             trace_span span {"DeleteVectorStoreFile"};
             assert_not_blank(req.vector_store_id(), "should have provide vector_store_id");
             assert_not_blank(req.file_id(), "should have provide file_id");

@@ -22,7 +22,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         }
 
-        ListVectorStoreFilesResponse ListVectorStoreFiles(const ListVectorStoresRequest &req) {
+        ListVectorStoreFilesResponse ListVectorStoreFiles(const ListVectorStoreFilesRequest &req) {
 
         }
 

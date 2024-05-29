@@ -12,12 +12,10 @@
 #include "agent/executor/BaseAgentExecutor.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 #include "agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp"
-#include "LLMObjectFactory.hpp"
+#include "toolkit/LocalToolkit.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;
-
-
 
     /**
      * Used for runtime option overrides
@@ -234,6 +232,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             StopPredicate stop_predicate =  [&](const AgentState& state, AgentStep& step) {
                 return CheckRunObjectForExecution_(run_object.thread_id(), run_object.id(), state, step);
             };
+
+
+
 
             // create agent executor
             return  LLMObjectFactory::CreateAgentExecutor(agent_options, chat_model, stop_predicate);

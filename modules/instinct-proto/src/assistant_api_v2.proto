@@ -875,11 +875,6 @@ message ListVectorStoreFilesResponse {
   bool has_more = 5;
 }
 
-message CreateVectorFileRequest {
-  string vector_store_id = 1;
-  string file_id = 2;
-}
-
 message GetVectorStoreFileRequest {
   // The ID of the file being retrieved.
   string file_id = 1;
