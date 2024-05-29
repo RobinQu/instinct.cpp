@@ -4,7 +4,6 @@
 
 #ifndef VECTORSTORERETRIEVER_HPP
 #define VECTORSTORERETRIEVER_HPP
-#include <utility>
 
 
 #include "BaseRetriever.hpp"
@@ -12,7 +11,7 @@
 #include "store/duckdb/DuckDBVectorStore.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
-    class VectorStoreRetriever: public BaseStatefulRetriever {
+    class VectorStoreRetriever final: public BaseStatefulRetriever {
         /**
          * vector_store_ will be used both as doc store and embedding store
          */
@@ -28,6 +27,12 @@ namespace INSTINCT_RETRIEVAL_NS {
             VectorStorePtr vector_store,
             std::shared_ptr<SearchRequest> search_request_template)
             : vecstore_store_(std::move(vector_store)), search_request_template_(std::move(search_request_template)){
+        }
+
+        void Remove(const SearchQuery &metadata_query) override {
+            UpdateResult update_result;
+            vecstore_store_->DeleteDocuments(metadata_query, update_result);
+            assert_true(update_result.failed_documents_size() == 0, "should have all documents deleted");
         }
 
         [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery& query) const override {

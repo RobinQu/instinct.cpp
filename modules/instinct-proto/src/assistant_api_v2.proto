@@ -998,7 +998,7 @@ message ListFilesInVectorStoreBatchResponse {
 
 
 
-message VectorStoreFileBatch {// CreateVectorStoreFileBatchResponse, GetVectorStoreFileBatchResponse, CancelVectorStoreFileBatchResponse
+message VectorStoreFileBatchObject {// CreateVectorStoreFileBatchResponse, GetVectorStoreFileBatchResponse, CancelVectorStoreFileBatchResponse
   enum VectorStoreFileBatchStatus {
     unknown_vector_store_file_batch_status = 0;
     in_progress = 1;

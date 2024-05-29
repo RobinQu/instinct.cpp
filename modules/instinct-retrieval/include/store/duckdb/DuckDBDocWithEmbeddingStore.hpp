@@ -28,11 +28,11 @@ namespace INSTINCT_RETRIEVAL_NS {
             append_row_basic_fields(appender, doc, update_result);
 
             // column of vector
-            vector<Value> vector_value;
+            vector<duckdb::Value> vector_value;
             for (const float& f: embedding) {
-                vector_value.push_back(Value::FLOAT(f));
+                vector_value.push_back(duckdb::Value::FLOAT(f));
             }
-            appender.Append(Value::ARRAY(LogicalType::FLOAT, vector_value));
+            appender.Append(duckdb::Value::ARRAY(LogicalType::FLOAT, vector_value));
 
             // metadata fields
             append_row_metadata_fields(metadata_schema, appender, doc, bypass_unknown_fields);

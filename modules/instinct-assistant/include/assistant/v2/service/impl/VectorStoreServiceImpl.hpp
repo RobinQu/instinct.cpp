@@ -175,8 +175,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             return vector_store_file_data_mapper_->GetVectorStoreFile(req.vector_store_id(), req.file_id());
         }
 
-        std::optional<VectorStoreFileBatch>
-        CreateVectorStoreFileBatches(const CreateVectorStoreFileBatchRequest &req) override {
+        std::optional<VectorStoreFileBatchObject>
+        CreateVectorStoreFileBatche(const CreateVectorStoreFileBatchRequest &req) override {
             trace_span span {"CreateVectorStoreFileBatchRequest"};
             assert_true(req.file_ids_size()>0, "should provide at least one file_id");
             assert_not_blank(req.vector_store_id(), "should provide valid vector_store_id");
@@ -201,18 +201,18 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             return vector_store_file_batch_data_mapper_->GetVectorStoreFileBatch(req.vector_store_id(), pk.value());
         }
 
-        std::optional<VectorStoreFileBatch> GetVectorStoreFileBatch(const GetVectorStoreFileBatchRequest &req) override {
+        std::optional<VectorStoreFileBatchObject> GetVectorStoreFileBatch(const GetVectorStoreFileBatchRequest &req) override {
             trace_span span {"GetVectorStoreFileBatch"};
             assert_not_blank(req.vector_store_id(), "should provide valid vector_store_id");
             assert_not_blank(req.batch_id(), "should provide valid batch_id");
             return vector_store_file_batch_data_mapper_->GetVectorStoreFileBatch(req.vector_store_id(), req.batch_id());
         }
 
-        std::optional<VectorStoreFileBatch>
+        std::optional<VectorStoreFileBatchObject>
         CancelVectorStoreFileBatch(const CancelVectorStoreFileBatchRequest &req) override {
             trace_span span {"CancelVectorStoreFileBatchRequest"};
             assert_not_blank(req.batch_id(), "should have non-blank");
-            assert_true(vector_store_file_batch_data_mapper_->UpdateVectorStoreFileBatch(req.vector_store_id(), req.batch_id(), VectorStoreFileBatch_VectorStoreFileBatchStatus_cancelled) == 1, "should have VectorStoreFileBatch updated");
+            assert_true(vector_store_file_batch_data_mapper_->UpdateVectorStoreFileBatch(req.vector_store_id(), req.batch_id(), VectorStoreFileBatchObject_VectorStoreFileBatchStatus_cancelled) == 1, "should have VectorStoreFileBatch updated");
             return vector_store_file_batch_data_mapper_->GetVectorStoreFileBatch(req.vector_store_id(), req.batch_id());
         }
 

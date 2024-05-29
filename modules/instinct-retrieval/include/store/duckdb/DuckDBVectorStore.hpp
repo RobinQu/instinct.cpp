@@ -83,25 +83,24 @@ namespace INSTINCT_RETRIEVAL_NS {
                 select_sql += " WHERE ";
                 // TODO expand all queries. for now, let's assume it only has one term query at root level
                 if (metadata_filter.has_term()) {
-                    auto field = metadata_filter.term().predicate();
-                    switch (field.value_case()) {
-                        case PrimitiveVariable::kIntValue:
-                            select_sql += (field.name() + "=" + std::to_string(field.int_value()));
+                    const auto& field = metadata_filter.term();
+                    switch (field.term().kind_case()) {
+                        case google::protobuf::Value::kNumberValue: {
+                            select_sql += (field.name() + "=" + std::to_string(field.term().number_value()));
                             break;
-                        case PrimitiveVariable::kLongValue:
-                            select_sql += (field.name() + "=" + std::to_string(field.long_value()));
+                        }
+                        case google::protobuf::Value::kBoolValue: {
+                            select_sql += (field.name() + "=" + std::to_string(field.term().bool_value()));
                             break;
-                        case PrimitiveVariable::kFloatValue:
-                            select_sql += (field.name() + "=" + std::to_string(field.float_value()));
+                        }
+                        case google::protobuf::Value::kStringValue: {
+                            select_sql += (field.name() + "=\"" + field.term().string_value() + "\"");
                             break;
-                        case PrimitiveVariable::kDoubleValue:
-                            select_sql += (field.name() + "=" + std::to_string(field.double_value()));
-                            break;
-                        case PrimitiveVariable::kBoolValue:
-                            select_sql += (field.name() + "=" + std::to_string(field.bool_value()));
-                            break;
-                        case PrimitiveVariable::kStringValue:
-                            select_sql += (field.name() + "=\"" + field.string_value() + "\"");
+                        }
+                        case google::protobuf::Value::kNullValue:
+                        case google::protobuf::Value::kStructValue:
+                        case google::protobuf::Value::kListValue:
+                            // Do nothing
                             break;
                         default:
                             throw InstinctException(
@@ -171,11 +170,11 @@ namespace INSTINCT_RETRIEVAL_NS {
                 result = store_.GetConnection().Query(search_sql);
             } else {
                 // use prepared statement for better performance when no filter is actually given
-                vector<Value> vector_array;
+                vector<duckdb::Value> vector_array;
                 for(const float& f: query_embedding) {
-                    vector_array.push_back(Value::FLOAT(f));
+                    vector_array.push_back(duckdb::Value::FLOAT(f));
                 }
-                result = prepared_search_statement_->Execute(Value::ARRAY(LogicalType::FLOAT, vector_array), request.top_k());
+                result = prepared_search_statement_->Execute(duckdb::Value::ARRAY(LogicalType::FLOAT, vector_array), request.top_k());
             }
             assert_query_ok(result);
             return details::conv_query_result_to_iterator(

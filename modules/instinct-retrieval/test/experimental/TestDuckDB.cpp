@@ -67,11 +67,11 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
         std::cout << "insert started, n=" << n << std::endl;
         long t1 = ChronoUtils::GetCurrentTimeMillis();
         for(int i=0;i<n;i++) {
-            vector<Value> vector_list_value;
+            vector<duckdb::Value> vector_list_value;
             for(int j=0;j<d;j++) {
-                vector_list_value.push_back(Value::FLOAT(xt[i*d+j]));
+                vector_list_value.push_back(duckdb::Value::FLOAT(xt[i*d+j]));
             }
-            auto array_value = Value::ARRAY(LogicalType::FLOAT, vector_list_value);
+            auto array_value = duckdb::Value::ARRAY(LogicalType::FLOAT, vector_list_value);
             auto result = prepared_statement->Execute(array_value);
             if (auto error = result->GetErrorObject(); error.HasError()) {
                 std::cout << error.Message() << std::endl;
@@ -92,12 +92,12 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
             // appender.Append<std::nullptr_t>(nullptr);
 //            appender.Append(++id_value);
             appender.Append<uint64_t>(i+1);
-            vector<Value> vector_list_value;
+            vector<duckdb::Value> vector_list_value;
             vector_list_value.reserve(d);
             for(int j=0;j<d;j++) {
-                vector_list_value.push_back(Value::FLOAT(xt[i*d+j]));
+                vector_list_value.push_back(duckdb::Value::FLOAT(xt[i*d+j]));
             }
-            auto array_value = Value::ARRAY(LogicalType::FLOAT, vector_list_value);
+            auto array_value = duckdb::Value::ARRAY(LogicalType::FLOAT, vector_list_value);
             appender.Append(array_value);
             appender.EndRow();
         }
@@ -140,12 +140,12 @@ namespace INSTINCT_RETRIEVAL_NS::experimental {
             // appender.Append<std::nullptr_t>(nullptr);
 //            appender.Append(++id_value);
             appender.Append<int>(i+1);
-            vector<Value> vector_list_value;
+            vector<duckdb::Value> vector_list_value;
             vector_list_value.reserve(d);
             for(int j=0;j<d;j++) {
-                vector_list_value.push_back(Value::FLOAT(xt[i*d+j]));
+                vector_list_value.push_back(duckdb::Value::FLOAT(xt[i*d+j]));
             }
-            auto array_value = Value::ARRAY(LogicalType::FLOAT, vector_list_value);
+            auto array_value = duckdb::Value::ARRAY(LogicalType::FLOAT, vector_list_value);
             appender.Append(array_value);
             appender.EndRow();
         }
