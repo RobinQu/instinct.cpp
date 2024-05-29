@@ -31,6 +31,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         }
 
+        ListFilesInVectorStoreBatchResponse ListVectorStoreFiles(const std::string& vector_store_id, const std::string& batch_id) {
+
+        }
+
         std::vector<VectorStoreFileObject> ListVectorStoreFiles(const std::string& vector_store_id) {
 
         }
@@ -43,7 +47,13 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         }
 
-        std::optional<VectorStoreFileObject> GetVectorStoreFile(const std::string& vector_store_id, const std::string& vector_store_file_id) {}
+        std::optional<VectorStoreFileObject> GetVectorStoreFile(const std::string& vector_store_id, const std::string& vector_store_file_id) {
+
+        }
+
+        size_t UpdateVectorStoreFile(const ModifyVectorStoreFileRequest& update) {
+
+        }
     };
 
     using VectorStoreFileDataMapperPtr = std::shared_ptr<VectorStoreFileDataMapper>;

@@ -993,13 +993,30 @@ message ListFilesInVectorStoreBatchRequest {
   string vector_store_id = 7;
 }
 
+message ListFilesInVectorStoreBatchResponse {
+  string object = 1;
+  repeated VectorStoreFileObject data = 2;
+  string first_id = 3;
+  string last_id = 4;
+  bool has_more = 5;
+}
+
+
+
 message VectorStoreFileBatch {// CreateVectorStoreFileBatchResponse, GetVectorStoreFileBatchResponse, CancelVectorStoreFileBatchResponse
+  enum VectorStoreFileBatchStatus {
+    unknown_vector_store_file_batch_status = 0;
+    in_progress = 1;
+    completed = 2;
+    cancelled = 3;
+    failed = 4;
+  }
   string id = 1;
   string object = 2;
   int64 created_at = 3;
   int64 modified = 4;
   string vector_store_id = 6;
-  VectorStoreFileStatus status = 7;
+  VectorStoreFileBatchStatus status = 7;
   VectorStoreFileError last_error = 8;
 }
 

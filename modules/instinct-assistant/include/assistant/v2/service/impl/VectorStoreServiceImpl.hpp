@@ -7,6 +7,7 @@
 
 #include "../IVectorStoreService.hpp"
 #include "assistant/v2/data_mapper/VectorStoreDataMapper.hpp"
+#include "assistant/v2/data_mapper/VectorStoreFileBatchDataMapper.hpp"
 #include "assistant/v2/data_mapper/VectorStoreFileDataMapper.hpp"
 #include "assistant/v2/task_handler/FileObjectTaskHandler.hpp"
 #include "assistant/v2/tool/RetrieverOperator.hpp"
@@ -17,15 +18,20 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     class VectorStoreServiceImpl final: public IVectorStoreService {
         VectorStoreFileDataMapperPtr vector_store_file_data_mapper_;
         VectorStoreDataMapperPtr vector_store_data_mapper_;
+        VectorStoreFileBatchDataMapperPtr vector_store_file_batch_data_mapper_;
         CommonTaskSchedulerPtr task_scheduler_;
         RetrieverOperatorPtr retriever_operator_;
 
     public:
-        VectorStoreServiceImpl(VectorStoreFileDataMapperPtr vector_store_file_data_mapper,
-            VectorStoreDataMapperPtr vector_store_data_mapper, CommonTaskSchedulerPtr task_scheduler,
+        VectorStoreServiceImpl(
+            VectorStoreFileDataMapperPtr vector_store_file_data_mapper,
+            VectorStoreDataMapperPtr vector_store_data_mapper,
+            VectorStoreFileBatchDataMapperPtr vector_store_file_batch_data_mapper,
+            CommonTaskSchedulerPtr task_scheduler,
             RetrieverOperatorPtr retriever_operator)
             : vector_store_file_data_mapper_(std::move(vector_store_file_data_mapper)),
               vector_store_data_mapper_(std::move(vector_store_data_mapper)),
+              vector_store_file_batch_data_mapper_(std::move(vector_store_file_batch_data_mapper)),
               task_scheduler_(std::move(task_scheduler)),
               retriever_operator_(std::move(retriever_operator)) {
         }
@@ -60,6 +66,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<VectorStoreObject> GetVectorStore(const GetVectorStoreRequest &req) override {
+            trace_span span {"GetVectorStore"};
             auto vs = vector_store_data_mapper_->GetVectorStore(req.vector_store_id());
             if (!vs) {
                 return std::nullopt;
@@ -75,11 +82,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             counts->set_in_progress(statues.contains(in_progress) ? statues.at(in_progress) : 0);
             counts->set_failed(statues.contains(failed) ? statues.at(failed) : 0);
             counts->set_cancelled(statues.contains(cancelled) ? statues.at(cancelled) : 0);
-            counts->set_total(files.size());
+            counts->set_total(static_cast<int32_t>(files.size()));
             return vs;
         }
 
         std::optional<VectorStoreObject> ModifyVectorStore(const ModifyVectorStoreRequest &req) override {
+            trace_span span {"ModifyVectorStore"};
             assert_true(vector_store_data_mapper_->UpdateVectorStore(req) == 1, "should have vector object updated");
             GetVectorStoreRequest get_vector_store_request;
             get_vector_store_request.set_vector_store_id(req.vector_store_id());
@@ -87,6 +95,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         DeleteVectorStoreResponse DeleteVectorStore(const DeleteVectorStoreRequest &req) override {
+            trace_span span {"DeleteVectorStore"};
             // TODO need transaction
             const auto vector_store_object = vector_store_data_mapper_->GetVectorStore(req.vector_store_id());
             assert_true(vector_store_object, fmt::format("should have found VectorStoreObject with request {}", req.ShortDebugString()));
@@ -110,10 +119,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         ListVectorStoreFilesResponse ListVectorStoreFiles(const ListVectorStoresRequest &req) override {
+            trace_span span {"ListVectorStoreFiles"};
             return vector_store_file_data_mapper_->ListVectorStoreFiles(req);
         }
 
         std::optional<VectorStoreFileObject> CreateVectorStoreFile(const CreateVectorStoreFileRequest &req) override {
+            trace_span span {"CreateVectorStoreFile"};
             assert_true(vector_store_file_data_mapper_->InsertVectorStoreFile(req) == 1, "should have vector store file created");
             GetVectorStoreFileRequest get_request;
             get_request.set_vector_store_id(req.vector_store_id());
@@ -130,10 +141,16 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<VectorStoreFileObject> GetVectorStoreFile(const GetVectorStoreFileRequest &req) override {
+            trace_span span {"GetVectorStoreFile"};
+            assert_not_blank(req.vector_store_id(), "should have provide vector_store_id");
+            assert_not_blank(req.file_id(), "should have provide file_id");
             return vector_store_file_data_mapper_->GetVectorStoreFile(req.vector_store_id(), req.file_id());
         }
 
         DeleteVectorStoreFileResponse DeleteVectorStoreFile(const DeleteVectorStoreRequest &req) override {
+            trace_span span {"DeleteVectorStoreFile"};
+            assert_not_blank(req.vector_store_id(), "should have provide vector_store_id");
+            assert_not_blank(req.file_id(), "should have provide file_id");
             const auto count = vector_store_file_data_mapper_->DeleteVectorStoreFile(req.vector_store_id(), req.file_id());
             DeleteVectorStoreFileResponse response;
             response.set_id(req.file_id());
@@ -147,6 +164,64 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             file_id_term->mutable_term()->set_string_value(req.file_id());
             retriever->Remove(filter);
             return response;
+        }
+
+        std::optional<VectorStoreFileObject> ModifyVectorStoreFile(const ModifyVectorStoreFileRequest &req) override {
+            trace_span span {"ModifyVectorStoreFile"};
+            assert_not_blank(req.file_id(), "should provide file_id");
+            assert_not_blank(req.vector_store_id(), "should provide vector_store_id");
+            assert_true(vector_store_file_data_mapper_->GetVectorStoreFile(req.vector_store_id(), req.file_id()), "should have found VectorStoreFileObject before update");
+            assert_true(vector_store_file_data_mapper_->UpdateVectorStoreFile(req) == 1, "should have VectorStoreFile updated");
+            return vector_store_file_data_mapper_->GetVectorStoreFile(req.vector_store_id(), req.file_id());
+        }
+
+        std::optional<VectorStoreFileBatch>
+        CreateVectorStoreFileBatches(const CreateVectorStoreFileBatchRequest &req) override {
+            trace_span span {"CreateVectorStoreFileBatchRequest"};
+            assert_true(req.file_ids_size()>0, "should provide at least one file_id");
+            assert_not_blank(req.vector_store_id(), "should provide valid vector_store_id");
+            const auto pk = vector_store_file_batch_data_mapper_->InsertVectorStoreFileBatch(req);
+            assert_true(pk, "should have VectorStoreFileBatch inserted");
+
+
+            // create VectorStoreFileObject
+            vector_store_file_data_mapper_->InsertManyVectorStoreFiles(req.vector_store_id(), req.file_ids());
+
+            // trigger file object jobs
+            if (task_scheduler_) {
+                for(const auto files = vector_store_file_data_mapper_->ListVectorStoreFiles(req.vector_store_id(), req.file_ids()); const auto& file: files) {
+                    task_scheduler_->Enqueue({
+                        .task_id = req.vector_store_id(),
+                        .category = FileObjectTaskHandler::CATEGORY,
+                        .payload = ProtobufUtils::Serialize(file)
+                    });
+                }
+            }
+
+            return vector_store_file_batch_data_mapper_->GetVectorStoreFileBatch(req.vector_store_id(), pk.value());
+        }
+
+        std::optional<VectorStoreFileBatch> GetVectorStoreFileBatch(const GetVectorStoreFileBatchRequest &req) override {
+            trace_span span {"GetVectorStoreFileBatch"};
+            assert_not_blank(req.vector_store_id(), "should provide valid vector_store_id");
+            assert_not_blank(req.batch_id(), "should provide valid batch_id");
+            return vector_store_file_batch_data_mapper_->GetVectorStoreFileBatch(req.vector_store_id(), req.batch_id());
+        }
+
+        std::optional<VectorStoreFileBatch>
+        CancelVectorStoreFileBatch(const CancelVectorStoreFileBatchRequest &req) override {
+            trace_span span {"CancelVectorStoreFileBatchRequest"};
+            assert_not_blank(req.batch_id(), "should have non-blank");
+            assert_true(vector_store_file_batch_data_mapper_->UpdateVectorStoreFileBatch(req.vector_store_id(), req.batch_id(), VectorStoreFileBatch_VectorStoreFileBatchStatus_cancelled) == 1, "should have VectorStoreFileBatch updated");
+            return vector_store_file_batch_data_mapper_->GetVectorStoreFileBatch(req.vector_store_id(), req.batch_id());
+        }
+
+        ListFilesInVectorStoreBatchResponse
+        ListFilesInVectorStoreBatch(const ListFilesInVectorStoreBatchRequest &req) override {
+            trace_span span {"ListFilesInVectorStoreBatch"};
+            assert_not_blank(req.vector_store_id(), "should provide valid vector_store_id");
+            assert_not_blank(req.batch_id(), "should provide valid batch_id");
+            return vector_store_file_data_mapper_->ListVectorStoreFiles(req.vector_store_id(), req.batch_id());;
         }
     };
 }

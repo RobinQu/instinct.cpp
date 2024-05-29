@@ -55,7 +55,7 @@ namespace INSTINCT_LLM_NS {
                         if (graph.joiner_result().is_replan()) {
                             auto& previous_joiner_thought = graph.joiner_result().thought();
                             // add previous plan details
-                            TaskGraphUtils::BuildAgentScrachPad(graph, context_string, {.include_action_id = true});
+                            TaskGraphUtils::BuildAgentScratchPad(graph, context_string, {.include_action_id = true});
                             // add joiner thought for previous plan
                             context_string += fmt::format("\n\nThought: {}\n\n", previous_joiner_thought);
                         }

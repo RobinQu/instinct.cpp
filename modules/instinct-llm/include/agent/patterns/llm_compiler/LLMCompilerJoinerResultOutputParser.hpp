@@ -33,9 +33,9 @@ namespace INSTINCT_LLM_NS {
             const auto content = MessageUtils::StringifyGeneration(context);
             LLMCompilerJoinerResult joiner_result;
 
-            if (std::smatch thoguht_match; std::regex_search(content, thoguht_match, THOUGHT_REGEX)) {
-                if (thoguht_match.size()>=2) {
-                    joiner_result.set_thought(thoguht_match[1]);
+            if (std::smatch thought_match; std::regex_search(content, thought_match, THOUGHT_REGEX)) {
+                if (thought_match.size()>=2) {
+                    joiner_result.set_thought(thought_match[1]);
                 }
             }
             if (std::smatch action_match; std::regex_search(content, action_match, ACTION_REGEX)) {
@@ -44,7 +44,7 @@ namespace INSTINCT_LLM_NS {
                     // item two is action name
                     const auto action = action_match[1].str();
                     joiner_result.set_is_replan(action.find(options_.replan_action_name) != std::string::npos);
-                    // item three is answer
+                    // item three is answered
                     joiner_result.set_answer(action_match[2].str());
                 }
             }

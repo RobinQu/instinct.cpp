@@ -23,7 +23,7 @@ namespace INSTINCT_LLM_NS {
 
         JSONContextPtr ParseInput(const LLMCompilerTaskGraph &graph) override {
             std::string scratchpad;
-            TaskGraphUtils::BuildAgentScrachPad(graph, scratchpad);
+            TaskGraphUtils::BuildAgentScratchPad(graph, scratchpad);
             return CreateJSONContext({
                 {"question", graph.question()},
                 {"agent_scrathpad", scratchpad},

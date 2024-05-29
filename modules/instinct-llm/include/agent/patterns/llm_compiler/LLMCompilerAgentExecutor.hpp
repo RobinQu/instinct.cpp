@@ -24,7 +24,7 @@ namespace INSTINCT_LLM_NS {
         LLMCompilerJoinerTaskGraphInputParserOptions joiner_input_parser = {};
     };
 
-    class LLMCompilerAgentExectuor final: public BaseAgentExecutor {
+    class LLMCompilerAgentExecutor final: public BaseAgentExecutor {
         StopPredicate should_early_stop_;
         PlannerPtr planner_;
         WorkerPtr worker_;
@@ -32,7 +32,7 @@ namespace INSTINCT_LLM_NS {
         LLMCompilerOptions options_;
 
     public:
-        LLMCompilerAgentExectuor(StopPredicate should_early_stop, PlannerPtr planner, WorkerPtr worker, JoinerPtr joiner, LLMCompilerOptions  options)
+        LLMCompilerAgentExecutor(StopPredicate should_early_stop, PlannerPtr planner, WorkerPtr worker, JoinerPtr joiner, LLMCompilerOptions  options)
             : should_early_stop_(std::move(should_early_stop)),
               planner_(std::move(planner)),
               worker_(std::move(worker)),
@@ -61,7 +61,7 @@ namespace INSTINCT_LLM_NS {
             if(last_step.has_observation()) {
                 // recover task graph
                 LLMCompilerTaskGraph graph;
-                assert_true(last_step.observation().custom().Is<LLMCompilerTaskGraph>(), "should have LLMCompilerTaskGraph as cumstom data in the observation step");
+                assert_true(last_step.observation().custom().Is<LLMCompilerTaskGraph>(), "should have LLMCompilerTaskGraph as custom data in the observation step");
                 last_step.observation().custom().UnpackTo(&graph);
 
                 std::vector<int64_t> next_ids;
@@ -198,7 +198,7 @@ namespace INSTINCT_LLM_NS {
         auto planer = CreateLLMCompilerPlaner(chat_model, options.planer_input_parser, options.planer_output_parser);
         auto worker = CreateLocalToolkitsWorker(toolkits);
         auto joiner = CreateLLMCompilerJoiner(chat_model, options.joiner_input_parser, options.joiner_output_parser);
-        return std::make_shared<LLMCompilerAgentExectuor>(stop_predicate, planer, worker, joiner, options);
+        return std::make_shared<LLMCompilerAgentExecutor>(stop_predicate, planer, worker, joiner, options);
     }
 
 

@@ -58,7 +58,7 @@ namespace INSTINCT_LLM_NS {
                 auto* tool_call = tool_call_request->add_tool_calls();
                 tool_call->CopyFrom(task.tool_call());
                 tool_call_request->set_role("assistant");
-                // do subsituions
+                // do substitutions
                 std::string args = task.tool_call().function().arguments();
                 for(const auto& match: StringUtils::MatchPattern(task.tool_call().function().arguments(), DEP_PATTERN)) {
                     assert_gte(match.size(), 2, "should at least two parts in match");
@@ -72,7 +72,7 @@ namespace INSTINCT_LLM_NS {
         }
 
 
-        static void BuildAgentScrachPad(const LLMCompilerTaskGraph& graph, std::string& output, const ScrtchPadFormatOptions& options = {}) {
+        static void BuildAgentScratchPad(const LLMCompilerTaskGraph& graph, std::string& output, const ScrtchPadFormatOptions& options = {}) {
             for (const auto& task: graph.tasks()) {
                 if (task.tool_call().function().name() == "join") {
                     continue;

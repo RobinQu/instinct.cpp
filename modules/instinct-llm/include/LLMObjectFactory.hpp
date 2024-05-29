@@ -15,7 +15,7 @@
 
 namespace INSTINCT_LLM_NS {
 
-    // defualt values are required
+    // default values are required
     struct LLMProviderOptions {
         std::string provider_name = "openai";
         OpenAIConfiguration openai = {};
@@ -42,15 +42,19 @@ namespace INSTINCT_LLM_NS {
         }
 
 
-        static AgentExecutorPtr CreateAgentExecutor(const AgentExecutorOptions& options, const ChatModelPtr& chat_model, const StopPredicate& predicate) {
+        static AgentExecutorPtr CreateAgentExecutor(
+            const AgentExecutorOptions& options,
+            const ChatModelPtr& chat_model,
+            const StopPredicate& predicate,
+            const std::vector<FunctionToolkitPtr>& tk = {}
+        ) {
             if(options.agent_executor_name == "llm_compiler") {
-                // TODO currently build with empty toolkit. we have to add `file-search` and `code-interpreter` in the future
                 LOG_INFO("Create LLMCompilerAgentExectuor");
-                return CreateLLMCompilerAgentExecutor(chat_model, {}, predicate, options.llm_compiler);
+                return CreateLLMCompilerAgentExecutor(chat_model, tk, predicate, options.llm_compiler);
             }
             assert_true(std::dynamic_pointer_cast<OpenAIChat>(chat_model), "Should be Chat model of OpenAI when openai_tool_agent_executor");
             LOG_INFO("Create OpenAIToolAgentExecutor");
-            return CreateOpenAIToolAgentExecutor(chat_model, {}, predicate);
+            return CreateOpenAIToolAgentExecutor(chat_model, tk, predicate);
         }
     };
 }
