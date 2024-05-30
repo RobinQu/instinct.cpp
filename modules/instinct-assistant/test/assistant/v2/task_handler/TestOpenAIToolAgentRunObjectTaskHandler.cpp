@@ -20,6 +20,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         RunServicePtr run_service_ = CreateRunServiceWithoutScheduler();
         MessageServicePtr message_service_ = CreateMessageService();
         AssistantServicePtr assistant_service_ = CreateAssistantService();
+        ThreadServicePtr thread_service_ = CreateThreadService();
         FunctionToolkitPtr builtin_toolkit_ = CreateLocalToolkit({});
         ChatModelPtr chat_model_ = CreateOpenAIChatModel();
 
@@ -31,6 +32,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 run_service_,
                 message_service_,
                 assistant_service_,
+                nullptr,
+                nullptr,
+                thread_service_,
                 llm_provider_options,
                 agent_executor_options
             );

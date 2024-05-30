@@ -45,7 +45,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         RetrieverOperator(
             VectorStoreOperatorPtr vector_store_operator,
             DocStorePtr doc_store,
-            const RetrieverOperatorOptions& options)
+            const RetrieverOperatorOptions& options = {})
             : vector_store_operator_(std::move(vector_store_operator)),
               doc_store_(std::move(doc_store)),
               options_(options) {

@@ -217,6 +217,9 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         }
 
+        bool Destroy() override {
+
+        }
     };
 
     /**

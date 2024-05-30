@@ -33,9 +33,9 @@ namespace INSTINCT_TRANSFORMER_NS {
         std::map<std::string, std::shared_ptr<ModelLoader>> model_loaders_;
         std::mutex mutex_;
 
-        static ModelFactory INSTANCE_;
     public:
         static ModelFactory& GetInstance() {
+            static ModelFactory INSTANCE_;
             return INSTANCE_;
         }
 

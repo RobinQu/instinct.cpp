@@ -4,10 +4,6 @@
 
 #ifndef DUCKDBVECTORSTOREOPERATOR_HPP
 #define DUCKDBVECTORSTOREOPERATOR_HPP
-
-
-#include <utility>
-
 #include "BaseDuckDBStore.hpp"
 #include "DuckDBDocStore.hpp"
 #include "DuckDBVectorStore.hpp"
@@ -19,15 +15,18 @@ namespace INSTINCT_RETRIEVAL_NS {
     using EmbeddingModelSelector = std::function<EmbeddingsPtr(const std::string& instance_id, const MetadataSchemaPtr& metadata_schema)>;
 
     class DuckDBVectorStoreOperator final: public IVectorStoreOperator {
-        std::filesystem::path data_root_;
+        DuckDBPtr duck_db_;
         MetadataSchemaPtr default_metadata_schema_;
         EmbeddingModelSelector embedding_model_selector_;
         std::mutex instances_mutex_;
-        VectorStoreMeatdataDataMapperPtr metadata_data_mapper_;
+        VectorStoreMetadataDataMapperPtr metadata_data_mapper_;
     public:
-        DuckDBVectorStoreOperator(std::filesystem::path data_root,
-            EmbeddingModelSelector embedding_model_selector, VectorStoreMeatdataDataMapperPtr metadata_data_mapper, MetadataSchemaPtr  default_metadata_schema)
-            : data_root_(std::move(data_root)),
+        DuckDBVectorStoreOperator(
+            DuckDBPtr db,
+            EmbeddingModelSelector embedding_model_selector,
+            VectorStoreMetadataDataMapperPtr metadata_data_mapper,
+            MetadataSchemaPtr  default_metadata_schema)
+            : duck_db_(std::move(db)),
               default_metadata_schema_(std::move(default_metadata_schema)),
               embedding_model_selector_(std::move(embedding_model_selector)),
               metadata_data_mapper_(std::move(metadata_data_mapper)) {
@@ -42,7 +41,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
             const auto embedding_model = std::invoke(embedding_model_selector_, instance_id, metadata_schema);
             ConfigureDuckDBOptions(options, embedding_model);
-            const auto vdb_instance = CreateDuckDBVectorStore(embedding_model, options, metadata_schema);
+            const auto vdb_instance = CreateDuckDBVectorStore(duck_db_, embedding_model, options, metadata_schema);
             VectorStoreInstanceMetadata instance_metadata;
             instance_metadata.set_instance_id(instance_id);
             instance_metadata.mutable_metadata_schema()->CopyFrom(*metadata_schema);
@@ -66,7 +65,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             options.instance_id = instance_id;
             ConfigureDuckDBOptions(options, embedding_model);
             assert_true(std::filesystem::exists(options.db_file_path), fmt::format("db path should exist at {}", options.db_file_path));
-            return CreateDuckDBVectorStore(embedding_model, options, metadata_schema);
+            return CreateDuckDBVectorStore(duck_db_, embedding_model, options, metadata_schema);
         }
 
         std::vector<std::string> ListInstances() override {
@@ -77,10 +76,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         bool RemoveInstance(const std::string &instance_id) override {
-            assert_not_blank(instance_id, "should have non-blank instance_id");
-            if (const auto instance = metadata_data_mapper_->GetInstance(instance_id)) {
-                assert_true(metadata_data_mapper_->RemoveInstance(instance_id) == 1, "should have instance metadata deleted");
-                return std::filesystem::remove(data_root_ / (instance_id + ".db"));
+            if (const auto instance = LoadInstance(instance_id)) {
+                instance->Destroy();
             }
             return false;
         }
@@ -88,7 +85,6 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     private:
         void ConfigureDuckDBOptions(DuckDBStoreOptions& options, const EmbeddingsPtr& embedding_model) const {
-            options.db_file_path = data_root_ / (options.instance_id + ".db");
             options.dimension = embedding_model->GetDimension();
             options.table_name = options.instance_id;
             options.create_or_replace_table = false;

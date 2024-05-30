@@ -12,6 +12,7 @@
 #include "commons/OllamaCommons.hpp"
 #include "database/DBUtils.hpp"
 #include "server/httplib/DefaultErrorController.hpp"
+#include "store/duckdb/DuckDBVectorStoreOperator.hpp"
 #include "toolkit/LocalToolkit.hpp"
 
 CMRC_DECLARE(instinct::assistant);
@@ -85,8 +86,17 @@ namespace instinct::examples::mini_assistant {
                 context.task_scheduler
                 );
             const auto assistant_service = std::make_shared<AssistantServiceImpl>(context.assistant_data_mapper);
-            context.retriever_operator = std::make_shared<RetrieverOperator>()
-            const auto vector_store_service = std::make_shared<VectorStoreServiceImpl>(context.vector_store_file_data_mapper, context.vector_store_data_mapper, context.vector_store_file_batch_data_mapper, context.task_scheduler, );
+            context.vector_store_operator = std::make_shared<DuckDBVectorStoreOperator>(
+                duck_db_,
+                [&](const std::string& instance_id, const MetadataSchemaPtr& metadata_schema) { return nullptr; },
+                context.vector_store_metadata_data_mapper,
+                CreateVectorStorePresetMetadataSchema()
+                );
+            context.retriever_operator = std::make_shared<RetrieverOperator>(
+                context.vector_store_operator,
+                CreateDuckDBDocStore(duck_db_, {.table_name = "doc_table"})
+            );
+            const auto vector_store_service = std::make_shared<VectorStoreServiceImpl>(context.vector_store_file_data_mapper, context.vector_store_data_mapper, context.vector_store_file_batch_object, context.task_scheduler, context.retriever_operator);
             context.assistant_facade = {
                 .assistant = assistant_service,
                 .file = file_service,
@@ -102,8 +112,8 @@ namespace instinct::examples::mini_assistant {
                 run_service,
                 message_service,
                 assistant_service,
-                nullptr,
-                nullptr,
+                context.retriever_operator,
+                context.assistant_facade.vector_store,
                 thread_service,
                 options_.llm_provider,
                 options_.agent_executor

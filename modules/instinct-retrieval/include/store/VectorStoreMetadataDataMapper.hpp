@@ -43,7 +43,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     };
 
-    using VectorStoreMeatdataDataMapperPtr = std::shared_ptr<VectorStoreMetadataDataMapper>;
+    using VectorStoreMetadataDataMapperPtr = std::shared_ptr<VectorStoreMetadataDataMapper>;
 }
 
 

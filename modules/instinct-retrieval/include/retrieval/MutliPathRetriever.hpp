@@ -20,17 +20,17 @@ namespace INSTINCT_RETRIEVAL_NS {
     class MultiPathRetriever final: public BaseRetriever {
         RankingModelPtr ranking_model_;
         std::vector<RetrieverPtr> retrievers_;
-        ThreadPoolPtr thread_pool_;
+        ThreadPool& thread_pool_;
 
     public:
         MultiPathRetriever(
             RankingModelPtr ranking_model,
             std::vector<RetrieverPtr> retrievers,
-            ThreadPoolPtr thread_pool
+            ThreadPool& thread_pool
         )
             : ranking_model_(std::move(ranking_model)),
               retrievers_(std::move(retrievers)),
-              thread_pool_(std::move(thread_pool)) {
+              thread_pool_(thread_pool) {
             assert_gt(retrievers_.size(), 0, "should have at least one retriever");
         }
 
@@ -39,7 +39,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
             if(retrievers_.size() == 1) return retrievers_[0]->Retrieve(query);
 
-            auto multi_futures = thread_pool_->submit_sequence<size_t>(0, retrievers_.size(), [&](const size_t idx) {
+            auto multi_futures = thread_pool_.submit_sequence<size_t>(0, retrievers_.size(), [&](const size_t idx) {
                 return CollectVector(retrievers_[idx]->Retrieve(query));
             });
             if (!multi_futures.wait_for(60s)) {
@@ -52,7 +52,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 docs.insert(docs.end(), batch.begin(), batch.end());
             }
 
-            auto multi_futures_2 = thread_pool_->submit_sequence<size_t>(0, docs.size(), [&](const size_t idx) {
+            auto multi_futures_2 = thread_pool_.submit_sequence<size_t>(0, docs.size(), [&](const size_t idx) {
                 return ranking_model_->GetRankingScore(query.text, docs[idx].text());
             });
             std::vector<std::pair<std::string, float>> doc_id_with_score;
@@ -81,7 +81,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     template<typename ...R>
     static RetrieverPtr CreateMultiPathRetriever(RankingModelPtr ranking_model, R... r) {
-        std::vector retrievers {r...};
+        std::vector<RetrieverPtr> retrievers {r...};
         return std::make_shared<MultiPathRetriever>(ranking_model, retrievers, COMPUTE_WORKER_POOL);
     }
 }

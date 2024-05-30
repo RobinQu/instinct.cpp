@@ -19,11 +19,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         }
 
-        std::optional<VectorStoreFileBatch> GetVectorStoreFileBatch(const std::string& vs_store_id, const std::string& batch_id) {
+        std::optional<VectorStoreFileBatchObject> GetVectorStoreFileBatch(const std::string& vs_store_id, const std::string& batch_id) {
 
         }
 
-        size_t UpdateVectorStoreFileBatch(const std::string& vs_store_id, const std::string& batch_id, VectorStoreFileBatch_VectorStoreFileBatchStatus status) {
+        size_t UpdateVectorStoreFileBatch(const std::string& vs_store_id, const std::string& batch_id, VectorStoreFileBatchObject_VectorStoreFileBatchStatus status) {
 
         }
 
