@@ -33,6 +33,26 @@ namespace INSTINCT_DATA_NS {
                 column_names_mapping_(column_names_mapping) {
         }
 
+        Aggregations Aggregate(const SQLTemplate &select_sql, const SQLContext &context) override {
+            const auto conn = connection_pool_->Acquire();
+            DuckDBConnectionPool::GuardConnection guard {connection_pool_, conn};
+            const auto query_result = conn->Query(select_sql, context);
+            Aggregations result;
+            for(auto& row: *query_result) {
+                auto *data = result.add_rows();
+                for (int i = 0; i < query_result->names.size(); i++) {
+                    if (query_result->types[i].IsIntegral()) {
+                        data->mutable_int64()->emplace(query_result->names[i], row.GetValue<int64_t>(i));
+                    } else if (query_result->types[i].IsNumeric()) {
+                        data->mutable_double_()->emplace(query_result->names[i], row.GetValue<double>(i));
+                    } else {
+                        LOG_WARN("discard column that is not integeral or numeric: {}", query_result->names[i]);
+                    }
+                }
+            }
+            return result;
+        }
+
         std::optional<Entity> SelectOne(const SQLTemplate &select_sql, const SQLContext& context) override {
             const auto conn = connection_pool_->Acquire();
             DuckDBConnectionPool::GuardConnection guard {connection_pool_, conn};

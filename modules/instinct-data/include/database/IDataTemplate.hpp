@@ -64,6 +64,14 @@ namespace INSTINCT_DATA_NS {
          * @return 
          */
         virtual std::vector<PrimaryKey> InsertMany(const SQLTemplate& insert_sql, const SQLContext& context) = 0;
+
+        /**
+         * Run aggregation query
+         * @param select_sql
+         * @param context
+         * @return
+         */
+        virtual Aggregations Aggregate(const SQLTemplate &select_sql, const SQLContext& context) = 0;
     };
 
     template<typename T, typename PrimaryKey>

@@ -71,17 +71,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 return std::nullopt;
             }
             // TODO need transaction
-            const auto files = vector_store_file_data_mapper_->ListVectorStoreFiles(req.vector_store_id());
-            const auto counts = vs->mutable_file_counts();
-            std::map<VectorStoreFileStatus, int> statues;
-            for(const auto& file: files) {
-                statues[file.status()]++;
-            }
-            counts->set_completed(statues.contains(completed) ? statues.at(completed) : 0);
-            counts->set_in_progress(statues.contains(in_progress) ? statues.at(in_progress) : 0);
-            counts->set_failed(statues.contains(failed) ? statues.at(failed) : 0);
-            counts->set_cancelled(statues.contains(cancelled) ? statues.at(cancelled) : 0);
-            counts->set_total(static_cast<int32_t>(files.size()));
+            const auto counts = vector_store_file_data_mapper_->CountVectorStoreFiles(req.vector_store_id());
+            vs->mutable_file_counts()->CopyFrom(counts);
             return vs;
         }
 
@@ -98,17 +89,13 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // TODO need transaction
             const auto vector_store_object = vector_store_data_mapper_->GetVectorStore(req.vector_store_id());
             assert_true(vector_store_object, fmt::format("should have found VectorStoreObject with request {}", req.ShortDebugString()));
-            const auto files = vector_store_file_data_mapper_->ListVectorStoreFiles(req.vector_store_id());
-            const bool is_removable = std::ranges::all_of(files, [](const VectorStoreFileObject& file_object) {
-               return file_object.status() != in_progress;
-            });
+            const auto count = vector_store_file_data_mapper_->CountVectorStoreFiles(req.vector_store_id());
+            const bool is_removable = count.in_progress() == 0;
             DeleteVectorStoreResponse response;
             response.set_id(req.vector_store_id());
             if (is_removable) {
-                const auto file_ids = files | std::views::transform([](const VectorStoreFileObject& file) {
-                    return file.id();
-                });
-                vector_store_file_data_mapper_->DeleteVectorStoreFiles(req.vector_store_id(), file_ids);
+                const auto deleted_count = vector_store_file_data_mapper_->DeleteVectorStoreFiles(req.vector_store_id());
+                LOG_DEBUG("Cascade delete {} files in VectorStore {}", deleted_count, req.vector_store_id);
                 assert_true(vector_store_data_mapper_->DeleteVectorStore(req) == 1, "should have VectorStore deleted");
                 response.set_deleted(retriever_operator_->CleanupRetriever(vector_store_object.value()));
             } else {
@@ -124,7 +111,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         std::optional<VectorStoreFileObject> CreateVectorStoreFile(const CreateVectorStoreFileRequest &req) override {
             trace_span span {"CreateVectorStoreFile"};
-            assert_true(vector_store_file_data_mapper_->InsertVectorStoreFile(req) == 1, "should have vector store file created");
+            assert_not_blank(req.file_id(), "should provide file_id");
+            assert_not_blank(req.vector_store_id(), "should provide vector_store_id");
+            assert_true(vector_store_file_data_mapper_->InsertVectorStoreFile(req), "should have vector store file created");
             GetVectorStoreFileRequest get_request;
             get_request.set_vector_store_id(req.vector_store_id());
             get_request.set_file_id(req.file_id());
@@ -220,7 +209,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             trace_span span {"ListFilesInVectorStoreBatch"};
             assert_not_blank(req.vector_store_id(), "should provide valid vector_store_id");
             assert_not_blank(req.batch_id(), "should provide valid batch_id");
-            return vector_store_file_data_mapper_->ListVectorStoreFiles(req.vector_store_id(), req.batch_id());;
+            return vector_store_file_data_mapper_->ListVectorStoreFiles(req);
         }
     };
 }

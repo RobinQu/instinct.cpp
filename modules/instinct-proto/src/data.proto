@@ -12,6 +12,14 @@ message OSSStatus {
   }
 }
 
+message Aggregations {
+    message Aggregation {
+      map<string, int64> int64 = 1;
+      map<string, double> double = 2;
+    }
+    repeated Aggregation rows = 1;
+}
+
 //message PubObjectRequest {
 //
 //}

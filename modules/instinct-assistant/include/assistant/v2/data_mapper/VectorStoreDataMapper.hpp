@@ -102,16 +102,16 @@ limit {{limit}};
 update instinct_vector_store
 set
 {% if exists("name") and is_not_blank(name) %}
-    name = {{text(name)}},
+    name = {{text(name)}} and
 {% endif %}
 {% if exists("expires_after") %}
-    expires_after = {{stringify(expires_after)}},
+    expires_after = {{stringify(expires_after)}} and
 {% endif %}
 {% if exists("metadata") %}
-    metadata = {{stringify(metadata)}},
+    metadata = {{stringify(metadata)}} and
 {% endif %}
 {% if exists("summary") and {{is_not_blank(summary)}} %}
-    summary = {{text(summary)}},
+    summary = {{text(summary)}} and
 {% endif %}
     modified_at = now()
 where id = {{text(vector_store_id)}};
