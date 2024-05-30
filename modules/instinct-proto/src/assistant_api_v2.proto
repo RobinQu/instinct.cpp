@@ -818,7 +818,7 @@ message VectorStoreObject { // CreateVectorStoreResponse, GetVectorStoreResponse
   string object = 2; // always `vector_store`
   int32 created_at = 3;
   string name = 4;
-  uint32 bytes = 5;
+  int32 usage_bytes = 5;
 
   FileCounts file_counts = 6;
   message FileCounts {

@@ -47,9 +47,8 @@ namespace instinct::examples::mini_assistant {
         std::filesystem::path file_store_path;
         FileServiceOptions file_service;
         AgentExecutorOptions agent_executor;
+        RetrieverOperatorOptions retriever_operator;
     };
-
-
 
     class MiniAssistantApplicationContextFactory final: public IApplicationContextFactory<duckdb::Connection, duckdb::unique_ptr<duckdb::MaterializedQueryResult>> {
         ApplicationOptions options_;
@@ -60,8 +59,8 @@ namespace instinct::examples::mini_assistant {
         ApplicationContext GetInstance() override {
             static ApplicationContext context;
             // configure database
-            const auto duck_db_ = std::make_shared<DuckDB>(options_.db_file_path);
-            context.connection_pool = CreateDuckDBConnectionPool(duck_db_, options_.connection_pool);
+            const auto duckdb = std::make_shared<DuckDB>(options_.db_file_path);
+            context.connection_pool = CreateDuckDBConnectionPool(duckdb, options_.connection_pool);
             context.assistant_data_mapper = CreateDuckDBDataMapper<AssistantObject, std::string>(context.connection_pool);
             context.thread_data_mapper = CreateDuckDBDataMapper<ThreadObject, std::string>(context.connection_pool);
             context.message_data_mapper = CreateDuckDBDataMapper<MessageObject, std::string>(context.connection_pool);
@@ -86,15 +85,17 @@ namespace instinct::examples::mini_assistant {
                 context.task_scheduler
                 );
             const auto assistant_service = std::make_shared<AssistantServiceImpl>(context.assistant_data_mapper);
+            const auto embedding_model = LLMObjectFactory::CreateEmbeddingModel(options_.llm_provider);
             context.vector_store_operator = std::make_shared<DuckDBVectorStoreOperator>(
-                duck_db_,
-                [&](const std::string& instance_id, const MetadataSchemaPtr& metadata_schema) { return nullptr; },
+                duckdb,
+                [&,embedding_model=embedding_model](const std::string& instance_id, const MetadataSchemaPtr& metadata_schema)   { return embedding_model; },
                 context.vector_store_metadata_data_mapper,
                 CreateVectorStorePresetMetadataSchema()
                 );
             context.retriever_operator = std::make_shared<RetrieverOperator>(
                 context.vector_store_operator,
-                CreateDuckDBDocStore(duck_db_, {.table_name = "doc_table"})
+                CreateDuckDBDocStore(duckdb, {.table_name = "vs_document_table"}),
+                options_.retriever_operator
             );
             const auto vector_store_service = std::make_shared<VectorStoreServiceImpl>(context.vector_store_file_data_mapper, context.vector_store_data_mapper, context.vector_store_file_batch_object, context.task_scheduler, context.retriever_operator);
             context.assistant_facade = {
@@ -152,36 +153,33 @@ namespace instinct::examples::mini_assistant {
                         {"https", kHTTPS}
     };
 
-    static void BuildChatModelProviderOptionGroup(
-            CLI::Option_group* llm_provider_ogroup,
-            OpenAIConfiguration& provider_options) {
-        llm_provider_ogroup->description("OpenAI API, or any OpenAI API compatible servers are supported. Defaults to OpenAI public server.");
-
-        llm_provider_ogroup->add_option("--openai_api_key", provider_options.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.");
-        llm_provider_ogroup->add_option("--openai_host", provider_options.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.")
+    static void BuildOpenAIOptionGroup(
+        CLI::Option_group* ogroup,
+        OpenAIConfiguration& provider_options
+    ) {
+        ogroup->description("OpenAI API, or any OpenAI API compatible servers are supported. Defaults to OpenAI public server.");
+        ogroup->add_option("--openai_api_key", provider_options.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.");
+        ogroup->add_option("--openai_host", provider_options.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.")
                 ->default_val(OPENAI_DEFAULT_ENDPOINT.host);
-        llm_provider_ogroup->add_option("--openai_port", provider_options.endpoint.port, "Port number for API service.")
+        ogroup->add_option("--openai_port", provider_options.endpoint.port, "Port number for API service.")
                 ->default_val(OPENAI_DEFAULT_ENDPOINT.port);
-        llm_provider_ogroup->add_option("--openai_protocol", provider_options.endpoint.protocol, "HTTP protocol for API service.")
+        ogroup->add_option("--openai_protocol", provider_options.endpoint.protocol, "HTTP protocol for API service.")
                 ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
                 ->default_val(OPENAI_DEFAULT_ENDPOINT.protocol);
-        llm_provider_ogroup->add_option("--openai_model_name", provider_options.model_name, "Specify name of the model to be used.")
-                ->default_val(OPENAI_DEFAULT_MODEL_NAME);
     }
 
-    static void BuildChatModelProviderOptionGroup(
+    static void BuildOllamaOptionGroup(
         CLI::Option_group* llm_provider_ogroup,
-        OllamaConfiguration& provider_options) {
+        OllamaConfiguration& provider_options
+        ) {
         llm_provider_ogroup->description("Configuration options for Ollama service.");
         llm_provider_ogroup->add_option("--ollama_host", provider_options.endpoint.host, "Host name for Ollama API endpoint.")
                 ->default_val(OLLAMA_ENDPOINT.host);
         llm_provider_ogroup->add_option("--ollama_port", provider_options.endpoint.port, "Port number for Ollama API endpoint.")
                 ->default_val(OLLAMA_ENDPOINT.port);
-        llm_provider_ogroup->add_option("--chat_model_protocol", provider_options.endpoint.protocol, "HTTP protocol for Ollama API endpoint.")
+        llm_provider_ogroup->add_option("--ollama_protocol", provider_options.endpoint.protocol, "HTTP protocol for Ollama API endpoint.")
                 ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
                 ->default_val(OLLAMA_ENDPOINT.protocol);
-        llm_provider_ogroup->add_option("--chat_model_model_name", provider_options.model_name, "Specify name of the model to be used.")
-                ->default_val(OLLAMA_DEFUALT_MODEL_NAME);
     }
 
     static void BuildAgentExecutorOptionsGroup(
@@ -191,8 +189,6 @@ namespace instinct::examples::mini_assistant {
         agent_executor_option_group->description("Options for LLMCompilier-based agent executor");
         agent_executor_option_group->add_option("--max_replan", llm_compiler_option.max_replan, "Max count for replan")->default_val(6);
     }
-
-
 
 }
 
@@ -219,6 +215,7 @@ int main(int argc, char** argv) {
     ApplicationOptions application_options;
     app.add_option("-p,--port", application_options.server.port, "Port number which API server will listen")
             ->default_val("9091");
+
     app.add_option("--db_file_path", application_options.db_file_path, "Path for DuckDB database file.")->required();
     app.add_option("--file_store_path", application_options.file_store_path, "Path for root directory of local object store.")->required()->check(CLI::ExistingDirectory);
 
@@ -226,13 +223,20 @@ int main(int argc, char** argv) {
                                             "Specify chat model to use for chat completion. ")
                     ->check(CLI::IsMember({"ollama", "openai"}, CLI::ignore_case))
                     ->default_val("openai");
-    BuildChatModelProviderOptionGroup(app.add_option_group("🧠 OpenAI configuration"), application_options.llm_provider.openai);
-    BuildChatModelProviderOptionGroup(app.add_option_group("🧠 Ollama configuration"), application_options.llm_provider.ollama);
+    app.add_option("--chat_model_name", application_options.llm_provider.chat_model_name,
+                                            "Specify chat model to use for chat completion. Default to gpt-3.5-turbo for OpenAI, llama3:8b for Ollama");
+    app.add_option("--chat_model_name", application_options.llm_provider.chat_model_name,
+                                            "Specify chat model to use for chat completion. Default to gpt-4o for OpenAI, llama3:8b for Ollama");
+    app.add_option("--embedding_model_name", application_options.llm_provider.embedding_model_name,
+                                            "Specify chat model to use for text embedding. Default to text-embedding-3-large for OpenAI, all-minilm:latest for Ollama");
 
-    app.add_option("--agent_executor_type", application_options.agent_executor.agent_executor_name, "Sepcify agent executor type. `llm_compiler` enables parallel function calling with opensourced models like mistral series and llama series, while `openai_tool` relies on official OpenAI function calling capability to direct agent workflow.")
+    BuildOpenAIOptionGroup(app.add_option_group("🧠 OpenAI configuration"), application_options.llm_provider.openai);
+    BuildOllamaOptionGroup(app.add_option_group("🧠 Ollama configuration"), application_options.llm_provider.ollama);
+
+    app.add_option("--agent_executor_type", application_options.agent_executor.agent_executor_name, "Specify agent executor type. `llm_compiler` enables parallel function calling with opensourced models like mistral series and llama series, while `openai_tool` relies on official OpenAI function calling capability to direct agent workflow.")
         ->check(CLI::IsMember({"llm_compiler", "openai_tool"}, CLI::ignore_case))
         ->default_val("llm_compiler");
-    BuildAgentExecutorOptionsGroup(app.add_option_group("Options for LLMCompilerAgentExectuor"), application_options.agent_executor.llm_compiler);
+    BuildAgentExecutorOptionsGroup(app.add_option_group("Options for LLMCompilerAgentExecutor"), application_options.agent_executor.llm_compiler);
 
     // log level
     bool enable_verbose_log;

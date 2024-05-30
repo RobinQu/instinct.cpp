@@ -12,12 +12,16 @@
 #include "chat_model/OpenAIChat.hpp"
 #include "commons/OllamaCommons.hpp"
 #include "commons/OpenAICommons.hpp"
+#include "embedding_model/OllamaEmbedding.hpp"
+#include "embedding_model/OpenAIEmbedding.hpp"
 
 namespace INSTINCT_LLM_NS {
 
     // default values are required
     struct LLMProviderOptions {
         std::string provider_name = "openai";
+        std::string chat_model_name;
+        std::string embedding_model_name;
         OpenAIConfiguration openai = {};
         OllamaConfiguration ollama = {};
     };
@@ -31,16 +35,29 @@ namespace INSTINCT_LLM_NS {
     class LLMObjectFactory final {
     public:
 
-        static ChatModelPtr CreateChatModel(const LLMProviderOptions& options) {
+        static ChatModelPtr CreateChatModel(LLMProviderOptions options) {
             if (options.provider_name == "ollama") {
+                options.ollama.model_name = StringUtils::IsBlankString(options.chat_model_name) ? "llama3:latest"  : options.chat_model_name;
                 return CreateOllamaChatModel(options.ollama);
             }
             if (options.provider_name == "openai") {
+                options.ollama.model_name = StringUtils::IsBlankString(options.chat_model_name) ? "gpt-4o"  : options.chat_model_name;
                 return CreateOpenAIChatModel(options.openai);
             }
             return nullptr;
         }
 
+        static EmbeddingsPtr CreateEmbeddingModel(LLMProviderOptions options) {
+            if (options.provider_name == "ollama") {
+                options.ollama.model_name = StringUtils::IsBlankString(options.embedding_model_name) ? "all-minilm:latest": options.embedding_model_name;
+                return CreateOllamaEmbedding(options.ollama);
+            }
+            if (options.provider_name == "openai") {
+                options.openai.model_name = StringUtils::IsBlankString(options.embedding_model_name) ? "text-embedding-3-large": options.embedding_model_name;
+                return CreateOpenAIEmbeddingModel(options.openai);
+            }
+            return nullptr;
+        }
 
         static AgentExecutorPtr CreateAgentExecutor(
             const AgentExecutorOptions& options,

@@ -43,26 +43,25 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         std::optional<VectorStoreObject> CreateVectorStore(const CreateVectorStoreRequest &req) override {
             trace_span span {"CreateVectorStore"};
-            VectorStoreObject vector_store_object;
-            vector_store_object.set_id(details::generate_next_object_id("vs"));
-            vector_store_object.set_name(req.name());
-            assert_true(vector_store_data_mapper_->InsertVectorStore(vector_store_object) == 1, "should have object inserted");
-            assert_true(retriever_operator_->ProvisionRetriever(vector_store_object), "db instance should be created");
+            const auto pk = vector_store_data_mapper_->InsertVectorStore(req);
+            assert_true(vector_store_data_mapper_->InsertVectorStore(req), "should have object inserted");
+            const auto vector_store_object = vector_store_data_mapper_->GetVectorStore(pk.value());
+            assert_true(vector_store_object, "should have found created VectorStore");
+            assert_true(retriever_operator_->ProvisionRetriever(vector_store_object.value()), "db instance should be created");
             if(req.file_ids_size()>0) {
-                vector_store_file_data_mapper_->InsertManyVectorStoreFiles(vector_store_object.id(), req.file_ids());
-
+                vector_store_file_data_mapper_->InsertManyVectorStoreFiles(vector_store_object->id(), req.file_ids());
                 if(task_scheduler_) {
                     // trigger background jobs for file objects
-                    for(const auto files = vector_store_file_data_mapper_->ListVectorStoreFiles(vector_store_object.id(), req.file_ids()); const auto& file: files) {
+                    for(const auto files = vector_store_file_data_mapper_->ListVectorStoreFiles(vector_store_object->id(), req.file_ids()); const auto& file: files) {
                         task_scheduler_->Enqueue({
-                            .task_id = vector_store_object.id(),
+                            .task_id = vector_store_object->id(),
                             .category = FileObjectTaskHandler::CATEGORY,
                             .payload = ProtobufUtils::Serialize(file)
                         });
                     }
                 }
             }
-            return vector_store_data_mapper_->GetVectorStore(vector_store_object.id());
+            return vector_store_object;
         }
 
         std::optional<VectorStoreObject> GetVectorStore(const GetVectorStoreRequest &req) override {
@@ -110,7 +109,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     return file.id();
                 });
                 vector_store_file_data_mapper_->DeleteVectorStoreFiles(req.vector_store_id(), file_ids);
-                vector_store_data_mapper_->DeleteVectorStore(req.vector_store_id());
+                assert_true(vector_store_data_mapper_->DeleteVectorStore(req) == 1, "should have VectorStore deleted");
                 response.set_deleted(retriever_operator_->CleanupRetriever(vector_store_object.value()));
             } else {
                 response.set_deleted(false);

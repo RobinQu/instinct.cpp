@@ -99,13 +99,14 @@ CREATE TABLE IF NOT EXISTS instinct_vector_store (
     created_at TIMESTAMP DEFAULT now() NOT NULL,
     modified_at TIMESTAMP DEFAULT now() NOT NULL,
     name VARCHAR NOT NULL,
-    bytes INTEGER NOT NULL,
-    file_counts VARCHAR,
+    usage_bytes INTEGER DEFAULT 0 NOT NULL,
+    file_counts VARCHAR NOT NULL,
     status VARCHAR NOT NULL,
-    expires_after VARCHAR NOT NULL,
+    expires_after VARCHAR,
     expires_at TIMESTAMP NOT NULL,
     last_active_at TIMESTAMP NOT NULL,
-    metadata VARCHAR NOT NULL
+    metadata VARCHAR,
+    summary VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS instinct_vector_store_file (

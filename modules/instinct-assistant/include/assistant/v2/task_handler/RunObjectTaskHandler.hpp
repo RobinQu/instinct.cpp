@@ -82,7 +82,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             modify_run_request.set_thread_id(run_object.thread_id());
             modify_run_request.set_status(RunObject_RunObjectStatus_in_progress);
             modify_run_request.set_started_at(ChronoUtils::GetCurrentEpochMicroSeconds());
-            // expect to expire at 10 mins later
+            // expect to expire at 10 miniutes later
             modify_run_request.set_expires_at(ChronoUtils::GetLaterEpoch<std::chrono::microseconds>(10min));
             if(!run_service_->ModifyRun(modify_run_request)) {
                 LOG_ERROR("Illegal response for updating run object: {}", run_object.ShortDebugString());

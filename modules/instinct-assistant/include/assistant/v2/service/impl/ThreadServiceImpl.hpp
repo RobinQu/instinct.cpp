@@ -53,7 +53,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     ProtobufUtils::ConvertMessageToJsonObject(msg, obj);
                     create_messages_context["messages"].push_back(obj);
                 }
-                // create mesages
+                // create messages
                 EntitySQLUtils::InsertManyMessages(message_data_mapper_, create_messages_context);
             }
 
