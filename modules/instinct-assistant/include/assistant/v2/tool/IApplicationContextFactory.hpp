@@ -37,12 +37,16 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             DataTemplatePtr<MessageObject, std::string> message_data_mapper;
             DataTemplatePtr<FileObject, std::string> file_data_mapper;
             DataTemplatePtr<RunObject, std::string> run_data_mapper;
+            DataTemplatePtr<VectorStoreObject, std::string> vector_store_data_mapper;
+            DataTemplatePtr<VectorStoreFileObject, std::string> vector_store_file_data_mapper;
+            DataTemplatePtr<VectorStoreFileBatchObject, std::string> vector_store_file_batch_data_mapper;
             DataTemplatePtr<RunStepObject, std::string> run_step_data_mapper;
             ObjectStorePtr object_store;
             TaskSchedulerPtr<TaskPayload> task_scheduler;
             AssistantFacade assistant_facade;
             HttpLibServerPtr http_server;
             TaskHandlerPtr<TaskPayload> run_object_task_handler;
+            RetrieverOperatorPtr retriever_operator;
         };
 
         IApplicationContextFactory() = default;

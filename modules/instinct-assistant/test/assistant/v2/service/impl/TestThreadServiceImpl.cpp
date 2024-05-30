@@ -14,7 +14,7 @@ namespace INSTINCT_ASSISTANT_NS {
         const auto thread_service = CreateThreadService();
         const auto message_service = CreateMessageService();
 
-        // insert one thread without messsages
+        // insert one thread without messages
         ThreadObject create_request1;
         create_request1.mutable_tool_resources()->mutable_file_search()->add_vector_store_ids("vs-1234");
         auto obj1 = thread_service->CreateThread(create_request1);

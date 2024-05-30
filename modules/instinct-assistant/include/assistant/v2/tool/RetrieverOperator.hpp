@@ -19,7 +19,7 @@
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_RETRIEVAL_NS;
 
-    struct RetrieverFactoryOptions {
+    struct RetrieverOperatorOptions {
         int parent_chunk_size = 0;
         int child_chunk_size = 800;
         int child_chunk_overlap = 400;
@@ -38,14 +38,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     class RetrieverOperator {
         VectorStoreOperatorPtr vector_store_operator_;
         DocStorePtr doc_store_;
-        RetrieverFactoryOptions options_;
+        RetrieverOperatorOptions options_;
         MetadataSchemaPtr metadata_schema_;
 
     public:
         RetrieverOperator(
             VectorStoreOperatorPtr vector_store_operator,
             DocStorePtr doc_store,
-            const RetrieverFactoryOptions& options)
+            const RetrieverOperatorOptions& options)
             : vector_store_operator_(std::move(vector_store_operator)),
               doc_store_(std::move(doc_store)),
               options_(options) {

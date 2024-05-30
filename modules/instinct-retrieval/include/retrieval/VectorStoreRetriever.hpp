@@ -18,7 +18,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         VectorStorePtr vecstore_store_;
 
         /**
-         * Template object that every search request objects will copied from
+         * Template object that every search request objects will be copied from
          */
         std::shared_ptr<SearchRequest> search_request_template_;
 
@@ -27,6 +27,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             VectorStorePtr vector_store,
             std::shared_ptr<SearchRequest> search_request_template)
             : vecstore_store_(std::move(vector_store)), search_request_template_(std::move(search_request_template)){
+        }
+
+        DocStorePtr GetDocStore() override {
+            return vecstore_store_;
         }
 
         void Remove(const SearchQuery &metadata_query) override {

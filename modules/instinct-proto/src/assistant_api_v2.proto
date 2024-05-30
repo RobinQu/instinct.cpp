@@ -798,6 +798,7 @@ message ModifyVectorStoreRequest {
   string name = 2;
   VectorStoreExpirationPolicy expires_after = 3;
   google.protobuf.Struct metadata = 4;
+  string summary = 5;
 }
 
 message DeleteVectorStoreRequest {
@@ -840,6 +841,8 @@ message VectorStoreObject { // CreateVectorStoreResponse, GetVectorStoreResponse
   int64 expires_at = 9; // The Unix timestamp (in seconds) for when the vector store will expire.
   int64 last_active_at = 10; // The Unix timestamp (in seconds) for when the vector store was last active.
   google.protobuf.Struct metadata = 11;
+
+  string summary = 12; // this is a extra field for storing text summary of containing documents. And it's not in the original OpenAI's API design.
 }
 
 // ==============================================================

@@ -8,6 +8,7 @@
 #include "retrieval/IRetriever.hpp"
 #include "tools/DocumentUtils.hpp"
 #include "functional/StepFunctions.hpp"
+#include "store/IDocStore.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
@@ -42,6 +43,14 @@ namespace INSTINCT_RETRIEVAL_NS {
         [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery &query) const override = 0;
 
         void Ingest(const AsyncIterator<Document> &input) override = 0;
+
+
+        /**
+         * Return the underlying DocStore for original documents
+         * @return
+         */
+        virtual DocStorePtr GetDocStore() = 0;
+
     };
 
     using StatefulRetrieverPtr = std::shared_ptr<BaseStatefulRetriever>;

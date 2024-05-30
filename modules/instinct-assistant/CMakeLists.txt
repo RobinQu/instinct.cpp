@@ -56,7 +56,7 @@ add_library(
 add_library(instinct::agent
         ALIAS ${LIBRARY_TARGET_NAME})
 
-target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::llm instinct::proto instinct::server instinct::data)
+target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::llm instinct::proto instinct::server instinct::data instinct::retrieval)
 
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE

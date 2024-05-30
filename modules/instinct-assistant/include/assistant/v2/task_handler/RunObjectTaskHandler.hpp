@@ -12,6 +12,8 @@
 #include "agent/executor/BaseAgentExecutor.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 #include "agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp"
+#include "assistant/v2/service/IVectorStoreService.hpp"
+#include "assistant/v2/toolkit/FileSearchTool.hpp"
 #include "toolkit/LocalToolkit.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
@@ -38,18 +40,25 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         AssistantServicePtr assistant_service_;
         LLMProviderOptions llm_provider_options_;
         AgentExecutorOptions agent_executor_options_;
+        RetrieverOperatorPtr retriever_operator_;
+        VectorStoreServicePtr vector_store_service_;
+        ThreadServicePtr thread_service_;
 
     public:
         static inline std::string CATEGORY = "run_object";
 
         RunObjectTaskHandler(RunServicePtr run_service, MessageServicePtr message_service,
-            AssistantServicePtr assistant_service, LLMProviderOptions llm_provider_options, AgentExecutorOptions agent_executor_options)
+            AssistantServicePtr assistant_service, RetrieverOperatorPtr retriever_operator,
+            VectorStoreServicePtr vector_store_service, ThreadServicePtr thread_service, LLMProviderOptions llm_provider_options,
+            AgentExecutorOptions agent_executor_options)
             : run_service_(std::move(run_service)),
               message_service_(std::move(message_service)),
               assistant_service_(std::move(assistant_service)),
               llm_provider_options_(std::move(llm_provider_options)),
-                agent_executor_options_(std::move(agent_executor_options))
-        {
+              agent_executor_options_(std::move(agent_executor_options)),
+              retriever_operator_(std::move(retriever_operator)),
+              vector_store_service_(std::move(vector_store_service)),
+              thread_service_(std::move(thread_service)) {
         }
 
         bool Accept(const ITaskScheduler<std::string>::Task &task) override {
@@ -229,15 +238,67 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             if(instructions) {
                 agent_options.llm_compiler.joiner_input_parser.instructions = instructions.value();
             }
-            StopPredicate stop_predicate =  [&](const AgentState& state, AgentStep& step) {
+            StopPredicate stop_predicate = [&](const AgentState& state, AgentStep& step) {
                 return CheckRunObjectForExecution_(run_object.thread_id(), run_object.id(), state, step);
             };
 
-
-
+            // build file search tools
+            GetThreadRequest get_thread_request;
+            get_thread_request.set_thread_id(run_object.thread_id());
+            const auto thread_obj = thread_service_->RetrieveThread(get_thread_request);
+            assert_true(thread_obj, fmt::format("Thread is missing. id={}", run_object.thread_id()));
+            std::vector<FunctionToolPtr> tools;
+            AddFileSearchTools_(assistant_obj.value(), run_object, thread_obj.value(), tools);
 
             // create agent executor
-            return  LLMObjectFactory::CreateAgentExecutor(agent_options, chat_model, stop_predicate);
+            return  LLMObjectFactory::CreateAgentExecutor(
+                agent_options,
+                chat_model,
+                stop_predicate,
+                {CreateLocalToolkit(tools)}
+                );
+        }
+
+        void AddFileSearchTools_(
+            const AssistantObject& assistant_object,
+            const RunObject& run_object,
+            const ThreadObject& thread_object,
+            std::vector<FunctionToolPtr>& tools
+            ) const {
+            bool has_file_search = false;
+            for(const auto& tool: assistant_object.tools()) {
+                if (tool.type() == file_search) {
+                    has_file_search = true;
+                }
+            }
+            // if file_search is not enabled by assistant, let's exit
+            if(!has_file_search) return;
+            assert_true(assistant_object.tool_resources().file_search().vector_store_ids_size()>0, "should have at least one VectorStore");
+
+            // add VS on assistant
+            AddSingleFileSearchTool_(assistant_object.tool_resources().file_search().vector_store_ids(0), tools);
+
+            // add VS on thread if any
+            if (thread_object.tool_resources().has_file_search() && thread_object.tool_resources().file_search().vector_store_ids_size()>0) {
+                AddSingleFileSearchTool_(thread_object.tool_resources().file_search().vector_store_ids(0), tools);
+            }
+
+            // TODO add VS in message
+        }
+
+        void AddSingleFileSearchTool_(const std::string& vs_id, std::vector<FunctionToolPtr>& tools) const {
+            GetVectorStoreRequest get_vector_store_request;
+            get_vector_store_request.set_vector_store_id(vs_id);
+            const auto vs = vector_store_service_->GetVectorStore(get_vector_store_request);
+
+            // TODO tune this description
+            std::string description = fmt::format(R"(This is a search tool for a knowledge base which has summary of following content: {}. Use this tool if user question is relevant to the summary.)", vs->summary());
+
+            tools.push_back(std::make_shared<FileSearchTool>(
+                vs->id(),
+                description,
+                retriever_operator_->GetStatelessRetriever(vs.value())
+            ));
         }
 
         /**

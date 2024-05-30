@@ -59,6 +59,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_true(guidance_, "should have guidance");
         }
 
+        DocStorePtr GetDocStore() override {
+            return doc_store_;
+        }
+
         [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery& query) const override {
             SearchRequest search_request;
             search_request.set_query(query.text);

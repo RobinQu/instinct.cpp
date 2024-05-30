@@ -6,6 +6,7 @@
 
 #include "LLMObjectFactory.hpp"
 #include "agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp"
+#include "assistant/v2/service/impl/VectorStoreServiceImpl.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "chat_model/OpenAIChat.hpp"
 #include "commons/OllamaCommons.hpp"
@@ -84,13 +85,15 @@ namespace instinct::examples::mini_assistant {
                 context.task_scheduler
                 );
             const auto assistant_service = std::make_shared<AssistantServiceImpl>(context.assistant_data_mapper);
+            context.retriever_operator = std::make_shared<RetrieverOperator>()
+            const auto vector_store_service = std::make_shared<VectorStoreServiceImpl>(context.vector_store_file_data_mapper, context.vector_store_data_mapper, context.vector_store_file_batch_data_mapper, context.task_scheduler, );
             context.assistant_facade = {
                 .assistant = assistant_service,
                 .file = file_service,
                 .run = run_service,
                 .thread = thread_service,
                 .message = message_service,
-                .vector_store = nullptr
+                .vector_store = vector_store_service
             };
 
             // configure task handler for run objects
@@ -99,6 +102,9 @@ namespace instinct::examples::mini_assistant {
                 run_service,
                 message_service,
                 assistant_service,
+                nullptr,
+                nullptr,
+                thread_service,
                 options_.llm_provider,
                 options_.agent_executor
             );
