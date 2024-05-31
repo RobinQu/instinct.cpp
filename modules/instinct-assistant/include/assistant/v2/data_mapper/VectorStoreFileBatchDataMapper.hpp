@@ -12,19 +12,47 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;
 
     class VectorStoreFileBatchDataMapper final {
-        DataTemplatePtr<VectorStoreObject, std::string> data_template_;
-
+        DataTemplatePtr<VectorStoreFileBatchObject, std::string> data_template_;
     public:
-        std::optional<std::string> InsertVectorStoreFileBatch(const CreateVectorStoreFileBatchRequest &req) {
-
+        explicit VectorStoreFileBatchDataMapper(DataTemplatePtr<VectorStoreFileBatchObject, std::string> data_template)
+            : data_template_(std::move(data_template)) {
         }
 
-        std::optional<VectorStoreFileBatchObject> GetVectorStoreFileBatch(const std::string& vs_store_id, const std::string& batch_id) {
-
+        [[nodiscard]] std::optional<std::string> InsertVectorStoreFileBatch(const CreateVectorStoreFileBatchRequest &req) const {
+            SQLContext context;
+            context["id"] = details::generate_next_object_id("vsfb");
+            ProtobufUtils::ConvertMessageToJsonObject(req, context, {.keep_default_values = true});
+            return data_template_->InsertOne(R"(
+insert into instinct_vector_store_file_batch(id, vector_store_id, status) values(
+    {{text(id)}},
+    {{text(vector_store_id)}},
+    {{text(status)}}
+) returning id;
+)", context);
         }
 
-        size_t UpdateVectorStoreFileBatch(const std::string& vs_store_id, const std::string& batch_id, VectorStoreFileBatchObject_VectorStoreFileBatchStatus status) {
+        [[nodiscard]] std::optional<VectorStoreFileBatchObject> GetVectorStoreFileBatch(const std::string& vs_store_id, const std::string& batch_id) const {
+            SQLContext context;
+            context["vector_store_id"] = vs_store_id;
+            context["id"] = batch_id;
+            return data_template_->SelectOne(R"(
+select * from instinct_vector_store_file_batch where id = {{text(id)}};
+)", context);
+        }
 
+        [[nodiscard]] size_t UpdateVectorStoreFileBatch(const std::string& vs_store_id, const std::string& batch_id, const VectorStoreFileBatchObject_VectorStoreFileBatchStatus status) const {
+            SQLContext context;
+            context["id"] = batch_id;
+            context["status"] = VectorStoreFileBatchObject_VectorStoreFileBatchStatus_Name(status);
+            return data_template_->Execute(R"(
+update instinct_vector_store_file_batch
+set
+{% if exists("status") %}
+    status = {{text(status)}} and
+{% endif %}
+    modified_at = now()
+where id = {{text(id)}};
+)", context);
         }
 
     };

@@ -95,7 +95,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             response.set_id(req.vector_store_id());
             if (is_removable) {
                 const auto deleted_count = vector_store_file_data_mapper_->DeleteVectorStoreFiles(req.vector_store_id());
-                LOG_DEBUG("Cascade delete {} files in VectorStore {}", deleted_count, req.vector_store_id);
+                LOG_DEBUG("Cascade delete {} files in VectorStore {}", deleted_count, req.vector_store_id());
                 assert_true(vector_store_data_mapper_->DeleteVectorStore(req) == 1, "should have VectorStore deleted");
                 response.set_deleted(retriever_operator_->CleanupRetriever(vector_store_object.value()));
             } else {
@@ -170,8 +170,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             assert_not_blank(req.vector_store_id(), "should provide valid vector_store_id");
             const auto pk = vector_store_file_batch_data_mapper_->InsertVectorStoreFileBatch(req);
             assert_true(pk, "should have VectorStoreFileBatch inserted");
-
-
             // create VectorStoreFileObject
             vector_store_file_data_mapper_->InsertManyVectorStoreFiles(req.vector_store_id(), req.file_ids());
 
