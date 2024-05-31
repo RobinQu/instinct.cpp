@@ -38,28 +38,37 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         ListVectorStoresResponse ListVectorStores(const ListVectorStoresRequest &req) override {
             trace_span span {"ListVectorStores"};
-            return vector_store_data_mapper_->ListVectorStores(req);
+            auto resp = vector_store_data_mapper_->ListVectorStores(req);
+            for(auto& vs: *resp.mutable_data()) {
+                vs.mutable_file_counts()
+                    ->CopyFrom(vector_store_file_data_mapper_->CountVectorStoreFiles(vs.id()));
+            }
+            return resp;
         }
 
         std::optional<VectorStoreObject> CreateVectorStore(const CreateVectorStoreRequest &req) override {
             trace_span span {"CreateVectorStore"};
             const auto pk = vector_store_data_mapper_->InsertVectorStore(req);
-            assert_true(vector_store_data_mapper_->InsertVectorStore(req), "should have object inserted");
-            const auto vector_store_object = vector_store_data_mapper_->GetVectorStore(pk.value());
-            assert_true(vector_store_object, "should have found created VectorStore");
-            assert_true(retriever_operator_->ProvisionRetriever(vector_store_object.value()), "db instance should be created");
+            assert_true(pk, "should have object inserted");
             if(req.file_ids_size()>0) {
-                vector_store_file_data_mapper_->InsertManyVectorStoreFiles(vector_store_object->id(), req.file_ids());
+                vector_store_file_data_mapper_->InsertManyVectorStoreFiles(pk.value(), req.file_ids());
                 if(task_scheduler_) {
                     // trigger background jobs for file objects
-                    for(const auto files = vector_store_file_data_mapper_->ListVectorStoreFiles(vector_store_object->id(), req.file_ids()); const auto& file: files) {
+                    for(const auto files = vector_store_file_data_mapper_->ListVectorStoreFiles(pk.value(), req.file_ids()); const auto& file: files) {
                         task_scheduler_->Enqueue({
-                            .task_id = vector_store_object->id(),
+                            .task_id = pk.value(),
                             .category = FileObjectTaskHandler::CATEGORY,
                             .payload = ProtobufUtils::Serialize(file)
                         });
                     }
                 }
+            }
+            GetVectorStoreRequest get_vector_store_request;
+            get_vector_store_request.set_vector_store_id(pk.value());
+            const auto vector_store_object = GetVectorStore(get_vector_store_request);
+            assert_true(vector_store_object, "should have found created VectorStore");
+            if (retriever_operator_) {
+                assert_true(retriever_operator_->ProvisionRetriever(vector_store_object.value()), "db instance should be created");
             }
             return vector_store_object;
         }
@@ -92,12 +101,18 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             const auto count = vector_store_file_data_mapper_->CountVectorStoreFiles(req.vector_store_id());
             const bool is_removable = count.in_progress() == 0;
             DeleteVectorStoreResponse response;
+            response.set_object("vector_store.deleted");
             response.set_id(req.vector_store_id());
             if (is_removable) {
                 const auto deleted_count = vector_store_file_data_mapper_->DeleteVectorStoreFiles(req.vector_store_id());
                 LOG_DEBUG("Cascade delete {} files in VectorStore {}", deleted_count, req.vector_store_id());
                 assert_true(vector_store_data_mapper_->DeleteVectorStore(req) == 1, "should have VectorStore deleted");
-                response.set_deleted(retriever_operator_->CleanupRetriever(vector_store_object.value()));
+                if (retriever_operator_) {
+                    response.set_deleted(retriever_operator_->CleanupRetriever(vector_store_object.value()));
+                } else {
+                    response.set_deleted(true);
+                }
+
             } else {
                 response.set_deleted(false);
             }
@@ -144,13 +159,15 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             response.set_id(req.file_id());
             response.set_object("vector_store.file.deleted");
             response.set_deleted(count == 1);
-            const auto vector_store_object = vector_store_data_mapper_->GetVectorStore(req.vector_store_id());
-            const auto retriever = retriever_operator_->GetStatefulRetriever(vector_store_object.value());
-            SearchQuery filter;
-            auto* file_id_term = filter.mutable_term();
-            file_id_term->set_name(VECTOR_STORE_FILE_ID_KEY);
-            file_id_term->mutable_term()->set_string_value(req.file_id());
-            retriever->Remove(filter);
+            if (retriever_operator_) {
+                const auto vector_store_object = vector_store_data_mapper_->GetVectorStore(req.vector_store_id());
+                const auto retriever = retriever_operator_->GetStatefulRetriever(vector_store_object.value());
+                SearchQuery filter;
+                auto* file_id_term = filter.mutable_term();
+                file_id_term->set_name(VECTOR_STORE_FILE_ID_KEY);
+                file_id_term->mutable_term()->set_string_value(req.file_id());
+                retriever->Remove(filter);
+            }
             return response;
         }
 

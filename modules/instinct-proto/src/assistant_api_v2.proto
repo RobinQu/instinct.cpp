@@ -794,17 +794,16 @@ message GetVectorStoreRequest {
 message ModifyVectorStoreRequest {
   // The ID of the vector store to modify.
   string vector_store_id = 1;
-
   string name = 2;
   VectorStoreExpirationPolicy expires_after = 3;
   google.protobuf.Struct metadata = 4;
-  string summary = 5;
+  VectorStoreObject.VectorStoreStatus status = 5;
+  string summary = 6;
 }
 
 message DeleteVectorStoreRequest {
   // The ID of the vector store to delete.
   string vector_store_id = 1;
-  string file_id = 2;
 }
 
 message DeleteVectorStoreResponse {
@@ -816,7 +815,7 @@ message DeleteVectorStoreResponse {
 message VectorStoreObject { // CreateVectorStoreResponse, GetVectorStoreResponse, ModifyVectorStoreResponse
   string id = 1;
   string object = 2; // always `vector_store`
-  int32 created_at = 3;
+  int64 created_at = 3;
   string name = 4;
   int32 usage_bytes = 5;
 
@@ -843,6 +842,8 @@ message VectorStoreObject { // CreateVectorStoreResponse, GetVectorStoreResponse
   google.protobuf.Struct metadata = 11;
 
   string summary = 12; // this is a extra field for storing text summary of containing documents. And it's not in the original OpenAI's API design.
+
+  int64 modified_at = 13;
 }
 
 // ==============================================================

@@ -22,17 +22,19 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             VectorStoreObject vector_store_object;
             vector_store_object.set_id(details::generate_next_object_id("vs"));
             vector_store_object.set_name(req.name());
+            vector_store_object.set_status(VectorStoreObject_VectorStoreStatus_in_progress);
             if (req.has_expires_after()) {
                 assert_true(req.expires_after().anchor() == VectorStoreExpirationPolicy::last_active_at, "should have anchor set to last_active_at");
                 assert_gt(req.expires_after().days(), 0, "should have expires_after.days set with a positive value");
                 vector_store_object.mutable_expires_after()->CopyFrom(req.expires_after());
             }
             SQLContext context;
-            ProtobufUtils::ConvertMessageToJsonObject(req, context, {.keep_default_values = true});
+            ProtobufUtils::ConvertMessageToJsonObject(vector_store_object, context, {.keep_default_values = true});
             return data_template_->InsertOne(R"(
-insert into instinct_vector_store(name, file_counts, status, expires_after, expires_at, last_active_at) values(
+insert into instinct_vector_store(id, name, status, expires_after, expires_at, last_active_at) values(
+    {{text(id)}},
     {{text(name)}},
-    {{stringify(file_counts)}},
+    {{text(status)}},
     {% if exists("expires_after") %}
     {{stringify(expires_after)}},
     {% else %}
@@ -102,16 +104,19 @@ limit {{limit}};
 update instinct_vector_store
 set
 {% if exists("name") and is_not_blank(name) %}
-    name = {{text(name)}} and
+    name = {{text(name)}},
 {% endif %}
 {% if exists("expires_after") %}
-    expires_after = {{stringify(expires_after)}} and
+    expires_after = {{stringify(expires_after)}},
 {% endif %}
 {% if exists("metadata") %}
-    metadata = {{stringify(metadata)}} and
+    metadata = {{stringify(metadata)}},
 {% endif %}
-{% if exists("summary") and {{is_not_blank(summary)}} %}
-    summary = {{text(summary)}} and
+{% if exists("summary") and is_not_blank(summary) %}
+    summary = {{text(summary)}},
+{% endif %}
+{% if exists("status") %}
+    status = {{text(status)}},
 {% endif %}
     modified_at = now()
 where id = {{text(vector_store_id)}};

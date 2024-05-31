@@ -100,26 +100,26 @@ CREATE TABLE IF NOT EXISTS instinct_vector_store (
     modified_at TIMESTAMP DEFAULT now() NOT NULL,
     name VARCHAR NOT NULL,
     usage_bytes INTEGER DEFAULT 0 NOT NULL,
-    file_counts VARCHAR NOT NULL,
     status VARCHAR NOT NULL,
     expires_after VARCHAR,
-    expires_at TIMESTAMP NOT NULL,
+    expires_at TIMESTAMP,
     last_active_at TIMESTAMP NOT NULL,
     metadata VARCHAR,
     summary VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS instinct_vector_store_file (
-    id VARCHAR PRIMARY KEY,
+    file_id VARCHAR NOT NULL,
     object VARCHAR DEFAULT 'vector_store.file' NOT NULL,
     created_at TIMESTAMP DEFAULT now() NOT NULL,
     modified_at TIMESTAMP DEFAULT now() NOT NULL,
-    file_id VARCHAR NOT NULL,
     vector_store_id VARCHAR NOT NULL,
     status VARCHAR NOT NULL,
     last_error VARCHAR,
-    file_batch_id VARCHAR
+    file_batch_id VARCHAR,
+    PRIMARY KEY (file_id, vector_store_id)
 );
+
 
 CREATE TABLE IF NOT EXISTS instinct_vector_store_file_batch (
     id VARCHAR PRIMARY KEY,
