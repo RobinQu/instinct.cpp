@@ -24,6 +24,22 @@ message TermsQuery {
   string name = 2;
 }
 
+message IntRangeQuery {
+  string name = 1;
+  optional int64 from = 2;
+  optional int64 to = 3;
+  bool inclusive_start = 4;
+  bool inclusive_end = 5;
+}
+
+message DoubleRangeQuery {
+  string name = 1;
+  optional double from = 2;
+  optional double to = 3;
+  bool inclusive_start = 4;
+  bool inclusive_end = 5;
+}
+
 enum SortOder {
   DESC = 0;
   ASC = 1;
@@ -45,6 +61,8 @@ message SearchQuery {
     BoolQuery bool = 1;
     TermQuery term = 2;
     TermsQuery terms = 3;
+    IntRangeQuery int_range = 4;
+    DoubleRangeQuery double_range = 5;
   }
 }
 
