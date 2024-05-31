@@ -135,7 +135,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             const auto file_object = GetVectorStoreFile(get_request);
             if (task_scheduler_) {
                 task_scheduler_->Enqueue({
-                    .task_id = file_object->id(),
+                    .task_id = file_object->file_id(),
                     .category = FileObjectTaskHandler::CATEGORY,
                     .payload = ProtobufUtils::Serialize(file_object.value())
                 });
@@ -187,9 +187,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             assert_not_blank(req.vector_store_id(), "should provide valid vector_store_id");
             const auto pk = vector_store_file_batch_data_mapper_->InsertVectorStoreFileBatch(req);
             assert_true(pk, "should have VectorStoreFileBatch inserted");
-            // create VectorStoreFileObject
-            vector_store_file_data_mapper_->InsertManyVectorStoreFiles(req.vector_store_id(), req.file_ids());
-
+            // create files
+            vector_store_file_data_mapper_->InsertManyVectorStoreFiles(req.vector_store_id(), req.file_ids(), pk.value());
             // trigger file object jobs
             if (task_scheduler_) {
                 for(const auto files = vector_store_file_data_mapper_->ListVectorStoreFiles(req.vector_store_id(), req.file_ids()); const auto& file: files) {
@@ -200,7 +199,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     });
                 }
             }
-
+            // return
             return vector_store_file_batch_data_mapper_->GetVectorStoreFileBatch(req.vector_store_id(), pk.value());
         }
 

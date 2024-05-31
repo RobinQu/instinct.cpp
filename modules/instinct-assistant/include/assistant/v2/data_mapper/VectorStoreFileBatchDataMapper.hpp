@@ -26,7 +26,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 insert into instinct_vector_store_file_batch(id, vector_store_id, status) values(
     {{text(id)}},
     {{text(vector_store_id)}},
-    {{text(status)}}
+    'in_progress'
 ) returning id;
 )", context);
         }
@@ -43,12 +43,14 @@ select * from instinct_vector_store_file_batch where id = {{text(id)}};
         [[nodiscard]] size_t UpdateVectorStoreFileBatch(const std::string& vs_store_id, const std::string& batch_id, const VectorStoreFileBatchObject_VectorStoreFileBatchStatus status) const {
             SQLContext context;
             context["id"] = batch_id;
-            context["status"] = VectorStoreFileBatchObject_VectorStoreFileBatchStatus_Name(status);
+            if (status != VectorStoreFileBatchObject_VectorStoreFileBatchStatus_unknown_vector_store_file_batch_status) {
+                context["status"] = VectorStoreFileBatchObject_VectorStoreFileBatchStatus_Name(status);
+            }
             return data_template_->Execute(R"(
 update instinct_vector_store_file_batch
 set
 {% if exists("status") %}
-    status = {{text(status)}} and
+    status = {{text(status)}},
 {% endif %}
     modified_at = now()
 where id = {{text(id)}};

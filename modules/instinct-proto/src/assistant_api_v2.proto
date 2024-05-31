@@ -922,13 +922,14 @@ enum VectorStoreFileStatus {
 }
 
 message VectorStoreFileObject { // CreateVectorFileResponse
-  string id = 1;
+  string file_id = 1;
   string object = 2;
   int64 created_at = 3;
   int64 modified_at = 4;
   string vector_store_id = 5;
   VectorStoreFileStatus status = 6;
   VectorStoreFileError last_error = 7;
+  string file_batch_id = 8;
 }
 
 message CreateVectorStoreFileRequest {
@@ -1013,7 +1014,7 @@ message VectorStoreFileBatchObject {// CreateVectorStoreFileBatchResponse, GetVe
   string id = 1;
   string object = 2;
   int64 created_at = 3;
-  int64 modified = 4;
+  int64 modified_at = 4;
   string vector_store_id = 6;
   VectorStoreFileBatchStatus status = 7;
   VectorStoreFileError last_error = 8;

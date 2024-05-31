@@ -104,8 +104,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         const auto list1 = vector_store_service->ListVectorStoreFiles(list_vector_store_files_request);
         ASSERT_EQ(list1.data_size(), 1);
         ASSERT_EQ(list1.object(), "list");
-        ASSERT_EQ(list1.first_id(), list1.data(0).id());
-        ASSERT_EQ(list1.last_id(), list1.data(0).id());
+        ASSERT_EQ(list1.first_id(), list1.data(0).file_id());
+        ASSERT_EQ(list1.last_id(), list1.data(0).file_id());
         ASSERT_FALSE(list1.has_more());
         ASSERT_TRUE(diff.Compare(list1.data(0), obj3.value()));
 
@@ -117,6 +117,51 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         ASSERT_TRUE(obj4.deleted());
         ASSERT_EQ(obj4.object(), "vector_store.file.deleted");
         ASSERT_EQ(obj4.id(), "file-1");
+    }
+
+    TEST_F(VectorStoreServiceTest, VectorStoreFileBatchCRUD) {
+        auto vector_store_service = CreateVectorStoreService();
+        auto diff = util::MessageDifferencer {};
+
+        // create
+        CreateVectorStoreFileBatchRequest create_vector_store_file_batch_request;
+        create_vector_store_file_batch_request.set_vector_store_id("vs-1");
+        create_vector_store_file_batch_request.add_file_ids("file-1");
+        create_vector_store_file_batch_request.add_file_ids("file-2");
+        create_vector_store_file_batch_request.add_file_ids("file-3");
+        const auto obj1 = vector_store_service->CreateVectorStoreFileBatche(create_vector_store_file_batch_request);
+        ASSERT_TRUE(obj1);
+
+        // list files
+        ListFilesInVectorStoreBatchRequest list_files_in_vector_store_batch_request;
+        list_files_in_vector_store_batch_request.set_vector_store_id(create_vector_store_file_batch_request.vector_store_id());
+        list_files_in_vector_store_batch_request.set_batch_id(obj1->id());
+        const auto list1 = vector_store_service->ListFilesInVectorStoreBatch(list_files_in_vector_store_batch_request);
+        ASSERT_EQ(list1.data_size(), 3);
+        ASSERT_EQ(list1.first_id(), list1.data().begin()->file_id());
+        ASSERT_EQ(list1.last_id(), list1.data().rbegin()->file_id());
+        ASSERT_FALSE(list1.has_more());
+
+        // get
+        GetVectorStoreFileBatchRequest get_vector_store_file_batch_request;
+        get_vector_store_file_batch_request.set_vector_store_id(create_vector_store_file_batch_request.vector_store_id());
+        get_vector_store_file_batch_request.set_batch_id(obj1->id());
+        const auto obj2 = vector_store_service->GetVectorStoreFileBatch(get_vector_store_file_batch_request);
+        ASSERT_TRUE(obj2);
+        ASSERT_TRUE(diff.Compare(obj2.value(), obj1.value()));
+
+        // cancel
+        CancelVectorStoreFileBatchRequest cancel_vector_store_file_batch_request;
+        cancel_vector_store_file_batch_request.set_vector_store_id(create_vector_store_file_batch_request.vector_store_id());
+        cancel_vector_store_file_batch_request.set_batch_id(obj1->id());
+        const auto obj3 = vector_store_service->CancelVectorStoreFileBatch(cancel_vector_store_file_batch_request);
+        ASSERT_TRUE(obj3);
+        ASSERT_EQ(obj3->status(), VectorStoreFileBatchObject_VectorStoreFileBatchStatus_cancelled);
+
+        // get again
+        const auto obj4 = vector_store_service->GetVectorStoreFileBatch(get_vector_store_file_batch_request);
+        ASSERT_TRUE(obj4);
+        ASSERT_TRUE(diff.Compare(obj4.value(), obj3.value()));
     }
 
 }

@@ -30,18 +30,20 @@ insert into instinct_vector_store_file(file_id, vector_store_id, status) values(
 )", context);
         }
 
-        std::vector<std::string> InsertManyVectorStoreFiles(const std::string& vector_store_id, const RangeOf<std::string> auto & file_ids) {
+        std::vector<std::string> InsertManyVectorStoreFiles(const std::string& vector_store_id, const RangeOf<std::string> auto & file_ids, const std::string& batch_id = "") {
             assert_non_empty_range(file_ids, "should have at least one file id");
             SQLContext context;
             context["vector_store_id"] = vector_store_id;
             context["file_ids"] = file_ids;
+            context["file_batch_id"] = batch_id;
             return data_template_->InsertMany(R"(
-insert into instinct_vector_store_file (file_id, vector_store_id, status) values
+insert into instinct_vector_store_file (file_id, vector_store_id, status, file_batch_id) values
 ## for file_id in file_ids
 (
     {{text(file_id)}},
     {{text(vector_store_id)}},
-    'in_progress'
+    'in_progress',
+    {{text(file_batch_id)}}
 ),
 ## endfor
 ;
@@ -83,16 +85,16 @@ limit {{limit}};
             ListVectorStoreFilesResponse response;
             response.set_object("list");
             if (const auto n = list.size(); n>limit) {
-                response.set_first_id(list.front().id());
-                response.set_last_id(list[n-2].id());
+                response.set_first_id(list.front().file_id());
+                response.set_last_id(list[n-2].file_id());
                 response.mutable_data()->Add(list.begin(), list.end()-1);
                 response.set_has_more(true);
             } else {
                 response.set_has_more(false);
                 if (n>0) {
                     response.mutable_data()->Add(list.begin(), list.end());
-                    response.set_first_id(list.front().id());
-                    response.set_last_id(list.back().id());
+                    response.set_first_id(list.front().file_id());
+                    response.set_last_id(list.back().file_id());
                 }
             }
             return response;
@@ -142,16 +144,16 @@ limit {{limit}};
             ListFilesInVectorStoreBatchResponse response;
             response.set_object("list");
             if (const auto n = list.size(); n>limit) {
-                response.set_first_id(list.front().id());
-                response.set_last_id(list[n-2].id());
+                response.set_first_id(list.front().file_id());
+                response.set_last_id(list[n-2].file_id());
                 response.mutable_data()->Add(list.begin(), list.end()-1);
                 response.set_has_more(true);
             } else {
                 response.set_has_more(false);
                 if (n>0) {
                     response.mutable_data()->Add(list.begin(), list.end());
-                    response.set_first_id(list.front().id());
-                    response.set_last_id(list.back().id());
+                    response.set_first_id(list.front().file_id());
+                    response.set_last_id(list.back().file_id());
                 }
             }
             return response;

@@ -58,7 +58,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
             ModifyVectorStoreFileRequest modify_vector_store_file_request;
             modify_vector_store_file_request.set_vector_store_id(file_object.vector_store_id());
-            modify_vector_store_file_request.set_file_id(file_object.id());
+            modify_vector_store_file_request.set_file_id(file_object.file_id());
             modify_vector_store_file_request.set_status(in_progress);
             assert_true(vector_store_service_->ModifyVectorStoreFile(modify_vector_store_file_request), "should have VectorStoreFileObject updated");
 
@@ -89,7 +89,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     private:
         [[nodiscard]] IngestorPtr BuildIngestor_(const VectorStoreFileObject& vs_file_object, const TempFile& temp_file) const {
             RetrieveFileRequest retrieve_file_request;
-            retrieve_file_request.set_file_id(vs_file_object.id());
+            retrieve_file_request.set_file_id(vs_file_object.file_id());
             const auto file_object = file_service_->RetrieveFile(retrieve_file_request);
             assert_true(file_object, fmt::format("should have found file object with VectorStoreFileObject {}", vs_file_object.ShortDebugString()));
             static std::regex EXT_NAME_PATTERN { R"(.+\.(.+))"};
