@@ -25,7 +25,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 insert into instinct_vector_store_file(file_id, vector_store_id, status) values(
     {{text(file_id)}},
     {{text(vector_store_id)}},
-    "in_progress"
+    'in_progress'
 );
 )", context);
         }
@@ -50,19 +50,22 @@ insert into instinct_vector_store_file (file_id, vector_store_id, status) values
 
         [[nodiscard]] ListVectorStoreFilesResponse ListVectorStoreFiles(const ListVectorStoreFilesRequest &req) const {
             SQLContext context;
-            ProtobufUtils::ConvertMessageToJsonObject(req, context, {.keep_default_values=true});
+            ProtobufUtils::ConvertMessageToJsonObject(req, context, {.keep_default_values = true});
             // limit + 1 to check if there is more records that match the conditions
             auto limit = req.limit() <= 0 ? DEFAULT_LIST_LIMIT + 1 : req.limit() + 1;
             context["limit"] = limit;
             if (req.order() == unknown_list_request_order) {
                 context["order"] = "desc";
             }
+            if (req.filter() == VectorStoreFileStatus::unknown_vector_store_file_status) {
+                context.erase("filter");
+            }
             const auto list = data_template_->SelectMany(R"(
 select * from instinct_vector_store_file
 where
-    vector_store_id = {{text(vector_store_id)}} and
+    vector_store_id = {{text(vector_store_id)}}
 {% if exists("filter") and is_not_blank(filter) %}
-    filter = {{text(filter)}} and
+    and filter = {{text(filter)}}
 {% endif %}
 {% if is_not_blank(after) %}
     and file_id > {{text(after)}}
@@ -112,6 +115,7 @@ where vector_store_id = {{text(vector_store_id)}} and file_id in (
 
         [[nodiscard]] ListFilesInVectorStoreBatchResponse ListVectorStoreFiles(const ListFilesInVectorStoreBatchRequest& req) const {
             SQLContext context;
+            ProtobufUtils::ConvertMessageToJsonObject(req, context, {.keep_default_values = true});
             auto limit = req.limit() <= 0 ? DEFAULT_LIST_LIMIT + 1 : req.limit() + 1;
             context["limit"] = limit;
             if (req.order() == unknown_list_request_order) {
@@ -120,8 +124,8 @@ where vector_store_id = {{text(vector_store_id)}} and file_id in (
             const auto list = data_template_->SelectMany(R"(
 select * from instinct_vector_store_file
 where
-    vector_store_id = {{text(vector_store_id)}} and
-    file_batch_id = {{text(batch_id)}} and
+    vector_store_id = {{text(vector_store_id)}}
+    and file_batch_id = {{text(batch_id)}}
 {% if is_not_blank(after) %}
     and file_id > {{text(after)}}
 {% endif %}

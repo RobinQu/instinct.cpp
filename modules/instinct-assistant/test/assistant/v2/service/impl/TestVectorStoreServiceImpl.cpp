@@ -16,7 +16,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         auto vector_store_service = CreateVectorStoreService();
 
         // create
-
         CreateVectorStoreRequest create_vector_store_request;
         create_vector_store_request.set_name("Art of war");
         create_vector_store_request.add_file_ids("file-1");
@@ -70,6 +69,54 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         const auto obj5 = vector_store_service->GetVectorStore(get_vector_store_request);
         ASSERT_FALSE(obj5);
+    }
+
+    TEST_F(VectorStoreServiceTest, VectorStoreFileCRUD) {
+        auto vector_store_service = CreateVectorStoreService();
+        auto diff = util::MessageDifferencer {};
+
+        // create
+        CreateVectorStoreFileRequest create_vector_store_file_request;
+        create_vector_store_file_request.set_vector_store_id("vs-1");
+        create_vector_store_file_request.set_file_id("file-1");
+        const auto obj1 = vector_store_service->CreateVectorStoreFile(create_vector_store_file_request);
+        ASSERT_TRUE(obj1);
+
+        // get
+        GetVectorStoreFileRequest get_vector_store_file_request;
+        get_vector_store_file_request.set_vector_store_id("vs-1");
+        get_vector_store_file_request.set_file_id("file-1");
+        const auto obj2 = vector_store_service->GetVectorStoreFile(get_vector_store_file_request);
+        ASSERT_TRUE(diff.Compare(obj1.value(), obj2.value()));
+
+        // update
+        ModifyVectorStoreFileRequest modify_vector_store_file_request;
+        modify_vector_store_file_request.set_status(completed);
+        modify_vector_store_file_request.set_vector_store_id("vs-1");
+        modify_vector_store_file_request.set_file_id("file-1");
+        const auto obj3 = vector_store_service->ModifyVectorStoreFile(modify_vector_store_file_request);
+        ASSERT_TRUE(obj3);
+        ASSERT_FLOAT_EQ(obj3->status(), completed);
+
+        // list
+        ListVectorStoreFilesRequest list_vector_store_files_request;
+        list_vector_store_files_request.set_vector_store_id("vs-1");
+        const auto list1 = vector_store_service->ListVectorStoreFiles(list_vector_store_files_request);
+        ASSERT_EQ(list1.data_size(), 1);
+        ASSERT_EQ(list1.object(), "list");
+        ASSERT_EQ(list1.first_id(), list1.data(0).id());
+        ASSERT_EQ(list1.last_id(), list1.data(0).id());
+        ASSERT_FALSE(list1.has_more());
+        ASSERT_TRUE(diff.Compare(list1.data(0), obj3.value()));
+
+        // delete
+        DeleteVectorStoreFileRequest delete_vector_store_file_request;
+        delete_vector_store_file_request.set_vector_store_id("vs-1");
+        delete_vector_store_file_request.set_file_id("file-1");
+        const auto obj4 = vector_store_service->DeleteVectorStoreFile(delete_vector_store_file_request);
+        ASSERT_TRUE(obj4.deleted());
+        ASSERT_EQ(obj4.object(), "vector_store.file.deleted");
+        ASSERT_EQ(obj4.id(), "file-1");
     }
 
 }
