@@ -24,11 +24,27 @@ message TermsQuery {
   string name = 2;
 }
 
+enum SortOder {
+  DESC = 0;
+  ASC = 1;
+}
+
+message FieldSort {
+  string field_name = 1;
+  SortOder order = 2;
+}
+
+message Sorter {
+  oneof sort {
+    FieldSort field = 1;
+  }
+}
 
 message SearchQuery {
   oneof query {
     BoolQuery bool = 1;
     TermQuery term = 2;
+    TermsQuery terms = 3;
   }
 }
 
@@ -36,6 +52,7 @@ message SearchRequest {
   string query = 1;
   int32 top_k = 2;
   SearchQuery metadata_filter = 3;
+  repeated Sorter sorters = 4;
 }
 
 message SearchResponse {

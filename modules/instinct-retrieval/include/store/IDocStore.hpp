@@ -45,6 +45,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         [[nodiscard]] virtual std::shared_ptr<MetadataSchema> GetMetadataSchema() const = 0;
 
         virtual size_t CountDocuments() = 0;
+
+        virtual bool Destroy() = 0;
     };
 
     using DocStorePtr = std::shared_ptr<IDocStore>;

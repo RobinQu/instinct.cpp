@@ -82,7 +82,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             if (const auto instance = LoadInstance(instance_id)) {
                 instance->Destroy();
             }
-            return false;
+            return metadata_data_mapper_->RemoveInstance(instance_id) == 1;
         }
 
 

@@ -30,6 +30,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/store/IVectorStoreOperator.hpp
         include/store/duckdb/DuckDBVectorStoreOperator.hpp
         include/store/VectorStoreMetadataDataMapper.hpp
+        include/store/SQLBuilder.hpp
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

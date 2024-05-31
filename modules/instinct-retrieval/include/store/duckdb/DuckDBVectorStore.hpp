@@ -55,64 +55,34 @@ namespace INSTINCT_RETRIEVAL_NS {
             const std::shared_ptr<MetadataSchema>& metadata_schema,
             const std::vector<float>& query_vector,
             const SearchQuery& metadata_filter,
-            size_t limit = 10
+            const int limit = 10
         ) {
             assert_gt(limit, 0, "limit shoud be positive");
             assert_lt(limit, 1000, "limit shold be less than 1000");
 
-            // ommit vectro field to reduce payload size
-            std::string select_sql = "SELECT id, text";
+            // omit vector field to reduce payload size
+            std::string column_list = "id, text";
             auto name_view = metadata_schema->fields() | std::views::transform(
                                  [](const MetadataFieldSchema& field)-> std::string {
                                      return field.name();
                                  });
-            select_sql += name_view.empty() ? ""  : ", " + StringUtils::JoinWith(name_view, ", ");
-            select_sql += ", array_cosine_similarity(vector, array_value(";
+            column_list += name_view.empty() ? ""  : ", " + StringUtils::JoinWith(name_view, ", ");
+            column_list += ", array_cosine_similarity(vector, array_value(";
 
             for (int i = 0; i < query_vector.size(); i++) {
-                select_sql += std::to_string(query_vector.at(i)) + "::FLOAT";
+                column_list += std::to_string(query_vector.at(i)) + "::FLOAT";
                 if (i < query_vector.size() - 1) {
-                    select_sql += ",";
+                    column_list += ",";
                 }
             }
-            select_sql += ")) AS similarity FROM ";
-            select_sql += table_name;
+            column_list += ")) AS similarity FROM ";
+            column_list += table_name;
 
-
-            if (metadata_filter.has_bool_() || metadata_filter.has_term()) {
-                select_sql += " WHERE ";
-                // TODO expand all queries. for now, let's assume it only has one term query at root level
-                if (metadata_filter.has_term()) {
-                    const auto& field = metadata_filter.term();
-                    switch (field.term().kind_case()) {
-                        case google::protobuf::Value::kNumberValue: {
-                            select_sql += (field.name() + "=" + std::to_string(field.term().number_value()));
-                            break;
-                        }
-                        case google::protobuf::Value::kBoolValue: {
-                            select_sql += (field.name() + "=" + std::to_string(field.term().bool_value()));
-                            break;
-                        }
-                        case google::protobuf::Value::kStringValue: {
-                            select_sql += (field.name() + "=\"" + field.term().string_value() + "\"");
-                            break;
-                        }
-                        case google::protobuf::Value::kNullValue:
-                        case google::protobuf::Value::kStructValue:
-                        case google::protobuf::Value::kListValue:
-                            // Do nothing
-                            break;
-                        default:
-                            throw InstinctException(
-                                "unknown value type in meatdata filter for field named " + field.name());
-                    }
-                }
-            }
-
-
-            select_sql += " ORDER BY similarity DESC LIMIT ";
-            select_sql += std::to_string(limit);
-            return select_sql;
+            Sorter sorter;
+            auto* field_sort = sorter.mutable_field();
+            field_sort->set_field_name("similarity");
+            field_sort->set_order(DESC);
+            return SQLBuilder::ToSelectString(table_name, column_list, metadata_filter, {sorter}, -1, limit);
         }
 
     }
@@ -156,9 +126,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             LOG_DEBUG("Search started: query={}, top_k={}", request.query(), request.top_k());
             long t1 = ChronoUtils::GetCurrentTimeMillis();
             const auto query_embedding = embeddings_->EmbedQuery(request.query());
-
-            bool has_filter = request.has_metadata_filter() && (request.metadata_filter().has_bool_() || request.metadata_filter().has_term());
-
+            const bool has_filter = request.has_metadata_filter() && (request.metadata_filter().has_bool_() || request.metadata_filter().has_term());
             unique_ptr<QueryResult> result;
             if (has_filter) {
                 const auto search_sql = details::make_search_sql(
@@ -214,11 +182,11 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void DeleteDocuments(const SearchQuery &filter, UpdateResult &update_result) override {
-
+            return;store_.DeleteDocuments(filter, update_result);
         }
 
         bool Destroy() override {
-
+            return store_.Destroy();
         }
     };
 

@@ -12,6 +12,7 @@
 #include "store/IDocStore.hpp"
 #include "tools/StringUtils.hpp"
 #include "functional/ReactiveFunctions.hpp"
+#include "store/SQLBuilder.hpp"
 #include "tools/DocumentUtils.hpp"
 
 
@@ -344,9 +345,6 @@ namespace INSTINCT_RETRIEVAL_NS {
         DuckDBPtr db_;
         std::shared_ptr<MetadataSchema> metadata_schema_;
         unique_ptr<PreparedStatement> prepared_count_all_statement_;
-        // std::map<std::thread::id, Connection> connections_;
-        // std::mutex g_i_mutex;
-
         Connection connection_;
 
     public:
@@ -373,6 +371,11 @@ namespace INSTINCT_RETRIEVAL_NS {
 
             prepared_count_all_statement_ = connection_.Prepare(details::make_prepared_count_sql(options_.table_name));
             assert_prepared_ok(prepared_count_all_statement_, "Failed to prepare count statement");
+        }
+
+        bool Destroy() override {
+            const auto result = connection_.Query(fmt::format("drop table {};", options_.table_name));
+            return check_query_ok(result);
         }
 
         [[nodiscard]] DuckDBPtr GetDuckDB() const {
@@ -478,7 +481,12 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void DeleteDocuments(const SearchQuery &filter, UpdateResult &update_result) override {
-
+            auto connection = GetConnection();
+            const auto sql = SQLBuilder::ToDeleteString(options_.table_name, filter);
+            const auto result = connection.Query(sql);
+            assert_query_ok(result);
+            const auto xn = result->GetValue<int32_t>(0, 0);
+            update_result.set_affected_rows(xn);
         }
     };
 }

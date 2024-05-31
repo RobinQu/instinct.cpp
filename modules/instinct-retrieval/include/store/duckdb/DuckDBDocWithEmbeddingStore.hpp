@@ -43,7 +43,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
 
     /**
-     * Speicialized DocStore that will embed input documents
+     * Specialized DocStore that will embed input documents
      */
     class DuckDBDocWithEmbeddingStore final: public BaseDuckDBStore {
         EmbeddingsPtr embeddings_;
