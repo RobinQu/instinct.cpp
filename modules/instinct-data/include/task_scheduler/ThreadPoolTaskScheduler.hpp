@@ -136,8 +136,8 @@ namespace INSTINCT_DATA_NS {
 
     template<typename Payload=std::string>
     static void GracefullyShutdownThreadPoolTaskSchedulers() {
-        for (const auto &schedueler: TASK_SCHEDULERS<Payload>) {
-            if (const auto ptr = schedueler.lock()) {
+        for (const auto &scheduler: TASK_SCHEDULERS<Payload>) {
+            if (const auto ptr = scheduler.lock()) {
                 if (const auto ret = ptr->Terminate().get(); !ret.empty()) {
                     LOG_INFO("Scheduler terminated with {} remaining task(s)", ret.size());
                 }

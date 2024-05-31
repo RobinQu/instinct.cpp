@@ -141,3 +141,11 @@ CREATE TABLE IF NOT EXISTS instinct_file (
     purpose VARCHAR NOT NULL
 );
 
+
+CREATE TABLE IF NOT EXISTS instinct_vector_store_metadata (
+    instance_id VARCHAR PRIMARY KEY,
+    metadata_schema VARCHAR NOT NULL,
+    created_at TIMESTAMP DEFAULT now() NOT NULL,
+    modified_at TIMESTAMP DEFAULT now() NOT NULL,
+    custom VARCHAR
+);

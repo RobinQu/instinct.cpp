@@ -10,36 +10,49 @@
 
 namespace INSTINCT_RETRIEVAL_NS {
 
-    namespace details {
-        static void create_or_replace_instance_table(const DocStorePtr& metadata_db) {
-
-        }
-    }
 
     using namespace INSTINCT_DATA_NS;
     class VectorStoreMetadataDataMapper {
-        DataTemplatePtr<VectorStoreInstanceMetadata, std::string> data_mapper_;
+        DataTemplatePtr<VectorStoreInstanceMetadata, std::string> date_template_;
     public:
-        explicit VectorStoreMetadataDataMapper(DataTemplatePtr<VectorStoreInstanceMetadata, std::string> data_mapper)
-            : data_mapper_(std::move(data_mapper)) {
+        explicit VectorStoreMetadataDataMapper(DataTemplatePtr<VectorStoreInstanceMetadata, std::string> date_template)
+            : date_template_(std::move(date_template)) {
         }
 
-        size_t InsertInstance(const VectorStoreInstanceMetadata& insert) {
-
+        [[nodiscard]] std::optional<std::string> InsertInstance(const VectorStoreInstanceMetadata& insert) const {
+            SQLContext context;
+            ProtobufUtils::ConvertMessageToJsonObject(insert, context);
+            return date_template_->InsertOne(R"(
+insert into instinct_vector_store_metadata(instance_id, metadata_schema, custom) values(
+    {{text(instance_id)}},
+    {{stringify(metadata_schema)}},
+    {% if exists("custom") %}
+    {{stringify(custom)}}
+    {% elseif %}
+    NULL
+    {% endif %}
+);
+)", context);
         }
 
-        std::vector<VectorStoreInstanceMetadata> ListInstances() {
-
+        [[nodiscard]] std::vector<VectorStoreInstanceMetadata> ListInstances() const {
+            SQLContext context;
+            return date_template_->SelectMany(R"(select * from instinct_vector_store_metadata)", context);
         }
 
-        size_t RemoveInstance(const std::string& instance_id) {
-
+        [[nodiscard]] size_t RemoveInstance(const std::string& instance_id) const {
+            SQLContext context;
+            context["instance_id"] = instance_id;
+            return date_template_->Execute(R"(delete from instinct_vector_store_metadata where instance_id={{text(instance_id)}})", context);
         }
 
-        std::optional<VectorStoreInstanceMetadata> GetInstance(const std::string& instance_id) {
+        [[nodiscard]] std::optional<VectorStoreInstanceMetadata> GetInstance(const std::string& instance_id) const {
+            SQLContext context;
+            context["instance_id"] = instance_id;
+            return date_template_->SelectOne(R"(select * from instinct_vector_store_metadata where instance_id={{text(instance_id)}};)", context);
+
 
         }
-
 
     };
 

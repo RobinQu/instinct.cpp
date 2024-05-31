@@ -14,6 +14,9 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     using EmbeddingModelSelector = std::function<EmbeddingsPtr(const std::string& instance_id, const MetadataSchemaPtr& metadata_schema)>;
 
+    /**
+     * Operator for DuckDB-based vector search, which uses a standalone table for each VectorStore instance
+     */
     class DuckDBVectorStoreOperator final: public IVectorStoreOperator {
         DuckDBPtr duck_db_;
         MetadataSchemaPtr default_metadata_schema_;
@@ -45,7 +48,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             VectorStoreInstanceMetadata instance_metadata;
             instance_metadata.set_instance_id(instance_id);
             instance_metadata.mutable_metadata_schema()->CopyFrom(*metadata_schema);
-            assert_true(metadata_data_mapper_->InsertInstance(instance_metadata) == 1, "should have one instance inserted");
+            assert_true(metadata_data_mapper_->InsertInstance(instance_metadata), "should have one instance inserted");
             return vdb_instance;
         }
 
