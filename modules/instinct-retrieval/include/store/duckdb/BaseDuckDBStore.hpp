@@ -364,7 +364,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_true(!StringUtils::IsBlankString(options_.table_name), "table_name cannot be blank");
 
             const auto sql = details::make_create_table_sql(options_.table_name, options_.dimension, metadata_schema_, options_.create_or_replace_table);
-            LOG_DEBUG("create document table with SQL: {}", sql);
+            LOG_DEBUG("create document table with SQL if necessary: {}", sql);
 
             const auto create_table_result = connection_.Query(sql);
             assert_query_ok(create_table_result);

@@ -88,5 +88,6 @@ message VectorStoreInstanceMetadata {
   core.MetadataSchema metadata_schema = 2;
   int64 created_at = 3;
   int64 modified_at = 4;
+  string embedding_table_name = 5;
   google.protobuf.Any custom = 100;
 }

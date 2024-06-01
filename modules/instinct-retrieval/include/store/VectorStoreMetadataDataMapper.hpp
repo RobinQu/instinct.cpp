@@ -23,12 +23,13 @@ namespace INSTINCT_RETRIEVAL_NS {
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(insert, context);
             return date_template_->InsertOne(R"(
-insert into instinct_vector_store_metadata(instance_id, metadata_schema, custom) values(
+insert into instinct_vector_store_metadata(instance_id, metadata_schema, embedding_table_name, custom) values(
     {{text(instance_id)}},
     {{stringify(metadata_schema)}},
+    {{text(embedding_table_name)}},
     {% if exists("custom") %}
     {{stringify(custom)}}
-    {% elseif %}
+    {% else %}
     NULL
     {% endif %}
 );

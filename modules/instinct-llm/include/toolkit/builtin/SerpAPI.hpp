@@ -50,7 +50,7 @@ namespace INSTINCT_LLM_NS {
             const HttpRequest call {
                 .endpoint = options_.endpoint,
                 .target = "/search",
-                .paramters = {
+                .parameters = {
                     {"q", input.query()},
                     {"engine", options_.engine},
                     {"api_key", api_key},

@@ -8,13 +8,14 @@
 #include "LLMGlobals.hpp"
 #include "tools/http/HttpUtils.hpp"
 
-namespace INSTINCT_LLM_NS {
+namespace
+INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
-    static Endpoint OPENAI_DEFAULT_ENDPOINT {.protocol = kHTTPS, .host = "api.openai.com", .port = 443};
+    static Endpoint OPENAI_DEFAULT_ENDPOINT{.protocol = kHTTPS, .host = "api.openai.com", .port = 443};
     static const std::string OPENAI_DEFAULT_MODEL_NAME = "gpt-3.5-turbo";
 
-    struct  OpenAIConfiguration {
+    struct OpenAIConfiguration {
         /**
         * API key for OpenAI service that will be used as bearer token in header
         */
@@ -49,9 +50,9 @@ namespace INSTINCT_LLM_NS {
         size_t dimension;
 
 
-       int max_tokens;
+        int max_tokens;
 
-       std::vector<std::string> stop_words = {};
+        std::vector<std::string> stop_words = {};
     };
 
     static const std::string DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT = "/v1/chat/completions";

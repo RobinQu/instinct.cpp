@@ -55,7 +55,7 @@ namespace INSTINCT_CORE_NS {
         template<class T>
         requires IsProtobufMessage<T>
         static void ConvertJSONObjectToMessage(const nlohmann::json& json_object, T* message) {
-            // TODO use reflection instread of JsonStringToMessage
+            // TODO use reflection instead of JsonStringToMessage
             util::JsonParseOptions options;
             options.ignore_unknown_fields = true;
             options.case_insensitive_enum_parsing = true;

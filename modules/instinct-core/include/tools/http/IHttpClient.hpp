@@ -54,7 +54,7 @@ namespace INSTINCT_CORE_NS {
         std::string target;
         HttpHeaders headers;
         std::string body;
-        HttpQueryParamters paramters;
+        HttpQueryParamters parameters;
     };
 
     struct HttpResponse {
@@ -73,10 +73,6 @@ namespace INSTINCT_CORE_NS {
      */
     using HttpResponseCallback = std::function<bool(std::string)>;
 
-
-    // struct HttpBatchExecuteOptions {
-    //     u_int32_t max_paralle = std::thread::hardware_concurrency();
-    // };
 
     class IHttpClient {
     public:

@@ -13,14 +13,14 @@ namespace INSTINCT_CORE_NS {
         /**
          * Get env by name.
          * @param name Env name
-         * @param defualt_value Default to empty string
+         * @param default_value Default to empty string
          * @return Empty string or env value
          */
-        static std::string GetEnv(const std::string& name, const std::string& defualt_value = "") {
+        static std::string GetEnv(const std::string& name, const std::string& default_value = "") {
             if(const auto v = std::getenv(name.c_str())) {
                 return v;
             }
-            return defualt_value;
+            return default_value;
         }
 
         static int GetIntEnv(const std::string& name, const int defualt_value = 0) {

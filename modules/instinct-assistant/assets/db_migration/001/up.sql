@@ -147,5 +147,6 @@ CREATE TABLE IF NOT EXISTS instinct_vector_store_metadata (
     metadata_schema VARCHAR NOT NULL,
     created_at TIMESTAMP DEFAULT now() NOT NULL,
     modified_at TIMESTAMP DEFAULT now() NOT NULL,
+    embedding_table_name VARCHAR NOT NULL,
     custom VARCHAR
 );

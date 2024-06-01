@@ -9,6 +9,8 @@
 #include "DuckDBVectorStore.hpp"
 #include "../IVectorStoreOperator.hpp"
 #include "store/VectorStoreMetadataDataMapper.hpp"
+#include "tools/HashUtils.hpp"
+#include "tools/RandomUtils.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
 
@@ -24,6 +26,18 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::mutex instances_mutex_;
         VectorStoreMetadataDataMapperPtr metadata_data_mapper_;
     public:
+        DuckDBVectorStoreOperator(
+            const DuckDBPtr &db,
+            const EmbeddingsPtr& embedding_model,
+            const VectorStoreMetadataDataMapperPtr &metadata_data_mapper,
+            const MetadataSchemaPtr &default_metadata_schema
+        ): DuckDBVectorStoreOperator(
+            db,
+            [embedding_model](const std::string& instance_id, const MetadataSchemaPtr& metadata_schema) { return embedding_model; },
+            metadata_data_mapper,
+            default_metadata_schema
+            )  {}
+
         DuckDBVectorStoreOperator(
             DuckDBPtr db,
             EmbeddingModelSelector embedding_model_selector,
@@ -47,6 +61,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto vdb_instance = CreateDuckDBVectorStore(duck_db_, embedding_model, options, metadata_schema);
             VectorStoreInstanceMetadata instance_metadata;
             instance_metadata.set_instance_id(instance_id);
+            instance_metadata.set_embedding_table_name(TableNameForInstance_(instance_id));
             instance_metadata.mutable_metadata_schema()->CopyFrom(*metadata_schema);
             assert_true(metadata_data_mapper_->InsertInstance(instance_metadata), "should have one instance inserted");
             return vdb_instance;
@@ -67,7 +82,6 @@ namespace INSTINCT_RETRIEVAL_NS {
             DuckDBStoreOptions options;
             options.instance_id = instance_id;
             ConfigureDuckDBOptions(options, embedding_model);
-            assert_true(std::filesystem::exists(options.db_file_path), fmt::format("db path should exist at {}", options.db_file_path));
             return CreateDuckDBVectorStore(duck_db_, embedding_model, options, metadata_schema);
         }
 
@@ -84,19 +98,32 @@ namespace INSTINCT_RETRIEVAL_NS {
             }
             return metadata_data_mapper_->RemoveInstance(instance_id) == 1;
         }
-
-
     private:
+        [[nodiscard]] std::string TableNameForInstance_(const std::string& instance_id) const {
+            return "vs_" + HashUtils::HashForString<SHA256>(instance_id);
+        }
+
         void ConfigureDuckDBOptions(DuckDBStoreOptions& options, const EmbeddingsPtr& embedding_model) const {
             options.dimension = embedding_model->GetDimension();
-            options.table_name = options.instance_id;
+            options.table_name = TableNameForInstance_(options.instance_id);
             options.create_or_replace_table = false;
             options.in_memory = false;
             options.bypass_unknown_fields = true;
         }
     };
 
-    using DuckDBVectorStoreOperatorPtr = std::shared_ptr<DuckDBVectorStoreOperator>;
+    static VectorStoreOperatorPtr CreateDuckDBStoreOperator(
+        const DuckDBPtr &db,
+        const EmbeddingsPtr& embedding_model,
+        const VectorStoreMetadataDataMapperPtr &metadata_data_mapper,
+        MetadataSchemaPtr default_metadata_schema = nullptr
+        ) {
+        if (!default_metadata_schema) {
+            default_metadata_schema = CreateVectorStorePresetMetadataSchema();
+        }
+        return std::make_shared<DuckDBVectorStoreOperator>(db, embedding_model, metadata_data_mapper, default_metadata_schema);
+    }
+
 }
 
 #endif //DUCKDBVECTORSTOREOPERATOR_HPP

@@ -75,6 +75,26 @@ namespace INSTINCT_LLM_NS {
         return std::make_shared<OpenAIEmbedding>(configuration_);
     }
 
+    /**
+     * Factory method for creating embedding model with env vars by conventions
+     * @return
+     */
+    static EmbeddingsPtr CreateOpenAIEmbeddingModel() {
+        OpenAIConfiguration configuration;
+        configuration.api_key = SystemUtils::GetEnv("OPENAI_API_KEY");
+        configuration.model_name = SystemUtils::GetEnv("OPENAI_MODEL", "text-embedding-3-large");
+        configuration.dimension = SystemUtils::GetIntEnv("OPENAI_EMBEDDING_DIM");
+        if (configuration.dimension == 0) { // guess dimension
+            if (configuration.model_name == "text-embedding-3-large") configuration.dimension = 3072;
+            if (configuration.model_name == "text-embedding-3-small") configuration.dimension = 1536;
+            if (configuration.model_name == "text-embedding-ada-002	") configuration.dimension = 1536;
+        }
+        configuration.endpoint.host = SystemUtils::GetEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.host);
+        configuration.endpoint.port = SystemUtils::GetIntEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.port);
+        configuration.endpoint.protocol = SystemUtils::GetEnv("OPENAI_PROTOCOL", "https") == "https" ? kHTTPS : kHTTP;
+        return CreateOpenAIEmbeddingModel(configuration);
+    }
+
 }
 
 #endif //OPENAIEMBEDDING_HPP
