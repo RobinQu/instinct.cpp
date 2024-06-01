@@ -86,15 +86,16 @@ namespace instinct::examples::mini_assistant {
                 );
             const auto assistant_service = std::make_shared<AssistantServiceImpl>(context.assistant_data_mapper);
             const auto embedding_model = LLMObjectFactory::CreateEmbeddingModel(options_.llm_provider);
-            context.vector_store_operator = std::make_shared<DuckDBVectorStoreOperator>(
+            context.vector_store_operator = CreateDuckDBStoreOperator(
                 duckdb,
-                [&,embedding_model=embedding_model](const std::string& instance_id, const MetadataSchemaPtr& metadata_schema)   { return embedding_model; },
+                embedding_model,
                 context.vector_store_metadata_data_mapper,
                 CreateVectorStorePresetMetadataSchema()
                 );
-            context.retriever_operator = std::make_shared<RetrieverOperator>(
+            context.retriever_operator = CreateSimpleRetrieverOperator(
                 context.vector_store_operator,
-                CreateDuckDBDocStore(duckdb, {.table_name = "vs_document_table"}),
+                duckdb,
+                {.table_name = "vs_document_table"},
                 options_.retriever_operator
             );
             const auto vector_store_service = std::make_shared<VectorStoreServiceImpl>(context.vector_store_file_data_mapper, context.vector_store_data_mapper, context.vector_store_file_batch_object, context.task_scheduler, context.retriever_operator);
@@ -191,8 +192,6 @@ namespace instinct::examples::mini_assistant {
     }
 
 }
-
-
 
 
 

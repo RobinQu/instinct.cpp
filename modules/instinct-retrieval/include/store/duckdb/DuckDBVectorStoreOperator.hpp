@@ -23,7 +23,6 @@ namespace INSTINCT_RETRIEVAL_NS {
         DuckDBPtr duck_db_;
         MetadataSchemaPtr default_metadata_schema_;
         EmbeddingModelSelector embedding_model_selector_;
-        std::mutex instances_mutex_;
         VectorStoreMetadataDataMapperPtr metadata_data_mapper_;
     public:
         DuckDBVectorStoreOperator(
@@ -36,7 +35,12 @@ namespace INSTINCT_RETRIEVAL_NS {
             [embedding_model](const std::string& instance_id, const MetadataSchemaPtr& metadata_schema) { return embedding_model; },
             metadata_data_mapper,
             default_metadata_schema
-            )  {}
+            ) {
+            assert_true(duck_db_);
+            assert_true(default_metadata_schema_);
+            assert_true(embedding_model_selector_);
+            assert_true(metadata_data_mapper_);
+        }
 
         DuckDBVectorStoreOperator(
             DuckDBPtr db,
@@ -50,6 +54,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         VectorStorePtr CreateInstance(const std::string& instance_id, MetadataSchemaPtr metadata_schema) override {
+            assert_true(metadata_schema, "should provide non-null metadata_schema");
             assert_not_blank(instance_id, "should have non-blank instance_id");
             DuckDBStoreOptions options;
              options.instance_id = instance_id;

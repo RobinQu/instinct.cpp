@@ -48,7 +48,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     public:
         explicit DuckDBDocStore(
             const DuckDBPtr& db,
-            const std::shared_ptr<MetadataSchema>& metadata_schema,
+            const MetadataSchemaPtr& metadata_schema,
             const DuckDBStoreOptions& options
             )
             : BaseDuckDBStore(

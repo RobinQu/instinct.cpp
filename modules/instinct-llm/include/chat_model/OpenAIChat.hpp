@@ -125,14 +125,29 @@ namespace INSTINCT_LLM_NS {
                 return api_key_env;
             }
             LOG_WARN("API key for OpenAI is not found in configuration or envrionment variables.");
-            // won't thorw as some local LLMs don't need an API key for authentication at all
+            // won't throw as some local LLMs don't need an API key for authentication at all
             return "";
         }
 
     };
 
-    static ChatModelPtr CreateOpenAIChatModel(const OpenAIConfiguration& configuration = {}) {
+
+    static ChatModelPtr CreateOpenAIChatModel(const OpenAIConfiguration& configuration) {
         return std::make_shared<OpenAIChat>(configuration);
+    }
+
+    /**
+     * Return OpenAIChatModel with configuration values from environment variables
+     * @return
+     */
+    static ChatModelPtr CreateOpenAIChatModel() {
+        OpenAIConfiguration configuration;
+        configuration.api_key = SystemUtils::GetEnv("OPENAI_API_KEY");
+        configuration.model_name = SystemUtils::GetEnv("OPENAI_MODEL", "gpt-4o");
+        configuration.endpoint.host = SystemUtils::GetEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.host);
+        configuration.endpoint.port = SystemUtils::GetIntEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.port);
+        configuration.endpoint.protocol = SystemUtils::GetEnv("OPENAI_PROTOCOL", "https") == "https" ? kHTTPS : kHTTP;
+        return CreateOpenAIChatModel(configuration);
     }
 }
 

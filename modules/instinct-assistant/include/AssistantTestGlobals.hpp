@@ -73,13 +73,16 @@ namespace INSTINCT_ASSISTANT_NS {
 
         VectorStoreFileBatchDataMapperPtr vector_store_file_batch_data_mapper = std::make_shared<VectorStoreFileBatchDataMapper>(CreateDuckDBDataMapper<VectorStoreFileBatchObject, std::string>(connection_pool_));
 
+        VectorStoreMetadataDataMapperPtr vector_store_metadata_data_mapper_ = std::make_shared<VectorStoreMetadataDataMapper>(CreateDuckDBDataMapper<VectorStoreInstanceMetadata, std::string>(connection_pool_));
+
+
         VectorStoreMetadataDataMapperPtr vector_store_metadata_data_mapper = std::make_shared<VectorStoreMetadataDataMapper>(CreateDuckDBDataMapper<VectorStoreInstanceMetadata, std::string>(connection_pool_));
 
         // std::filesystem::path migration_dir = std::filesystem::current_path() / "_assets" / "db_migration";
 
         ObjectStorePtr filesystem_object_store_ = std::make_shared<FileSystemObjectStore>(std::filesystem::temp_directory_path() / "assistant_api_test");
 
-        // no queue is assigned here, so it will create a in-memory queue by default
+        // no queue is assigned here, so it will create an in-memory queue by default
         CommonTaskSchedulerPtr task_scheduler_ = CreateThreadPoolTaskScheduler();
 
         AssistantServicePtr CreateAssistantService() {

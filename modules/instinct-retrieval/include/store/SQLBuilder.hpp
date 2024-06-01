@@ -85,7 +85,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             }
         }
 
-        static void build_term_value(const Value& value, std::string& sql) {
+        static void build_term_value(const google::protobuf::Value& value, std::string& sql) {
             if (value.has_bool_value()) {
                 sql += value.bool_value() ? '1' : '0';
             }
@@ -105,7 +105,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         static void build_terms_query(const TermsQuery& terms_query, std::string& sql) {
             sql += terms_query.name();
             sql += " IN (";
-            const auto term_values = terms_query.terms() | std::views::transform([&](const Value& term) {
+            const auto term_values = terms_query.terms() | std::views::transform([&](const google::protobuf::Value& term) {
                 std::string v;
                 build_term_value(term,v);
                 return v;

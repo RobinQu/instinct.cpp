@@ -8,7 +8,7 @@
 #include "toolkit/ProtoMessageFunctionTool.hpp"
 #include "AssistantGlobals.hpp"
 #include "retrieval/BaseRetriever.hpp"
-#include "assistant/v2/tool/RetrieverOperator.hpp"
+#include "assistant/v2/tool/SimpleRetrieverOperator.hpp"
 #include "toolkit/BaseSearchTool.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

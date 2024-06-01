@@ -34,21 +34,22 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
-    static RankingModelPtr CreateLocalRankingModel(const ModelType model_type, const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
-        return std::make_shared<LocalRankingModel>(model_type, file_vault);
-    }
-
-
-    static void PreloadRankingModelFiles(const FileVaultPtr& file_vault) {
+    static void PreloadRankingModelFiles(const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
         if(const auto resource_name = "model_bins/" + to_file_name(ModelType::BGE_M3_RERANKER); !file_vault->CheckResource(resource_name).get()) {
             FetchHttpGetResourceToFileVault(
-                DEFAULT_FILE_VAULT,
+                file_vault,
                 resource_name,
                 "https://huggingface.co/robinqu/baai-bge-m3-guff/resolve/main/bge-reranker-v2-m3.bin?download=true",
                 {.algorithm = kSHA256, .expected_value = "b3e05dbe06c0aa52fd974d9c9dedbc51292b81f2f285d56113c060a0931a7f0f"}
             ).wait();
         }
     }
+
+    static RankingModelPtr CreateLocalRankingModel(const ModelType model_type, const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
+        PreloadRankingModelFiles(file_vault);
+        return std::make_shared<LocalRankingModel>(model_type, file_vault);
+    }
+
 }
 
 #endif //LOCALRANKINGMODEL_HPP

@@ -11,7 +11,7 @@
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 #include "AssistantGlobals.hpp"
 #include "assistant/v2/service/IFileService.hpp"
-#include "assistant/v2/tool/RetrieverOperator.hpp"
+#include "assistant/v2/tool/SimpleRetrieverOperator.hpp"
 #include "ingestor/BaseIngestor.hpp"
 #include "ingestor/DOCXFileIngestor.hpp"
 #include "ingestor/PDFFileIngestor.hpp"

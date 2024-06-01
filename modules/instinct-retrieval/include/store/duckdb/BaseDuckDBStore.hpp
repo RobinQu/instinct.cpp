@@ -473,6 +473,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         void DeleteDocuments(const std::vector<std::string>& ids, UpdateResult& update_result) override {
             auto connection = GetConnection();
             const auto sql = details::make_delete_sql(options_.table_name, ids);
+            LOG_DEBUG("DeleteDocuments with sql: {}", sql);
             const auto result = connection.Query(sql);
             assert_query_ok(result);
             const auto xn = result->GetValue<int32_t>(0, 0);
@@ -483,6 +484,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         void DeleteDocuments(const SearchQuery &filter, UpdateResult &update_result) override {
             auto connection = GetConnection();
             const auto sql = SQLBuilder::ToDeleteString(options_.table_name, filter);
+            LOG_DEBUG("DeleteDocuments with sql: {}", sql);
             const auto result = connection.Query(sql);
             assert_query_ok(result);
             const auto xn = result->GetValue<int32_t>(0, 0);

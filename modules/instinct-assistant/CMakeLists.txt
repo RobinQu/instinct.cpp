@@ -39,7 +39,7 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/assistant/v2/data_mapper/VectorStoreDataMapper.hpp
         include/assistant/v2/data_mapper/VectorStoreFileDataMapper.hpp
         include/assistant/v2/service/impl/VectorStoreServiceImpl.hpp
-        include/assistant/v2/tool/RetrieverOperator.hpp
+        include/assistant/v2/tool/SimpleRetrieverOperator.hpp
         include/assistant/v2/toolkit/FileSearchTool.hpp
         include/assistant/v2/task_handler/FileBatchObjectTaskHandler.hpp
         include/assistant/v2/data_mapper/VectorStoreFileBatchDataMapper.hpp

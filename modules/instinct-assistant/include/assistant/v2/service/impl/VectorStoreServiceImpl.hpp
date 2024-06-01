@@ -10,7 +10,7 @@
 #include "assistant/v2/data_mapper/VectorStoreFileBatchDataMapper.hpp"
 #include "assistant/v2/data_mapper/VectorStoreFileDataMapper.hpp"
 #include "assistant/v2/task_handler/FileObjectTaskHandler.hpp"
-#include "assistant/v2/tool/RetrieverOperator.hpp"
+#include "assistant/v2/tool/SimpleRetrieverOperator.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

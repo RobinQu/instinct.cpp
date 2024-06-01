@@ -182,7 +182,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void DeleteDocuments(const SearchQuery &filter, UpdateResult &update_result) override {
-            return;store_.DeleteDocuments(filter, update_result);
+            store_.DeleteDocuments(filter, update_result);
         }
 
         bool Destroy() override {
