@@ -143,7 +143,7 @@ namespace INSTINCT_LLM_NS {
     static ChatModelPtr CreateOpenAIChatModel() {
         OpenAIConfiguration configuration;
         configuration.api_key = SystemUtils::GetEnv("OPENAI_API_KEY");
-        configuration.model_name = SystemUtils::GetEnv("OPENAI_MODEL", "gpt-4o");
+        configuration.model_name = SystemUtils::GetEnv("OPENAI_CHAT_MODEL", "gpt-4o");
         configuration.endpoint.host = SystemUtils::GetEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.host);
         configuration.endpoint.port = SystemUtils::GetIntEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.port);
         configuration.endpoint.protocol = SystemUtils::GetEnv("OPENAI_PROTOCOL", "https") == "https" ? kHTTPS : kHTTP;

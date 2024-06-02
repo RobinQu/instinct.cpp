@@ -101,9 +101,6 @@ namespace INSTINCT_RETRIEVAL_NS {
                 if (value.has_long_value()) {
                     sql += std::to_string(value.double_value());
                 }
-                if (value.has_string_value()) {
-                    sql += value.string_value();
-                }
                 if (value.has_bool_value()) {
                     sql += value.bool_value() ? '1' : '0';
                 }

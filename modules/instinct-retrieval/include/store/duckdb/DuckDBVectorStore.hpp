@@ -57,8 +57,8 @@ namespace INSTINCT_RETRIEVAL_NS {
             const SearchQuery& metadata_filter,
             const int limit = 10
         ) {
-            assert_gt(limit, 0, "limit shoud be positive");
-            assert_lt(limit, 1000, "limit shold be less than 1000");
+            assert_gt(limit, 0, "limit should be positive");
+            assert_lt(limit, 1000, "limit should be less than 1000");
 
             // omit vector field to reduce payload size
             std::string column_list = "id, text";
@@ -122,15 +122,13 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         AsyncIterator<Document> SearchDocuments(const SearchRequest& request) override {
+            // limit should be in range of [1,10000]
             const int limit = request.top_k() > 0 ? std::min(request.top_k(), 10000) : 10;
             LOG_DEBUG("Search started: request.query={}, request.top_k={}, normalized_limit={}", request.query(), request.top_k(), limit);
             long t1 = ChronoUtils::GetCurrentTimeMillis();
             const auto query_embedding = embeddings_->EmbedQuery(request.query());
-            const bool has_filter = request.has_metadata_filter() && (request.metadata_filter().has_bool_() || request.metadata_filter().has_term());
             unique_ptr<QueryResult> result;
-            // limit should be in range of [1,10000]
-
-            if (has_filter) {
+            if (request.has_metadata_filter()) {
                 const auto search_sql = details::make_search_sql(
                 store_.GetOptions().table_name,
                 GetMetadataSchema(),

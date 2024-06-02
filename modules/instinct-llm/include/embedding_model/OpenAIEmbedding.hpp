@@ -82,7 +82,7 @@ namespace INSTINCT_LLM_NS {
     static EmbeddingsPtr CreateOpenAIEmbeddingModel() {
         OpenAIConfiguration configuration;
         configuration.api_key = SystemUtils::GetEnv("OPENAI_API_KEY");
-        configuration.model_name = SystemUtils::GetEnv("OPENAI_MODEL", "text-embedding-3-large");
+        configuration.model_name = SystemUtils::GetEnv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small");
         configuration.dimension = SystemUtils::GetIntEnv("OPENAI_EMBEDDING_DIM");
         if (configuration.dimension == 0) { // guess dimension
             if (configuration.model_name == "text-embedding-3-large") configuration.dimension = 3072;

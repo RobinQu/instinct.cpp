@@ -27,6 +27,7 @@ message PrimitiveVariable {
     string string_value = 7;
     bytes bytes_value = 8;
   }
+  bool is_null = 9;
 }
 
 message Document {
