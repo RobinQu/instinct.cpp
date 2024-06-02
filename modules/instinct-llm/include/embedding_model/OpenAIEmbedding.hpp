@@ -23,6 +23,7 @@ namespace INSTINCT_LLM_NS {
         explicit OpenAIEmbedding(OpenAIConfiguration configuration)
             : configuration_(std::move(configuration)), client_(configuration_.endpoint) {
             assert_gt(configuration.dimension, 0, "dimension should be greater than zero");
+            client_.GetDefaultHeaders().emplace("Authorization", fmt::format("Bearer {}", configuration_.api_key));
         }
 
         std::vector<Embedding> EmbedDocuments(const std::vector<std::string>& texts) override {
@@ -70,28 +71,35 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
-    static EmbeddingsPtr CreateOpenAIEmbeddingModel(const OpenAIConfiguration& configuration_) {
-        return std::make_shared<OpenAIEmbedding>(configuration_);
+    static void LoadOpenAIEmbeddingConfiguration(OpenAIConfiguration& configuration) {
+        if(StringUtils::IsBlankString(configuration.api_key)) {
+            configuration.api_key = SystemUtils::GetEnv("OPENAI_API_KEY");
+        }
+        if (StringUtils::IsBlankString(configuration.model_name)) {
+            configuration.model_name = SystemUtils::GetEnv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small");
+        }
+        if (configuration.dimension == 0) {
+            configuration.dimension = SystemUtils::GetIntEnv("OPENAI_EMBEDDING_DIM");
+            if (configuration.dimension == 0) { // guess dimension
+                if (configuration.model_name == "text-embedding-3-large") configuration.dimension = 3072;
+                if (configuration.model_name == "text-embedding-3-small") configuration.dimension = 1536;
+                if (configuration.model_name == "text-embedding-ada-002	") configuration.dimension = 1536;
+            }
+        }
+        if (StringUtils::IsBlankString(configuration.endpoint.host)) {
+            configuration.endpoint.host = SystemUtils::GetEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.host);
+        }
+        if (configuration.endpoint.port == 80) {
+            configuration.endpoint.port = SystemUtils::GetIntEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.port);
+        }
+        if (configuration.endpoint.protocol == kHTTP) {
+            configuration.endpoint.protocol = StringUtils::ToLower(SystemUtils::GetEnv("OPENAI_PROTOCOL", "https")) == "https" ? kHTTPS : kHTTP;
+        }
     }
 
-    /**
-     * Factory method for creating embedding model with env vars by conventions
-     * @return
-     */
-    static EmbeddingsPtr CreateOpenAIEmbeddingModel() {
-        OpenAIConfiguration configuration;
-        configuration.api_key = SystemUtils::GetEnv("OPENAI_API_KEY");
-        configuration.model_name = SystemUtils::GetEnv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small");
-        configuration.dimension = SystemUtils::GetIntEnv("OPENAI_EMBEDDING_DIM");
-        if (configuration.dimension == 0) { // guess dimension
-            if (configuration.model_name == "text-embedding-3-large") configuration.dimension = 3072;
-            if (configuration.model_name == "text-embedding-3-small") configuration.dimension = 1536;
-            if (configuration.model_name == "text-embedding-ada-002	") configuration.dimension = 1536;
-        }
-        configuration.endpoint.host = SystemUtils::GetEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.host);
-        configuration.endpoint.port = SystemUtils::GetIntEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.port);
-        configuration.endpoint.protocol = SystemUtils::GetEnv("OPENAI_PROTOCOL", "https") == "https" ? kHTTPS : kHTTP;
-        return CreateOpenAIEmbeddingModel(configuration);
+    static EmbeddingsPtr CreateOpenAIEmbeddingModel(OpenAIConfiguration configuration = {}) {
+        LoadOpenAIEmbeddingConfiguration(configuration);
+        return std::make_shared<OpenAIEmbedding>(configuration);
     }
 
 }

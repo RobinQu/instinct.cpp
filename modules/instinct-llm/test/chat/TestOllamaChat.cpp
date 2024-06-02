@@ -42,14 +42,14 @@ sunset, the sky may take on a more orange or red hue due to the angle of the sun
     };
 
     TEST_F(OllamaChatTest, SimpleTest) {
-        OllamaChat ollama_chat;
-        auto result = ollama_chat.Invoke("Why sky is blue?");
+        const auto ollama_chat = CreateOllamaChatModel();
+        auto result = ollama_chat->Invoke("Why sky is blue?");
         std::cout << result.DebugString() << std::endl;
     }
 
     TEST_F(OllamaChatTest, TestBatch) {
-        OllamaChat ollama_chat;
-        ollama_chat.Batch({
+        const auto ollama_chat = CreateOllamaChatModel();
+        ollama_chat->Batch({
             dialog1,
             dialog2
         }) | rpp::operators::subscribe([](const auto& s) {
@@ -58,9 +58,9 @@ sunset, the sky may take on a more orange or red hue due to the angle of the sun
     }
 
     TEST_F(OllamaChatTest, TestStream) {
-        OllamaChat ollama_chat;
+        const auto ollama_chat = CreateOllamaChatModel();
         std::string buf;
-        ollama_chat.Stream(dialog1)
+        ollama_chat->Stream(dialog1)
             | rpp::operators::subscribe([&](const auto& s) {
                 buf += s.content();
                 std::cout << buf << std::endl;

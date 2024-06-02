@@ -17,10 +17,11 @@ namespace INSTINCT_LLM_NS {
     protected:
         void SetUp() override {
             SetupLogging();
-            // relies on OpenAI or other auto-configured service
-            chat_model_ = CreateOpenAIChatModel({
-                .temperature = 0,
-                .stop_words = { {"Observation:" }}
+            // relies on OpenAI or other autoconfigured service
+            chat_model_ = CreateOpenAIChatModel();
+            chat_model_->Configure({
+               .temperature = 0,
+               .stop_words = { {"Observation:" }}
             });
         }
 

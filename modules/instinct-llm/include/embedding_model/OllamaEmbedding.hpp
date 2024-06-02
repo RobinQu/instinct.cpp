@@ -53,7 +53,6 @@ namespace INSTINCT_LLM_NS {
                 return result;
             }
 
-
             for (const auto& text: texts) {
                 OllamaEmbeddingRequest request;
                 request.set_model(configuration_.model_name);
@@ -85,10 +84,40 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
+    static void LoadOllamaEmbeddingConfiguration(OllamaConfiguration& configuration) {
+        if (StringUtils::IsBlankString(configuration.model_name)) {
+            configuration.model_name = SystemUtils::GetEnv("OLLAMA_EMBEDDING_MODEL", OLLAMA_DEFAULT_EMBEDDING_MODEL_NAME);
+        }
+        if(configuration.dimension == 0) {
+            configuration.dimension = SystemUtils::GetIntEnv("OLLAMA_EMBEDDING_DIM");
+            if (configuration.dimension == 0) { // guess dimension
+                if(configuration.model_name.starts_with("all-minilm")) {
+                    configuration.dimension = 384;
+                }
+                if (configuration.model_name.starts_with("mxbai-embed")) {
+                    configuration.dimension = 512;
+                }
+                if(configuration.model_name.starts_with("nomic-embed-text")) {
+                    configuration.dimension = 768;
+                }
+            }
+        }
+        if (StringUtils::IsBlankString(configuration.endpoint.host)) {
+            configuration.endpoint.host = SystemUtils::GetEnv("OLLAMA_HOST", OLLAMA_ENDPOINT.host);
+        }
+        if(configuration.endpoint.port == 80) {
+            configuration.endpoint.port = SystemUtils::GetIntEnv("OLLAMA_PORT", OLLAMA_ENDPOINT.port);
+        }
+        if (configuration.endpoint.protocol == kHTTP) {
+            configuration.endpoint.protocol = StringUtils::ToLower(SystemUtils::GetEnv("OLLAMA_PROTOCOL")) == "https" ? kHTTPS : kHTTP;
+        }
+    }
 
-    static EmbeddingsPtr CreateOllamaEmbedding(const OllamaConfiguration& ollama_configuration = {}) {
+    static EmbeddingsPtr CreateOllamaEmbedding(OllamaConfiguration ollama_configuration = {}) {
+        LoadOllamaEmbeddingConfiguration(ollama_configuration);
         return std::make_shared<OllamaEmbedding>(ollama_configuration);
     }
+
 } // LC_MODEL_NS
 
 #endif //OLLAMAEMBEDDING_H

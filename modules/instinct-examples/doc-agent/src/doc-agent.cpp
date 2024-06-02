@@ -374,7 +374,7 @@ Question: {standalone_question}
                 ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
                 ->default_val(OLLAMA_ENDPOINT.protocol);
         llm_provider_ogroup->add_option("--embedding_model_model_name", provider_options.model_name, "Specify name of the model to be used.")
-                ->default_val(OLLAMA_DEFUALT_MODEL_NAME);
+                ->default_val(OLLAMA_DEFAULT_CHAT_MODEL_NAME);
     }
 
     static void BuildChatModelProviderOptionGroup(
@@ -400,7 +400,7 @@ Question: {standalone_question}
                 ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
                 ->default_val(OLLAMA_ENDPOINT.protocol);
         llm_provider_ogroup->add_option("--chat_model_model_name", provider_options.model_name, "Specify name of the model to be used.")
-                ->default_val(OLLAMA_DEFUALT_MODEL_NAME);
+                ->default_val(OLLAMA_DEFAULT_CHAT_MODEL_NAME);
     }
 
     void BuildRetrieverOptions(CLI::Option_group* retriever_option_group, RetrieverOptions& options) {

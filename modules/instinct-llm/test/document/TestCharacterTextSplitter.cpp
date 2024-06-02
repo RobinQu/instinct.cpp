@@ -22,7 +22,7 @@ namespace INSTINCT_LLM_NS {
         result = text_splitter->SplitText("朱雀 玄武 青龙 白虎");
         details::print_splits("cn splits", result);
         ASSERT_EQ(result.size(), 3);
-        ASSERT_TRUE(result[2] == "青龙 白虎");
+        ASSERT_EQ(result[2], "青龙 白虎");
         delete text_splitter;
 
         text_splitter = new CharacterTextSplitter({.chunk_size = 7, .chunk_overlap = 3, .separator=" "});

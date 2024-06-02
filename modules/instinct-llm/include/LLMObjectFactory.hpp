@@ -37,11 +37,11 @@ namespace INSTINCT_LLM_NS {
 
         static ChatModelPtr CreateChatModel(LLMProviderOptions options) {
             if (options.provider_name == "ollama") {
-                options.ollama.model_name = StringUtils::IsBlankString(options.chat_model_name) ? "llama3:latest"  : options.chat_model_name;
+                LoadOllamaChatConfiguration(options.ollama);
                 return CreateOllamaChatModel(options.ollama);
             }
             if (options.provider_name == "openai") {
-                options.ollama.model_name = StringUtils::IsBlankString(options.chat_model_name) ? "gpt-4o"  : options.chat_model_name;
+                LoadOpenAIChatConfiguration(options.openai);
                 return CreateOpenAIChatModel(options.openai);
             }
             return nullptr;
@@ -49,11 +49,11 @@ namespace INSTINCT_LLM_NS {
 
         static EmbeddingsPtr CreateEmbeddingModel(LLMProviderOptions options) {
             if (options.provider_name == "ollama") {
-                options.ollama.model_name = StringUtils::IsBlankString(options.embedding_model_name) ? "all-minilm:latest": options.embedding_model_name;
+                LoadOllamaEmbeddingConfiguration(options.ollama);
                 return CreateOllamaEmbedding(options.ollama);
             }
             if (options.provider_name == "openai") {
-                options.openai.model_name = StringUtils::IsBlankString(options.embedding_model_name) ? "text-embedding-3-large": options.embedding_model_name;
+                LoadOpenAIEmbeddingConfiguration(options.openai);
                 return CreateOpenAIEmbeddingModel(options.openai);
             }
             return nullptr;
@@ -66,7 +66,7 @@ namespace INSTINCT_LLM_NS {
             const std::vector<FunctionToolkitPtr>& tk = {}
         ) {
             if(options.agent_executor_name == "llm_compiler") {
-                LOG_INFO("Create LLMCompilerAgentExectuor");
+                LOG_INFO("Create LLMCompilerAgentExecutor");
                 return CreateLLMCompilerAgentExecutor(chat_model, tk, predicate, options.llm_compiler);
             }
             assert_true(std::dynamic_pointer_cast<OpenAIChat>(chat_model), "Should be Chat model of OpenAI when openai_tool_agent_executor");

@@ -90,11 +90,12 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void Ingest(const AsyncIterator<Document>& input) override {
-            static int BATCH_SIZE = 100;
+            static int BATCH_SIZE = 50;
             input
             | rpp::operators::as_blocking()
             | rpp::operators::buffer(BATCH_SIZE)
-            | rpp::operators::subscribe([&](const std::vector<Document>& batch) {
+            | rpp::operators::subscribe([&](const std::vector<Document>& buf) {
+                std::vector<Document> batch = buf;
                 // insert all parent docs
                 UpdateResult updateResult;
                 doc_store_->AddDocuments(batch, updateResult);

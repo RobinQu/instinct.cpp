@@ -73,19 +73,26 @@ namespace INSTINCT_LLM_NS {
                 request.set_format("json");
             }
             request.set_model(configuration_.model_name);
-            request.mutable_options()->set_seed(configuration_.seed);
-            request.mutable_options()->set_temperature(configuration_.temperature);
-            request.mutable_options()->mutable_stop()->Add(configuration_.stop_words.begin(), configuration_.stop_words.end());
+            if (configuration_.seed) {
+                request.mutable_options()->set_seed(configuration_.seed.value());
+            }
+            if (configuration_.temperature) {
+                request.mutable_options()->set_temperature(configuration_.temperature.value());
+            }
+            if (!configuration_.stop_words.empty()) {
+                request.mutable_options()->mutable_stop()->Add(configuration_.stop_words.begin(),
+                                                               configuration_.stop_words.end());
+            }
             const auto response = client_.PostObject<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request);
             return transform_raw_response(response);
         }
 
         BatchedLangaugeModelResult Generate(const std::vector<MessageList>& messages) override {
-            BatchedLangaugeModelResult batched_langauge_model_result;
+            BatchedLangaugeModelResult batched_language_model_result;
             for (const auto& message_list: messages) {
-                batched_langauge_model_result.add_generations()->CopyFrom(CallOllama(message_list));
+                batched_language_model_result.add_generations()->CopyFrom(CallOllama(message_list));
             }
-            return batched_langauge_model_result;
+            return batched_language_model_result;
         }
 
         AsyncIterator<LangaugeModelResult> StreamGenerate(const MessageList& message_list) override {
@@ -100,8 +107,16 @@ namespace INSTINCT_LLM_NS {
                 request.set_format("json");
             }
             request.set_model(configuration_.model_name);
-            request.mutable_options()->set_seed(configuration_.seed);
-            request.mutable_options()->set_temperature(configuration_.temperature);
+            if (configuration_.seed) {
+                request.mutable_options()->set_seed(configuration_.seed.value());
+            }
+            if (configuration_.temperature) {
+                request.mutable_options()->set_temperature(configuration_.temperature.value());
+            }
+            if (!configuration_.stop_words.empty()) {
+                request.mutable_options()->mutable_stop()->Add(configuration_.stop_words.begin(),
+                                                               configuration_.stop_words.end());
+            }
 
             return  client_.StreamChunkObject<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request, true)
                 | rpp::operators::map(transform_raw_response);
@@ -109,7 +124,23 @@ namespace INSTINCT_LLM_NS {
 
     };
 
-    static ChatModelPtr CreateOllamaChatModel(const OllamaConfiguration& configuration = {}) {
+    static void LoadOllamaChatConfiguration(OllamaConfiguration& configuration) {
+        if (StringUtils::IsBlankString(configuration.model_name)) {
+            configuration.model_name = SystemUtils::GetEnv("OLLAMA_CHAT_MODEL", OLLAMA_DEFAULT_CHAT_MODEL_NAME);
+        }
+        if (StringUtils::IsBlankString(configuration.endpoint.host)) {
+            configuration.endpoint.host = SystemUtils::GetEnv("OLLAMA_HOST", OLLAMA_ENDPOINT.host);
+        }
+        if (configuration.endpoint.port == 80) {
+            configuration.endpoint.port = SystemUtils::GetIntEnv("OLLAMA_PORT", OLLAMA_ENDPOINT.port);
+        }
+        if (configuration.endpoint.protocol == kHTTP) {
+            configuration.endpoint.protocol = StringUtils::ToLower(SystemUtils::GetEnv("OLLAMA_PROTOCOL")) == "https" ? kHTTPS : kHTTP;
+        }
+    }
+
+    static ChatModelPtr CreateOllamaChatModel(OllamaConfiguration configuration = {}) {
+        LoadOllamaChatConfiguration(configuration);
         return std::make_shared<OllamaChat>(configuration);
     }
 

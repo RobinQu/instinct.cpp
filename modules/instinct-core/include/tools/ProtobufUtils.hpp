@@ -352,7 +352,7 @@ namespace INSTINCT_CORE_NS {
             options.case_insensitive_enum_parsing = true;
             auto status = util::JsonStringToMessage(buf, &result, options);
             if (!status.ok()) {
-                LOG_DEBUG("Deserialize failed. reason: {}, orginal string: {}", status.message().as_string(), buf);
+                LOG_DEBUG("Deserialize failed. reason: {}, original string: {}", status.message().as_string(), buf);
             }
             assert_true(status.ok(), "failed to parse protobuf message from response body");
             return result;

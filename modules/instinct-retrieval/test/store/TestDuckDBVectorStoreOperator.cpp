@@ -12,7 +12,6 @@
 namespace INSTINCT_RETRIEVAL_NS {
     class DuckDBVectorStoreOperatorTest: public testing::Test {
     protected:
-
         DuckDBPtr duck_db_ = std::make_shared<duckdb::DuckDB>(nullptr);
         DuckDBConnectionPoolPtr connection_pool_ = CreateDuckDBConnectionPool(duck_db_);
         EmbeddingsPtr embedding_model_ = CreateOpenAIEmbeddingModel();

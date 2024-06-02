@@ -25,7 +25,7 @@ namespace INSTINCT_LLM_NS {
     public:
         explicit OpenAIChat(OpenAIConfiguration configuration)
             :  configuration_(std::move(configuration)), client_(configuration_.endpoint) {
-            client_.GetDefaultHeaders().emplace("Authorization", fmt::format("Bearer {}", GetAPIKey_()));
+            client_.GetDefaultHeaders().emplace("Authorization", fmt::format("Bearer {}", configuration_.api_key));
         }
 
         void BindToolSchemas(const std::vector<FunctionTool> &function_tool_schema) override {
@@ -72,26 +72,26 @@ namespace INSTINCT_LLM_NS {
         }
 
         BatchedLangaugeModelResult Generate(const std::vector<MessageList>& message_matrix) override {
-            // TODO make it parelle
-            BatchedLangaugeModelResult batched_langauge_model_result;
-            for (const auto& mesage_list: message_matrix) {
-                CallOpenAI(mesage_list, batched_langauge_model_result);
+            // TODO make it parallel
+            BatchedLangaugeModelResult batched_language_model_result;
+            for (const auto& message_list: message_matrix) {
+                CallOpenAI(message_list, batched_language_model_result);
             }
-            return batched_langauge_model_result;
+            return batched_language_model_result;
         }
 
         AsyncIterator<LangaugeModelResult> StreamGenerate(const MessageList& messages) override {
             const auto req = BuildRequest_(messages, true);
             const auto chunk_itr = client_.StreamChunkObject<OpenAIChatCompletionRequest, OpenAIChatCompletionChunk>(DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT, req, true, {"[DONE]"});
             return chunk_itr | rpp::operators::map([](const OpenAIChatCompletionChunk& chunk) {
-                LangaugeModelResult langauge_model_result;
+                LangaugeModelResult language_model_result;
                 for (const auto& choice: chunk.choices()) {
-                    auto* single_result = langauge_model_result.add_generations();
+                    auto* single_result = language_model_result.add_generations();
                     single_result->set_text(choice.delta().content());
                     single_result->set_is_chunk(false);
                     single_result->mutable_message()->CopyFrom(choice.delta());
                 }
-                return langauge_model_result;
+                return language_model_result;
             });
         }
 
@@ -126,38 +126,34 @@ namespace INSTINCT_LLM_NS {
             return req;
         }
 
-        std::string GetAPIKey_() const {
-            if (StringUtils::IsNotBlankString(configuration_.api_key)) {
-                return configuration_.api_key;
-            }
-            if (const auto api_key_env = SystemUtils::GetEnv("OPENAI_API_KEY"); StringUtils::IsNotBlankString(api_key_env)) {
-                return api_key_env;
-            }
-            LOG_WARN("API key for OpenAI is not found in configuration or environment variables.");
-            // won't throw as some local LLMs don't need an API key for authentication at all
-            return "";
-        }
-
     };
 
 
-    static ChatModelPtr CreateOpenAIChatModel(const OpenAIConfiguration& configuration) {
+
+    static void LoadOpenAIChatConfiguration(OpenAIConfiguration& configuration) {
+        if (StringUtils::IsBlankString(configuration.api_key)) {
+            configuration.api_key = SystemUtils::GetEnv("OPENAI_API_KEY");
+        }
+        if(StringUtils::IsBlankString(configuration.model_name)) {
+            configuration.model_name = SystemUtils::GetEnv("OPENAI_CHAT_MODEL", "gpt-3.5-turbo");
+        }
+        if (StringUtils::IsBlankString(configuration.endpoint.host)) {
+            configuration.endpoint.host = SystemUtils::GetEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.host);
+        }
+        if (configuration.endpoint.port == 80) {
+            configuration.endpoint.port = SystemUtils::GetIntEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.port);
+        }
+        if (configuration.endpoint.protocol == kHTTP) {
+            configuration.endpoint.protocol = StringUtils::ToLower(SystemUtils::GetEnv("OPENAI_PROTOCOL", "https")) == "https" ? kHTTPS : kHTTP;
+        }
+    }
+
+
+    static ChatModelPtr CreateOpenAIChatModel(OpenAIConfiguration configuration = {}) {
+        LoadOpenAIChatConfiguration(configuration);
         return std::make_shared<OpenAIChat>(configuration);
     }
 
-    /**
-     * Return OpenAIChatModel with configuration values from environment variables
-     * @return
-     */
-    static ChatModelPtr CreateOpenAIChatModel() {
-        OpenAIConfiguration configuration;
-        configuration.api_key = SystemUtils::GetEnv("OPENAI_API_KEY");
-        configuration.model_name = SystemUtils::GetEnv("OPENAI_CHAT_MODEL", "gpt-3.5-turbo");
-        configuration.endpoint.host = SystemUtils::GetEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.host);
-        configuration.endpoint.port = SystemUtils::GetIntEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.port);
-        configuration.endpoint.protocol = SystemUtils::GetEnv("OPENAI_PROTOCOL", "https") == "https" ? kHTTPS : kHTTP;
-        return CreateOpenAIChatModel(configuration);
-    }
 }
 
 

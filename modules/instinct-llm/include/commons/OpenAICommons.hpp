@@ -24,12 +24,12 @@ INSTINCT_LLM_NS {
         /**
          * HTTP Endpoint
          */
-        Endpoint endpoint = OPENAI_DEFAULT_ENDPOINT;
+        Endpoint endpoint {};
 
         /**
-         * Modle name
+         * Model name
          */
-        std::string model_name = OPENAI_DEFAULT_MODEL_NAME;
+        std::string model_name;
 
         /**
          * API Token for OpenAI API
@@ -40,7 +40,7 @@ INSTINCT_LLM_NS {
 
         std::optional<float> top_p;
 
-        std::optional<float> seed;
+        std::optional<int> seed;
 
         bool json_object = false;
 

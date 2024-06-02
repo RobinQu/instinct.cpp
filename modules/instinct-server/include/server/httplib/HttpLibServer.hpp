@@ -79,6 +79,10 @@ namespace INSTINCT_SERVER_NS {
             InitServer();
         }
 
+        ~HttpLibServer() override {
+            this->Shutdown();
+        }
+
         Server& GetHttpLibServer() {
             return server_;
         }
@@ -99,18 +103,18 @@ namespace INSTINCT_SERVER_NS {
             } else {
                 port = server_.bind_to_any_port(options_.host);
             }
-            RUNNING_HTTP_SERVERS.push_back(this->shared_from_this());
             life_cycle_manager_.OnServerStart(*this, port);
             LOG_INFO("Server is up and running at port {}", port);
             return port;
         }
 
         void Shutdown() override {
-            LOG_INFO("Server is shutting down");
-            life_cycle_manager_.BeforeServerClose(*this);
-            RUNNING_HTTP_SERVERS.push_back(this->shared_from_this());
-            server_.stop();
-            life_cycle_manager_.AfterServerClose(*this);
+            if (server_.is_running()) {
+                LOG_INFO("Server is shutting down");
+                life_cycle_manager_.BeforeServerClose(*this);
+                server_.stop();
+                life_cycle_manager_.AfterServerClose(*this);
+            }
         }
 
         bool StartAndWait() override {
@@ -174,6 +178,12 @@ namespace INSTINCT_SERVER_NS {
     };
 
     using HttpLibServerPtr = std::shared_ptr<HttpLibServer>;
+
+    static HttpLibServerPtr CreateHttpLibServer(const ServerOptions& options = {}) {
+        const auto srv = std::make_shared<HttpLibServer>(options);
+        RUNNING_HTTP_SERVERS.push_back(srv);
+        return srv;
+    }
 
     static void GracefullyShutdownRunningHttpServers() {
         for (auto& server: RUNNING_HTTP_SERVERS) {

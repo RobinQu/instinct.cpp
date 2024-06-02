@@ -17,7 +17,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         static void append_row(
                 const std::shared_ptr<MetadataSchema>& metadata_schema,
                 Appender& appender,
-                const Document& doc,
+                Document& doc,
                 const Embedding& embedding,
                 UpdateResult& update_result,
                 const bool bypass_unknown_fields
@@ -61,7 +61,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             return embeddings_;
         }
 
-        void AppendRows(Appender &appender, const std::vector<Document> &records, UpdateResult &update_result) override {
+        void AppendRows(Appender &appender, std::vector<Document> &records, UpdateResult &update_result) override {
             auto text_view = records | std::views::transform([](auto&& record) -> std::string {
                 return record.text();
             });

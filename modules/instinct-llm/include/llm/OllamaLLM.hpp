@@ -56,8 +56,12 @@ namespace INSTINCT_LLM_NS {
                 request.set_format("json");
             }
             request.set_prompt(prompt);
-            request.mutable_options()->set_seed(configuration_.seed);
-            request.mutable_options()->set_temperature(configuration_.temperature);
+            if (configuration_.seed) {
+                request.mutable_options()->set_seed(configuration_.seed.value());
+            }
+            if (configuration_.temperature) {
+                request.mutable_options()->set_temperature(configuration_.temperature.value());
+            }
             const auto response = http_client_.PostObject<OllamaCompletionRequest, OllamaCompletionResponse>(OLLAMA_GENERATE_PATH, request);
             return details::conv_raw_response_to_model_result(response, false);
         }
@@ -78,9 +82,16 @@ namespace INSTINCT_LLM_NS {
             if (configuration_.json_mode) {
                 request.set_format("json");
             }
-            request.mutable_options()->set_seed(configuration_.seed);
-            request.mutable_options()->set_temperature(configuration_.temperature);
-            request.set_prompt(prompt);
+            if (configuration_.seed) {
+                request.mutable_options()->set_seed(configuration_.seed.value());
+            }
+            if (configuration_.temperature) {
+                request.mutable_options()->set_temperature(configuration_.temperature.value());
+            }
+            if (!configuration_.stop_words.empty()) {
+                request.mutable_options()->mutable_stop()->Add(configuration_.stop_words.begin(),
+                                                               configuration_.stop_words.end());
+            }
             return http_client_.StreamChunkObject<OllamaCompletionRequest, OllamaCompletionResponse>(OLLAMA_GENERATE_PATH, request)
                 | rpp::operators::map([](const auto& response) {
                     return details::conv_raw_response_to_model_result(response, true);
@@ -88,6 +99,21 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
+    static LLMPtr CreateOllamaLLM(OllamaConfiguration configuration = {}) {
+        if (StringUtils::IsBlankString(configuration.model_name)) {
+            configuration.model_name = SystemUtils::GetEnv("OLLAMA_CHAT_MODEL", OLLAMA_DEFAULT_CHAT_MODEL_NAME);
+        }
+        if (StringUtils::IsBlankString(configuration.endpoint.host)) {
+            configuration.endpoint.host = SystemUtils::GetEnv("OLLAMA_HOST", OLLAMA_ENDPOINT.host);
+        }
+        if (configuration.endpoint.port == 80) {
+            configuration.endpoint.port = SystemUtils::GetIntEnv("OLLAMA_PORT", OLLAMA_ENDPOINT.port);
+        }
+        if (configuration.endpoint.protocol == kHTTP) {
+            configuration.endpoint.protocol = StringUtils::ToLower(SystemUtils::GetEnv("OLLAMA_PROTOCOL")) == "https" ? kHTTPS : kHTTP;
+        }
+        return std::make_shared<OllamaLLM>(configuration);
+    }
 
 
 } // model

@@ -123,7 +123,7 @@ namespace instinct::examples::mini_assistant {
             context.task_scheduler->RegisterHandler(context.run_object_task_handler);
 
             // configure http server
-            const auto http_server = std::make_shared<HttpLibServer>(options_.server);
+            const auto http_server = CreateHttpLibServer(options_.server);
             const auto assistant_controller = std::make_shared<AssistantController>(context.assistant_facade);
             const auto file_controller = std::make_shared<FileController>(context.assistant_facade);
             const auto message_controller = std::make_shared<MessageController>(context.assistant_facade);

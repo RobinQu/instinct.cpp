@@ -214,12 +214,13 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         static void append_row_basic_fields(
             Appender& appender,
-            const Document& doc,
+            Document& doc,
             UpdateResult& update_result
         ) {
             // column of id
             const std::string new_id = StringUtils::GenerateUUIDString();
             update_result.add_returned_ids(new_id);
+            doc.set_id(new_id);
             appender.Append<>(new_id.c_str());
 
             // column of text
@@ -375,9 +376,9 @@ namespace INSTINCT_RETRIEVAL_NS {
             AddDocuments(docs, update_result);
         }
 
-        virtual void AppendRows(Appender& appender, const std::vector<Document>& records, UpdateResult& update_result) = 0;
+        virtual void AppendRows(Appender& appender, std::vector<Document>& records, UpdateResult& update_result) = 0;
 
-        void AddDocuments(const std::vector<Document>& records, UpdateResult& update_result) override {
+        void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
             auto connection = MakeConnection();
             connection.BeginTransaction();
             try {

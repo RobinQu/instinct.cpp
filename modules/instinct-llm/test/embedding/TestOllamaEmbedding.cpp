@@ -24,16 +24,17 @@ Galena, also called lead glance, is the natural mineral form of lead(II) sulfide
 
     TEST(OllamaEmbedding, TestSimpleOps) {
         using namespace INSTINCT_CORE_NS;
-        OllamaEmbedding embedding;
-        TensorUtils::PrintEmbedding(embedding.EmbedQuery("hell word"));
-        for(const auto& vector: embedding.EmbedDocuments(DOCS)) {
+        const auto embedding = CreateOllamaEmbedding();
+        TensorUtils::PrintEmbedding(embedding->EmbedQuery("hell word"));
+        for(const auto& vector: embedding->EmbedDocuments(DOCS)) {
             TensorUtils::PrintEmbedding(vector);
         }
     }
 
     TEST(OllamaEmbedding, TestBatchExecute) {
         SetupLogging();
-        for(OllamaEmbedding embedding({.max_parallel = 4}); const auto& vector: embedding.EmbedDocuments(DOCS)) {
+        const auto embedding = CreateOllamaEmbedding();
+        for(const auto& vector: embedding->EmbedDocuments(DOCS)) {
             TensorUtils::PrintEmbedding(vector);
         }
     }

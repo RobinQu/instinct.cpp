@@ -32,10 +32,11 @@ namespace INSTINCT_AGENT_NS {
     TEST_F(TestSerpAPI, GetSchema) {
         const auto schema = serp_api->GetSchema();
         LOG_INFO(">> {}", schema.ShortDebugString());
-        ASSERT_EQ(schema.parameters().properties_size(), 3);
+        // only required fields are included in schema
+        ASSERT_EQ(schema.parameters().properties_size(), 1);
         ASSERT_EQ(schema.parameters().properties().at("query").type(), "string");
-        ASSERT_EQ(schema.parameters().properties().at("result_limit").type(), "integer");
-        ASSERT_EQ(schema.parameters().properties().at("result_offset").type(), "integer");
+//        ASSERT_EQ(schema.parameters().properties().at("result_limit").type(), "integer");
+//        ASSERT_EQ(schema.parameters().properties().at("result_offset").type(), "integer");
     }
 
     TEST_F(TestSerpAPI, SimpleQuery) {
