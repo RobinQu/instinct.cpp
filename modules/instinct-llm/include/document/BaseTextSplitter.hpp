@@ -85,7 +85,7 @@ namespace  INSTINCT_LLM_NS {
                         // auto* chunk_id_field = document.add_metadata();
                         // chunk_id_field->set_name(CHUNK_DOC_PART_INDEX_KEY);
                         // chunk_id_field->set_int_value(i);
-                        DocumentUtils::AddPresetMetadataFileds(document, doc.id(), i+1);
+                        DocumentUtils::AddPresetMetadataFields(document, doc.id(), i+1);
                         observer.on_next(document);
                     }
                 }, [&](const std::exception_ptr& e) {
