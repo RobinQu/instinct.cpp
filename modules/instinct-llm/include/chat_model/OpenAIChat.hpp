@@ -133,7 +133,7 @@ namespace INSTINCT_LLM_NS {
             if (const auto api_key_env = SystemUtils::GetEnv("OPENAI_API_KEY"); StringUtils::IsNotBlankString(api_key_env)) {
                 return api_key_env;
             }
-            LOG_WARN("API key for OpenAI is not found in configuration or envrionment variables.");
+            LOG_WARN("API key for OpenAI is not found in configuration or environment variables.");
             // won't throw as some local LLMs don't need an API key for authentication at all
             return "";
         }

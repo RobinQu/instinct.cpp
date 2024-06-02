@@ -343,14 +343,11 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         Connection& GetConnection() {
-            // const std::lock_guard<std::mutex> lock(g_i_mutex);
-            // auto id = std::this_thread::get_id();
-            // if (!connections_.contains(id)) {
-            //     connections_.emplace(id, Connection(*db_));
-            // }
-            // return connections_.at(id);
-            // return std::move(Connection(*db_));
             return connection_;
+        }
+
+        Connection MakeConnection() {
+            return std::move(Connection(*db_));
         }
 
         AsyncIterator<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {
@@ -381,7 +378,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         virtual void AppendRows(Appender& appender, const std::vector<Document>& records, UpdateResult& update_result) = 0;
 
         void AddDocuments(const std::vector<Document>& records, UpdateResult& update_result) override {
-            auto& connection = GetConnection();
+            auto connection = MakeConnection();
             connection.BeginTransaction();
             try {
                 Appender appender(connection, options_.table_name);
@@ -401,7 +398,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         virtual void AppendRow(Appender& appender, Document& doc, UpdateResult& update_result) = 0;
 
         void AddDocument(Document& doc) override {
-            auto& connection = GetConnection();
+            auto connection = MakeConnection();
             connection.BeginTransaction();
             try {
                 UpdateResult update_result;
@@ -424,7 +421,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void DeleteDocuments(const std::vector<std::string>& ids, UpdateResult& update_result) override {
-            auto& connection = GetConnection();
+            auto connection = MakeConnection();
             const auto sql = details::make_delete_sql(options_.table_name, ids);
             LOG_DEBUG("DeleteDocuments with sql: {}", sql);
             const auto result = connection.Query(sql);
@@ -435,7 +432,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void DeleteDocuments(const SearchQuery &filter, UpdateResult &update_result) override {
-            auto& connection = GetConnection();
+            auto connection = MakeConnection();
             const auto sql = SQLBuilder::ToDeleteString(options_.table_name, filter);
             LOG_DEBUG("DeleteDocuments with sql: {}", sql);
             const auto result = connection.Query(sql);

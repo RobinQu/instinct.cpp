@@ -26,7 +26,7 @@ namespace INSTINCT_LLM_NS {
 
         std::vector<UnicodeString> SplitText(const UnicodeString& text) override {
             auto sep = details::escape_for_regular_expression(sepeartor_);
-            std::vector<UnicodeString> splits = details::split_text_with_seperator(text, sep, keep_sepeartor_);
+            std::vector<UnicodeString> splits = details::split_text_with_seperator(text, sep, keep_separator_);
             std::vector<UnicodeString> results;
             MergeSplits_(splits, sep, results);
             return results;

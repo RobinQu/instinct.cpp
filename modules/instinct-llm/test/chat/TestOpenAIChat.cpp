@@ -12,7 +12,7 @@
 namespace INSTINCT_LLM_NS {
     /**
      * this test expects a locally running OpenAI-compatible server.
-     * TODO should seperate unit tests and integration tests. use mock server for unit tests instread.
+     * TODO should separate unit tests and integration tests. use mock server for unit tests instread.
      */
     class OpenAIChatTest: public testing::Test {
     protected:
@@ -20,40 +20,30 @@ namespace INSTINCT_LLM_NS {
             SetupLogging();
         }
 
-        ChatModelPtr CreateOpenAIChat() {
-            return CreateOpenAIChatModel();
-        }
-
-        ChatModelPtr CreateLLMStudioChat() {
-            return CreateOpenAIChatModel({
-                                                        .endpoint = {.host = "192.168.0.134", .port = 8000},
-                                                        .model_name = "TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ",
-            });
-        }
     };
 
-    //
-    // TEST_F(OpenAIChatTest, SimpleGenerate) {
-    //     const auto openai_chat = CreateLLMStudioChat();
-    //     const auto result = openai_chat->Invoke("why sky is blue?");
-    //     std::cout << result << std::endl;
-    //
-    //     openai_chat->Batch(std::vector<PromptValueVariant> {
-    //         "why sky is blue?",
-    //         "How many counties are in America?"
-    //     })
-    //     | rpp::operators::subscribe([](const auto& msg) {std::cout << msg << std::endl; });
-    // }
-    //
-    // TEST_F(OpenAIChatTest, StreamGenerate) {
-    //     const auto openai_chat = CreateLLMStudioChat();
-    //     openai_chat->Stream("What's capital city of France?")
-    //     // | rpp::operators::as_blocking()
-    //     | rpp::operators::subscribe([](const auto& m) { std::cout << "output message: " <<  m << std::endl; });
-    // }
+
+     TEST_F(OpenAIChatTest, SimpleGenerate) {
+         const auto openai_chat = CreateOpenAIChatModel();
+         const auto result = openai_chat->Invoke("why sky is blue?");
+         std::cout << result << std::endl;
+
+         openai_chat->Batch(std::vector<PromptValueVariant> {
+             "why sky is blue?",
+             "How many counties are in America?"
+         })
+         | rpp::operators::subscribe([](const auto& msg) {std::cout << msg << std::endl; });
+     }
+
+     TEST_F(OpenAIChatTest, StreamGenerate) {
+         const auto openai_chat = CreateOpenAIChatModel();
+         openai_chat->Stream("What's capital city of France?")
+            | rpp::operators::as_blocking()
+            | rpp::operators::subscribe([](const auto& m) { std::cout << "output message: " <<  m << std::endl; });
+     }
 
     TEST_F(OpenAIChatTest, ToolUses) { // test requires OPENAI_APIKEY and SERP_APIKEY envs
-        const auto openai_chat = CreateOpenAIChat();
+        const auto openai_chat = CreateOpenAIChatModel();
         // const auto calculator = CreateLLMMath(openai_chat);
         const auto serp_api = CreateSerpAPI();
         const auto toolkit = CreateLocalToolkit({ serp_api});
@@ -67,9 +57,9 @@ namespace INSTINCT_LLM_NS {
         while (true) {
             const auto msg = openai_chat->Invoke(messages);
             LOG_INFO("msg=[{}]", msg.ShortDebugString());
+            messages.add_messages()->CopyFrom(msg);
             if (msg.tool_calls_size() > 0) {
                 // add tool_call message
-                messages.add_messages()->CopyFrom(msg);
                 for(const auto& call: msg.tool_calls()) {
                     ToolCallObject invocation;
                     invocation.set_id(call.id());
@@ -91,9 +81,9 @@ namespace INSTINCT_LLM_NS {
             }
         }
         auto last_msg = *messages.messages().rbegin();
-        ASSERT_EQ(message.role(), "assistant");
-        ASSERT_FALSE(message.content().empty());
-        ASSERT_TRUE(message.content().find("Tesla") != std::string::npos);
+        ASSERT_EQ(last_msg.role(), "assistant");
+        ASSERT_FALSE(last_msg.content().empty());
+        ASSERT_TRUE(last_msg.content().find("Tesla") != std::string::npos);
     }
 
 

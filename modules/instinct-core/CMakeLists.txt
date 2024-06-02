@@ -60,7 +60,7 @@ add_library(instinct::core
 
 include(FetchContent)
 FetchContent_Declare(
-        rpp
+        RPP
         GIT_REPOSITORY https://github.com/victimsnino/ReactivePlusPlus.git
         GIT_TAG 103b882
         FIND_PACKAGE_ARGS NAMES RPP # will invoke find_package first

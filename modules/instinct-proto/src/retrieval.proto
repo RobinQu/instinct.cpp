@@ -3,7 +3,7 @@ syntax = "proto3";
 //import "llm.proto";
 import "core.proto";
 import "google/protobuf/any.proto";
-import "google/protobuf/struct.proto";
+//import "google/protobuf/struct.proto";
 
 package instinct.retrieval;
 

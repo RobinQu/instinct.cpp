@@ -90,23 +90,23 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void Ingest(const AsyncIterator<Document>& input) override {
-            Futures<void> tasks;
+            static int BATCH_SIZE = 100;
             input
             | rpp::operators::as_blocking()
-            | rpp::operators::subscribe([&](const Document& parent_doc) {
-                auto f = IO_WORKER_POOL.submit_task([&,parent_doc]() {
-                    Document copied_doc = parent_doc;
-                    doc_store_->AddDocument(copied_doc);
-                    auto sub_docs = std::invoke(guidance_, copied_doc);
-                        LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), copied_doc.id());
+            | rpp::operators::buffer(BATCH_SIZE)
+            | rpp::operators::subscribe([&](const std::vector<Document>& batch) {
+                // insert all parent docs
+                UpdateResult updateResult;
+                doc_store_->AddDocuments(batch, updateResult);
+                // insert all child docs
+                for(const auto& parent_doc: batch) {
+                    auto sub_docs = std::invoke(guidance_, parent_doc);
+                            LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), parent_doc.id());
                     UpdateResult update_result;
                     vector_store_->AddDocuments(sub_docs, update_result);
                     assert_true(update_result.failed_documents_size()==0, "all sub docs should be inserted successfully");
-                });
-                tasks.push_back(std::move(f));
+                }
             });
-
-            tasks.wait();
         }
 
         void Remove(const SearchQuery &metadata_query) override {

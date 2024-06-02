@@ -96,7 +96,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     TEST_F(ChunkedMultiVectorRetrieverTest, SplitterConsistentcyTest) {
         std::ifstream splits_json_file(asset_dir_ / "huggingface_doc_splits.json");
 
-        auto tokenizer = TiktokenTokenizer::MakeGPT4Tokenizer("/Users/robinqu/Downloads/cl100k_base.tiktoken");
+        auto tokenizer = TiktokenTokenizer::MakeGPT4Tokenizer();
 
         for (const auto splits_collection = nlohmann::json::parse(splits_json_file); const auto& dataset: splits_collection) {
             const auto chunk_size = dataset.at("chunk_size").get<int>();
