@@ -12,11 +12,36 @@
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_CORE_NS;
 
+    struct Animal {
+        std::string name;
+        std::string genus;
+        int age;
+        int sex;
+        std::string origin;
+        std::string description;
+    };
+
+    static std::string insert_animal(const DocStorePtr& doc_store, const Animal& animal) {
+        Document document;
+        document.set_text(animal.description);
+        DocumentMetadataMutator metadata_mutator  {&document};
+        metadata_mutator.SetString("name", animal.name);
+        metadata_mutator.SetString("genus", animal.genus);
+        metadata_mutator.SetInt32("age", animal.age);
+        metadata_mutator.SetInt32("sex", animal.sex);
+        metadata_mutator.SetString("origin", animal.origin);
+        doc_store->AddDocument(document);
+        LOG_INFO("returned doc id: {}", document.id());
+        return document.id();
+    }
+
     class DuckDBDocStoreTest : public ::testing::Test {
     protected:
         void SetUp() override {
             SetupLogging();
         }
+
+
     };
 
     TEST_F(DuckDBDocStoreTest, CRUDWithoutSchema) {
@@ -105,9 +130,11 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     TEST_F(DuckDBDocStoreTest, CRUDWithSchema) {
         auto schema_builder = MetadataSchemaBuilder::Create();
+        schema_builder->DefineString("name");
         schema_builder->DefineString("genus");
         schema_builder->DefineInt32("age");
         schema_builder->DefineInt32("sex");
+        schema_builder->DefineString("origin");
         auto schema = schema_builder->Build();
         auto doc_store = CreateDuckDBDocStore({
                                                       .table_name = "animal_table",
@@ -124,20 +151,19 @@ namespace INSTINCT_RETRIEVAL_NS {
         }, InstinctException);
 
         ASSERT_NO_THROW({ // insert with document containing extra metadata, which is permitted by default. This can be toggled with `DuckDBStoreOptions::bypass_unknown_fields` option.
-            Document document;
-            document.set_text("Zebras are African equines with distinctive black-and-white striped coats. There are three living species: Grévy's zebra, the plains zebra, and the mountain zebra. Zebras share the genus Equus with horses and asses, the three groups being the only living members of the family Equidae. ");
-            DocumentMetadataMutator metadata_mutator  {&document};
-            metadata_mutator.SetString("genus", "Equus");
-            metadata_mutator.SetInt32("age", 8);
-            metadata_mutator.SetInt32("sex", 1);
-            metadata_mutator.SetString("origin", "North America");
+            const auto id = insert_animal(doc_store, {
+                .name = "Zebra",
+                .genus = "Equus",
+                .age = 8,
+                .sex = 1,
+                .origin = "North America",
+                .description = "Zebras are African equines with distinctive black-and-white striped coats. There are three living species: Grévy's zebra, the plains zebra, and the mountain zebra. Zebras share the genus Equus with horses and asses, the three groups being the only living members of the family Equidae. "
 
-            doc_store->AddDocument(document);
-            LOG_INFO("returned doc id: {}", document.id());
+            });
 
             // lookup
-            ASSERT_TRUE(!document.id().empty());
-            doc_store->MultiGetDocuments({document.id()})
+            ASSERT_TRUE(!id.empty());
+            doc_store->MultiGetDocuments({id})
                 | rpp::operators::as_blocking()
                 | rpp::operators::subscribe([&](const Document& doc) {
                     auto violations = DocumentUtils::ValidateDocument(doc, schema);
@@ -148,8 +174,57 @@ namespace INSTINCT_RETRIEVAL_NS {
                 })
             ;
         });
+    }
 
+    TEST_F(DuckDBDocStoreTest, DeleteWithFilter) {
+        auto schema_builder = MetadataSchemaBuilder::Create();
+        schema_builder->DefineString("name");
+        schema_builder->DefineString("genus");
+        schema_builder->DefineInt32("age");
+        schema_builder->DefineInt32("sex");
+        schema_builder->DefineString("origin");
+        const auto schema = schema_builder->Build();
+        const auto doc_store = CreateDuckDBDocStore({
+                                                      .table_name = "animal_table",
+                                                      .db_file_path = INSTINCT_LLM_NS::ensure_random_temp_folder() /
+                                                                      "doc_store_with_out_schema.db"
+                                              },
+                                              schema);
 
+        insert_animal(doc_store, {
+                .genus = "Equus",
+                .age = 8,
+                .sex = 1,
+                .origin = "North America",
+                .description = "Zebras are African equines with distinctive black-and-white striped coats. There are three living species: Grévy's zebra, the plains zebra, and the mountain zebra. Zebras share the genus Equus with horses and asses, the three groups being the only living members of the family Equidae. "
+
+            });
+        insert_animal(doc_store, {
+                .name = "Lion",
+                .genus = "Panthera",
+                .age = 6,
+                .sex = 1,
+                .origin = "African",
+                .description = "The lion (Panthera leo) is a large cat of the genus Panthera, native to Africa and India. It has a muscular, broad-chested body; a short, rounded head; round ears; and a hairy tuft at the end of its tail. It is sexually dimorphic; adult male lions are larger than females and have a prominent mane. It is a social species, forming groups called prides. A lion's pride consists of a few adult males, related females, and cubs. Groups of female lions usually hunt together, preying mostly on large ungulates. The lion is an apex and keystone predator; although some lions scavenge when opportunities occur and have been known to hunt humans, lions typically do not actively seek out and prey on humans."
+            });
+        insert_animal(doc_store, {
+                .name = "Giraffe",
+                .genus = "Giraffa",
+                .age = 3,
+                .sex = 0,
+                .origin = "African",
+                .description = "The giraffe is a large African hoofed mammal belonging to the genus Giraffa. It is the tallest living terrestrial animal and the largest ruminant on Earth. Traditionally, giraffes have been thought of as one species, Giraffa camelopardalis, with nine subspecies. Most recently, researchers proposed dividing them into up to eight extant species due to new research into their mitochondrial and nuclear DNA, and individual species can be distinguished by their fur coat patterns. Seven other extinct species of Giraffa are known from the fossil record."
+            });
+
+        ASSERT_EQ(doc_store->CountDocuments(), 3);
+
+        SearchQuery search_query;
+        search_query.mutable_term()->set_name("origin");
+        search_query.mutable_term()->mutable_term()->set_string_value("North America");
+        UpdateResult update_result;
+        doc_store->DeleteDocuments(search_query, update_result);
+        ASSERT_EQ(update_result.affected_rows(), 1);
+        ASSERT_EQ(doc_store->CountDocuments(), 2);
     }
 
 

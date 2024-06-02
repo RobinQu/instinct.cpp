@@ -93,7 +93,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         static std::string make_create_table_sql(
             const std::string& table_name,
-            const size_t dimmension,
+            const size_t dimension,
             const std::shared_ptr<MetadataSchema>& metadata_schema,
             bool create_or_replace_table = false
         ) {
@@ -101,8 +101,8 @@ namespace INSTINCT_RETRIEVAL_NS {
             std::vector<std::string> parts;
             parts.emplace_back("id UUID PRIMARY KEY");
             parts.emplace_back("text VARCHAR NOT NULL");
-            if (dimmension > 0) {
-                parts.emplace_back("vector FLOAT[" + std::to_string(dimmension) + "] NOT NULL");
+            if (dimension > 0) {
+                parts.emplace_back("vector FLOAT[" + std::to_string(dimension) + "] NOT NULL");
             }
 
             for (const auto& field: metadata_schema->fields()) {
@@ -387,14 +387,15 @@ namespace INSTINCT_RETRIEVAL_NS {
             return metadata_schema_;
         }
 
-        [[nodiscard]] Connection GetConnection() {
+        Connection& GetConnection() {
             // const std::lock_guard<std::mutex> lock(g_i_mutex);
             // auto id = std::this_thread::get_id();
             // if (!connections_.contains(id)) {
             //     connections_.emplace(id, Connection(*db_));
             // }
             // return connections_.at(id);
-            return std::move(Connection(*db_));
+            // return std::move(Connection(*db_));
+            return connection_;
         }
 
         AsyncIterator<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {
@@ -425,7 +426,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         virtual void AppendRows(Appender& appender, const std::vector<Document>& records, UpdateResult& update_result) = 0;
 
         void AddDocuments(const std::vector<Document>& records, UpdateResult& update_result) override {
-            auto connection = GetConnection();
+            auto& connection = GetConnection();
             connection.BeginTransaction();
             try {
                 Appender appender(connection, options_.table_name);
@@ -445,7 +446,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         virtual void AppendRow(Appender& appender, Document& doc, UpdateResult& update_result) = 0;
 
         void AddDocument(Document& doc) override {
-            auto connection = GetConnection();
+            auto& connection = GetConnection();
             connection.BeginTransaction();
             try {
                 UpdateResult update_result;
@@ -468,7 +469,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void DeleteDocuments(const std::vector<std::string>& ids, UpdateResult& update_result) override {
-            auto connection = GetConnection();
+            auto& connection = GetConnection();
             const auto sql = details::make_delete_sql(options_.table_name, ids);
             LOG_DEBUG("DeleteDocuments with sql: {}", sql);
             const auto result = connection.Query(sql);
@@ -479,7 +480,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void DeleteDocuments(const SearchQuery &filter, UpdateResult &update_result) override {
-            auto connection = GetConnection();
+            auto& connection = GetConnection();
             const auto sql = SQLBuilder::ToDeleteString(options_.table_name, filter);
             LOG_DEBUG("DeleteDocuments with sql: {}", sql);
             const auto result = connection.Query(sql);
