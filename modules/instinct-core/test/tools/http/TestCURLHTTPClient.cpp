@@ -59,17 +59,7 @@ namespace INSTINCT_CORE_NS {
      */
     TEST_F(CURLHttpClientTest, ChunkedResponse) {
         CURLHttpClient client;
-        auto req1 = HttpUtils::CreateRequest("POST http://127.0.0.1:3928/v1/chat/completions");
-        req1.headers[HTTP_HEADER_CONTENT_TYPE_NAME] = HTTP_CONTENT_TYPES.at(kJSON);
-        req1.body = R"({
-          "messages": [
-            { "role": "system", "content": "Always answer in rhymes." },
-            { "role": "user", "content": "Introduce yourself." }
-          ],
-          "temperature": 0.7,
-          "max_tokens": -1,
-          "stream": true
-        })";
+        const auto req1 = HttpUtils::CreateRequest("GET https://httpbin.org/stream/3");
         client.StreamChunk(req1)
             .subscribe([](const auto& chunk) {
                 LOG_INFO("chunk: {}", chunk);

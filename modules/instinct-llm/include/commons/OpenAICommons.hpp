@@ -36,21 +36,21 @@ INSTINCT_LLM_NS {
          */
         std::string token;
 
-        float temperature;
+        std::optional<float> temperature;
 
-        float top_p;
+        std::optional<float> top_p;
 
-        int seed;
+        std::optional<float> seed;
 
-        bool json_object;
+        bool json_object = false;
 
         /**
-         * only used in embedding API
+         * The number of dimensions the resulting output embeddings should have. Only supported in text-embedding-3 and later models.
          */
-        size_t dimension;
+        int dimension = 0;
 
 
-        int max_tokens;
+        std::optional<int> max_tokens;
 
         std::vector<std::string> stop_words = {};
     };

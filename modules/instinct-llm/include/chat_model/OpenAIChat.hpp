@@ -104,10 +104,19 @@ namespace INSTINCT_LLM_NS {
             }
             req.set_model(configuration_.model_name);
             req.set_n(1);
-            req.set_seed(configuration_.seed);
-            req.set_temperature(configuration_.temperature);
-            req.set_top_p(configuration_.top_p);
-            req.set_max_tokens(configuration_.max_tokens);
+            if (configuration_.seed) {
+                req.set_seed(configuration_.seed.value());
+            }
+
+            if (configuration_.temperature) {
+                req.set_temperature(configuration_.temperature.value());
+            }
+            if (configuration_.top_p) {
+                req.set_top_p(configuration_.top_p.value());
+            }
+            if (configuration_.max_tokens) {
+                req.set_max_tokens(configuration_.max_tokens.value());
+            }
             if (configuration_.json_object) {
                 req.mutable_response_format()->set_type("json_object");
             }
@@ -143,7 +152,7 @@ namespace INSTINCT_LLM_NS {
     static ChatModelPtr CreateOpenAIChatModel() {
         OpenAIConfiguration configuration;
         configuration.api_key = SystemUtils::GetEnv("OPENAI_API_KEY");
-        configuration.model_name = SystemUtils::GetEnv("OPENAI_CHAT_MODEL", "gpt-4o");
+        configuration.model_name = SystemUtils::GetEnv("OPENAI_CHAT_MODEL", "gpt-3.5-turbo");
         configuration.endpoint.host = SystemUtils::GetEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.host);
         configuration.endpoint.port = SystemUtils::GetIntEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.port);
         configuration.endpoint.protocol = SystemUtils::GetEnv("OPENAI_PROTOCOL", "https") == "https" ? kHTTPS : kHTTP;

@@ -42,7 +42,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     };
 
     TEST_F(TestOpenAIToolAgentRunObjectTaskHandler, RecoverAgentStateWithSuccessfulSteps) {
-        google::protobuf::util::MessageDifferencer message_differencer;
+        google::protobuf::util::MessageDifferencer diff;
 
         // create assistant
         AssistantObject create_assistant_request;
@@ -117,7 +117,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         ASSERT_TRUE(pause_step.thought().has_pause());
         ASSERT_EQ(pause_step.thought().pause().completed_size(), 0);
         ASSERT_EQ(pause_step.thought().pause().tool_call_message().tool_calls_size(), 1);
-        ASSERT_TRUE(message_differencer.Compare(pause_step.thought().pause().tool_call_message(), continuation_step.thought().continuation().tool_call_message()));
+        ASSERT_TRUE(diff.Compare(pause_step.thought().pause().tool_call_message(), continuation_step.thought().continuation().tool_call_message()));
 
 
         // expect to get observation step
@@ -138,7 +138,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         const auto state3 = task_handler->RecoverAgentState(obj3.value());
         LOG_INFO("RecoverAgentState returned: {}", state3->ShortDebugString());
         ASSERT_EQ(state3->previous_steps_size(), 2); // only one continuation and one observation. pause is lost as it's intermediate state.
-        ASSERT_TRUE(message_differencer.Compare(state3->previous_steps(0), state2->previous_steps(0)));
+        ASSERT_TRUE(diff.Compare(state3->previous_steps(0), state2->previous_steps(0)));
         auto& observation_step = state3->previous_steps(1);
         ASSERT_TRUE(observation_step.has_observation());
         ASSERT_EQ(observation_step.observation().tool_messages_size(), 1);
@@ -169,8 +169,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         const auto state4 = task_handler->RecoverAgentState(obj5.value());
         LOG_INFO("RecoverAgentState returned: {}", state4->ShortDebugString());
         ASSERT_EQ(state4->previous_steps_size(), 3); // only one continuation and one observation. pause is lost as it's intermediate state.
-        ASSERT_TRUE(message_differencer.Compare(state4->previous_steps(0), state3->previous_steps(0)));
-        ASSERT_TRUE(message_differencer.Compare(state4->previous_steps(1), state3->previous_steps(1)));
+        ASSERT_TRUE(diff.Compare(state4->previous_steps(0), state3->previous_steps(0)));
+        ASSERT_TRUE(diff.Compare(state4->previous_steps(1), state3->previous_steps(1)));
         auto& finish_step = state4->previous_steps(2);
         ASSERT_TRUE(finish_step.has_thought());
         ASSERT_TRUE(finish_step.thought().has_finish());

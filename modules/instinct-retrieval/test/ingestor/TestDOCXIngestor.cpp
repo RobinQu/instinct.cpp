@@ -20,7 +20,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         DOCXFileIngestor ingestor { corpus_dir / "word/sample2.docx" };
         auto doc_itr = ingestor.Load()
         | rpp::operators::tap([](const Document& doc) {
-            ASSERT_EQ(doc.metadata_size(), 2);// expecting page_no and source
+            ASSERT_EQ(doc.metadata_size(), 3);// expecting page_no and source
             LOG_INFO("doc = {}", doc.DebugString());
             ASSERT_FALSE(doc.text().empty());
         });

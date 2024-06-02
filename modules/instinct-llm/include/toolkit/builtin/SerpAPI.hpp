@@ -103,8 +103,14 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
-    static FunctionToolPtr CreateSerpAPI(const SerpAPIOptions& options = {}) {
+    static FunctionToolPtr CreateSerpAPI(const SerpAPIOptions& options) {
         return std::make_shared<SerpAPI>(options);
+    }
+
+    static FunctionToolPtr CreateSerpAPI() {
+        return CreateSerpAPI({
+            .apikey = SystemUtils::GetEnv("SERP_APIKEY")
+        });
     }
 }
 

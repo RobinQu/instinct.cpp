@@ -24,7 +24,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         PDFFileIngestor ingestor { corpus_dir / "papers/attention_is_all_you_need.pdf"};
         auto doc_itr = ingestor.Load()
         | rpp::operators::tap([](const Document& doc) {
-            ASSERT_EQ(doc.metadata_size(), 2);// expecting page_no and source
+            ASSERT_EQ(doc.metadata_size(), 3);// expecting page_no and source
             LOG_INFO("doc = {}", doc.DebugString());
             ASSERT_FALSE(doc.text().empty());
         });

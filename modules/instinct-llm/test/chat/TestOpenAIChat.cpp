@@ -66,7 +66,7 @@ namespace INSTINCT_LLM_NS {
         messages.add_messages()->CopyFrom(message);
         while (true) {
             const auto msg = openai_chat->Invoke(messages);
-            LOG_INFO("msg={}", msg.ShortDebugString());
+            LOG_INFO("msg=[{}]", msg.ShortDebugString());
             if (msg.tool_calls_size() > 0) {
                 // add tool_call message
                 messages.add_messages()->CopyFrom(msg);

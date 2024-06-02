@@ -9,7 +9,6 @@
 #include <model/IEmbeddingModel.hpp>
 
 #include "LLMGlobals.hpp"
-#include "OllamaEmbedding.hpp"
 #include "commons/OpenAICommons.hpp"
 #include "tools/HttpRestClient.hpp"
 
@@ -37,7 +36,7 @@ namespace INSTINCT_LLM_NS {
             }
             req.set_model(configuration_.model_name);
             req.set_dimension(configuration_.dimension);
-            auto res = client_.PostObject<OpenAIEmbeddingRequest, OpenAIEmbeddingResponse>(DEFAULT_OPENAI_EMBEDDING_ENDPOINT, req);
+            const auto res = client_.PostObject<OpenAIEmbeddingRequest, OpenAIEmbeddingResponse>(DEFAULT_OPENAI_EMBEDDING_ENDPOINT, req);
 
             assert_true(res.data_size()>0, "should have at least one embedding returned");
             for(const auto&embedding_response: res.data()) {

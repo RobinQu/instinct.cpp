@@ -13,9 +13,7 @@ namespace INSTINCT_AGENT_NS {
     protected:
         void SetUp() override {
             SetupLogging();
-            const auto api_key = std::getenv("SERP_API_KEY");
-            ASSERT_TRUE(api_key && !StringUtils::IsBlankString(api_key));
-            serp_api = CreateSerpAPI({.apikey =  api_key});
+            serp_api = CreateSerpAPI();
         }
 
         std::string Query(const std::string& text) {
