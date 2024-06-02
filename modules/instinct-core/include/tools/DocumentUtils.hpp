@@ -111,7 +111,7 @@ namespace INSTINCT_CORE_NS {
             }
         }
 
-        static void AddPresetMetadataFileds(
+        static void AddPresetMetadataFields(
             Document& document,
             const std::string& parent_doc_id,
             const int page_no = 1,

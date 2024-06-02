@@ -65,7 +65,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         Document ProduceDoc_(const std::string& text, const int idx) {
             Document document;
             document.set_text(text);
-            DocumentUtils::AddPresetMetadataFileds(document, ROOT_DOC_ID, idx, file_path_.string());
+            DocumentUtils::AddPresetMetadataFields(document, ROOT_DOC_ID, idx, file_path_.string());
             return document;
         }
     };

@@ -141,7 +141,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             Document summary_doc;
             summary_doc.set_text(generation);
             summary_doc.set_id(StringUtils::GenerateUUIDString());
-            DocumentUtils::AddPresetMetadataFileds(
+            DocumentUtils::AddPresetMetadataFields(
                 summary_doc,
                 doc.id()
             );
@@ -176,7 +176,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 Document query_doc;
                 query_doc.set_id(StringUtils::GenerateUUIDString());
                 query_doc.set_text(query);
-                DocumentUtils::AddPresetMetadataFileds(query_doc, doc.id());
+                DocumentUtils::AddPresetMetadataFields(query_doc, doc.id());
                 final_queries.push_back(query_doc);
             }
             return final_queries;

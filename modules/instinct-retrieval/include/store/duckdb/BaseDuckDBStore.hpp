@@ -35,12 +35,12 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::string db_file_path;
 
         /**
-         * Dimnesion for vector. Zero means no vector field.
+         * Dimension for vector. Zero means no vector field.
          */
         size_t dimension = 0;
 
         /**
-         * A flag to allow unknown metadata fields. Otherwise exception will be raised.
+         * A flag to allow unknown metadata fields. Otherwise, exception will be raised.
          */
         bool bypass_unknown_fields = true;
 
@@ -221,11 +221,8 @@ namespace INSTINCT_RETRIEVAL_NS {
             const std::string new_id = StringUtils::GenerateUUIDString();
             update_result.add_returned_ids(new_id);
             appender.Append<>(new_id.c_str());
-            // doc.set_id(new_id);
-            update_result.add_returned_ids(new_id);
 
             // column of text
-            // TODO escape text chars in case of sql injection
             appender.Append<>(doc.text().c_str());
         }
 

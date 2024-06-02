@@ -39,7 +39,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         for(int i=0;i<n;i++)  {
             Document doc;
             doc.set_text("doc of no " + std::to_string(i));
-            DocumentUtils::AddMissingPresetMetadataFields(doc1);
+            DocumentUtils::AddMissingPresetMetadataFields(doc);
             docs.push_back(doc);
         }
         UpdateResult updateResult;
@@ -47,16 +47,14 @@ namespace INSTINCT_RETRIEVAL_NS {
         ASSERT_TRUE(updateResult.failed_documents().empty());
         ASSERT_EQ(updateResult.affected_rows(), n);
         ASSERT_EQ(updateResult.returned_ids_size(), n);
-        for (int i = 0; i < n; ++i) {
-            ASSERT_EQ(docs[i].id(), updateResult.returned_ids(i));
-        }
+
 
         LOG_INFO("mget");
         const auto mget_itr = doc_store->MultiGetDocuments({updateResult.returned_ids().begin(), updateResult.returned_ids().end()});
         const auto mget_vector = CollectVector(mget_itr);
         ASSERT_EQ(mget_vector.size(), n);
         for (int i = 0; i < n; ++i) {
-            ASSERT_EQ(mget_vector[i].id(), docs[i].id());
+            ASSERT_EQ(mget_vector[i].id(), updateResult.returned_ids(i));
             ASSERT_EQ(mget_vector[i].text(), docs[i].text());
         }
 
@@ -68,7 +66,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::vector<std::string> deleted_ids;
         deleted_ids.reserve(m);
         for(int i=0;i<m;i++) {
-            deleted_ids.push_back(docs[i].id());
+            deleted_ids.push_back(updateResult.returned_ids(i));
         }
         UpdateResult delete_result;
         doc_store->DeleteDocuments(deleted_ids, delete_result);
@@ -87,6 +85,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         for(int i=0;i<j;i++)  {
             Document doc;
             doc.set_text("batch2, doc of no " + std::to_string(i));
+            DocumentUtils::AddMissingPresetMetadataFields(doc);
             docs2.push_back(doc);
         }
         UpdateResult update_result2;

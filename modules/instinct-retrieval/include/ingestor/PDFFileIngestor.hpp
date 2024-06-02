@@ -147,7 +147,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                     for (int i = 0; i < count; i++) {
                         auto text = pdf_doc.LoadPage(i).ExtractPageText();
                         Document doc;
-                        DocumentUtils::AddPresetMetadataFileds(doc, ROOT_DOC_ID, i+1, file_path_.string());
+                        DocumentUtils::AddPresetMetadataFields(doc, ROOT_DOC_ID, i+1, file_path_.string());
                         text.toUTF8String(*doc.mutable_text());
                         // auto* page_idx = doc.add_metadata();
                         // page_idx->set_name("page_no");

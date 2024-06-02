@@ -48,7 +48,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                          std::views::transform([&](const UnicodeString &str) {
                              Document document;
                              str.toUTF8String(*document.mutable_text());
-                             DocumentUtils::AddPresetMetadataFileds(document, doc.id(), ++i);
+                             DocumentUtils::AddPresetMetadataFields(document, doc.id(), ++i);
                              return document;
                          });
                     return rpp::source::from_iterable(std::vector<Document> {parts.begin(), parts.end()});
@@ -67,7 +67,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                          std::views::transform([&](const UnicodeString &str) {
                              Document document;
                              str.toUTF8String(*document.mutable_text());
-                             DocumentUtils::AddPresetMetadataFileds(document, parent_doc.id(), ++i);
+                             DocumentUtils::AddPresetMetadataFields(document, parent_doc.id(), ++i);
                              LOG_DEBUG("chunked doc: size={}, parent_id={}", document.text().size(), parent_doc.id());
                              return document;
                          });

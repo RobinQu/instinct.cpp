@@ -42,7 +42,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
 
     /**
-     * Valillan storage for documents backed by DuckDB instance
+     * Vanilla storage for documents backed by DuckDB instance
      */
     class DuckDBDocStore final: public BaseDuckDBStore {
     public:
@@ -69,8 +69,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                     affected_row++;
                 } catch (const InstinctException& e) {
                     update_result.add_failed_documents()->CopyFrom(record);
-                    // TODO with better logging facilities
-                    std::cerr << e.what() << std::endl;
+                    LOG_ERROR("AppendRows error: {}", e.what());
                 }
             }
             update_result.set_affected_rows(affected_row);
