@@ -3,6 +3,18 @@ syntax = "proto3";
 
 package instinct.core;
 
+message PrimitiveValue {
+  oneof kind {
+    int32  int_value = 2;
+    int64 long_value = 3;
+    float float_value = 4;
+    double double_value = 5;
+    bool bool_value = 6;
+    string string_value = 7;
+    bytes bytes_value = 8;
+  }
+  bool is_null = 9;
+}
 
 message PrimitiveVariable {
   string name = 1;

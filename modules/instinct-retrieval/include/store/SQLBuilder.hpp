@@ -85,27 +85,40 @@ namespace INSTINCT_RETRIEVAL_NS {
             }
         }
 
-        static void build_term_value(const google::protobuf::Value& value, std::string& sql) {
-            if (value.has_bool_value()) {
-                sql += value.bool_value() ? '1' : '0';
-            }
-            if (value.has_string_value()) {
-                sql += "'";
-                sql += StringUtils::EscapeSQLText(value.string_value());
-                sql += "'";
-            }
-            if (value.has_number_value()) {
-                sql += std::to_string(value.number_value());
-            }
-            if (value.has_null_value()) {
+        static void build_term_value(const PrimitiveValue& value, std::string& sql) {
+            if (value.is_null()) {
                 sql += "NULL";
+            } else {
+                if (value.has_double_value()) {
+                    sql += std::to_string(value.double_value());
+                }
+                if (value.has_float_value()) {
+                    sql += std::to_string(value.float_value());
+                }
+                if (value.has_int_value()) {
+                    sql += std::to_string(value.int_value());
+                }
+                if (value.has_long_value()) {
+                    sql += std::to_string(value.double_value());
+                }
+                if (value.has_string_value()) {
+                    sql += value.string_value();
+                }
+                if (value.has_bool_value()) {
+                    sql += value.bool_value() ? '1' : '0';
+                }
+                if (value.has_string_value()) {
+                    sql += "'";
+                    sql += StringUtils::EscapeSQLText(value.string_value());
+                    sql += "'";
+                }
             }
         }
 
         static void build_terms_query(const TermsQuery& terms_query, std::string& sql) {
             sql += terms_query.name();
             sql += " IN (";
-            const auto term_values = terms_query.terms() | std::views::transform([&](const google::protobuf::Value& term) {
+            const auto term_values = terms_query.terms() | std::views::transform([&](const auto& term) {
                 std::string v;
                 build_term_value(term,v);
                 return v;

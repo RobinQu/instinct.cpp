@@ -75,8 +75,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                     column_list += ",";
                 }
             }
-            column_list += ")) AS similarity FROM ";
-            column_list += table_name;
+            column_list += ")) AS similarity";
 
             Sorter sorter;
             auto* field_sort = sorter.mutable_field();
@@ -123,18 +122,22 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         AsyncIterator<Document> SearchDocuments(const SearchRequest& request) override {
-            LOG_DEBUG("Search started: query={}, top_k={}", request.query(), request.top_k());
+            const int limit = request.top_k() > 0 ? std::min(request.top_k(), 10000) : 10;
+            LOG_DEBUG("Search started: request.query={}, request.top_k={}, normalized_limit={}", request.query(), request.top_k(), limit);
             long t1 = ChronoUtils::GetCurrentTimeMillis();
             const auto query_embedding = embeddings_->EmbedQuery(request.query());
             const bool has_filter = request.has_metadata_filter() && (request.metadata_filter().has_bool_() || request.metadata_filter().has_term());
             unique_ptr<QueryResult> result;
+            // limit should be in range of [1,10000]
+
             if (has_filter) {
                 const auto search_sql = details::make_search_sql(
                 store_.GetOptions().table_name,
                 GetMetadataSchema(),
                 query_embedding,
                 request.metadata_filter(),
-                request.top_k());
+                limit);
+                LOG_DEBUG("search_sql: {}", search_sql);
                 result = store_.GetConnection().Query(search_sql);
             } else {
                 // use prepared statement for better performance when no filter is actually given
@@ -142,7 +145,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 for(const float& f: query_embedding) {
                     vector_array.push_back(duckdb::Value::FLOAT(f));
                 }
-                result = prepared_search_statement_->Execute(duckdb::Value::ARRAY(LogicalType::FLOAT, vector_array), request.top_k());
+                result = prepared_search_statement_->Execute(duckdb::Value::ARRAY(LogicalType::FLOAT, vector_array), limit);
             }
             assert_query_ok(result);
             return details::conv_query_result_to_iterator(

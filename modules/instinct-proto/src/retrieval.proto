@@ -15,12 +15,12 @@ message BoolQuery {
 }
 
 message TermQuery {
-  google.protobuf.Value term = 1;
+  core.PrimitiveValue term = 1;
   string name = 2;
 }
 
 message TermsQuery {
-  repeated google.protobuf.Value terms = 1;
+  repeated core.PrimitiveValue terms = 1;
   string name = 2;
 }
 
