@@ -77,6 +77,7 @@ namespace INSTINCT_LLM_NS {
 
         AsyncIterator<LangaugeModelResult> StreamGenerate(const std::string& prompt) override {
             OllamaCompletionRequest request;
+            request.set_prompt(prompt);
             request.set_model(configuration_.model_name);
             request.set_stream(true);
             if (configuration_.json_mode) {
@@ -92,7 +93,7 @@ namespace INSTINCT_LLM_NS {
                 request.mutable_options()->mutable_stop()->Add(configuration_.stop_words.begin(),
                                                                configuration_.stop_words.end());
             }
-            return http_client_.StreamChunkObject<OllamaCompletionRequest, OllamaCompletionResponse>(OLLAMA_GENERATE_PATH, request)
+            return http_client_.StreamChunkObject<OllamaCompletionRequest, OllamaCompletionResponse>(OLLAMA_GENERATE_PATH, request, true, "\n")
                 | rpp::operators::map([](const auto& response) {
                     return details::conv_raw_response_to_model_result(response, true);
                 });

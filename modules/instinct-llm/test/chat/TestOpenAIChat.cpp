@@ -83,7 +83,7 @@ namespace INSTINCT_LLM_NS {
         auto last_msg = *messages.messages().rbegin();
         ASSERT_EQ(last_msg.role(), "assistant");
         ASSERT_FALSE(last_msg.content().empty());
-        ASSERT_TRUE(last_msg.content().find("Tesla") != std::string::npos);
+        ASSERT_TRUE(last_msg.content().find("Elon") != std::string::npos);
     }
 
 

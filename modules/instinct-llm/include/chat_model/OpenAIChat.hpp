@@ -82,7 +82,7 @@ namespace INSTINCT_LLM_NS {
 
         AsyncIterator<LangaugeModelResult> StreamGenerate(const MessageList& messages) override {
             const auto req = BuildRequest_(messages, true);
-            const auto chunk_itr = client_.StreamChunkObject<OpenAIChatCompletionRequest, OpenAIChatCompletionChunk>(DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT, req, true, {"[DONE]"});
+            const auto chunk_itr = client_.StreamChunkObject<OpenAIChatCompletionRequest, OpenAIChatCompletionChunk>(DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT, req, true, "\n\n", {"[DONE]"});
             return chunk_itr | rpp::operators::map([](const OpenAIChatCompletionChunk& chunk) {
                 LangaugeModelResult language_model_result;
                 for (const auto& choice: chunk.choices()) {

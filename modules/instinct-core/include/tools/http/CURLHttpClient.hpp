@@ -60,10 +60,6 @@ namespace INSTINCT_CORE_NS {
                 curl_easy_setopt(hnd, CURLOPT_POSTFIELDSIZE_LARGE, (curl_off_t)request.body.size());
 
             }
-//            if (request.method == kPUT) {
-//                curl_easy_setopt(hnd, CURLOPT_UPLOAD, 1L);
-//            }
-
             curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, *header_slist);
             curl_easy_setopt(hnd, CURLOPT_ACCEPT_ENCODING, "");
             curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/8.4.0");
@@ -114,12 +110,11 @@ namespace INSTINCT_CORE_NS {
             return ret;
         }
 
-        static const std::string LF_LF_END_OF_LINE = "\n\n";
-
         template<typename OB>
         requires rpp::constraint::observer_of_type<OB, std::string>
         struct StreamBuffer {
             OB& ob;
+            std::string line_breaker;
             std::string data;
         };
 
@@ -129,9 +124,9 @@ namespace INSTINCT_CORE_NS {
             const std::string original_chunk = {ptr, size * nmemb};
             buf->data += original_chunk;
             while(true) {
-                if (const auto idx = buf->data.find(LF_LF_END_OF_LINE); idx!=std::string::npos) {
+                if (const auto idx = buf->data.find(buf->line_breaker); idx!=std::string::npos) {
                     buf->ob.on_next(buf->data.substr(0,idx));
-                    buf->data = buf->data.substr(idx+LF_LF_END_OF_LINE.size());
+                    buf->data = buf->data.substr(idx+buf->line_breaker.size());
                 } else {
                     break;
                 }
@@ -141,14 +136,14 @@ namespace INSTINCT_CORE_NS {
 
         template<typename OB>
         requires rpp::constraint::observer_of_type<OB, std::string>
-        static CURLcode observe_curl_request(const HttpRequest &request, OB&& observer) {
+        static CURLcode observe_curl_request(const HttpRequest &request, OB&& observer, const StreamChunkOptions& options) {
             initialize_curl();
             curl_slist *header_slist = nullptr;
             CURL *hnd = curl_easy_init();
 
             configure_curl_request(request, hnd, &header_slist);
             using OB_TYPE = std::decay_t<OB>;
-            StreamBuffer<OB> buf {observer};
+            StreamBuffer<OB> buf {observer, options.line_breaker};
             curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, curl_write_callback_with_observer<OB_TYPE>);
             curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &buf);
 
@@ -216,9 +211,14 @@ namespace INSTINCT_CORE_NS {
 
     }
 
+
+
     class CURLHttpClient final: public IHttpClient {
 
     public:
+
+
+
         HttpResponse Execute(const HttpRequest &call) override {
             HttpResponse http_response;
             auto url = HttpUtils::CreateUrlString(call);
@@ -234,20 +234,22 @@ namespace INSTINCT_CORE_NS {
         /**
          *
          * @param call `call` reference should persist during HTTP request
+         * @param options
          * @return
          */
-        AsyncIterator<std::string> StreamChunk(const HttpRequest &call) override {
+        AsyncIterator<std::string> StreamChunk(const HttpRequest &call, const StreamChunkOptions& options) override {
+            assert_true(!options.line_breaker.empty(), "should assign line-breaker");
             HttpUtils::AssertHttpRequest(call);
             // TODO maybe stop copying `call` by using smart pointer
             auto url = HttpUtils::CreateUrlString(call);
             LOG_DEBUG("REQ: {} {}", call.method, url);
-            return rpp::source::create<std::string>([&, call](auto&& observer) {
+            return rpp::source::create<std::string>([&, call, options](auto&& observer) {
                 using OB_TYPE = decltype(observer);
-                auto code = details::observe_curl_request<OB_TYPE>(call, std::forward<OB_TYPE>(observer));
+                auto code = details::observe_curl_request<OB_TYPE>(call, std::forward<OB_TYPE>(observer), options);
                 if (code!=0) {
                     observer.on_error(std::make_exception_ptr(InstinctException("curl request failed with reason: " + std::string(curl_easy_strerror(code)))));
                 }
-            }) | rpp::ops::tap({}, {}, [&]() {
+            }) | rpp::ops::tap({}, {}, [&,call]() {
                 LOG_DEBUG("RESP: {} {}", call.method, url);
             });
         }

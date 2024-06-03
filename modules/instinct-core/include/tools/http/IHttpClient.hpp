@@ -73,6 +73,9 @@ namespace INSTINCT_CORE_NS {
      */
     using HttpResponseCallback = std::function<bool(std::string)>;
 
+    struct StreamChunkOptions {
+        std::string line_breaker;
+    };
 
     class IHttpClient {
     public:
@@ -99,7 +102,8 @@ namespace INSTINCT_CORE_NS {
         ) = 0;
 
         virtual AsyncIterator<std::string> StreamChunk(
-            const HttpRequest& call
+            const HttpRequest& call,
+            const StreamChunkOptions& options
         ) = 0;
     };
     using HttpClientPtr = std::shared_ptr<IHttpClient>;
