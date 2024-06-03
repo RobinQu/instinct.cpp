@@ -88,7 +88,7 @@ namespace INSTINCT_LLM_NS {
                 for (const auto& choice: chunk.choices()) {
                     auto* single_result = language_model_result.add_generations();
                     single_result->set_text(choice.delta().content());
-                    single_result->set_is_chunk(false);
+                    single_result->set_is_chunk(true);
                     single_result->mutable_message()->CopyFrom(choice.delta());
                 }
                 return language_model_result;

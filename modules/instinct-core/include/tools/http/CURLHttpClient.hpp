@@ -118,18 +118,23 @@ namespace INSTINCT_CORE_NS {
 
         template<typename OB>
         requires rpp::constraint::observer_of_type<OB, std::string>
-        static size_t curl_write_callback_with_observer(char *ptr, size_t size, size_t nmemb, OB *ob) {
-            if (const std::string original_chunk = {ptr, size * nmemb}; original_chunk.find(
-                    LF_LF_END_OF_LINE)) {
-                // non-standard line-breaker, used by many SSE implementation.
-                for (const auto line: std::views::split(original_chunk, LF_LF_END_OF_LINE)) {
-                    auto part = std::string (line.begin(), line.end());
-                    if (!part.empty()) {
-                        ob->on_next(part);
-                    }
+        struct StreamBuffer {
+            OB& ob;
+            std::string data;
+        };
+
+        template<typename OB>
+        requires rpp::constraint::observer_of_type<OB, std::string>
+        static size_t curl_write_callback_with_observer(char *ptr, size_t size, size_t nmemb, StreamBuffer<OB> *buf) {
+            const std::string original_chunk = {ptr, size * nmemb};
+            buf->data += original_chunk;
+            while(true) {
+                if (const auto idx = buf->data.find(LF_LF_END_OF_LINE); idx!=std::string::npos) {
+                    buf->ob.on_next(buf->data.substr(0,idx));
+                    buf->data = buf->data.substr(idx+LF_LF_END_OF_LINE.size());
+                } else {
+                    break;
                 }
-            } else {
-                ob->on_next(original_chunk);
             }
             return size * nmemb;
         }
@@ -143,15 +148,22 @@ namespace INSTINCT_CORE_NS {
 
             configure_curl_request(request, hnd, &header_slist);
             using OB_TYPE = std::decay_t<OB>;
+            StreamBuffer<OB> buf {observer};
             curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, curl_write_callback_with_observer<OB_TYPE>);
-            curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &observer);
+            curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &buf);
 
             const CURLcode ret = curl_easy_perform(hnd);
             if(ret==0) {
+                // emit remaining data in case the server returns malformed response so that write-callback cannot handle last parts
+                if (StringUtils::IsNotBlankString(buf.data)) {
+                    observer.on_next(buf.data);
+                }
                 int status_code = 0;
                 curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &status_code);
                 if (status_code >= 400) {
                     observer.on_error(std::make_exception_ptr(HttpClientException(status_code, "Failed to get chunked response")));
+                } else {
+                    observer.on_completed();
                 }
             }
             curl_easy_cleanup(hnd);
@@ -225,7 +237,7 @@ namespace INSTINCT_CORE_NS {
          * @return
          */
         AsyncIterator<std::string> StreamChunk(const HttpRequest &call) override {
-            HttpUtils::HttpUtils::AssertHttpRequest(call);
+            HttpUtils::AssertHttpRequest(call);
             // TODO maybe stop copying `call` by using smart pointer
             auto url = HttpUtils::CreateUrlString(call);
             LOG_DEBUG("REQ: {} {}", call.method, url);

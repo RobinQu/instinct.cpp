@@ -39,7 +39,7 @@ namespace INSTINCT_LLM_NS {
          const auto openai_chat = CreateOpenAIChatModel();
          openai_chat->Stream("What's capital city of France?")
             | rpp::operators::as_blocking()
-            | rpp::operators::subscribe([](const auto& m) { std::cout << "output message: " <<  m << std::endl; });
+            | rpp::operators::subscribe([](const auto& m) { LOG_INFO("output={}", m.ShortDebugString()); });
      }
 
     TEST_F(OpenAIChatTest, ToolUses) { // test requires OPENAI_APIKEY and SERP_APIKEY envs
