@@ -64,13 +64,13 @@ namespace  INSTINCT_LLM_NS {
 
     public:
 
-        BaseTextSplitter(const int chunk_size, const int chunk_overlap, const bool keep_sepeartor,
-                         const bool strip_whitespace, LenghtCalculatorPtr lenght_calculator)
+        BaseTextSplitter(const int chunk_size, const int chunk_overlap, const bool keep_separator,
+                         const bool strip_whitespace, LenghtCalculatorPtr length_calculator)
             : chunk_size_(chunk_size),
               chunk_overlap_(chunk_overlap),
-              keep_separator_(keep_sepeartor),
+              keep_separator_(keep_separator),
               strip_whitespace_(strip_whitespace),
-              length_calculator_(std::move(lenght_calculator)) {
+              length_calculator_(std::move(length_calculator)) {
         }
 
         AsyncIterator<Document> SplitDocuments(const AsyncIterator<Document>& docs_itr) override {

@@ -39,8 +39,12 @@ namespace INSTINCT_LLM_NS {
         static void print_splits(const std::string& announce, const std::vector<UnicodeString>& splits,
                          std::ostream& stream = std::cout, const bool flush = true) {
             stream << announce;
-            for (const auto& f: splits) {
-                stream << f << " | ";
+            auto n = splits.size();
+            for (int i=0;i<n;++i) {
+                stream << splits[i];
+                if (i!=n-1) {
+                    stream << " | ";
+                }
             }
             if (flush) {
                 stream << std::endl;
@@ -50,28 +54,28 @@ namespace INSTINCT_LLM_NS {
         static std::vector<UnicodeString> split_text_with_seperator(const UnicodeString& text, const UnicodeString& seperator, const bool keep_seperator) {
             std::vector<UnicodeString> result;
             if(seperator.length()) {
-                std::vector<UnicodeString> splits;
                 if (keep_seperator) {
+                    std::vector<UnicodeString> splits;
                     // https://unicode-org.github.io/icu/userguide/strings/regexp.html
                     // If the pattern expression contains capturing parentheses, the captured data ($1, $2, etc.) will also be saved in the destination array, interspersed with the fields themselves.
-                    UnicodeString grouped_sepeartor = "(";
-                    grouped_sepeartor.append(seperator);
-                    grouped_sepeartor.append(")");
-                    U32StringUtils::SpilitWithRegex(text, grouped_sepeartor, splits);
+                    UnicodeString grouped_separator = "(";
+                    grouped_separator.append(seperator);
+                    grouped_separator.append(")");
+                    U32StringUtils::SplitWithRegex(text, grouped_separator, splits);
+                    // do pair-wise merge
+                    result.push_back(splits[0]);
+                    if (const size_t n = splits.size(); n>1) {
+                        for(int i=1;i<n;i+=2) {
+                            result.push_back(splits[i] + splits[i+1]);
+                        }
+                        if (splits.size()%2==0) {
+                            result.push_back(splits.back());
+                        }
+                    }
                 }  else {
-                    U32StringUtils::SpilitWithRegex(text, seperator, splits);
+                    U32StringUtils::SplitWithRegex(text, seperator, result);
                 }
-
-                // do pair-wise merge
-                result.push_back(splits[0]);
-                if (const size_t n = splits.size(); n>1) {
-                    for(int i=1;i<n;i+=2) {
-                        result.push_back(splits[i] + splits[i+1]);
-                    }
-                    if (splits.size()%2==0) {
-                        result.push_back(splits.back());
-                    }
-                }
+                details::print_splits("splits: ", result);
             } else { // it's empty seperator, so we have to split into a sequence of chars.
                 UErrorCode status = U_ZERO_ERROR;
                 const auto locale = Locale::getDefault();

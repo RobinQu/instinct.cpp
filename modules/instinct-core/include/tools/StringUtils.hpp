@@ -45,7 +45,7 @@ namespace INSTINCT_CORE_NS {
          * @param result
          */
         template<int max_split_size=3>
-        static void SpilitWithRegex(const UnicodeString& text, const UnicodeString& seperator, std::vector<UnicodeString>& result) {
+        static void SplitWithRegex(const UnicodeString& text, const UnicodeString& seperator, std::vector<UnicodeString>& result) {
             UErrorCode status = U_ZERO_ERROR;
             RegexMatcher matcher(seperator, 0, status);
             if(U_FAILURE(status)) {
