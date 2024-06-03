@@ -16,14 +16,6 @@ namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
 
 
-
-    static MessageRoleNameMapping OLLAMA_ROLE_NAME_MAPPING = {
-        {kAsisstant, "assistant"},
-        {kSystem,    "system"},
-        {kHuman,     "user"},
-        {kFunction,  "asistant"}
-    };
-
     static LangaugeModelResult transform_raw_response(const OllamaChatCompletionResponse& response) {
         LangaugeModelResult model_result;
         auto* generation = model_result.add_generations();

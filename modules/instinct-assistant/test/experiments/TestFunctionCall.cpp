@@ -3,13 +3,13 @@
 //
 #include <gtest/gtest.h>
 
-#include "chat_model/OllamaChat.hpp"
+#include "chat_model/OpenAIChat.hpp"
 #include "chain/LLMChain.hpp"
 #include "prompt/PlainChatPromptTemplate.hpp"
 
 
 /**
- * function to mimick a search engine
+ * function to mimic a search engine
  * @param query
  * @return
  */
@@ -35,7 +35,7 @@ TEST(TestFunctionCall, SimpleCall) {
     using namespace INSTINCT_LLM_NS;
 
     SetupLogging();
-    const auto chat_prompt_tempate = CreatePlainChatPromptTemplate({
+    const auto chat_prompt_template = CreatePlainChatPromptTemplate({
         {kSystem,  R"(Answer the following questions as best you can. You have access to the following tools:
 
 {tools}
@@ -66,10 +66,9 @@ Thought:{agent_scratchpad})"}
 
     std::string action_input_literal = "Action Input:";
 
-    const auto ollama_chat = CreateOllamaChatModel({.model_name = "starling-lm:latest", .stop_words = {"\nObservation"}});
+    const auto chat_model = CreateOpenAIChatModel({.stop_words = {"\nObservation"}});
 
-
-    const auto chain = chat_prompt_tempate | ollama_chat->AsModelFunction() | xn::steps::stringify_generation();
+    const auto chain = chat_prompt_template | chat_model->AsModelFunction() | xn::steps::stringify_generation();
 
     std::string scratch_pad;
     while (true) {
