@@ -22,6 +22,7 @@ namespace INSTINCT_LLM_NS {
         OpenAIConfiguration configuration_;
         HttpRestClient client_;
         std::vector<OpenAIChatCompletionRequest_ChatCompletionTool> function_tools_;
+        constexpr static const std::string OPENAI_SSE_LINE_BREAKER = "\n\n";
     public:
         explicit OpenAIChat(OpenAIConfiguration configuration)
             :  configuration_(std::move(configuration)), client_(configuration_.endpoint) {
@@ -82,7 +83,7 @@ namespace INSTINCT_LLM_NS {
 
         AsyncIterator<LangaugeModelResult> StreamGenerate(const MessageList& messages) override {
             const auto req = BuildRequest_(messages, true);
-            const auto chunk_itr = client_.StreamChunkObject<OpenAIChatCompletionRequest, OpenAIChatCompletionChunk>(DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT, req, true, "\n\n", {"[DONE]"});
+            const auto chunk_itr = client_.StreamChunkObject<OpenAIChatCompletionRequest, OpenAIChatCompletionChunk>(DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT, req, true, OPENAI_SSE_LINE_BREAKER, {"[DONE]"});
             return chunk_itr | rpp::operators::map([](const OpenAIChatCompletionChunk& chunk) {
                 LangaugeModelResult language_model_result;
                 for (const auto& choice: chunk.choices()) {

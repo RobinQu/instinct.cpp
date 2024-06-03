@@ -163,7 +163,7 @@ namespace INSTINCT_CORE_NS {
             const std::string& uri,
             const RequestEntity& param,
             const bool is_sse_event_stream,
-            const std::string& line_breaker = "\n\n",
+            const std::string& line_breaker,
             const std::vector<std::string>& end_sentinels = {}
         ) {
             HttpHeaders headers = default_headers_;

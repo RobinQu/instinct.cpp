@@ -110,7 +110,7 @@ namespace INSTINCT_LLM_NS {
                                                                configuration_.stop_words.end());
             }
 
-            return  client_.StreamChunkObject<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request, true)
+            return  client_.StreamChunkObject<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request, true, OLLAMA_SSE_LINE_BREAKER)
                 | rpp::operators::map(transform_raw_response);
         }
 

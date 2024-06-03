@@ -93,7 +93,7 @@ namespace INSTINCT_LLM_NS {
                 request.mutable_options()->mutable_stop()->Add(configuration_.stop_words.begin(),
                                                                configuration_.stop_words.end());
             }
-            return http_client_.StreamChunkObject<OllamaCompletionRequest, OllamaCompletionResponse>(OLLAMA_GENERATE_PATH, request, true, "\n")
+            return http_client_.StreamChunkObject<OllamaCompletionRequest, OllamaCompletionResponse>(OLLAMA_GENERATE_PATH, request, true, OLLAMA_SSE_LINE_BREAKER)
                 | rpp::operators::map([](const auto& response) {
                     return details::conv_raw_response_to_model_result(response, true);
                 });

@@ -30,6 +30,7 @@ namespace INSTINCT_LLM_NS {
 
     static const std::string OLLAMA_DEFAULT_EMBEDDING_MODEL_NAME = "all-minilm:latest";
 
+    static const std::string OLLAMA_SSE_LINE_BREAKER = "\n";
 
     /**
      * runtime options for ollama. Using struct could in API other than protobuf generated classes makes it easier for users.
