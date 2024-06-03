@@ -17,39 +17,24 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     using IngestorFactoryFunction = std::function<IngestorPtr(const std::filesystem::path& entry_path)>;
 
-    static IngestorFactoryFunction DEFAULT_INGESTOR_FACTORY_FUNCTION = [](const std::filesystem::path& entry_path) {
-        return std::make_shared<SingleFileIngestor>(entry_path);
-    };
-
     /**
      * DirectoryTreeIngestor is capable of turning regular files in a directory into split documents.
      */
-    class DirectoryTreeIngestor: public BaseIngestor {
+    class DirectoryTreeIngestor final: public BaseIngestor {
         std::filesystem::path folder_path_;
-        std::unique_ptr<RegexMatcher> regex_matcher_{};
-        IngestorFactoryFunction ingestor_factory_function_ = DEFAULT_INGESTOR_FACTORY_FUNCTION;
+        std::unique_ptr<RegexMatcher> regex_matcher_;
+        IngestorFactoryFunction ingestor_factory_function_;
         bool recursive_;
     public:
-
-        explicit DirectoryTreeIngestor(std::filesystem::path folder_path, const bool recursive = true)
-            : folder_path_(std::move(folder_path)), recursive_(recursive) {
-            assert_true(std::filesystem::exists(folder_path_), "Given folder should exist");
-        }
-
-        /**
-         * 
-         * @param regex_string regex string to bulid a matcher for filename
-         * @param folder_path
-         * @param recursive a flag to indicate whether it's intended to iterate given `folder_path` recursively or not
-         */
         DirectoryTreeIngestor(
-            const UnicodeString& regex_string,
-            const std::filesystem::path& folder_path,
-            const bool recursive = true
-            ):  DirectoryTreeIngestor(folder_path, recursive) {
-            UErrorCode status = U_ZERO_ERROR;
-            regex_matcher_ = std::make_unique<RegexMatcher>(regex_string, 0, status);
-            assert_icu_status(status, "Failed to build RegexMatcher using string: " + regex_string);
+            std::filesystem::path folder_path,
+            std::unique_ptr<RegexMatcher> regex_matcher,
+            IngestorFactoryFunction ingestor_factory_function,
+            const bool recursive
+            )
+            : folder_path_(std::move(folder_path)), regex_matcher_(std::move(regex_matcher)), ingestor_factory_function_(std::move(ingestor_factory_function)),  recursive_(recursive) {
+            assert_true(std::filesystem::exists(folder_path_), "Given folder should exist");
+            assert_true(std::filesystem::is_directory(folder_path_), "should be a folder");
         }
 
         AsyncIterator<Document> Load() override {
@@ -91,11 +76,6 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
     };
 
-
-    static IngestorPtr CreateDirectoryTreeIngestor(const std::filesystem::path& folder, bool recursive = true) {
-        return std::make_shared<DirectoryTreeIngestor>(folder, recursive);
-
-    }
 }
 
 #endif //DIRECTORYTREEINGESTOR_HPP

@@ -22,7 +22,6 @@ namespace INSTINCT_LLM_NS {
         OpenAIConfiguration configuration_;
         HttpRestClient client_;
         std::vector<OpenAIChatCompletionRequest_ChatCompletionTool> function_tools_;
-        constexpr static const std::string OPENAI_SSE_LINE_BREAKER = "\n\n";
     public:
         explicit OpenAIChat(OpenAIConfiguration configuration)
             :  configuration_(std::move(configuration)), client_(configuration_.endpoint) {

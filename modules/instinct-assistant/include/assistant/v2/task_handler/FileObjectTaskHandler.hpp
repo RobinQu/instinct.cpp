@@ -5,8 +5,9 @@
 #ifndef FILEINGESTIONTASKHANDLER_HPP
 #define FILEINGESTIONTASKHANDLER_HPP
 
-#include <document/RecursiveCharacterTextSplitter.hpp>
+#include <iostream>
 
+#include "document/RecursiveCharacterTextSplitter.hpp"
 #include "store/IVectorStoreOperator.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 #include "AssistantGlobals.hpp"
@@ -18,8 +19,9 @@
 #include "ingestor/SingleFileIngestor.hpp"
 #include "retrieval/BaseRetriever.hpp"
 #include "retrieval/ChunkedMultiVectorRetriever.hpp"
-#include <iostream>
 
+
+#include "RetrieverObjectFactory.hpp"
 #include "tools/file_vault/TempFile.hpp"
 
 
@@ -92,27 +94,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             retrieve_file_request.set_file_id(vs_file_object.file_id());
             const auto file_object = file_service_->RetrieveFile(retrieve_file_request);
             assert_true(file_object, fmt::format("should have found file object with VectorStoreFileObject {}", vs_file_object.ShortDebugString()));
-            static std::regex EXT_NAME_PATTERN { R"(.+\.(.+))"};
-            // we rely on extname to choose ingestor
-            if (std::smatch match; std::regex_match(file_object->filename(), match, EXT_NAME_PATTERN)) {
-                if (match.size() == 2) {
-                    const auto extname = StringUtils::ToLower(match[1].str());
-                    if (extname == "pdf") {
-                        DownloadFile_(file_object.value(), temp_file);
-                        return CreatePDFFileIngestor(temp_file.path);
-                    }
-                    if (extname == "txt" || extname == "md") {
-                        DownloadFile_(file_object.value(), temp_file);
-                        return CreatePlainTextFileIngestor(temp_file.path);
-                    }
-                    if (extname == "docx") {
-                        DownloadFile_(file_object.value(), temp_file);
-                        return CreateDOCXFileIngestor(temp_file.path);
-                    }
-                }
-            }
-            LOG_WARN("Ingestor not built for file object: {}", file_object->ShortDebugString());
-            return nullptr;
+            DownloadFile_(file_object.value(), temp_file);
+            return RetrieverObjectFactory::CreateIngestor(temp_file.path);
         }
 
         void DownloadFile_(const FileObject& file_object, const TempFile& temp_file) const {

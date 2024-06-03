@@ -26,11 +26,13 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/ingestor/DOCXFileIngestor.hpp
         include/store/duckdb/DuckDBDocWithEmbeddingStore.hpp
         include/ingestor/ParquetFileIngestor.hpp
-        include/retrieval/MutliPathRetriever.hpp
+        include/retrieval/MultiPathRetriever.hpp
         include/store/IVectorStoreOperator.hpp
         include/store/duckdb/DuckDBVectorStoreOperator.hpp
         include/store/VectorStoreMetadataDataMapper.hpp
         include/store/SQLBuilder.hpp
+        include/chain/SummaryChain.hpp
+        include/RetrieverObjectFactory.hpp
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

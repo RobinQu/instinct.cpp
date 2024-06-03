@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 #include "retrieval/MultiQueryRetriever.hpp"
 #include "RetrievalTestGlobals.hpp"
+#include "RetrieverObjectFactory.hpp"
 #include "retrieval/VectorStoreRetriever.hpp"
 #include "retrieval/IRetriever.hpp"
 #include "ingestor/DirectoryTreeIngestor.hpp"
@@ -46,7 +47,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
             const auto recipes_dir = asset_dir_ / "recipes";
             std::cout << "reading recipes from " << recipes_dir << std::endl;
-            recipes_ingestor_ = CreateDirectoryTreeIngestor(recipes_dir);
+            recipes_ingestor_ = RetrieverObjectFactory::CreateDirectoryTreeIngestor(recipes_dir);
         }
 
         std::filesystem::path asset_dir_;

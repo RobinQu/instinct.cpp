@@ -17,7 +17,7 @@ namespace INSTINCT_LLM_NS {
 
 
     struct PromptTemplateOptions {
-        std::vector<std::string> input_keys = {};
+        std::vector<std::string> input_keys = {DEFAULT_QUESTION_INPUT_OUTPUT_KEY};
 //        std::vector<std::string> output_keys = {DEFAULT_QUESTION_INPUT_OUTPUT_KEY};
     };
 
@@ -31,7 +31,7 @@ namespace INSTINCT_LLM_NS {
         JSONContextPtr Invoke(const JSONContextPtr &input) override {
             const TemplateVariablesPtr variables = CreateTemplateVariable();
             if (input->IsPrimitive()) {
-                variables->emplace(DEFAULT_QUESTION_INPUT_OUTPUT_KEY, input->RequirePrimitive<std::string>());
+                variables->emplace(options_.input_keys[0], input->RequirePrimitive<std::string>());
             } else {
                 // only accepting primitive values
                 for(const auto mapping_data = input->RequireMappingData(); const auto& [k,v]: mapping_data) {

@@ -11,7 +11,7 @@
 #include "ranker/LocalRankingModel.hpp"
 #include "retrieval/BaseRetriever.hpp"
 #include "retrieval/ChunkedMultiVectorRetriever.hpp"
-#include "retrieval/MutliPathRetriever.hpp"
+#include "retrieval/MultiPathRetriever.hpp"
 #include "store/IVectorStoreOperator.hpp"
 #include "store/duckdb/DuckDBDocStore.hpp"
 #include "tokenizer/TiktokenTokenizer.hpp"
