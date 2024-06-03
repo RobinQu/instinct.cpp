@@ -108,9 +108,8 @@ namespace INSTINCT_LLM_NS {
             return std::visit(visit_prompt_variant_as_string, pvv);
         }
 
-        static std::string conv_language_result_to_string(const  LangaugeModelResult& model_result) {
-            assert_non_empty_range(model_result.generations());
-            // std::cout << model_result.DebugString() << std::endl;
+        static std::string conv_language_result_to_string(const LangaugeModelResult& model_result) {
+            assert_gt(model_result.generations_size(), 0);
             const auto& gen = model_result.generations(0);
             if (gen.has_message()) {
                 return gen.message().content();

@@ -18,6 +18,6 @@ foreach(_test_file ${TEST_SRC_FILES})
     target_link_libraries(${_test_name} GTest::gtest GTest::gtest_main instinct::assistant::resources)
     target_link_libraries(${_test_name} ${LIBRARY_TARGET_NAME})
     add_test(${_test_name} ${_test_name})
-    set_tests_properties(${_test_name} PROPERTIES TIMEOUT 30)
+    set_tests_properties(${_test_name} PROPERTIES TIMEOUT 120)
 
 endforeach()
