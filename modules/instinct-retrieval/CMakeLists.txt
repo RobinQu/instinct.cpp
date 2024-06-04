@@ -14,7 +14,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/store/IDocStore.hpp
         include/retrieval/MultiVectorRetriever.hpp
         include/retrieval/ChunkedMultiVectorRetriever.hpp
-        include/retrieval/AutoRetriever.hpp
         include/retrieval/MultiQueryRetriever.hpp
         include/ingestor/BaseIngestor.hpp
         include/ingestor/SingleFileIngestor.hpp

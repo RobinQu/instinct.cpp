@@ -14,6 +14,7 @@
 #include "agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp"
 #include "assistant/v2/service/IVectorStoreService.hpp"
 #include "assistant/v2/toolkit/FileSearchTool.hpp"
+#include "assistant/v2/toolkit/SummaryGuidedFileSearch.hpp"
 #include "toolkit/LocalToolkit.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
@@ -255,7 +256,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 agent_options,
                 chat_model,
                 stop_predicate,
-                {CreateLocalToolkit(tools)}
+                tools.empty() ? std::vector<FunctionToolkitPtr> {} : std::vector {CreateLocalToolkit(tools)}
                 );
         }
 
@@ -275,30 +276,22 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             if(!has_file_search) return;
             assert_true(assistant_object.tool_resources().file_search().vector_store_ids_size()>0, "should have at least one VectorStore");
 
+            std::vector<std::string> vs_id_list;
             // add VS on assistant
-            AddSingleFileSearchTool_(assistant_object.tool_resources().file_search().vector_store_ids(0), tools);
-
+            vs_id_list.push_back(assistant_object.tool_resources().file_search().vector_store_ids(0));
             // add VS on thread if any
             if (thread_object.tool_resources().has_file_search() && thread_object.tool_resources().file_search().vector_store_ids_size()>0) {
-                AddSingleFileSearchTool_(thread_object.tool_resources().file_search().vector_store_ids(0), tools);
+                vs_id_list.push_back(thread_object.tool_resources().file_search().vector_store_ids(0));
             }
-
-            // TODO add VS in message
-        }
-
-        void AddSingleFileSearchTool_(const std::string& vs_id, std::vector<FunctionToolPtr>& tools) const {
-            GetVectorStoreRequest get_vector_store_request;
-            get_vector_store_request.set_vector_store_id(vs_id);
-            const auto vs = vector_store_service_->GetVectorStore(get_vector_store_request);
-
-            // TODO tune this description
-            std::string description = fmt::format(R"(This is a search tool for a knowledge base which has summary of following content: {}. Use this tool if user question is relevant to the summary.)", vs->summary());
-
-            tools.push_back(std::make_shared<FileSearchTool>(
-                vs->id(),
-                description,
-                retriever_operator_->GetStatelessRetriever(vs.value())
-            ));
+            // find files
+            const auto related_files = vector_store_service_->ListAllVectorStoreObjectFiles(vs_id_list);
+            const auto retriever = retriever_operator_->GetStatelessRetriever(vs_id_list);
+            const auto file_search_tool = CreateSummaryGuidedFileSearch(
+                CreateLocalRankingModel(ModelType::BGE_M3_RERANKER),
+                retriever,
+                related_files
+                );
+            tools.push_back(file_search_tool);
         }
 
         /**

@@ -68,7 +68,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             const auto vector_store_object = GetVectorStore(get_vector_store_request);
             assert_true(vector_store_object, "should have found created VectorStore");
             if (retriever_operator_) {
-                assert_true(retriever_operator_->ProvisionRetriever(vector_store_object.value()), "db instance should be created");
+                assert_true(retriever_operator_->ProvisionRetriever(vector_store_object->id()), "db instance should be created");
             }
             return vector_store_object;
         }
@@ -108,7 +108,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 LOG_DEBUG("Cascade delete {} files in VectorStore {}", deleted_count, req.vector_store_id());
                 assert_true(vector_store_data_mapper_->DeleteVectorStore(req) == 1, "should have VectorStore deleted");
                 if (retriever_operator_) {
-                    response.set_deleted(retriever_operator_->CleanupRetriever(vector_store_object.value()));
+                    response.set_deleted(retriever_operator_->CleanupRetriever(vector_store_object->id()));
                 } else {
                     response.set_deleted(true);
                 }
@@ -161,7 +161,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             response.set_deleted(count == 1);
             if (retriever_operator_) {
                 const auto vector_store_object = vector_store_data_mapper_->GetVectorStore(req.vector_store_id());
-                const auto retriever = retriever_operator_->GetStatefulRetriever(vector_store_object.value());
+                const auto retriever = retriever_operator_->GetStatefulRetriever(vector_store_object->id());
                 SearchQuery filter;
                 auto* file_id_term = filter.mutable_term();
                 file_id_term->set_name(VECTOR_STORE_FILE_ID_KEY);
@@ -224,6 +224,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             assert_not_blank(req.vector_store_id(), "should provide valid vector_store_id");
             assert_not_blank(req.batch_id(), "should provide valid batch_id");
             return vector_store_file_data_mapper_->ListVectorStoreFiles(req);
+        }
+
+        std::vector<VectorStoreFileObject> ListAllVectorStoreObjectFiles(
+            const std::vector<std::string> &vector_store_ids) override {
+            assert_non_empty_range(vector_store_ids, "should provide at least vector store id");
+            return vector_store_file_data_mapper_->ListVectorStoreFiles(vector_store_ids);
         }
     };
 }

@@ -63,10 +63,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             return doc_store_;
         }
 
-        [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery& query) const override {
-            SearchRequest search_request;
-            search_request.set_query(query.text);
-            search_request.set_top_k(query.top_k);
+        [[nodiscard]] AsyncIterator<Document> Retrieve(const SearchRequest& search_request) const override {
             // result can be less than `top_k`.
             return vector_store_->SearchDocuments(search_request)
                 | rpp::operators::reduce(std::unordered_set<std::string> {}, [&](std::unordered_set<std::string>&& seed, const Document& doc) {

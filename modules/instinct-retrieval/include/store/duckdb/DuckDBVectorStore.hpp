@@ -9,7 +9,6 @@
 #include <retrieval.pb.h>
 
 #include "BaseDuckDBStore.hpp"
-#include "DuckDBDocStore.hpp"
 #include "DuckDBDocWithEmbeddingStore.hpp"
 #include "store/IVectorStore.hpp"
 #include "tools/Assertions.hpp"
@@ -81,7 +80,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             auto* field_sort = sorter.mutable_field();
             field_sort->set_field_name("similarity");
             field_sort->set_order(DESC);
-            return SQLBuilder::ToSelectString(table_name, column_list, metadata_filter, {sorter}, -1, limit);
+            return SQLBuilder::ToSelectString(table_name, column_list, metadata_filter, std::vector {sorter}, -1, limit);
         }
 
     }
@@ -116,6 +115,9 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_prepared_ok(prepared_search_statement_, "Failed to prepare search statement");
         }
 
+        AsyncIterator<Document> FindDocuments(const FindRequest &find_request) override {
+            return store_.FindDocuments(find_request);
+        }
 
         EmbeddingsPtr GetEmbeddingModel() override {
             return embeddings_;

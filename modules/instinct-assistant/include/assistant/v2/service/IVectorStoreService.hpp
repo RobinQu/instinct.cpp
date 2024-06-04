@@ -31,6 +31,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         virtual std::optional<VectorStoreFileBatchObject> GetVectorStoreFileBatch(const GetVectorStoreFileBatchRequest& req) = 0;
         virtual std::optional<VectorStoreFileBatchObject> CancelVectorStoreFileBatch(const CancelVectorStoreFileBatchRequest& req) = 0;
         virtual ListFilesInVectorStoreBatchResponse ListFilesInVectorStoreBatch(const ListFilesInVectorStoreBatchRequest& req) = 0;
+
+
+        // for internal use only
+        virtual std::vector<VectorStoreFileObject> ListAllVectorStoreObjectFiles(const std::vector<std::string>& vector_store_ids) = 0;
     };
 
     using VectorStoreServicePtr = std::shared_ptr<IVectorStoreService>;

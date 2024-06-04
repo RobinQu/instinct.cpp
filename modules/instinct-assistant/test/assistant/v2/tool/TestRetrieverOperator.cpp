@@ -25,9 +25,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         vector_store_object.set_id("vs-1");
         vector_store_object.set_name("test-vs");
         vector_store_object.set_status(VectorStoreObject_VectorStoreStatus_completed);
-        ASSERT_TRUE(retriever_operator->ProvisionRetriever(vector_store_object));
-        ASSERT_TRUE(retriever_operator->GetStatefulRetriever(vector_store_object));
-        ASSERT_TRUE(retriever_operator->GetStatelessRetriever(vector_store_object));
-        ASSERT_TRUE(retriever_operator->CleanupRetriever(vector_store_object));
+        ASSERT_TRUE(retriever_operator->ProvisionRetriever(vector_store_object.id()));
+        ASSERT_TRUE(retriever_operator->GetStatefulRetriever(vector_store_object.id()));
+        ASSERT_TRUE(retriever_operator->GetStatelessRetriever(vector_store_object.id()));
+        ASSERT_TRUE(retriever_operator->CleanupRetriever(vector_store_object.id()));
     }
 }

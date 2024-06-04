@@ -34,13 +34,13 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_gt(retrievers_.size(), 0, "should have at least one retriever");
         }
 
-        [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery &query) const override {
+        [[nodiscard]] AsyncIterator<Document> Retrieve(const SearchRequest &search_request) const override {
             using namespace std::chrono_literals;
 
-            if(retrievers_.size() == 1) return retrievers_[0]->Retrieve(query);
+            if(retrievers_.size() == 1) return retrievers_[0]->Retrieve(search_request);
 
             auto multi_futures = thread_pool_.submit_sequence<size_t>(0, retrievers_.size(), [&](const size_t idx) {
-                return CollectVector(retrievers_[idx]->Retrieve(query));
+                return CollectVector(retrievers_[idx]->Retrieve(search_request));
             });
             if (!multi_futures.wait_for(60s)) {
                 throw InstinctException("Retrieving with multiple retrievers has been timeout");
@@ -53,7 +53,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             }
 
             auto multi_futures_2 = thread_pool_.submit_sequence<size_t>(0, docs.size(), [&](const size_t idx) {
-                return ranking_model_->GetRankingScore(query.text, docs[idx].text());
+                return ranking_model_->GetRankingScore(search_request.query(), docs[idx].text());
             });
             std::vector<std::pair<std::string, float>> doc_id_with_score;
             doc_id_with_score.reserve(docs.size());
@@ -70,12 +70,13 @@ namespace INSTINCT_RETRIEVAL_NS {
             }
 
             return rpp::source::create<Document>([&](const auto& observer) {
-                for(int i=0;i<query.top_k && i<doc_id_with_score.size();++i) {
+                for(int i=0;i<search_request.top_k() && i<doc_id_with_score.size();++i) {
                     const auto&[doc_id, score] = doc_id_with_score[i];
                     observer.on_next(docs.at(doc_id_idx.at(doc_id)));
                 }
             });
         }
+
     };
 
 

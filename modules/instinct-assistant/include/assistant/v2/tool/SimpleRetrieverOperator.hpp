@@ -37,10 +37,37 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         IRetrieverOperator()=default;
         virtual ~IRetrieverOperator()=default;
 
-        virtual VectorStorePtr ProvisionRetriever(const VectorStoreObject& vector_store_object) = 0;
-        virtual bool CleanupRetriever(const VectorStoreObject& vector_store_object) = 0;
-        virtual RetrieverPtr GetStatelessRetriever(const VectorStoreObject& vector_store_object) = 0;
-        virtual StatefulRetrieverPtr GetStatefulRetriever(const VectorStoreObject& vector_store_object) = 0;
+        /**
+         * Provision resources (e.g. table, file) needed for retriever of given VectorStoreObject
+         * @param vector_store_object_id
+         * @return
+         */
+        virtual VectorStorePtr ProvisionRetriever(const std::string& vector_store_object_id) = 0;
+
+        /**
+         * Cleanup related resources for retriever
+         * @param vector_store_object_id
+         * @return
+         */
+        virtual bool CleanupRetriever(const std::string& vector_store_object_id) = 0;
+
+        /**
+         * Get readonly retriever for online search
+         * @param vector_store_object_ids a list of VectorStoreObject that restricts the search space of returned retriever
+         * @return
+         */
+        virtual RetrieverPtr GetStatelessRetriever(const std::vector<std::string>& vector_store_object_ids) = 0;
+
+        virtual RetrieverPtr GetStatelessRetriever(const std::string& vector_store_object_id) {
+            return this->GetStatelessRetriever(std::vector {vector_store_object_id});
+        }
+
+        /**
+         * Get writable retriever for offline index building
+         * @param vector_store_object_id
+         * @return
+         */
+        virtual StatefulRetrieverPtr GetStatefulRetriever(const std::string& vector_store_object_id) = 0;
     };
 
     /**
@@ -54,7 +81,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         VectorStoreOperatorPtr vector_store_operator_;
         DocStorePtr doc_store_;
         RetrieverOperatorOptions options_;
-
     public:
         SimpleRetrieverOperator(
             VectorStoreOperatorPtr vector_store_operator,
@@ -83,43 +109,38 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             }
         }
 
-        VectorStorePtr ProvisionRetriever(const VectorStoreObject& vector_store_object) override {
-            return vector_store_operator_->CreateInstance(vector_store_object.id());
+        VectorStorePtr ProvisionRetriever(const std::string& vector_store_object_id) override {
+            return vector_store_operator_->CreateInstance(vector_store_object_id);
         }
 
-        bool CleanupRetriever(const VectorStoreObject& vector_store_object) override {
+        bool CleanupRetriever(const std::string& vector_store_object_id) override {
             SearchQuery search_query;
             search_query.mutable_term()->set_name(VECTOR_STORE_ID_KEY);
-            search_query.mutable_term()->mutable_term()->set_string_value(vector_store_object.id());
+            search_query.mutable_term()->mutable_term()->set_string_value(vector_store_object_id);
             UpdateResult update_result;
             doc_store_->DeleteDocuments(search_query, update_result);
             if (update_result.failed_documents_size() == 0) {
-                return vector_store_operator_->RemoveInstance(vector_store_object.id());
+                return vector_store_operator_->RemoveInstance(vector_store_object_id);
             }
-            LOG_WARN("Failed to cleanup documents for VectorStoreObject {}", vector_store_object.ShortDebugString());
+            LOG_WARN("Failed to cleanup documents for VectorStoreObject(id={})", vector_store_object_id);
             return false;
         }
 
-        /**
-         * Return the readonly retriever
-         * @param vector_store_object
-         * @return
-         */
-        RetrieverPtr GetStatelessRetriever(const VectorStoreObject& vector_store_object) override {
-            const auto vector_store = vector_store_operator_->LoadInstance(vector_store_object.id());
+        RetrieverPtr GetStatelessRetriever(const std::vector<std::string>& vector_store_object_ids) override {
+            assert_true(!vector_store_object_ids.empty());
             const auto ranking_model = CreateLocalRankingModel(BGE_M3_RERANKER);
-            const auto child_retriever = GetStatefulRetriever(vector_store_object);
-            return CreateMultiPathRetriever(ranking_model, child_retriever);
+            std::vector<RetrieverPtr> child_retrievers;
+            for(const auto& vector_store_object_id: vector_store_object_ids) {
+                const auto vector_store = vector_store_operator_->LoadInstance(vector_store_object_id);
+                const auto child_retriever = GetStatefulRetriever(vector_store_object_id);
+                child_retrievers.push_back(child_retriever);
+            }
+            return CreateMultiPathRetriever(ranking_model, child_retrievers);
         }
 
 
-        /**
-         * Return writable retriever that accept document ingestion
-         * @param vector_store_object
-         * @return
-         */
-        StatefulRetrieverPtr GetStatefulRetriever(const VectorStoreObject& vector_store_object) override {
-            const auto vector_store = vector_store_operator_->LoadInstance(vector_store_object.id());
+        StatefulRetrieverPtr GetStatefulRetriever(const std::string& vector_store_object_id) override {
+            const auto vector_store = vector_store_operator_->LoadInstance(vector_store_object_id);
             const auto tokenizer = TiktokenTokenizer::MakeGPT4Tokenizer();
             const auto child_spliter = CreateRecursiveCharacterTextSplitter(tokenizer, {
                 .chunk_size = options_.child_chunk_size,

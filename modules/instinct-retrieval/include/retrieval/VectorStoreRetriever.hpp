@@ -17,16 +17,10 @@ namespace INSTINCT_RETRIEVAL_NS {
          */
         VectorStorePtr vecstore_store_;
 
-        /**
-         * Template object that every search request objects will be copied from
-         */
-        std::shared_ptr<SearchRequest> search_request_template_;
-
     public:
         explicit VectorStoreRetriever(
-            VectorStorePtr vector_store,
-            std::shared_ptr<SearchRequest> search_request_template)
-            : vecstore_store_(std::move(vector_store)), search_request_template_(std::move(search_request_template)){
+            VectorStorePtr vector_store)
+            : vecstore_store_(std::move(vector_store)){
         }
 
         DocStorePtr GetDocStore() override {
@@ -39,13 +33,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_true(update_result.failed_documents_size() == 0, "should have all documents deleted");
         }
 
-        [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery& query) const override {
-            SearchRequest search_request;
-            if (search_request_template_) {
-                search_request.MergeFrom(*search_request_template_);
-            }
-            search_request.set_query(query.text);
-            search_request.set_top_k(query.top_k);
+        [[nodiscard]] AsyncIterator<Document> Retrieve(const SearchRequest &search_request) const override {
             return vecstore_store_->SearchDocuments(search_request);
         }
 
@@ -58,7 +46,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
     static StatefulRetrieverPtr CreateVectorStoreRetriever(const VectorStorePtr& vector_store) {
-        return std::make_shared<VectorStoreRetriever>(vector_store, nullptr);
+        return std::make_shared<VectorStoreRetriever>(vector_store);
     }
 }
 

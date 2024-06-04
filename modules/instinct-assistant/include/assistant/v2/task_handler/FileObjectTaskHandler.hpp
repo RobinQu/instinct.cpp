@@ -82,11 +82,15 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 assert_true(vs_object, "should have found VectorStoreObject for file");
 
                 // load docs into vdb
-                const auto retriever = retriever_operator_->GetStatefulRetriever(vs_object.value());
+                const auto retriever = retriever_operator_->GetStatefulRetriever(vs_object->id());
                 TempFile temp_file;
                 const auto ingestor = BuildIngestor_(file_object, temp_file);
                 assert_true(ingestor, "should have created ingestor for file");
-                const auto splitter = CreateRecursiveCharacterTextSplitter();
+                // OpenAI's parameters: https://github.com/RobinQu/instinct.cpp/issues/16#issuecomment-2133171030
+                const auto splitter = CreateRecursiveCharacterTextSplitter({
+                    .chunk_overlap = 400,
+                    .chunk_size = 800
+                });
                 retriever->Ingest(ingestor->LoadWithSplitter(splitter));
 
                 // generate summary

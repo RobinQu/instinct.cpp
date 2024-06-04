@@ -11,7 +11,11 @@
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_CORE_NS;
 
-    template<typename Query>
+    struct TextQuery {
+        std::string text;
+        int top_k = 10;
+    };
+
     class IRetriever {
     public:
         IRetriever()=default;
@@ -19,22 +23,15 @@ namespace INSTINCT_RETRIEVAL_NS {
         IRetriever(const IRetriever&)=delete;
         IRetriever(IRetriever&&)=delete;
 
-        [[nodiscard]] virtual AsyncIterator<Document> Retrieve(const Query& query) const = 0;
-    };
+        /**
+         * Search with text query
+         * @param query
+         * @return
+         */
+        [[nodiscard]] virtual AsyncIterator<Document> Retrieve(const TextQuery& query) const = 0;
 
-    struct TextQuery {
-        std::string text;
-        int top_k = 10;
-    };
 
-    using ITextRetriever = IRetriever<TextQuery>;
-
-    struct GuidedQuery {
-        AsyncIterator<Document> guidance_docs_iterator;
-        TextQuery raw_query;
     };
-    class IGuidedRetriever : public IRetriever<GuidedQuery> {};
-    using GuidedRetrieverPtr = std::shared_ptr<IGuidedRetriever>;
 
 
     class IStatefulRetriever {

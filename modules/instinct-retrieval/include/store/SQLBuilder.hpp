@@ -201,7 +201,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     class SQLBuilder {
     public:
-        template<typename R>
+        template<typename R = std::vector<Sorter>>
         requires RangeOf<R, Sorter>
         static std::string ToSelectString(
             const std::string& table_name,

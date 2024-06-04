@@ -43,6 +43,7 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/assistant/v2/toolkit/FileSearchTool.hpp
         include/assistant/v2/task_handler/FileBatchObjectTaskHandler.hpp
         include/assistant/v2/data_mapper/VectorStoreFileBatchDataMapper.hpp
+        include/assistant/v2/toolkit/SummaryGuidedFileSearch.hpp
 )
 
 

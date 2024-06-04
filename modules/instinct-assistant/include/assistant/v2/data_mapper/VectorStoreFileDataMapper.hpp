@@ -115,6 +115,20 @@ where vector_store_id = {{text(vector_store_id)}} and file_id in (
 )", context);
         }
 
+        std::vector<VectorStoreFileObject> ListVectorStoreFiles(const RangeOf<std::string> auto& vector_store_ids) {
+            SQLContext context;
+            context["vector_store_ids"] = vector_store_ids;
+            return data_template_->SelectMany(R"(select * from instinct_vector_store_file
+where vector_store_id in (
+## for vs_id in vector_store_ids
+    {{text(vs_id)}},
+## endfor
+);
+)", context);
+        }
+
+
+
         [[nodiscard]] ListFilesInVectorStoreBatchResponse ListVectorStoreFiles(const ListFilesInVectorStoreBatchRequest& req) const {
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(req, context, {.keep_default_values = true});

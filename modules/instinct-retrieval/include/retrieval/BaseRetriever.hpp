@@ -14,14 +14,25 @@ namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
 
     struct RetrieverFunctionOptions {
-//        std::string text_query_variable_key = "query";
         int top_k = 10;
     };
 
-    class BaseRetriever : public ITextRetriever {
+    class BaseRetriever : public IRetriever {
     public:
 
-        [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery &query) const override = 0;
+        [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery &query) const override {
+            SearchRequest search_request;
+            search_request.set_query(query.text);
+            search_request.set_top_k(query.top_k);
+            return this->Retrieve(search_request);
+        }
+
+        /**
+         * Search with fine-grained search request
+         * @param search_request
+         * @return
+         */
+        [[nodiscard]] virtual AsyncIterator<Document> Retrieve(const SearchRequest& search_request) const = 0;
 
         [[nodiscard]] StepFunctionPtr AsContextRetrieverFunction(const RetrieverFunctionOptions& options = {}) const {
             return std::make_shared<LambdaStepFunction>([&, options](const JSONContextPtr &ctx) {
@@ -40,10 +51,8 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     class BaseStatefulRetriever : public BaseRetriever, public IStatefulRetriever {
     public:
-        [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery &query) const override = 0;
 
         void Ingest(const AsyncIterator<Document> &input) override = 0;
-
 
         /**
          * Return the underlying DocStore for original documents
