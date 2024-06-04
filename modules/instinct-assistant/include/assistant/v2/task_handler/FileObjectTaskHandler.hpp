@@ -109,8 +109,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 assert_true(ingestor, "should have created ingestor for file");
                 // OpenAI's parameters: https://github.com/RobinQu/instinct.cpp/issues/16#issuecomment-2133171030
                 const auto splitter = CreateRecursiveCharacterTextSplitter({
-                    .chunk_overlap = 400,
-                    .chunk_size = 800
+                    .chunk_size = 800,
+                    .chunk_overlap = 400
                 });
 
                 // load docs into vdb

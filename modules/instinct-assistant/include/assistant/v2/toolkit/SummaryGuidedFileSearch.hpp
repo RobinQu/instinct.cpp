@@ -62,8 +62,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             std::vector<PSF> file_scores;
             for(const auto& file: vector_store_file_objects_) {
                 auto score = ranking_model_->Invoke({
-                    .doc = file.summary(),
-                    .query = input.query()
+                    .query = input.query(),
+                    .doc = file.summary()
                 });
                 file_scores.emplace_back(file.file_id(), score);
             }

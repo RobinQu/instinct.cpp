@@ -33,9 +33,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         // build retriever
         const auto vdb = vector_store_operator_->CreateInstance("test-vs");
         const auto retriever = CreateVectorStoreRetriever(vdb);
-        const auto spliter = CreateRecursiveCharacterTextSplitter({.chunk_overlap = 400, .chunk_size = 800});
-        retriever->Ingest(ingestor1->LoadWithSplitter(spliter));
-        retriever->Ingest(ingestor2->LoadWithSplitter(spliter));
+        const auto splitter = CreateRecursiveCharacterTextSplitter({.chunk_size = 800, .chunk_overlap = 400});
+        retriever->Ingest(ingestor1->LoadWithSplitter(splitter));
+        retriever->Ingest(ingestor2->LoadWithSplitter(splitter));
 
         // fake two file objects
         VectorStoreFileObject vector_store_file_object1;
