@@ -138,7 +138,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             return CreateMultiPathRetriever(ranking_model, child_retrievers);
         }
 
-
         StatefulRetrieverPtr GetStatefulRetriever(const std::string& vector_store_object_id) override {
             const auto vector_store = vector_store_operator_->LoadInstance(vector_store_object_id);
             const auto tokenizer = TiktokenTokenizer::MakeGPT4Tokenizer();

@@ -43,9 +43,9 @@ namespace INSTINCT_CORE_NS {
     };
 
     struct Endpoint {
-        HttpProtocol protocol = kHTTP;
+        HttpProtocol protocol = kUnspecifiedProtocol;
         std::string host;
-        int port = 80;
+        int port = 0;
     };
 
     struct HttpRequest {

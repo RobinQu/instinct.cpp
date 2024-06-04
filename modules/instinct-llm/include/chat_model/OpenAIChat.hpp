@@ -140,10 +140,10 @@ namespace INSTINCT_LLM_NS {
         if (StringUtils::IsBlankString(configuration.endpoint.host)) {
             configuration.endpoint.host = SystemUtils::GetEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.host);
         }
-        if (configuration.endpoint.port == 80) {
+        if (configuration.endpoint.port == 0) {
             configuration.endpoint.port = SystemUtils::GetIntEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.port);
         }
-        if (configuration.endpoint.protocol == kHTTP) {
+        if (configuration.endpoint.protocol == kUnspecifiedProtocol) {
             configuration.endpoint.protocol = StringUtils::ToLower(SystemUtils::GetEnv("OPENAI_PROTOCOL", "https")) == "https" ? kHTTPS : kHTTP;
         }
     }

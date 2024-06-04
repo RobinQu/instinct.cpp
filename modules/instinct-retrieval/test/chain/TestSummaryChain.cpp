@@ -16,7 +16,17 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         std::filesystem::path corpus_dir = std::filesystem::current_path() / "_corpus";
-        ChatModelPtr chat_model_ = CreateOpenAIChatModel();
+        ChatModelPtr chat_model_ = CreateOpenAIChatModel({
+            .endpoint = {.host = "localhost", .port = 8000, .protocol = kHTTP}
+        });
+
+        IsReducibleFn is_reducible = [](const std::vector<std::string>& data) {
+            size_t total = 0;
+            for(const auto& item: data) {
+                total += item.size();
+            }
+            return total >= 16 * 1024;
+        };
     };
 
 
@@ -32,16 +42,22 @@ namespace INSTINCT_RETRIEVAL_NS {
         const auto ingestor = RetrieverObjectFactory::CreateDirectoryTreeIngestor(
             corpus_dir / "recipes"
         );
-        auto is_reducible = [](const std::vector<std::string>& data) {
-            size_t total = 0;
-            for(const auto& item: data) {
-                total += item.size();
-            }
-            return total >= 16 * 1024;
-        };
+
         const auto chain = CreateSummaryChain(chat_model_);
         const auto itr = ingestor->Load() |  rpp::ops::map([](const Document& doc) {return doc.text();});
         auto f1 = CreateSummary(itr, chain, is_reducible);
         LOG_INFO("f1 = {}", f1.get());
+    }
+
+    TEST_F(SummaryChainTest, DoSummaryWithPDF) {
+        const auto ingestor = RetrieverObjectFactory::CreateIngestor(
+        corpus_dir / "papers" / "attention_is_all_you_need.pdf"
+        );
+        const auto spliter = CreateRecursiveCharacterTextSplitter();
+        const auto chain = CreateSummaryChain(chat_model_);
+        auto f1 = CreateSummary(ingestor->LoadWithSplitter(spliter), chain, is_reducible);
+        std::string summary = f1.get();
+        LOG_INFO("f1 = {}", summary);
+        ASSERT_TRUE(summary.find("Transformer") != std::string::npos);
     }
 }

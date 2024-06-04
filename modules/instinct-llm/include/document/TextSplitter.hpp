@@ -75,7 +75,7 @@ namespace INSTINCT_LLM_NS {
                 }  else {
                     U32StringUtils::SplitWithRegex(text, seperator, result);
                 }
-                details::print_splits("splits: ", result);
+                // details::print_splits("splits: ", result);
             } else { // it's empty seperator, so we have to split into a sequence of chars.
                 UErrorCode status = U_ZERO_ERROR;
                 const auto locale = Locale::getDefault();

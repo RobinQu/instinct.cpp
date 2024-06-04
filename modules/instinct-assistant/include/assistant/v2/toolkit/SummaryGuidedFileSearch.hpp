@@ -27,7 +27,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     }
 
     struct SummaryGuidedFileSearchOptions: public FunctionToolOptions {
-        int top_file_n = 5;
+        int top_file_n = 10;
     };
 
     /**
@@ -58,9 +58,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
     protected:
         SearchToolResponse DoExecute(const SearchToolRequest &input) override {
-            // const auto vector_store_ids = vector_store_objects_ | std::views::transform([](const VectorStoreObject& vector_store_object) { return vector_store_object.id(); });
-            // const auto files = vector_store_file_data_mapper_->ListVectorStoreFiles(vector_store_ids);
-
             // file-id to score
             std::vector<PSF> file_scores;
             for(const auto& file: vector_store_file_objects_) {
@@ -71,7 +68,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 file_scores.emplace_back(file.file_id(), score);
             }
 
-            // sort by score and select top three file_id
+            // sort by score and select top N file_id
             std::ranges::sort(file_scores, [](const PSF& a, const PSF& b) {
                 return a.second < b.second;
             });
