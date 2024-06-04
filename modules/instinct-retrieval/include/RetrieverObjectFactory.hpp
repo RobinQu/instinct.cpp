@@ -16,7 +16,11 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     class RetrieverObjectFactory final {
     public:
-        static IngestorPtr CreateIngestor(const std::filesystem::path& file_path, bool fail_fast = false) {
+        static IngestorPtr CreateIngestor(
+            const std::filesystem::path& file_path,
+            const std::string& parent_doc_id = ROOT_DOC_ID,
+            const DocumentPostProcessor& document_post_processor = nullptr,
+            bool fail_fast = false) {
             assert_true(std::filesystem::exists(file_path), "file should exist");
             assert_true(is_regular_file(file_path), "path should be pointed to a regular file");
             static std::regex EXT_NAME_PATTERN { R"(.+\.(.+))"};
@@ -26,13 +30,13 @@ namespace INSTINCT_RETRIEVAL_NS {
                 if (match.size() == 2) {
                     const auto extname = StringUtils::ToLower(match[1].str());
                     if (extname == "pdf") {
-                        return CreatePDFFileIngestor(file_path);
+                        return CreatePDFFileIngestor(file_path, document_post_processor, parent_doc_id);
                     }
                     if (extname == "txt" || extname == "md") {
-                        return CreatePlainTextFileIngestor(file_path);
+                        return CreatePlainTextFileIngestor(file_path, document_post_processor, parent_doc_id);
                     }
                     if (extname == "docx") {
-                        return CreateDOCXFileIngestor(file_path);
+                        return CreateDOCXFileIngestor(file_path, document_post_processor, parent_doc_id);
                     }
                 }
             }

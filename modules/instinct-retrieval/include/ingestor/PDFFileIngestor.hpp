@@ -129,12 +129,15 @@ namespace INSTINCT_RETRIEVAL_NS {
     * Parsing PDF files using PDFium library
     */
     class PDFFileIngestor final : public BaseIngestor {
-        std::filesystem::path file_path_{};
+        std::filesystem::path file_path_;
+        std::string parent_doc_id_;
         const std::string password_;
 
     public:
-        explicit PDFFileIngestor(std::filesystem::path file_path, std::string password = "")
-            : file_path_(std::move(file_path)),
+        explicit PDFFileIngestor(std::filesystem::path file_path, const DocumentPostProcessor &document_post_processor = nullptr, std::string parent_doc_id = ROOT_DOC_ID, std::string password = "")
+            : BaseIngestor(document_post_processor),
+            file_path_(std::move(file_path)),
+              parent_doc_id_(std::move(parent_doc_id)),
               password_(std::move(password)) {
             assert_true(std::filesystem::exists(file_path_), "Given filepath should be valid: " + file_path_.string());
         }
@@ -146,16 +149,9 @@ namespace INSTINCT_RETRIEVAL_NS {
                 try {
                     for (int i = 0; i < count; i++) {
                         auto text = pdf_doc.LoadPage(i).ExtractPageText();
-                        Document doc;
-                        DocumentUtils::AddPresetMetadataFields(doc, ROOT_DOC_ID, i+1, file_path_.string());
-                        text.toUTF8String(*doc.mutable_text());
-                        // auto* page_idx = doc.add_metadata();
-                        // page_idx->set_name("page_no");
-                        // page_idx->set_int_value(i+1);
-                        // auto* source = doc.add_metadata();
-                        // source->set_name("source");
-                        // source->set_string_value(file_path_.string());
-                        observer.on_next(doc);
+                        std::string u8_text;
+                        text.toUTF8String(u8_text);
+                        observer.on_next(CreateNewDocument(u8_text, parent_doc_id_, i+1, file_path_));
                     }
                     observer.on_completed();
                 } catch (...) {
@@ -165,8 +161,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
     };
 
-    static IngestorPtr CreatePDFFileIngestor(const std::filesystem::path& file_path, const std::string& password = "") {
-        return std::make_shared<PDFFileIngestor>(file_path, password);
+    static IngestorPtr CreatePDFFileIngestor(const std::filesystem::path& file_path, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID, const std::string& password = "") {
+        return std::make_shared<PDFFileIngestor>(file_path, document_post_processor, parent_doc_id, password);
     }
 }
 

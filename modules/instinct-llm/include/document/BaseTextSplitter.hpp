@@ -53,7 +53,6 @@ namespace  INSTINCT_LLM_NS {
         }
     };
 
-
     class BaseTextSplitter : public TextSplitter {
     protected:
         int chunk_size_;
@@ -61,7 +60,6 @@ namespace  INSTINCT_LLM_NS {
         bool keep_separator_;
         bool strip_whitespace_;
         LenghtCalculatorPtr length_calculator_;
-
     public:
 
         BaseTextSplitter(const int chunk_size, const int chunk_overlap, const bool keep_separator,
@@ -75,8 +73,8 @@ namespace  INSTINCT_LLM_NS {
 
         AsyncIterator<Document> SplitDocuments(const AsyncIterator<Document>& docs_itr) override {
             return rpp::source::create<Document>([&,docs_itr](const auto& observer) {
-                docs_itr.subscribe([&](const auto& doc) {
-                    auto chunks = SplitText(UnicodeString::fromUTF8(doc.text()));
+                docs_itr.subscribe([&](const Document& doc) {
+                    const auto chunks = SplitText(UnicodeString::fromUTF8(doc.text()));
                     for (int i = 0; i < chunks.size(); i++) {
                         auto& chunk = chunks[i];
                         Document document;
@@ -84,7 +82,8 @@ namespace  INSTINCT_LLM_NS {
                         // auto* chunk_id_field = document.add_metadata();
                         // chunk_id_field->set_name(CHUNK_DOC_PART_INDEX_KEY);
                         // chunk_id_field->set_int_value(i);
-                        DocumentUtils::AddPresetMetadataFields(document, doc.id(), i+1);
+                        // DocumentUtils::AddPresetMetadataFields(document, doc.id(), i+1);
+                        document.mutable_metadata()->CopyFrom(doc.metadata());
                         observer.on_next(document);
                     }
                 }, [&](const std::exception_ptr& e) {

@@ -23,19 +23,19 @@ namespace INSTINCT_CORE_NS {
             return default_value;
         }
 
-        static int GetIntEnv(const std::string& name, const int defualt_value = 0) {
+        static int GetIntEnv(const std::string& name, const int default_value = 0) {
             if(const auto v = std::getenv(name.c_str())) {
                 return std::stoi(v);
             }
-            return defualt_value;
+            return default_value;
         }
 
-        static unsigned int GetUnsignedIntEnv(const std::string& name, const unsigned int defualt_value = 0) {
+        static unsigned int GetUnsignedIntEnv(const std::string& name, const unsigned int default_value = 0) {
             if(const auto v = std::getenv(name.c_str())) {
                 const unsigned long lresult = std::stoul(v);
                 if (const unsigned int result = lresult; result != lresult) throw std::out_of_range("cannot convert string to unsigned int: " + std::string(v));
             }
-            return defualt_value;
+            return default_value;
         }
 
 

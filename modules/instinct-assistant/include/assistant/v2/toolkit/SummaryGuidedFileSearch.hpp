@@ -70,10 +70,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
             // sort by score and select top N file_id
             std::ranges::sort(file_scores, [](const PSF& a, const PSF& b) {
-                return a.second < b.second;
+                return a.second > b.second;
             });
-            LOG_DEBUG("file score after ranking: {}",
-                StringUtils::JoinWith(file_scores | std::views::transform([](const PSF& pair){ return fmt::format("{}={}", pair.first, pair.second); }), ",")
+            LOG_DEBUG("file scores after ranking: {}, top_file_n={}",
+                StringUtils::JoinWith(file_scores | std::views::transform([](const PSF& pair){ return fmt::format("{}={}", pair.first, pair.second); }), ","),
+                options_.top_file_n
             );
 
             // search with given file id
@@ -81,7 +82,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             search_request.set_query(input.query());
             search_request.set_top_k(input.result_limit());
             const auto file_id_terms = search_request.mutable_metadata_filter()->mutable_terms();
-            file_id_terms->set_name(VECTOR_STORE_FILE_ID_KEY);
+            file_id_terms->set_name(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
             for(int i=0;i<options_.top_file_n && i<file_scores.size();++i) {
                 file_id_terms->add_terms()->set_string_value(file_scores.at(i).first);
             }

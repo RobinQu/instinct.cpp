@@ -27,7 +27,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         int child_chunk_overlap = 400;
     };
 
-    static const std::string VECTOR_STORE_FILE_ID_KEY = "file_id";
     static const std::string VECTOR_STORE_ID_KEY = "vs_id";
 
     class IRetrieverOperator {
@@ -90,7 +89,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
               doc_store_(std::move(doc_store)),
               options_(options) {
             // validate schema in doc store
-            for(const auto& field_name: {VECTOR_STORE_FILE_ID_KEY, VECTOR_STORE_ID_KEY}) {
+            for(const auto& field_name: {METADATA_SCHEMA_PARENT_DOC_ID_KEY, VECTOR_STORE_ID_KEY}) {
                 assert_true(
                     std::ranges::any_of(
                         doc_store_->GetMetadataSchema()->fields(),
@@ -181,7 +180,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         builder->DefineString(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
         builder->DefineInt32(METADATA_SCHEMA_PAGE_NO_KEY);
         builder->DefineString(METADATA_SCHEMA_FILE_SOURCE_KEY);
-        builder->DefineString(VECTOR_STORE_FILE_ID_KEY);
         builder->DefineString(VECTOR_STORE_ID_KEY);
         return builder->Build();
     }

@@ -20,11 +20,13 @@ namespace INSTINCT_RETRIEVAL_NS {
      *
      */
     class DOCXFileIngestor final: public BaseIngestor {
-        std::filesystem::path file_path_{};
+        std::filesystem::path file_path_;
+        std::string parent_doc_id_;
 
     public:
-        explicit DOCXFileIngestor(std::filesystem::path file_path)
-            : file_path_(std::move(file_path)) {
+        explicit DOCXFileIngestor(std::filesystem::path file_path, const DocumentPostProcessor &document_post_processor = nullptr, std::string parent_doc_id = ROOT_DOC_ID)
+            : BaseIngestor(document_post_processor),
+            file_path_(std::move(file_path)), parent_doc_id_(std::move(parent_doc_id)) {
             assert_true(std::filesystem::exists(file_path_), "Given file path should be valid: " + file_path_.string());
         }
 
@@ -62,17 +64,14 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
     private:
-        Document ProduceDoc_(const std::string& text, const int idx) {
-            Document document;
-            document.set_text(text);
-            DocumentUtils::AddPresetMetadataFields(document, ROOT_DOC_ID, idx, file_path_.string());
-            return document;
+        Document ProduceDoc_(const std::string& text, const int idx) const {
+            return CreateNewDocument(text, parent_doc_id_, idx, file_path_);
         }
     };
 
 
-    static IngestorPtr CreateDOCXFileIngestor(const std::filesystem::path& file_path) {
-        return std::make_shared<DOCXFileIngestor>(file_path);
+    static IngestorPtr CreateDOCXFileIngestor(const std::filesystem::path& file_path, const DocumentPostProcessor& document_post_processor, const std::string& parent_doc_id = ROOT_DOC_ID) {
+        return std::make_shared<DOCXFileIngestor>(file_path, document_post_processor, parent_doc_id);
     }
 
 

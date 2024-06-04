@@ -164,7 +164,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 const auto retriever = retriever_operator_->GetStatefulRetriever(vector_store_object->id());
                 SearchQuery filter;
                 auto* file_id_term = filter.mutable_term();
-                file_id_term->set_name(VECTOR_STORE_FILE_ID_KEY);
+                file_id_term->set_name(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
                 file_id_term->mutable_term()->set_string_value(req.file_id());
                 retriever->Remove(filter);
             }

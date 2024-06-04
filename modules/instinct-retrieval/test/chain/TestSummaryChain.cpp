@@ -16,9 +16,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         std::filesystem::path corpus_dir = std::filesystem::current_path() / "_corpus";
-        ChatModelPtr chat_model_ = CreateOpenAIChatModel({
-            .endpoint = {.host = "localhost", .port = 8000, .protocol = kHTTP}
-        });
+        ChatModelPtr chat_model_ = CreateOpenAIChatModel();
 
         IsReducibleFn is_reducible = [](const std::vector<std::string>& data) {
             size_t total = 0;

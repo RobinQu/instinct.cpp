@@ -30,7 +30,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         /**
          * Split loaded documents which are used to create chunked documents
-         * @param text_splitter spliiter to be used for each loaded document
+         * @param text_splitter splitter to be used for each loaded document
          * @return
          */
         virtual AsyncIterator<Document> LoadWithSplitter(const TextSplitterPtr& text_splitter) = 0;

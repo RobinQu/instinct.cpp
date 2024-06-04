@@ -32,7 +32,8 @@ namespace INSTINCT_RETRIEVAL_NS {
             IngestorFactoryFunction ingestor_factory_function,
             const bool recursive
             )
-            : folder_path_(std::move(folder_path)), regex_matcher_(std::move(regex_matcher)), ingestor_factory_function_(std::move(ingestor_factory_function)),  recursive_(recursive) {
+            : BaseIngestor(nullptr),
+            folder_path_(std::move(folder_path)), regex_matcher_(std::move(regex_matcher)), ingestor_factory_function_(std::move(ingestor_factory_function)),  recursive_(recursive) {
             assert_true(std::filesystem::exists(folder_path_), "Given folder should exist");
             assert_true(std::filesystem::is_directory(folder_path_), "should be a folder");
         }
@@ -56,7 +57,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             // TODO Do it in parallel
             return rpp::source::from_iterable(valid_files)
                 | rpp::operators::flat_map([&](const std::filesystem::path& entry) {
-                    auto ingestor = ingestor_factory_function_(entry);
+                    const auto ingestor = ingestor_factory_function_(entry);
                     return ingestor->Load();
                 });
         }

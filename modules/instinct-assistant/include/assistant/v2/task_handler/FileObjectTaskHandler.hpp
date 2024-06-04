@@ -95,7 +95,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
                 // generate summary
                 FindRequest find_request;
-                find_request.mutable_query()->mutable_term()->set_name(VECTOR_STORE_FILE_ID_KEY);
+                find_request.mutable_query()->mutable_term()->set_name(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
                 find_request.mutable_query()->mutable_term()->mutable_term()->set_string_value(file_object.file_id());
                 const auto doc_itr = retriever->GetDocStore()->FindDocuments(find_request);
                 const auto summary = CreateSummary(doc_itr, summary_chain_, reducible_fn_).get();
@@ -120,7 +120,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             const auto file_object = file_service_->RetrieveFile(retrieve_file_request);
             assert_true(file_object, fmt::format("should have found file object with VectorStoreFileObject {}", vs_file_object.ShortDebugString()));
             DownloadFile_(file_object.value(), temp_file);
-            return RetrieverObjectFactory::CreateIngestor(temp_file.path);
+            return RetrieverObjectFactory::CreateIngestor(
+                temp_file.path,
+                vs_file_object.file_id()
+            );
         }
 
         void DownloadFile_(const FileObject& file_object, const TempFile& temp_file) const {
