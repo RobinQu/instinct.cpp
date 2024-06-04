@@ -23,7 +23,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         AsyncIterator<Document> Load() override = 0;
 
-        Document CreateNewDocument(
+        [[nodiscard]] Document CreateNewDocument(
             const std::string& text,
             const std::string& parent_doc_id,
             const int page_no,
@@ -31,10 +31,9 @@ namespace INSTINCT_RETRIEVAL_NS {
         ) const {
             Document document;
             document.set_text(text);
+            DocumentUtils::AddPresetMetadataFields(document, parent_doc_id, page_no, source);
             if (document_post_processor_) {
                 document_post_processor_(document);
-            } else {
-                DocumentUtils::AddPresetMetadataFields(document, parent_doc_id, page_no, source);
             }
             return document;
         }

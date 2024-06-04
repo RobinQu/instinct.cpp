@@ -68,7 +68,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     }
 
 
-    using IsReducibleFn = std::function<bool(const std::vector<std::string>& data)>;
+    using IsReducibleFn = std::function<bool(const std::vector<std::string>& data, const std::string& delta)>;
 
     /**
      * Create summary with document source in map-reduce manner
@@ -82,6 +82,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         const SummaryChainPtr& chain,
         const IsReducibleFn& is_reducible_fn) {
         assert_true(is_reducible_fn, "should provide is_reducible_fn");
+        assert_true(chain, "should provide valid summary chain");
         return std::async(std::launch::async, [source,is_reducible_fn,chain] {
             const auto map_itr = rpp::source::create<std::vector<std::string>>([&,source](const  rpp::dynamic_observer<std::vector<std::string>>& ob) {
                 const auto buf = std::make_shared<details::StreamBuffer>();
@@ -90,10 +91,11 @@ namespace INSTINCT_RETRIEVAL_NS {
                     return chain->Invoke({text});
                 })
                 | rpp::ops::subscribe([ob,buf,is_reducible_fn](const std::string& text) {
-                        buf->data.push_back(text);
-                        if (is_reducible_fn(buf->data)) {
+                        if (!buf->data.empty() && is_reducible_fn(buf->data, text)) {
                             ob.on_next(buf->data);
+                            buf->data.clear();
                         }
+                        buf->data.push_back(text);
                     },
                     [ob](const std::exception_ptr& err) { ob.on_error(err); },
                     [ob,buf]() {
@@ -110,8 +112,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             std::vector<std::string> summaries;
             CollectVector(map_itr, summaries);
             if (summaries.size()==1) {
+                LOG_DEBUG("Got final summary: {}", summaries[0]);
                 return summaries[0];
             }
+            LOG_DEBUG("Recursively call with summaries.size()={}", summaries.size());
             // recursively call
             return CreateSummary(rpp::source::from_iterable(summaries), chain, is_reducible_fn).get();
         });

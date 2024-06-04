@@ -188,13 +188,13 @@ where vector_store_id = {{text(vector_store_id)}};
 )", context);
             VectorStoreObject_FileCounts file_counts;
             assert_gt(aggregations.rows_size(), 0, "should have at least one row");
-            file_counts.set_in_progress(static_cast<int32_t>(aggregations.rows(0).int64().at("in_progress")));
-            file_counts.set_cancelled(static_cast<int32_t>(aggregations.rows(0).int64().at("cancelled")));
-            file_counts.set_failed(static_cast<int32_t>(aggregations.rows(0).int64().at("failed")));
-            file_counts.set_completed(static_cast<int32_t>(aggregations.rows(0).int64().at("completed")));
-            file_counts.set_total(static_cast<int32_t>(aggregations.rows(0).int64().at("total")));
+            auto& row = aggregations.rows(0);
+            file_counts.set_in_progress(static_cast<int32_t>(row.int64().contains("in_progress") ? row.int64().at("in_progress") : 0));
+            file_counts.set_cancelled(static_cast<int32_t>(row.int64().contains("cancelled") ? row.int64().at("cancelled") : 0));
+            file_counts.set_failed(static_cast<int32_t>(row.int64().contains("failed") ? row.int64().at("failed") : 0));
+            file_counts.set_completed(static_cast<int32_t>(row.int64().contains("completed") ? row.int64().at("completed") : 0));
+            file_counts.set_total(static_cast<int32_t>(row.int64().contains("total") ? row.int64().at("total") : 0));
             return file_counts;
-
         }
 
         [[nodiscard]] size_t DeleteVectorStoreFile(const std::string& vector_store_id, const std::string& vector_store_file_id) const {
@@ -237,6 +237,9 @@ set
 {% endif %}
 {% if exists("last_error") %}
     last_error = {{stringify(last_error)}},
+{% endif %}
+{% if exists("summary") and is_not_blank(summary) %}
+    summary = {{text(summary)}},
 {% endif %}
     modified_at = now()
 where vector_store_id = {{text(vector_store_id)}} and file_id = {{text(file_id)}};

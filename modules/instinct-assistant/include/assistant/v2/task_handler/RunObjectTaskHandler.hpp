@@ -13,7 +13,6 @@
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 #include "agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp"
 #include "assistant/v2/service/IVectorStoreService.hpp"
-#include "assistant/v2/toolkit/FileSearchTool.hpp"
 #include "assistant/v2/toolkit/SummaryGuidedFileSearch.hpp"
 #include "toolkit/LocalToolkit.hpp"
 

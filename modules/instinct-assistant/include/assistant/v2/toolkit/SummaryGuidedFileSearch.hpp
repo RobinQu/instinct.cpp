@@ -22,7 +22,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 highlights += vector_store_file_objects[i].summary();
                 highlights += " ";
             }
-            return fmt::format("This is a search tool for a knowledge base which has following highlights: {}; Use this tool for more context information if user question is relevant to the highlights in the knowledge base.", highlights);
+            return fmt::format("Use this tool for more context information if user question is relevant to the the knowledge base which has following highlights: {}.", highlights);
         }
     }
 

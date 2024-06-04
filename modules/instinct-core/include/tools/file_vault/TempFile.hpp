@@ -20,12 +20,19 @@ namespace INSTINCT_CORE_NS {
 
         TempFile(const TempFile&)=delete;
 
+        explicit TempFile(const std::string& filename = StringUtils::GenerateUUIDString()):
+            path(std::filesystem::temp_directory_path() / StringUtils::GenerateUUIDString() / filename),
+            file(path, std::ios::in | std::ios::out | std::ios::trunc) {
+            if(!std::filesystem::exists(path.parent_path())) {
+                std::filesystem::create_directories(path.parent_path());
+            }
+        }
+
         TempFile(TempFile&& other) noexcept {
             path = std::move(other.path);
             file = std::move(other.file);
         }
 
-        TempFile(): path(std::filesystem::current_path() / StringUtils::GenerateUUIDString()), file(path, std::ios::in | std::ios::out | std::ios::trunc) {}
 
         ~TempFile() {
             if (file) {

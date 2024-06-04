@@ -138,7 +138,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         StatefulRetrieverPtr GetStatefulRetriever(const std::string& vector_store_object_id) override {
+            assert_not_blank(vector_store_object_id, "should have non-blank vector_store_object_id");
             const auto vector_store = vector_store_operator_->LoadInstance(vector_store_object_id);
+            assert_true(vector_store, fmt::format("should have found vector store by id {}", vector_store_object_id));
             const auto tokenizer = TiktokenTokenizer::MakeGPT4Tokenizer();
             const auto child_spliter = CreateRecursiveCharacterTextSplitter(tokenizer, {
                 .chunk_size = options_.child_chunk_size,

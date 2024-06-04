@@ -52,6 +52,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             {vector_store_file_object1, vector_store_file_object2},
             {.top_file_n = 1}
             );
+        LOG_INFO("schema {}", tool->GetSchema().ShortDebugString());
+        ASSERT_EQ(tool->GetSchema().name(), "FileSearch");
+        ASSERT_TRUE(StringUtils::IsNotBlankString(tool->GetSchema().description()));
+
         ToolCallObject tool_call_object;
         tool_call_object.set_type(ToolCallObjectType::function);
         tool_call_object.mutable_function()->set_name("FileSearch");

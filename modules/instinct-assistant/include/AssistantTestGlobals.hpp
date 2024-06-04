@@ -105,13 +105,13 @@ namespace INSTINCT_ASSISTANT_NS {
             return std::make_shared<MessageServiceImpl>(message_data_mapper);
         }
 
-        VectorStoreServicePtr CreateVectorStoreService() {
+        VectorStoreServicePtr CreateVectorStoreService(const TaskSchedulerPtr<std::string>& task_scheduler = nullptr, const RetrieverOperatorPtr& retriever_operator = nullptr) {
             return std::make_shared<VectorStoreServiceImpl>(
                 vector_store_file_data_mapper,
                 vector_store_data_mapper,
                 vector_store_file_batch_data_mapper,
-                nullptr,
-                nullptr
+                task_scheduler,
+                retriever_operator
                 );
         }
 

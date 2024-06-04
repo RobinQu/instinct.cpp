@@ -29,10 +29,12 @@ namespace INSTINCT_DATA_NS {
               key_mapper_(std::move(key_mapper)) {
             std::filesystem::create_directories(root_directory_);
             assert_true(std::filesystem::exists(root_directory_), "directory for FileSystemObjectStore should be created correctly.");
+            LOG_INFO("Init FileSystemObjectStore at {}", root_directory_);
         }
 
         OSSStatus PutObject(const std::string &bucket_name, const std::string &object_key,
                             std::istream &input_stream) override {
+            LOG_DEBUG("PutObject with stream: bucket_name={}, object_key={}", bucket_name, object_key);
             const auto object_path = EnsureObjectPath_(bucket_name, object_key);
             std::ofstream object_file(object_path, std::ios::binary | std::ios::out | std::ios::trunc);
             object_file << input_stream.rdbuf();
@@ -41,6 +43,7 @@ namespace INSTINCT_DATA_NS {
 
         OSSStatus PutObject(const std::string &bucket_name, const std::string &object_key,
             const std::string &buffer) override {
+            LOG_DEBUG("PutObject with buffer: bucket_name={}, object_key={}", bucket_name, object_key);
             const auto object_path = EnsureObjectPath_(bucket_name, object_key);
             std::ofstream object_file(object_path, std::ios::binary | std::ios::out | std::ios::trunc);
             object_file << buffer;
@@ -49,9 +52,10 @@ namespace INSTINCT_DATA_NS {
 
         OSSStatus GetObject(const std::string &bucket_name, const std::string &object_key,
             std::ostream &output_stream) override {
+            LOG_DEBUG("GetObject with stream: bucket_name={}, object_key={}", bucket_name, object_key);
             const auto object_path = EnsureObjectPath_(bucket_name, object_key);
             OSSStatus status;
-            if (!std::filesystem::exists(object_key)) {
+            if (!std::filesystem::exists(object_path)) {
                 status.set_has_error(true);
                 status.set_error_type(OSSStatus_ErrorType_ObjectNotFound);
                 return status;
@@ -63,6 +67,7 @@ namespace INSTINCT_DATA_NS {
 
         OSSStatus GetObject(const std::string &bucket_name, const std::string &object_key,
             std::string &buffer) override {
+            LOG_DEBUG("GetObject with buffer: bucket_name={}, object_key={}", bucket_name, object_key);
             const auto object_path = EnsureObjectPath_(bucket_name, object_key);
             OSSStatus status;
             if (!std::filesystem::exists(object_path)) {
@@ -75,6 +80,7 @@ namespace INSTINCT_DATA_NS {
         }
 
         OSSStatus DeleteObject(const std::string &bucket_name, const std::string &object_key) override {
+            LOG_DEBUG("DeleteObject: bucket_name={}, object_key={}", bucket_name, object_key);
             const auto object_path = EnsureObjectPath_(bucket_name, object_key);
             OSSStatus status;
             if (!std::filesystem::exists(object_path)) {

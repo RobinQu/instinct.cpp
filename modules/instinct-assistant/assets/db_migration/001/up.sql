@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS instinct_vector_store_file (
     status VARCHAR NOT NULL,
     last_error VARCHAR,
     file_batch_id VARCHAR,
+    summary VARCHAR,
     PRIMARY KEY (file_id, vector_store_id)
 );
 

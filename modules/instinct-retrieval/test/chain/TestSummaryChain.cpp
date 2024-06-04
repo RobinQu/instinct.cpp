@@ -17,13 +17,13 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         std::filesystem::path corpus_dir = std::filesystem::current_path() / "_corpus";
         ChatModelPtr chat_model_ = CreateOpenAIChatModel();
-
-        IsReducibleFn is_reducible = [](const std::vector<std::string>& data) {
+        IsReducibleFn is_reducible = [](const std::vector<std::string>& data, const std::string& delta) {
+            static int MAX_LEN = 16 * 1024;
             size_t total = 0;
             for(const auto& item: data) {
                 total += item.size();
             }
-            return total >= 16 * 1024;
+            return total + delta.size() >= MAX_LEN;
         };
     };
 

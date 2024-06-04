@@ -41,6 +41,10 @@ namespace INSTINCT_DATA_NS {
             for(auto& row: *query_result) {
                 auto *data = result.add_rows();
                 for (int i = 0; i < query_result->names.size(); i++) {
+                    if (row.iterator.chunk->GetValue(i, row.row).IsNull()) {
+                        LOG_DEBUG("null value found for aggregation query, row_id={}, column_id={}, column_name={}", row.row, i, query_result->names[i]);
+                        continue;
+                    }
                     if (query_result->types[i].IsIntegral()) {
                         data->mutable_int64()->emplace(query_result->names[i], row.GetValue<int64_t>(i));
                     } else if (query_result->types[i].IsNumeric()) {
