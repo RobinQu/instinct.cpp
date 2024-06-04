@@ -68,7 +68,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     }
 
 
-    using IsReducible = std::function<bool(const std::vector<std::string>& data)>;
+    using IsReducibleFn = std::function<bool(const std::vector<std::string>& data)>;
 
     /**
      * Create summary with document source in map-reduce manner
@@ -80,7 +80,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     static std::future<std::string> CreateSummary(
         const AsyncIterator<std::string>& source,
         const SummaryChainPtr& chain,
-        const IsReducible& is_reducible_fn) {
+        const IsReducibleFn& is_reducible_fn) {
         assert_true(is_reducible_fn, "should provide is_reducible_fn");
         return std::async(std::launch::async, [source,is_reducible_fn,chain] {
             const auto map_itr = rpp::source::create<std::vector<std::string>>([&,source](const  rpp::dynamic_observer<std::vector<std::string>>& ob) {
@@ -115,7 +115,13 @@ namespace INSTINCT_RETRIEVAL_NS {
             // recursively call
             return CreateSummary(rpp::source::from_iterable(summaries), chain, is_reducible_fn).get();
         });
+    }
 
+    static std::future<std::string> CreateSummary(
+        const AsyncIterator<Document>& source,
+        const SummaryChainPtr& chain,
+        const IsReducibleFn& is_reducible_fn) {
+        return  CreateSummary(source | rpp::ops::map([](const Document& doc) {return doc.text();}), chain, is_reducible_fn);
     }
 }
 

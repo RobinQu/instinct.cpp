@@ -897,6 +897,8 @@ message ModifyVectorStoreFileRequest {
   VectorStoreFileStatus status = 6;
 
   VectorStoreFileError last_error = 7;
+
+  string summary = 8;
 }
 
 message DeleteVectorStoreFileRequest {
@@ -930,6 +932,7 @@ message VectorStoreFileObject { // CreateVectorFileResponse
   VectorStoreFileStatus status = 6;
   VectorStoreFileError last_error = 7;
   string file_batch_id = 8;
+  string summary = 9; // extra field for summary which doesn't exist in original API
 }
 
 message CreateVectorStoreFileRequest {

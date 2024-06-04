@@ -77,6 +77,13 @@ message SearchResponse {
 
 }
 
+message FindRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+  SearchQuery query = 3;
+  repeated Sorter sorters = 4;
+}
+
 message UpdateResult {
   int32 affected_rows = 1;
   repeated string returned_ids = 2;

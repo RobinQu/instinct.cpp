@@ -180,7 +180,9 @@ namespace INSTINCT_RETRIEVAL_NS {
             sql += StringUtils::JoinWith(predicates, " AND ");
         }
 
-        static void build_sorters(const std::vector<Sorter>& sorters, std::string& sql) {
+        template<typename R>
+        requires RangeOf<R, Sorter>
+        static void build_sorters(R&& sorters, std::string& sql) {
             if (sorters.empty()) return;
             std::vector<std::string> sort_strings;
             for(const auto& sorter: sorters) {
@@ -199,11 +201,13 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     class SQLBuilder {
     public:
+        template<typename R>
+        requires RangeOf<R, Sorter>
         static std::string ToSelectString(
             const std::string& table_name,
             const std::string& column_list,
             const SearchQuery& search_query,
-            const std::vector<Sorter>& sorters = {},
+            R&& sorters = {},
             const int offset = -1,
             const int limit = -1) {
             std::vector<std::string> parts = {"SELECT", column_list, "FROM", table_name};
@@ -213,7 +217,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 details::build_search_query(search_query, sql);
                 parts.push_back(sql);
             }
-            if (!sorters.empty()) {
+            if (!std::ranges::empty(sorters)) {
                 std::string sql;
                 details::build_sorters(sorters, sql);
                 parts.push_back(sql);

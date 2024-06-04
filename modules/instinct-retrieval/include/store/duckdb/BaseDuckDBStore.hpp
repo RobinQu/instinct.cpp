@@ -347,8 +347,16 @@ namespace INSTINCT_RETRIEVAL_NS {
             return connection_;
         }
 
-        Connection MakeConnection() {
+        [[nodiscard]] Connection MakeConnection() const {
             return std::move(Connection(*db_));
+        }
+
+        AsyncIterator<Document> FindDocuments(const FindRequest &find_request) override {
+            const auto sql = SQLBuilder::ToSelectString(options_.table_name, "*", find_request.query(), find_request.sorters());
+            LOG_DEBUG("FindDocuments with sql: {}", sql);
+            auto result = GetConnection().Query(sql);
+            assert_query_ok(result);
+            return details::conv_query_result_to_iterator(std::move(result), metadata_schema_);
         }
 
         AsyncIterator<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {

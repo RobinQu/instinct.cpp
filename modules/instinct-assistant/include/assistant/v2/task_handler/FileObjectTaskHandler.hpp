@@ -22,6 +22,7 @@
 
 
 #include "RetrieverObjectFactory.hpp"
+#include "chain/SummaryChain.hpp"
 #include "tools/file_vault/TempFile.hpp"
 
 
@@ -30,7 +31,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_RETRIEVAL_NS;
 
     struct FileObjectTaskHandlerOptions {
-
+        size_t summary_input_max_size = 16 * 1064;
     };
 
     class FileObjectTaskHandler final: public CommonTaskScheduler::ITaskHandler {
@@ -38,13 +39,22 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         VectorStoreServicePtr vector_store_service_;
         FileServicePtr file_service_;
         FileObjectTaskHandlerOptions options_;
-
+        SummaryChainPtr summary_chain_;
+        IsReducibleFn reducible_fn_;
     public:
         FileObjectTaskHandler(RetrieverOperatorPtr retriever_operator, VectorStoreServicePtr vector_store_service, FileServicePtr file_service, FileObjectTaskHandlerOptions options)
             : retriever_operator_(std::move(retriever_operator)),
               vector_store_service_(std::move(vector_store_service)),
               file_service_(std::move(file_service)),
               options_(std::move(options)){
+            // TODO use tokenizer to calculate length
+            reducible_fn_ = [&](const std::vector<std::string>& data) {
+                size_t total = 0;
+                for(const auto& t: data) {
+                    total += t.size();
+                }
+                return total >= options_.summary_input_max_size;
+            };
         }
 
         static inline std::string CATEGORY = "run_object";
@@ -64,27 +74,38 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             modify_vector_store_file_request.set_status(in_progress);
             assert_true(vector_store_service_->ModifyVectorStoreFile(modify_vector_store_file_request), "should have VectorStoreFileObject updated");
 
+
             try {
                 GetVectorStoreRequest get_vector_store_request;
                 get_vector_store_request.set_vector_store_id(file_object.vector_store_id());
                 const auto vs_object = vector_store_service_->GetVectorStore(get_vector_store_request);
                 assert_true(vs_object, "should have found VectorStoreObject for file");
 
+                // load docs into vdb
                 const auto retriever = retriever_operator_->GetStatefulRetriever(vs_object.value());
                 TempFile temp_file;
                 const auto ingestor = BuildIngestor_(file_object, temp_file);
                 assert_true(ingestor, "should have created ingestor for file");
-                retriever->Ingest(ingestor->Load());
+                const auto splitter = CreateRecursiveCharacterTextSplitter();
+                retriever->Ingest(ingestor->LoadWithSplitter(splitter));
+
+                // generate summary
+                FindRequest find_request;
+                find_request.mutable_query()->mutable_term()->set_name(VECTOR_STORE_FILE_ID_KEY);
+                find_request.mutable_query()->mutable_term()->mutable_term()->set_string_value(file_object.file_id());
+                const auto doc_itr = retriever->GetDocStore()->FindDocuments(find_request);
+                const auto summary = CreateSummary(doc_itr, summary_chain_, reducible_fn_).get();
+                modify_vector_store_file_request.set_summary(summary);
+                LOG_DEBUG("summary for file {}: {}", file_object.file_id(), summary);
+                modify_vector_store_file_request.set_status(completed);
             } catch (...) {
                 modify_vector_store_file_request.set_status(failed);
                 modify_vector_store_file_request.mutable_last_error()->set_code(CommonErrorType::server_error);
                 // TODO to print error log
                 LOG_ERROR("File ingestion failed for {}", file_object.ShortDebugString());
                 modify_vector_store_file_request.mutable_last_error()->set_message("File ingestion failed");
-                vector_store_service_->ModifyVectorStoreFile(modify_vector_store_file_request);
             }
 
-            modify_vector_store_file_request.set_status(completed);
             vector_store_service_->ModifyVectorStoreFile(modify_vector_store_file_request);
         }
 
