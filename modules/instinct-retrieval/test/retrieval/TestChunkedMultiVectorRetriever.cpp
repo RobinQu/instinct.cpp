@@ -5,6 +5,7 @@
 
 #include "retrieval/ChunkedMultiVectorRetriever.hpp"
 #include "RetrievalTestGlobals.hpp"
+#include "RetrieverObjectFactory.hpp"
 #include "store/duckdb/DuckDBDocStore.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
 #include "document/RecursiveCharacterTextSplitter.hpp"
@@ -50,7 +51,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             // load all recipes in folder
             const auto recipes_dir = asset_dir_  / "recipes";
             std::cout << "reading recipes from " << recipes_dir << std::endl;
-            recipes_ingestor_ = CreateDirectoryTreeIngestor(recipes_dir);
+            recipes_ingestor_ = RetrieverObjectFactory::CreateDirectoryTreeIngestor(recipes_dir);
         }
 
 

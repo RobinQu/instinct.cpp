@@ -70,7 +70,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
 
-    static IngestorPtr CreateDOCXFileIngestor(const std::filesystem::path& file_path, const DocumentPostProcessor& document_post_processor, const std::string& parent_doc_id = ROOT_DOC_ID) {
+    static IngestorPtr CreateDOCXFileIngestor(const std::filesystem::path& file_path, const DocumentPostProcessor& document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID) {
         return std::make_shared<DOCXFileIngestor>(file_path, document_post_processor, parent_doc_id);
     }
 

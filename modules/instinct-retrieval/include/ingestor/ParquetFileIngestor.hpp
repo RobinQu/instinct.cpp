@@ -110,7 +110,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         ParquetFileIngestorOptions options_;
     public:
         NaiveParquetFileIngestor(const std::string &file_source,
-            const std::vector<ParquetColumnMapping> &column_mapping, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID, const ParquetFileIngestorOptions& options)
+            const std::vector<ParquetColumnMapping> &column_mapping, const ParquetFileIngestorOptions& options = {}, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID)
             : BaseParquetFileIngestor(file_source, column_mapping, document_post_processor, parent_doc_id), options_(options) {
         }
 
@@ -124,8 +124,8 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
 
-    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::vector<ParquetColumnMapping> &column_mapping, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID, const ParquetFileIngestorOptions& options = {}) {
-        return std::make_shared<NaiveParquetFileIngestor>(file_source, column_mapping, document_post_processor, parent_doc_id,  options);
+    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::vector<ParquetColumnMapping> &column_mapping, const ParquetFileIngestorOptions& options = {}, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID) {
+        return std::make_shared<NaiveParquetFileIngestor>(file_source, column_mapping, options, document_post_processor, parent_doc_id);
     }
 
     /**
@@ -133,10 +133,11 @@ namespace INSTINCT_RETRIEVAL_NS {
      * @param file_source remote or local file source
      * @param mapping_string string literals that describes column mappings. e.g. "0:t,1:m:parent_doc_id:int64,3:m:source:varchar"
      * @param document_post_processor
+     * @param parent_doc_id
      * @param options
      * @return 
      */
-    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::string& mapping_string, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID, const ParquetFileIngestorOptions& options = {}) {
+    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::string& mapping_string, const ParquetFileIngestorOptions& options = {}, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID) {
         std::vector<ParquetColumnMapping> mappings;
 
         bool found_text;
@@ -191,7 +192,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         assert_true(found_text, "should have text column specified");
 
-        return CreateParquetIngestor(file_source, mappings, document_post_processor, parent_doc_id, options);
+        return CreateParquetIngestor(file_source, mappings, options, document_post_processor, parent_doc_id);
     }
 
 }
