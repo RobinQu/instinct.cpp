@@ -93,7 +93,7 @@ namespace INSTINCT_CORE_NS {
             });
         }
 
-        static  RepeatedPtrField<PrimitiveVariable>::const_iterator GetMetadataFieldValue(const Document& document, const std::string& name) {
+        static  google::protobuf::RepeatedPtrField<PrimitiveVariable>::const_iterator GetMetadataFieldValue(const Document& document, const std::string& name) {
             for(auto itr=document.metadata().begin(); itr!=document.metadata().end();++itr) {
                 if (itr->name() == name) {
                     return itr;

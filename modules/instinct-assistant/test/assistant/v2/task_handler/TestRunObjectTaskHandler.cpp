@@ -25,10 +25,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             .temperature = 0
         });
         EmbeddingsPtr embedding_model_ = CreateOpenAIEmbeddingModel(
-        // {
-        //         .endpoint = {.host = "localhost", .port = 8000, .protocol = kHTTP},
-        //         .dimension = 768
-        //     }
+            // {
+            //     .endpoint = {.host = "localhost", .port = 8000, .protocol = kHTTP},
+            //     .dimension = 768
+            // }
         );
         VectorStoreOperatorPtr vector_store_operator_ = CreateDuckDBStoreOperator(duck_db_, embedding_model_, vector_store_metadata_data_mapper_);
         RetrieverOperatorPtr retriever_operator_ = CreateSimpleRetrieverOperator(vector_store_operator_, duck_db_, {.table_name = "docs_" + ChronoUtils::GetCurrentTimestampString()});
