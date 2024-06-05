@@ -18,11 +18,11 @@ namespace INSTINCT_LLM_NS {
      * named context variables are:
      * 1. question: user input
      * 2. num_tools: number of tools
-     * 3. tool_descriptions: fomrated list of tool descriptions
+     * 3. tool_descriptions: formated list of tool descriptions
      * 4. replan_instruction: re-planing instruction if applicable
      * 5. context: context for re-planing if applicable
      *
-     * Implmentations:
+     * Implementations:
      * 1. if last step doesn't exist, then let's do first plan
      * 2. if last step has observation (except join), we do join
      * 2.1 if `join` gives out final result, we return thought with final message
@@ -45,8 +45,8 @@ namespace INSTINCT_LLM_NS {
 Guidelines:
 - Each action MUST have a unique ID, which is strictly increasing.
 - Ensure the plan maximizes parallelization.
-- Respond with the task list and each task takes one and only one line in the following format: ID. action_name(JSON blob of action input without new line).
-- If inputs for actions are outputs from preceding actions,  always use the format $ID to denote the ID of the previous action whose output will be used as the input.
+- Respond with the task list and each task takes one and only one line in the following format: ID. action_name(input arguments in JSON format, without newline).
+- If inputs for actions are outputs from preceding actions,  always use the format $ID to denote the numeric ID of the previous action whose output will be used as the input.
 - Only use the provided action types. If a query cannot be addressed using these, invoke the join action for the next steps.
 - Never introduce new actions other than the ones provided.
 - Each action described above contains input/output types and description.
@@ -60,7 +60,7 @@ Guidelines:
 - Always call join as the last action in the plan only once. Say '<END_OF_PLAN>' after you call join in a new line.
 {replan}
 
-{exmaples}
+{examples}
 
 Question: {question}
 

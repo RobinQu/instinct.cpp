@@ -21,9 +21,22 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         MessageServicePtr message_service_ = CreateMessageService();
         AssistantServicePtr assistant_service_ = CreateAssistantService();
         ThreadServicePtr thread_service_ = CreateThreadService();
-        FunctionToolkitPtr builtin_toolkit_ = CreateLocalToolkit({});
-        ChatModelPtr chat_model_ = CreateOpenAIChatModel();
-
+        ChatModelPtr chat_model_ = CreateOpenAIChatModel({
+            .temperature = 0
+        });
+        EmbeddingsPtr embedding_model_ = CreateOpenAIEmbeddingModel(
+        // {
+        //         .endpoint = {.host = "localhost", .port = 8000, .protocol = kHTTP},
+        //         .dimension = 768
+        //     }
+        );
+        VectorStoreOperatorPtr vector_store_operator_ = CreateDuckDBStoreOperator(duck_db_, embedding_model_, vector_store_metadata_data_mapper_);
+        RetrieverOperatorPtr retriever_operator_ = CreateSimpleRetrieverOperator(vector_store_operator_, duck_db_, {.table_name = "docs_" + ChronoUtils::GetCurrentTimestampString()});
+        VectorStoreServicePtr vector_store_service_ = CreateVectorStoreService(nullptr, retriever_operator_);
+        FileServicePtr file_service_ = CreateFileService();
+        std::filesystem::path asset_dir_ = std::filesystem::current_path() / "_assets";
+        SummaryChainPtr summary_chain = CreateSummaryChain(chat_model_);
+        FileObjectTaskHandler file_object_task_handler {retriever_operator_, vector_store_service_, file_service_, summary_chain};
 
         std::shared_ptr<RunObjectTaskHandler> CreateTaskHandler() {
             LLMProviderOptions llm_provider_options;
@@ -32,12 +45,50 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 run_service_,
                 message_service_,
                 assistant_service_,
-                nullptr,
-                nullptr,
+                retriever_operator_,
+                vector_store_service_,
                 thread_service_,
                 llm_provider_options,
                 agent_executor_options
             );
+        }
+
+        std::string UploadFileSearchResource_(const VectorStoreObject& vector_store_object, const std::filesystem::path& file_path) {
+            // upload pdf file
+            UploadFileRequest upload_file_request;
+            upload_file_request.set_filename(file_path.filename());
+            upload_file_request.set_purpose(FileObjectPurpose::assistants);
+            std::fstream fstream  {file_path, std::ios::binary | std::ios::in};
+            const auto file_object1 = file_service_->UploadFile(upload_file_request, fstream);
+            fstream.close();
+            // ASSERT_TRUE(file_object1);
+
+            // create vs_file
+            CreateVectorStoreFileRequest create_vector_store_file_request;
+            create_vector_store_file_request.set_file_id(file_object1->id());
+            create_vector_store_file_request.set_vector_store_id(vector_store_object.id());
+            const auto vector_store_file_object1 = vector_store_service_->CreateVectorStoreFile(create_vector_store_file_request);
+            // ASSERT_TRUE(vector_store_file_object1);
+            LOG_INFO("vector_store_file_object1={}", vector_store_file_object1->ShortDebugString());
+
+            CommonTaskScheduler::Task task {
+                .task_id = vector_store_file_object1->file_id(),
+                .category =  FileObjectTaskHandler::CATEGORY,
+                .payload = ProtobufUtils::Serialize(vector_store_file_object1.value())
+            };
+
+            // test handle
+            file_object_task_handler.Handle(task);
+
+            // validate vs_file
+            GetVectorStoreFileRequest get_vector_store_file_request;
+            get_vector_store_file_request.set_vector_store_id(vector_store_object.id());
+            get_vector_store_file_request.set_file_id(vector_store_file_object1->file_id());
+            const auto vector_store_file2 = vector_store_service_->GetVectorStoreFile(get_vector_store_file_request);
+            LOG_INFO("vector_store_file2={}", vector_store_file2->ShortDebugString());
+            assert_true(vector_store_file2->status() == completed);
+
+            return file_object1->id();
         }
     };
 
@@ -270,7 +321,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         ASSERT_TRUE(finish_step3.is_failed());
     }
 
-    TEST_F(TestRunObjectTaskHandler, SimpleTaskHandling) {
+    TEST_F(TestRunObjectTaskHandler, TaskWithFunctionCalls) {
         // create tools
         FunctionToolkitPtr tool_kit = CreateLocalToolkit(
             std::make_shared<GetFlightPriceTool>(),
@@ -387,6 +438,57 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         ASSERT_TRUE(StringUtils::IsNotBlankString(obj6->content(0).text().value()));
     }
 
+    TEST_F(TestRunObjectTaskHandler, TaskWithFileSearch) {
+        // create vs
+        CreateVectorStoreRequest create_vector_store_request;
+        create_vector_store_request.set_name("test-vs");
+        const auto vector_store_object1 = vector_store_service_->CreateVectorStore(create_vector_store_request);
+        // ASSERT_TRUE(vector_store_object1);
+        LOG_INFO("vector_store_object1={}", vector_store_object1->ShortDebugString());
 
+        // add file
+        const auto file_id_1 = UploadFileSearchResource_(vector_store_object1.value(), asset_dir_ / "Antimonumento 5J .txt");
+        const auto file_id_2 = UploadFileSearchResource_(vector_store_object1.value(), asset_dir_ / "Double sovereign.txt");
+        LOG_INFO("file ids: {}, {}", file_id_1, file_id_2);
+
+        AssistantObject create_assistant_request;
+        create_assistant_request.add_tools()->set_type(file_search);
+        create_assistant_request.mutable_tool_resources()
+            ->mutable_file_search()
+            ->add_vector_store_ids(vector_store_object1->id());
+        create_assistant_request.set_model("gpt-3.5-turbo");
+
+        const auto obj1 = assistant_service_->CreateAssistant(create_assistant_request);
+        LOG_INFO("CreateAssistant returned: {}", obj1->ShortDebugString());
+
+        // create thread and run
+        const std::string prompt_line = "What makes coins of double sovereign special?";
+        CreateThreadAndRunRequest create_thread_and_run_request1;
+        create_thread_and_run_request1.set_assistant_id(obj1->id());
+        auto* msg = create_thread_and_run_request1.mutable_thread()->add_messages();
+        msg->set_role(user);
+        msg->set_content(prompt_line);
+        const auto obj2 = run_service_->CreateThreadAndRun(create_thread_and_run_request1);
+        LOG_INFO("CreateThreadAndRun returned: {}", obj2->ShortDebugString());
+
+        // create handler and task
+        const auto task_handler = CreateTaskHandler();
+        CommonTaskScheduler::Task task {
+            .task_id = obj2->id(),
+            .category =  RunObjectTaskHandler::CATEGORY,
+            .payload = ProtobufUtils::Serialize(obj2.value())
+        };
+
+        // test handling
+        task_handler->Handle(task);
+
+        GetRunRequest get_run_request;
+        get_run_request.set_thread_id(obj2->thread_id());
+        get_run_request.set_run_id(obj2->id());
+        auto obj3 = run_service_->RetrieveRun(get_run_request);
+        ASSERT_EQ(obj3->status(), RunObject_RunObjectStatus_completed);
+
+
+    }
 
 }

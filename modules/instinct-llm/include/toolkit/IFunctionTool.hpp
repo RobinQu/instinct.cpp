@@ -37,6 +37,8 @@ namespace INSTINCT_LLM_NS {
          */
         virtual FunctionToolSelfCheckResponse SelfCheck() = 0;
 
+        virtual std::string GetExample() = 0;
+
     };
 }
 

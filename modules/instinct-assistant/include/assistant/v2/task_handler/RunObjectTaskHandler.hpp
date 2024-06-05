@@ -82,20 +82,32 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             modify_run_request.set_thread_id(run_object.thread_id());
             modify_run_request.set_status(RunObject_RunObjectStatus_in_progress);
             modify_run_request.set_started_at(ChronoUtils::GetCurrentEpochMicroSeconds());
-            // expect to expire at 10 miniutes later
+            // expect to expire at 10 minutes later
             modify_run_request.set_expires_at(ChronoUtils::GetLaterEpoch<std::chrono::microseconds>(10min));
             if(!run_service_->ModifyRun(modify_run_request)) {
                 LOG_ERROR("Illegal response for updating run object: {}", run_object.ShortDebugString());
                 return;
             }
 
-            const auto state_opt = RecoverAgentState(run_object);
+            GetAssistantRequest get_assistant_request;
+            get_assistant_request.set_assistant_id(run_object.assistant_id());
+            const auto assistant_obj = assistant_service_->RetrieveAssistant(get_assistant_request);
+            assert_true(assistant_obj, fmt::format("Failed to get assistant object with id: {}", run_object.assistant_id()));
+            GetThreadRequest get_thread_request;
+            get_thread_request.set_thread_id(run_object.thread_id());
+            const auto thread_obj = thread_service_->RetrieveThread(get_thread_request);
+            assert_true(thread_obj, fmt::format("Thread is missing. id={}", run_object.thread_id()));
+
+            // build local toolkit
+            const auto local_toolkit = BuildBuiltInToolkits_(assistant_obj.value(), thread_obj.value());
+
+            const auto state_opt = RecoverAgentState(run_object, local_toolkit);
             if (!state_opt) {
                 LOG_ERROR("Failed to recover state with run object: {}", run_object.ShortDebugString());
                 return;
             }
 
-            const auto executor = BuildAgentExecutor_(run_object);
+            const auto executor = BuildAgentExecutor_(run_object, assistant_obj.value(), local_toolkit);
             if(!executor) {
                 LOG_ERROR("Failed to create agent executor with run object: {}", run_object.ShortDebugString());
                 return;
@@ -160,17 +172,41 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
 
-        [[nodiscard]] std::optional<AgentState> RecoverAgentState(const RunObject& run_object) const {
+        [[nodiscard]] std::optional<AgentState> RecoverAgentState(
+            const RunObject& run_object,
+            const FunctionToolkitPtr& local_toolkit = nullptr) const {
             AgentState state;
             if (!LoadAgentStateFromRun_(run_object, state)) {
                 LOG_ERROR("Cannot load agent state from run object: {}", run_object.ShortDebugString());
                 return std::nullopt;
             }
 
-            // load function tools
-            if (!LoadFunctionTools_(run_object, state)) {
-                LOG_ERROR("Cannot load function tool schamas for agent state from run object: {}", run_object.ShortDebugString());
-                return std::nullopt;
+            std::vector<FunctionTool> function_tools;
+            // 1. find tools on assistant
+            GetAssistantRequest get_assistant_request;
+            get_assistant_request.set_assistant_id(run_object.assistant_id());
+            // 2. find tools on run object
+            for (const auto& assistant_tool: run_object.tools()) {
+                if (assistant_tool.type() == function) {
+                    function_tools.push_back(assistant_tool.function());
+                }
+            }
+
+            // 3. add schema from local toolkit
+            if (local_toolkit) {
+                for(const auto& local_tool: local_toolkit->GetAllFunctionToolSchema()) {
+                    function_tools.push_back(local_tool);
+                }
+            }
+
+            // 4. filter and transform to function tool schema
+            const auto ret = std::ranges::unique(function_tools, [](const FunctionTool& a, const FunctionTool& b) {
+                return a.name() == b.name();
+            });
+            function_tools.erase(ret.begin(), ret.end());
+            LOG_DEBUG("Found {} function tools for run object: {}", function_tools.size(), run_object.ShortDebugString());
+            for (auto& function_tool: function_tools) {
+                state.mutable_function_tools()->Add()->CopyFrom(function_tool);
             }
 
             return state;
@@ -194,34 +230,29 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         /**
          * Just return `OpenAIToolAgentExecutor`
          * @param run_object
+         * @param assistant_obj
+         * @param local_toolkit
          * @return
          */
-        [[nodiscard]] AgentExecutorPtr BuildAgentExecutor_(const RunObject& run_object) const {
-            GetAssistantRequest get_assistant_request;
-            get_assistant_request.set_assistant_id(run_object.assistant_id());
-            const auto assistant_obj = assistant_service_->RetrieveAssistant(get_assistant_request);
-            if (!assistant_obj) {
-                LOG_ERROR("Failed to get assistant object with id: {}", run_object.assistant_id());
-                return nullptr;
-            }
+        [[nodiscard]] AgentExecutorPtr BuildAgentExecutor_(const RunObject& run_object, const AssistantObject& assistant_obj, const FunctionToolkitPtr& local_toolkit) const {
 
             // load model options from user objects
             const auto chat_model = LLMObjectFactory::CreateChatModel(llm_provider_options_);
             ModelOverrides model_overrides;
             if (StringUtils::IsNotBlankString(run_object.model())) {
                 model_overrides.model_name = run_object.model();
-            } else if(StringUtils::IsNotBlankString(assistant_obj->model())) {
-                model_overrides.model_name = assistant_obj->model();
+            } else if(StringUtils::IsNotBlankString(assistant_obj.model())) {
+                model_overrides.model_name = assistant_obj.model();
             }
             if (run_object.has_temperature()) {
                 model_overrides.temperature = run_object.temperature();
-            } else if (assistant_obj->has_temperature()) {
-                model_overrides.temperature = assistant_obj->temperature();
+            } else if (assistant_obj.has_temperature()) {
+                model_overrides.temperature = assistant_obj.temperature();
             }
             if (run_object.has_top_p()) {
                 model_overrides.top_p = run_object.top_p();
-            } else if(assistant_obj->has_top_p()) {
-                model_overrides.top_p = assistant_obj->top_p();
+            } else if(assistant_obj.has_top_p()) {
+                model_overrides.top_p = assistant_obj.top_p();
             }
             model_overrides.stop_words =  {"<END_OF_PLAN>", "<END_OF_RESPONSE>"};
             chat_model->Configure(model_overrides);
@@ -231,8 +262,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             std::optional<std::string> instructions;
             if (StringUtils::IsNotBlankString(run_object.instructions())) {
                 instructions = run_object.instructions();
-            } else if(StringUtils::IsNotBlankString(assistant_obj->instructions())) {
-                instructions = assistant_obj->instructions();
+            } else if(StringUtils::IsNotBlankString(assistant_obj.instructions())) {
+                instructions = assistant_obj.instructions();
             }
             // TODO configure method for agent executor
             if(instructions) {
@@ -242,29 +273,20 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 return CheckRunObjectForExecution_(run_object.thread_id(), run_object.id(), state, step);
             };
 
-            // build file search tools
-            GetThreadRequest get_thread_request;
-            get_thread_request.set_thread_id(run_object.thread_id());
-            const auto thread_obj = thread_service_->RetrieveThread(get_thread_request);
-            assert_true(thread_obj, fmt::format("Thread is missing. id={}", run_object.thread_id()));
-            std::vector<FunctionToolPtr> tools;
-            AddFileSearchTools_(assistant_obj.value(), run_object, thread_obj.value(), tools);
-
             // create agent executor
             return  LLMObjectFactory::CreateAgentExecutor(
                 agent_options,
                 chat_model,
                 stop_predicate,
-                tools.empty() ? std::vector<FunctionToolkitPtr> {} : std::vector {CreateLocalToolkit(tools)}
+                local_toolkit ? std::vector {local_toolkit} : std::vector<FunctionToolkitPtr> {}
                 );
         }
 
-        void AddFileSearchTools_(
-            const AssistantObject& assistant_object,
-            const RunObject& run_object,
-            const ThreadObject& thread_object,
-            std::vector<FunctionToolPtr>& tools
+        [[nodiscard]] FunctionToolkitPtr BuildBuiltInToolkits_(
+                const AssistantObject& assistant_object,
+                const ThreadObject& thread_object
             ) const {
+            std::vector<FunctionToolPtr> tools;
             bool has_file_search = false;
             for(const auto& tool: assistant_object.tools()) {
                 if (tool.type() == file_search) {
@@ -272,25 +294,28 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 }
             }
             // if file_search is not enabled by assistant, let's exit
-            if(!has_file_search) return;
-            assert_true(assistant_object.tool_resources().file_search().vector_store_ids_size()>0, "should have at least one VectorStore");
+            if(has_file_search) {
+                assert_true(assistant_object.tool_resources().file_search().vector_store_ids_size()>0, "should have at least one VectorStore");
 
-            std::vector<std::string> vs_id_list;
-            // add VS on assistant
-            vs_id_list.push_back(assistant_object.tool_resources().file_search().vector_store_ids(0));
-            // add VS on thread if any
-            if (thread_object.tool_resources().has_file_search() && thread_object.tool_resources().file_search().vector_store_ids_size()>0) {
-                vs_id_list.push_back(thread_object.tool_resources().file_search().vector_store_ids(0));
+                std::vector<std::string> vs_id_list;
+                // add VS on assistant
+                vs_id_list.push_back(assistant_object.tool_resources().file_search().vector_store_ids(0));
+                // add VS on thread if any
+                if (thread_object.tool_resources().has_file_search() && thread_object.tool_resources().file_search().vector_store_ids_size()>0) {
+                    vs_id_list.push_back(thread_object.tool_resources().file_search().vector_store_ids(0));
+                }
+                // find files
+                const auto related_files = vector_store_service_->ListAllVectorStoreObjectFiles(vs_id_list);
+                const auto retriever = retriever_operator_->GetStatelessRetriever(vs_id_list);
+                const auto file_search_tool = CreateSummaryGuidedFileSearch(
+                    CreateLocalRankingModel(ModelType::BGE_M3_RERANKER),
+                    retriever,
+                    related_files
+                    );
+                tools.push_back(file_search_tool);
             }
-            // find files
-            const auto related_files = vector_store_service_->ListAllVectorStoreObjectFiles(vs_id_list);
-            const auto retriever = retriever_operator_->GetStatelessRetriever(vs_id_list);
-            const auto file_search_tool = CreateSummaryGuidedFileSearch(
-                CreateLocalRankingModel(ModelType::BGE_M3_RERANKER),
-                retriever,
-                related_files
-                );
-            tools.push_back(file_search_tool);
+
+            return tools.empty() ? nullptr : CreateLocalToolkit(tools);
         }
 
         /**
@@ -672,44 +697,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             return std::nullopt;
         }
 
-
-        bool LoadFunctionTools_(const RunObject& run_object, AgentState& state) const {
-            std::vector<FunctionTool> function_tools;
-            // 1. find tools on assistant
-            GetAssistantRequest get_assistant_request;
-            get_assistant_request.set_assistant_id(run_object.assistant_id());
-            const auto assistant = assistant_service_->RetrieveAssistant(get_assistant_request);
-
-            if (!assistant) {
-                LOG_ERROR("Cannot find assistant object for run_object: {}", run_object.ShortDebugString());
-                return false;
-            }
-
-            for (const auto& assistant_tool: assistant->tools()) {
-                if (assistant_tool.type() == function) {
-                    function_tools.push_back(assistant_tool.function());
-                }
-            }
-
-            // 2. find tools on run object
-            for (const auto& assistant_tool: run_object.tools()) {
-                if (assistant_tool.type() == function) {
-                    function_tools.push_back(assistant_tool.function());
-                }
-            }
-
-            // 3. filter and transfrom to function tool schema
-            const auto ret = std::ranges::unique(function_tools, [](const FunctionTool& a, const FunctionTool& b) {
-                return a.name() == b.name();
-            });
-            function_tools.erase(ret.begin(), ret.end());
-            LOG_DEBUG("Found {} function tools for run object: {}", function_tools.size(), run_object.ShortDebugString());
-            for (auto& function_tool: function_tools) {
-                state.mutable_function_tools()->Add()->CopyFrom(function_tool);
-            }
-            return true;
-        }
-
         /**
          * this function is called when run object is in static state. It means no messages are generating and function tools are running.
          * @param run_object
@@ -796,10 +783,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         openai_observation->mutable_custom()->CopyFrom(step.step_details().custom());
                         for (const auto& tool_call: step.step_details().tool_calls()) {
                             if (tool_call.type() == function) {
-                                auto* tool_messsage = openai_observation->add_tool_messages();
-                                tool_messsage->set_content(tool_call.function().output());
-                                tool_messsage->set_role("tool");
-                                tool_messsage->set_tool_call_id(tool_call.id());
+                                auto* tool_message = openai_observation->add_tool_messages();
+                                tool_message->set_content(tool_call.function().output());
+                                tool_message->set_role("tool");
+                                tool_message->set_tool_call_id(tool_call.id());
                             }
                         }
                     }

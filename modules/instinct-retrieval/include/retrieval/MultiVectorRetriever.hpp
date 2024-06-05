@@ -64,16 +64,13 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         [[nodiscard]] AsyncIterator<Document> Retrieve(const SearchRequest& search_request) const override {
-            // result can be less than `top_k`.
             return vector_store_->SearchDocuments(search_request)
                 | rpp::operators::reduce(std::unordered_set<std::string> {}, [&](std::unordered_set<std::string>&& seed, const Document& doc) {
                     // backtrace id of parent doc
-                    for(const auto& metadata_field: doc.metadata()) {
-                        if (metadata_field.name() == METADATA_SCHEMA_PARENT_DOC_ID_KEY) {
-                            LOG_DEBUG("guidance doc found, id={}, parent_doc_id={}", doc.id(), metadata_field.string_value());
-                            seed.insert(metadata_field.string_value());
-                        }
-                    }
+                    const auto parent_doc_field_itr = DocumentUtils::GetMetadataFieldValue(doc, METADATA_SCHEMA_FILE_SOURCE_KEY);
+                    assert_true(parent_doc_field_itr!=doc.metadata().end() && StringUtils::IsNotBlankString(parent_doc_field_itr->string_value()), "should have found parent_doc_id in parent doc's metadata");
+                    LOG_DEBUG("guidance doc found, id={}, parent_doc_id={}", doc.id(), parent_doc_field_itr->string_value());
+                    seed.insert(parent_doc_field_itr->string_value());
                     return std::move(seed);
                 })
                 | rpp::operators::flat_map([&](const std::unordered_set<std::string>& parent_ids) {

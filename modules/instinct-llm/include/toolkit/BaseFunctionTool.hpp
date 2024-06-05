@@ -52,6 +52,10 @@ namespace INSTINCT_LLM_NS {
             return response;
         }
 
+        std::string GetExample() override {
+            return "";
+        }
+
     private:
         FunctionToolResult InvokeWithRetry_(const ToolCallObject &invocation, const uint8_t retry_count) {
             // if (retry_count > options_.max_attempts) {

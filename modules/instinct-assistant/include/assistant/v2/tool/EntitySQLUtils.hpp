@@ -40,8 +40,8 @@ insert into instinct_assistant(
 {% if exists("tools") %}
     , tools
 {% endif %}
-{% if exists("tool_resourecs") %}
-    , tool_resourecs
+{% if exists("tool_resources") %}
+    , tool_resources
 {% endif %}
     , response_format
 {% if exists("metadata") %}
@@ -58,7 +58,7 @@ insert into instinct_assistant(
 {% if exists("tools") %}
     , {{stringify(tools)}}
 {% endif %}
-{% if exists("tool_resourecs") %}
+{% if exists("tool_resources") %}
     , {{stringify(tool_resources)}}
 {% endif %}
     , {{text(response_format)}}

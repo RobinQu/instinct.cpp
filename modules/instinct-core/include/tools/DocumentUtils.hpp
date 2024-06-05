@@ -93,6 +93,15 @@ namespace INSTINCT_CORE_NS {
             });
         }
 
+        static  RepeatedPtrField<PrimitiveVariable>::const_iterator GetMetadataFieldValue(const Document& document, const std::string& name) {
+            for(auto itr=document.metadata().begin(); itr!=document.metadata().end();++itr) {
+                if (itr->name() == name) {
+                    return itr;
+                }
+            }
+            return document.metadata().end();
+        }
+
         static void AddMissingPresetMetadataFields(Document& document) {
             if(!HasMetadataField(document, METADATA_SCHEMA_PARENT_DOC_ID_KEY)) {
                 auto* metadata_field = document.add_metadata();

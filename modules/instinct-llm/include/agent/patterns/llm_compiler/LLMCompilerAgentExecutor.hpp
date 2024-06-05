@@ -158,7 +158,7 @@ namespace INSTINCT_LLM_NS {
                     }
                 }
 
-                // update result in taks graph
+                // update result in task graph
                 for(auto& task: *graph.mutable_tasks()) {
                     for(const auto& tool_message: observation_message.tool_messages()) {
                         if (tool_message.tool_call_id() == task.tool_call().id()) {

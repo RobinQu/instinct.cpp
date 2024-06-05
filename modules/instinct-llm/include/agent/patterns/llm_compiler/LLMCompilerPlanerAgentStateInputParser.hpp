@@ -41,8 +41,8 @@ namespace INSTINCT_LLM_NS {
                 tool_descriptions += fmt::format("{}. {}: {}, arguments JSON schema: {}", i,  function_tool.name(), function_tool.description(), ProtobufUtils::Serialize(function_tool.parameters()));
             }
 
-            // to check is_replan preciesely
-            bool replan = n>0 && agent_state.previous_steps(n-1).has_observation();
+            // to check is_replan precisely
+            const bool replan = n>0 && agent_state.previous_steps(n-1).has_observation();
             std::string context_string;
             if (replan) {
                 for (const auto& step: agent_state.previous_steps()) {
@@ -67,13 +67,17 @@ namespace INSTINCT_LLM_NS {
             // return context
             return CreateJSONContext({
                 {"question", prompt_input},
-                // plus for for extra `join` function
+                // plus for extra `join` function
                 {"num_tools", agent_state.function_tools_size() + 1 },
                 {"tool_descriptions", tool_descriptions},
                 {"replan", replan ? options_.replan_prompt: ""},
                 {"context", context_string},
                 // examples are needed for models less capable than GPT-3.5-turbo
-{"exmaples", ""}
+{"examples", R"(Example question: What’s special about Transformer?
+
+Example plan:
+1. FileSearch({“query”:"Transformer”})
+2. join())"}
             });
         }
     };

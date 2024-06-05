@@ -26,7 +26,7 @@ namespace INSTINCT_LLM_NS {
             TaskGraphUtils::BuildAgentScratchPad(graph, scratchpad);
             return CreateJSONContext({
                 {"question", graph.question()},
-                {"agent_scrathpad", scratchpad},
+                {"agent_scratchpad", scratchpad},
                 // extra instructions controlled by user input
                 {"instructions", options_.instructions},
             });
