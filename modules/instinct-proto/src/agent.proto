@@ -115,6 +115,9 @@ message SearchToolResponseEntry {
   string url = 1;
   string content = 2;
   string title = 3;
+
+  // used in file search tool
+  string parent_doc_id = 4;
 }
 
 message SearchToolResponse {

@@ -231,21 +231,18 @@ message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, Modify
       message MessageContentTextAnnotation { // union of citation and file path
 
         MessageContentTextAnnotationType type = 1;
-        enum MessageContentTextAnnotationType {
-          unknown_content_text_annotation_type = 0;
-          file_citation = 1;
-        }
+
 
         string text = 2;
         int32 start_index = 3;
         int32 end_index = 4;
 
         // for citation only
+        MessageContentTextFileCitation citation = 5;
         message MessageContentTextFileCitation {
           string file_id = 1;
           string quote = 2;
         }
-        MessageContentTextFileCitation citation = 5;
 
         // for file path only
         message MessageContentTextFilePath {
@@ -253,6 +250,15 @@ message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, Modify
         }
         MessageContentTextFilePath file_path = 6;
       }
+    }
+
+    enum MessageContentTextAnnotationType {
+      unknown_content_text_annotation_type = 0;
+      // A citation within the message that points to a specific quote from a specific File associated with the assistant or the message. Generated when the assistant uses the "file_search" tool to search files.
+      file_citation = 1;
+
+      // A URL for the file that's generated when the assistant used the code_interpreter tool to generate a file.
+      file_path = 2;
     }
 
   }

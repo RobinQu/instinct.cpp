@@ -167,7 +167,7 @@ namespace INSTINCT_LLM_NS {
                     }
                 }
 
-                // obviously some of tools are handled to users and we return a pause step to wait for tool results
+                // obviously some tools are handled by users so we return a pause step to wait for tool results
                 if (completed != tool_call_objects.size()) {
                     auto* pause = agent_step.mutable_thought()->mutable_pause();
                     pause->mutable_tool_call_message()->CopyFrom(tool_call_message);

@@ -124,7 +124,7 @@ namespace instinct::examples::mini_assistant {
                 context.retriever_operator,
                 context.assistant_facade.vector_store,
                 thread_service,
-                options_.embedding_model,
+                options_.chat_model,
                 options_.agent_executor
             );
 

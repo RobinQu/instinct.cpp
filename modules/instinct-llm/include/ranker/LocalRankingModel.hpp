@@ -14,11 +14,12 @@ namespace INSTINCT_LLM_NS {
     using namespace  INSTINCT_TRANSFORMER_NS;
 
     /**
-     * This class uses models in `instinct-transformer` module to calculate ranking score
+     * This class uses models in `instinct-transformer` module
      */
     class LocalRankingModel final: public BaseRankingModel {
         transformer::tokenizer::TokenizerPtr tokenizer_;
         ModelPtr model_;
+        std::mutex run_mutex_;
     public:
         explicit LocalRankingModel(const ModelType model_type, const FileVaultPtr& file_vault) {
             const auto resource_name = "model_bins/" + to_file_name(model_type);
@@ -27,6 +28,8 @@ namespace INSTINCT_LLM_NS {
         }
 
         float GetRankingScore(const std::string &query, const std::string &doc) override {
+            // TODO remove this lock by using multi-instance or batching.
+            std::lock_guard guard {run_mutex_};
             constexpr GenerationConfig config {};
             std::vector<int> ids;
             this->tokenizer_->encode_qa(query, doc, ids);

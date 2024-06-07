@@ -557,7 +557,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // update custom data
             step_details->mutable_custom()->CopyFrom(observation.custom());
 
-            // TODO support code interpreter and file serach
+            // TODO support code interpreter
             for(const auto& tool_message: observation.tool_messages()) {
                 for(int i=0;i<step_details->tool_calls_size();++i) {
                     if (auto* tool_call = step_details->mutable_tool_calls(i);

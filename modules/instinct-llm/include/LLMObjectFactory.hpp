@@ -31,7 +31,7 @@ namespace INSTINCT_LLM_NS {
         std::string model_name;
         Endpoint endpoint;
         std::string api_key;
-        int dim;
+        int dim = 0;
         OpenAIConfiguration openai;
         OllamaConfiguration ollama;
     };

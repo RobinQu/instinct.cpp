@@ -94,6 +94,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     // TODO more data fields in metadata
                     entry->set_title(doc.id());
                     entry->set_content(doc.text());
+                    if (const auto parent_doc_id_field_itr = DocumentUtils::GetMetadataFieldValue(doc, METADATA_SCHEMA_PARENT_DOC_ID_KEY); parent_doc_id_field_itr!=doc.metadata().end()) {
+                        entry->set_parent_doc_id(parent_doc_id_field_itr->string_value());
+                    }
                 });
             return search_tool_response;
         }
