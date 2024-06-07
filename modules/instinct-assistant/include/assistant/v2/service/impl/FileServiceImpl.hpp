@@ -57,7 +57,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             assert_status_ok(status);
 
             // write db
-            context["bytes"] = upload_file_request.file_content().size();
+            const auto state = object_store_->GetObjectState(options_.bucket_name, object_key);
+            assert_status_ok(state.status());
+            context["bytes"] = state.byte_size();
             EntitySQLUtils::InsertOneFile(data_mapper_, context);
 
             // return file
@@ -82,7 +84,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             assert_status_ok(status);
 
             // write db
-            context["bytes"] = upload_file_request.file_content().size();
+            const auto state = object_store_->GetObjectState(options_.bucket_name, object_key);
+            assert_status_ok(state.status());
+            context["bytes"] = state.byte_size();
             EntitySQLUtils::InsertOneFile(data_mapper_, context);
 
             // return file

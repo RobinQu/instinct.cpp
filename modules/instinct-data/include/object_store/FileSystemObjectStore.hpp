@@ -38,8 +38,22 @@ namespace INSTINCT_DATA_NS {
             LOG_DEBUG("PutObject with stream: bucket_name={}, object_key={}", bucket_name, object_key);
             const auto object_path = EnsureObjectPath_(bucket_name, object_key);
             std::ofstream object_file(object_path, std::ios::binary | std::ios::out | std::ios::trunc);
-            object_file << input_stream.rdbuf();
-            return {};
+            OSSStatus status;
+            if (!object_file.is_open()) {
+                status.set_error_type(OSSStatus_ErrorType_FileNotOpen);
+                status.set_has_error(true);
+            } else {
+                object_file << input_stream.rdbuf();
+                LOG_DEBUG("PutObject with stream: final pos {}, dest {}", std::to_string(input_stream.tellg()), object_path);
+            }
+            object_file.close();
+
+            if (std::filesystem::file_size(object_path) == 0) {
+                std::filesystem::remove(object_path);
+                status.set_error_type(OSSStatus_ErrorType_EmptyFile);
+                status.set_has_error(true);
+            }
+            return status;
         }
 
         OSSStatus PutObject(const std::string &bucket_name, const std::string &object_key,
@@ -99,6 +113,20 @@ namespace INSTINCT_DATA_NS {
             std::filesystem::remove(object_path);
             return status;
         }
+
+        ObjectState GetObjectState(const std::string &bucket_name, const std::string &object_key) override {
+            const auto object_path = EnsureObjectPath_(bucket_name, object_key);
+            ObjectState state;
+            auto* status = state.mutable_status();
+            if (!std::filesystem::exists(object_path)) {
+                status->set_has_error(true);
+                status->set_error_type(OSSStatus_ErrorType_ObjectNotFound);
+                return state;
+            }
+            state.set_byte_size(static_cast<int32_t>(std::filesystem::file_size(object_path)));
+            return state;
+        }
+
     private:
         [[nodiscard]] std::filesystem::path EnsureObjectPath_(const std::string &bucket_name, const std::string &object_key) const {
             const auto object_path = key_mapper_(root_directory_, bucket_name, object_key);

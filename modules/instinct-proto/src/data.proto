@@ -10,7 +10,13 @@ message OSSStatus {
     UnknownOSSError = 0;
     ObjectNotFound = 1;
     FileNotOpen = 2;
+    EmptyFile = 3;
   }
+}
+
+message ObjectState {
+  OSSStatus status = 1;
+  int32 byte_size = 2;
 }
 
 message Aggregations {

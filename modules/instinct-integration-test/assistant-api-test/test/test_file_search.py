@@ -14,16 +14,16 @@ MODEL_NAME = os.getenv("MODEL_NAME", "gpt-3.5-turbo")
 def test_file_search_with_vs():
     vector_store = client.beta.vector_stores.create(name="papers")
 
-    # Ready the files for upload to OpenAI
-    file_paths = ["2405.17935v2.pdf"]
-    file_streams = [open(path, "rb") for path in file_paths]
-
     # Use the upload and poll SDK helper to upload the files, add them to the vector store,
     # and poll the status of the file batch for completion.
-    vector_store_file = client.beta.vector_stores.files.upload_and_poll(vector_store_id=vector_store.id, file=open("2405.17935v2.pdf", "rb"))
+    vector_store_file = client.beta.vector_stores.files.upload_and_poll(
+        vector_store_id=vector_store.id,
+        file=open("2405.17935v2.pdf", "rb")
+    )
 
     # You can print the status and the file counts of the batch to see the result of this operation.
     print(vector_store_file.status)
+    assert vector_store_file.status == "completed"
 
     # create assistant
     assistant = client.beta.assistants.create(

@@ -222,11 +222,11 @@ int main(int argc, char** argv) {
     {
         auto ogroup = app.add_option_group("chat_model", "Configuration for chat model");
         ogroup->add_option("--chat_model_provider", application_options.chat_model.provider,
-                "Specify chat model to use for chat completion. ")
+                "Specify chat model to use for chat completion.")
             ->transform(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case))
             ->default_val(ModelProvider::kOPENAI);
         ogroup->add_option("--chat_model_name", application_options.chat_model.model_name,
-                                            "Specify chat model to use for chat completion. Default to gpt-3.5-turbo for OpenAI, llama3:8b for Ollama");
+                                            "Specify chat model to use for chat completion. Default to gpt-3.5-turbo for OpenAI, llama3:8b for Ollama. Note that some model providers will ignore the passed model name and use the model currently loaded instead.");
         ogroup->add_option("--chat_model_api_key", application_options.chat_model.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.");
         ogroup->add_option("--chat_model_host", application_options.chat_model.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.");
         ogroup->add_option("--chat_model_port", application_options.chat_model.endpoint.port, "Port number for API service.");
@@ -242,7 +242,9 @@ int main(int argc, char** argv) {
             ->transform(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case))
             ->default_val(ModelProvider::kOPENAI);
         ogroup->add_option("--embedding_model_name", application_options.embedding_model.model_name,
-                                            "Specify model to use for embedding . Default to text-embedding-3-small for OpenAI, all-minilm:latest for Ollama");
+                                            "Specify model to use for embedding . Default to text-embedding-3-small for OpenAI, all-minilm:latest for Ollama. Note that some model providers will ignore the passed model name and use the model currently loaded instead.");
+        ogroup->add_option("--embedding_model_dim", application_options.embedding_model.dim, "Dimension of given embedding model.")
+            ->check(PositiveNumber);
         ogroup->add_option("--embedding_model_api_key", application_options.embedding_model.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.");
         ogroup->add_option("--embedding_model_host", application_options.embedding_model.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.");
         ogroup->add_option("--embedding_model_port", application_options.embedding_model.endpoint.port, "Port number for API service.");

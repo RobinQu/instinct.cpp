@@ -31,6 +31,7 @@ namespace INSTINCT_LLM_NS {
         std::string model_name;
         Endpoint endpoint;
         std::string api_key;
+        int dim;
         OpenAIConfiguration openai;
         OllamaConfiguration ollama;
     };
@@ -70,6 +71,7 @@ namespace INSTINCT_LLM_NS {
                 case kOLLAMA: {
                     options.ollama.model_name = options.model_name;
                     options.ollama.endpoint = options.endpoint;
+                    options.ollama.dimension = options.dim;
                     LoadOllamaEmbeddingConfiguration(options.ollama);
                     return CreateOllamaEmbedding(options.ollama);
                 }
@@ -79,6 +81,7 @@ namespace INSTINCT_LLM_NS {
                     options.openai.model_name = options.model_name;
                     options.openai.endpoint = options.endpoint;
                     options.openai.api_key = options.api_key;
+                    options.openai.dimension = options.dim;
                     LoadOpenAIEmbeddingConfiguration(options.openai);
                     return CreateOpenAIEmbeddingModel(options.openai);
                 }
