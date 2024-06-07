@@ -7,6 +7,8 @@
 
 #include "database/IDataTemplate.hpp"
 #include "RetrievalGlobals.hpp"
+#include "database/duckdb/DuckDBConnectionPool.hpp"
+#include "database/duckdb/DuckDBDataTemplate.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
 
@@ -51,13 +53,11 @@ insert into instinct_vector_store_metadata(instance_id, metadata_schema, embeddi
             SQLContext context;
             context["instance_id"] = instance_id;
             return date_template_->SelectOne(R"(select * from instinct_vector_store_metadata where instance_id={{text(instance_id)}};)", context);
-
-
         }
-
     };
 
     using VectorStoreMetadataDataMapperPtr = std::shared_ptr<VectorStoreMetadataDataMapper>;
+
 }
 
 

@@ -6,6 +6,7 @@
 #define VECTORSTOREFILEDATAMAPPER_HPP
 
 #include "AssistantGlobals.hpp"
+#include "database/BaseConnectionPool.hpp"
 #include "database/IDataTemplate.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
@@ -248,6 +249,7 @@ where vector_store_id = {{text(vector_store_id)}} and file_id = {{text(file_id)}
     };
 
     using VectorStoreFileDataMapperPtr = std::shared_ptr<VectorStoreFileDataMapper>;
+
 }
 
 #endif //VECTORSTOREFILEDATAMAPPER_HPP

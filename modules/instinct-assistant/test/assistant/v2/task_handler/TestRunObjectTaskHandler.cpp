@@ -16,7 +16,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
     class TestRunObjectTaskHandler: public BaseAssistantApiTest {
     protected:
-
         RunServicePtr run_service_ = CreateRunServiceWithoutScheduler();
         MessageServicePtr message_service_ = CreateMessageService();
         AssistantServicePtr assistant_service_ = CreateAssistantService();

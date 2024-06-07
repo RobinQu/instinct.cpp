@@ -23,6 +23,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             });
 
             server.PostRoute<CreateVectorStoreFileRequest, VectorStoreFileObject>("/v1/vector_stores/:vector_store_id/files", [&](CreateVectorStoreFileRequest& req, const HttpLibSession& session) {
+                req.set_vector_store_id(session.request.path_params.at("vector_store_id"));
                 if (const auto &resp = facade_.vector_store->CreateVectorStoreFile(req)) {
                     session.Respond(resp.value());
                 } else {

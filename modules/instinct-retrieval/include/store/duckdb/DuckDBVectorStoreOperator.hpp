@@ -36,10 +36,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             metadata_data_mapper,
             default_metadata_schema
             ) {
-            assert_true(duck_db_);
-            assert_true(default_metadata_schema_);
-            assert_true(embedding_model_selector_);
-            assert_true(metadata_data_mapper_);
+            assert_true(duck_db_, "should provide DuckDB instance");
+            assert_true(default_metadata_schema_, "should provide default metadata schema");
+            assert_true(embedding_model_selector_, "should provide EmbeddingModelSelector");
+            assert_true(metadata_data_mapper_, "should provide VectorStoreMetadataDataMapper");
         }
 
         DuckDBVectorStoreOperator(
@@ -126,6 +126,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         if (!default_metadata_schema) {
             default_metadata_schema = CreateVectorStorePresetMetadataSchema();
         }
+        assert_true(embedding_model, "should provide valid embedding model");
         return std::make_shared<DuckDBVectorStoreOperator>(db, embedding_model, metadata_data_mapper, default_metadata_schema);
     }
 

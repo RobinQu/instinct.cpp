@@ -14,7 +14,7 @@ namespace INSTINCT_LLM_NS {
     using namespace  INSTINCT_TRANSFORMER_NS;
 
     /**
-     * This class uses models in `instinct-transfomrer` module to calculate ranking score
+     * This class uses models in `instinct-transformer` module to calculate ranking score
      */
     class LocalRankingModel final: public BaseRankingModel {
         transformer::tokenizer::TokenizerPtr tokenizer_;

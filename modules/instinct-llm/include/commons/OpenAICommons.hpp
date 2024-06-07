@@ -32,11 +32,6 @@ INSTINCT_LLM_NS {
          */
         std::string model_name;
 
-        /**
-         * API Token for OpenAI API
-         */
-        std::string token;
-
         std::optional<float> temperature;
 
         std::optional<float> top_p;

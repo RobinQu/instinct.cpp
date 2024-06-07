@@ -17,13 +17,22 @@
 
 namespace INSTINCT_LLM_NS {
 
+    enum ModelProvider {
+        kOPENAI = 0,
+        kOLLAMA = 1,
+        kLOCAL = 2,
+        kLLMStudio = 3,
+        kLLAMACPP = 4
+    };
+
     // default values are required
     struct LLMProviderOptions {
-        std::string provider_name = "openai";
-        std::string chat_model_name;
-        std::string embedding_model_name;
-        OpenAIConfiguration openai = {};
-        OllamaConfiguration ollama = {};
+        ModelProvider provider;
+        std::string model_name;
+        Endpoint endpoint;
+        std::string api_key;
+        OpenAIConfiguration openai;
+        OllamaConfiguration ollama;
     };
 
     struct AgentExecutorOptions {
@@ -31,32 +40,51 @@ namespace INSTINCT_LLM_NS {
         LLMCompilerOptions llm_compiler = {};
     };
 
-
     class LLMObjectFactory final {
     public:
 
         static ChatModelPtr CreateChatModel(LLMProviderOptions options) {
-            if (options.provider_name == "ollama") {
-                LoadOllamaChatConfiguration(options.ollama);
-                return CreateOllamaChatModel(options.ollama);
+            switch (options.provider) {
+                case kOPENAI:
+                case kLLMStudio:
+                case kLLAMACPP: {
+                    options.openai.model_name = options.model_name;
+                    options.openai.endpoint = options.endpoint;
+                    options.openai.api_key = options.api_key;
+                    LoadOpenAIChatConfiguration(options.openai);
+                    return CreateOpenAIChatModel(options.openai);
+                }
+                case kOLLAMA: {
+                    options.ollama.model_name = options.model_name;
+                    options.ollama.endpoint = options.endpoint;
+                    LoadOllamaChatConfiguration(options.ollama);
+                    return CreateOllamaChatModel(options.ollama);
+                }
+                default:
+                    return nullptr;
             }
-            if (options.provider_name == "openai") {
-                LoadOpenAIChatConfiguration(options.openai);
-                return CreateOpenAIChatModel(options.openai);
-            }
-            return nullptr;
         }
 
         static EmbeddingsPtr CreateEmbeddingModel(LLMProviderOptions options) {
-            if (options.provider_name == "ollama") {
-                LoadOllamaEmbeddingConfiguration(options.ollama);
-                return CreateOllamaEmbedding(options.ollama);
+            switch (options.provider) {
+                case kOLLAMA: {
+                    options.ollama.model_name = options.model_name;
+                    options.ollama.endpoint = options.endpoint;
+                    LoadOllamaEmbeddingConfiguration(options.ollama);
+                    return CreateOllamaEmbedding(options.ollama);
+                }
+                case kOPENAI:
+                case kLLMStudio:
+                case kLLAMACPP: {
+                    options.openai.model_name = options.model_name;
+                    options.openai.endpoint = options.endpoint;
+                    options.openai.api_key = options.api_key;
+                    LoadOpenAIEmbeddingConfiguration(options.openai);
+                    return CreateOpenAIEmbeddingModel(options.openai);
+                }
+                default:
+                    return nullptr;
             }
-            if (options.provider_name == "openai") {
-                LoadOpenAIEmbeddingConfiguration(options.openai);
-                return CreateOpenAIEmbeddingModel(options.openai);
-            }
-            return nullptr;
         }
 
         static AgentExecutorPtr CreateAgentExecutor(

@@ -45,7 +45,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             VectorStoreMetadataDataMapperPtr vector_store_metadata_data_mapper;
             VectorStoreDataMapperPtr vector_store_data_mapper;
             VectorStoreFileDataMapperPtr vector_store_file_data_mapper;
-            VectorStoreFileBatchDataMapperPtr vector_store_file_batch_object;
+            VectorStoreFileBatchDataMapperPtr vector_store_file_batch_data_mapper;
 
             DataTemplatePtr<RunStepObject, std::string> run_step_data_mapper;
             ObjectStorePtr object_store;

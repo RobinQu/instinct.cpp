@@ -16,7 +16,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         void Mount(HttpLibServer &server) override {
-            server.GetRoute<ListVectorStoresRequest, ListVectorStoresResponse>("/1/vector_stores", [&](const ListVectorStoresRequest& req, const HttpLibSession& session) {
+            server.GetRoute<ListVectorStoresRequest, ListVectorStoresResponse>("/v1/vector_stores", [&](const ListVectorStoresRequest& req, const HttpLibSession& session) {
                 session.Respond(facade_.vector_store->ListVectorStores(req));
             });
 

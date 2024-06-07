@@ -60,6 +60,7 @@ where id = {{text(id)}};
     };
 
     using VectorStoreFileBatchDataMapperPtr = std::shared_ptr<VectorStoreFileBatchDataMapper>;
+
 }
 
 

@@ -7,6 +7,7 @@
 
 #include "database/IDataTemplate.hpp"
 #include "AssistantGlobals.hpp"
+#include "database/BaseConnectionPool.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;
