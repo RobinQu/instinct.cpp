@@ -21,11 +21,13 @@ namespace INSTINCT_CORE_NS {
         TempFile(const TempFile&)=delete;
 
         explicit TempFile(const std::string& filename = StringUtils::GenerateUUIDString()):
-            path(std::filesystem::temp_directory_path() / StringUtils::GenerateUUIDString() / filename),
-            file(path, std::ios::in | std::ios::out | std::ios::trunc) {
+            path(std::filesystem::temp_directory_path() / StringUtils::GenerateUUIDString() / filename) {
             if(!std::filesystem::exists(path.parent_path())) {
                 std::filesystem::create_directories(path.parent_path());
             }
+            file = std::fstream(path, std::ios::in | std::ios::out | std::ios::trunc);
+            assert_true(file.is_open(), "file should be opened");
+            LOG_DEBUG("Create temp file at {}", path);
         }
 
         TempFile(TempFile&& other) noexcept {
@@ -35,6 +37,7 @@ namespace INSTINCT_CORE_NS {
 
 
         ~TempFile() {
+            LOG_DEBUG("Destroy temp file at {}", path);
             if (file) {
                 file.close();
             }

@@ -127,7 +127,18 @@ namespace instinct::examples::mini_assistant {
                 options_.embedding_model,
                 options_.agent_executor
             );
+
+            const auto chat_model = LLMObjectFactory::CreateChatModel(options_.chat_model);
+            const auto summary_chain = CreateSummaryChain(chat_model);
+            context.file_object_task_handler = std::make_shared<FileObjectTaskHandler>(
+                context.retriever_operator,
+                context.assistant_facade.vector_store,
+                context.assistant_facade.file,
+                summary_chain,
+                FileObjectTaskHandlerOptions {.summary_input_max_size = 8*1024}
+            );
             context.task_scheduler->RegisterHandler(context.run_object_task_handler);
+            context.task_scheduler->RegisterHandler(context.file_object_task_handler);
 
             // configure http server
             const auto http_server = CreateHttpLibServer(options_.server);

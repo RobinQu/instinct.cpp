@@ -9,6 +9,7 @@
 
 #include "DataGlobals.hpp"
 #include "IObjectStore.hpp"
+#include "../../../../../../../../../../Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CGDisplayStream.h"
 #include "tools/IOUtils.hpp"
 
 namespace INSTINCT_DATA_NS {
@@ -60,8 +61,15 @@ namespace INSTINCT_DATA_NS {
                 status.set_error_type(OSSStatus_ErrorType_ObjectNotFound);
                 return status;
             }
-            const std::ifstream object_file(object_path, std::ios::binary | std::ios::in);
-            output_stream << object_file.rdbuf();
+            std::ifstream object_file(object_path, std::ios::binary | std::ios::in);
+            if (object_file.is_open()) {
+                output_stream << object_file.rdbuf();
+                LOG_DEBUG("GetObject with stream, final position: {} source: {}", std::to_string(output_stream.tellp()), object_path);
+                object_file.close();
+                return status;
+            }
+            status.set_has_error(true);
+            status.set_error_type(OSSStatus_ErrorType_FileNotOpen);
             return status;
         }
 

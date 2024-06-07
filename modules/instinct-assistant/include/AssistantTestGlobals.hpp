@@ -73,8 +73,7 @@ namespace INSTINCT_ASSISTANT_NS {
 
         VectorStoreFileBatchDataMapperPtr vector_store_file_batch_data_mapper = std::make_shared<VectorStoreFileBatchDataMapper>(CreateDuckDBDataMapper<VectorStoreFileBatchObject, std::string>(connection_pool_));
 
-        VectorStoreMetadataDataMapperPtr vector_store_metadata_data_mapper_ = CreateVectorStoreMetadataMapper(connection_pool_);
-
+        VectorStoreMetadataDataMapperPtr vector_store_metadata_data_mapper_ = std::make_shared<VectorStoreMetadataDataMapper>(CreateDuckDBDataMapper<VectorStoreInstanceMetadata, std::string>(connection_pool_));
 
         VectorStoreMetadataDataMapperPtr vector_store_metadata_data_mapper = std::make_shared<VectorStoreMetadataDataMapper>(CreateDuckDBDataMapper<VectorStoreInstanceMetadata, std::string>(connection_pool_));
 

@@ -68,7 +68,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     content_reader(
                     [&](const MultipartFormData &field) {
                         field_names.push_back(field.name);
-                        if (StringUtils::IsBlankString(field.filename)) { // treat as file object
+                        if (StringUtils::IsNotBlankString(field.filename)) { // treat as file object
                             is_file = true;
                             const auto temp_file = std::filesystem::temp_directory_path() / StringUtils::GenerateUUIDString();
                             files.emplace(field.name, TempFile {});

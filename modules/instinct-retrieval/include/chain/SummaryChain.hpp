@@ -70,6 +70,16 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     using IsReducibleFn = std::function<bool(const std::vector<std::string>& data, const std::string& delta)>;
 
+    static IsReducibleFn CreateReducibleFnWithMaxStringSize(size_t limit) {
+        return [limit] (const std::vector<std::string>& data, const std::string& delta) {
+            size_t total=0;
+            for(const auto& item:data) {
+                total+=item.size();
+            }
+            return total+delta.size()>=limit;
+        };
+    }
+
     /**
      * Create summary with document source in map-reduce manner
      * @param source

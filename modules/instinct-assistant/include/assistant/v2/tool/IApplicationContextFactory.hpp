@@ -55,6 +55,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             TaskHandlerPtr<TaskPayload> run_object_task_handler;
             RetrieverOperatorPtr retriever_operator;
             VectorStoreOperatorPtr vector_store_operator;
+            TaskHandlerPtr<TaskPayload> file_object_task_handler;
         };
 
         IApplicationContextFactory() = default;

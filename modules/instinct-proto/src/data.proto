@@ -9,6 +9,7 @@ message OSSStatus {
   enum ErrorType {
     UnknownOSSError = 0;
     ObjectNotFound = 1;
+    FileNotOpen = 2;
   }
 }
 
