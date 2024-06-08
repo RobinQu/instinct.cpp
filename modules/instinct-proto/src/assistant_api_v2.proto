@@ -229,10 +229,7 @@ message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, Modify
 
       repeated MessageContentTextAnnotation annotations = 2;
       message MessageContentTextAnnotation { // union of citation and file path
-
         MessageContentTextAnnotationType type = 1;
-
-
         string text = 2;
         int32 start_index = 3;
         int32 end_index = 4;

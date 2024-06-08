@@ -67,6 +67,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             message_object.set_run_id(create_request.run_id());
             message_object.set_status(MessageObject_MessageStatus_completed);
 
+            return CreateRawMessage(message_object);
+        }
+
+        std::optional<MessageObject> CreateRawMessage(const MessageObject &message_object) override {
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(message_object, context);
 
@@ -80,7 +84,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // return
             GetMessageRequest get_message_request;
             get_message_request.set_message_id(id);
-            get_message_request.set_thread_id(thread_id);
+            get_message_request.set_thread_id(message_object.thread_id());
             return RetrieveMessage(get_message_request);
         }
 

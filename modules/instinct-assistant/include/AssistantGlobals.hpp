@@ -40,6 +40,8 @@ namespace INSTINCT_ASSISTANT_NS {
     };
 
     namespace v2 {
+        static const std::string FILE_SEARCH_TOOL_NAME = "FileSearch";
+
         static std::string to_string(const ListRequestOrder order) {
             if (order == asc) return "asc";
             if (order == desc) return "desc";

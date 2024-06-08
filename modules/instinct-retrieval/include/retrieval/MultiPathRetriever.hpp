@@ -60,7 +60,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             for(int i=0; auto& f: multi_futures_2) {
                 doc_id_with_score.emplace_back(docs[i++].id(), f.get());
             }
-            std::sort(doc_id_with_score.begin(), doc_id_with_score.end(), [](const auto& a, const auto& b) {
+            std::ranges::sort(doc_id_with_score, [](const auto& a, const auto& b) {
                 return a.second > b.second;
             });
 

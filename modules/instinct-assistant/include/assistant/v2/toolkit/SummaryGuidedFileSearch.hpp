@@ -48,7 +48,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             std::vector<VectorStoreFileObject> vector_store_file_objects,
             const SummaryGuidedFileSearchOptions &options
         )
-            : BaseSearchTool(options, "FileSearch", details::create_description(vector_store_file_objects)),
+            : BaseSearchTool(options, FILE_SEARCH_TOOL_NAME, details::create_description(vector_store_file_objects)),
               ranking_model_(std::move(ranking_model)),
               retriever_(std::move(retriever)),
               vector_store_file_objects_(std::move(vector_store_file_objects)),

@@ -118,6 +118,8 @@ message SearchToolResponseEntry {
 
   // used in file search tool
   string parent_doc_id = 4;
+  int32 start_index = 5;
+  int32 end_index = 6;
 }
 
 message SearchToolResponse {

@@ -32,6 +32,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/store/SQLBuilder.hpp
         include/chain/SummaryChain.hpp
         include/RetrieverObjectFactory.hpp
+        include/chain/CitationAnnotatingChain.hpp
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

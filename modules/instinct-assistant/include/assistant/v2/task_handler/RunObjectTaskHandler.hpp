@@ -14,6 +14,7 @@
 #include "agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp"
 #include "assistant/v2/service/IVectorStoreService.hpp"
 #include "assistant/v2/toolkit/SummaryGuidedFileSearch.hpp"
+#include "chain/CitationAnnotatingChain.hpp"
 #include "toolkit/LocalToolkit.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
@@ -31,6 +32,18 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
     using AgentExecutorProvider = std::function<AgentExecutorPtr(const LLMProviderOptions& llm_options, const AgentExecutorOptions& options)>;
 
+    namespace details {
+        static bool has_file_search(const AssistantObject& assistant_object) {
+            for(const auto& tool: assistant_object.tools()) {
+                if (tool.type() == file_search) {
+                    return true;
+                }
+            }
+            return false;
+
+        }
+    }
+
     /**
      * Task handler for run objects using `OpenAIToolAgentExecutor`.
      */
@@ -43,6 +56,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         RetrieverOperatorPtr retriever_operator_;
         VectorStoreServicePtr vector_store_service_;
         ThreadServicePtr thread_service_;
+        CitationAnnotatingChainPtr citation_annotating_chain_;
 
     public:
         static inline std::string CATEGORY = "run_object";
@@ -113,6 +127,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 return;
             }
 
+            MessageObject final_message_object;
+            const auto has_file_search = details::has_file_search(assistant_obj.value());
+            std::unordered_set<std::string> last_file_search_call_ids;
+            std::vector<SearchToolResponseEntry> retrieved_entries;
+
             // execute possible steps
             executor->Stream(state_opt.value())
                 | rpp::operators::as_blocking()
@@ -122,6 +141,18 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     if (last_step->has_thought()) {
                         if (last_step->thought().has_continuation()
                             && last_step->thought().continuation().has_tool_call_message()) { // should contain thought of calling code interpreter and file search, which are invoked automatically
+
+                            // find file search calls
+                            if (has_file_search) {
+                                last_file_search_call_ids.clear();
+                                for(const auto& call: last_step->thought().continuation().tool_call_message().tool_calls()) {
+                                    if (call.function().name() == FILE_SEARCH_TOOL_NAME) {
+                                        last_file_search_call_ids.insert(call.id());
+                                    }
+                                }
+                            }
+
+                            // run callback
                             OnAgentContinuation(last_step->thought().continuation(), run_object);
                             return;
                         }
@@ -133,12 +164,30 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         }
 
                         if(last_step->thought().has_finish()) { // finish message
-                            OnAgentFinish_(last_step->thought().finish(), run_object);
+                            OnAgentFinish_(
+                                last_step->thought().finish(),
+                                run_object,
+                                retrieved_entries
+                            );
                             return;
                         }
                     }
 
                     if (last_step->has_observation() && last_step->observation().tool_messages_size() > 0) {
+                        // copy search entries if needed
+                        if (has_file_search) {
+                            for(const auto& tool_message: last_step->observation().tool_messages()) {
+                                if (last_file_search_call_ids.contains(tool_message.tool_call_id())) {
+                                    SearchToolResponse search_tool_response;
+                                    ProtobufUtils::Deserialize(tool_message.content(), search_tool_response);
+                                    for (const auto& entry: search_tool_response.entries()) {
+                                        retrieved_entries.push_back(entry);
+                                    }
+                                }
+                            }
+                        }
+
+                        // run callback
                         // 1. function tool call results are submitted
                         // 2. or only contain tool calls for code interpreter and file search
                         OnAgentObservation_(last_step->observation(), run_object);
@@ -287,14 +336,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 const ThreadObject& thread_object
             ) const {
             std::vector<FunctionToolPtr> tools;
-            bool has_file_search = false;
-            for(const auto& tool: assistant_object.tools()) {
-                if (tool.type() == file_search) {
-                    has_file_search = true;
-                }
-            }
             // if file_search is not enabled by assistant, let's exit
-            if(has_file_search) {
+            if(details::has_file_search(assistant_object)) {
                 assert_true(assistant_object.tool_resources().file_search().vector_store_ids_size()>0, "should have at least one VectorStore");
 
                 std::vector<std::string> vs_id_list;
@@ -421,16 +464,40 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             return run_service_->ModifyRun(modify_run_request);
         }
 
-        [[nodiscard]] std::optional<std::pair<RunStepObject, MessageObject>> CreateMessageStep_(const std::string& content, const RunObject& run_object) const {
+        [[nodiscard]] std::optional<std::pair<RunStepObject, MessageObject>> CreateMessageStep_(
+            const std::string& content,
+            const RunObject& run_object,
+            const std::vector<SearchToolResponseEntry>& file_search_results = {}
+        ) const {
             // TODO need transaction
-            CreateMessageRequest create_message_request;
+            MessageObject create_message_request;
             create_message_request.set_thread_id(run_object.thread_id());
             create_message_request.set_role(assistant);
-            create_message_request.set_content(content);
+            auto* text_content = create_message_request.add_content()->mutable_text();
+
+            // create annotations
+            // see more at: https://github.com/RobinQu/instinct.cpp/issues/20#issuecomment-2155970402
+            if (!file_search_results.empty()) {
+                CitationAnnotatingContext citation_annotating_context;
+                const auto annotated_answer = citation_annotating_chain_->Invoke(citation_annotating_context);
+                text_content->set_value(annotated_answer.answer());
+                for(const auto& citation: annotated_answer.citations()) {
+                    auto* annotation = text_content->add_annotations();
+                    annotation->set_type(MessageObject_MessageContent_MessageContentTextAnnotationType_file_citation);
+                    annotation->set_text(citation.annotation());
+                    annotation->set_start_index(citation.quote().start_index());
+                    annotation->set_end_index(citation.quote().end_index());
+                    annotation->mutable_citation()->set_file_id(citation.quote().parent_doc_id());
+                    annotation->mutable_citation()->set_quote(citation.quote().content());
+                }
+            } else {
+                text_content->set_value(content);
+            }
+
             create_message_request.set_assistant_id(run_object.assistant_id());
             create_message_request.set_run_id(run_object.id());
 
-            const auto message_object = message_service_->CreateMessage(create_message_request);
+            const auto message_object = message_service_->CreateRawMessage(create_message_request);
             if (!message_object.has_value()) {
                 LOG_ERROR("Cannot create message for this step. run_object={}, create_message_request={}", run_object.ShortDebugString(), create_message_request.ShortDebugString());
                 return std::nullopt;
@@ -587,8 +654,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
          *
          * @param finish_message
          * @param run_object
+         * @param file_search_results - related results from FileSearch if any
          */
-        void OnAgentFinish_(const AgentFinish& finish_message, const RunObject& run_object) {
+        void OnAgentFinish_(
+                const AgentFinish& finish_message,
+                const RunObject& run_object,
+                const std::vector<SearchToolResponseEntry>& file_search_results = {}) {
             LOG_INFO("OnAgentFinish Start, finish_message={}", finish_message.ShortDebugString());
             // TODO needs transaction
 
