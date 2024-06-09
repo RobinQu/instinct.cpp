@@ -67,10 +67,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             return vector_store_->SearchDocuments(search_request)
                 | rpp::operators::reduce(std::unordered_set<std::string> {}, [&](std::unordered_set<std::string>&& seed, const Document& doc) {
                     // backtrace id of parent doc
-                    const auto parent_doc_field_itr = DocumentUtils::GetMetadataFieldValue(doc, METADATA_SCHEMA_FILE_SOURCE_KEY);
-                    assert_true(parent_doc_field_itr!=doc.metadata().end() && StringUtils::IsNotBlankString(parent_doc_field_itr->string_value()), "should have found parent_doc_id in parent doc's metadata");
-                    LOG_DEBUG("guidance doc found, id={}, parent_doc_id={}", doc.id(), parent_doc_field_itr->string_value());
-                    seed.insert(parent_doc_field_itr->string_value());
+                    const auto parent_doc_id = DocumentUtils::GetStringValueMetadataField(doc, METADATA_SCHEMA_FILE_SOURCE_KEY);
+                    assert_true(parent_doc_id && StringUtils::IsNotBlankString(parent_doc_id.value()), "should have found parent_doc_id in parent doc's metadata");
+                    LOG_DEBUG("guidance doc found, id={}, parent_doc_id={}", doc.id(), parent_doc_id.value());
+                    seed.insert(parent_doc_id.value());
                     return std::move(seed);
                 })
                 | rpp::operators::flat_map([&](const std::unordered_set<std::string>& parent_ids) {
@@ -107,8 +107,6 @@ namespace INSTINCT_RETRIEVAL_NS {
         void Remove(const SearchQuery &metadata_query) override {
             UpdateResult update_result;
             doc_store_->DeleteDocuments(metadata_query, update_result);
-            // if (update_result.failed_documents_size() == 0) {
-            // }
             vector_store_->DeleteDocuments(metadata_query, update_result);
             // TODO handle exceptions
         }

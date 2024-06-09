@@ -178,12 +178,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
      * @return
      */
     static MetadataSchemaPtr CreatePresetMetadataSchemaForRetrieverOperator() {
-        const auto builder = MetadataSchemaBuilder::Create();
-        builder->DefineString(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
-        builder->DefineInt32(METADATA_SCHEMA_PAGE_NO_KEY);
-        builder->DefineString(METADATA_SCHEMA_FILE_SOURCE_KEY);
-        builder->DefineString(VECTOR_STORE_ID_KEY);
-        return builder->Build();
+        auto schema = CreateDocStorePresetMetadataSchema();
+        auto* vs_id_field = schema->add_fields();
+        vs_id_field->set_name(VECTOR_STORE_ID_KEY);
+        vs_id_field->set_type(PrimitiveType::VARCHAR);
+        return schema;
     }
 
     /**

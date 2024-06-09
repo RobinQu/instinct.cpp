@@ -91,11 +91,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 | rpp::ops::as_blocking()
                 | rpp::ops::subscribe([&](const Document& doc) {
                     auto* entry = search_tool_response.add_entries();
-                    // TODO more data fields in metadata
                     entry->set_title(doc.id());
                     entry->set_content(doc.text());
-                    if (const auto parent_doc_id_field_itr = DocumentUtils::GetMetadataFieldValue(doc, METADATA_SCHEMA_PARENT_DOC_ID_KEY); parent_doc_id_field_itr!=doc.metadata().end()) {
-                        entry->set_parent_doc_id(parent_doc_id_field_itr->string_value());
+                    if (const auto parent_doc_id = DocumentUtils::GetStringValueMetadataField(doc, METADATA_SCHEMA_PARENT_DOC_ID_KEY)) {
+                        entry->set_parent_doc_id(parent_doc_id.value());
+                    }
+                    if (const auto start_index = DocumentUtils::GetIntValueMetadataField(doc, METADATA_SCHEMA_CHUNK_START_INDEX_KEY), end_index = DocumentUtils::GetIntValueMetadataField(doc, METADATA_SCHEMA_CHUNK_END_INDEX_KEY); start_index && end_index) {
+                        entry->set_start_index(start_index.value());
+                        entry->set_end_index(end_index.value());
                     }
                 });
             return search_tool_response;

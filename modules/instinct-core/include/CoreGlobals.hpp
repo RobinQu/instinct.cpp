@@ -59,6 +59,10 @@ namespace INSTINCT_CORE_NS {
 
     static const std::string METADATA_SCHEMA_FILE_SOURCE_KEY = "file_source";
 
+    static const std::string METADATA_SCHEMA_CHUNK_START_INDEX_KEY = "start_index";
+
+    static const std::string METADATA_SCHEMA_CHUNK_END_INDEX_KEY = "end_index";
+
     using MetadataSchemaPtr = std::shared_ptr<MetadataSchema>;
 
     template<typename  T>

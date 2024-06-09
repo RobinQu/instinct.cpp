@@ -66,9 +66,9 @@ namespace INSTINCT_RETRIEVAL_NS {
             for(int i=0; const auto& str: child_splitter_->SplitText(UnicodeString::fromUTF8(parent_doc.text()))) {
                 Document document;
                 str.toUTF8String(*document.mutable_text());
-                const auto parent_doc_field_itr = DocumentUtils::GetMetadataFieldValue(parent_doc, METADATA_SCHEMA_PARENT_DOC_ID_KEY);
-                assert_true(parent_doc_field_itr!=document.metadata().end() && StringUtils::IsNotBlankString(parent_doc_field_itr->string_value()), "should have found parent_doc_id in parent doc's metadata");
-                DocumentUtils::AddPresetMetadataFields(document, parent_doc_field_itr->string_value(), ++i, parent_doc.id());
+                const auto parent_doc_id = DocumentUtils::GetStringValueMetadataField(parent_doc, METADATA_SCHEMA_PARENT_DOC_ID_KEY);
+                assert_true(parent_doc_id && StringUtils::IsNotBlankString(parent_doc_id.value()), "should have found parent_doc_id in parent doc's metadata");
+                DocumentUtils::AddPresetMetadataFields(document, parent_doc_id.value(), ++i, parent_doc.id());
                 LOG_DEBUG("chunked doc: size={}, parent_id={}", document.text().size(), parent_doc.id());
                 results.push_back(document);
             }

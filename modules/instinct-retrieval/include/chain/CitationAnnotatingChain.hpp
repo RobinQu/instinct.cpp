@@ -92,7 +92,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         const CitationAnnotatingChainOptions options = {}
     ) {
         if (!prompt_template) {
-            prompt_template = CreatePlainPromptTemplate(R"(You are a serious researcher. Please try your best to rewrite the answer with citation to the context information. For every sentence you write, cite the book name and paragraph number as (source.1) or (source.1)(source.2) ...(source.n) for multiple source references.
+            prompt_template = CreatePlainPromptTemplate(R"(You are a serious researcher. Please try your best to rewrite the answer with citation to the context information. For every sentence you write, cite the context information as (source.1) for single reference or (source.1)(source.2) ...(source.n) for multiple references. You cannot cite other source other than the given context information.
+
 Here is an example.
 
 Context information:

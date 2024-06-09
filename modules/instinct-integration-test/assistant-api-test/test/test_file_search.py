@@ -60,7 +60,8 @@ def test_file_search_with_vs():
         message_content.value = message_content.value.replace(annotation.text, f"[{index}]")
         if file_citation := getattr(annotation, "file_citation", None):
             cited_file = client.files.retrieve(file_citation.file_id)
-            citations.append(f"[{index}] {cited_file.filename}: {file_citation.quote}")
+            citations.append(f"[{index}] {cited_file.filename} "
+                             f"({annotation.start_index} to {annotation.end_index}): {file_citation.quote}")
     print("------------------------------")
     print(message_content.value)
     print("\n".join(citations))

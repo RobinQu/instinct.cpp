@@ -74,16 +74,16 @@ namespace  INSTINCT_LLM_NS {
         AsyncIterator<Document> SplitDocuments(const AsyncIterator<Document>& docs_itr) override {
             return rpp::source::create<Document>([&,docs_itr](const auto& observer) {
                 docs_itr.subscribe([&](const Document& doc) {
-                    const auto chunks = SplitText(UnicodeString::fromUTF8(doc.text()));
-                    for (int i = 0; i < chunks.size(); i++) {
-                        auto& chunk = chunks[i];
+                    for (const auto & chunk : SplitText(UnicodeString::fromUTF8(doc.text()))) {
                         Document document;
                         chunk.toUTF8String(*document.mutable_text());
-                        // auto* chunk_id_field = document.add_metadata();
-                        // chunk_id_field->set_name(CHUNK_DOC_PART_INDEX_KEY);
-                        // chunk_id_field->set_int_value(i);
-                        // DocumentUtils::AddPresetMetadataFields(document, doc.id(), i+1);
                         document.mutable_metadata()->CopyFrom(doc.metadata());
+                        auto *start_index_field = document.add_metadata();
+                        start_index_field->set_name(METADATA_SCHEMA_CHUNK_START_INDEX_KEY);
+                        start_index_field->set_int_value(static_cast<int32_t>(doc.text().find(document.text())));
+                        auto *end_index_field = document.add_metadata();
+                        end_index_field->set_name(METADATA_SCHEMA_CHUNK_END_INDEX_KEY);
+                        end_index_field->set_int_value(static_cast<int32_t>(start_index_field->int_value() + document.text().size()));
                         observer.on_next(document);
                     }
                 }, [&](const std::exception_ptr& e) {
