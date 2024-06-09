@@ -7,6 +7,9 @@
 
 #include "RetrievalGlobals.hpp"
 #include "chain/MessageChain.hpp"
+#include "prompt/PlainPromptTemplate.hpp"
+#include "chat_model/BaseChatModel.hpp"
+
 
 
 namespace INSTINCT_RETRIEVAL_NS {
@@ -22,13 +25,17 @@ namespace INSTINCT_RETRIEVAL_NS {
                   context_string += ". ";
                   context_string += entry.content();
             }
-            auto mapping_context =  CreateJSONContext({
-                {"context", context_string},
-                {"answer", context.original_answer()},
-                {"question", context.question()}
-            });
-            mapping_context->RequireMappingData()["docs"] = CreateJSONContext(context.original_search_response());
-            return mapping_context;
+
+            JSONMappingContext mapping_data;
+            mapping_data["context"] = CreateJSONContext(context_string);
+            mapping_data["answer"] = CreateJSONContext(context.original_answer());
+            mapping_data["question"] = CreateJSONContext(context.question());
+            mapping_data["docs"] = CreateJSONContext(context.original_search_response());
+
+            JSONContextPolicy policy;
+            auto ctx = std::make_shared<IContext<JSONContextPolicy>>(policy);
+            ctx->ProduceMappingData(mapping_data);
+            return ctx;
         }
 
         static AnswerWithCitations parse_answer_with_citations(const JSONContextPtr& context) {
@@ -43,8 +50,9 @@ namespace INSTINCT_RETRIEVAL_NS {
                         auto* citation = answer_with_citations.add_citations();
                         citation->set_annotation(match[0].str());
                         citation->mutable_quote()->CopyFrom(original_search_response.entries(quotation_index));
+                    } else {
+                        LOG_WARN("invalid quotation index for annoation: {}", match.str());
                     }
-                    LOG_WARN("invalid quotation index for annoation: {}", match.str());
                 } else {
                     LOG_WARN("invalid match for annoation: {}", match.str());
                 }
@@ -64,7 +72,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         const CitationAnnotatingChainOptions options = {}
     ) {
         if (!prompt_template) {
-            prompt_template = CreatePlainPromptTemplate(R"(You are a serious researcher. Please try your best to rewrite the answer with citation to the context information. For every sentence you write, cite the book name and paragraph number as (source.1) or (source.1),(source.2), ...,(source.n) for multiple source references.
+            prompt_template = CreatePlainPromptTemplate(R"(You are a serious researcher. Please try your best to rewrite the answer with citation to the context information. For every sentence you write, cite the book name and paragraph number as (source.1) or (source.1)(source.2) ...(source.n) for multiple source references.
 Here is an example.
 
 Context information:
@@ -106,7 +114,7 @@ Rewrite answer:)");
         CreateLambdaInputParser<CitationAnnotatingContext>(details::parse_citation_annotating_context),
                   CreateLambdaOutputParser<AnswerWithCitations>(details::parse_answer_with_citations),
                   xn::steps::mapping({
-                    {"final_answer", prompt_template | chat_model->AsModelFunction()},
+                    {"final_answer", prompt_template | chat_model->AsModelFunction() | xn::steps::stringify_generation()},
                     {"docs", xn::steps::selection("docs")}
                   }),
                   options.chain_options

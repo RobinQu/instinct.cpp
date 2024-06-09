@@ -98,7 +98,7 @@ namespace INSTINCT_LLM_NS {
                     if (task.tool_call().function().name() == "join") {
                         found_join = true;
                     } else {
-                        // for the first batch after plan or re-plan, tasks that has no depdencies are selected
+                        // for the first batch after plan or re-plan, tasks that has no dependencies are selected
                         if (task.dependencies_size() == 0) {
                             tool_call_requests->add_tool_calls()->CopyFrom(task.tool_call());
                         }

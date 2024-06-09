@@ -170,8 +170,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         }
 
                         if(last_step->thought().has_finish()) { // finish message
+                            AgentFinish agent_finish;
+                            agent_finish.CopyFrom(last_step->thought().finish());
+                            agent_finish.mutable_question()->CopyFrom(current_state.input());
                             OnAgentFinish_(
-                                last_step->thought().finish(),
+                                agent_finish,
                                 run_object,
                                 retrieved_entries
                             );
@@ -697,7 +700,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         citation_annotating_context.set_original_answer(finish_message.response());
                         citation_annotating_context.mutable_original_search_response()->mutable_entries()->Add(file_search_results.begin(), file_search_results.end());
                         citation_annotating_context.set_question(MessageUtils::ExtractLatestPromptString(finish_message.question()));
-                        if(!CreateMessageStep_(finish_message.response(), run_object)) {
+                        if(!CreateMessageStep_(finish_message.response(), run_object, citation_annotating_context)) {
                             LOG_ERROR("Cannot create message for final answer. run_object={}", run_object.ShortDebugString());
                             return;
                         }
