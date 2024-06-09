@@ -23,7 +23,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(list_request, context);
 
-            // plus one for remianing check
+            // plus one for remaining check
             const auto limit = list_request.limit() <= 0 ? DEFAULT_LIST_LIMIT + 1: list_request.limit() + 1;
             context["limit"] = limit;
             if (list_request.order() == unknown_list_request_order) {

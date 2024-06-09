@@ -482,7 +482,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             MessageObject create_message_request;
             create_message_request.set_thread_id(run_object.thread_id());
             create_message_request.set_role(assistant);
-            auto* text_content = create_message_request.add_content()->mutable_text();
+            create_message_request.set_assistant_id(run_object.assistant_id());
+            create_message_request.set_run_id(run_object.id());
+            create_message_request.set_status(MessageObject_MessageStatus_completed);
+            auto* message_content = create_message_request.add_content();
+            message_content->set_type(MessageObject_MessageContentType_text);
+            auto* text_content = message_content->mutable_text();
 
             // create annotations
             // see more at: https://github.com/RobinQu/instinct.cpp/issues/20#issuecomment-2155970402
@@ -501,9 +506,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             } else {
                 text_content->set_value(content);
             }
-
-            create_message_request.set_assistant_id(run_object.assistant_id());
-            create_message_request.set_run_id(run_object.id());
 
             const auto message_object = message_service_->CreateRawMessage(create_message_request);
             if (!message_object.has_value()) {
