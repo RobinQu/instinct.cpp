@@ -9,6 +9,7 @@
 #include <llm.pb.h>
 
 #include "LLMGlobals.hpp"
+#include "functional/JSONContextPolicy.hpp"
 
 namespace INSTINCT_LLM_NS {
 
@@ -21,11 +22,14 @@ namespace INSTINCT_LLM_NS {
         IOutputParser(const IOutputParser&)=delete;
 
         virtual T ParseResult(
-            const Generation& context
+            const Generation& generation
         ) = 0;
 
         virtual std::string GetFormatInstruction() = 0;
     };
+
+    template<typename T>
+    using OutputParserLambda = std::function<T(const JSONContextPtr& context)>;
 
 }
 

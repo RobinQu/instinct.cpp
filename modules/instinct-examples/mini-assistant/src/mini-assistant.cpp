@@ -117,6 +117,8 @@ namespace instinct::examples::mini_assistant {
 
             // configure task handler for run objects
             auto builtin_toolkit = CreateLocalToolkit({});
+            const auto chat_model = LLMObjectFactory::CreateChatModel(options_.chat_model);
+            CitationAnnotatingChainPtr citation_annotating_chain = CreateCitationAnnotatingChain(chat_model);
             context.run_object_task_handler = std::make_shared<RunObjectTaskHandler>(
                 run_service,
                 message_service,
@@ -124,11 +126,12 @@ namespace instinct::examples::mini_assistant {
                 context.retriever_operator,
                 context.assistant_facade.vector_store,
                 thread_service,
+                citation_annotating_chain,
                 options_.chat_model,
                 options_.agent_executor
             );
 
-            const auto chat_model = LLMObjectFactory::CreateChatModel(options_.chat_model);
+
             const auto summary_chain = CreateSummaryChain(chat_model);
             context.file_object_task_handler = std::make_shared<FileObjectTaskHandler>(
                 context.retriever_operator,

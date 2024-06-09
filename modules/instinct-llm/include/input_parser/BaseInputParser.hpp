@@ -38,7 +38,7 @@ namespace INSTINCT_LLM_NS {
         [[nodiscard]] const InputParserOptions& GetOptions() const  {
             return options_;
         }
-    public:
+
         JSONContextPtr Invoke(const T &input) override {
             return this->ParseInput(input);
         }
@@ -49,7 +49,29 @@ namespace INSTINCT_LLM_NS {
     };
 
     template<typename T>
+    class LambdaInputParsr final: public BaseInputParser<T> {
+        InputParserLambda<T> fn_;
+
+    public:
+        LambdaInputParsr(InputParserLambda<T> fn, InputParserOptions options)
+            : BaseInputParser<T>(std::move(options)),
+              fn_(std::move(fn)) {
+        }
+
+        JSONContextPtr ParseInput(const T &input) override {
+            return fn_(input);
+        }
+    };
+
+    template<typename T>
     using InputParserPtr = std::shared_ptr<BaseInputParser<T>>;
+
+
+    template<typename T, typename Options = InputParserOptions>
+    static InputParserPtr<T> CreateLambdaInputParser(InputParserLambda<T> fn, const Options& options = {}) {
+        return std::make_shared<LambdaInputParsr<T>>(fn, options);
+    }
+
 }
 
 #endif //INSTINCT_BASEINPUTPARSER_HPP

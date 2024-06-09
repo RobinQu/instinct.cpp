@@ -9,7 +9,6 @@
 #include "IContext.hpp"
 #include <google/protobuf/util/json_util.h>
 
-#include <utility>
 #include "tools/Assertions.hpp"
 
 namespace INSTINCT_CORE_NS {
@@ -99,6 +98,13 @@ namespace INSTINCT_CORE_NS {
         }
 
     };
+
+    static JSONContextPtr CreateJSONContext(const Message& message) {
+        JSONContextPolicy policy;
+        auto ctx = std::make_shared<IContext<JSONContextPolicy>>(policy);
+        ctx->ProduceMessage(message);
+        return ctx;
+    }
 
     static JSONContextPtr CreateJSONContext(const nlohmann::json& data = nlohmann::json::parse("{}")) {
         JSONContextPolicy policy;

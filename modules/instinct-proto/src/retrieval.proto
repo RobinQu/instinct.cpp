@@ -74,8 +74,9 @@ message SearchRequest {
 }
 
 message CitationAnnotatingContext {
-  repeated llm.SearchToolResponseEntry entries = 1;
+  llm.SearchToolResponse original_search_response = 1;
   string original_answer = 2;
+  string question = 3;
 }
 
 message AnswerWithCitations {

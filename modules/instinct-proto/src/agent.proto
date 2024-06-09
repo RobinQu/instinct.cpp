@@ -71,6 +71,8 @@ message AgentFinish {
   bool is_failed = 4;
   // this is for error details
   google.protobuf.Any details = 6;
+  // original user input question
+  llm.PromptValue question = 7;
   // this is for custom step data
   google.protobuf.Any custom = 100;
 }

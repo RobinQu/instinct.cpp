@@ -61,9 +61,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     public:
         static inline std::string CATEGORY = "run_object";
 
-        RunObjectTaskHandler(RunServicePtr run_service, MessageServicePtr message_service,
-            AssistantServicePtr assistant_service, RetrieverOperatorPtr retriever_operator,
-            VectorStoreServicePtr vector_store_service, ThreadServicePtr thread_service, LLMProviderOptions llm_provider_options,
+        RunObjectTaskHandler(RunServicePtr run_service,
+            MessageServicePtr message_service,
+            AssistantServicePtr assistant_service,
+            RetrieverOperatorPtr retriever_operator,
+            VectorStoreServicePtr vector_store_service,
+            ThreadServicePtr thread_service,
+            CitationAnnotatingChainPtr citation_annotating_chain,
+            LLMProviderOptions llm_provider_options,
             AgentExecutorOptions agent_executor_options)
             : run_service_(std::move(run_service)),
               message_service_(std::move(message_service)),
@@ -72,7 +77,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
               agent_executor_options_(std::move(agent_executor_options)),
               retriever_operator_(std::move(retriever_operator)),
               vector_store_service_(std::move(vector_store_service)),
-              thread_service_(std::move(thread_service)) {
+              thread_service_(std::move(thread_service)),
+              citation_annotating_chain_(std::move(citation_annotating_chain)) {
         }
 
         bool Accept(const ITaskScheduler<std::string>::Task &task) override {
@@ -467,7 +473,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         [[nodiscard]] std::optional<std::pair<RunStepObject, MessageObject>> CreateMessageStep_(
             const std::string& content,
             const RunObject& run_object,
-            const std::vector<SearchToolResponseEntry>& file_search_results = {}
+            const std::optional<CitationAnnotatingContext>& citation_annotating_context = {}
         ) const {
             // TODO need transaction
             MessageObject create_message_request;
@@ -477,9 +483,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
             // create annotations
             // see more at: https://github.com/RobinQu/instinct.cpp/issues/20#issuecomment-2155970402
-            if (!file_search_results.empty()) {
-                CitationAnnotatingContext citation_annotating_context;
-                const auto annotated_answer = citation_annotating_chain_->Invoke(citation_annotating_context);
+            if (citation_annotating_context) {
+                const auto annotated_answer = citation_annotating_chain_->Invoke(citation_annotating_context.value());
                 text_content->set_value(annotated_answer.answer());
                 for(const auto& citation: annotated_answer.citations()) {
                     auto* annotation = text_content->add_annotations();
@@ -680,9 +685,22 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 } else {
                     modify_run_request.set_status(RunObject_RunObjectStatus_completed);
                     modify_run_request.set_completed_at(ChronoUtils::GetCurrentEpochMicroSeconds());
-                    if(!CreateMessageStep_(finish_message.response(), run_object)) {
-                        LOG_ERROR("Cannot create message for final answer. run_object={}", run_object.ShortDebugString());
-                        return;
+
+                    if (file_search_results.empty()) {
+                        if(!CreateMessageStep_(finish_message.response(), run_object)) {
+                            LOG_ERROR("Cannot create message for final answer. run_object={}", run_object.ShortDebugString());
+                            return;
+                        }
+                    } else {
+                        // build citation context
+                        CitationAnnotatingContext citation_annotating_context;
+                        citation_annotating_context.set_original_answer(finish_message.response());
+                        citation_annotating_context.mutable_original_search_response()->mutable_entries()->Add(file_search_results.begin(), file_search_results.end());
+                        citation_annotating_context.set_question(MessageUtils::ExtractLatestPromptString(finish_message.question()));
+                        if(!CreateMessageStep_(finish_message.response(), run_object)) {
+                            LOG_ERROR("Cannot create message for final answer. run_object={}", run_object.ShortDebugString());
+                            return;
+                        }
                     }
                 }
             } else { // another branch which has previous steps

@@ -35,6 +35,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         FileServicePtr file_service_ = CreateFileService();
         std::filesystem::path asset_dir_ = std::filesystem::current_path() / "_assets";
         SummaryChainPtr summary_chain = CreateSummaryChain(chat_model_);
+        CitationAnnotatingChainPtr citation_annotating_chain = CreateCitationAnnotatingChain(chat_model_);
         FileObjectTaskHandler file_object_task_handler {retriever_operator_, vector_store_service_, file_service_, summary_chain};
 
         std::shared_ptr<RunObjectTaskHandler> CreateTaskHandler() {
@@ -47,6 +48,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 retriever_operator_,
                 vector_store_service_,
                 thread_service_,
+                citation_annotating_chain,
                 llm_provider_options,
                 agent_executor_options
             );

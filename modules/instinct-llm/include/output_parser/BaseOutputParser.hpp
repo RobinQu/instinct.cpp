@@ -45,9 +45,6 @@ namespace INSTINCT_LLM_NS {
                         );
                         return context;
                     });
-//            transform_function_ = std::make_shared<LambdaStepFunction>([&](const JSONContextPtr &context) {
-//                auto generation = context->RequireMessage<Generation>();
-//                this->ParseResult(generation);
 //            });
         }
 
@@ -76,6 +73,34 @@ namespace INSTINCT_LLM_NS {
 
     template<typename T>
     using OutputParserPtr = std::shared_ptr<BaseOutputParser<T>>;
+
+    template<typename T>
+    class LambdaOutputParser final: public BaseOutputParser<T> {
+        OutputParserLambda<T> fn_;
+
+    public:
+        LambdaOutputParser(OutputParserLambda<T> fn, const OutputParserOptions &options)
+            : BaseOutputParser<T>(options),
+              fn_(std::move(fn)) {
+        }
+
+        T Invoke(const JSONContextPtr &input) override {
+            return fn_(input);
+        }
+
+        /**
+        * this function will never be called
+        */
+        T ParseResult(const Generation &generation) override {
+            return {};
+        }
+    };
+
+    template<typename T, typename Options = OutputParserOptions>
+    static OutputParserPtr<T> CreateLambdaOutputParser(OutputParserLambda<T> fn, const Options& options = {}) {
+        return std::make_shared<LambdaOutputParser<T>>(fn, options);
+    }
+
 
 }
 
