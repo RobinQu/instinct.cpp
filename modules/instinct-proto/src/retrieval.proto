@@ -83,7 +83,8 @@ message AnswerWithCitations {
   string answer = 1;
   repeated Citation citations = 2;
   message Citation {
-    llm.SearchToolResponseEntry quote = 1;
+    int32 quoted_index = 1;
+//    llm.SearchToolResponseEntry quote = 1;
     string annotation = 2;
   }
 }

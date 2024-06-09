@@ -495,13 +495,16 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 const auto annotated_answer = citation_annotating_chain_->Invoke(citation_annotating_context.value());
                 text_content->set_value(annotated_answer.answer());
                 for(const auto& citation: annotated_answer.citations()) {
-                    auto* annotation = text_content->add_annotations();
-                    annotation->set_type(MessageObject_MessageContent_MessageContentTextAnnotationType_file_citation);
-                    annotation->set_text(citation.annotation());
-                    annotation->set_start_index(citation.quote().start_index());
-                    annotation->set_end_index(citation.quote().end_index());
-                    annotation->mutable_citation()->set_file_id(citation.quote().parent_doc_id());
-                    annotation->mutable_citation()->set_quote(citation.quote().content());
+                    if (const auto idx = citation.quoted_index(); idx<citation_annotating_context->original_search_response().entries_size()) {
+                        auto* annotation = text_content->add_annotations();
+                        annotation->set_type(MessageObject_MessageContent_MessageContentTextAnnotationType_file_citation);
+                        annotation->set_text(citation.annotation());
+                        auto& entry = citation_annotating_context->original_search_response().entries(idx);
+                        annotation->set_start_index(entry.start_index());
+                        annotation->set_end_index(entry.end_index());
+                        annotation->mutable_file_citation()->set_file_id(entry.parent_doc_id());
+                        annotation->mutable_file_citation()->set_quote(entry.content());
+                    }
                 }
             } else {
                 text_content->set_value(content);
@@ -677,6 +680,17 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             modify_run_request.set_run_id(run_object.id());
             modify_run_request.set_thread_id(run_object.thread_id());
 
+
+            std::optional<CitationAnnotatingContext> citation_annotating_context_opt;
+            if (!file_search_results.empty()) {
+                // build citation context
+                CitationAnnotatingContext citation_annotating_context;
+                citation_annotating_context.set_original_answer(finish_message.response());
+                citation_annotating_context.mutable_original_search_response()->mutable_entries()->Add(file_search_results.begin(), file_search_results.end());
+                citation_annotating_context.set_question(MessageUtils::ExtractLatestPromptString(finish_message.question()));
+                citation_annotating_context_opt = citation_annotating_context;
+            }
+
             // finish with no previous step
             if (const auto last_run_step = RetrieveLastRunStep_(run_object); !last_run_step) {
                 if (finish_message.is_failed()) {
@@ -691,21 +705,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     modify_run_request.set_status(RunObject_RunObjectStatus_completed);
                     modify_run_request.set_completed_at(ChronoUtils::GetCurrentEpochMicroSeconds());
 
-                    if (file_search_results.empty()) {
-                        if(!CreateMessageStep_(finish_message.response(), run_object)) {
-                            LOG_ERROR("Cannot create message for final answer. run_object={}", run_object.ShortDebugString());
-                            return;
-                        }
-                    } else {
-                        // build citation context
-                        CitationAnnotatingContext citation_annotating_context;
-                        citation_annotating_context.set_original_answer(finish_message.response());
-                        citation_annotating_context.mutable_original_search_response()->mutable_entries()->Add(file_search_results.begin(), file_search_results.end());
-                        citation_annotating_context.set_question(MessageUtils::ExtractLatestPromptString(finish_message.question()));
-                        if(!CreateMessageStep_(finish_message.response(), run_object, citation_annotating_context)) {
-                            LOG_ERROR("Cannot create message for final answer. run_object={}", run_object.ShortDebugString());
-                            return;
-                        }
+                    if(!CreateMessageStep_(finish_message.response(), run_object, citation_annotating_context_opt)) {
+                        LOG_ERROR("Cannot create message for final answer. run_object={}", run_object.ShortDebugString());
+                        return;
                     }
                 }
             } else { // another branch which has previous steps
@@ -755,7 +757,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
                     // create message step
                     LOG_DEBUG("Final answer resolved: response={}, run_id={}", finish_message.response(), run_object.id());
-                    if (!CreateMessageStep_(finish_message.response(), run_object)) {
+                    if (!CreateMessageStep_(finish_message.response(), run_object, citation_annotating_context_opt)) {
                         LOG_ERROR("Failed to create message and run step. modify_run_request={}", modify_run_request.ShortDebugString());
                         return;
                     }

@@ -38,24 +38,44 @@ namespace INSTINCT_RETRIEVAL_NS {
             return ctx;
         }
 
+        using PIS = std::pair<int32_t, std::string>;
+
+        struct PISKeyEqual {
+            bool operator()(const PIS& a,const PIS& b) const {
+                return a.first == b.first;
+            }
+        };
+
+        struct PISKeyHash {
+            std::hash<int32_t> hash {};
+            std::size_t operator()(const PIS& s) const noexcept
+            {
+                return hash(s.first);
+            }
+        };
+
         static AnswerWithCitations parse_answer_with_citations(const JSONContextPtr& context) {
             static std::regex ANNOTATION_REGEX {R"(\(source\.(\d+)?\))"};
             AnswerWithCitations answer_with_citations;
             const auto final_answer = context->RequireMappingData().at("final_answer")->RequirePrimitive<std::string>();
             answer_with_citations.set_answer(final_answer);
             const auto original_search_response = context->RequireMappingData().at("docs")->RequireMessage<SearchToolResponse>();
+            std::unordered_set<PIS, PISKeyHash, PISKeyEqual> quoted_indexes;
             for(const auto& match: StringUtils::MatchPattern(final_answer, ANNOTATION_REGEX)) {
                 if (match.size()==2) {
                     if (const auto quotation_index = std::stoi(match[1]); quotation_index < original_search_response.entries_size()) {
-                        auto* citation = answer_with_citations.add_citations();
-                        citation->set_annotation(match[0].str());
-                        citation->mutable_quote()->CopyFrom(original_search_response.entries(quotation_index));
+                        quoted_indexes.emplace(quotation_index, match[0].str());
                     } else {
                         LOG_WARN("invalid quotation index for annoation: {}", match.str());
                     }
                 } else {
                     LOG_WARN("invalid match for annoation: {}", match.str());
                 }
+            }
+            for(const auto& [index,annotation]: quoted_indexes) {
+                auto* citation = answer_with_citations.add_citations();
+                citation->set_annotation(annotation);
+                citation->set_quoted_index(index);
             }
             return answer_with_citations;
         }

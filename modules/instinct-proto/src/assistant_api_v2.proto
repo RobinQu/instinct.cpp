@@ -235,7 +235,7 @@ message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, Modify
         int32 end_index = 4;
 
         // for citation only
-        MessageContentTextFileCitation citation = 5;
+        MessageContentTextFileCitation file_citation = 5;
         message MessageContentTextFileCitation {
           string file_id = 1;
           string quote = 2;
