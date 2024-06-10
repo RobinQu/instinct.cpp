@@ -7,6 +7,7 @@
 #include "LLMObjectFactory.hpp"
 #include "agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp"
 #include "assistant/v2/endpoint/VectorStoreController.hpp"
+#include "assistant/v2/endpoint/VectorStoreFileBatchController.hpp"
 #include "assistant/v2/endpoint/VectorStoreFileController.hpp"
 #include "assistant/v2/service/impl/VectorStoreServiceImpl.hpp"
 #include "chat_model/OllamaChat.hpp"
@@ -153,6 +154,7 @@ namespace instinct::examples::mini_assistant {
             const auto error_controller = std::make_shared<DefaultErrorController>();
             const auto vector_store_controller = std::make_shared<VectorStoreController>(context.assistant_facade);
             const auto vector_store_file_controller = std::make_shared<VectorStoreFileController>(context.assistant_facade);
+            const auto vector_store_file_batch_controller = std::make_shared<VectorStoreFileBatchController>(context.assistant_facade);
             http_server->Use(assistant_controller);
             http_server->Use(file_controller);
             http_server->Use(message_controller);
@@ -161,6 +163,7 @@ namespace instinct::examples::mini_assistant {
             http_server->Use(error_controller);
             http_server->Use(vector_store_controller);
             http_server->Use(vector_store_file_controller);
+            http_server->Use(vector_store_file_batch_controller);
             context.http_server = http_server;
             return context;
         }
