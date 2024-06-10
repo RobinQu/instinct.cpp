@@ -32,7 +32,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
     struct FileBatchObjectBackgroundTaskOptions {
         std::chrono::milliseconds interval_ = 10s;
-        size_t scan_batch_size = 10;
+        int scan_batch_size = 10;
     };
 
     class FileBatchObjectBackgroundTask final: public IBackgroundTask {
@@ -85,18 +85,22 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         void Handle() override {
-            for (const auto& file_batch: vector_store_service_->ListPendingFileBatcheObjects(options_.scan_batch_size)) {
+            ListPendingFileBatchObjectsRequest file_batch_objects_request;
+            file_batch_objects_request.set_limit(options_.scan_batch_size);
+            for (const auto& file_batch: vector_store_service_->ListPendingFileBatcheObjects(file_batch_objects_request)) {
                 LOG_DEBUG("check file batch: {}", file_batch.ShortDebugString());
                 ListFilesInVectorStoreBatchRequest req;
                 req.set_batch_id(file_batch.id());
+                req.set_vector_store_id(file_batch.vector_store_id());
                 ListFilesInVectorStoreBatchResponse resp;
                 resp.set_has_more(true);
                 ModifyVectorStoreFileBatchRequest modify_vector_store_batch_request;
                 modify_vector_store_batch_request.set_batch_id(file_batch.id());
+                modify_vector_store_batch_request.set_vector_store_id(file_batch.vector_store_id());
 
                 bool terminal = false;
                 bool completed = true;
-                const auto retriever = retriever_operator_->GetStatefulRetriever(req.vector_store_id());
+                const auto retriever = retriever_operator_->GetStatefulRetriever(file_batch.vector_store_id());
                 assert_true(retriever, "should have found stateful retriever by vector store id: " + req.vector_store_id());
                 // scan all files
                 do {

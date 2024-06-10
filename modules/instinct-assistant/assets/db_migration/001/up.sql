@@ -129,7 +129,8 @@ CREATE TABLE IF NOT EXISTS instinct_vector_store_file_batch (
     modified_at TIMESTAMP DEFAULT now() NOT NULL,
     vector_store_id VARCHAR NOT NULL,
     status VARCHAR NOT NULL,
-    last_error VARCHAR
+    last_error VARCHAR,
+    sanity_check_at TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS instinct_file (

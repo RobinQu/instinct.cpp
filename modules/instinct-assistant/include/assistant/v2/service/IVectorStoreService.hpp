@@ -35,7 +35,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         // for internal use only
         virtual std::vector<VectorStoreFileObject> ListAllVectorStoreObjectFiles(const std::vector<std::string>& vector_store_ids) = 0;
-        virtual std::vector<VectorStoreFileBatchObject> ListPendingFileBatcheObjects(size_t limit) = 0;
+        virtual std::vector<VectorStoreFileBatchObject> ListPendingFileBatcheObjects(const ListPendingFileBatchObjectsRequest& req) = 0;
         virtual std::optional<VectorStoreFileBatchObject> ModifyVectorStoreFileBatch(const ModifyVectorStoreFileBatchRequest& req) = 0;
     };
 

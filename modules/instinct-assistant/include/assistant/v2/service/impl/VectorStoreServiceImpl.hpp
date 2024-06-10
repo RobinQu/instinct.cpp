@@ -245,14 +245,15 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         std::optional<VectorStoreFileBatchObject>
         ModifyVectorStoreFileBatch(const ModifyVectorStoreFileBatchRequest &req) override {
-            assert_not_blank(req.batch_id(), "batch id shout not be blank");
-            assert_not_blank(req.vector_store_id(), "vector store id shout not be blank");
+            assert_not_blank(req.batch_id(), "batch id should not be blank");
+            assert_not_blank(req.vector_store_id(), "vector store id should not be blank");
             assert_true(vector_store_file_batch_data_mapper_->UpdateVectorStoreFileBatch(req));
             return vector_store_file_batch_data_mapper_->GetVectorStoreFileBatch(req.vector_store_id(), req.batch_id());
         }
 
-        std::vector<VectorStoreFileBatchObject> ListPendingFileBatcheObjects(const size_t limit) override {
-            return vector_store_file_batch_data_mapper_->ListPendingFileBatchObjects(std::vector {VectorStoreFileBatchObject_VectorStoreFileBatchStatus_in_progress}, limit);
+        std::vector<VectorStoreFileBatchObject> ListPendingFileBatcheObjects(const ListPendingFileBatchObjectsRequest& req) override {
+            assert_gte(req.limit(), 1, "limit should be a positive number");
+            return vector_store_file_batch_data_mapper_->ListPendingFileBatchObjects(req);
         }
     };
 }

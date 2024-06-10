@@ -53,27 +53,22 @@ set
 {% if exists("last_error") %}
     last_error = {{stringify(last_error)}},
 {% endif %}
+{% if exists("sanity_check_at") and sanity_check_at>0 %}
+    sanity_check_at = {{timestamp(sanity_check_at)}},
+{% endif %}
     modified_at = now()
 where id = {{text(batch_id)}};
             )", context);
         }
 
-        [[nodiscard]] std::vector<VectorStoreFileBatchObject> ListPendingFileBatchObjects(const std::vector<VectorStoreFileBatchObject_VectorStoreFileBatchStatus> &filtered_status,
-            size_t limit) const {
+        [[nodiscard]] std::vector<VectorStoreFileBatchObject> ListPendingFileBatchObjects(const ListPendingFileBatchObjectsRequest& req) const {
             SQLContext context;
-            assert_non_empty_range(filtered_status, "should have at least one status in filter");
-            for (const auto& status: filtered_status) {
-                assert_true(status!=VectorStoreFileBatchObject_VectorStoreFileBatchStatus_unknown_vector_store_file_batch_status, "should provide valid status in filter");
-                context["filtered_status"].push_back(VectorStoreFileBatchObject_VectorStoreFileBatchStatus_Name(status));
-            }
-            context["limit"] = limit;
+            ProtobufUtils::ConvertMessageToJsonObject(req, context);
             return data_template_->SelectMany(R"(select * from instinct_vector_store_file_batch
-where
-    status in (
-##for s in filtered_status
-        {{text(s)}},
-##endfor
-    )
+where sanity_check_at is NULL
+{% if exists("vector_store_id") %}
+    and vector_store_id = {{text(vector_store_id)}}
+{% endif %}
 order by modified_at asc
 limit {{limit}};)", context);
         }

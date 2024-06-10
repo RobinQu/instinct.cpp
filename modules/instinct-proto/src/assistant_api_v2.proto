@@ -1024,14 +1024,20 @@ message VectorStoreFileBatchObject {// CreateVectorStoreFileBatchResponse, GetVe
   string vector_store_id = 6;
   VectorStoreFileBatchStatus status = 7;
   VectorStoreFileError last_error = 8;
+  int64 sanity_check_at = 9;
 }
 
+message ListPendingFileBatchObjectsRequest {
+  string vector_store_id = 1;
+  int32 limit = 2;
+}
 
 message ModifyVectorStoreFileBatchRequest {
   string batch_id = 1;
   string vector_store_id = 2;
-  VectorStoreFileBatchObject.VectorStoreFileBatchStatus status = 7;
-  VectorStoreFileError last_error = 8;
+  VectorStoreFileBatchObject.VectorStoreFileBatchStatus status = 4;
+  VectorStoreFileError last_error = 5;
+  int64 sanity_check_at = 6;
 }
 
 // ==============================================================
