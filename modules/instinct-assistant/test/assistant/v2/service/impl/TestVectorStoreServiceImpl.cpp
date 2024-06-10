@@ -142,13 +142,28 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         ASSERT_EQ(list1.last_id(), list1.data().rbegin()->file_id());
         ASSERT_FALSE(list1.has_more());
 
+        // list pending
+        const auto list2 = vector_store_service->ListPendingFileBatcheObjects(10);
+        ASSERT_EQ(list2.size(), 1);
+        ASSERT_TRUE(diff.Compare(list2.at(0), obj1.value()));
+
+        // update
+        ModifyVectorStoreFileBatchRequest modify_vector_store_file_batch_request;
+        modify_vector_store_file_batch_request.set_batch_id(obj1->id());
+        modify_vector_store_file_batch_request.set_vector_store_id(obj1->vector_store_id());
+        modify_vector_store_file_batch_request.set_status(VectorStoreFileBatchObject_VectorStoreFileBatchStatus_failed);
+        modify_vector_store_file_batch_request.mutable_last_error()->set_code(CommonErrorType::invalid_request_error);
+        const auto obj5 = vector_store_service->ModifyVectorStoreFileBatch(modify_vector_store_file_batch_request);
+
         // get
         GetVectorStoreFileBatchRequest get_vector_store_file_batch_request;
         get_vector_store_file_batch_request.set_vector_store_id(create_vector_store_file_batch_request.vector_store_id());
         get_vector_store_file_batch_request.set_batch_id(obj1->id());
         const auto obj2 = vector_store_service->GetVectorStoreFileBatch(get_vector_store_file_batch_request);
         ASSERT_TRUE(obj2);
-        ASSERT_TRUE(diff.Compare(obj2.value(), obj1.value()));
+        ASSERT_TRUE(diff.Compare(obj2.value(), obj5.value()));
+        ASSERT_EQ(obj2->status(), VectorStoreFileBatchObject_VectorStoreFileBatchStatus_failed);
+        ASSERT_EQ(obj2->last_error().code(), invalid_request_error);
 
         // cancel
         CancelVectorStoreFileBatchRequest cancel_vector_store_file_batch_request;

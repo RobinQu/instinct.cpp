@@ -128,8 +128,6 @@ where vector_store_id in (
 )", context);
         }
 
-
-
         [[nodiscard]] ListFilesInVectorStoreBatchResponse ListVectorStoreFiles(const ListFilesInVectorStoreBatchRequest& req) const {
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(req, context, {.keep_default_values = true});

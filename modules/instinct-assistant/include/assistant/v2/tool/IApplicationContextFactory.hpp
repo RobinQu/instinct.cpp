@@ -11,6 +11,7 @@
 #include "object_store/FileSystemObjectStore.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 #include "assistant/v2/service/AssistantFacade.hpp"
+#include "assistant/v2/task_handler/FileBatchObjectBackgroundTask.hpp"
 #include "assistant/v2/task_handler/RunObjectTaskHandler.hpp"
 #include "server/httplib/HttpLibServer.hpp"
 #include "store/VectorStoreMetadataDataMapper.hpp"
@@ -56,6 +57,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             RetrieverOperatorPtr retriever_operator;
             VectorStoreOperatorPtr vector_store_operator;
             TaskHandlerPtr<TaskPayload> file_object_task_handler;
+            BackgroundTaskPtr file_batch_background_task;
         };
 
         IApplicationContextFactory() = default;

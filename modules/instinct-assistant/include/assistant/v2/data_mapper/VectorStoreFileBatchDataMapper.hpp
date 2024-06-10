@@ -40,22 +40,44 @@ select * from instinct_vector_store_file_batch where id = {{text(id)}};
 )", context);
         }
 
-        [[nodiscard]] size_t UpdateVectorStoreFileBatch(const std::string& vs_store_id, const std::string& batch_id, const VectorStoreFileBatchObject_VectorStoreFileBatchStatus status) const {
+        [[nodiscard]] size_t UpdateVectorStoreFileBatch(const ModifyVectorStoreFileBatchRequest &req) const {
+            assert_true(req.status() != VectorStoreFileBatchObject_VectorStoreFileBatchStatus_unknown_vector_store_file_batch_status, "should assign correct status for VectorStoreFileBatchObject");
             SQLContext context;
-            context["id"] = batch_id;
-            if (status != VectorStoreFileBatchObject_VectorStoreFileBatchStatus_unknown_vector_store_file_batch_status) {
-                context["status"] = VectorStoreFileBatchObject_VectorStoreFileBatchStatus_Name(status);
-            }
+            ProtobufUtils::ConvertMessageToJsonObject(req, context);
             return data_template_->Execute(R"(
 update instinct_vector_store_file_batch
 set
 {% if exists("status") %}
     status = {{text(status)}},
 {% endif %}
+{% if exists("last_error") %}
+    last_error = {{stringify(last_error)}},
+{% endif %}
     modified_at = now()
-where id = {{text(id)}};
-)", context);
+where id = {{text(batch_id)}};
+            )", context);
         }
+
+        [[nodiscard]] std::vector<VectorStoreFileBatchObject> ListPendingFileBatchObjects(const std::vector<VectorStoreFileBatchObject_VectorStoreFileBatchStatus> &filtered_status,
+            size_t limit) const {
+            SQLContext context;
+            assert_non_empty_range(filtered_status, "should have at least one status in filter");
+            for (const auto& status: filtered_status) {
+                assert_true(status!=VectorStoreFileBatchObject_VectorStoreFileBatchStatus_unknown_vector_store_file_batch_status, "should provide valid status in filter");
+                context["filtered_status"].push_back(VectorStoreFileBatchObject_VectorStoreFileBatchStatus_Name(status));
+            }
+            context["limit"] = limit;
+            return data_template_->SelectMany(R"(select * from instinct_vector_store_file_batch
+where
+    status in (
+##for s in filtered_status
+        {{text(s)}},
+##endfor
+    )
+order by modified_at asc
+limit {{limit}};)", context);
+        }
+
 
     };
 

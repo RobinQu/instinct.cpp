@@ -1027,6 +1027,13 @@ message VectorStoreFileBatchObject {// CreateVectorStoreFileBatchResponse, GetVe
 }
 
 
+message ModifyVectorStoreFileBatchRequest {
+  string batch_id = 1;
+  string vector_store_id = 2;
+  VectorStoreFileBatchObject.VectorStoreFileBatchStatus status = 7;
+  VectorStoreFileError last_error = 8;
+}
+
 // ==============================================================
 // File
 // ==============================================================

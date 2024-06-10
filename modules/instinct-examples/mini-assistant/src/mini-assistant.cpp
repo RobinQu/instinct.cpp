@@ -116,8 +116,7 @@ namespace instinct::examples::mini_assistant {
                 .vector_store = vector_store_service
             };
 
-            // configure task handler for run objects
-            auto builtin_toolkit = CreateLocalToolkit({});
+            // configure task handler for RunObject
             const auto chat_model = LLMObjectFactory::CreateChatModel(options_.chat_model);
             CitationAnnotatingChainPtr citation_annotating_chain = CreateCitationAnnotatingChain(chat_model);
             context.run_object_task_handler = std::make_shared<RunObjectTaskHandler>(
@@ -132,7 +131,7 @@ namespace instinct::examples::mini_assistant {
                 options_.agent_executor
             );
 
-
+            //  configure task handler for VectorStoreFileObject
             const auto summary_chain = CreateSummaryChain(chat_model);
             context.file_object_task_handler = std::make_shared<FileObjectTaskHandler>(
                 context.retriever_operator,
@@ -143,6 +142,9 @@ namespace instinct::examples::mini_assistant {
             );
             context.task_scheduler->RegisterHandler(context.run_object_task_handler);
             context.task_scheduler->RegisterHandler(context.file_object_task_handler);
+
+            // background task for FileBatchObject
+            context.file_batch_background_task = std::make_shared<FileBatchObjectBackgroundTask>(context.assistant_facade.vector_store);
 
             // configure http server
             const auto http_server = CreateHttpLibServer(options_.server);
@@ -165,6 +167,8 @@ namespace instinct::examples::mini_assistant {
             http_server->Use(vector_store_file_controller);
             http_server->Use(vector_store_file_batch_controller);
             context.http_server = http_server;
+
+            // return
             return context;
         }
     };
@@ -293,6 +297,9 @@ int main(int argc, char** argv) {
     const auto sql_line = std::string {sql_file.begin(), sql_file.end()};
     LOG_DEBUG("Initialize database at {} with sql:\n {}", application_options.db_file_path, sql_line);
     DBUtils::ExecuteSQL(sql_line, context.connection_pool);
+
+    // start background tasks
+    context.file_batch_background_task->Start();
 
     // start server
     context.http_server->StartAndWait();

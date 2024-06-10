@@ -214,7 +214,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         CancelVectorStoreFileBatch(const CancelVectorStoreFileBatchRequest &req) override {
             trace_span span {"CancelVectorStoreFileBatchRequest"};
             assert_not_blank(req.batch_id(), "should have non-blank");
-            assert_true(vector_store_file_batch_data_mapper_->UpdateVectorStoreFileBatch(req.vector_store_id(), req.batch_id(), VectorStoreFileBatchObject_VectorStoreFileBatchStatus_cancelled) == 1, "should have VectorStoreFileBatch updated");
+            ModifyVectorStoreFileBatchRequest modify_vector_store_file_batch_request;
+            modify_vector_store_file_batch_request.set_status(VectorStoreFileBatchObject_VectorStoreFileBatchStatus_cancelled);
+            modify_vector_store_file_batch_request.set_batch_id(req.batch_id());
+            modify_vector_store_file_batch_request.set_vector_store_id(req.vector_store_id());
+            assert_true(vector_store_file_batch_data_mapper_->UpdateVectorStoreFileBatch(modify_vector_store_file_batch_request) == 1, "should have VectorStoreFileBatch updated");
             return vector_store_file_batch_data_mapper_->GetVectorStoreFileBatch(req.vector_store_id(), req.batch_id());
         }
 
@@ -230,6 +234,18 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             const std::vector<std::string> &vector_store_ids) override {
             assert_non_empty_range(vector_store_ids, "should provide at least vector store id");
             return vector_store_file_data_mapper_->ListVectorStoreFiles(vector_store_ids);
+        }
+
+        std::optional<VectorStoreFileBatchObject>
+        ModifyVectorStoreFileBatch(const ModifyVectorStoreFileBatchRequest &req) override {
+            assert_not_blank(req.batch_id(), "batch id shout not be blank");
+            assert_not_blank(req.vector_store_id(), "vector store id shout not be blank");
+            assert_true(vector_store_file_batch_data_mapper_->UpdateVectorStoreFileBatch(req));
+            return vector_store_file_batch_data_mapper_->GetVectorStoreFileBatch(req.vector_store_id(), req.batch_id());
+        }
+
+        std::vector<VectorStoreFileBatchObject> ListPendingFileBatcheObjects(const size_t limit) override {
+            return vector_store_file_batch_data_mapper_->ListPendingFileBatchObjects(std::vector {VectorStoreFileBatchObject_VectorStoreFileBatchStatus_in_progress}, limit);
         }
     };
 }
