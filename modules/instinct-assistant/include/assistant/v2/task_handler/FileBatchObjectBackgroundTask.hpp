@@ -97,6 +97,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 ModifyVectorStoreFileBatchRequest modify_vector_store_batch_request;
                 modify_vector_store_batch_request.set_batch_id(file_batch.id());
                 modify_vector_store_batch_request.set_vector_store_id(file_batch.vector_store_id());
+                modify_vector_store_batch_request.set_sanity_check_at(ChronoUtils::GetCurrentEpochMicroSeconds());
 
                 bool terminal = false;
                 bool completed = true;
