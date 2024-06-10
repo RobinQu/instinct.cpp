@@ -225,6 +225,25 @@ where file_id = {{text(id)}} and vector_store_id = {{text(vector_store_id)}};
 )", context);
         }
 
+        [[nodiscard]] size_t CancelVectorStoreFiles(const std::string& vector_store_id, const std::string& batch_id) const {
+            assert_not_blank(batch_id, "should provide batch_id");
+            assert_not_blank(vector_store_id, "should provide vector_store_id");
+            // assert_non_empty_range(file_ids, "should have at least one file id");
+            SQLContext context;
+            // context["file_ids"] = file_ids;
+            context["vector_store_id"] = vector_store_id;
+            context["batch_id"] = batch_id;
+            return data_template_->Execute(R"(
+update instinct_vector_store_file
+set
+    status = 'cancelled',
+    modified_at = now()
+where
+    vector_store_id = {{text(vector_store_id)}}
+    and file_batch_id = {{text(batch_id)}}
+    and status = 'in_progress';)", context);
+        }
+
         [[nodiscard]] size_t UpdateVectorStoreFile(const ModifyVectorStoreFileRequest& update) const {
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(update, context);
@@ -241,7 +260,10 @@ set
     summary = {{text(summary)}},
 {% endif %}
     modified_at = now()
-where vector_store_id = {{text(vector_store_id)}} and file_id = {{text(file_id)}};
+where
+    vector_store_id = {{text(vector_store_id)}}
+    and file_id = {{text(file_id)}}
+    and status = 'in_progress';
 )", context);
         }
     };

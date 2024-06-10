@@ -144,7 +144,7 @@ namespace instinct::examples::mini_assistant {
             context.task_scheduler->RegisterHandler(context.file_object_task_handler);
 
             // background task for FileBatchObject
-            context.file_batch_background_task = std::make_shared<FileBatchObjectBackgroundTask>(context.assistant_facade.vector_store);
+            context.file_batch_background_task = std::make_shared<FileBatchObjectBackgroundTask>(context.assistant_facade.vector_store, context.retriever_operator);
 
             // configure http server
             const auto http_server = CreateHttpLibServer(options_.server);

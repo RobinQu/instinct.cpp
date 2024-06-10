@@ -37,20 +37,23 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
     class FileBatchObjectBackgroundTask final: public IBackgroundTask {
         VectorStoreServicePtr vector_store_service_;
+        RetrieverOperatorPtr retriever_operator_;
         std::thread thread_;
         volatile bool running_ = false;
         FileBatchObjectBackgroundTaskOptions options_;
     public:
-        explicit FileBatchObjectBackgroundTask(VectorStoreServicePtr vector_store_service,
+        FileBatchObjectBackgroundTask(
+            VectorStoreServicePtr vector_store_service,
+            RetrieverOperatorPtr retriever_operator,
             FileBatchObjectBackgroundTaskOptions options = {})
             : vector_store_service_(std::move(vector_store_service)),
+              retriever_operator_(std::move(retriever_operator)),
               options_(std::move(options)) {
               assert_gt(options_.interval_.count(), 100, "time interval should be at least 100ms");
               assert_gte(options_.scan_batch_size, 1, "scan_batch_size should be greater than or equal to one");
         }
 
         ~FileBatchObjectBackgroundTask() override {
-            LOG_DEBUG("Shutting dow FileBatchObjectBackgroundTask");
             Shutdown();
         }
 
@@ -68,10 +71,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     std::this_thread::sleep_for(options_.interval_);
                 }
             });
+            LOG_INFO("FileBatchObjectBackgroundTask started");
         }
 
         void Shutdown() override {
-            running_ = false;
+            if (running_) {
+                LOG_DEBUG("Shutting down FileBatchObjectBackgroundTask");
+                running_ = false;
+            }
             if (thread_.joinable()) {
                 thread_.join();
             }
@@ -89,8 +96,16 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
                 bool terminal = false;
                 bool completed = true;
+                const auto retriever = retriever_operator_->GetStatefulRetriever(req.vector_store_id());
+                assert_true(retriever, "should have found stateful retriever by vector store id: " + req.vector_store_id());
                 // scan all files
                 do {
+                    // clean data in retriever for cancelled and failed files
+                    SearchQuery search_query;
+                    auto* terms_query = search_query.mutable_terms();
+                    terms_query->set_name(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
+
+                    // trigger scan
                     resp = vector_store_service_->ListFilesInVectorStoreBatch(req);
                     for(const auto& file: resp.data()) {
                         if (file.status() == failed) {
@@ -99,17 +114,24 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                             modify_vector_store_batch_request.mutable_last_error()->CopyFrom(file.last_error());
                             terminal = true;
                             completed = false;
+                            terms_query->add_terms()->set_string_value(file.file_id());
                         }
                         if (file.status() == cancelled) {
                             LOG_DEBUG("Found canceled file {} in file batch {}", file.file_id(), file.file_batch_id());
                             modify_vector_store_batch_request.set_status(VectorStoreFileBatchObject_VectorStoreFileBatchStatus_cancelled);
                             terminal = true;
                             completed = false;
+                            terms_query->add_terms()->set_string_value(file.file_id());
                         }
                         if (file.status() == in_progress) {
                             terminal = false;
                             completed = false;
                         }
+                    }
+
+                    // do cleanup
+                    if (terms_query->terms_size()>0) {
+                        retriever->Remove(search_query);
                     }
                 } while (resp.has_more() && !terminal);
 

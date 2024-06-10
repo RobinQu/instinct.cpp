@@ -75,6 +75,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             VectorStoreFileObject vs_file_object;
             ProtobufUtils::Deserialize(task.payload, vs_file_object);
 
+            if (!CheckVectorStoreFileOk(vs_file_object.vector_store_id(), vs_file_object.file_id())) {
+                LOG_WARN("Abort for invalid state for VectorStoreFileObject");
+                return;
+            }
+
             ModifyVectorStoreFileRequest modify_vector_store_file_request;
             modify_vector_store_file_request.set_vector_store_id(vs_file_object.vector_store_id());
             modify_vector_store_file_request.set_file_id(vs_file_object.file_id());
@@ -134,10 +139,24 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 modify_vector_store_file_request.mutable_last_error()->set_message("File handling failed");
             }
 
+            if (!CheckVectorStoreFileOk(vs_file_object.vector_store_id(), vs_file_object.file_id())) {
+                LOG_WARN("Abort for invalid state for VectorStoreFileObject");
+                return;
+            }
+
             vector_store_service_->ModifyVectorStoreFile(modify_vector_store_file_request);
         }
 
     private:
+
+        [[nodiscard]] bool CheckVectorStoreFileOk(const std::string& vs_store_id, const std::string& file_id) const {
+            GetVectorStoreFileRequest get_vector_store_file_request;
+            get_vector_store_file_request.set_vector_store_id(vs_store_id);
+            get_vector_store_file_request.set_file_id(file_id);
+            const auto obj = vector_store_service_->GetVectorStoreFile(get_vector_store_file_request);
+            return obj && obj->status() == in_progress;
+        }
+
         void DownloadFile_(const FileObject& file_object, const TempFile& temp_file) const {
             std::ofstream output_stream {temp_file.path, std::ios::out | std::ios::trunc};
             DownloadFileRequest download_file_request;

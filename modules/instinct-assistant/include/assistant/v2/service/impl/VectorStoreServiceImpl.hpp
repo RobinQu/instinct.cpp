@@ -214,11 +214,18 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         CancelVectorStoreFileBatch(const CancelVectorStoreFileBatchRequest &req) override {
             trace_span span {"CancelVectorStoreFileBatchRequest"};
             assert_not_blank(req.batch_id(), "should have non-blank");
+
+            // update file batch object
             ModifyVectorStoreFileBatchRequest modify_vector_store_file_batch_request;
             modify_vector_store_file_batch_request.set_status(VectorStoreFileBatchObject_VectorStoreFileBatchStatus_cancelled);
             modify_vector_store_file_batch_request.set_batch_id(req.batch_id());
             modify_vector_store_file_batch_request.set_vector_store_id(req.vector_store_id());
             assert_true(vector_store_file_batch_data_mapper_->UpdateVectorStoreFileBatch(modify_vector_store_file_batch_request) == 1, "should have VectorStoreFileBatch updated");
+
+            // update vector file objects
+            assert_true(vector_store_file_data_mapper_->CancelVectorStoreFiles(req.vector_store_id(), req.batch_id()) > 0, "should have vector store files updated");
+
+            // return latest vector store file batch
             return vector_store_file_batch_data_mapper_->GetVectorStoreFileBatch(req.vector_store_id(), req.batch_id());
         }
 
