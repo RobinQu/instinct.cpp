@@ -129,7 +129,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         create_vector_store_file_batch_request.add_file_ids("file-1");
         create_vector_store_file_batch_request.add_file_ids("file-2");
         create_vector_store_file_batch_request.add_file_ids("file-3");
-        const auto obj1 = vector_store_service->CreateVectorStoreFileBatche(create_vector_store_file_batch_request);
+        const auto obj1 = vector_store_service->CreateVectorStoreFileBatch(create_vector_store_file_batch_request);
         ASSERT_TRUE(obj1);
 
         // list files

@@ -71,7 +71,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         void Handle(const ITaskScheduler<std::string>::Task &task) override {
-            trace_span span {"FileObjectTaskHandler::Handle"};
+            trace_span span {"FileObjectTaskHandler::Handle(" + task.task_id + ")"};
             VectorStoreFileObject vs_file_object;
             ProtobufUtils::Deserialize(task.payload, vs_file_object);
 
@@ -85,7 +85,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             modify_vector_store_file_request.set_file_id(vs_file_object.file_id());
             modify_vector_store_file_request.set_status(in_progress);
             assert_true(vector_store_service_->ModifyVectorStoreFile(modify_vector_store_file_request), "should have VectorStoreFileObject updated");
-
+            LOG_INFO("VectorStoreFileObject is in_progress: {}", task.task_id);
 
             try {
                 GetVectorStoreRequest get_vector_store_request;
@@ -112,6 +112,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     }
                 );
                 assert_true(ingestor, "should have created ingestor for file");
+                LOG_INFO("Ingestor is built: {}", task.task_id);
                 // OpenAI's parameters: https://github.com/RobinQu/instinct.cpp/issues/16#issuecomment-2133171030
                 const auto splitter = CreateRecursiveCharacterTextSplitter({
                     .chunk_size = 800,
@@ -119,23 +120,26 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 });
 
                 // load docs into vdb
+                LOG_INFO("Ingestor will start: {}", task.task_id);
                 const auto retriever = retriever_operator_->GetStatefulRetriever(vs_object->id());
                 retriever->Ingest(ingestor->LoadWithSplitter(splitter));
+                LOG_INFO("Ingestor is finished: {}", task.task_id);
 
                 // generate summary
                 FindRequest find_request;
                 find_request.mutable_query()->mutable_term()->set_name(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
                 find_request.mutable_query()->mutable_term()->mutable_term()->set_string_value(vs_file_object.file_id());
                 const auto doc_itr = retriever->GetDocStore()->FindDocuments(find_request);
+                LOG_INFO("Summary started: {}", task.task_id);
                 const auto summary = CreateSummary(doc_itr, summary_chain_, reducible_fn_).get();
                 modify_vector_store_file_request.set_summary(summary);
-                LOG_DEBUG("summary for file {}: {}", vs_file_object.file_id(), summary);
+                LOG_INFO("Summary done {}: {}", vs_file_object.file_id(), summary);
                 modify_vector_store_file_request.set_status(completed);
             } catch (...) {
-                modify_vector_store_file_request.set_status(failed);
-                modify_vector_store_file_request.mutable_last_error()->set_code(CommonErrorType::server_error);
                 // TODO to print error log
                 LOG_ERROR("File handling failed for {}", vs_file_object.ShortDebugString());
+                modify_vector_store_file_request.set_status(failed);
+                modify_vector_store_file_request.mutable_last_error()->set_code(CommonErrorType::server_error);
                 modify_vector_store_file_request.mutable_last_error()->set_message("File handling failed");
             }
 
@@ -144,7 +148,35 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 return;
             }
 
-            vector_store_service_->ModifyVectorStoreFile(modify_vector_store_file_request);
+
+            // update file status
+            assert_true(vector_store_service_->ModifyVectorStoreFile(modify_vector_store_file_request));
+
+            // update file batch status
+            if (StringUtils::IsNotBlankString(vs_file_object.file_batch_id())) {
+                GetVectorStoreFileBatchRequest get_vector_store_file_batch_request;
+                get_vector_store_file_batch_request.set_batch_id(vs_file_object.file_batch_id());
+                get_vector_store_file_batch_request.set_vector_store_id(vs_file_object.vector_store_id());
+                const auto file_batch_object = vector_store_service_->GetVectorStoreFileBatch(get_vector_store_file_batch_request);
+                if (file_batch_object->file_counts().in_progress() == 0) {
+                    ModifyVectorStoreFileBatchRequest modify_vector_store_file_batch_request;
+                    modify_vector_store_file_batch_request.set_vector_store_id(file_batch_object->vector_store_id());
+                    modify_vector_store_file_batch_request.set_batch_id(modify_vector_store_file_batch_request.batch_id());
+                    if (file_batch_object->file_counts().cancelled() > 0) {
+                        modify_vector_store_file_batch_request.set_status(VectorStoreFileBatchObject_VectorStoreFileBatchStatus_cancelled);
+                    } else if (file_batch_object->file_counts().failed() > 0) {
+                        modify_vector_store_file_batch_request.set_status(VectorStoreFileBatchObject_VectorStoreFileBatchStatus_failed);
+                    } else if (file_batch_object->file_counts().completed() == file_batch_object->file_counts().total()) {
+                        modify_vector_store_file_batch_request.set_status(VectorStoreFileBatchObject_VectorStoreFileBatchStatus_completed);
+                    } else {
+                        LOG_WARN("Invalid state for VectorStoreFileBatchObject: ", file_batch_object->ShortDebugString());
+                    }
+                    LOG_INFO("Updating file batch with request: {}", modify_vector_store_file_batch_request.ShortDebugString());
+                    assert_true(vector_store_service_->ModifyVectorStoreFileBatch(modify_vector_store_file_batch_request));
+                } else {
+                    LOG_INFO("Not updating file batch as some files are still in progress");
+                }
+            }
         }
 
     private:

@@ -47,6 +47,11 @@ namespace INSTINCT_LLM_NS {
         }
     }
 
+    static TokenizerPtr GPT4_TOKENIZER_INSTANCE = nullptr;
+    static TokenizerPtr GPT2_TOKENIZER_INSTANCE = nullptr;
+    static std::mutex MUTEX;
+
+
     struct TiktokenConfig {
         std::string name;
         int explict_n_vocab;
@@ -99,16 +104,15 @@ namespace INSTINCT_LLM_NS {
         }
 
         static TokenizerPtr MakeGPT2Tokenizer(const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
-            PreloadTokenizerResources(file_vault);
-            static TokenizerPtr INSTANCE = nullptr;
-            static std::mutex MUTEX;
+            trace_span span {"MakeGPT2Tokenizer"};
             std::lock_guard guard {MUTEX};
-            if (!INSTANCE) {
+            if (!GPT2_TOKENIZER_INSTANCE) {
+                PreloadTokenizerResources(file_vault);
                 const auto entry1 = DEFAULT_FILE_VAULT->GetResource("tiktoken/gpt2_vocab.bpe").get();
                 const auto entry2 = DEFAULT_FILE_VAULT->GetResource("tiktoken/gpt2_vocab.bpe").get();
-                INSTANCE = MakeGPT2Tokenizer(entry1.local_path, entry2.local_path);
+                GPT2_TOKENIZER_INSTANCE = MakeGPT2Tokenizer(entry1.local_path, entry2.local_path);
             }
-            return INSTANCE;
+            return GPT2_TOKENIZER_INSTANCE;
         }
 
         static TokenizerPtr MakeGPT2Tokenizer(
@@ -128,15 +132,14 @@ namespace INSTINCT_LLM_NS {
         }
 
         static TokenizerPtr MakeGPT4Tokenizer() {
-            static TokenizerPtr INSTANCE = nullptr;
-            static std::mutex MUTEX;
+            trace_span span {"MakeGPT4Tokenizer"};
             std::lock_guard guard {MUTEX};
-            if (!INSTANCE) {
+            if (!GPT4_TOKENIZER_INSTANCE) {
                 PreloadTokenizerResources(DEFAULT_FILE_VAULT);
                 const auto entry = DEFAULT_FILE_VAULT->GetResource("tiktoken/cl100k_base.tiktoken").get();
-                INSTANCE = MakeGPT4Tokenizer(entry.local_path);
+                GPT4_TOKENIZER_INSTANCE = MakeGPT4Tokenizer(entry.local_path);
             }
-            return INSTANCE;
+            return GPT4_TOKENIZER_INSTANCE;
         }
 
         static TokenizerPtr MakeGPT4Tokenizer(

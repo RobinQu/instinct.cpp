@@ -187,7 +187,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         std::optional<VectorStoreFileBatchObject>
-        CreateVectorStoreFileBatche(const CreateVectorStoreFileBatchRequest &req) override {
+        CreateVectorStoreFileBatch(const CreateVectorStoreFileBatchRequest &req) override {
             trace_span span {"CreateVectorStoreFileBatchRequest"};
             assert_true(req.file_ids_size()>0, "should provide at least one file_id");
             assert_not_blank(req.vector_store_id(), "should provide valid vector_store_id");
@@ -199,7 +199,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             if (task_scheduler_) {
                 for(const auto files = vector_store_file_data_mapper_->ListVectorStoreFiles(req.vector_store_id(), req.file_ids()); const auto& file: files) {
                     task_scheduler_->Enqueue({
-                        .task_id = req.vector_store_id(),
+                        .task_id = file.file_id(),
                         .category = FileObjectTaskHandler::CATEGORY,
                         .payload = ProtobufUtils::Serialize(file)
                     });

@@ -4,11 +4,27 @@ import pytest
 import json
 import time
 from openai import OpenAI
+from openai.types.beta.threads import Text
 
 logging.basicConfig(level=logging.DEBUG)
 
 client = OpenAI(base_url="http://localhost:9091/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-3.5-turbo")
+
+
+def print_response_with_citation(message_content: Text):
+    print(message_content)
+    annotations = message_content.annotations
+    citations = []
+    for index, annotation in enumerate(annotations):
+        message_content.value = message_content.value.replace(annotation.text, f"[{index}]")
+        if file_citation := getattr(annotation, "file_citation", None):
+            cited_file = client.files.retrieve(file_citation.file_id)
+            citations.append(f"[{index}] {cited_file.filename} "
+                             f"({annotation.start_index} to {annotation.end_index}): {file_citation.quote}")
+    print("------------------------------")
+    print(message_content.value)
+    print("\n".join(citations))
 
 
 def test_file_search_with_single_file():
@@ -53,18 +69,7 @@ def test_file_search_with_single_file():
 
     messages = list(client.beta.threads.messages.list(thread_id=thread.id, run_id=run.id))
     message_content = messages[0].content[0].text
-    print(message_content)
-    annotations = message_content.annotations
-    citations = []
-    for index, annotation in enumerate(annotations):
-        message_content.value = message_content.value.replace(annotation.text, f"[{index}]")
-        if file_citation := getattr(annotation, "file_citation", None):
-            cited_file = client.files.retrieve(file_citation.file_id)
-            citations.append(f"[{index}] {cited_file.filename} "
-                             f"({annotation.start_index} to {annotation.end_index}): {file_citation.quote}")
-    print("------------------------------")
-    print(message_content.value)
-    print("\n".join(citations))
+    print_response_with_citation(message_content)
 
 
 def test_file_search_with_multiple_files():
@@ -76,7 +81,8 @@ def test_file_search_with_multiple_files():
         vector_store_id=vector_store.id, files=file_streams
     )
     print(file_batch)
-    assert file_batch.status == "completed"
+    assert file_batch.file_counts.in_progress == 0
+    assert file_batch.file_counts.completed == file_batch.file_counts.total
 
     assistant = client.beta.assistants.create(
         name="Botanic Assistant",
@@ -86,6 +92,7 @@ def test_file_search_with_multiple_files():
         tools=[{"type": "file_search"}],
         tool_resources={"file_search": {"vector_store_ids": [vector_store.id]}}
     )
+    print(assistant)
 
     thread = client.beta.threads.create(
         messages=[
@@ -95,6 +102,7 @@ def test_file_search_with_multiple_files():
             }
         ]
     )
+    print(thread)
 
     run = client.beta.threads.runs.create_and_poll(
         thread_id=thread.id, assistant_id=assistant.id
@@ -104,16 +112,7 @@ def test_file_search_with_multiple_files():
     messages = list(client.beta.threads.messages.list(thread_id=thread.id, run_id=run.id))
 
     message_content = messages[0].content[0].text
-    annotations = message_content.annotations
-    citations = []
-    for index, annotation in enumerate(annotations):
-        message_content.value = message_content.value.replace(annotation.text, f"[{index}]")
-        if file_citation := getattr(annotation, "file_citation", None):
-            cited_file = client.files.retrieve(file_citation.file_id)
-            citations.append(f"[{index}] {cited_file.filename}")
-
-    print(message_content.value)
-    print("\n".join(citations))
+    print_response_with_citation(message_content)
 
 
 

@@ -24,21 +24,6 @@ namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_CORE_NS;
     using namespace INSTINCT_LLM_NS;
 
-    class trace_span {
-        std::string function_;
-        u_int64_t start_;
-    public:
-        explicit trace_span(std::string function)
-            : function_(std::move(function)) {
-            start_ = ChronoUtils::GetCurrentTimeMillis();
-            LOG_DEBUG("{} started", function_);
-        }
-
-        ~trace_span() {
-            LOG_DEBUG("{} ended. duration {}ms", function_, ChronoUtils::GetCurrentTimeMillis() - start_);
-        }
-    };
-
     namespace v2 {
         static const std::string FILE_SEARCH_TOOL_NAME = "FileSearch";
 

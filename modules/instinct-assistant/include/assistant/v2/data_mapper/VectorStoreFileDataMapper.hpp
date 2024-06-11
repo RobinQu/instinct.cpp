@@ -267,8 +267,7 @@ set
     modified_at = now()
 where
     vector_store_id = {{text(vector_store_id)}}
-    and file_id = {{text(file_id)}}
-    and status = 'in_progress';
+    and file_id = {{text(file_id)}};
 )", context);
         }
     };

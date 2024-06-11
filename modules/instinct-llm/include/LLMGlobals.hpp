@@ -9,6 +9,7 @@
 #include <llm.pb.h>
 #include <agent.pb.h>
 #include "CoreGlobals.hpp"
+#include "tools/ChronoUtils.hpp"
 #include "tools/ProtobufUtils.hpp"
 #include "tools/SnowflakeIDGenerator.hpp"
 #include "tools/StringUtils.hpp"
@@ -160,6 +161,20 @@ namespace INSTINCT_LLM_NS {
             return fmt::format("{}_{}", prefix, generator.NextID());
         }
     }
+
+    class trace_span {
+        std::string function_;
+        u_int64_t start_;
+    public:
+        explicit trace_span(std::string function)
+            : function_(std::move(function)), start_(ChronoUtils::GetCurrentTimeMillis()) {
+            LOG_DEBUG("{} started", function_);
+        }
+
+        ~trace_span() {
+            LOG_DEBUG("{} ended. duration {}ms", function_, ChronoUtils::GetCurrentTimeMillis() - start_);
+        }
+    };
 
 
 }

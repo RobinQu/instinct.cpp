@@ -18,7 +18,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         void Mount(HttpLibServer &server) override {
             server.PostRoute<CreateVectorStoreFileBatchRequest, VectorStoreFileBatchObject>("/v1/vector_stores/:vector_store_id/file_batches", [&](CreateVectorStoreFileBatchRequest& req, const HttpLibSession& session) {
                 req.set_vector_store_id(session.request.path_params.at("vector_store_id"));
-                if (const auto &resp = facade_.vector_store->CreateVectorStoreFileBatche(req)) {
+                if (const auto &resp = facade_.vector_store->CreateVectorStoreFileBatch(req)) {
                     session.Respond(resp.value());
                 } else {
                     session.Respond("VectorStoreFileBatch cannot be retrieved after creation", 500);

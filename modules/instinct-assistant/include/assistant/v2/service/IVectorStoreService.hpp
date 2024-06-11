@@ -27,7 +27,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         virtual std::optional<VectorStoreFileObject> GetVectorStoreFile(const GetVectorStoreFileRequest& req) = 0;
         virtual std::optional<VectorStoreFileObject> ModifyVectorStoreFile(const ModifyVectorStoreFileRequest& req) = 0;
         virtual DeleteVectorStoreFileResponse DeleteVectorStoreFile(const DeleteVectorStoreFileRequest& req) = 0;
-        virtual std::optional<VectorStoreFileBatchObject> CreateVectorStoreFileBatche(const CreateVectorStoreFileBatchRequest& req) = 0;
+        virtual std::optional<VectorStoreFileBatchObject> CreateVectorStoreFileBatch(const CreateVectorStoreFileBatchRequest& req) = 0;
         virtual std::optional<VectorStoreFileBatchObject> GetVectorStoreFileBatch(const GetVectorStoreFileBatchRequest& req) = 0;
         virtual std::optional<VectorStoreFileBatchObject> CancelVectorStoreFileBatch(const CancelVectorStoreFileBatchRequest& req) = 0;
         virtual ListFilesInVectorStoreBatchResponse ListFilesInVectorStoreBatch(const ListFilesInVectorStoreBatchRequest& req) = 0;

@@ -41,7 +41,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             CreateVectorStoreFileBatchRequest create_vector_store_file_batch_request;
             create_vector_store_file_batch_request.set_vector_store_id(vs->id());
             create_vector_store_file_batch_request.mutable_file_ids()->Add(file_ids.begin(), file_ids.end());
-            const auto file_batch = vector_store_service_->CreateVectorStoreFileBatche(create_vector_store_file_batch_request);
+            const auto file_batch = vector_store_service_->CreateVectorStoreFileBatch(create_vector_store_file_batch_request);
             LOG_INFO("file_batch: {}", file_batch->ShortDebugString());
             assert_true(file_batch->status() == VectorStoreFileBatchObject_VectorStoreFileBatchStatus_in_progress);
             return file_batch;
