@@ -67,7 +67,6 @@ def test_file_search_with_single_file():
     print("\n".join(citations))
 
 
-
 def test_file_search_with_multiple_files():
     vector_store = client.beta.vector_stores.create(name="kb2")
 

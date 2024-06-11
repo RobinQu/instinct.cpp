@@ -40,8 +40,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             trace_span span {"ListVectorStores"};
             auto resp = vector_store_data_mapper_->ListVectorStores(req);
             for(auto& vs: *resp.mutable_data()) {
+                CountFilesRequest count_files_request;
+                count_files_request.set_vector_store_id(vs.id());
                 vs.mutable_file_counts()
-                    ->CopyFrom(vector_store_file_data_mapper_->CountVectorStoreFiles(vs.id()));
+                    ->CopyFrom(vector_store_file_data_mapper_->CountVectorStoreFiles(count_files_request));
             }
             return resp;
         }
@@ -80,7 +82,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 return std::nullopt;
             }
             // TODO need transaction
-            const auto counts = vector_store_file_data_mapper_->CountVectorStoreFiles(req.vector_store_id());
+            CountFilesRequest count_files_request;
+            count_files_request.set_vector_store_id(req.vector_store_id());
+            const auto counts = vector_store_file_data_mapper_->CountVectorStoreFiles(count_files_request);
             vs->mutable_file_counts()->CopyFrom(counts);
             return vs;
         }
@@ -98,7 +102,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // TODO need transaction
             const auto vector_store_object = vector_store_data_mapper_->GetVectorStore(req.vector_store_id());
             assert_true(vector_store_object, fmt::format("should have found VectorStoreObject with request {}", req.ShortDebugString()));
-            const auto count = vector_store_file_data_mapper_->CountVectorStoreFiles(req.vector_store_id());
+            CountFilesRequest count_files_request;
+            count_files_request.set_vector_store_id(req.vector_store_id());
+            const auto count = vector_store_file_data_mapper_->CountVectorStoreFiles(count_files_request);
             const bool is_removable = count.in_progress() == 0;
             DeleteVectorStoreResponse response;
             response.set_object("vector_store.deleted");
@@ -207,7 +213,19 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             trace_span span {"GetVectorStoreFileBatch"};
             assert_not_blank(req.vector_store_id(), "should provide valid vector_store_id");
             assert_not_blank(req.batch_id(), "should provide valid batch_id");
-            return vector_store_file_batch_data_mapper_->GetVectorStoreFileBatch(req.vector_store_id(), req.batch_id());
+
+            // count
+            CountFilesRequest count_files_request;
+            count_files_request.set_vector_store_id(req.vector_store_id());
+            count_files_request.set_file_batch_id(req.batch_id());
+            const auto counts = vector_store_file_data_mapper_->CountVectorStoreFiles(count_files_request);
+
+            // get
+            auto batch_object = vector_store_file_batch_data_mapper_->GetVectorStoreFileBatch(req.vector_store_id(), req.batch_id());
+            batch_object->mutable_file_counts()->CopyFrom(counts);
+
+            // return
+            return batch_object;
         }
 
         std::optional<VectorStoreFileBatchObject>

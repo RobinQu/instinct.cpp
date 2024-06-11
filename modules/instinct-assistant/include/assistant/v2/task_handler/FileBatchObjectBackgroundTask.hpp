@@ -148,13 +148,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
                 if (terminal) {
                     LOG_DEBUG("File batch reached terminal state: {}", modify_vector_store_batch_request.ShortDebugString());
+                    // update file batch object to refresh its timestamp
+                    if (!vector_store_service_->ModifyVectorStoreFileBatch(modify_vector_store_batch_request)) {
+                        LOG_ERROR("failed to update file batch: {}", modify_vector_store_batch_request.ShortDebugString());
+                    }
                 }
-
-                // always update file batch object to refresh its timestamp
-                if (!vector_store_service_->ModifyVectorStoreFileBatch(modify_vector_store_batch_request)) {
-                    LOG_ERROR("failed to update file batch: {}", modify_vector_store_batch_request.ShortDebugString());
-                }
-
             }
         }
     };

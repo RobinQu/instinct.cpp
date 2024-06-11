@@ -172,9 +172,9 @@ limit {{limit}};
             return response;
         }
 
-        [[nodiscard]] VectorStoreObject_FileCounts CountVectorStoreFiles(const std::string& vector_store_id) const {
+        [[nodiscard]] FileCounts CountVectorStoreFiles(const CountFilesRequest& count_files_request) const {
             SQLContext context;
-            context["vector_store_id"] = vector_store_id;
+            ProtobufUtils::ConvertMessageToJsonObject(count_files_request, context);
             const auto aggregations = data_template_->Aggregate(R"(
 select
     sum(case when status = 'in_progress' then 1 else 0 end) as in_progress,
@@ -183,9 +183,14 @@ select
     sum(case when status = 'cancelled' then 1 else 0 end) as cancelled,
     count(*) as total
 from instinct_vector_store_file
-where vector_store_id = {{text(vector_store_id)}};
+where
+    vector_store_id = {{text(vector_store_id)}}
+{% if exists("file_batch_id") %}
+    and file_batch_id = {{text(file_batch_id)}}
+{% endif %}
+;
 )", context);
-            VectorStoreObject_FileCounts file_counts;
+            FileCounts file_counts;
             assert_gt(aggregations.rows_size(), 0, "should have at least one row");
             auto& row = aggregations.rows(0);
             file_counts.set_in_progress(static_cast<int32_t>(row.int64().contains("in_progress") ? row.int64().at("in_progress") : 0));

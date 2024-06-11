@@ -57,7 +57,7 @@ namespace INSTINCT_LLM_NS {
 
     class TiktokenTokenizer final: public RegexTokenizer {
         ByteShuffle byte_shuffle_;
-        ByteShuffle revsered_byte_shuffle_;
+        ByteShuffle reversed_byte_shuffle_;
 
     public:
         TiktokenTokenizer(BPERanks bpe_ranks, Vocab vocab, const UnicodeString& regexp_string,
@@ -65,7 +65,7 @@ namespace INSTINCT_LLM_NS {
             : RegexTokenizer(std::move(bpe_ranks), std::move(vocab), regexp_string, special_tokens),
               byte_shuffle_(std::move(byte_shuffle)) {
             for(const auto& [id,token]: byte_shuffle_) {
-                revsered_byte_shuffle_[token] = id;
+                reversed_byte_shuffle_[token] = id;
             }
         }
 
@@ -82,7 +82,7 @@ namespace INSTINCT_LLM_NS {
                 vocab[i] = Bytes{static_cast<char>(i)};
             }
             for(const auto& [pair, id]: bpe_ranks) {
-                // rebuild vocab from from lower rank to higher rank, assuming id > pair.first and id > pair.second
+                // rebuild vocab from lower rank to higher rank, assuming id > pair.first and id > pair.second
                 vocab[id] = vocab[pair.first] + vocab[pair.second];
             }
 
@@ -100,17 +100,21 @@ namespace INSTINCT_LLM_NS {
 
         static TokenizerPtr MakeGPT2Tokenizer(const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
             PreloadTokenizerResources(file_vault);
-            const auto entry1 = DEFAULT_FILE_VAULT->GetResource("tiktoken/gpt2_vocab.bpe").get();
-            const auto entry2 = DEFAULT_FILE_VAULT->GetResource("tiktoken/gpt2_vocab.bpe").get();
-            return MakeGPT2Tokenizer(entry1.local_path, entry2.local_path);
+            static TokenizerPtr INSTANCE = nullptr;
+            static std::mutex MUTEX;
+            std::lock_guard guard {MUTEX};
+            if (!INSTANCE) {
+                const auto entry1 = DEFAULT_FILE_VAULT->GetResource("tiktoken/gpt2_vocab.bpe").get();
+                const auto entry2 = DEFAULT_FILE_VAULT->GetResource("tiktoken/gpt2_vocab.bpe").get();
+                INSTANCE = MakeGPT2Tokenizer(entry1.local_path, entry2.local_path);
+            }
+            return INSTANCE;
         }
 
         static TokenizerPtr MakeGPT2Tokenizer(
             const std::filesystem::path& bpe_file_path,
-            const std::filesystem::path& encoder_json_file_path,
-            const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT
+            const std::filesystem::path& encoder_json_file_path
             ) {
-            PreloadTokenizerResources(file_vault);
             auto reader = GPT2BPEFileReader(bpe_file_path, encoder_json_file_path);
             return FromTiktokenConfig({
                 .name = "gpt2",
@@ -123,10 +127,16 @@ namespace INSTINCT_LLM_NS {
             });
         }
 
-        static TokenizerPtr MakeGPT4Tokenizer(const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
-            PreloadTokenizerResources(file_vault);
-            const auto entry = DEFAULT_FILE_VAULT->GetResource("tiktoken/cl100k_base.tiktoken").get();
-            return MakeGPT4Tokenizer(entry.local_path);
+        static TokenizerPtr MakeGPT4Tokenizer() {
+            static TokenizerPtr INSTANCE = nullptr;
+            static std::mutex MUTEX;
+            std::lock_guard guard {MUTEX};
+            if (!INSTANCE) {
+                PreloadTokenizerResources(DEFAULT_FILE_VAULT);
+                const auto entry = DEFAULT_FILE_VAULT->GetResource("tiktoken/cl100k_base.tiktoken").get();
+                INSTANCE = MakeGPT4Tokenizer(entry.local_path);
+            }
+            return INSTANCE;
         }
 
         static TokenizerPtr MakeGPT4Tokenizer(
@@ -154,7 +164,7 @@ namespace INSTINCT_LLM_NS {
             }
             Bytes result;
             for(const auto& c: text_bytes) {
-                result += static_cast<char>(revsered_byte_shuffle_.at(static_cast<u_int8_t>(c)));
+                result += static_cast<char>(reversed_byte_shuffle_.at(static_cast<u_int8_t>(c)));
             }
             return UnicodeString::fromUTF8(result);
         }

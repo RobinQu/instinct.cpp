@@ -41,7 +41,6 @@ select * from instinct_vector_store_file_batch where id = {{text(id)}};
         }
 
         [[nodiscard]] size_t UpdateVectorStoreFileBatch(const ModifyVectorStoreFileBatchRequest &req) const {
-            assert_true(req.status() != VectorStoreFileBatchObject_VectorStoreFileBatchStatus_unknown_vector_store_file_batch_status, "should assign correct status for VectorStoreFileBatchObject");
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(req, context);
             return data_template_->Execute(R"(

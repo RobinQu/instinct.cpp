@@ -823,13 +823,6 @@ message VectorStoreObject { // CreateVectorStoreResponse, GetVectorStoreResponse
   int32 usage_bytes = 5;
 
   FileCounts file_counts = 6;
-  message FileCounts {
-    int32 in_progress = 1;
-    int32 completed = 2;
-    int32 failed = 3;
-    int32 cancelled = 4;
-    int32 total = 5;
-  }
 
   VectorStoreStatus status = 7;
   enum VectorStoreStatus {
@@ -847,6 +840,19 @@ message VectorStoreObject { // CreateVectorStoreResponse, GetVectorStoreResponse
   string summary = 12; // this is a extra field for storing text summary of containing documents. And it's not in the original OpenAI's API design.
 
   int64 modified_at = 13;
+}
+
+message FileCounts {
+  int32 in_progress = 1;
+  int32 completed = 2;
+  int32 failed = 3;
+  int32 cancelled = 4;
+  int32 total = 5;
+}
+
+message CountFilesRequest {
+  string vector_store_id = 1;
+  string file_batch_id = 2;
 }
 
 // ==============================================================
@@ -1007,8 +1013,6 @@ message ListFilesInVectorStoreBatchResponse {
   bool has_more = 5;
 }
 
-
-
 message VectorStoreFileBatchObject {// CreateVectorStoreFileBatchResponse, GetVectorStoreFileBatchResponse, CancelVectorStoreFileBatchResponse
   enum VectorStoreFileBatchStatus {
     unknown_vector_store_file_batch_status = 0;
@@ -1025,6 +1029,7 @@ message VectorStoreFileBatchObject {// CreateVectorStoreFileBatchResponse, GetVe
   VectorStoreFileBatchStatus status = 7;
   VectorStoreFileError last_error = 8;
   int64 sanity_check_at = 9;
+  FileCounts file_counts = 10;
 }
 
 message ListPendingFileBatchObjectsRequest {
