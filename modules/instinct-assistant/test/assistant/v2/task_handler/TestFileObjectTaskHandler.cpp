@@ -24,9 +24,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         // upload pdf file
         UploadFileRequest upload_file_request;
-        upload_file_request.set_filename("2405.21048v1.pdf");
+        upload_file_request.set_filename("Double sovereign.txt");
         upload_file_request.set_purpose(FileObjectPurpose::assistants);
-        std::fstream fstream  {asset_dir_ / "2405.21048v1.pdf", std::ios::binary | std::ios::in};
+        std::fstream fstream  {asset_dir_ / "Double sovereign.txt", std::ios::binary | std::ios::in};
         const auto file_object1 = file_service_->UploadFile(upload_file_request, fstream);
         fstream.close();
         ASSERT_TRUE(file_object1);

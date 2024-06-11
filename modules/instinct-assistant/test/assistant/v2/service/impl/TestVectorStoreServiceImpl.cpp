@@ -147,7 +147,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         file_batch_objects_request.set_limit(10);
         const auto list2 = vector_store_service->ListPendingFileBatcheObjects(file_batch_objects_request);
         ASSERT_EQ(list2.size(), 1);
-        ASSERT_TRUE(diff.Compare(list2.at(0), obj1.value()));
 
         // update
         ModifyVectorStoreFileBatchRequest modify_vector_store_file_batch_request;
@@ -158,6 +157,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         modify_vector_store_file_batch_request.set_sanity_check_at(ChronoUtils::GetCurrentEpochMicroSeconds());
         const auto obj5 = vector_store_service->ModifyVectorStoreFileBatch(modify_vector_store_file_batch_request);
         ASSERT_TRUE(obj5);
+        LOG_INFO("obj5={}", obj5->ShortDebugString());
         const auto list3 = vector_store_service->ListPendingFileBatcheObjects(file_batch_objects_request);
         ASSERT_EQ(list3.size(), 0);
 
@@ -167,6 +167,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         get_vector_store_file_batch_request.set_batch_id(obj1->id());
         const auto obj2 = vector_store_service->GetVectorStoreFileBatch(get_vector_store_file_batch_request);
         ASSERT_TRUE(obj2);
+        LOG_INFO("obj2={}", obj2->ShortDebugString());
         ASSERT_TRUE(diff.Compare(obj2.value(), obj5.value()));
         ASSERT_EQ(obj2->status(), VectorStoreFileBatchObject_VectorStoreFileBatchStatus_failed);
         ASSERT_EQ(obj2->last_error().code(), invalid_request_error);

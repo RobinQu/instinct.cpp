@@ -112,7 +112,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 .strip_whitespace = true,
                 .separators = {"\n\n", "\n", ".", " ", ""}
             });
-            const auto ingest = CreateParquetIngestor(asset_dir_ / "hunggface_doc_train.parquet", "0:text,1:metadata:file_source:varchar", {.limit = static_cast<size_t>(limit)});
+            const auto ingest = CreateParquetIngestor(asset_dir_ / "huggingface_doc_train.parquet", "0:text,1:metadata:file_source:varchar", {.limit = static_cast<size_t>(limit)});
             const auto doc_itr = splitter->SplitDocuments(ingest->Load());
             const auto chunked_docs = CollectVector(doc_itr);
 

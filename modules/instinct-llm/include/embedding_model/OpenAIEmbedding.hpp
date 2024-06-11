@@ -81,9 +81,10 @@ namespace INSTINCT_LLM_NS {
         if (configuration.dimension == 0) {
             configuration.dimension = SystemUtils::GetIntEnv("OPENAI_EMBEDDING_DIM");
             if (configuration.dimension == 0) { // guess dimension
+                // https://platform.openai.com/docs/guides/embeddings/what-are-embeddings
                 if (configuration.model_name == "text-embedding-3-large") configuration.dimension = 3072;
                 if (configuration.model_name == "text-embedding-3-small") configuration.dimension = 1536;
-                if (configuration.model_name == "text-embedding-ada-002	") configuration.dimension = 1536;
+                if (configuration.model_name == "text-embedding-ada-002") configuration.dimension = 1536;
             }
         }
         if (StringUtils::IsBlankString(configuration.endpoint.host)) {
