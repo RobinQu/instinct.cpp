@@ -39,6 +39,7 @@ namespace INSTINCT_LLM_NS {
             for (int i=1; i<=agent_state.function_tools_size(); ++i) {
                 const auto& function_tool = agent_state.function_tools(i-1);
                 tool_descriptions += fmt::format("{}. {}: {}, arguments JSON schema: {}", i,  function_tool.name(), function_tool.description(), ProtobufUtils::Serialize(function_tool.parameters()));
+                tool_descriptions += "\n";
             }
 
             // to check is_replan precisely

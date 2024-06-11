@@ -47,7 +47,7 @@ Guidelines:
 - Ensure the plan maximizes parallelization.
 - Respond with the task list and each task takes one and only one line in the following format: ID. action_name(input arguments in JSON format, without newline).
 - If inputs for actions are outputs from preceding actions,  always use the format $ID to denote the numeric ID of the previous action whose output will be used as the input.
-- Only use the provided action types. If a query cannot be addressed using these, invoke the join action for the next steps.
+- Only use the provided action types. Never use action not listed above. If a query cannot be addressed using these, invoke the join action for the next steps.
 - Never introduce new actions other than the ones provided.
 - Each action described above contains input/output types and description.
 - You must strictly adhere to the input and output types for each action.

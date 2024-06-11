@@ -243,6 +243,15 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // 1. find tools on assistant
             GetAssistantRequest get_assistant_request;
             get_assistant_request.set_assistant_id(run_object.assistant_id());
+            const auto assistant_obj = assistant_service_->RetrieveAssistant
+            (get_assistant_request);
+            assert_true(assistant_obj, "should have found assistant");
+            for (const auto& assistant_tool: assistant_obj->tools()) {
+                if (assistant_tool.type() == function) {
+                    function_tools.push_back(assistant_tool.function());
+                }
+            }
+
             // 2. find tools on run object
             for (const auto& assistant_tool: run_object.tools()) {
                 if (assistant_tool.type() == function) {

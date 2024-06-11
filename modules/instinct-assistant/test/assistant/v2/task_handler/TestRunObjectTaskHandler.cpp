@@ -40,6 +40,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         std::shared_ptr<RunObjectTaskHandler> CreateTaskHandler() {
             LLMProviderOptions llm_provider_options;
+            LoadOpenAIChatConfiguration(llm_provider_options.openai);
+            llm_provider_options.provider = ModelProvider::kOPENAI;
+
             AgentExecutorOptions agent_executor_options;
             return std::make_shared<RunObjectTaskHandler>(
                 run_service_,
