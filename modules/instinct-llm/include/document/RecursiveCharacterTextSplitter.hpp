@@ -43,7 +43,7 @@ namespace INSTINCT_LLM_NS {
 
         explicit RecursiveCharacterTextSplitter(const RecursiveCharacterTextSplitterOptions& options = {}): RecursiveCharacterTextSplitter(std::make_shared<StringLengthCalculator>(), options) {}
 
-        explicit RecursiveCharacterTextSplitter(LenghtCalculatorPtr length_calculator, const RecursiveCharacterTextSplitterOptions& options = {}): BaseTextSplitter(
+        explicit RecursiveCharacterTextSplitter(LengthCalculatorPtr length_calculator, const RecursiveCharacterTextSplitterOptions& options = {}): BaseTextSplitter(
             options.chunk_size,
             options.chunk_overlap,
             options.keep_separator,
@@ -76,7 +76,7 @@ namespace INSTINCT_LLM_NS {
                 // break if text can be split by sep
                 if(text.indexOf(sep) > 0) {
                     separator = details::escape_for_regular_expression(sep);
-                    separators.erase(itr);
+                    itr = separators.erase(itr);
                     break;
                 }
             }

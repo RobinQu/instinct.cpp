@@ -16,21 +16,21 @@ namespace  INSTINCT_LLM_NS {
     using namespace U_ICU_NAMESPACE;
     using namespace INSTINCT_CORE_NS;
 
-    class ILenghtCalculator {
+    class ILengthCalculator {
     public:
-        ILenghtCalculator()=default;
-        virtual ~ILenghtCalculator()=default;
-        ILenghtCalculator(ILenghtCalculator&&)=delete;
-        ILenghtCalculator(const ILenghtCalculator&)=delete;
+        ILengthCalculator()=default;
+        virtual ~ILengthCalculator()=default;
+        ILengthCalculator(ILengthCalculator&&)=delete;
+        ILengthCalculator(const ILengthCalculator&)=delete;
         virtual size_t GetLength(const UnicodeString& s) =0;
     };
 
-    using LenghtCalculatorPtr = std::shared_ptr<ILenghtCalculator>;
+    using LengthCalculatorPtr = std::shared_ptr<ILengthCalculator>;
 
     /**
      * Calcluate length by counting its Unicode code points
      */
-    class StringLengthCalculator final: public ILenghtCalculator {
+    class StringLengthCalculator final: public ILengthCalculator {
     public:
         size_t GetLength(const UnicodeString &s) override {
             return s.countChar32();
@@ -40,7 +40,7 @@ namespace  INSTINCT_LLM_NS {
     /**
      * Calculate length using a tokenizer
      */
-    class TokenizerBasedLengthCalculator final: public ILenghtCalculator {
+    class TokenizerBasedLengthCalculator final: public ILengthCalculator {
         TokenizerPtr tokenizer_;
 
     public:
@@ -59,11 +59,11 @@ namespace  INSTINCT_LLM_NS {
         int chunk_overlap_;
         bool keep_separator_;
         bool strip_whitespace_;
-        LenghtCalculatorPtr length_calculator_;
+        LengthCalculatorPtr length_calculator_;
     public:
 
         BaseTextSplitter(const int chunk_size, const int chunk_overlap, const bool keep_separator,
-                         const bool strip_whitespace, LenghtCalculatorPtr length_calculator)
+                         const bool strip_whitespace, LengthCalculatorPtr length_calculator)
             : chunk_size_(chunk_size),
               chunk_overlap_(chunk_overlap),
               keep_separator_(keep_separator),
@@ -122,24 +122,12 @@ namespace  INSTINCT_LLM_NS {
                             total -= length_calculator_->GetLength(current_doc.front()) + (current_doc.size() > 1 ? s_len : 0);
                             current_doc.erase(current_doc.begin());
                         }
-
-                        // if (chunk_overlap_ != 0) {
-                        //     // handle overlapping
-                        //     while (total > chunk_overlap_ && !current_doc.empty()) {
-                        //         // strip first item until remianing chunks are enough for overlapping
-                        //         total -= length_calculator_->GetLength(current_doc.front()) + (current_doc.empty() ? 0 : s_len);
-                        //         current_doc.erase(current_doc.begin());
-                        //     }
-                        // } else {
-                        //     total = 0;
-                        //     current_doc.clear();
-                        // }
                     }
                 }
                 current_doc.push_back(s);
                 total += d_len + (current_doc.size() > 1 ? s_len: 0);
             }
-            if (const auto rest = JoinDocs_(current_doc, separator); rest.length()) {
+            if (const auto rest = JoinDocs_(current_doc, separator); !rest.isEmpty()) {
                 docs.push_back(rest);
             }
         }

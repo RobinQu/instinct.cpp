@@ -119,6 +119,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             for(int i=0;i<chunked_docs.size();++i) {
                 LOG_INFO("Asserting No.{} of total {} docs", i, chunked_docs.size());
                 const auto expected_text = dataset.at("texts")[i].get<std::string>();
+                LOG_INFO("chunked.size()={}, expected_text.size()={}",
+                    tokenizer->Encode(UnicodeString::fromUTF8(chunked_docs[i].text())).size(),
+                    tokenizer->Encode(UnicodeString::fromUTF8(expected_text)).size()
+                    );
                 ASSERT_EQ(chunked_docs[i].text(), expected_text);
             }
         }
