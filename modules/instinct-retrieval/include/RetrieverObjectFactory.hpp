@@ -53,7 +53,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             bool recursive = true
         ) {
             if (!ingestor_factory_function) {
-                ingestor_factory_function = [](const std::filesystem::path& path) {return  CreateIngestor(path);};
+                ingestor_factory_function = [](const std::filesystem::path& path) {return CreateIngestor(path);};
             }
             return std::make_shared<DirectoryTreeIngestor>(
                 folder,

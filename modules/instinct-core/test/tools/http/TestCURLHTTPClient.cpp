@@ -75,7 +75,7 @@ namespace INSTINCT_CORE_NS {
         calls.reserve(n);
         for(int i=0;i<n;i++) {
             calls.push_back({
-                .endpoint = {.protocol = kHTTP, .host="httpbin.org"},
+                .endpoint = {.protocol = kHTTP, .host="httpbin.org", .port=80},
                 .method = kPOST,
                 .target = "/post",
 

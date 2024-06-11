@@ -25,6 +25,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
             auto schema_builder = MetadataSchemaBuilder::Create();
             schema_builder->DefineString("parent_doc_id");
+            schema_builder->DefineString("file_source");
             auto meta_schema = schema_builder->Build();
 
             size_t dimension = 4096;

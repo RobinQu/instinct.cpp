@@ -47,8 +47,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         ASSERT_GT(answer_with_annotation.citations_size(), 0);
         for(const auto& citation: answer_with_annotation.citations()) {
             ASSERT_TRUE(StringUtils::IsNotBlankString(citation.annotation()));
-            ASSERT_TRUE(StringUtils::IsNotBlankString(citation.quote().content()));
-            ASSERT_TRUE(StringUtils::IsNotBlankString(citation.quote().parent_doc_id()));
+            ASSERT_TRUE(citation.quoted_index()>0);
         }
     };
 }
