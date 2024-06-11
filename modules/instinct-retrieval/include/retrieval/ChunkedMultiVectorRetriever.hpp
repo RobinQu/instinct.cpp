@@ -69,7 +69,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                 str.toUTF8String(*document.mutable_text());
                 const auto parent_source_id = DocumentUtils::GetStringValueMetadataField(parent_doc, METADATA_SCHEMA_FILE_SOURCE_KEY);
                 assert_true(parent_source_id && StringUtils::IsNotBlankString(parent_source_id.value()), "should have found parent_doc_id in parent doc's metadata");
-                DocumentUtils::AddPresetMetadataFields(document, parent_source_id.value(), ++i, parent_doc.id());
+                DocumentUtils::AddPresetMetadataFields(document, parent_source_id.value(), ++i, parent_source_id.value());
                 LOG_DEBUG("chunked doc: size={}, parent_id={}", document.text().size(), parent_doc.id());
                 results.push_back(document);
             }

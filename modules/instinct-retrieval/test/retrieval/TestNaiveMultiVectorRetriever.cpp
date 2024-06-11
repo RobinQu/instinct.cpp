@@ -31,9 +31,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
             size_t dimension = 4096;
 
-            auto schema_builder = MetadataSchemaBuilder::Create();
-            schema_builder->DefineString("parent_doc_id");
-            auto meta_schema = schema_builder->Build();
+            auto meta_schema = CreateVectorStorePresetMetadataSchema();
 
             EmbeddingsPtr embedding_model = create_pesudo_embedding_model(dimension);
             DuckDBStoreOptions db_options = {

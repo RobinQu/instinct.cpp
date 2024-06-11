@@ -67,7 +67,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             return vector_store_->SearchDocuments(search_request)
                 | rpp::operators::reduce(std::unordered_set<std::string> {}, [&](std::unordered_set<std::string>&& seed, const Document& doc) {
                     // backtrace id of parent doc
-                    const auto parent_doc_id = DocumentUtils::GetStringValueMetadataField(doc, METADATA_SCHEMA_FILE_SOURCE_KEY);
+                    const auto parent_doc_id = DocumentUtils::GetStringValueMetadataField(doc, METADATA_SCHEMA_PARENT_DOC_ID_KEY);
                     assert_true(parent_doc_id && StringUtils::IsNotBlankString(parent_doc_id.value()), "should have found parent_doc_id in parent doc's metadata");
                     LOG_DEBUG("guidance doc found, id={}, parent_doc_id={}", doc.id(), parent_doc_id.value());
                     seed.insert(parent_doc_id.value());
@@ -134,9 +134,13 @@ namespace INSTINCT_RETRIEVAL_NS {
             Document summary_doc;
             summary_doc.set_text(generation);
             summary_doc.set_id(StringUtils::GenerateUUIDString());
+            const auto source_doc_id = DocumentUtils::GetStringValueMetadataField(doc, METADATA_SCHEMA_FILE_SOURCE_KEY);
+            assert_true(source_doc_id && StringUtils::IsNotBlankString(source_doc_id.value()), "parent doc should have file_source field");
             DocumentUtils::AddPresetMetadataFields(
                 summary_doc,
-                doc.id()
+                doc.id(),
+                0,
+                source_doc_id.value()
             );
             return std::vector {std::move(summary_doc)};
         };
@@ -165,11 +169,13 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto result = query_chain->Invoke(doc.text());
             std::vector<Document> final_queries;
             LOG_DEBUG("Genearted queries: {}", result.ShortDebugString());
-            for(const auto& query: result.lines()) {
+            for(int i=0; const auto& query: result.lines()) {
                 Document query_doc;
                 query_doc.set_id(StringUtils::GenerateUUIDString());
                 query_doc.set_text(query);
-                DocumentUtils::AddPresetMetadataFields(query_doc, doc.id());
+                const auto source_doc_id = DocumentUtils::GetStringValueMetadataField(doc, METADATA_SCHEMA_FILE_SOURCE_KEY);
+                assert_true(source_doc_id && StringUtils::IsNotBlankString(source_doc_id.value()), "parent doc should have file_source field");
+                DocumentUtils::AddPresetMetadataFields(query_doc, doc.id(), i++, source_doc_id.value());
                 final_queries.push_back(query_doc);
             }
             return final_queries;
