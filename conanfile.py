@@ -18,7 +18,7 @@ class InstinctCppRecipe(ConanFile):
     def requirements(self):
         self.requires("hash-library/8.0")
         self.requires("bshoshany-thread-pool/4.1.0")
-        self.requires("duckdb/0.10.1", options={"with_httpfs": True})
+        self.requires("duckdb/0.10.2", options={"with_httpfs": True})
         self.requires("uriparser/0.9.7")
         self.requires("crossguid/0.2.2")
         self.requires("protobuf/3.21.12")

@@ -74,13 +74,12 @@ namespace INSTINCT_LLM_NS {
                     break;
                 }
                 // break if text can be split by sep
-                if(text.indexOf(sep) > 0) {
+                if(text.indexOf(sep) !=-1) {
                     separator = details::escape_for_regular_expression(sep);
                     itr = separators.erase(itr);
                     break;
                 }
             }
-
             const auto splits = details::split_text_with_seperator(text, separator, keep_separator_);
             std::vector<UnicodeString> good_splits;
 
@@ -106,6 +105,8 @@ namespace INSTINCT_LLM_NS {
             if(!good_splits.empty()) {
                 MergeSplits_(good_splits, merging_separator, final_chunks);
             }
+
+            // details::print_array(final_chunks);
         }
     };
 

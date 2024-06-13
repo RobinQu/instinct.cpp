@@ -51,9 +51,27 @@ namespace INSTINCT_LLM_NS {
             }
         }
 
+        static void print_array(const std::vector<UnicodeString>& splits,
+                         std::ostream& stream = std::cout, const bool flush = true) {
+            const auto n = splits.size();
+            stream << "[";
+            for (int i=0;i<n;++i) {
+                stream << "'";
+                stream << splits[i];
+                stream << "'";
+                if (i!=n-1) {
+                    stream << " , ";
+                }
+            }
+            stream << "]";
+            if (flush) {
+                stream << std::endl;
+            }
+        }
+
         static std::vector<UnicodeString> split_text_with_seperator(const UnicodeString& text, const UnicodeString& seperator, const bool keep_seperator) {
             std::vector<UnicodeString> result;
-            if(seperator.length()) {
+            if(!seperator.isEmpty()) {
                 if (keep_seperator) {
                     std::vector<UnicodeString> splits;
                     // https://unicode-org.github.io/icu/userguide/strings/regexp.html
@@ -95,7 +113,7 @@ namespace INSTINCT_LLM_NS {
                 delete itr;
             }
             auto parts_view = result | std::views::filter([](const UnicodeString& v) {
-                return v.length() > 0;
+                return !v.isEmpty();
             });
             return {parts_view.begin(), parts_view.end()};
         }

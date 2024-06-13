@@ -19,7 +19,7 @@ namespace INSTINCT_LLM_NS {
     using ByteShuffle = std::unordered_map<u_int8_t, u_int8_t>;
     // using ReversedByteShuffle = std::unordered_map<int32_t, u_int8_t>;
 
-    static void PreloadTokenizerResources(const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
+    static void PreloadGPT2TokenizerResources(const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
         if(!DEFAULT_FILE_VAULT->CheckResource("tiktoken/gpt2_vocab.bpe").get()) {
             FetchHttpGetResourceToFileVault(
                 DEFAULT_FILE_VAULT,
@@ -37,6 +37,10 @@ namespace INSTINCT_LLM_NS {
                 {.algorithm = kSHA256, .expected_value = "196139668be63f3b5d6574427317ae82f612a97c5d1cdaf36ed2256dbf636783"}
             ).wait();
         }
+    }
+
+    static void PreloadGPT4TokenizerResources(const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
+
         if(!DEFAULT_FILE_VAULT->CheckResource("tiktoken/cl100k_base.tiktoken").get()) {
             FetchHttpGetResourceToFileVault(
                 DEFAULT_FILE_VAULT,
@@ -107,7 +111,7 @@ namespace INSTINCT_LLM_NS {
             trace_span span {"MakeGPT2Tokenizer"};
             std::lock_guard guard {MUTEX};
             if (!GPT2_TOKENIZER_INSTANCE) {
-                PreloadTokenizerResources(file_vault);
+                PreloadGPT2TokenizerResources(file_vault);
                 const auto entry1 = DEFAULT_FILE_VAULT->GetResource("tiktoken/gpt2_vocab.bpe").get();
                 const auto entry2 = DEFAULT_FILE_VAULT->GetResource("tiktoken/gpt2_vocab.bpe").get();
                 GPT2_TOKENIZER_INSTANCE = MakeGPT2Tokenizer(entry1.local_path, entry2.local_path);
@@ -135,7 +139,7 @@ namespace INSTINCT_LLM_NS {
             trace_span span {"MakeGPT4Tokenizer"};
             std::lock_guard guard {MUTEX};
             if (!GPT4_TOKENIZER_INSTANCE) {
-                PreloadTokenizerResources(DEFAULT_FILE_VAULT);
+                PreloadGPT4TokenizerResources(DEFAULT_FILE_VAULT);
                 const auto entry = DEFAULT_FILE_VAULT->GetResource("tiktoken/cl100k_base.tiktoken").get();
                 GPT4_TOKENIZER_INSTANCE = MakeGPT4Tokenizer(entry.local_path);
             }

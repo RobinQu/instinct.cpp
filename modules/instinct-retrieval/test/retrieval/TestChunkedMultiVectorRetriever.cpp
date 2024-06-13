@@ -95,7 +95,7 @@ namespace INSTINCT_RETRIEVAL_NS {
     /**
      * This should be inside `instinct-core`. But some classes are absent there.
      */
-    TEST_F(ChunkedMultiVectorRetrieverTest, SplitterConsistentcyTest) {
+    TEST_F(ChunkedMultiVectorRetrieverTest, SplitterConsistencyTest) {
         std::ifstream splits_json_file(asset_dir_ / "huggingface_doc_splits.json");
 
         auto tokenizer = TiktokenTokenizer::MakeGPT4Tokenizer();
