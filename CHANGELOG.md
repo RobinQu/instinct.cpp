@@ -1,5 +1,36 @@
 # Changelog
 
+
+## v0.1.4
+
+**Full Changelog**: https://github.com/RobinQu/instinct.cpp/commits/v0.1.4
+
+* Features
+  * `instinct-assistant`: `file-search` support. It takes a summary guided strategy inspired by [RAPTOR](https://arxiv.org/abs/2401.18059), and follows practices adopted by OpenAI. See more at [#16
+    ](https://github.com/users/RobinQu/projects/1?pane=issue&itemId=58554735). It has some limitations, please refer to [Assistant API docs](./docs/assistant_api.md).
+  * new `instinct-transfomer` module that ships built-in models based on transformer. Currently, only [BGE-M3-Reranker](https://huggingface.co/BAAI/bge-reranker-v2-m3/tree/main) is implemented. Most code in first version implementation is refined (copied) from [chatllm.cpp](https://github.com/foldl/chatllm.cpp) for quick start.
+  * `instinct-retrieval`: 
+    * a new `MultiPathRetriever` that handle recalls from multiple child retrievers and score results with a reranker model.
+    * `SimpleRetrieverOperator` and `DuckDBVectorStoreOpeartor` for multi-instance managements.
+    * `CitationAnnotatingChain` and `SummaryChain` to support citations and summary required in `instinct-assistant`.
+    * Added a mandatory `file-source` metadata field to keep record of file identifier.
+  * `instinct-data`:
+    * `Aggregate` method on data template class
+    * Added `GetObjectState` method on `IObjectStore`.
+  * `instinct-core`:
+    * Added `LambdaInputParsr` and `LambdaOutputParser` to simplify chain implementation.  
+* Improvements
+  * `mini-assistant`:
+    * many bug fixes in related classes.
+    * CLI options: we can now assign model provider separately for embedding model and chat model.
+  * `instinct-core`:
+    * Make options on chat model and embedding model optional using `std::optional`.
+    * Fix a consistency issue of `RecursiveCharacterTextSplitter` with the one in `langchain`.
+    * Better control of preloading assets of tokenizers.
+  * `instinct-server`:
+    * fix graceful shutdown of `HttpLibServer`.
+
+
 ## v0.1.3
 
 **Full Changelog**: https://github.com/RobinQu/instinct.cpp/commits/v0.1.3

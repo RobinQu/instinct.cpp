@@ -9,7 +9,6 @@
 
 #include "DataGlobals.hpp"
 #include "IObjectStore.hpp"
-#include "../../../../../../../../../../Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CGDisplayStream.h"
 #include "tools/IOUtils.hpp"
 
 namespace INSTINCT_DATA_NS {
