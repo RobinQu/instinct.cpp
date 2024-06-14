@@ -32,6 +32,13 @@
     * fix graceful shutdown of `HttpLibServer`.
   * bump `duckdb` to `0.10.2`
 
+```text
+4eda145187b207c73487d769e781036ff0225cf26c4be7b8739641430c3af8cf  doc-agent_linux-amd64.tar.gz
+8c0de5d10adbd4009dc0f50f3335adf9008e2dbccbe7791dc3d208fdf9a1b1fa  doc-agent_macos-arm64.tar.gz
+6d20c693d95fca85a9cc3f0e7f9c42cc2232d747e3e89e3452945176f6eb0fb7  mini-assistant_linux-amd64.tar.gz
+62df4e43fa59b7a1bef525918f4b4420cf74343092f55dfd12374f31262a4bb1  mini-assistant_macos-arm64.tar.gz
+```
+
 
 ## v0.1.3
 
