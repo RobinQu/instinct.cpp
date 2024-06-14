@@ -24,12 +24,11 @@ namespace INSTINCT_RETRIEVAL_NS {
     static std::string insert_animal(const DocStorePtr& doc_store, const Animal& animal) {
         Document document;
         document.set_text(animal.description);
-        DocumentMetadataMutator metadata_mutator  {&document};
-        metadata_mutator.SetString("name", animal.name);
-        metadata_mutator.SetString("genus", animal.genus);
-        metadata_mutator.SetInt32("age", animal.age);
-        metadata_mutator.SetInt32("sex", animal.sex);
-        metadata_mutator.SetString("origin", animal.origin);
+        DocumentUtils::SetStringValueMetadataFiled(document, "name", animal.name);
+        DocumentUtils::SetStringValueMetadataFiled(document, "genus", animal.genus);
+        DocumentUtils::SetIntValueMetadataFiled(document, "age", animal.age);
+        DocumentUtils::SetIntValueMetadataFiled(document, "sex", animal.sex);
+        DocumentUtils::SetStringValueMetadataFiled(document, "origin", animal.origin);
         doc_store->AddDocument(document);
         LOG_INFO("returned doc id: {}", document.id());
         return document.id();

@@ -139,7 +139,39 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 LOG_ERROR("File handling failed for {}", vs_file_object.ShortDebugString());
                 modify_vector_store_file_request.set_status(failed);
                 modify_vector_store_file_request.mutable_last_error()->set_code(CommonErrorType::server_error);
-                modify_vector_store_file_request.mutable_last_error()->set_message("File handling failed");
+
+                try {
+                    std::rethrow_exception(std::current_exception());
+                } catch (const ClientException& ex) {
+                    modify_vector_store_file_request.mutable_last_error()->set_message(ex.message());
+#ifdef NDEBUG
+#else
+                    LOG_ERROR("ClientException caught in hanlder: {}", ex.message());
+#endif
+                } catch(const InstinctException& ex) {
+                    modify_vector_store_file_request.mutable_last_error()->set_message(ex.message());
+                    LOG_ERROR("Exception caught in hanlder: {}, stacktrace \n", ex.message());
+#ifdef NDEBUG
+                    ex.trace().print(std::cerr);
+#else
+                    ex.trace().print_with_snippets(std::cerr);
+#endif
+                } catch (const cpptrace::exception& ex) {
+                    modify_vector_store_file_request.mutable_last_error()->set_message(ex.message());
+                    LOG_ERROR("Exception caught in hanlder: {}, stacktrace \n", ex.message());
+#ifdef NDEBUG
+                    ex.trace().print(std::cerr);
+#else
+                    ex.trace().print_with_snippets(std::cerr);
+#endif
+                    // we cannot print message into response as it contains stacktraces
+                } catch (const std::exception& ex) {
+                    modify_vector_store_file_request.mutable_last_error()->set_message(ex.what());
+                    LOG_ERROR("Uncaught std::exception found. ex.what={}", ex.what());
+                } catch (...) {
+                    modify_vector_store_file_request.mutable_last_error()->set_message("File handling failed due to unknown exception");
+                    LOG_ERROR("Unknown exception happened");
+                }
             }
 
             if (!CheckVectorStoreFileOk(vs_file_object.vector_store_id(), vs_file_object.file_id())) {

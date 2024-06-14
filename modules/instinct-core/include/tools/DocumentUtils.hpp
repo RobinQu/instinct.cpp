@@ -100,6 +100,32 @@ namespace INSTINCT_CORE_NS {
             return itr == document.metadata().end() ? std::optional<int32_t> {} : itr->int_value();
         }
 
+        static void SetIntValueMetadataFiled(Document& document, const std::string& name, const int32_t value) {
+            for(auto& metadata_field: *document.mutable_metadata()) {
+                if (metadata_field.name() == name) {
+                    metadata_field.set_int_value(value);
+                    return;
+                }
+            }
+            // no existing field
+            auto* field = document.add_metadata();
+            field->set_name(name);
+            field->set_int_value(value);
+        }
+
+        static void SetStringValueMetadataFiled(Document& document, const std::string& name, const std::string& value) {
+            for(auto& metadata_field: *document.mutable_metadata()) {
+                if (metadata_field.name() == name) {
+                    metadata_field.set_string_value(value);
+                    return;
+                }
+            }
+            // no existing field
+            auto* field = document.add_metadata();
+            field->set_name(name);
+            field->set_string_value(value);
+        }
+
         static void AddMissingPresetMetadataFields(Document& document) {
             if(!HasMetadataField(document, METADATA_SCHEMA_PARENT_DOC_ID_KEY)) {
                 auto* metadata_field = document.add_metadata();

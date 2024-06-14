@@ -1,5 +1,7 @@
 import os
 import logging
+import pathlib
+
 import pytest
 import json
 import time
@@ -32,9 +34,10 @@ def test_file_search_with_single_file():
 
     # Use the upload and poll SDK helper to upload the files, add them to the vector store,
     # and poll the status of the file batch for completion.
+    dir_path = pathlib.Path(__file__).parent.resolve()
     vector_store_file = client.beta.vector_stores.files.upload_and_poll(
         vector_store_id=vector_store.id,
-        file=open("munsey_magazine.txt", "rb")
+        file=open(dir_path / "munsey_magazine.txt", "rb")
     )
 
     # You can print the status and the file counts of the batch to see the result of this operation.
@@ -76,7 +79,8 @@ def test_file_search_with_multiple_files():
     vector_store = client.beta.vector_stores.create(name="kb2")
 
     file_paths = ["hygrophoraceae.txt", "marasmius_rotula.txt", "psathyrellaceae.txt"]
-    file_streams = [open(path, "rb") for path in file_paths]
+    dir_path = pathlib.Path(__file__).parent.resolve()
+    file_streams = [open(dir_path / path, "rb") for path in file_paths]
     file_batch = client.beta.vector_stores.file_batches.upload_and_poll(
         vector_store_id=vector_store.id, files=file_streams
     )
