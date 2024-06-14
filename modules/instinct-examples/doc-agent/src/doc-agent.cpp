@@ -324,7 +324,7 @@ Question: {standalone_question}
         HttpLibServer server(options.server);
         const auto controller = CreateOpenAIChatCompletionController(rag_chain);
         server.Use(controller);
-        server.StartAndWait();
+        server.BindAndListen();
     }
 
 

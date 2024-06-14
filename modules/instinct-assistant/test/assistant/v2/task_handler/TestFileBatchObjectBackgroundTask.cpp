@@ -51,7 +51,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     TEST_F(TestFileBatchObjectBackgroundTask, Lifecycle) {
         FileBatchObjectBackgroundTask file_batch_object_background_task {vector_store_service_, retriever_operator_};
         file_batch_object_background_task.Start();
-        file_batch_object_background_task.Shutdown();
+        ASSERT_TRUE(file_batch_object_background_task.IsRunning());
+        file_batch_object_background_task.Stop();
     }
 
     TEST_F(TestFileBatchObjectBackgroundTask, HandleCompletedBatch) {

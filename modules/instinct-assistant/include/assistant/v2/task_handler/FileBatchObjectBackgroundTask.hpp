@@ -7,6 +7,7 @@
 
 #include "AssistantGlobals.hpp"
 #include "assistant/v2/service/IVectorStoreService.hpp"
+#include "ioc/ManagedApplicationContext.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 
@@ -24,8 +25,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         virtual void Start()=0;
         virtual void Handle()=0;
-        virtual void Shutdown()=0;
-        virtual bool isRunning()=0;
+        virtual void Stop()=0;
+        virtual bool IsRunning()=0;
     };
 
     using BackgroundTaskPtr = std::shared_ptr<IBackgroundTask>;
@@ -35,7 +36,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         int scan_batch_size = 10;
     };
 
-    class FileBatchObjectBackgroundTask final: public IBackgroundTask {
+    class FileBatchObjectBackgroundTask final: public IBackgroundTask, public ILifeCycle {
         VectorStoreServicePtr vector_store_service_;
         RetrieverOperatorPtr retriever_operator_;
         std::thread thread_;
@@ -53,11 +54,11 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
               assert_gte(options_.scan_batch_size, 1, "scan_batch_size should be greater than or equal to one");
         }
 
-        ~FileBatchObjectBackgroundTask() override {
-            Shutdown();
+        u_int32_t GetPriority() override {
+            return STANDARD_PRIORITY;
         }
 
-        bool isRunning() override {
+        bool IsRunning() override {
             return running_;
         }
 
@@ -74,13 +75,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             LOG_INFO("FileBatchObjectBackgroundTask started");
         }
 
-        void Shutdown() override {
+        void Stop() override {
             if (running_) {
-                LOG_DEBUG("Shutting down FileBatchObjectBackgroundTask");
+                LOG_DEBUG("FileBatchObjectBackgroundTask is shutting down.");
                 running_ = false;
             }
             if (thread_.joinable()) {
                 thread_.join();
+                LOG_DEBUG("FileBatchObjectBackgroundTask exited");
             }
         }
 

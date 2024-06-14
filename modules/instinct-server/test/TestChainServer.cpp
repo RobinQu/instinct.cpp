@@ -28,7 +28,7 @@ namespace INSTINCT_SERVER_NS {
         HttpLibServer server({.port = 9999});
         const auto controller = CreateMultiChainController();
         controller->AddNamedChain("chain1", chain1_->GetStepFunction());
-        server.Start();
+        server.Bind();
         server.Shutdown();
     }
 }

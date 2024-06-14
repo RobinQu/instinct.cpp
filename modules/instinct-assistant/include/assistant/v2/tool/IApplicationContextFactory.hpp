@@ -6,6 +6,7 @@
 #define INSTINCT_IAPPLICAITONCONTEXTFACTORY_HPP
 
 #include "AssistantGlobals.hpp"
+#include "assistant/v2/db/DBMigration.hpp"
 #include "database/duckdb/DuckDBConnectionPool.hpp"
 #include "database/duckdb/DuckDBDataTemplate.hpp"
 #include "object_store/FileSystemObjectStore.hpp"
@@ -13,6 +14,7 @@
 #include "assistant/v2/service/AssistantFacade.hpp"
 #include "assistant/v2/task_handler/FileBatchObjectBackgroundTask.hpp"
 #include "assistant/v2/task_handler/RunObjectTaskHandler.hpp"
+#include "ioc/ManagedApplicationContext.hpp"
 #include "server/httplib/HttpLibServer.hpp"
 #include "store/VectorStoreMetadataDataMapper.hpp"
 
@@ -32,17 +34,13 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     template<typename ConnectionImpl, typename  QueryResultImpl, typename TaskPayload = std::string>
     class IApplicationContextFactory {
     public:
-        struct ApplicationContext {
+        struct ApplicationContext: ManagedApplicationContext {
             ConnectionPoolPtr<ConnectionImpl, QueryResultImpl> connection_pool;
             DataTemplatePtr<AssistantObject, std::string> assistant_data_mapper;
             DataTemplatePtr<ThreadObject, std::string> thread_data_mapper;
             DataTemplatePtr<MessageObject, std::string> message_data_mapper;
             DataTemplatePtr<FileObject, std::string> file_data_mapper;
             DataTemplatePtr<RunObject, std::string> run_data_mapper;
-            // DataTemplatePtr<VectorStoreMetadataDataMapper, std::string> vector_store_metadata_data_mapper;
-            // DataTemplatePtr<VectorStoreObject, std::string> vector_store_data_mapper;
-            // DataTemplatePtr<VectorStoreFileObject, std::string> vector_store_file_data_mapper;
-            // DataTemplatePtr<VectorStoreFileBatchObject, std::string> vector_store_file_batch_data_mapper;
             VectorStoreMetadataDataMapperPtr vector_store_metadata_data_mapper;
             VectorStoreDataMapperPtr vector_store_data_mapper;
             VectorStoreFileDataMapperPtr vector_store_file_data_mapper;
@@ -58,13 +56,14 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             VectorStoreOperatorPtr vector_store_operator;
             TaskHandlerPtr<TaskPayload> file_object_task_handler;
             BackgroundTaskPtr file_batch_background_task;
+            std::shared_ptr<DBMigration<ConnectionImpl, QueryResultImpl>> db_migration;
         };
 
         IApplicationContextFactory() = default;
         virtual ~IApplicationContextFactory()=default;
         IApplicationContextFactory(IApplicationContextFactory&&)=delete;
         IApplicationContextFactory(const IApplicationContextFactory&)=delete;
-        virtual ApplicationContext GetInstance() = 0;
+        virtual ApplicationContext& GetInstance() = 0;
     };
 
 }

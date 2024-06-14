@@ -14,6 +14,7 @@
 #include "HttpLibServerLifeCycleManager.hpp"
 #include "tools/HttpRestClient.hpp"
 #include "HttpLibSession.hpp"
+#include "ioc/ManagedApplicationContext.hpp"
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_CORE_NS;
@@ -35,7 +36,7 @@ namespace INSTINCT_SERVER_NS {
     using HttpLibController = HttpController<HttpLibServer>;
     using HttpLibControllerPtr = std::shared_ptr<HttpLibController>;
 
-    class HttpLibServer final: public IManagedServer<HttpLibServer>, public std::enable_shared_from_this<HttpLibServer> {
+    class HttpLibServer final: public IManagedServer<HttpLibServer>, public std::enable_shared_from_this<HttpLibServer>{
         ServerOptions options_;
         Server server_;
         HttpLibServerLifeCycleManager life_cycle_manager_;
@@ -79,10 +80,6 @@ namespace INSTINCT_SERVER_NS {
             InitServer();
         }
 
-        ~HttpLibServer() override {
-            this->Shutdown();
-        }
-
         Server& GetHttpLibServer() {
             return server_;
         }
@@ -94,8 +91,25 @@ namespace INSTINCT_SERVER_NS {
             });
             life_cycle_manager_.OnServerCreated(*this);
         }
+        //
+        // void Stop() override {
+        //     Shutdown();
+        // }
+        //
+        // void Start() override {
+        //     BindAndListen();
+        // }
+        //
+        // u_int32_t GetPriority() override {
+        //     // as it will block main thread, it should start at last
+        //     return LOWEST_PRIORITY;
+        // }
+        //
+        // bool IsRunning() override {
+        //     return server_.is_running();
+        // }
 
-        int Start() override {
+        int Bind() override {
             int port;
             if (options_.port > 0) {
                 server_.bind_to_port(options_.host, options_.port);
@@ -104,21 +118,22 @@ namespace INSTINCT_SERVER_NS {
                 port = server_.bind_to_any_port(options_.host);
             }
             life_cycle_manager_.OnServerStart(*this, port);
-            LOG_INFO("Server is up and running at port {}", port);
+            LOG_INFO("HttpLibServer is up and running at port {}", port);
             return port;
         }
 
         void Shutdown() override {
             if (server_.is_running()) {
-                LOG_INFO("Server is shutting down");
+                LOG_INFO("HttpLibServer is shutting down");
                 life_cycle_manager_.BeforeServerClose(*this);
                 server_.stop();
                 life_cycle_manager_.AfterServerClose(*this);
+                LOG_INFO("HttpLibServer exited");
             }
         }
 
-        bool StartAndWait() override {
-            Start();
+        bool BindAndListen() override {
+            Bind();
             return server_.listen_after_bind();
         }
 

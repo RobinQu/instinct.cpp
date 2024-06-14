@@ -9,10 +9,11 @@
 #include "BaseTaskScheduler.hpp"
 #include "DataGlobals.hpp"
 #include "InProcessTaskQueue.hpp"
+#include "ioc/ManagedApplicationContext.hpp"
 
 namespace INSTINCT_DATA_NS {
     template<typename T>
-    class ThreadPoolTaskScheduler final : public BaseTaskScheduler<T> {
+    class ThreadPoolTaskScheduler final : public BaseTaskScheduler<T>, public ILifeCycle{
     public:
         using Task = typename ITaskScheduler<T>::Task;
         using TaskQueuePtr = typename ITaskScheduler<T>::TaskQueuePtr;
@@ -34,10 +35,6 @@ namespace INSTINCT_DATA_NS {
                                                        queue_(queue) {
         }
 
-        ~ThreadPoolTaskScheduler() override {
-            Terminate().get();
-        }
-
         void Start() override {
             int n = consumer_thread_count_;
             LOG_INFO("ThreadPoolTaskScheduler started with {} threads", n);
@@ -51,6 +48,18 @@ namespace INSTINCT_DATA_NS {
                     }
                 });
             }
+        }
+
+        void Stop() override {
+           Terminate();
+        }
+
+        u_int32_t GetPriority() override {
+            return STANDARD_PRIORITY;
+        }
+
+        bool IsRunning() override {
+            return running_;
         }
 
         TaskQueuePtr GetQueue() const {

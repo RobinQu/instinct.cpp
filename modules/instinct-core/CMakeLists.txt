@@ -41,6 +41,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/tools/RandomUtils.hpp
         include/exception/InstinctException.hpp
         include/exception/ClientException.hpp
+        include/ioc/ManagedApplicationContext.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #

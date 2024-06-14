@@ -21,10 +21,10 @@ namespace INSTINCT_SERVER_NS {
         IManagedServer(const IManagedServer&)=delete;
         IManagedServer()=default;
 
-        virtual int Start() = 0;
-        virtual bool StartAndWait() = 0;
+        virtual int Bind() = 0;
+        virtual bool BindAndListen() = 0;
         virtual void Shutdown() = 0;
-        virtual void Use(const MountablePtr<ServerImpl>& moutable) = 0;
+        virtual void Use(const MountablePtr<ServerImpl>& mountable) = 0;
     };
 
 

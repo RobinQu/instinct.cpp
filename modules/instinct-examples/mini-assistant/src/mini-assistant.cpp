@@ -2,7 +2,7 @@
 // Created by RobinQu on 2024/4/19.
 //
 #include <CLI/CLI.hpp>
-#include <cmrc/cmrc.hpp>
+
 
 #include "LLMObjectFactory.hpp"
 #include "agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp"
@@ -18,7 +18,6 @@
 #include "store/duckdb/DuckDBVectorStoreOperator.hpp"
 #include "toolkit/LocalToolkit.hpp"
 
-CMRC_DECLARE(instinct::assistant);
 
 #include "server/httplib/HttpLibServer.hpp"
 #include "assistant/v2/endpoint/AssistantController.hpp"
@@ -56,12 +55,21 @@ namespace instinct::examples::mini_assistant {
 
     class MiniAssistantApplicationContextFactory final: public IApplicationContextFactory<duckdb::Connection, duckdb::unique_ptr<duckdb::MaterializedQueryResult>> {
         ApplicationOptions options_;
+        std::once_flag init_flag_;
+        ApplicationContext instance_;
     public:
         explicit MiniAssistantApplicationContextFactory(ApplicationOptions applicationOptions)
                 : options_(std::move(applicationOptions)) {}
 
-        ApplicationContext GetInstance() override {
-            static ApplicationContext context;
+        ApplicationContext& GetInstance() override {
+            std::call_once(init_flag_, [&] {
+               Configure_(instance_);
+            });
+            return instance_;
+        }
+
+    private:
+        void Configure_(ApplicationContext& context) {
             // configure database
             const auto duckdb = std::make_shared<DuckDB>(options_.db_file_path);
             context.connection_pool = CreateDuckDBConnectionPool(duckdb, options_.connection_pool);
@@ -76,6 +84,7 @@ namespace instinct::examples::mini_assistant {
             context.vector_store_file_data_mapper = std::make_shared<VectorStoreFileDataMapper>(CreateDuckDBDataMapper<VectorStoreFileObject, std::string>(context.connection_pool));
             context.vector_store_file_batch_data_mapper = std::make_shared<VectorStoreFileBatchDataMapper>(CreateDuckDBDataMapper<VectorStoreFileBatchObject, std::string>(context.connection_pool));
             context.vector_store_metadata_data_mapper = std::make_shared<VectorStoreMetadataDataMapper>(CreateDuckDBDataMapper<VectorStoreInstanceMetadata, std::string>(context.connection_pool));
+            context.db_migration = std::make_shared<assistant::DBMigration<duckdb::Connection, duckdb::unique_ptr<duckdb::MaterializedQueryResult>>>(options_.db_file_path, context.connection_pool);
 
             // configure task scheduler
             context.task_scheduler = CreateThreadPoolTaskScheduler();
@@ -168,16 +177,19 @@ namespace instinct::examples::mini_assistant {
             http_server->Use(vector_store_file_batch_controller);
             context.http_server = http_server;
 
-            // return
-            return context;
+            // add lifecycle objects
+            context.Manage(context.file_batch_background_task);
+            context.Manage(context.task_scheduler);
+            context.Manage(context.db_migration);
         }
     };
 
+    static std::shared_ptr<MiniAssistantApplicationContextFactory> CONTEXT_FACTORY;
 
     static void graceful_shutdown(int signal) {
         LOG_INFO("Begin shutdown due to signal {}", signal);
         instinct::server::GracefullyShutdownRunningHttpServers();
-        instinct::data::GracefullyShutdownThreadPoolTaskSchedulers();
+        CONTEXT_FACTORY->GetInstance().Shutdown();
         std::exit(0);
     }
 
@@ -203,7 +215,6 @@ namespace instinct::examples::mini_assistant {
     }
 
 }
-
 
 
 int main(int argc, char** argv) {
@@ -288,19 +299,14 @@ int main(int argc, char** argv) {
     std::signal(SIGTERM, graceful_shutdown);
 
     // build context and start http server
-    MiniAssistantApplicationContextFactory factory {application_options};
-    const auto context = factory.GetInstance();
+    CONTEXT_FACTORY = std::make_shared<MiniAssistantApplicationContextFactory>(application_options);
 
-    // db migration
-    auto fs = cmrc::instinct::assistant::get_filesystem();
-    auto sql_file = fs.open("db_migration/001/up.sql");
-    const auto sql_line = std::string {sql_file.begin(), sql_file.end()};
-    LOG_DEBUG("Initialize database at {} with sql:\n {}", application_options.db_file_path, sql_line);
-    DBUtils::ExecuteSQL(sql_line, context.connection_pool);
-
-    // start background tasks
-    context.file_batch_background_task->Start();
+    // start application context
+    CONTEXT_FACTORY->GetInstance().Startup();
 
     // start server
-    context.http_server->StartAndWait();
+    CONTEXT_FACTORY->GetInstance().http_server->BindAndListen();
+
+    // cleanup
+    CONTEXT_FACTORY->GetInstance().Shutdown();
 }
