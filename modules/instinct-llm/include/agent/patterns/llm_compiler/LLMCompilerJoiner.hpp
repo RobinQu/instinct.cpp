@@ -47,7 +47,7 @@ You should choose one of available actions:
 
 Question: {question}
 
-{agent_scrathpad}
+{agent_scratchpad}
 
     )"}
                 });
@@ -75,7 +75,7 @@ Action: <action to take>(<final answer>)
 
 Question: {question}
 
-{agent_scrathpad}
+{agent_scratchpad}
 )"}
                 });
             }

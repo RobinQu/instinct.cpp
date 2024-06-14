@@ -18,11 +18,11 @@ class InstinctCppRecipe(ConanFile):
     def requirements(self):
         self.requires("hash-library/8.0")
         self.requires("bshoshany-thread-pool/4.1.0")
-        self.requires("duckdb/0.10.1", options={"with_httpfs": True})
+        self.requires("duckdb/0.10.2", options={"with_httpfs": True})
         self.requires("uriparser/0.9.7")
         self.requires("crossguid/0.2.2")
         self.requires("protobuf/3.21.12")
-        self.requires("reactiveplusplus/2.1.1")
+        # self.requires("reactiveplusplus/2.1.1")
         self.requires("icu/74.1", options={"with_extras": True, "data_packaging": "static"})
         self.requires("tsl-ordered-map/1.1.0")
         self.requires("fmt/10.2.1")

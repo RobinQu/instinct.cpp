@@ -71,6 +71,8 @@ message AgentFinish {
   bool is_failed = 4;
   // this is for error details
   google.protobuf.Any details = 6;
+  // original user input question
+  llm.PromptValue question = 7;
   // this is for custom step data
   google.protobuf.Any custom = 100;
 }
@@ -115,6 +117,12 @@ message SearchToolResponseEntry {
   string url = 1;
   string content = 2;
   string title = 3;
+
+  // used in file search tool
+  string parent_doc_id = 4;
+  int32 start_index = 5;
+  int32 end_index = 6;
+  string file_source = 7;
 }
 
 message SearchToolResponse {

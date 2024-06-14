@@ -1,4 +1,6 @@
 import logging
+import os
+
 import pytest
 import json
 import time
@@ -7,8 +9,7 @@ from openai import OpenAI
 logging.basicConfig(level=logging.DEBUG)
 
 client = OpenAI(base_url="http://localhost:9091/v1")
-MODEL_NAME = "TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ"
-# MODEL_NAME = "gpt-4o"
+MODEL_NAME = os.getenv("MODEL_NAME", "gpt-3.5-turbo")
 
 
 def show_json(obj):
@@ -49,7 +50,8 @@ def test_with_messages_only():
     assistant = client.beta.assistants.create(
         name="Math Tutor",
         instructions="You are a personal math tutor. Answer questions briefly, in a sentence or less.",
-        model=MODEL_NAME
+        model=MODEL_NAME,
+        temperature=0
     )
     show_json(assistant)
 
@@ -138,8 +140,6 @@ def test_with_multiple_thread_and_run():
 
 
 def test_function_tools():
-    client = OpenAI(base_url="http://localhost:9091/v1")
-
     def get_mock_response_from_user_multiple_choice(choices: list[str]):
         return choices[0]
 
@@ -201,6 +201,7 @@ def test_function_tools():
     assistant = client.beta.assistants.create(
         name="Math Tutor",
         instructions="You are a personal math tutor. Answer questions briefly, in a sentence or less.",
+        temperature=0,
         model=MODEL_NAME,
         tools=[
             {"type": "function", "function": function_json},

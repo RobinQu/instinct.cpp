@@ -34,26 +34,7 @@ namespace std {
 }
 
 namespace INSTINCT_CORE_NS {
-    const static std::string ROOT_DOC_ID = "49915DBE-434A-4E3E-9E0A-791D2F69D386";
-
-    struct DocumentMetadataMutator {
-        Document* document_;
-
-        auto SetString(const std::string& name, const std::string& value) {
-            auto* field = document_->add_metadata();
-            field->set_name(name);
-            field->set_string_value(value);
-            return this;
-        }
-
-        auto SetInt32(const std::string& name, const int& value) {
-            auto* field = document_->add_metadata();
-            field->set_name(name);
-            field->set_int_value(value);
-            return this;
-        }
-    };
-
+    const static std::string ROOT_DOC_ID = "ROOT";
 
     enum ConstraintViolationCategory {
         kUnknownViolation,
@@ -72,6 +53,13 @@ namespace INSTINCT_CORE_NS {
      */
     static auto EMPTY_METADATA_SCHEMA = std::make_shared<MetadataSchema>();
 
+    struct DocumentMetadata {
+        std::string parent_doc_id;
+        std::string file_source;
+        int page_no;
+        int start_index;
+        int end_index;
+    };
 
     class DocumentUtils {
     public:
@@ -93,6 +81,51 @@ namespace INSTINCT_CORE_NS {
             });
         }
 
+        static auto GetMetadataFieldValue(const Document& document, const std::string& name) {
+            for(auto itr=document.metadata().begin(); itr!=document.metadata().end();++itr) {
+                if (itr->name() == name) {
+                    return itr;
+                }
+            }
+            return document.metadata().end();
+        }
+
+        static std::optional<std::string> GetStringValueMetadataField(const Document& document, const std::string& name) {
+            const auto itr = GetMetadataFieldValue(document, name);
+            return itr == document.metadata().end() ? std::optional<std::string> {} : itr->string_value();
+        }
+
+        static std::optional<int32_t> GetIntValueMetadataField(const Document& document, const std::string& name) {
+            const auto itr = GetMetadataFieldValue(document, name);
+            return itr == document.metadata().end() ? std::optional<int32_t> {} : itr->int_value();
+        }
+
+        static void SetIntValueMetadataFiled(Document& document, const std::string& name, const int32_t value) {
+            for(auto& metadata_field: *document.mutable_metadata()) {
+                if (metadata_field.name() == name) {
+                    metadata_field.set_int_value(value);
+                    return;
+                }
+            }
+            // no existing field
+            auto* field = document.add_metadata();
+            field->set_name(name);
+            field->set_int_value(value);
+        }
+
+        static void SetStringValueMetadataFiled(Document& document, const std::string& name, const std::string& value) {
+            for(auto& metadata_field: *document.mutable_metadata()) {
+                if (metadata_field.name() == name) {
+                    metadata_field.set_string_value(value);
+                    return;
+                }
+            }
+            // no existing field
+            auto* field = document.add_metadata();
+            field->set_name(name);
+            field->set_string_value(value);
+        }
+
         static void AddMissingPresetMetadataFields(Document& document) {
             if(!HasMetadataField(document, METADATA_SCHEMA_PARENT_DOC_ID_KEY)) {
                 auto* metadata_field = document.add_metadata();
@@ -109,26 +142,41 @@ namespace INSTINCT_CORE_NS {
                 metadata_field->set_name(METADATA_SCHEMA_PAGE_NO_KEY);
                 metadata_field->set_int_value(0);
             }
+            if (!HasMetadataField(document, METADATA_SCHEMA_CHUNK_START_INDEX_KEY)) {
+                auto* metadata_field = document.add_metadata();
+                metadata_field->set_name(METADATA_SCHEMA_CHUNK_START_INDEX_KEY);
+                metadata_field->set_int_value(0);
+            }
+            if (!HasMetadataField(document, METADATA_SCHEMA_CHUNK_END_INDEX_KEY)) {
+                auto* metadata_field = document.add_metadata();
+                metadata_field->set_name(METADATA_SCHEMA_CHUNK_END_INDEX_KEY);
+                metadata_field->set_int_value(0);
+            }
         }
 
-        static void AddPresetMetadataFileds(
+        static void AddPresetMetadataFields(
             Document& document,
             const std::string& parent_doc_id,
             const int page_no = 1,
             const std::string& source = "",
-            const std::string& parent_doc_id_key = METADATA_SCHEMA_PARENT_DOC_ID_KEY,
-            const std::string& page_no_key = METADATA_SCHEMA_PAGE_NO_KEY,
-            const std::string& source_key = METADATA_SCHEMA_FILE_SOURCE_KEY
+            const int start_index = 0,
+            const int end_index = 0
             ) {
             auto* parent_id_field = document.add_metadata();
-            parent_id_field->set_name(parent_doc_id_key);
+            parent_id_field->set_name(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
             parent_id_field->set_string_value(parent_doc_id);
             auto *page_no_field = document.add_metadata();
-            page_no_field->set_name(page_no_key);
+            page_no_field->set_name(METADATA_SCHEMA_PAGE_NO_KEY);
             page_no_field->set_int_value(page_no);
             auto *source_field = document.add_metadata();
-            source_field->set_name(source_key);
+            source_field->set_name(METADATA_SCHEMA_FILE_SOURCE_KEY);
             source_field->set_string_value(source);
+            auto *start_index_field = document.add_metadata();
+            start_index_field->set_name(METADATA_SCHEMA_CHUNK_START_INDEX_KEY);
+            start_index_field->set_int_value(start_index);
+            auto *end_index_field = document.add_metadata();
+            end_index_field->set_name(METADATA_SCHEMA_CHUNK_END_INDEX_KEY);
+            end_index_field->set_int_value(end_index);
         }
 
         static std::vector<ConstraintViolation> ValidateDocument(const Document& doc, const MetadataSchemaPtr& metadata_schema, bool bypass_unknown_fields = true) {

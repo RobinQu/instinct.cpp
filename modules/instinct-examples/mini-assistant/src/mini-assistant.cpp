@@ -2,18 +2,22 @@
 // Created by RobinQu on 2024/4/19.
 //
 #include <CLI/CLI.hpp>
-#include <cmrc/cmrc.hpp>
+
 
 #include "LLMObjectFactory.hpp"
 #include "agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp"
+#include "assistant/v2/endpoint/VectorStoreController.hpp"
+#include "assistant/v2/endpoint/VectorStoreFileBatchController.hpp"
+#include "assistant/v2/endpoint/VectorStoreFileController.hpp"
+#include "assistant/v2/service/impl/VectorStoreServiceImpl.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "chat_model/OpenAIChat.hpp"
 #include "commons/OllamaCommons.hpp"
 #include "database/DBUtils.hpp"
 #include "server/httplib/DefaultErrorController.hpp"
+#include "store/duckdb/DuckDBVectorStoreOperator.hpp"
 #include "toolkit/LocalToolkit.hpp"
 
-CMRC_DECLARE(instinct::assistant);
 
 #include "server/httplib/HttpLibServer.hpp"
 #include "assistant/v2/endpoint/AssistantController.hpp"
@@ -38,28 +42,37 @@ namespace instinct::examples::mini_assistant {
 
 
     struct ApplicationOptions {
-        LLMProviderOptions llm_provider;
+        LLMProviderOptions embedding_model;
+        LLMProviderOptions chat_model;
         ServerOptions server;
         ConnectionPoolOptions connection_pool;
         std::filesystem::path db_file_path;
         std::filesystem::path file_store_path;
         FileServiceOptions file_service;
         AgentExecutorOptions agent_executor;
+        RetrieverOperatorOptions retriever_operator;
     };
-
-
 
     class MiniAssistantApplicationContextFactory final: public IApplicationContextFactory<duckdb::Connection, duckdb::unique_ptr<duckdb::MaterializedQueryResult>> {
         ApplicationOptions options_;
+        std::once_flag init_flag_;
+        ApplicationContext instance_;
     public:
         explicit MiniAssistantApplicationContextFactory(ApplicationOptions applicationOptions)
                 : options_(std::move(applicationOptions)) {}
 
-        ApplicationContext GetInstance() override {
-            static ApplicationContext context;
+        ApplicationContext& GetInstance() override {
+            std::call_once(init_flag_, [&] {
+               Configure_(instance_);
+            });
+            return instance_;
+        }
+
+    private:
+        void Configure_(ApplicationContext& context) {
             // configure database
-            const auto duck_db_ = std::make_shared<DuckDB>(options_.db_file_path);
-            context.connection_pool = CreateDuckDBConnectionPool(duck_db_, options_.connection_pool);
+            const auto duckdb = std::make_shared<DuckDB>(options_.db_file_path);
+            context.connection_pool = CreateDuckDBConnectionPool(duckdb, options_.connection_pool);
             context.assistant_data_mapper = CreateDuckDBDataMapper<AssistantObject, std::string>(context.connection_pool);
             context.thread_data_mapper = CreateDuckDBDataMapper<ThreadObject, std::string>(context.connection_pool);
             context.message_data_mapper = CreateDuckDBDataMapper<MessageObject, std::string>(context.connection_pool);
@@ -67,6 +80,11 @@ namespace instinct::examples::mini_assistant {
             context.run_data_mapper = CreateDuckDBDataMapper<RunObject, std::string>(context.connection_pool);
             context.run_step_data_mapper = CreateDuckDBDataMapper<RunStepObject, std::string>(context.connection_pool);
             context.object_store = std::make_shared<FileSystemObjectStore>(options_.file_store_path);
+            context.vector_store_data_mapper = std::make_shared<VectorStoreDataMapper>(CreateDuckDBDataMapper<VectorStoreObject, std::string>(context.connection_pool));
+            context.vector_store_file_data_mapper = std::make_shared<VectorStoreFileDataMapper>(CreateDuckDBDataMapper<VectorStoreFileObject, std::string>(context.connection_pool));
+            context.vector_store_file_batch_data_mapper = std::make_shared<VectorStoreFileBatchDataMapper>(CreateDuckDBDataMapper<VectorStoreFileBatchObject, std::string>(context.connection_pool));
+            context.vector_store_metadata_data_mapper = std::make_shared<VectorStoreMetadataDataMapper>(CreateDuckDBDataMapper<VectorStoreInstanceMetadata, std::string>(context.connection_pool));
+            context.db_migration = std::make_shared<assistant::DBMigration<duckdb::Connection, duckdb::unique_ptr<duckdb::MaterializedQueryResult>>>(options_.db_file_path, context.connection_pool);
 
             // configure task scheduler
             context.task_scheduler = CreateThreadPoolTaskScheduler();
@@ -84,104 +102,119 @@ namespace instinct::examples::mini_assistant {
                 context.task_scheduler
                 );
             const auto assistant_service = std::make_shared<AssistantServiceImpl>(context.assistant_data_mapper);
+            const auto embedding_model = LLMObjectFactory::CreateEmbeddingModel(options_.embedding_model);
+            context.vector_store_operator = CreateDuckDBStoreOperator(
+                duckdb,
+                embedding_model,
+                context.vector_store_metadata_data_mapper,
+                CreateVectorStorePresetMetadataSchema()
+                );
+            context.retriever_operator = CreateSimpleRetrieverOperator(
+                context.vector_store_operator,
+                duckdb,
+                {.table_name = "vs_document_table"},
+                options_.retriever_operator
+            );
+            const auto vector_store_service = std::make_shared<VectorStoreServiceImpl>(context.vector_store_file_data_mapper, context.vector_store_data_mapper, context.vector_store_file_batch_data_mapper, context.task_scheduler, context.retriever_operator);
             context.assistant_facade = {
                 .assistant = assistant_service,
                 .file = file_service,
                 .run = run_service,
                 .thread = thread_service,
                 .message = message_service,
-                .vector_store = nullptr
+                .vector_store = vector_store_service
             };
 
-            // configure task handler for run objects
-            auto builtin_toolkit = CreateLocalToolkit({});
-            context.run_object_task_handler = std::make_shared<OpenAIToolAgentRunObjectTaskHandler>(
+            // configure task handler for RunObject
+            const auto chat_model = LLMObjectFactory::CreateChatModel(options_.chat_model);
+            CitationAnnotatingChainPtr citation_annotating_chain = CreateCitationAnnotatingChain(chat_model);
+            context.run_object_task_handler = std::make_shared<RunObjectTaskHandler>(
                 run_service,
                 message_service,
                 assistant_service,
-                options_.llm_provider,
+                context.retriever_operator,
+                context.assistant_facade.vector_store,
+                thread_service,
+                citation_annotating_chain,
+                options_.chat_model,
                 options_.agent_executor
             );
+
+            //  configure task handler for VectorStoreFileObject
+            const auto summary_chain = CreateSummaryChain(chat_model);
+            context.file_object_task_handler = std::make_shared<FileObjectTaskHandler>(
+                context.retriever_operator,
+                context.assistant_facade.vector_store,
+                context.assistant_facade.file,
+                summary_chain,
+                FileObjectTaskHandlerOptions {.summary_input_max_size = 8*1024}
+            );
             context.task_scheduler->RegisterHandler(context.run_object_task_handler);
+            context.task_scheduler->RegisterHandler(context.file_object_task_handler);
+
+            // background task for FileBatchObject
+            context.file_batch_background_task = std::make_shared<FileBatchObjectBackgroundTask>(context.assistant_facade.vector_store, context.retriever_operator);
 
             // configure http server
-            const auto http_server = std::make_shared<HttpLibServer>(options_.server);
+            const auto http_server = CreateHttpLibServer(options_.server);
             const auto assistant_controller = std::make_shared<AssistantController>(context.assistant_facade);
             const auto file_controller = std::make_shared<FileController>(context.assistant_facade);
             const auto message_controller = std::make_shared<MessageController>(context.assistant_facade);
             const auto run_controller = std::make_shared<RunController>(context.assistant_facade);
             const auto thread_controller = std::make_shared<ThreadController>(context.assistant_facade);
             const auto error_controller = std::make_shared<DefaultErrorController>();
+            const auto vector_store_controller = std::make_shared<VectorStoreController>(context.assistant_facade);
+            const auto vector_store_file_controller = std::make_shared<VectorStoreFileController>(context.assistant_facade);
+            const auto vector_store_file_batch_controller = std::make_shared<VectorStoreFileBatchController>(context.assistant_facade);
             http_server->Use(assistant_controller);
             http_server->Use(file_controller);
             http_server->Use(message_controller);
             http_server->Use(run_controller);
             http_server->Use(thread_controller);
             http_server->Use(error_controller);
+            http_server->Use(vector_store_controller);
+            http_server->Use(vector_store_file_controller);
+            http_server->Use(vector_store_file_batch_controller);
             context.http_server = http_server;
-            return context;
+
+            // add lifecycle objects
+            context.Manage(context.file_batch_background_task);
+            context.Manage(context.task_scheduler);
+            context.Manage(context.db_migration);
         }
     };
 
+    static std::shared_ptr<MiniAssistantApplicationContextFactory> CONTEXT_FACTORY;
 
     static void graceful_shutdown(int signal) {
         LOG_INFO("Begin shutdown due to signal {}", signal);
         instinct::server::GracefullyShutdownRunningHttpServers();
-        instinct::data::GracefullyShutdownThreadPoolTaskSchedulers();
+        CONTEXT_FACTORY->GetInstance().Shutdown();
         std::exit(0);
     }
 
     static const std::map<std::string, HttpProtocol> protocol_map{
-                        {"http", kHTTP},
-                        {"https", kHTTPS}
+        {"http", kHTTP},
+        {"https", kHTTPS}
     };
 
-    static void BuildChatModelProviderOptionGroup(
-            CLI::Option_group* llm_provider_ogroup,
-            OpenAIConfiguration& provider_options) {
-        llm_provider_ogroup->description("OpenAI API, or any OpenAI API compatible servers are supported. Defaults to OpenAI public server.");
-
-        llm_provider_ogroup->add_option("--openai_api_key", provider_options.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.");
-        llm_provider_ogroup->add_option("--openai_host", provider_options.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.")
-                ->default_val(OPENAI_DEFAULT_ENDPOINT.host);
-        llm_provider_ogroup->add_option("--openai_port", provider_options.endpoint.port, "Port number for API service.")
-                ->default_val(OPENAI_DEFAULT_ENDPOINT.port);
-        llm_provider_ogroup->add_option("--openai_protocol", provider_options.endpoint.protocol, "HTTP protocol for API service.")
-                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
-                ->default_val(OPENAI_DEFAULT_ENDPOINT.protocol);
-        llm_provider_ogroup->add_option("--openai_model_name", provider_options.model_name, "Specify name of the model to be used.")
-                ->default_val(OPENAI_DEFAULT_MODEL_NAME);
-    }
-
-    static void BuildChatModelProviderOptionGroup(
-        CLI::Option_group* llm_provider_ogroup,
-        OllamaConfiguration& provider_options) {
-        llm_provider_ogroup->description("Configuration options for Ollama service.");
-        llm_provider_ogroup->add_option("--ollama_host", provider_options.endpoint.host, "Host name for Ollama API endpoint.")
-                ->default_val(OLLAMA_ENDPOINT.host);
-        llm_provider_ogroup->add_option("--ollama_port", provider_options.endpoint.port, "Port number for Ollama API endpoint.")
-                ->default_val(OLLAMA_ENDPOINT.port);
-        llm_provider_ogroup->add_option("--chat_model_protocol", provider_options.endpoint.protocol, "HTTP protocol for Ollama API endpoint.")
-                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
-                ->default_val(OLLAMA_ENDPOINT.protocol);
-        llm_provider_ogroup->add_option("--chat_model_model_name", provider_options.model_name, "Specify name of the model to be used.")
-                ->default_val(OLLAMA_DEFUALT_MODEL_NAME);
-    }
+    static const std::map<std::string, ModelProvider> model_provider_map {
+        {"openai", kOPENAI},
+        {"ollama", kOLLAMA},
+        {"local", kLOCAL},
+        {"llm_studio", kLLMStudio},
+          {"llama_cpp", kLLAMACPP},
+    };
 
     static void BuildAgentExecutorOptionsGroup(
         CLI::Option_group* agent_executor_option_group,
         LLMCompilerOptions& llm_compiler_option
     ) {
-        agent_executor_option_group->description("Options for LLMCompilier-based agent executor");
+        agent_executor_option_group->description("Options for LLMCompiler-based agent executor");
         agent_executor_option_group->add_option("--max_replan", llm_compiler_option.max_replan, "Max count for replan")->default_val(6);
     }
 
-
-
 }
-
-
-
 
 
 int main(int argc, char** argv) {
@@ -193,7 +226,6 @@ int main(int argc, char** argv) {
     // register terminate handler to print dead message
     cpptrace::register_terminate_handler();
 
-
     App app{
             "🐬 mini-assistant - Local Assistant API at your service"
     };
@@ -203,20 +235,48 @@ int main(int argc, char** argv) {
     ApplicationOptions application_options;
     app.add_option("-p,--port", application_options.server.port, "Port number which API server will listen")
             ->default_val("9091");
+
     app.add_option("--db_file_path", application_options.db_file_path, "Path for DuckDB database file.")->required();
-    app.add_option("--file_store_path", application_options.file_store_path, "Path for root directory of local object store.")->required()->check(CLI::ExistingDirectory);
+    app.add_option("--file_store_path", application_options.file_store_path, "Path for root directory of local object store. Will be created if it doesn't exist yet.")
+        ->required();
 
-    app.add_option("--model_provider", application_options.llm_provider.provider_name,
-                                            "Specify chat model to use for chat completion. ")
-                    ->check(CLI::IsMember({"ollama", "openai"}, CLI::ignore_case))
-                    ->default_val("openai");
-    BuildChatModelProviderOptionGroup(app.add_option_group("🧠 OpenAI configuration"), application_options.llm_provider.openai);
-    BuildChatModelProviderOptionGroup(app.add_option_group("🧠 Ollama configuration"), application_options.llm_provider.ollama);
+    {
+        auto ogroup = app.add_option_group("chat_model", "Configuration for chat model");
+        ogroup->add_option("--chat_model_provider", application_options.chat_model.provider,
+                "Specify chat model to use for chat completion.")
+            ->transform(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case))
+            ->default_val(ModelProvider::kOPENAI);
+        ogroup->add_option("--chat_model_name", application_options.chat_model.model_name,
+                                            "Specify chat model to use for chat completion. Default to gpt-3.5-turbo for OpenAI, llama3:8b for Ollama. Note that some model providers will ignore the passed model name and use the model currently loaded instead.");
+        ogroup->add_option("--chat_model_api_key", application_options.chat_model.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.");
+        ogroup->add_option("--chat_model_host", application_options.chat_model.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.");
+        ogroup->add_option("--chat_model_port", application_options.chat_model.endpoint.port, "Port number for API service.");
+        ogroup->add_option("--chat_model_protocol", application_options.chat_model.endpoint.protocol, "HTTP protocol for API service.")
+                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));
+    }
 
-    app.add_option("--agent_executor_type", application_options.agent_executor.agent_executor_name, "Sepcify agent executor type. `llm_compiler` enables parallel function calling with opensourced models like mistral series and llama series, while `openai_tool` relies on official OpenAI function calling capability to direct agent workflow.")
+    {
+        auto ogroup = app.add_option_group("embedding_model", "Configuration for embedding model");
+        ogroup
+            ->add_option("--embedding_model_provider", application_options.embedding_model.provider,
+                    "Specify model to use for embedding.")
+            ->transform(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case))
+            ->default_val(ModelProvider::kOPENAI);
+        ogroup->add_option("--embedding_model_name", application_options.embedding_model.model_name,
+                                            "Specify model to use for embedding . Default to text-embedding-3-small for OpenAI, all-minilm:latest for Ollama. Note that some model providers will ignore the passed model name and use the model currently loaded instead.");
+        ogroup->add_option("--embedding_model_dim", application_options.embedding_model.dim, "Dimension of given embedding model.")
+            ->check(PositiveNumber);
+        ogroup->add_option("--embedding_model_api_key", application_options.embedding_model.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.");
+        ogroup->add_option("--embedding_model_host", application_options.embedding_model.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.");
+        ogroup->add_option("--embedding_model_port", application_options.embedding_model.endpoint.port, "Port number for API service.");
+        ogroup->add_option("--embedding_model_protocol", application_options.embedding_model.endpoint.protocol, "HTTP protocol for API service.")
+                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));
+    }
+
+    app.add_option("--agent_executor_type", application_options.agent_executor.agent_executor_name, "Specify agent executor type. `llm_compiler` enables parallel function calling with opensourced models like mistral series and llama series, while `openai_tool` relies on official OpenAI function calling capability to direct agent workflow.")
         ->check(CLI::IsMember({"llm_compiler", "openai_tool"}, CLI::ignore_case))
         ->default_val("llm_compiler");
-    BuildAgentExecutorOptionsGroup(app.add_option_group("Options for LLMCompilerAgentExectuor"), application_options.agent_executor.llm_compiler);
+    BuildAgentExecutorOptionsGroup(app.add_option_group("Options for LLMCompilerAgentExecutor"), application_options.agent_executor.llm_compiler);
 
     // log level
     bool enable_verbose_log;
@@ -239,16 +299,14 @@ int main(int argc, char** argv) {
     std::signal(SIGTERM, graceful_shutdown);
 
     // build context and start http server
-    MiniAssistantApplicationContextFactory factory {application_options};
-    const auto context = factory.GetInstance();
+    CONTEXT_FACTORY = std::make_shared<MiniAssistantApplicationContextFactory>(application_options);
 
-    // db migration
-    auto fs = cmrc::instinct::assistant::get_filesystem();
-    auto sql_file = fs.open("db_migration/001/up.sql");
-    const auto sql_line = std::string {sql_file.begin(), sql_file.end()};
-    LOG_DEBUG("Initialize database at {} with sql:\n {}", application_options.db_file_path, sql_line);
-    DBUtils::ExecuteSQL(sql_line, context.connection_pool);
+    // start application context
+    CONTEXT_FACTORY->GetInstance().Startup();
 
     // start server
-    context.http_server->StartAndWait();
+    CONTEXT_FACTORY->GetInstance().http_server->BindAndListen();
+
+    // cleanup
+    CONTEXT_FACTORY->GetInstance().Shutdown();
 }

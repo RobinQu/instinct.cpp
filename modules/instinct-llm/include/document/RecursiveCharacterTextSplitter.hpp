@@ -43,12 +43,12 @@ namespace INSTINCT_LLM_NS {
 
         explicit RecursiveCharacterTextSplitter(const RecursiveCharacterTextSplitterOptions& options = {}): RecursiveCharacterTextSplitter(std::make_shared<StringLengthCalculator>(), options) {}
 
-        explicit RecursiveCharacterTextSplitter(LenghtCalculatorPtr lenght_calculator, const RecursiveCharacterTextSplitterOptions& options = {}): BaseTextSplitter(
+        explicit RecursiveCharacterTextSplitter(LengthCalculatorPtr length_calculator, const RecursiveCharacterTextSplitterOptions& options = {}): BaseTextSplitter(
             options.chunk_size,
             options.chunk_overlap,
             options.keep_separator,
             options.strip_whitespace,
-            std::move(lenght_calculator)),
+            std::move(length_calculator)),
                                                                                                             separators_(options.separators) {
 
         }
@@ -74,20 +74,19 @@ namespace INSTINCT_LLM_NS {
                     break;
                 }
                 // break if text can be split by sep
-                if(text.indexOf(sep) > 0) {
+                if(text.indexOf(sep) !=-1) {
                     separator = details::escape_for_regular_expression(sep);
-                    separators.erase(itr);
+                    itr = separators.erase(itr);
                     break;
                 }
             }
-
-            const auto splits = details::split_text_with_seperator(text, separator, keep_sepeartor_);
+            const auto splits = details::split_text_with_seperator(text, separator, keep_separator_);
             std::vector<UnicodeString> good_splits;
 
-            // Tricky part: if `keep_sepeartor` is true, then the splits vector (`good_splits`) already contain sepeartors, so we cannot join splits with seperator again, other there will be duplicated seperators between splits.
-            const auto merging_separator = keep_sepeartor_ ?  "": separator;
+            // Tricky part: if `keep_separator` is true, then the splits vector (`good_splits`) already contain separators, so we cannot join splits with seperator again, other there will be duplicated separators between splits.
+            const auto merging_separator = keep_separator_ ? "" : separator;
             for(auto& s: splits) {
-                if(lenght_calculator_->GetLength(s) < chunk_size_) {
+                if(length_calculator_->GetLength(s) < chunk_size_) {
                     good_splits.push_back(s);
                 } else {
                     // merge partials if possible
@@ -106,6 +105,8 @@ namespace INSTINCT_LLM_NS {
             if(!good_splits.empty()) {
                 MergeSplits_(good_splits, merging_separator, final_chunks);
             }
+
+            // details::print_array(final_chunks);
         }
     };
 

@@ -53,6 +53,14 @@ namespace INSTINCT_ASSISTANT_NS {
         const auto content1 = file_service->DownloadFile(download_file_request);
         ASSERT_EQ(content1.value(), "helloworld");
 
+        // download with stream
+        {
+            TempFile tmp1;
+            file_service->DownloadFile(download_file_request, tmp1.file);
+            const auto str = IOUtils::ReadString(tmp1.path);
+            ASSERT_EQ(str, "helloworld");
+        }
+
         // list files
         ListFilesRequest list_files_request1;
         const auto list_response = file_service->ListFiles(list_files_request1);

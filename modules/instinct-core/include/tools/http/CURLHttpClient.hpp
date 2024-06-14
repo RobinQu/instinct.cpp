@@ -60,10 +60,6 @@ namespace INSTINCT_CORE_NS {
                 curl_easy_setopt(hnd, CURLOPT_POSTFIELDSIZE_LARGE, (curl_off_t)request.body.size());
 
             }
-//            if (request.method == kPUT) {
-//                curl_easy_setopt(hnd, CURLOPT_UPLOAD, 1L);
-//            }
-
             curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, *header_slist);
             curl_easy_setopt(hnd, CURLOPT_ACCEPT_ENCODING, "");
             curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/8.4.0");
@@ -114,44 +110,55 @@ namespace INSTINCT_CORE_NS {
             return ret;
         }
 
-        static const std::string LF_LF_END_OF_LINE = "\n\n";
+        template<typename OB>
+        requires rpp::constraint::observer_of_type<OB, std::string>
+        struct StreamBuffer {
+            OB& ob;
+            std::string line_breaker;
+            std::string data;
+        };
 
         template<typename OB>
         requires rpp::constraint::observer_of_type<OB, std::string>
-        static size_t curl_write_callback_with_observer(char *ptr, size_t size, size_t nmemb, OB *ob) {
-            if (const std::string original_chunk = {ptr, size * nmemb}; original_chunk.find(
-                    LF_LF_END_OF_LINE)) {
-                // non-standard line-breaker, used by many SSE implementation.
-                for (const auto line: std::views::split(original_chunk, LF_LF_END_OF_LINE)) {
-                    auto part = std::string (line.begin(), line.end());
-                    if (!part.empty()) {
-                        ob->on_next(part);
-                    }
+        static size_t curl_write_callback_with_observer(char *ptr, size_t size, size_t nmemb, StreamBuffer<OB> *buf) {
+            const std::string original_chunk = {ptr, size * nmemb};
+            buf->data += original_chunk;
+            while(true) {
+                if (const auto idx = buf->data.find(buf->line_breaker); idx!=std::string::npos) {
+                    buf->ob.on_next(buf->data.substr(0,idx));
+                    buf->data = buf->data.substr(idx+buf->line_breaker.size());
+                } else {
+                    break;
                 }
-            } else {
-                ob->on_next(original_chunk);
             }
             return size * nmemb;
         }
 
         template<typename OB>
         requires rpp::constraint::observer_of_type<OB, std::string>
-        static CURLcode observe_curl_request(const HttpRequest &request, OB&& observer) {
+        static CURLcode observe_curl_request(const HttpRequest &request, OB&& observer, const StreamChunkOptions& options) {
             initialize_curl();
             curl_slist *header_slist = nullptr;
             CURL *hnd = curl_easy_init();
 
             configure_curl_request(request, hnd, &header_slist);
             using OB_TYPE = std::decay_t<OB>;
+            StreamBuffer<OB> buf {observer, options.line_breaker};
             curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, curl_write_callback_with_observer<OB_TYPE>);
-            curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &observer);
+            curl_easy_setopt(hnd, CURLOPT_WRITEDATA, &buf);
 
             const CURLcode ret = curl_easy_perform(hnd);
             if(ret==0) {
+                // emit remaining data in case the server returns malformed response so that write-callback cannot handle last parts
+                if (StringUtils::IsNotBlankString(buf.data)) {
+                    observer.on_next(buf.data);
+                }
                 int status_code = 0;
                 curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &status_code);
                 if (status_code >= 400) {
                     observer.on_error(std::make_exception_ptr(HttpClientException(status_code, "Failed to get chunked response")));
+                } else {
+                    observer.on_completed();
                 }
             }
             curl_easy_cleanup(hnd);
@@ -204,9 +211,14 @@ namespace INSTINCT_CORE_NS {
 
     }
 
+
+
     class CURLHttpClient final: public IHttpClient {
 
     public:
+
+
+
         HttpResponse Execute(const HttpRequest &call) override {
             HttpResponse http_response;
             auto url = HttpUtils::CreateUrlString(call);
@@ -215,27 +227,29 @@ namespace INSTINCT_CORE_NS {
                 throw HttpClientException(0, "curl request failed with return code " + std::string(curl_easy_strerror(code)));
             }
 
-            LOG_DEBUG("RESP: {} {}, status_code={}, body_length={}", call.method, url, http_response.status_code, http_response.body);
+            LOG_DEBUG("RESP: {} {}, status_code={}, body_length={}", call.method, url, http_response.status_code, http_response.body.size());
             return http_response;
         }
 
         /**
          *
          * @param call `call` reference should persist during HTTP request
+         * @param options
          * @return
          */
-        AsyncIterator<std::string> StreamChunk(const HttpRequest &call) override {
-            HttpUtils::HttpUtils::AssertHttpRequest(call);
+        AsyncIterator<std::string> StreamChunk(const HttpRequest &call, const StreamChunkOptions& options) override {
+            assert_true(!options.line_breaker.empty(), "should assign line-breaker");
+            HttpUtils::AssertHttpRequest(call);
             // TODO maybe stop copying `call` by using smart pointer
             auto url = HttpUtils::CreateUrlString(call);
             LOG_DEBUG("REQ: {} {}", call.method, url);
-            return rpp::source::create<std::string>([&, call](auto&& observer) {
+            return rpp::source::create<std::string>([&, call, options](auto&& observer) {
                 using OB_TYPE = decltype(observer);
-                auto code = details::observe_curl_request<OB_TYPE>(call, std::forward<OB_TYPE>(observer));
+                auto code = details::observe_curl_request<OB_TYPE>(call, std::forward<OB_TYPE>(observer), options);
                 if (code!=0) {
                     observer.on_error(std::make_exception_ptr(InstinctException("curl request failed with reason: " + std::string(curl_easy_strerror(code)))));
                 }
-            }) | rpp::ops::tap({}, {}, [&]() {
+            }) | rpp::ops::tap({}, {}, [&,call]() {
                 LOG_DEBUG("RESP: {} {}", call.method, url);
             });
         }
@@ -244,8 +258,8 @@ namespace INSTINCT_CORE_NS {
             const std::vector<HttpRequest>& calls,
             ThreadPool& pool) override {
             const u_int64_t n = calls.size();
-            return pool.submit_sequence(u_int64_t{0}, n, [&,total=calls.size()](auto i) {
-                LOG_DEBUG("Executing {} of {} requests", i+1, total);
+            return pool.submit_sequence(u_int64_t{0}, n, [&,calls](auto i) {
+                LOG_DEBUG("Executing {} of {} requests", i+1, calls.size());
                 return this->Execute(calls[i]);
             });
         }

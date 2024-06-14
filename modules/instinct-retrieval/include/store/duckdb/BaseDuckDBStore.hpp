@@ -12,6 +12,7 @@
 #include "store/IDocStore.hpp"
 #include "tools/StringUtils.hpp"
 #include "functional/ReactiveFunctions.hpp"
+#include "store/SQLBuilder.hpp"
 #include "tools/DocumentUtils.hpp"
 
 
@@ -34,12 +35,12 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::string db_file_path;
 
         /**
-         * Dimnesion for vector. Zero means no vector field.
+         * Dimension for vector. Zero means no vector field.
          */
         size_t dimension = 0;
 
         /**
-         * A flag to allow unknown metadata fields. Otherwise exception will be raised.
+         * A flag to allow unknown metadata fields. Otherwise, exception will be raised.
          */
         bool bypass_unknown_fields = true;
 
@@ -52,6 +53,11 @@ namespace INSTINCT_RETRIEVAL_NS {
          * A flag to initialize `CREATE OR REPLACE TABLE` syntax during startup. If set to false, `CREATE TABLE IF NOT EXISTS` syntax will be used
          */
         bool create_or_replace_table = false;
+
+        /**
+         * Optional instance id
+         */
+        std::string instance_id;
     };
 
     namespace details {
@@ -87,7 +93,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         static std::string make_create_table_sql(
             const std::string& table_name,
-            const size_t dimmension,
+            const size_t dimension,
             const std::shared_ptr<MetadataSchema>& metadata_schema,
             bool create_or_replace_table = false
         ) {
@@ -95,8 +101,8 @@ namespace INSTINCT_RETRIEVAL_NS {
             std::vector<std::string> parts;
             parts.emplace_back("id UUID PRIMARY KEY");
             parts.emplace_back("text VARCHAR NOT NULL");
-            if (dimmension > 0) {
-                parts.emplace_back("vector FLOAT[" + std::to_string(dimmension) + "] NOT NULL");
+            if (dimension > 0) {
+                parts.emplace_back("vector FLOAT[" + std::to_string(dimension) + "] NOT NULL");
             }
 
             for (const auto& field: metadata_schema->fields()) {
@@ -208,53 +214,17 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         static void append_row_basic_fields(
             Appender& appender,
-            const Document& doc,
+            Document& doc,
             UpdateResult& update_result
         ) {
             // column of id
             const std::string new_id = StringUtils::GenerateUUIDString();
             update_result.add_returned_ids(new_id);
+            doc.set_id(new_id);
             appender.Append<>(new_id.c_str());
-            // doc.set_id(new_id);
-            update_result.add_returned_ids(new_id);
 
             // column of text
-            // TODO escape text chars in case of sql injection
             appender.Append<>(doc.text().c_str());
-        }
-
-        static void append_row_column_value(Appender& appender, const Reflection* field_value_reflection, const FieldDescriptor* field_descriptor, const google::protobuf::Message& metadata_field_message) {
-
-            if (field_descriptor) {
-                switch (field_descriptor->cpp_type()) {
-                    case FieldDescriptor::CPPTYPE_INT32:
-                        appender.Append<int32_t>(
-                                field_value_reflection->GetInt32(metadata_field_message, field_descriptor));
-                        break;
-                    case FieldDescriptor::CPPTYPE_INT64:
-                        appender.Append<int64_t>(
-                                field_value_reflection->GetInt64(metadata_field_message, field_descriptor));
-                        break;
-                    case FieldDescriptor::CPPTYPE_BOOL:
-                        appender.Append<
-                                bool>(field_value_reflection->GetBool(metadata_field_message, field_descriptor));
-                        break;
-                    case FieldDescriptor::CPPTYPE_STRING:
-                        appender.Append<>(
-                                field_value_reflection->GetString(metadata_field_message, field_descriptor).c_str());
-                        break;
-                    case FieldDescriptor::CPPTYPE_FLOAT:
-                        appender.Append<float>(
-                                field_value_reflection->GetFloat(metadata_field_message, field_descriptor));
-                        break;
-                    case FieldDescriptor::CPPTYPE_DOUBLE:
-                        appender.Append<double>(
-                                field_value_reflection->GetDouble(metadata_field_message, field_descriptor));
-                        break;
-                    default:
-                        throw InstinctException("unknown field type for appending: " + field_descriptor->name());
-                }
-            }
         }
 
         static void append_row_metadata_fields(
@@ -274,32 +244,13 @@ namespace INSTINCT_RETRIEVAL_NS {
                                  });
             std::unordered_set<std::string> known_field_names{name_view.begin(), name_view.end()};
 
-            // columns of metadata
-            auto* schema = Document::GetDescriptor();
-            auto* reflection = Document::GetReflection();
-            const auto* metadata_field = schema->FindFieldByName("metadata");
-            int metadata_size = reflection->FieldSize(doc, metadata_field);
-//            assert_gte(metadata_size, metadata_schema->fields_size(), "Some metadata field(s) missing");
-
-
+            const int metadata_size = doc.metadata_size();
             auto defined_field_schema_map = DocumentUtils::ConvertToMetadataSchemaMap(metadata_schema);
-            //std::unordered_map<std::string, const FieldDescriptor*> metadata_field_descriptor_map;
-
-
             std::unordered_map<std::string, int> metadata_field_name_index_map;
 
             for (int i = 0; i < metadata_size; i++) {
-                const auto& metadata_field_message = reflection->GetRepeatedMessage(
-                    doc,
-                    metadata_field,
-                    i);
-                auto metadata_field_descriptor = metadata_field_message.GetDescriptor();
-                auto* field_value_reflection = metadata_field_message.GetReflection();
-                auto name_field_descriptor = metadata_field_descriptor->FindFieldByName("name");
-                auto name = field_value_reflection->GetString(metadata_field_message, name_field_descriptor);
-
+                auto name = doc.metadata(i).name();
                 metadata_field_name_index_map[name] = i;
-
                 if (!bypass_unknown_fields) {
                     assert_true((known_field_names.contains(name)),
                                 "Metadata cannot contain field not defined by schema. Problematic field is " + name);
@@ -313,21 +264,29 @@ namespace INSTINCT_RETRIEVAL_NS {
 
             // append columns according to the order in metadata schema, or DuckDB will complain with SQL errors.
             for (const auto& metadata_field_schema: metadata_schema->fields()) {
-                int i = metadata_field_name_index_map[metadata_field_schema.name()];
-                const auto& metadata_field_message = reflection->GetRepeatedMessage(
-                        doc,
-                        metadata_field,
-                        i);
-
-                auto metadata_field_descriptor = metadata_field_message.GetDescriptor();
-                auto* field_value_reflection = metadata_field_message.GetReflection();
-                auto* value_descriptor = metadata_field_descriptor->FindOneofByName("value");
-//                auto* field_descriptor = value_descriptor->field(value_descriptor->index());
-                //auto* field_descriptor = field_value_reflection->GetOneofFieldDescriptor(doc, value_descriptor);
-
-                auto* value_field_descriptor = field_value_reflection->GetOneofFieldDescriptor(metadata_field_message, value_descriptor);
-
-                append_row_column_value(appender, field_value_reflection, value_field_descriptor, metadata_field_message);
+                const int i = metadata_field_name_index_map[metadata_field_schema.name()];
+                if (const auto& value = doc.metadata(i); value.is_null()) {
+                    appender.Append(nullptr);
+                } else {
+                    if (value.has_bool_value()) {
+                        appender.Append<bool>(value.bool_value());
+                    }
+                    if (value.has_double_value()) {
+                        appender.Append<double>(value.double_value());
+                    }
+                    if (value.has_float_value()) {
+                        appender.Append<float>(value.float_value());
+                    }
+                    if (value.has_int_value()) {
+                        appender.Append<int32_t>(value.int_value());
+                    }
+                    if (value.has_long_value()) {
+                        appender.Append<int64_t>(value.long_value());
+                    }
+                    if (value.has_string_value()) {
+                        appender.Append(value.string_value().c_str());
+                    }
+                }
             }
         }
     }
@@ -339,9 +298,6 @@ namespace INSTINCT_RETRIEVAL_NS {
         DuckDBPtr db_;
         std::shared_ptr<MetadataSchema> metadata_schema_;
         unique_ptr<PreparedStatement> prepared_count_all_statement_;
-        // std::map<std::thread::id, Connection> connections_;
-        // std::mutex g_i_mutex;
-
         Connection connection_;
 
     public:
@@ -354,14 +310,12 @@ namespace INSTINCT_RETRIEVAL_NS {
            metadata_schema_(metadata_schema),
             connection_(*db_)
         {
-            // LOG_DEBUG("Startup db at {}", options.db_file_path);
             assert_true(metadata_schema, "should provide schema");
-            // assert_positive(options_.dimension, "dimension should be positive");
             assert_lt(options_.dimension, 10000, "dimension should be less than 10000");
             assert_true(!StringUtils::IsBlankString(options_.table_name), "table_name cannot be blank");
 
-            const auto sql = details::make_create_table_sql(options_.table_name, options_.dimension, metadata_schema_, options.create_or_replace_table);
-            LOG_DEBUG("create document table with SQL: {}", sql);
+            const auto sql = details::make_create_table_sql(options_.table_name, options_.dimension, metadata_schema_, options_.create_or_replace_table);
+            LOG_DEBUG("create document table with SQL if necessary: {}", sql);
 
             const auto create_table_result = connection_.Query(sql);
             assert_query_ok(create_table_result);
@@ -370,6 +324,14 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_prepared_ok(prepared_count_all_statement_, "Failed to prepare count statement");
         }
 
+        bool Destroy() override {
+            const auto result = connection_.Query(fmt::format("drop table {};", options_.table_name));
+            return check_query_ok(result);
+        }
+
+        [[nodiscard]] DuckDBPtr GetDuckDB() const {
+            return db_;
+        }
 
         [[nodiscard]] const DuckDBStoreOptions& GetOptions() const {
             return options_;
@@ -379,14 +341,20 @@ namespace INSTINCT_RETRIEVAL_NS {
             return metadata_schema_;
         }
 
-        [[nodiscard]] Connection GetConnection() {
-            // const std::lock_guard<std::mutex> lock(g_i_mutex);
-            // auto id = std::this_thread::get_id();
-            // if (!connections_.contains(id)) {
-            //     connections_.emplace(id, Connection(*db_));
-            // }
-            // return connections_.at(id);
+        Connection& GetConnection() {
+            return connection_;
+        }
+
+        [[nodiscard]] Connection MakeConnection() const {
             return std::move(Connection(*db_));
+        }
+
+        AsyncIterator<Document> FindDocuments(const FindRequest &find_request) override {
+            const auto sql = SQLBuilder::ToSelectString(options_.table_name, "*", find_request.query(), find_request.sorters());
+            LOG_DEBUG("FindDocuments with sql: {}", sql);
+            auto result = GetConnection().Query(sql);
+            assert_query_ok(result);
+            return details::conv_query_result_to_iterator(std::move(result), metadata_schema_);
         }
 
         AsyncIterator<Document> MultiGetDocuments(const std::vector<std::string>& ids) override {
@@ -414,10 +382,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             AddDocuments(docs, update_result);
         }
 
-        virtual void AppendRows(Appender& appender, const std::vector<Document>& records, UpdateResult& update_result) = 0;
+        virtual void AppendRows(Appender& appender, std::vector<Document>& records, UpdateResult& update_result) = 0;
 
-        void AddDocuments(const std::vector<Document>& records, UpdateResult& update_result) override {
-            auto connection = GetConnection();
+        void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
+            auto connection = MakeConnection();
             connection.BeginTransaction();
             try {
                 Appender appender(connection, options_.table_name);
@@ -437,7 +405,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         virtual void AppendRow(Appender& appender, Document& doc, UpdateResult& update_result) = 0;
 
         void AddDocument(Document& doc) override {
-            auto connection = GetConnection();
+            auto connection = MakeConnection();
             connection.BeginTransaction();
             try {
                 UpdateResult update_result;
@@ -460,8 +428,9 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void DeleteDocuments(const std::vector<std::string>& ids, UpdateResult& update_result) override {
-            auto connection = GetConnection();
+            auto connection = MakeConnection();
             const auto sql = details::make_delete_sql(options_.table_name, ids);
+            LOG_DEBUG("DeleteDocuments with sql: {}", sql);
             const auto result = connection.Query(sql);
             assert_query_ok(result);
             const auto xn = result->GetValue<int32_t>(0, 0);
@@ -469,7 +438,15 @@ namespace INSTINCT_RETRIEVAL_NS {
             update_result.mutable_returned_ids()->Add(ids.begin(), ids.end());
         }
 
-        // using DuckDBStoreInternalPtr = std::shared_ptr<DuckDBStoreInternal>;
+        void DeleteDocuments(const SearchQuery &filter, UpdateResult &update_result) override {
+            auto connection = MakeConnection();
+            const auto sql = SQLBuilder::ToDeleteString(options_.table_name, filter);
+            LOG_DEBUG("DeleteDocuments with sql: {}", sql);
+            const auto result = connection.Query(sql);
+            assert_query_ok(result);
+            const auto xn = result->GetValue<int32_t>(0, 0);
+            update_result.set_affected_rows(xn);
+        }
     };
 }
 

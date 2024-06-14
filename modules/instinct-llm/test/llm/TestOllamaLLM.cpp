@@ -13,6 +13,14 @@
 
 namespace INSTINCT_LLM_NS {
 
+    class TestOllamaLLM: public testing::Test {
+
+    protected:
+        void SetUp() override {
+            SetupLogging();
+        }
+    };
+
     static const std::vector<PromptValueVariant> prompts = {
         "Why is sky blue?",
         "What's the biggest country in the world?",
@@ -20,26 +28,27 @@ namespace INSTINCT_LLM_NS {
     };
 
 
-    TEST(TestOllamaLLM, Invoke) {
-        OllamaLLM ollama_llm;
-        auto output = ollama_llm(prompts[0]);
+    TEST_F(TestOllamaLLM, Invoke) {
+        const auto ollama_llm = CreateOllamaLLM();
+        auto output = ollama_llm->Invoke(prompts[0]);
         std::cout << output << std::endl;
 
-        auto output2 = ollama_llm.Invoke(prompts[0]);
+        auto output2 = ollama_llm->Invoke(prompts[0]);
         std::cout << output2 << std::endl;
         ASSERT_TRUE(!output.empty());
     }
 
-    TEST(TestOllamaLLM, Batch) {
-        OllamaLLM ollama_llm;
-
-        ollama_llm.Batch(prompts)
+    TEST_F(TestOllamaLLM, Batch) {
+        const auto ollama_llm = CreateOllamaLLM();
+        ollama_llm->Batch(prompts)
+            | rpp::operators::as_blocking()
             | rpp::operators::subscribe([](const auto& t) { LOG_INFO("answer: {}", t); });
     }
 
-    TEST(TestOllamaLLM, Stream) {
-        OllamaLLM ollama_llm;
-        ollama_llm.Stream(prompts[0])
+    TEST_F(TestOllamaLLM, Stream) {
+        const auto ollama_llm = CreateOllamaLLM();
+        ollama_llm->Stream(prompts[0])
+            | rpp::operators::as_blocking()
             | rpp::operators::subscribe([](const auto& t) { LOG_INFO("chunk: {}", t); });
     }
 }

@@ -53,7 +53,7 @@ namespace INSTINCT_LLM_NS {
         const auto input_parser = CreateLLMCompilerJoinerTaskGraphInputParser();
         const auto ctx1 = input_parser->Invoke(graph);
         ASSERT_EQ(ctx1->RequireMappingData().at("question")->RequirePrimitive<std::string>(), graph.question());
-        const auto scratchpad = ctx1->RequireMappingData().at("agent_scrathpad")->RequirePrimitive<std::string>();
+        const auto scratchpad = ctx1->RequireMappingData().at("agent_scratchpad")->RequirePrimitive<std::string>();
         LOG_INFO("scratchpad: {}", scratchpad);
         ASSERT_TRUE(StringUtils::IsNotBlankString(scratchpad));
     }

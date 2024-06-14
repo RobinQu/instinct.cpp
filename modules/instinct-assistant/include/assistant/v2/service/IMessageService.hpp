@@ -20,6 +20,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         virtual ListMessageResponse ListMessages(const ListMessagesRequest& list_request) = 0;
         virtual std::optional<MessageObject> CreateMessage(const CreateMessageRequest& create_request) = 0;
+        virtual std::optional<MessageObject> CreateRawMessage(const MessageObject& message_object) = 0;
         virtual std::optional<MessageObject> RetrieveMessage(const GetMessageRequest& get_request) = 0;
         virtual std::optional<MessageObject> ModifyMessage(const ModifyMessageRequest& modify_request) = 0;
 

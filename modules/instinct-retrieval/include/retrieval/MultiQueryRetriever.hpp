@@ -29,15 +29,15 @@ namespace INSTINCT_RETRIEVAL_NS {
               query_chain_(std::move(query_chain)) {
         }
 
-        [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery& query) const override {
-            const auto queries = query_chain_->Invoke(query.text);
+        [[nodiscard]] AsyncIterator<Document> Retrieve(const SearchRequest& search_request) const override {
+            const auto queries = query_chain_->Invoke(search_request.query());
             assert_true(queries.lines_size() > 1, "should have multiple generated queries.");
-            LOG_DEBUG("orignal query: {}, rewrite queries: {}", query.text, queries.ShortDebugString());
+            LOG_DEBUG("orignal query: {}, rewrite queries: {}", search_request.query(), queries.ShortDebugString());
             return rpp::source::from_iterable(queries.lines())
-                | rpp::operators::flat_map([&](const std::string& q) {
-                    TextQuery text_query = query;
-                    text_query.text = q;
-                    return base_retriever_->Retrieve(text_query);
+                | rpp::operators::flat_map([&, search_request](const std::string& q)   {
+                    SearchRequest copied_request = search_request;
+                    copied_request.set_query(q);
+                    return base_retriever_->Retrieve(copied_request);
                 })
                 // see following specializations for std::hash and std::equal_to
                 // modules/instinct-core/src/tools/DocumentUtils.hpp

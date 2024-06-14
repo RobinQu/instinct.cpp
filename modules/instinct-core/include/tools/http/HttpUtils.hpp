@@ -49,11 +49,11 @@ namespace INSTINCT_CORE_NS {
             fmt::dynamic_format_arg_store<fmt::format_context> store;
             store.push_back(fmt::arg("protocol", call.endpoint.protocol));
             store.push_back(fmt::arg("host", call.endpoint.host));
-            store.push_back(fmt::arg("port", call.endpoint.port));
+            store.push_back(fmt::arg("port", call.endpoint.port == 0 ? (call.endpoint.protocol == kHTTP ? 80 : 443) : call.endpoint.port));
             store.push_back(fmt::arg("target", call.target));
-            if (!call.paramters.empty()) {
+            if (!call.parameters.empty()) {
                 std::vector<std::string> parameter_pairs;
-                for (const auto& [k,v]: call.paramters) {
+                for (const auto& [k,v]: call.parameters) {
                     parameter_pairs.push_back(fmt::format("{}={}", k, curl_easy_escape(nullptr, v.c_str(), static_cast<int>(v.size()))));
                 }
                 store.push_back(fmt::arg("query_string", StringUtils::JoinWith(parameter_pairs, "&")));
@@ -74,9 +74,8 @@ namespace INSTINCT_CORE_NS {
             UriUriA  uri;
             const char* error_pos;
             if(uriParseSingleUriA(&uri, parts[1].data(), &error_pos) == URI_SUCCESS) {
-                auto scheme = std::string {uri.scheme.first, uri.scheme.afterLast};
-
-                auto port_text = std::string {uri.portText.first, uri.portText.afterLast};
+                const auto scheme = std::string {uri.scheme.first, uri.scheme.afterLast};
+                const auto port_text = std::string {uri.portText.first, uri.portText.afterLast};
                 if (scheme == "http") {
                     call.endpoint.protocol = kHTTP;
                     if(port_text.empty()) {
@@ -103,7 +102,7 @@ namespace INSTINCT_CORE_NS {
                 }
 
                 // query paratmeters
-                call.paramters = ParseQueryParameters({uri.query.first, uri.query.afterLast});
+                call.parameters = ParseQueryParameters({uri.query.first, uri.query.afterLast});
             }
             uriFreeUriMembersA(&uri);
             return call;

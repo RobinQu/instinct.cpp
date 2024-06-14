@@ -45,7 +45,7 @@ namespace instinct::examples::doc_agent {
     struct RetrieverOptions {
         bool plain_vector_retriever = false;
         bool summary_guided_retriever = false;
-        bool hypothectical_queries_guided_retriever = false;
+        bool hypothetical_queries_guided_retriever = false;
         bool chunked_multi_vector_retriever = false;
         bool multi_query_retriever = false;
         bool auto_retriever = false;
@@ -162,7 +162,7 @@ namespace instinct::examples::doc_agent {
 
         }
 
-        if(retriever_options.hypothectical_queries_guided_retriever) {
+        if(retriever_options.hypothetical_queries_guided_retriever) {
             LOG_INFO("CreateHypotheticalQueriesGuidedRetriever");
             return CreateHypotheticalQueriesGuidedRetriever(
                 chat_model,
@@ -324,7 +324,7 @@ Question: {standalone_question}
         HttpLibServer server(options.server);
         const auto controller = CreateOpenAIChatCompletionController(rag_chain);
         server.Use(controller);
-        server.StartAndWait();
+        server.BindAndListen();
     }
 
 
@@ -374,7 +374,7 @@ Question: {standalone_question}
                 ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
                 ->default_val(OLLAMA_ENDPOINT.protocol);
         llm_provider_ogroup->add_option("--embedding_model_model_name", provider_options.model_name, "Specify name of the model to be used.")
-                ->default_val(OLLAMA_DEFUALT_MODEL_NAME);
+                ->default_val(OLLAMA_DEFAULT_CHAT_MODEL_NAME);
     }
 
     static void BuildChatModelProviderOptionGroup(
@@ -400,7 +400,7 @@ Question: {standalone_question}
                 ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
                 ->default_val(OLLAMA_ENDPOINT.protocol);
         llm_provider_ogroup->add_option("--chat_model_model_name", provider_options.model_name, "Specify name of the model to be used.")
-                ->default_val(OLLAMA_DEFUALT_MODEL_NAME);
+                ->default_val(OLLAMA_DEFAULT_CHAT_MODEL_NAME);
     }
 
     void BuildRetrieverOptions(CLI::Option_group* retriever_option_group, RetrieverOptions& options) {
@@ -410,7 +410,7 @@ Question: {standalone_question}
         base_retriever_ogroup
             ->add_flag("--parent_child_retriever", options.chunked_multi_vector_retriever, "Enable ChunkedMultiVectorRetriever.");
         base_retriever_ogroup->add_flag("--summary_guided_retriever", options.summary_guided_retriever, "Enable MultiVectorGuidance with summary guidance.");
-        base_retriever_ogroup->add_flag("--hypothetical_quries_guided_retriever", options.hypothectical_queries_guided_retriever, "Enable MultiVectorGuidance with hypothetical queries.");
+        base_retriever_ogroup->add_flag("--hypothetical_quries_guided_retriever", options.hypothetical_queries_guided_retriever, "Enable MultiVectorGuidance with hypothetical queries.");
         // one base retriever is required
         base_retriever_ogroup->require_option(1, 1);
 

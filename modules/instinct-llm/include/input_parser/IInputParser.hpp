@@ -10,6 +10,7 @@
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
+
     template<typename T>
     class IInputParser {
     public:
@@ -17,6 +18,10 @@ namespace INSTINCT_LLM_NS {
 
         virtual JSONContextPtr ParseInput(const T& input) = 0;
     };
+
+    template<typename T>
+    using InputParserLambda = std::function<JSONContextPtr(const T& input)>;
+
 }
 
 #endif //INSTINCT_IINPUTPARSER_HPP

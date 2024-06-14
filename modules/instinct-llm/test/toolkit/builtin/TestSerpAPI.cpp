@@ -13,9 +13,7 @@ namespace INSTINCT_AGENT_NS {
     protected:
         void SetUp() override {
             SetupLogging();
-            const auto api_key = std::getenv("SERP_API_KEY");
-            ASSERT_TRUE(api_key && !StringUtils::IsBlankString(api_key));
-            serp_api = CreateSerpAPI({.apikey =  api_key});
+            serp_api = CreateSerpAPI();
         }
 
         std::string Query(const std::string& text) {
@@ -34,10 +32,11 @@ namespace INSTINCT_AGENT_NS {
     TEST_F(TestSerpAPI, GetSchema) {
         const auto schema = serp_api->GetSchema();
         LOG_INFO(">> {}", schema.ShortDebugString());
-        ASSERT_EQ(schema.parameters().properties_size(), 3);
+        // only required fields are included in schema
+        ASSERT_EQ(schema.parameters().properties_size(), 1);
         ASSERT_EQ(schema.parameters().properties().at("query").type(), "string");
-        ASSERT_EQ(schema.parameters().properties().at("result_limit").type(), "integer");
-        ASSERT_EQ(schema.parameters().properties().at("result_offset").type(), "integer");
+//        ASSERT_EQ(schema.parameters().properties().at("result_limit").type(), "integer");
+//        ASSERT_EQ(schema.parameters().properties().at("result_offset").type(), "integer");
     }
 
     TEST_F(TestSerpAPI, SimpleQuery) {

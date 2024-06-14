@@ -21,6 +21,12 @@ cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
 cmake --build . -j $(nproc)
 ```
 
+Unit tests are registered to ctest, so you can trigger test runner by running following command in `build` folder:
+
+```shell
+ctest
+```
+
 
 ## Quick start
 

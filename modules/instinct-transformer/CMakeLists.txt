@@ -1,0 +1,64 @@
+cmake_minimum_required(VERSION 3.26)
+project(instinct-transformer)
+
+set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
+
+set(${LIBRARY_TARGET_NAME}_HDR
+        include/config.hpp
+        include/ops.hpp
+        include/layers.hpp
+        include/model.hpp
+        include/tokenizer.hpp
+        include/models/bge_m3.hpp
+        include/globals.hpp
+        include/model_factory.hpp
+)
+
+add_library(
+        ${LIBRARY_TARGET_NAME} INTERFACE
+        #        ${${LIBRARY_TARGET_NAME}_SRC}
+        ${${LIBRARY_TARGET_NAME}_HDR}
+)
+
+add_library(instinct::transformer
+        ALIAS ${LIBRARY_TARGET_NAME})
+
+
+include(FetchContent)
+FetchContent_Declare(
+        ggml
+        GIT_REPOSITORY https://github.com/RobinQu/ggml.git
+        GIT_TAG 77c2778
+        FIND_PACKAGE_ARGS # will invoke find_package first
+)
+FetchContent_MakeAvailable(ggml)
+
+
+target_include_directories(${LIBRARY_TARGET_NAME}
+        INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
+
+target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
+        ggml
+)
+
+install(TARGETS ${LIBRARY_TARGET_NAME}
+        EXPORT  ${PROJECT_NAME}
+        LIBRARY       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT shlib
+        ARCHIVE       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT lib
+        RUNTIME       DESTINATION "${CMAKE_INSTALL_BINDIR}"                            COMPONENT bin
+        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct" COMPONENT dev)
+
+
+install(DIRECTORY include/
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct"
+        COMPONENT instinct_transformer
+)
+
+
+if(BUILD_TESTING)
+    add_subdirectory(test)
+endif()
+
+message(STATUS "Created target ${LIBRARY_TARGET_NAME} for export ${PROJECT_NAME}.")

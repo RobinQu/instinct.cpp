@@ -22,6 +22,7 @@ namespace INSTINCT_ASSISTANT_NS::v2{
         virtual DeleteFileResponse DeleteFile(const DeleteFileRequest& delete_file_request) = 0;
         virtual std::optional<FileObject> RetrieveFile(const RetrieveFileRequest& retrieve_file_request) = 0;
         virtual std::optional<std::string> DownloadFile(const DownloadFileRequest& download_file_request) = 0;
+        virtual void DownloadFile(const DownloadFileRequest& download_file_request, std::ostream& output_stream) = 0;
     };
 
     using FileServicePtr = std::shared_ptr<IFileService>;

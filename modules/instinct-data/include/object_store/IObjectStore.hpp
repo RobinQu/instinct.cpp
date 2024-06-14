@@ -30,6 +30,11 @@ namespace INSTINCT_DATA_NS {
             InputStream& input_stream
         ) = 0;
 
+        virtual ObjectState GetObjectState(
+            const std::string& bucket_name,
+            const std::string& object_key
+        ) = 0;
+
         /**
          * Upload object using buffer
          * @param bucket_name

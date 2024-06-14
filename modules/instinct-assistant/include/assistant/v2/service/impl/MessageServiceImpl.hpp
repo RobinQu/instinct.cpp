@@ -7,15 +7,15 @@
 
 #include "../IMessageService.hpp"
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
-#include "database/IDataMapper.hpp"
+#include "database/IDataTemplate.hpp"
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 
     class MessageServiceImpl final: public IMessageService {
-        data::DataMapperPtr<MessageObject, std::string> data_mapper_;
+        data::DataTemplatePtr<MessageObject, std::string> data_mapper_;
     public:
-        explicit MessageServiceImpl(const DataMapperPtr<MessageObject, std::string> &data_mapper) : data_mapper_(
+        explicit MessageServiceImpl(const DataTemplatePtr<MessageObject, std::string> &data_mapper) : data_mapper_(
                 data_mapper) {}
 
         ListMessageResponse ListMessages(const ListMessagesRequest &list_request) override {
@@ -23,7 +23,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(list_request, context);
 
-            // plus one for remianing check
+            // plus one for remaining check
             const auto limit = list_request.limit() <= 0 ? DEFAULT_LIST_LIMIT + 1: list_request.limit() + 1;
             context["limit"] = limit;
             if (list_request.order() == unknown_list_request_order) {
@@ -67,6 +67,10 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             message_object.set_run_id(create_request.run_id());
             message_object.set_status(MessageObject_MessageStatus_completed);
 
+            return CreateRawMessage(message_object);
+        }
+
+        std::optional<MessageObject> CreateRawMessage(const MessageObject &message_object) override {
             SQLContext context;
             ProtobufUtils::ConvertMessageToJsonObject(message_object, context);
 
@@ -80,7 +84,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             // return
             GetMessageRequest get_message_request;
             get_message_request.set_message_id(id);
-            get_message_request.set_thread_id(thread_id);
+            get_message_request.set_thread_id(message_object.thread_id());
             return RetrieveMessage(get_message_request);
         }
 

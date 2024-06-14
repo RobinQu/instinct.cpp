@@ -43,9 +43,9 @@ namespace INSTINCT_CORE_NS {
     };
 
     struct Endpoint {
-        HttpProtocol protocol = kHTTP;
+        HttpProtocol protocol = kUnspecifiedProtocol;
         std::string host;
-        int port = 80;
+        int port = 0;
     };
 
     struct HttpRequest {
@@ -54,7 +54,7 @@ namespace INSTINCT_CORE_NS {
         std::string target;
         HttpHeaders headers;
         std::string body;
-        HttpQueryParamters paramters;
+        HttpQueryParamters parameters;
     };
 
     struct HttpResponse {
@@ -73,10 +73,9 @@ namespace INSTINCT_CORE_NS {
      */
     using HttpResponseCallback = std::function<bool(std::string)>;
 
-
-    // struct HttpBatchExecuteOptions {
-    //     u_int32_t max_paralle = std::thread::hardware_concurrency();
-    // };
+    struct StreamChunkOptions {
+        std::string line_breaker;
+    };
 
     class IHttpClient {
     public:
@@ -103,7 +102,8 @@ namespace INSTINCT_CORE_NS {
         ) = 0;
 
         virtual AsyncIterator<std::string> StreamChunk(
-            const HttpRequest& call
+            const HttpRequest& call,
+            const StreamChunkOptions& options
         ) = 0;
     };
     using HttpClientPtr = std::shared_ptr<IHttpClient>;

@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 #include "ingestor/PDFFileIngestor.hpp"
+#include "tools/MetadataSchemaBuilder.hpp"
 
 
 namespace INSTINCT_RETRIEVAL_NS {
@@ -22,9 +23,10 @@ namespace INSTINCT_RETRIEVAL_NS {
 
     TEST_F(TestPDFIngestor, LoadDocuments) {
         PDFFileIngestor ingestor { corpus_dir / "papers/attention_is_all_you_need.pdf"};
+        const auto schema = CreateDocStorePresetMetadataSchema();
         auto doc_itr = ingestor.Load()
-        | rpp::operators::tap([](const Document& doc) {
-            ASSERT_EQ(doc.metadata_size(), 2);// expecting page_no and source
+        | rpp::operators::tap([&](const Document& doc) {
+            ASSERT_EQ(doc.metadata_size(), schema->fields_size());
             LOG_INFO("doc = {}", doc.DebugString());
             ASSERT_FALSE(doc.text().empty());
         });

@@ -229,23 +229,17 @@ message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, Modify
 
       repeated MessageContentTextAnnotation annotations = 2;
       message MessageContentTextAnnotation { // union of citation and file path
-
         MessageContentTextAnnotationType type = 1;
-        enum MessageContentTextAnnotationType {
-          unknown_content_text_annotation_type = 0;
-          file_citation = 1;
-        }
-
         string text = 2;
         int32 start_index = 3;
         int32 end_index = 4;
 
         // for citation only
+        MessageContentTextFileCitation file_citation = 5;
         message MessageContentTextFileCitation {
           string file_id = 1;
           string quote = 2;
         }
-        MessageContentTextFileCitation citation = 5;
 
         // for file path only
         message MessageContentTextFilePath {
@@ -253,6 +247,15 @@ message MessageObject {// CreateMessageResponse, RetrieveMessageResponse, Modify
         }
         MessageContentTextFilePath file_path = 6;
       }
+    }
+
+    enum MessageContentTextAnnotationType {
+      unknown_content_text_annotation_type = 0;
+      // A citation within the message that points to a specific quote from a specific File associated with the assistant or the message. Generated when the assistant uses the "file_search" tool to search files.
+      file_citation = 1;
+
+      // A URL for the file that's generated when the assistant used the code_interpreter tool to generate a file.
+      file_path = 2;
     }
 
   }
@@ -794,10 +797,11 @@ message GetVectorStoreRequest {
 message ModifyVectorStoreRequest {
   // The ID of the vector store to modify.
   string vector_store_id = 1;
-
   string name = 2;
   VectorStoreExpirationPolicy expires_after = 3;
   google.protobuf.Struct metadata = 4;
+  VectorStoreObject.VectorStoreStatus status = 5;
+  string summary = 6;
 }
 
 message DeleteVectorStoreRequest {
@@ -814,18 +818,11 @@ message DeleteVectorStoreResponse {
 message VectorStoreObject { // CreateVectorStoreResponse, GetVectorStoreResponse, ModifyVectorStoreResponse
   string id = 1;
   string object = 2; // always `vector_store`
-  int32 created_at = 3;
+  int64 created_at = 3;
   string name = 4;
-  uint32 bytes = 5;
+  int32 usage_bytes = 5;
 
   FileCounts file_counts = 6;
-  message FileCounts {
-    int32 in_progress = 1;
-    int32 completed = 2;
-    int32 failed = 3;
-    int32 cancelled = 4;
-    int32 total = 5;
-  }
 
   VectorStoreStatus status = 7;
   enum VectorStoreStatus {
@@ -839,6 +836,23 @@ message VectorStoreObject { // CreateVectorStoreResponse, GetVectorStoreResponse
   int64 expires_at = 9; // The Unix timestamp (in seconds) for when the vector store will expire.
   int64 last_active_at = 10; // The Unix timestamp (in seconds) for when the vector store was last active.
   google.protobuf.Struct metadata = 11;
+
+  string summary = 12; // this is a extra field for storing text summary of containing documents. And it's not in the original OpenAI's API design.
+
+  int64 modified_at = 13;
+}
+
+message FileCounts {
+  int32 in_progress = 1;
+  int32 completed = 2;
+  int32 failed = 3;
+  int32 cancelled = 4;
+  int32 total = 5;
+}
+
+message CountFilesRequest {
+  string vector_store_id = 1;
+  string file_batch_id = 2;
 }
 
 // ==============================================================
@@ -868,15 +882,10 @@ message ListVectorStoreFilesRequest {
 
 message ListVectorStoreFilesResponse {
   string object = 1;
-  repeated VectorStoreFile data = 2;
+  repeated VectorStoreFileObject data = 2;
   string first_id = 3;
   string last_id = 4;
   bool has_more = 5;
-}
-
-message CreateVectorFileRequest {
-  string vector_store_id = 1;
-  string file_id = 2;
 }
 
 message GetVectorStoreFileRequest {
@@ -885,6 +894,20 @@ message GetVectorStoreFileRequest {
 
   // The ID of the vector store that the file belongs to.
   string vector_store_id = 2;
+}
+
+message ModifyVectorStoreFileRequest {
+  // The ID of the file being retrieved.
+  string file_id = 1;
+
+  // The ID of the vector store that the file belongs to.
+  string vector_store_id = 2;
+
+  VectorStoreFileStatus status = 6;
+
+  VectorStoreFileError last_error = 7;
+
+  string summary = 8;
 }
 
 message DeleteVectorStoreFileRequest {
@@ -909,19 +932,22 @@ enum VectorStoreFileStatus {
   cancelled = 4;
 }
 
-message VectorStoreFile { // CreateVectorFileResponse
-  string id = 1;
+message VectorStoreFileObject { // CreateVectorFileResponse
+  string file_id = 1;
   string object = 2;
   int64 created_at = 3;
   int64 modified_at = 4;
   string vector_store_id = 5;
   VectorStoreFileStatus status = 6;
   VectorStoreFileError last_error = 7;
+  string file_batch_id = 8;
+  string summary = 9; // extra field for summary which doesn't exist in original API
 }
 
 message CreateVectorStoreFileRequest {
   // The ID of the vector store for which to create a File.
   string vector_store_id = 1;
+  string file_id = 2;
 }
 
 message VectorStoreFileError {
@@ -979,16 +1005,45 @@ message ListFilesInVectorStoreBatchRequest {
   string vector_store_id = 7;
 }
 
-message VectorStoreFileBatch {// CreateVectorStoreFileBatchResponse, GetVectorStoreFileBatchResponse, CancelVectorStoreFileBatchResponse
+message ListFilesInVectorStoreBatchResponse {
+  string object = 1;
+  repeated VectorStoreFileObject data = 2;
+  string first_id = 3;
+  string last_id = 4;
+  bool has_more = 5;
+}
+
+message VectorStoreFileBatchObject {// CreateVectorStoreFileBatchResponse, GetVectorStoreFileBatchResponse, CancelVectorStoreFileBatchResponse
+  enum VectorStoreFileBatchStatus {
+    unknown_vector_store_file_batch_status = 0;
+    in_progress = 1;
+    completed = 2;
+    cancelled = 3;
+    failed = 4;
+  }
   string id = 1;
   string object = 2;
   int64 created_at = 3;
-  int64 modified = 4;
+  int64 modified_at = 4;
   string vector_store_id = 6;
-  VectorStoreFileStatus status = 7;
+  VectorStoreFileBatchStatus status = 7;
   VectorStoreFileError last_error = 8;
+  int64 sanity_check_at = 9;
+  FileCounts file_counts = 10;
 }
 
+message ListPendingFileBatchObjectsRequest {
+  string vector_store_id = 1;
+  int32 limit = 2;
+}
+
+message ModifyVectorStoreFileBatchRequest {
+  string batch_id = 1;
+  string vector_store_id = 2;
+  VectorStoreFileBatchObject.VectorStoreFileBatchStatus status = 4;
+  VectorStoreFileError last_error = 5;
+  int64 sanity_check_at = 6;
+}
 
 // ==============================================================
 // File
@@ -1013,6 +1068,7 @@ message UploadFileRequest {
   bytes file_content = 1;
   string filename = 2;
   FileObjectPurpose purpose = 3; // fine-tune, assistants
+  string content_type = 4;
 }
 
 message DeleteFileRequest {
@@ -1044,4 +1100,5 @@ message FileObject { // UploadFileResponse, RetrieveFileResponse
   int32 bytes = 5;
   string filename = 6;
   FileObjectPurpose purpose = 7;
+  string content_type = 8;
 }

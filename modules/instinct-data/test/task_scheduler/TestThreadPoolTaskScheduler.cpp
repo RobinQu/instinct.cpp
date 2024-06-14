@@ -171,6 +171,8 @@ namespace INSTINCT_DATA_NS {
         ASSERT_EQ(callbacks->handled, ha->c + hb->c);
         ASSERT_EQ(callbacks->unhandled, nums[2]);
         ASSERT_EQ(callbacks->failed, hd->c);
+
+        task_scheduler->Terminate().get();
     }
 
 }

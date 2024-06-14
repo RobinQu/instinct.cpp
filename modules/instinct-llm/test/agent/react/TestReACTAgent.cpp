@@ -17,10 +17,11 @@ namespace INSTINCT_LLM_NS {
     protected:
         void SetUp() override {
             SetupLogging();
-            // relies on OpenAI or other auto-configured service
-            chat_model_ = CreateOpenAIChatModel({
-                .temperature = 0,
-                .stop_words = { {"Observation:" }}
+            // relies on OpenAI or other autoconfigured service
+            chat_model_ = CreateOpenAIChatModel();
+            chat_model_->Configure({
+               .temperature = 0,
+               .stop_words = { {"Observation:" }}
             });
         }
 
@@ -41,7 +42,7 @@ namespace INSTINCT_LLM_NS {
         const auto ctx1 = input_parse->ParseInput(state);
         ASSERT_EQ(ctx1->RequireMappingData().at("input")->RequirePrimitive<std::string>(), prompt);
         ASSERT_EQ(ctx1->RequireMappingData().at("agent_scratchpad")->RequirePrimitive<std::string>(), "");
-        ASSERT_EQ(ctx1->RequireMappingData().at("tools")->RequirePrimitive<std::string>(), "Search: A search engine. Useful for when you need to answer questions about current events. Input should be a search query. arg={\"properties\":{\"query\":{\"type\":\"string\"}}}\nCalculator: Useful for when you need to answer questions about math. arg={\"properties\":{\"math_question\":{\"type\":\"string\"}}}");
+        ASSERT_EQ(ctx1->RequireMappingData().at("tools")->RequirePrimitive<std::string>(), "Search: A search engine. Useful for when you need to answer questions about current events. Input should be a search query. arg={\"type\":\"object\",\"properties\":{\"query\":{\"type\":\"string\"}}}\nCalculator: Use this tool when you need to answer questions about math. arg={\"type\":\"object\",\"properties\":{\"math_question\":{\"type\":\"string\"}}}");
         ASSERT_EQ(ctx1->RequireMappingData().at("tool_names")->RequirePrimitive<std::string>(), "Search,Calculator");
 
 

@@ -10,16 +10,16 @@
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     class ThreadServiceImpl final: public IThreadService {
-        DataMapperPtr<ThreadObject, std::string> thread_data_mapper_;
-        DataMapperPtr<MessageObject, std::string> message_data_mapper_;
-        DataMapperPtr<RunObject, std::string> run_data_mapper_;
-        DataMapperPtr<RunStepObject, std::string> run_step_data_mapper_;
+        DataTemplatePtr<ThreadObject, std::string> thread_data_mapper_;
+        DataTemplatePtr<MessageObject, std::string> message_data_mapper_;
+        DataTemplatePtr<RunObject, std::string> run_data_mapper_;
+        DataTemplatePtr<RunStepObject, std::string> run_step_data_mapper_;
     public:
         ThreadServiceImpl(
-            const DataMapperPtr<ThreadObject, std::string> &thread_data_mapper,
-            const DataMapperPtr<MessageObject, std::string> &message_data_mapper,
-            const DataMapperPtr<RunObject, std::string>& run_data_mapper,
-            const DataMapperPtr<RunStepObject, std::string>& run_step_data_mapper
+            const DataTemplatePtr<ThreadObject, std::string> &thread_data_mapper,
+            const DataTemplatePtr<MessageObject, std::string> &message_data_mapper,
+            const DataTemplatePtr<RunObject, std::string>& run_data_mapper,
+            const DataTemplatePtr<RunStepObject, std::string>& run_step_data_mapper
             )
             : thread_data_mapper_(thread_data_mapper),
               message_data_mapper_(message_data_mapper),
@@ -53,7 +53,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     ProtobufUtils::ConvertMessageToJsonObject(msg, obj);
                     create_messages_context["messages"].push_back(obj);
                 }
-                // create mesages
+                // create messages
                 EntitySQLUtils::InsertManyMessages(message_data_mapper_, create_messages_context);
             }
 

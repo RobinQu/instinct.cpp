@@ -44,8 +44,8 @@ namespace INSTINCT_CORE_NS {
          * @param seperator
          * @param result
          */
-        template<int max_split_size=3>
-        static void SpilitWithRegex(const UnicodeString& text, const UnicodeString& seperator, std::vector<UnicodeString>& result) {
+        template<int max_split_size=19>
+        static void SplitWithRegex(const UnicodeString& text, const UnicodeString& seperator, std::vector<UnicodeString>& result) {
             UErrorCode status = U_ZERO_ERROR;
             RegexMatcher matcher(seperator, 0, status);
             if(U_FAILURE(status)) {
@@ -69,7 +69,9 @@ namespace INSTINCT_CORE_NS {
                 }
             } while(max_split_size == splits_size);
 
-            result.push_back(parts[splits_size-1]);
+            if (splits_size>0) { // actual split is happened but last split is not added
+                result.push_back(text_to_be_split);
+            }
         }
     };
 

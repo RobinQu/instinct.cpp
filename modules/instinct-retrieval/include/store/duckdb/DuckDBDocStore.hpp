@@ -24,7 +24,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         static void append_row(
                 const std::shared_ptr<MetadataSchema>& metadata_schema,
                 Appender& appender,
-                const Document& doc,
+                Document& doc,
                 UpdateResult& update_result,
                 const bool bypass_unknown_fields
         ) {
@@ -42,13 +42,13 @@ namespace INSTINCT_RETRIEVAL_NS {
 
 
     /**
-     * Valillan storage for documents backed by DuckDB instance
+     * Vanilla storage for documents backed by DuckDB instance
      */
     class DuckDBDocStore final: public BaseDuckDBStore {
     public:
         explicit DuckDBDocStore(
             const DuckDBPtr& db,
-            const std::shared_ptr<MetadataSchema>& metadata_schema,
+            const MetadataSchemaPtr& metadata_schema,
             const DuckDBStoreOptions& options
             )
             : BaseDuckDBStore(
@@ -61,7 +61,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
 
-        void AppendRows(Appender &appender, const std::vector<Document> &records, UpdateResult &update_result) override {
+        void AppendRows(Appender &appender, std::vector<Document> &records, UpdateResult &update_result) override {
             int affected_row = 0;
             for (auto & record : records) {
                 try {
@@ -69,8 +69,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                     affected_row++;
                 } catch (const InstinctException& e) {
                     update_result.add_failed_documents()->CopyFrom(record);
-                    // TODO with better logging facilities
-                    std::cerr << e.what() << std::endl;
+                    LOG_ERROR("AppendRows error: {}", e.what());
                 }
             }
             update_result.set_affected_rows(affected_row);
@@ -88,7 +87,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::shared_ptr<MetadataSchema> metadata_schema = nullptr
     ) {
         if (!metadata_schema) {
-            metadata_schema = CreateDocStorePresetMetdataSchema();
+            metadata_schema = CreateDocStorePresetMetadataSchema();
         }
         return std::make_shared<DuckDBDocStore>(db, metadata_schema, options);
     }

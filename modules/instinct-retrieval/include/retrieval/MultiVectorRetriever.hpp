@@ -59,20 +59,18 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_true(guidance_, "should have guidance");
         }
 
-        [[nodiscard]] AsyncIterator<Document> Retrieve(const TextQuery& query) const override {
-            SearchRequest search_request;
-            search_request.set_query(query.text);
-            search_request.set_top_k(query.top_k);
-            // result can be less than `top_k`.
+        DocStorePtr GetDocStore() override {
+            return doc_store_;
+        }
+
+        [[nodiscard]] AsyncIterator<Document> Retrieve(const SearchRequest& search_request) const override {
             return vector_store_->SearchDocuments(search_request)
                 | rpp::operators::reduce(std::unordered_set<std::string> {}, [&](std::unordered_set<std::string>&& seed, const Document& doc) {
                     // backtrace id of parent doc
-                    for(const auto& metadata_field: doc.metadata()) {
-                        if (metadata_field.name() == METADATA_SCHEMA_PARENT_DOC_ID_KEY) {
-                            LOG_DEBUG("guidance doc found, id={}, parent_doc_id={}", doc.id(), metadata_field.string_value());
-                            seed.insert(metadata_field.string_value());
-                        }
-                    }
+                    const auto parent_doc_id = DocumentUtils::GetStringValueMetadataField(doc, METADATA_SCHEMA_PARENT_DOC_ID_KEY);
+                    assert_true(parent_doc_id && StringUtils::IsNotBlankString(parent_doc_id.value()), "should have found parent_doc_id in parent doc's metadata");
+                    LOG_DEBUG("guidance doc found, id={}, parent_doc_id={}", doc.id(), parent_doc_id.value());
+                    seed.insert(parent_doc_id.value());
                     return std::move(seed);
                 })
                 | rpp::operators::flat_map([&](const std::unordered_set<std::string>& parent_ids) {
@@ -86,99 +84,31 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void Ingest(const AsyncIterator<Document>& input) override {
-            static int BUFFER_SIZE = 10;
-            static ThreadPool WORKER_POOL;
-
-            Futures<void> tasks;
+            static int BATCH_SIZE = 50;
             input
             | rpp::operators::as_blocking()
-            | rpp::operators::subscribe([&](const Document& parent_doc) {
-                auto f = WORKER_POOL.submit_task([&,parent_doc]() {
-                    Document copied_doc = parent_doc;
-                    doc_store_->AddDocument(copied_doc);
-                    auto sub_docs = std::invoke(guidance_, copied_doc);
-                        LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), copied_doc.id());
+            | rpp::operators::buffer(BATCH_SIZE)
+            | rpp::operators::subscribe([&](const std::vector<Document>& buf) {
+                std::vector<Document> batch = buf;
+                // insert all parent docs
+                UpdateResult updateResult;
+                doc_store_->AddDocuments(batch, updateResult);
+                // insert all child docs
+                for(const auto& parent_doc: batch) {
+                    auto sub_docs = std::invoke(guidance_, parent_doc);
+                            LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), parent_doc.id());
                     UpdateResult update_result;
                     vector_store_->AddDocuments(sub_docs, update_result);
                     assert_true(update_result.failed_documents_size()==0, "all sub docs should be inserted successfully");
-                });
-                tasks.push_back(std::move(f));
+                }
             });
+        }
 
-            tasks.wait();
-            //
-            // input
-            // | rpp::operators::as_blocking()
-            // // | rpp::operators::observe_on(rpp::schedulers::new_thread{})
-            // // | rpp::operators::subscribe_on(rpp::schedulers::new_thread{})
-            //
-            // // | rpp::operators::buffer(BUFFER_SIZE)
-            // // | rpp::operators::flat_map([&](const std::vector<Document>& parent_docs) {
-            // //         return rpp::source::create<Document>([&, copied_docs=parent_docs](auto&& observer) {
-            // //             const size_t n = copied_docs.size();
-            // //             auto multi_future = WORKER_POOL.submit_sequence({0}, n, [&, copied_docs](const size_t i) {
-            // //                 Document copied_doc = copied_docs[i];
-            // //                 doc_store_->AddDocument(copied_doc);
-            // //                 auto sub_docs = std::invoke(guidance_, copied_doc);
-            // //                                 LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), copied_doc.id());
-            // //                 return sub_docs;
-            // //             });
-            // //
-            // //             for(auto& f: multi_future) {
-            // //                 for(const auto& doc: f.get()) {
-            // //                     observer.on_next(doc);
-            // //                 }
-            // //             }
-            // //
-            // //         });
-            // //     })
-            //
-            // | rpp::operators::flat_map([&](const Document& parent_doc) {
-            //     Document copied_doc = parent_doc;
-            //                 doc_store_->AddDocument(copied_doc);
-            //                 auto sub_docs = std::invoke(guidance_, copied_doc);
-            //                                 LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), copied_doc.id());
-            //                 return rpp::source::from_iterable(sub_docs);
-            //
-            // })
-            // | rpp::operators::buffer(BUFFER_SIZE)
-            // | rpp::operators::subscribe([&](const std::vector<Document>& guided_docs) {
-            //     UpdateResult update_result;
-            //     vector_store_->AddDocuments(guided_docs, update_result);
-            //     assert_true(update_result.failed_documents_size()==0, "all sub docs should be inserted successfully");
-            // });
-
-            //
-            // auto parent_docs = CollectVector(input);
-            //
-            // const u_int64_t n = parent_docs.size();
-            // auto multi_future = SHARED_INGESTOR_POOL.submit_sequence(0ull, n, [&](const u_int64_t i) {
-            //     auto parent_doc = parent_docs[i];
-            //     doc_store_->AddDocument(parent_doc);
-            //     auto sub_docs = std::invoke(guidance_, parent_doc);
-            //     LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), parent_doc.id());
-            //     return sub_docs;
-            // });
-            //
-            // std::vector<Document> guided_docs;
-            // for(auto& f: multi_future) {
-            //     auto sub_docs = f.get();
-            //     guided_docs.insert(guided_docs.end(), sub_docs.begin(), sub_docs.end());
-            //
-            // }
-            //
-            // // for (auto& parent_doc: parent_docs) {
-            // //     doc_store_->AddDocument(parent_doc);
-            // //     auto sub_docs = std::invoke(guidance_, parent_doc);
-            // //     LOG_DEBUG("{} guidance doc(s) generated for parent doc with id {}", sub_docs.size(), parent_doc.id());
-            // //     guided_docs.insert(guided_docs.end(), sub_docs.begin(), sub_docs.end());
-            // // }
-            // UpdateResult update_result;
-            // // vector_store_->AddDocuments(parent_docs, update_result);
-            // // assert_true(update_result.failed_documents_size()==0, "all parent docs should be inserted successfully");
-            //
-            // vector_store_->AddDocuments(guided_docs, update_result);
-            // assert_true(update_result.failed_documents_size()==0, "all sub docs should be inserted successfully");
+        void Remove(const SearchQuery &metadata_query) override {
+            UpdateResult update_result;
+            doc_store_->DeleteDocuments(metadata_query, update_result);
+            vector_store_->DeleteDocuments(metadata_query, update_result);
+            // TODO handle exceptions
         }
     };
 
@@ -204,9 +134,13 @@ namespace INSTINCT_RETRIEVAL_NS {
             Document summary_doc;
             summary_doc.set_text(generation);
             summary_doc.set_id(StringUtils::GenerateUUIDString());
-            DocumentUtils::AddPresetMetadataFileds(
+            const auto source_doc_id = DocumentUtils::GetStringValueMetadataField(doc, METADATA_SCHEMA_FILE_SOURCE_KEY);
+            assert_true(source_doc_id && StringUtils::IsNotBlankString(source_doc_id.value()), "parent doc should have file_source field");
+            DocumentUtils::AddPresetMetadataFields(
                 summary_doc,
-                doc.id()
+                doc.id(),
+                0,
+                source_doc_id.value()
             );
             return std::vector {std::move(summary_doc)};
         };
@@ -235,11 +169,13 @@ namespace INSTINCT_RETRIEVAL_NS {
             const auto result = query_chain->Invoke(doc.text());
             std::vector<Document> final_queries;
             LOG_DEBUG("Genearted queries: {}", result.ShortDebugString());
-            for(const auto& query: result.lines()) {
+            for(int i=0; const auto& query: result.lines()) {
                 Document query_doc;
                 query_doc.set_id(StringUtils::GenerateUUIDString());
                 query_doc.set_text(query);
-                DocumentUtils::AddPresetMetadataFileds(query_doc, doc.id());
+                const auto source_doc_id = DocumentUtils::GetStringValueMetadataField(doc, METADATA_SCHEMA_FILE_SOURCE_KEY);
+                assert_true(source_doc_id && StringUtils::IsNotBlankString(source_doc_id.value()), "parent doc should have file_source field");
+                DocumentUtils::AddPresetMetadataFields(query_doc, doc.id(), i++, source_doc_id.value());
                 final_queries.push_back(query_doc);
             }
             return final_queries;

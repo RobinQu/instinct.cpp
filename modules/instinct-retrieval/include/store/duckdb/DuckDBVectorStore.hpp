@@ -53,73 +53,41 @@ namespace INSTINCT_RETRIEVAL_NS {
             const std::string& table_name,
             const std::shared_ptr<MetadataSchema>& metadata_schema,
             const std::vector<float>& query_vector,
-            const MetadataQuery& metadata_filter,
-            size_t limit = 10
+            const SearchQuery& metadata_filter,
+            const int limit = 10
         ) {
-            assert_gt(limit, 0, "limit shoud be positive");
-            assert_lt(limit, 1000, "limit shold be less than 1000");
+            assert_gt(limit, 0, "limit should be positive");
+            assert_lt(limit, 1000, "limit should be less than 1000");
 
-            // ommit vectro field to reduce payload size
-            std::string select_sql = "SELECT id, text";
+            // omit vector field to reduce payload size
+            std::string column_list = "id, text";
             auto name_view = metadata_schema->fields() | std::views::transform(
                                  [](const MetadataFieldSchema& field)-> std::string {
                                      return field.name();
                                  });
-            select_sql += name_view.empty() ? ""  : ", " + StringUtils::JoinWith(name_view, ", ");
-            select_sql += ", array_cosine_similarity(vector, array_value(";
+            column_list += name_view.empty() ? ""  : ", " + StringUtils::JoinWith(name_view, ", ");
+            column_list += ", array_cosine_similarity(vector, array_value(";
 
             for (int i = 0; i < query_vector.size(); i++) {
-                select_sql += std::to_string(query_vector.at(i)) + "::FLOAT";
+                column_list += std::to_string(query_vector.at(i)) + "::FLOAT";
                 if (i < query_vector.size() - 1) {
-                    select_sql += ",";
+                    column_list += ",";
                 }
             }
-            select_sql += ")) AS similarity FROM ";
-            select_sql += table_name;
+            column_list += ")) AS similarity";
 
-
-            if (metadata_filter.has_bool_() || metadata_filter.has_term()) {
-                select_sql += " WHERE ";
-                // TODO expand all queries. for now, let's assume it only has one term query at root level
-                if (metadata_filter.has_term()) {
-                    auto field = metadata_filter.term().predicate();
-                    switch (field.value_case()) {
-                        case PrimitiveVariable::kIntValue:
-                            select_sql += (field.name() + "=" + std::to_string(field.int_value()));
-                            break;
-                        case PrimitiveVariable::kLongValue:
-                            select_sql += (field.name() + "=" + std::to_string(field.long_value()));
-                            break;
-                        case PrimitiveVariable::kFloatValue:
-                            select_sql += (field.name() + "=" + std::to_string(field.float_value()));
-                            break;
-                        case PrimitiveVariable::kDoubleValue:
-                            select_sql += (field.name() + "=" + std::to_string(field.double_value()));
-                            break;
-                        case PrimitiveVariable::kBoolValue:
-                            select_sql += (field.name() + "=" + std::to_string(field.bool_value()));
-                            break;
-                        case PrimitiveVariable::kStringValue:
-                            select_sql += (field.name() + "=\"" + field.string_value() + "\"");
-                            break;
-                        default:
-                            throw InstinctException(
-                                "unknown value type in meatdata filter for field named " + field.name());
-                    }
-                }
-            }
-
-
-            select_sql += " ORDER BY similarity DESC LIMIT ";
-            select_sql += std::to_string(limit);
-            return select_sql;
+            Sorter sorter;
+            auto* field_sort = sorter.mutable_field();
+            field_sort->set_field_name("similarity");
+            field_sort->set_order(DESC);
+            return SQLBuilder::ToSelectString(table_name, column_list, metadata_filter, std::vector {sorter}, -1, limit);
         }
 
     }
 
 
     /**
-     * IVectorStore implmenetation using brute-force consine similarty executed by DuckDB instance
+     * IVectorStore implementation using brute-force cosine similarly executed by DuckDB instance
      */
     class DuckDBVectorStore final: public virtual IVectorStore {
         DuckDBDocWithEmbeddingStore store_;
@@ -138,8 +106,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         {
             assert_gt(options.dimension, 0);
             assert_true(embeddings_ != nullptr, "should provide embeddings object pointer");
+            assert_true(embeddings_->GetDimension() == options.dimension, "should have dimension set correctly");
             assert_true(metadata_schema, "should have provide valid metadata schema");
-            // auto internal_appender = std::make_shared<DuckDBVectorStoreInternalAppender>(embeddings_model, metadata_schema, options.bypass_unknown_fields);
 
             auto search_sql = details::make_prepared_search_sql(options.table_name, metadata_schema);
             LOG_DEBUG("prepare search sql: {}", search_sql);
@@ -147,34 +115,37 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_prepared_ok(prepared_search_statement_, "Failed to prepare search statement");
         }
 
+        AsyncIterator<Document> FindDocuments(const FindRequest &find_request) override {
+            return store_.FindDocuments(find_request);
+        }
 
         EmbeddingsPtr GetEmbeddingModel() override {
             return embeddings_;
         }
 
         AsyncIterator<Document> SearchDocuments(const SearchRequest& request) override {
-            LOG_DEBUG("Search started: query={}, top_k={}", request.query(), request.top_k());
+            // limit should be in range of [1,10000]
+            const int limit = request.top_k() > 0 ? std::min(request.top_k(), 10000) : 10;
+            LOG_DEBUG("Search started: request.query={}, request.top_k={}, normalized_limit={}", request.query(), request.top_k(), limit);
             long t1 = ChronoUtils::GetCurrentTimeMillis();
             const auto query_embedding = embeddings_->EmbedQuery(request.query());
-
-            bool has_filter = request.has_metadata_filter() && (request.metadata_filter().has_bool_() || request.metadata_filter().has_term());
-
             unique_ptr<QueryResult> result;
-            if (has_filter) {
+            if (request.has_metadata_filter()) {
                 const auto search_sql = details::make_search_sql(
                 store_.GetOptions().table_name,
                 GetMetadataSchema(),
                 query_embedding,
                 request.metadata_filter(),
-                request.top_k());
+                limit);
+                LOG_DEBUG("search_sql: {}", search_sql);
                 result = store_.GetConnection().Query(search_sql);
             } else {
                 // use prepared statement for better performance when no filter is actually given
-                vector<Value> vector_array;
+                vector<duckdb::Value> vector_array;
                 for(const float& f: query_embedding) {
-                    vector_array.push_back(Value::FLOAT(f));
+                    vector_array.push_back(duckdb::Value::FLOAT(f));
                 }
-                result = prepared_search_statement_->Execute(Value::ARRAY(LogicalType::FLOAT, vector_array), request.top_k());
+                result = prepared_search_statement_->Execute(duckdb::Value::ARRAY(LogicalType::FLOAT, vector_array), limit);
             }
             assert_query_ok(result);
             return details::conv_query_result_to_iterator(
@@ -189,7 +160,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             store_.AddDocuments(documents_iterator, update_result);
         }
 
-        void AddDocuments(const std::vector<Document>& records, UpdateResult& update_result) override {
+        void AddDocuments(std::vector<Document>& records, UpdateResult& update_result) override {
             store_.AddDocuments(records, update_result);
         }
 
@@ -212,6 +183,14 @@ namespace INSTINCT_RETRIEVAL_NS {
         size_t CountDocuments() override {
             return store_.CountDocuments();
         }
+
+        void DeleteDocuments(const SearchQuery &filter, UpdateResult &update_result) override {
+            store_.DeleteDocuments(filter, update_result);
+        }
+
+        bool Destroy() override {
+            return store_.Destroy();
+        }
     };
 
     /**
@@ -229,7 +208,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             MetadataSchemaPtr metadata_schema = nullptr
         ) {
         if (!metadata_schema) {
-            metadata_schema = CreateVectorStorePresetMetdataSchema();
+            metadata_schema = CreateVectorStorePresetMetadataSchema();
         }
         return std::make_shared<DuckDBVectorStore>(
             db,
@@ -259,10 +238,6 @@ namespace INSTINCT_RETRIEVAL_NS {
             metadata_schema
             );
     }
-
-
-
-
 
 }
 

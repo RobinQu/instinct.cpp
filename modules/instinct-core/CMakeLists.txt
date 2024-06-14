@@ -41,6 +41,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/tools/RandomUtils.hpp
         include/exception/InstinctException.hpp
         include/exception/ClientException.hpp
+        include/ioc/ManagedApplicationContext.hpp
 )
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
@@ -56,9 +57,21 @@ add_library(
 add_library(instinct::core
         ALIAS ${LIBRARY_TARGET_NAME})
 
+
+
+include(FetchContent)
+FetchContent_Declare(
+        RPP
+        GIT_REPOSITORY https://github.com/victimsnino/ReactivePlusPlus.git
+        GIT_TAG 103b882
+        FIND_PACKAGE_ARGS NAMES RPP # will invoke find_package first
+)
+FetchContent_MakeAvailable(rpp)
+
+
 find_package(bshoshany-thread-pool REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_package(RPP REQUIRED)
+#find_package(RPP REQUIRED)
 find_package(ICU 74.1 REQUIRED)
 find_package(tsl-ordered-map REQUIRED)
 find_package(fmt REQUIRED)
@@ -88,6 +101,8 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         pantor::inja
         cpptrace::cpptrace
 )
+
+
 
 #set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES
 #        VERSION ${${PROJECT_NAME}_VERSION}

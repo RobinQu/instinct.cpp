@@ -60,7 +60,7 @@ namespace INSTINCT_LLM_NS {
             if (batched_result.generations_size() > 0) {
                 auto result_string_view = batched_result.generations() | std::views::transform(
                         details::conv_language_result_to_string);
-                return rpp::source::from_iterable(result_string_view);
+                return rpp::source::from_iterable(std::vector<std::string> {result_string_view.begin(), result_string_view.end()});
             }
             return CreateAsyncIteratorWithError<std::string>("Empty response");
         }

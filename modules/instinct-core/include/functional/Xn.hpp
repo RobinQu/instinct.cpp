@@ -41,7 +41,7 @@ namespace xn {
 }
 
 /**
- * pipe operator for two StepFuncitonPtr
+ * pipe operator for two StepFunctionPtr
  * @param first
  * @param second
  * @return

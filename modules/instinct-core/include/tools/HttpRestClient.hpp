@@ -162,7 +162,8 @@ namespace INSTINCT_CORE_NS {
         AsyncIterator<ResponseEntity> StreamChunkObject(
             const std::string& uri,
             const RequestEntity& param,
-            const bool is_sse_event_stream = false,
+            const bool is_sse_event_stream,
+            const std::string& line_breaker,
             const std::vector<std::string>& end_sentinels = {}
         ) {
             HttpHeaders headers = default_headers_;
@@ -177,18 +178,17 @@ namespace INSTINCT_CORE_NS {
             };
 
             if (is_sse_event_stream) {
-                return http_client_->StreamChunk(request)
+                return http_client_->StreamChunk(request, {.line_breaker = line_breaker})
                     | rpp::operators::map(details::strip_data_stream_prefix)
                     | rpp::operators::take_while([&,end_sentinels](const auto& chunk_string) {
                         return !details::is_end_sentinels(chunk_string, end_sentinels);
                     })
                     | rpp::operators::map([&](const auto& chunk_string) {
-    //                    std::cout << "chunk: " <<  chunk_string << std::endl;
                         return converter_.Deserialize<ResponseEntity>(chunk_string);
                     });
             }
 
-            return http_client_->StreamChunk(request)
+            return http_client_->StreamChunk(request, {.line_breaker = line_breaker})
                 | rpp::operators::map([&](const auto& chunk_string) {
                     return converter_.Deserialize<ResponseEntity>(chunk_string);
                 });

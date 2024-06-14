@@ -7,25 +7,25 @@
 
 #include "../IRunService.hpp"
 #include "assistant/v2/service/IMessageService.hpp"
-#include "assistant/v2/task_handler/OpenAIToolAgentRunObjectTaskHandler.hpp"
+#include "assistant/v2/task_handler/RunObjectTaskHandler.hpp"
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
-#include "database/IDataMapper.hpp"
+#include "database/IDataTemplate.hpp"
 #include "task_scheduler/ThreadPoolTaskScheduler.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;
 
     class RunServiceImpl final: public IRunService {
-        DataMapperPtr<ThreadObject, std::string> thread_data_mapper_;
-        DataMapperPtr<RunObject, std::string> run_data_mapper_;
-        DataMapperPtr<RunStepObject, std::string> run_step_data_mapper_;
-        DataMapperPtr<MessageObject, std::string> message_data_mapper_;
+        DataTemplatePtr<ThreadObject, std::string> thread_data_mapper_;
+        DataTemplatePtr<RunObject, std::string> run_data_mapper_;
+        DataTemplatePtr<RunStepObject, std::string> run_step_data_mapper_;
+        DataTemplatePtr<MessageObject, std::string> message_data_mapper_;
         CommonTaskSchedulerPtr task_scheduler_;
     public:
-        RunServiceImpl(const DataMapperPtr<ThreadObject, std::string> &thread_data_mapper,
-            const DataMapperPtr<RunObject, std::string> &run_data_mapper,
-            const DataMapperPtr<RunStepObject, std::string> &run_step_data_mapper,
-            const DataMapperPtr<MessageObject, std::string>& message_data_mapper,
+        RunServiceImpl(const DataTemplatePtr<ThreadObject, std::string> &thread_data_mapper,
+            const DataTemplatePtr<RunObject, std::string> &run_data_mapper,
+            const DataTemplatePtr<RunStepObject, std::string> &run_step_data_mapper,
+            const DataTemplatePtr<MessageObject, std::string>& message_data_mapper,
             const CommonTaskSchedulerPtr& task_scheduler
             )
             : thread_data_mapper_(thread_data_mapper),
@@ -108,7 +108,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 // kick off agent execution
                 task_scheduler_->Enqueue({
                     .task_id = run_id,
-                    .category = OpenAIToolAgentRunObjectTaskHandler::CATEGORY,
+                    .category = RunObjectTaskHandler::CATEGORY,
                     .payload = ProtobufUtils::Serialize(run_object.value())
                 });
             } else {
@@ -182,7 +182,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 // start agent exeuction
                 task_scheduler_->Enqueue({
                     .task_id = run_id,
-                    .category = OpenAIToolAgentRunObjectTaskHandler::CATEGORY,
+                    .category = RunObjectTaskHandler::CATEGORY,
                     .payload = ProtobufUtils::Serialize(run_object.value())
                 });
             } else {
@@ -329,7 +329,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 // resume agent execution
                 task_scheduler_->Enqueue({
                     .task_id = run_id,
-                    .category = OpenAIToolAgentRunObjectTaskHandler::CATEGORY,
+                    .category = RunObjectTaskHandler::CATEGORY,
                     .payload = ProtobufUtils::Serialize(returned_object.value())
                 });
             } else {

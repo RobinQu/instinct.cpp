@@ -5,11 +5,10 @@
 #ifndef FILESERVICEIMPL_HPP
 #define FILESERVICEIMPL_HPP
 
-#include <utility>
 
 #include "../IFileService.hpp"
 #include "assistant/v2/tool/EntitySQLUtils.hpp"
-#include "database/IDataMapper.hpp"
+#include "database/IDataTemplate.hpp"
 #include "object_store/IObjectStore.hpp"
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
@@ -20,12 +19,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     };
 
     class FileServiceImpl final: public IFileService {
-        DataMapperPtr<FileObject, std::string> data_mapper_;
+        DataTemplatePtr<FileObject, std::string> data_mapper_;
         ObjectStorePtr object_store_;
         FileServiceOptions options_;
 
     public:
-        FileServiceImpl(const DataMapperPtr<FileObject, std::string> &data_mapper, ObjectStorePtr object_store, FileServiceOptions options = {})
+        FileServiceImpl(const DataTemplatePtr<FileObject, std::string> &data_mapper, ObjectStorePtr object_store, FileServiceOptions options = {})
             : data_mapper_(data_mapper),
               object_store_(std::move(object_store)),
               options_(std::move(options)){
@@ -58,7 +57,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             assert_status_ok(status);
 
             // write db
-            context["bytes"] = upload_file_request.file_content().size();
+            const auto state = object_store_->GetObjectState(options_.bucket_name, object_key);
+            assert_status_ok(state.status());
+            context["bytes"] = state.byte_size();
             EntitySQLUtils::InsertOneFile(data_mapper_, context);
 
             // return file
@@ -83,7 +84,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             assert_status_ok(status);
 
             // write db
-            context["bytes"] = upload_file_request.file_content().size();
+            const auto state = object_store_->GetObjectState(options_.bucket_name, object_key);
+            assert_status_ok(state.status());
+            context["bytes"] = state.byte_size();
             EntitySQLUtils::InsertOneFile(data_mapper_, context);
 
             // return file
@@ -154,6 +157,17 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             return buf;
         }
 
+        void DownloadFile(const DownloadFileRequest &download_file_request,
+            std::ostream &output_stream) override {
+            trace_span span {"DownloadFile"};
+            RetrieveFileRequest retrieve_file_request;
+            retrieve_file_request.set_file_id(download_file_request.file_id());
+            const auto file = RetrieveFile(retrieve_file_request);
+            assert_true(file, fmt::format("Attempted to download non-existing file: bucket={}, file_id={}", options_.bucket_name, download_file_request.file_id()));
+            const auto object_key = details::map_file_object_key(file->purpose(), file->id());
+            const auto status = object_store_->GetObject(options_.bucket_name, object_key, output_stream);
+            assert_status_ok(status);
+        }
     };
 }
 

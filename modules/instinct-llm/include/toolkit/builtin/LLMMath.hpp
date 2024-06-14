@@ -45,7 +45,7 @@ namespace INSTINCT_LLM_NS {
 
     public:
         explicit LLMMath(ChatModelPtr chat_model, PromptTemplatePtr prompt_template = nullptr, const FunctionToolOptions& options ={}):
-            ProtoMessageFunctionTool("Calculator", "Useful for when you need to answer questions about math.", options) ,
+            ProtoMessageFunctionTool("Calculator", "Use this tool when you need to answer questions about math.", options) ,
             chat_model_(std::move(chat_model)),
             prompt_template_(std::move(prompt_template))
         {

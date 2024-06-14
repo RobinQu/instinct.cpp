@@ -17,7 +17,7 @@ namespace INSTINCT_RETRIEVAL_NS {
         static void append_row(
                 const std::shared_ptr<MetadataSchema>& metadata_schema,
                 Appender& appender,
-                const Document& doc,
+                Document& doc,
                 const Embedding& embedding,
                 UpdateResult& update_result,
                 const bool bypass_unknown_fields
@@ -28,11 +28,11 @@ namespace INSTINCT_RETRIEVAL_NS {
             append_row_basic_fields(appender, doc, update_result);
 
             // column of vector
-            vector<Value> vector_value;
+            vector<duckdb::Value> vector_value;
             for (const float& f: embedding) {
-                vector_value.push_back(Value::FLOAT(f));
+                vector_value.push_back(duckdb::Value::FLOAT(f));
             }
-            appender.Append(Value::ARRAY(LogicalType::FLOAT, vector_value));
+            appender.Append(duckdb::Value::ARRAY(LogicalType::FLOAT, vector_value));
 
             // metadata fields
             append_row_metadata_fields(metadata_schema, appender, doc, bypass_unknown_fields);
@@ -43,7 +43,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
 
     /**
-     * Speicialized DocStore that will embed input documents
+     * Specialized DocStore that will embed input documents
      */
     class DuckDBDocWithEmbeddingStore final: public BaseDuckDBStore {
         EmbeddingsPtr embeddings_;
@@ -61,7 +61,7 @@ namespace INSTINCT_RETRIEVAL_NS {
             return embeddings_;
         }
 
-        void AppendRows(Appender &appender, const std::vector<Document> &records, UpdateResult &update_result) override {
+        void AppendRows(Appender &appender, std::vector<Document> &records, UpdateResult &update_result) override {
             auto text_view = records | std::views::transform([](auto&& record) -> std::string {
                 return record.text();
             });
@@ -74,8 +74,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                     affected_row++;
                 } catch (const InstinctException& e) {
                     update_result.add_failed_documents()->CopyFrom(records[i]);
-                    // TODO with better logging facilities
-                    std::cerr << e.what() << std::endl;
+                    LOG_WARN("AppendRows error: {}", e.what());
                 }
             }
             update_result.set_affected_rows(affected_row);

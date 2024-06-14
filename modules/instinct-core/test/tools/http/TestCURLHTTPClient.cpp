@@ -59,18 +59,8 @@ namespace INSTINCT_CORE_NS {
      */
     TEST_F(CURLHttpClientTest, ChunkedResponse) {
         CURLHttpClient client;
-        auto req1 = HttpUtils::CreateRequest("POST http://127.0.0.1:3928/v1/chat/completions");
-        req1.headers[HTTP_HEADER_CONTENT_TYPE_NAME] = HTTP_CONTENT_TYPES.at(kJSON);
-        req1.body = R"({
-          "messages": [
-            { "role": "system", "content": "Always answer in rhymes." },
-            { "role": "user", "content": "Introduce yourself." }
-          ],
-          "temperature": 0.7,
-          "max_tokens": -1,
-          "stream": true
-        })";
-        client.StreamChunk(req1)
+        const auto req1 = HttpUtils::CreateRequest("GET https://httpbin.org/stream/3");
+        client.StreamChunk(req1, {.line_breaker = "\n"})
             .subscribe([](const auto& chunk) {
                 LOG_INFO("chunk: {}", chunk);
             });
@@ -85,7 +75,7 @@ namespace INSTINCT_CORE_NS {
         calls.reserve(n);
         for(int i=0;i<n;i++) {
             calls.push_back({
-                .endpoint = {.protocol = kHTTP, .host="httpbin.org"},
+                .endpoint = {.protocol = kHTTP, .host="httpbin.org", .port=80},
                 .method = kPOST,
                 .target = "/post",
 

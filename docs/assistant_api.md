@@ -37,6 +37,7 @@ In first release of `mini-assistant`, following endpoints are supported:
   * GET `/threads/:thread_id/runs`
   * POST `/threads/:thread_id/runs/:rund_id/submit_tool_outputs`
   * POST `/threads/:thread_id/runs/:run_id/cancel`
+  * POST `/threads/runs`
 * RunStep
   * GET `/threads/:thread_id/runs/:run_id/steps`
   * GET `/threads/:thread_id/runs/:run_id/steps/:step_id`
@@ -126,12 +127,27 @@ Task scheduling is needed in following sections:
 
 ### `file-search`
 
+Considerations:
+
 * duckdb implementation, mainly used for `mini-assistant`.
   * For Each file object we will generate one document table and embedding table.
   * Given only one `file_id` can be assigned to thread currently and only one process is accessing database files, we can manage all `VectorStorePtr` dynamically in memory.  e.g a map from `file_id` to `VectorStorePtr`.
 * a more scalable solution involves standalone vector database.
   * A file object can be embedded and linked to a `collection`.
   * Mapping from `file_id` and `collection`'s id is required.
+
+
+Primary workflows:
+
+1. File ingestion: operations in `FileBatch` and `File` endpoints will trigger `FileIngestionTaskHandler`, where file is split and transformed into embeddings.
+2. Online search: `file-search` as built-in tools in run objects if explicitly requested.
+
+Primary classes:
+
+* `VectorStoreController`: manage multiple `IVectorStore` instances.
+* `FileIngestionTaskHandler`: ingest uploaded file and update corresponding `IVectorStore`.
+* `FileSearchTool`: gather user query and search against given `IVectorStore`.
+
 
 ### `code-interpreter`
 

@@ -135,6 +135,10 @@ talking non-sense
             return caches_;
         }
 
+        void clear_caches() {
+            caches_.clear();
+        }
+
         size_t GetDimension() override {
             return dim_;
         }

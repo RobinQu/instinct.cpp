@@ -31,10 +31,19 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/assistant/v2/service/impl/MessageServiceImpl.hpp
         include/assistant/v2/service/impl/FileServiceImpl.hpp
         include/assistant/v2/service/impl/RunServiceImpl.hpp
-        include/assistant/v2/task_handler/OpenAIToolAgentRunObjectTaskHandler.hpp
+        include/assistant/v2/task_handler/RunObjectTaskHandler.hpp
         include/assistant/v2/endpoint/MessageController.hpp
         include/assistant/v2/tool/IApplicationContextFactory.hpp
         include/assistant/v2/tool/RequestUtils.hpp
+        include/assistant/v2/task_handler/FileObjectTaskHandler.hpp
+        include/assistant/v2/data_mapper/VectorStoreDataMapper.hpp
+        include/assistant/v2/data_mapper/VectorStoreFileDataMapper.hpp
+        include/assistant/v2/service/impl/VectorStoreServiceImpl.hpp
+        include/assistant/v2/tool/SimpleRetrieverOperator.hpp
+        include/assistant/v2/data_mapper/VectorStoreFileBatchDataMapper.hpp
+        include/assistant/v2/toolkit/SummaryGuidedFileSearch.hpp
+        include/assistant/v2/task_handler/FileBatchObjectBackgroundTask.hpp
+        include/assistant/v2/db/DBMigration.hpp
 )
 
 
@@ -48,7 +57,7 @@ add_library(
 add_library(instinct::agent
         ALIAS ${LIBRARY_TARGET_NAME})
 
-target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::llm instinct::proto instinct::server instinct::data)
+target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::llm instinct::proto instinct::server instinct::data instinct::retrieval)
 
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE

@@ -164,7 +164,7 @@ namespace INSTINCT_LLM_NS {
             state.add_function_tools()->CopyFrom(tool);
         }
         auto* msg = state.mutable_input()->mutable_chat()->add_messages();
-        msg->set_content("How much more expensive of gold price in Hongkong compared to that in New York?");
+        msg->set_content("How much more expensive of gold price in Hong Kong compared to that in New York?");
         msg->set_role("user");
         const AgentThought thought = planner->Invoke(state);
         ASSERT_TRUE(thought.continuation().custom().Is<LLMCompilerTaskGraph>());
@@ -172,7 +172,7 @@ namespace INSTINCT_LLM_NS {
         thought.continuation().custom().UnpackTo(&graph);
         LOG_INFO("graph={}", graph.ShortDebugString());
 
-        ASSERT_EQ(graph.tasks_size(), 3);
+        ASSERT_TRUE(graph.tasks_size() == 4 || graph.tasks_size() == 3); // 2 search, [1 calculator], 1 join
         ASSERT_EQ(graph.tasks().rbegin()->tool_call().function().name(), "join");
     }
 

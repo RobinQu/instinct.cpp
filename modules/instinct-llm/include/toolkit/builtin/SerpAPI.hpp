@@ -50,7 +50,7 @@ namespace INSTINCT_LLM_NS {
             const HttpRequest call {
                 .endpoint = options_.endpoint,
                 .target = "/search",
-                .paramters = {
+                .parameters = {
                     {"q", input.query()},
                     {"engine", options_.engine},
                     {"api_key", api_key},
@@ -103,8 +103,14 @@ namespace INSTINCT_LLM_NS {
         }
     };
 
-    static FunctionToolPtr CreateSerpAPI(const SerpAPIOptions& options = {}) {
+    static FunctionToolPtr CreateSerpAPI(const SerpAPIOptions& options) {
         return std::make_shared<SerpAPI>(options);
+    }
+
+    static FunctionToolPtr CreateSerpAPI() {
+        return CreateSerpAPI({
+            .apikey = SystemUtils::GetEnv("SERP_APIKEY")
+        });
     }
 }
 

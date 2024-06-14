@@ -4,8 +4,8 @@ project(instinct_data)
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 set(${LIBRARY_TARGET_NAME}_HDR
         include/DataGlobals.hpp
-        include/database/IDataMapper.hpp
-        include/database/duckdb/DuckDBDataMapper.hpp
+        include/database/IDataTemplate.hpp
+        include/database/duckdb/DuckDBDataTemplate.hpp
         include/database/IConnectionPool.hpp
         include/database/BaseConnectionPool.hpp
         include/database/ManagedConnection.hpp

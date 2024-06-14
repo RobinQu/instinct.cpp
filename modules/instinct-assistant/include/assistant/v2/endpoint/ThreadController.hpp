@@ -16,7 +16,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         void Mount(HttpLibServer &server) override {
             server.PostRoute<ThreadObject, ThreadObject>("/v1/threads", [&](const ThreadObject& req, const HttpLibSession& session) {
-                if (const auto resp = facade_.thread->CreateThread(req); resp.has_value()) {
+                if (const auto resp = facade_.thread->CreateThread(req)) {
                     session.Respond(resp.value());
                 } else {
                     session.Respond("Thread is not retrieved after creation", 500);

@@ -34,12 +34,15 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
     class BaseParquetFileIngestor: public BaseIngestor {
-        std::string file_source;
-        std::vector<ParquetColumnMapping> column_mapping;
+        std::string file_source_;
+        std::vector<ParquetColumnMapping> column_mapping_;
+        std::string file_source_id_;
     public:
-        BaseParquetFileIngestor(std::string file_source, const std::vector<ParquetColumnMapping> &column_mapping)
-            : file_source(std::move(file_source)),
-              column_mapping(column_mapping) {
+        BaseParquetFileIngestor(std::string file_source, const std::vector<ParquetColumnMapping> &column_mapping, const DocumentPostProcessor &document_post_processor = nullptr, std::string file_source_id = "")
+            : BaseIngestor(document_post_processor),
+            file_source_(std::move(file_source)),
+              column_mapping_(column_mapping),
+              file_source_id_(std::move(file_source_id)) {
         }
 
         virtual unique_ptr<MaterializedQueryResult> ReadParquet(Connection& conn, const std::string& file_source) = 0;
@@ -48,10 +51,15 @@ namespace INSTINCT_RETRIEVAL_NS {
             return rpp::source::create<Document>([&](const auto & observer) {
                 duckdb::DuckDB duck_db(nullptr);
                 duckdb::Connection conn(duck_db);
-                if(const auto result = ReadParquet(conn, file_source); check_query_ok(result)) {
-                    for(const auto& row: *result) {
-                        Document document;
-                        for(const auto&[column_type, metadata_field_schema, column_idx] : column_mapping) {
+                if(const auto result = ReadParquet(conn, file_source_); check_query_ok(result)) {
+                    for(int i=0; const auto& row: *result) {
+                        Document document = CreateNewDocument(
+                            "",
+                            ROOT_DOC_ID,
+                            ++i,
+                            StringUtils::IsBlankString(file_source_id_) ? file_source_ : file_source_id_
+                        );
+                        for(const auto&[column_type, metadata_field_schema, column_idx] : column_mapping_) {
                             if(column_type == kTextColumn) {
                                 document.set_text(row.GetValue<std::string>(column_idx));
                                 continue;
@@ -107,8 +115,8 @@ namespace INSTINCT_RETRIEVAL_NS {
         ParquetFileIngestorOptions options_;
     public:
         NaiveParquetFileIngestor(const std::string &file_source,
-            const std::vector<ParquetColumnMapping> &column_mapping, const ParquetFileIngestorOptions& options)
-            : BaseParquetFileIngestor(file_source, column_mapping), options_(options) {
+            const std::vector<ParquetColumnMapping> &column_mapping, const ParquetFileIngestorOptions& options = {}, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID)
+            : BaseParquetFileIngestor(file_source, column_mapping, document_post_processor, parent_doc_id), options_(options) {
         }
 
         unique_ptr<MaterializedQueryResult> ReadParquet(Connection &conn, const std::string &file_source) override {
@@ -121,18 +129,20 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
 
-    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::vector<ParquetColumnMapping> &column_mapping, const ParquetFileIngestorOptions& options = {}) {
-        return std::make_shared<NaiveParquetFileIngestor>(file_source, column_mapping, options);
+    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::vector<ParquetColumnMapping> &column_mapping, const ParquetFileIngestorOptions& options = {}, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID) {
+        return std::make_shared<NaiveParquetFileIngestor>(file_source, column_mapping, options, document_post_processor, parent_doc_id);
     }
 
     /**
      * 
      * @param file_source remote or local file source
      * @param mapping_string string literals that describes column mappings. e.g. "0:t,1:m:parent_doc_id:int64,3:m:source:varchar"
+     * @param document_post_processor
+     * @param parent_doc_id
      * @param options
      * @return 
      */
-    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::string& mapping_string, const ParquetFileIngestorOptions& options = {}) {
+    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::string& mapping_string, const ParquetFileIngestorOptions& options = {}, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID) {
         std::vector<ParquetColumnMapping> mappings;
 
         bool found_text;
@@ -187,7 +197,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         assert_true(found_text, "should have text column specified");
 
-        return CreateParquetIngestor(file_source, mappings, options);
+        return CreateParquetIngestor(file_source, mappings, options, document_post_processor, parent_doc_id);
     }
 
 }

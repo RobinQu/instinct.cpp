@@ -15,7 +15,7 @@
 namespace INSTINCT_LLM_NS {
     struct FunctionToolOptions {
         /**
-         * A postive value will trigger retry in `Invoke` method.
+         * A positive value will trigger retry in `Invoke` method.
          */
         uint8_t max_attempts = 1;
 
@@ -50,6 +50,10 @@ namespace INSTINCT_LLM_NS {
             FunctionToolSelfCheckResponse response;
             response.set_passed(true);
             return response;
+        }
+
+        std::string GetExample() override {
+            return "";
         }
 
     private:

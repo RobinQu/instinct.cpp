@@ -9,18 +9,19 @@
 #include "RetrievalGlobals.hpp"
 #include "model/IEmbeddingModel.hpp"
 #include "store/IDocStore.hpp"
+#include "tools/MetadataSchemaBuilder.hpp"
 
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_CORE_NS;
 
     /**
-     * Interface for document store. Forgive the poor name of `VectorStore`, which is follows convention in langchain, etc, but actually misleading actually in two ways:
+     * Interface for document store. Forgive the poor name of `VectorStore`, which is follows convention in langchain, etc., but actually misleading in two ways:
      *
      * 1. It's only an abstraction for data access operations on a single table (or a collection, or a schema, or whatever you name a container of rows), not for database-level actions.
      * 2. Document normally contains both scalar fields like int, string and vector field. But many still call it `Vector` document.
      *
-     * Building a full-fledged hybrid vector store isn't my primary goal, so `VectoreStore` classes will follow practices in other similar LLM tools.
+     * Building a full-fledged hybrid vector store isn't my primary goal, so `VectorStore` classes will follow practices in other similar LLM tools.
      */
     class IVectorStore: public IDocStore {
     public:

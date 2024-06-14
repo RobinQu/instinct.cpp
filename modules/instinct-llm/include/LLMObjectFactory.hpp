@@ -12,14 +12,28 @@
 #include "chat_model/OpenAIChat.hpp"
 #include "commons/OllamaCommons.hpp"
 #include "commons/OpenAICommons.hpp"
+#include "embedding_model/OllamaEmbedding.hpp"
+#include "embedding_model/OpenAIEmbedding.hpp"
 
 namespace INSTINCT_LLM_NS {
 
-    // defualt values are required
+    enum ModelProvider {
+        kOPENAI = 0,
+        kOLLAMA = 1,
+        kLOCAL = 2,
+        kLLMStudio = 3,
+        kLLAMACPP = 4
+    };
+
+    // default values are required
     struct LLMProviderOptions {
-        std::string provider_name = "openai";
-        OpenAIConfiguration openai = {};
-        OllamaConfiguration ollama = {};
+        ModelProvider provider;
+        std::string model_name;
+        Endpoint endpoint;
+        std::string api_key;
+        int dim = 0;
+        OpenAIConfiguration openai;
+        OllamaConfiguration ollama;
     };
 
     struct AgentExecutorOptions {
@@ -27,30 +41,68 @@ namespace INSTINCT_LLM_NS {
         LLMCompilerOptions llm_compiler = {};
     };
 
-
     class LLMObjectFactory final {
     public:
 
-        static ChatModelPtr CreateChatModel(const LLMProviderOptions& options) {
-            if (options.provider_name == "ollama") {
-                return CreateOllamaChatModel(options.ollama);
+        static ChatModelPtr CreateChatModel(LLMProviderOptions options) {
+            switch (options.provider) {
+                case kOPENAI:
+                case kLLMStudio:
+                case kLLAMACPP: {
+                    options.openai.model_name = options.model_name;
+                    options.openai.endpoint = options.endpoint;
+                    options.openai.api_key = options.api_key;
+                    LoadOpenAIChatConfiguration(options.openai);
+                    return CreateOpenAIChatModel(options.openai);
+                }
+                case kOLLAMA: {
+                    options.ollama.model_name = options.model_name;
+                    options.ollama.endpoint = options.endpoint;
+                    LoadOllamaChatConfiguration(options.ollama);
+                    return CreateOllamaChatModel(options.ollama);
+                }
+                default:
+                    return nullptr;
             }
-            if (options.provider_name == "openai") {
-                return CreateOpenAIChatModel(options.openai);
-            }
-            return nullptr;
         }
 
+        static EmbeddingsPtr CreateEmbeddingModel(LLMProviderOptions options) {
+            switch (options.provider) {
+                case kOLLAMA: {
+                    options.ollama.model_name = options.model_name;
+                    options.ollama.endpoint = options.endpoint;
+                    options.ollama.dimension = options.dim;
+                    LoadOllamaEmbeddingConfiguration(options.ollama);
+                    return CreateOllamaEmbedding(options.ollama);
+                }
+                case kOPENAI:
+                case kLLMStudio:
+                case kLLAMACPP: {
+                    options.openai.model_name = options.model_name;
+                    options.openai.endpoint = options.endpoint;
+                    options.openai.api_key = options.api_key;
+                    options.openai.dimension = options.dim;
+                    LoadOpenAIEmbeddingConfiguration(options.openai);
+                    return CreateOpenAIEmbeddingModel(options.openai);
+                }
+                default:
+                    return nullptr;
+            }
+        }
 
-        static AgentExecutorPtr CreateAgentExecutor(const AgentExecutorOptions& options, const ChatModelPtr& chat_model, const StopPredicate& predicate) {
+        static AgentExecutorPtr CreateAgentExecutor(
+            const AgentExecutorOptions& options,
+            const ChatModelPtr& chat_model,
+            const StopPredicate& predicate,
+            const std::vector<FunctionToolkitPtr>& tk = {}
+        ) {
             if(options.agent_executor_name == "llm_compiler") {
-                // TODO currently build with empty toolkit. we have to add `file-search` and `code-interpreter` in the future
-                LOG_INFO("Create LLMCompilerAgentExectuor");
-                return CreateLLMCompilerAgentExecutor(chat_model, {}, predicate, options.llm_compiler);
+                LOG_INFO("Create LLMCompilerAgentExecutor");
+                return CreateLLMCompilerAgentExecutor(chat_model, tk, predicate, options.llm_compiler);
             }
             assert_true(std::dynamic_pointer_cast<OpenAIChat>(chat_model), "Should be Chat model of OpenAI when openai_tool_agent_executor");
             LOG_INFO("Create OpenAIToolAgentExecutor");
-            return CreateOpenAIToolAgentExecutor(chat_model, {}, predicate);
+            return CreateOpenAIToolAgentExecutor(chat_model, tk, predicate);
         }
     };
 }

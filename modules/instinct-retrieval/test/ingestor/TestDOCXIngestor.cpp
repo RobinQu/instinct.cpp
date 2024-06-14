@@ -3,6 +3,7 @@
 //
 
 #include <gtest/gtest.h>
+#include <tools/MetadataSchemaBuilder.hpp>
 
 #include "ingestor/DOCXFileIngestor.hpp"
 
@@ -17,10 +18,11 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
     TEST_F(TestDOCXIngestor, LoadDocuments) {
+        const auto schema = CreateDocStorePresetMetadataSchema();
         DOCXFileIngestor ingestor { corpus_dir / "word/sample2.docx" };
         auto doc_itr = ingestor.Load()
-        | rpp::operators::tap([](const Document& doc) {
-            ASSERT_EQ(doc.metadata_size(), 2);// expecting page_no and source
+        | rpp::operators::tap([&](const Document& doc) {
+            ASSERT_EQ(doc.metadata_size(), schema->fields_size());
             LOG_INFO("doc = {}", doc.DebugString());
             ASSERT_FALSE(doc.text().empty());
         });

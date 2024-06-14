@@ -1,40 +1,112 @@
 syntax = "proto3";
 
-//import "llm.proto";
+import "agent.proto";
 import "core.proto";
+import "google/protobuf/any.proto";
+//import "google/protobuf/struct.proto";
 
 package instinct.retrieval;
 
 
-message MetadataBoolQuery {
-  repeated MetadataQuery must = 1;
-  repeated MetadataQuery should = 2;
-  repeated MetadataQuery mustNot = 3;
+message BoolQuery {
+  repeated SearchQuery must = 1;
+  repeated SearchQuery should = 2;
+  repeated SearchQuery mustNot = 3;
 }
 
-message MetadataTermQuery {
-  instinct.core.PrimitiveVariable predicate = 1;
+message TermQuery {
+  core.PrimitiveValue term = 1;
+  string name = 2;
 }
 
-message MetadataQuery {
+message TermsQuery {
+  repeated core.PrimitiveValue terms = 1;
+  string name = 2;
+}
+
+message IntRangeQuery {
+  string name = 1;
+  optional int64 from = 2;
+  optional int64 to = 3;
+  bool inclusive_start = 4;
+  bool inclusive_end = 5;
+}
+
+message DoubleRangeQuery {
+  string name = 1;
+  optional double from = 2;
+  optional double to = 3;
+  bool inclusive_start = 4;
+  bool inclusive_end = 5;
+}
+
+enum SortOder {
+  DESC = 0;
+  ASC = 1;
+}
+
+message FieldSort {
+  string field_name = 1;
+  SortOder order = 2;
+}
+
+message Sorter {
+  oneof sort {
+    FieldSort field = 1;
+  }
+}
+
+message SearchQuery {
   oneof query {
-      MetadataBoolQuery bool = 1;
-      MetadataTermQuery term = 2;
+    BoolQuery bool = 1;
+    TermQuery term = 2;
+    TermsQuery terms = 3;
+    IntRangeQuery int_range = 4;
+    DoubleRangeQuery double_range = 5;
   }
 }
 
 message SearchRequest {
   string query = 1;
   int32 top_k = 2;
-  MetadataQuery metadata_filter = 3;
+  SearchQuery metadata_filter = 3;
+  repeated Sorter sorters = 4;
 }
 
-message SearchResponse {
+message CitationAnnotatingContext {
+  llm.SearchToolResponse original_search_response = 1;
+  string original_answer = 2;
+  string question = 3;
+}
 
+message AnswerWithCitations {
+  string answer = 1;
+  repeated Citation citations = 2;
+  message Citation {
+    int32 quoted_index = 1;
+//    llm.SearchToolResponseEntry quote = 1;
+    string annotation = 2;
+  }
+}
+
+message FindRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+  SearchQuery query = 3;
+  repeated Sorter sorters = 4;
 }
 
 message UpdateResult {
   int32 affected_rows = 1;
   repeated string returned_ids = 2;
   repeated instinct.core.Document failed_documents = 3;
+}
+
+message VectorStoreInstanceMetadata {
+  string instance_id = 1;
+  core.MetadataSchema metadata_schema = 2;
+  int64 created_at = 3;
+  int64 modified_at = 4;
+  string embedding_table_name = 5;
+  google.protobuf.Any custom = 100;
 }

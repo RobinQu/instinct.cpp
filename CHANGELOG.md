@@ -1,5 +1,45 @@
 # Changelog
 
+
+## v0.1.4
+
+**Full Changelog**: https://github.com/RobinQu/instinct.cpp/commits/v0.1.4
+
+* Features
+  * `instinct-assistant`: `file-search` support. It takes a summary guided strategy inspired by [RAPTOR](https://arxiv.org/abs/2401.18059), and follows practices adopted by OpenAI. See more at [#16
+    ](https://github.com/users/RobinQu/projects/1?pane=issue&itemId=58554735). It has some limitations, please refer to [#22](https://github.com/users/RobinQu/projects/1/views/1?pane=issue&itemId=67421127).
+  * new `instinct-transfomer` module that ships built-in models based on transformer. Currently, only [BGE-M3-Reranker](https://huggingface.co/BAAI/bge-reranker-v2-m3/tree/main) is implemented. Most code in first version implementation is refined (copied) from [chatllm.cpp](https://github.com/foldl/chatllm.cpp) for quick start.
+  * `instinct-retrieval`: 
+    * a new `MultiPathRetriever` that handle recalls from multiple child retrievers and score results with a reranker model.
+    * `SimpleRetrieverOperator` and `DuckDBVectorStoreOpeartor` for multi-instance managements.
+    * `CitationAnnotatingChain` and `SummaryChain` to support citations and summary required in `instinct-assistant`.
+    * Added a mandatory `file-source` metadata field to keep record of file identifier.
+  * `instinct-data`:
+    * `Aggregate` method on data template class
+    * Added `GetObjectState` method on `IObjectStore`.
+  * `instinct-core`:
+    * Added `LambdaInputParsr` and `LambdaOutputParser` to simplify chain implementation.  
+    * `ManagedApplicationContext` to have more delicate lifecycle managements.
+* Improvements
+  * `mini-assistant`:
+    * many bug fixes in related classes.
+    * CLI options: we can now assign model provider separately for embedding model and chat model.
+  * `instinct-core`:
+    * Make options on chat model and embedding model optional using `std::optional`.
+    * Fix a consistency issue of `RecursiveCharacterTextSplitter` with the one in `langchain`.
+    * Better control of preloading assets of tokenizers.
+  * `instinct-server`:
+    * fix graceful shutdown of `HttpLibServer`.
+  * bump `duckdb` to `0.10.2`
+
+```text
+4eda145187b207c73487d769e781036ff0225cf26c4be7b8739641430c3af8cf  doc-agent_linux-amd64.tar.gz
+8c0de5d10adbd4009dc0f50f3335adf9008e2dbccbe7791dc3d208fdf9a1b1fa  doc-agent_macos-arm64.tar.gz
+6d20c693d95fca85a9cc3f0e7f9c42cc2232d747e3e89e3452945176f6eb0fb7  mini-assistant_linux-amd64.tar.gz
+62df4e43fa59b7a1bef525918f4b4420cf74343092f55dfd12374f31262a4bb1  mini-assistant_macos-arm64.tar.gz
+```
+
+
 ## v0.1.3
 
 **Full Changelog**: https://github.com/RobinQu/instinct.cpp/commits/v0.1.3

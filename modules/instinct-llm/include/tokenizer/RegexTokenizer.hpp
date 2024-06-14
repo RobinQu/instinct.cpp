@@ -87,7 +87,7 @@ namespace INSTINCT_LLM_NS {
 
 
             std::vector<UnicodeString> chunks;
-            U32StringUtils::SpilitWithRegex(text, pattern_string, chunks);
+            U32StringUtils::SplitWithRegex(text, pattern_string, chunks);
             std::vector<int32_t> result;
             for(const auto& chunk: chunks) {
                 if(specials.contains(chunk)) {
