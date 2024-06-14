@@ -30,6 +30,7 @@
     * Better control of preloading assets of tokenizers.
   * `instinct-server`:
     * fix graceful shutdown of `HttpLibServer`.
+  * bump `duckdb` to `0.10.2`
 
 
 ## v0.1.3

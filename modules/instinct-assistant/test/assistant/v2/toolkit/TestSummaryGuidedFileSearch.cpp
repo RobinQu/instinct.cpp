@@ -4,7 +4,6 @@
 #include <gtest/gtest.h>
 
 #include "AssistantTestGlobals.hpp"
-#include "../../../../../../../../../../../../Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/System/Library/Frameworks/Security.framework/Headers/SecProtocolOptions.h"
 #include "assistant/v2/toolkit/SummaryGuidedFileSearch.hpp"
 #include "retrieval/VectorStoreRetriever.hpp"
 
