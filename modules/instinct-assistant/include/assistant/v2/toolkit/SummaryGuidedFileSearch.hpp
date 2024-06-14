@@ -82,7 +82,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             search_request.set_query(input.query());
             search_request.set_top_k(input.result_limit());
             const auto file_id_terms = search_request.mutable_metadata_filter()->mutable_terms();
-            file_id_terms->set_name(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
+            file_id_terms->set_name(METADATA_SCHEMA_FILE_SOURCE_KEY);
             for(int i=0;i<options_.top_file_n && i<file_scores.size();++i) {
                 file_id_terms->add_terms()->set_string_value(file_scores.at(i).first);
             }
@@ -95,6 +95,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     entry->set_content(doc.text());
                     if (const auto parent_doc_id = DocumentUtils::GetStringValueMetadataField(doc, METADATA_SCHEMA_PARENT_DOC_ID_KEY)) {
                         entry->set_parent_doc_id(parent_doc_id.value());
+                    }
+                    if (const auto file_source = DocumentUtils::GetStringValueMetadataField(doc, METADATA_SCHEMA_FILE_SOURCE_KEY)) {
+                        entry->set_file_source(file_source.value());
                     }
                     if (const auto start_index = DocumentUtils::GetIntValueMetadataField(doc, METADATA_SCHEMA_CHUNK_START_INDEX_KEY), end_index = DocumentUtils::GetIntValueMetadataField(doc, METADATA_SCHEMA_CHUNK_END_INDEX_KEY); start_index && end_index) {
                         entry->set_start_index(start_index.value());

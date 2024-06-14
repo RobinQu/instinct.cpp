@@ -125,9 +125,11 @@ namespace INSTINCT_RETRIEVAL_NS {
                 LOG_DEBUG("Got final summary: {}", summaries[0]);
                 return summaries[0];
             }
+            assert_true(summaries.size() > 1, "should have multiple summaries to continue");
             LOG_DEBUG("Recursively call with summaries.size()={}", summaries.size());
-            // recursively call
-            return CreateSummary(rpp::source::from_iterable(summaries), chain, is_reducible_fn).get();
+                // recursively call
+                return CreateSummary(rpp::source::from_iterable(summaries), chain, is_reducible_fn).get();
+
         });
     }
 

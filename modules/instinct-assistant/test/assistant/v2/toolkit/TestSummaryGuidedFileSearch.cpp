@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 #include "AssistantTestGlobals.hpp"
+#include "../../../../../../../../../../../../Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/System/Library/Frameworks/Security.framework/Headers/SecProtocolOptions.h"
 #include "assistant/v2/toolkit/SummaryGuidedFileSearch.hpp"
 #include "retrieval/VectorStoreRetriever.hpp"
 
@@ -62,5 +63,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         tool_call_object.mutable_function()->set_arguments(R"({"query": "Tell me what's new in Kaleido Diffusion"})");
         auto result = tool->Invoke(tool_call_object);
         LOG_INFO("result: {}", result.return_value());
+        const auto tool_response = ProtobufUtils::Deserialize<SearchToolResponse>(result.return_value());
+        ASSERT_TRUE(tool_response.entries_size()>0);
     }
 }

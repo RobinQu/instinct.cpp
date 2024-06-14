@@ -19,11 +19,11 @@ namespace INSTINCT_RETRIEVAL_NS {
      */
     class SingleFileIngestor final: public BaseIngestor {
         std::filesystem::path file_path_;
-        std::string parent_doc_id_;
+        std::string file_source_;
 
     public:
-        explicit SingleFileIngestor(std::filesystem::path file_path, const DocumentPostProcessor &document_post_processor = nullptr, std::string parent_doc_id = ROOT_DOC_ID)
-            : BaseIngestor(document_post_processor), file_path_(std::move(file_path)), parent_doc_id_(std::move(parent_doc_id)) {
+        explicit SingleFileIngestor(std::filesystem::path file_path, const DocumentPostProcessor &document_post_processor = nullptr, std::string file_source = "")
+            : BaseIngestor(document_post_processor), file_path_(std::move(file_path)), file_source_(std::move(file_source)) {
         }
 
         AsyncIterator<Document> Load() override {
@@ -35,16 +35,15 @@ namespace INSTINCT_RETRIEVAL_NS {
             buffer << t.rdbuf();
             return rpp::source::just(CreateNewDocument(
                 buffer.str(),
-                parent_doc_id_,
+                ROOT_DOC_ID,
                 1,
-                file_path_
-                ));
-
+                StringUtils::IsBlankString(file_source_) ? file_path_.string() : file_source_
+            ));
         }
     };
 
-    static IngestorPtr CreatePlainTextFileIngestor(const std::filesystem::path& file_path, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID) {
-        return std::make_shared<SingleFileIngestor>(file_path, document_post_processor, parent_doc_id);
+    static IngestorPtr CreatePlainTextFileIngestor(const std::filesystem::path& file_path, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& file_source = "") {
+        return std::make_shared<SingleFileIngestor>(file_path, document_post_processor, file_source);
     }
 }
 

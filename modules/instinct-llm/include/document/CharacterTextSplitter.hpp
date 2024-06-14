@@ -10,7 +10,7 @@
 namespace INSTINCT_LLM_NS {
 
     struct CharacterTextSplitterOptions {
-        LenghtCalculatorPtr length_function = std::make_shared<StringLengthCalculator>();
+        LengthCalculatorPtr length_function = std::make_shared<StringLengthCalculator>();
         int chunk_size=4000;
         int chunk_overlap=200;
         bool keep_separator=false;

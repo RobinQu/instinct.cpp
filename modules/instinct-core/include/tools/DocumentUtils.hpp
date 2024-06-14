@@ -34,26 +34,7 @@ namespace std {
 }
 
 namespace INSTINCT_CORE_NS {
-    const static std::string ROOT_DOC_ID = "49915DBE-434A-4E3E-9E0A-791D2F69D386";
-
-    struct DocumentMetadataMutator {
-        Document* document_;
-
-        auto SetString(const std::string& name, const std::string& value) {
-            auto* field = document_->add_metadata();
-            field->set_name(name);
-            field->set_string_value(value);
-            return this;
-        }
-
-        auto SetInt32(const std::string& name, const int& value) {
-            auto* field = document_->add_metadata();
-            field->set_name(name);
-            field->set_int_value(value);
-            return this;
-        }
-    };
-
+    const static std::string ROOT_DOC_ID = "ROOT";
 
     enum ConstraintViolationCategory {
         kUnknownViolation,
@@ -72,6 +53,13 @@ namespace INSTINCT_CORE_NS {
      */
     static auto EMPTY_METADATA_SCHEMA = std::make_shared<MetadataSchema>();
 
+    struct DocumentMetadata {
+        std::string parent_doc_id;
+        std::string file_source;
+        int page_no;
+        int start_index;
+        int end_index;
+    };
 
     class DocumentUtils {
     public:

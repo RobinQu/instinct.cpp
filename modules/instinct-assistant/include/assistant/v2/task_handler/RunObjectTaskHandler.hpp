@@ -451,7 +451,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
             // create step with tool step if tool message contains tool call requests
             if (agent_continuation.tool_call_message().tool_calls_size() > 0) {
-                // TODO support code interpreter and file serach
+                // TODO support code interpreter and file search
                 for(const auto& tool_request: agent_continuation.tool_call_message().tool_calls()) {
                     auto* tool_call_detail = step_details->mutable_tool_calls()->Add();
                     tool_call_detail->set_id(tool_request.id());
@@ -511,7 +511,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                         auto& entry = citation_annotating_context->original_search_response().entries(idx);
                         annotation->set_start_index(entry.start_index());
                         annotation->set_end_index(entry.end_index());
-                        annotation->mutable_file_citation()->set_file_id(entry.parent_doc_id());
+                        annotation->mutable_file_citation()->set_file_id(entry.file_source());
                         annotation->mutable_file_citation()->set_quote(entry.content());
                     }
                 }

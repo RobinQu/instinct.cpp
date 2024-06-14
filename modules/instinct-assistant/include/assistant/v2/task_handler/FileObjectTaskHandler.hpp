@@ -127,7 +127,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
                 // generate summary
                 FindRequest find_request;
-                find_request.mutable_query()->mutable_term()->set_name(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
+                find_request.mutable_query()->mutable_term()->set_name(METADATA_SCHEMA_FILE_SOURCE_KEY);
                 find_request.mutable_query()->mutable_term()->mutable_term()->set_string_value(vs_file_object.file_id());
                 const auto doc_itr = retriever->GetDocStore()->FindDocuments(find_request);
                 LOG_INFO("Summary started: {}", task.task_id);
@@ -136,7 +136,6 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 LOG_INFO("Summary done {}: {}", vs_file_object.file_id(), summary);
                 modify_vector_store_file_request.set_status(completed);
             } catch (...) {
-                // TODO to print error log
                 LOG_ERROR("File handling failed for {}", vs_file_object.ShortDebugString());
                 modify_vector_store_file_request.set_status(failed);
                 modify_vector_store_file_request.mutable_last_error()->set_code(CommonErrorType::server_error);

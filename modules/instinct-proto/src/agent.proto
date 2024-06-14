@@ -122,6 +122,7 @@ message SearchToolResponseEntry {
   string parent_doc_id = 4;
   int32 start_index = 5;
   int32 end_index = 6;
+  string file_source = 7;
 }
 
 message SearchToolResponse {

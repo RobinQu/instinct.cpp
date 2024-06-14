@@ -108,7 +108,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                     // clean data in retriever for cancelled and failed files
                     SearchQuery search_query;
                     auto* terms_query = search_query.mutable_terms();
-                    terms_query->set_name(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
+                    terms_query->set_name(METADATA_SCHEMA_FILE_SOURCE_KEY);
 
                     // trigger scan
                     resp = vector_store_service_->ListFilesInVectorStoreBatch(req);

@@ -34,15 +34,15 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
     class BaseParquetFileIngestor: public BaseIngestor {
-        std::string file_source;
-        std::vector<ParquetColumnMapping> column_mapping;
-        std::string parent_doc_id_;
+        std::string file_source_;
+        std::vector<ParquetColumnMapping> column_mapping_;
+        std::string file_source_id_;
     public:
-        BaseParquetFileIngestor(std::string file_source, const std::vector<ParquetColumnMapping> &column_mapping, const DocumentPostProcessor &document_post_processor = nullptr, std::string parent_doc_id = ROOT_DOC_ID)
+        BaseParquetFileIngestor(std::string file_source, const std::vector<ParquetColumnMapping> &column_mapping, const DocumentPostProcessor &document_post_processor = nullptr, std::string file_source_id = "")
             : BaseIngestor(document_post_processor),
-            file_source(std::move(file_source)),
-              column_mapping(column_mapping),
-              parent_doc_id_(std::move(parent_doc_id)) {
+            file_source_(std::move(file_source)),
+              column_mapping_(column_mapping),
+              file_source_id_(std::move(file_source_id)) {
         }
 
         virtual unique_ptr<MaterializedQueryResult> ReadParquet(Connection& conn, const std::string& file_source) = 0;
@@ -51,10 +51,15 @@ namespace INSTINCT_RETRIEVAL_NS {
             return rpp::source::create<Document>([&](const auto & observer) {
                 duckdb::DuckDB duck_db(nullptr);
                 duckdb::Connection conn(duck_db);
-                if(const auto result = ReadParquet(conn, file_source); check_query_ok(result)) {
+                if(const auto result = ReadParquet(conn, file_source_); check_query_ok(result)) {
                     for(int i=0; const auto& row: *result) {
-                        Document document = CreateNewDocument("", parent_doc_id_, ++i, file_source);
-                        for(const auto&[column_type, metadata_field_schema, column_idx] : column_mapping) {
+                        Document document = CreateNewDocument(
+                            "",
+                            ROOT_DOC_ID,
+                            ++i,
+                            StringUtils::IsBlankString(file_source_id_) ? file_source_ : file_source_id_
+                        );
+                        for(const auto&[column_type, metadata_field_schema, column_idx] : column_mapping_) {
                             if(column_type == kTextColumn) {
                                 document.set_text(row.GetValue<std::string>(column_idx));
                                 continue;

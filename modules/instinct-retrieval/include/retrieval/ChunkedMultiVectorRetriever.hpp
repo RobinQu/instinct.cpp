@@ -43,13 +43,10 @@ namespace INSTINCT_RETRIEVAL_NS {
             if (parent_splitter_) {
                 auto chunked_input = input
                  | rpp::operators::flat_map([&](const Document &doc) {
-                     int i = 0;
-                     const auto source_doc_id = DocumentUtils::GetStringValueMetadataField(doc, METADATA_SCHEMA_FILE_SOURCE_KEY);
-                     assert_true(source_doc_id && StringUtils::IsNotBlankString(source_doc_id.value()), "parent doc should have file_source field");
-                     auto parts = parent_splitter_->SplitText(UnicodeString::fromUTF8(doc.text())) | std::views::transform([&, source_doc_id](const UnicodeString &str) {
+                     auto parts = parent_splitter_->SplitText(UnicodeString::fromUTF8(doc.text())) | std::views::transform([&,doc](const UnicodeString &str) {
                                  Document document;
                                  str.toUTF8String(*document.mutable_text());
-                                 DocumentUtils::AddPresetMetadataFields(document, doc.id(), ++i, source_doc_id.value());
+                                 document.mutable_metadata()->CopyFrom(doc.metadata());
                                  return document;
                      });
                     return rpp::source::from_iterable(std::vector<Document> {parts.begin(), parts.end()});
@@ -67,9 +64,19 @@ namespace INSTINCT_RETRIEVAL_NS {
             for(int i=0; const auto& str: child_splitter_->SplitText(UnicodeString::fromUTF8(parent_doc.text()))) {
                 Document document;
                 str.toUTF8String(*document.mutable_text());
-                const auto parent_source_id = DocumentUtils::GetStringValueMetadataField(parent_doc, METADATA_SCHEMA_FILE_SOURCE_KEY);
-                assert_true(parent_source_id && StringUtils::IsNotBlankString(parent_source_id.value()), "should have found parent_doc_id in parent doc's metadata");
-                DocumentUtils::AddPresetMetadataFields(document, parent_source_id.value(), ++i, parent_source_id.value());
+                document.mutable_metadata()->CopyFrom(parent_doc.metadata());
+                const auto file_source = DocumentUtils::GetStringValueMetadataField(parent_doc, METADATA_SCHEMA_FILE_SOURCE_KEY);
+                assert_true(file_source && StringUtils::IsNotBlankString(file_source.value()), "should have found parent_doc_id in parent doc's metadata");
+                const auto start_idx = parent_doc.text().find(document.text());
+                const auto end_idx = start_idx + document.text().size();
+                DocumentUtils::AddPresetMetadataFields(
+                    document,
+                    parent_doc.id(),
+                    ++i,
+                    file_source.value(),
+                    static_cast<int32_t>(start_idx),
+                    static_cast<int32_t>(end_idx)
+                );
                 LOG_DEBUG("chunked doc: size={}, parent_id={}", document.text().size(), parent_doc.id());
                 results.push_back(document);
             }

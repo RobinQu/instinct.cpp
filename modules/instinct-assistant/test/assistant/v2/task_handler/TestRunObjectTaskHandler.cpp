@@ -337,6 +337,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         // create assistant with tools
         AssistantObject create_assistant_request;
         create_assistant_request.set_model("gpt-3.5-turbo");
+        create_assistant_request.set_temperature(0);
         for (const auto& tool_schema: tool_kit->GetAllFunctionToolSchema()) {
             auto* assistant_tool = create_assistant_request.mutable_tools()->Add();
             assistant_tool->set_type(function);
@@ -347,7 +348,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         ASSERT_EQ(obj1->tools_size(), tool_kit->GetAllFunctionToolSchema().size());
 
         // create thread and run
-        const std::string prompt_line = "How much would a 3 day trip cost to each city of New York, Paris, and Tokyo?";
+        const std::string prompt_line = "Which is cheapest ticket among those flights to New York, Paris, and Tokyo?";
         CreateThreadAndRunRequest create_thread_and_run_request1;
         create_thread_and_run_request1.set_assistant_id(obj1->id());
         auto* msg = create_thread_and_run_request1.mutable_thread()->add_messages();
@@ -491,6 +492,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         get_run_request.set_run_id(obj2->id());
         auto obj3 = run_service_->RetrieveRun(get_run_request);
         ASSERT_EQ(obj3->status(), RunObject_RunObjectStatus_completed);
+
+
 
 
     }
