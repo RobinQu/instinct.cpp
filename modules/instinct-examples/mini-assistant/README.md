@@ -1,5 +1,7 @@
 # mini-assistants
 
+Please read [Limitations of mini-assistant](https://github.com/users/RobinQu/projects/1/views/1?pane=issue&itemId=67421127) before continue.
+
 ## Quick start
 
 ## Kickoff server
@@ -53,8 +55,9 @@ assistant = client.beta.assistants.create(
 ## CLI Usage
 
 ```text
+mini-assistant --help-all
 🐬 mini-assistant - Local Assistant API at your service
-Usage: mini-assistant [OPTIONS]
+Usage: /IdeaProjects/instinct.cpp/build/modules/instinct-examples/mini-assistant/mini-assistant [OPTIONS]
 
 Options:
   -h,--help                   Print this help message and exit
@@ -62,32 +65,41 @@ Options:
   -p,--port INT [9091]        Port number which API server will listen
   --db_file_path TEXT REQUIRED
                               Path for DuckDB database file.
-  --file_store_path TEXT:DIR REQUIRED
-                              Path for root directory of local object store.
-  --model_provider TEXT:{ollama,openai} [openai]
-                              Specify chat model to use for chat completion.
+  --file_store_path TEXT REQUIRED
+                              Path for root directory of local object store. Will be created if it doesn't exist yet.
+  --agent_executor_type TEXT:{llm_compiler,openai_tool} [llm_compiler] 
+                              Specify agent executor type. `llm_compiler` enables parallel function calling with opensourced models like mistral series and llama series, while `openai_tool` relies on official OpenAI function calling capability to direct agent workflow.
   -v,--verbose                A flag to enable verbose log
-[Option Group: 🧠 OpenAI configuration]
-  OpenAI API, or any OpenAI API compatible servers are supported. Defaults to OpenAI public server.
+[Option Group: chat_model]
+  Configuration for chat model
   Options:
-    --openai_api_key TEXT       API key for commercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.
-    --openai_host TEXT [api.openai.com]
-                                Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.
-    --openai_port INT [443]     Port number for API service.
-    --openai_protocol ENUM:value in {http->1,https->2} OR {1,2} [2]
+    --chat_model_provider ENUM:value in {llama_cpp->4,llm_studio->3,local->2,ollama->1,openai->0} OR {4,3,2,1,0} [0] 
+                                Specify chat model to use for chat completion.
+    --chat_model_name TEXT      Specify chat model to use for chat completion. Default to gpt-3.5-turbo for OpenAI, llama3:8b for Ollama. Note that some model providers will ignore the passed model name and use the model currently loaded instead.
+    --chat_model_api_key TEXT   API key for commercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.
+    --chat_model_host TEXT      Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.
+    --chat_model_port INT       Port number for API service.
+    --chat_model_protocol ENUM:value in {http->1,https->2} OR {1,2}
                                 HTTP protocol for API service.
-    --openai_model_name TEXT [gpt-3.5-turbo]
-                                Specify name of the model to be used.
-[Option Group: 🧠 Ollama configuration]
-  Ollama, OpenAI API, or any OpenAI API compatible servers are supported. Defaults to a local running Ollama service using llama2:latest model.
+[Option Group: embedding_model]
+  Configuration for embedding model
   Options:
-    --ollama_host TEXT [localhost]
-                                Host name for Ollama API endpoint.
-    --ollama_port INT [11434]   Port number for Ollama API endpoint.
-    --chat_model_protocol ENUM:value in {http->1,https->2} OR {1,2} [1]
-                                HTTP protocol for Ollama API endpoint.
-    --chat_model_model_name TEXT [llama2:latest]
-                                Specify name of the model to be used.
+    --embedding_model_provider ENUM:value in {llama_cpp->4,llm_studio->3,local->2,ollama->1,openai->0} OR {4,3,2,1,0} [0] 
+                                Specify model to use for embedding.
+    --embedding_model_name TEXT Specify model to use for embedding . Default to text-embedding-3-small for OpenAI, all-minilm:latest for Ollama. Note that some model providers will ignore the passed model name and use the model currently loaded instead.
+    --embedding_model_dim INT:POSITIVE
+                                Dimension of given embedding model.
+    --embedding_model_api_key TEXT
+                                API key for commercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.
+    --embedding_model_host TEXT Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.
+    --embedding_model_port INT  Port number for API service.
+    --embedding_model_protocol ENUM:value in {http->1,https->2} OR {1,2}
+                                HTTP protocol for API service.
+[Option Group: Options for LLMCompilerAgentExecutor]
+  Options for LLMCompiler-based agent executor
+  Options:
+    --max_replan INT [6]        Max count for replan
+
 ```
 
 
