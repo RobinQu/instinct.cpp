@@ -39,13 +39,16 @@ For library itself:
 
 Complete project plan is tracked at [Project kanban](https://github.com/users/RobinQu/projects/1/views/1?layout=board).
 
-| Milestone                                                     | Features                                                                                             | DDL  |
-|---------------------------------------------------------------|------------------------------------------------------------------------------------------------------|------|
-| v0.1.0                                                        | Long-short memory, PDF/TXT/DOCX ingestor, `Chain` programing paradigm, RAG reference app `doc-agent` | 3.29 |
-| [v0.1.1](https://github.com/RobinQu/instinct.cpp/milestone/1) | Performance tuning, RAG evaluation,  Function calling agent                                          | 4.16 |
-| [v0.1.2](https://github.com/RobinQu/instinct.cpp/milestone/2) | OpenAI Assistant API initial implementation, single-binary reference app `mini-assistant`            | 4.30 |
-| [v0.1.3](https://github.com/RobinQu/instinct.cpp/releases/tag/v0.1.3)                                                        | * `mini-assistant`:  tool calls with opensourced LLMs<br>                                            | 5.17 |
-| v0.1.4                                                        | * `doc-agent` : rerank model<br>* `mini-assistant`: `file-search` tool support.                      | 6.18 |
+| Milestone                                                    | Features                                                     | DDL           |
+|--------------------------------------------------------------|--------------------------------------------------------------|---------------|
+| v0.1.0                                                       | Long-short memory, PDF/TXT/DOCX ingestor, `Chain` programing paradigm, RAG reference app `doc-agent` | 3.29          |
+| [v0.1.1](https://github.com/RobinQu/instinct.cpp/milestone/1) | Performance tuning, RAG evaluation,  Function calling agent  | 4.16          |
+| [v0.1.2](https://github.com/RobinQu/instinct.cpp/milestone/2) | OpenAI Assistant API initial implementation, single-binary reference app `mini-assistant` | 4.30          |
+| [v0.1.3](https://github.com/RobinQu/instinct.cpp/releases/tag/v0.1.3) | * `mini-assistant`:  tool calls with opensourced LLMs<br>    | 5.17          |
+| [v0.1.4](https://github.com/RobinQu/instinct.cpp/milestone/4) | * `doc-agent` : rerank model<br>* `mini-assistant`: `file-search` tool support. | ~~6.18~~ 6.14 |
+| [v0.1.5](https://github.com/RobinQu/instinct.cpp/milestone/5) | Overall optimization                                         | 6.30          |
+| [v0.1.6](https://github.com/RobinQu/instinct.cpp/milestone/6) | `code-interpreter` in `mini-assistant`                       | 7.15          |
+
 
 
 

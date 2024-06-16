@@ -47,109 +47,50 @@ In first release of `mini-assistant`, following endpoints are supported:
   * DELETE `/files/:file_id`
   * GET `/files/:file_id`
   * GET `/files/:file_id/content`
+* VectorStore
+  * POST `/v1/vector_stores/`
+  * GET `/v1/vector_stores/`
+  * GET `/v1/vector_stores/:vector_store_id`
+  * POST `/v1/vector_stores/:vector_store_id`
+  * DELETE `/v1/vector_stores/:vector_store_id`
+  * GET `/v1/vector_stores/:vector_store_id/files`
+  * POST `/v1/vector_stores/:vector_store_id/files`
+  * GET `/v1/vector_stores/:vector_store_id/files/:file_id`
+  * DELETE `/v1/vector_stores/:vector_store_id/files/:file_id`
+  * POST `/v1/vector_stores/:vector_store_id/file_batches`
+  * GET `/v1/vector_stores/:vector_store_id/file_batches/:batch_id`
+  * POST `/v1/vector_stores/:vector_store_id/file_batches/:batch_id/cancel`
+  * GET `/v1/vector_stores/:vector_store_id/file_batches/:batch_id/files`
+
 
 ## task-queue 
 
-Task scheduling is needed in following sections:
+In `mini-assistant`, an in-process, multi-consumer task queue is created. See [ThreadPoolTaskScheduler.hpp](../modules/instinct-data/include/task_scheduler/ThreadPoolTaskScheduler.hpp) for more details.
 
-* instinct-assistant
-  * Periodic task to check status of run objects and run step objects in background.
-  * FIFO queue for execution of run object, which handles agent execution. Only one running task is allowed for single run object.
+Primary task handler classes are:
 
-### Worker queue for run objects
+* [FileObjectTaskHandler.hpp](../modules/instinct-assistant/include/assistant/v2/task_handler/FileObjectTaskHandler.hpp): To process uploaded file.
+* [RunObjectTaskHandler.hpp](../modules/instinct-assistant/include/assistant/v2/task_handler/RunObjectTaskHandler.hpp): To execute a run request for threads.
 
-#### Preconditions
-
-* run object is `queued` or `required_action`.
-* all file resources needed are alive
-
-#### Procedures
-
-* Create `IAgentExecutor` instance with given tools setup
-* Recover `AgentState` from database
-* Run `IAgentExecutor::Stream` loop.
-  * If run object is `cancelling` or `expired`, then stop. 
-  * Update status of run object to `in_progress`.
-  * if resolved step is agent thought, then
-    * create a message with thought text.
-    * create run step with status of `completed` and `step_details` with `message_creation` type.
-    * create another run step object with status of `in_progress`, create a message with `step_details` with `tool_call` type.
-      * if thought contains actions for function calls **stop**.
-      * if thought contains actions for other tool uses, then continue. As `code_interpreter` and `file_search` is triggered automatically.
-  * if resolved agent step is agent observation, then
-    * update `step_details` of last run step object.
-  * if resolved agent step is final message, then
-    * create a message object containing the final message text.
-    * create a run step with `step_details` of `message_creation` type and related `message_id`.
-    * and **stop**
-* if stopped and
-  * status of run object is `cancelling`, then update status of run object to `canclled`.
-  * final message is generated, update status of run object to `completed`. 
-  * function tool calls are required, then update status of run object to `requires_action`.
-  * error occurs during loop, update status of run object to `failed`.
+`ThreadPoolTaskScheduler` is kind of  `ILifeCycle` and it's bootstrap in main.
 
 
-#### Outcomes
-* run object should be in intermediate status other than `queued`.
-* run steps and generated messages are saved to database. 
+## tool-server
 
-### Background queue for run objects
-
-#### Preconditions
-
-* Only one thread is running this task across entire cluster.
-* Variables: 
-  * `RUN_TIMEOUT` defaults to 10min.
-
-
-#### Procedures 
-
-* Find all run objects that matches `modified_at < now() - RUN_TIMEOUT`.
-* Loop run objects found
-  * Find last run step that are `in_progress` and update them to status of `expired`.
-  * Update run object to status of `expired`.
-
-
-### Implementation notes
-
-* An in-memory local queue is preferred in `mini-assistant`. [cameron314/concurrentqueue](https://github.com/cameron314/concurrentqueue) seems to be a good option.
-* Uniform interface for task queue is needed for more scalable implementation on the cloud, where dedicated task scheduler will be used with multiple worker nodes setup. Possible options: 
-  * Celery or other task-focused frameworks.
-  * Queue facilities in distributed compute frameworks like `ray`, e.g. [ray.util.queue.Queue](https://docs.ray.io/en/latest/ray-core/api/doc/ray.util.queue.Queue.html).
-  * Custom implementation based on message broker like Kafka.  
-
-  
-### Outcomes
-
-* task and task steps that are timeout have been marked as `expired`.
-
-## `tool-server`
-
-### `file-search`
-
-Considerations:
-
-* duckdb implementation, mainly used for `mini-assistant`.
-  * For Each file object we will generate one document table and embedding table.
-  * Given only one `file_id` can be assigned to thread currently and only one process is accessing database files, we can manage all `VectorStorePtr` dynamically in memory.  e.g a map from `file_id` to `VectorStorePtr`.
-* a more scalable solution involves standalone vector database.
-  * A file object can be embedded and linked to a `collection`.
-  * Mapping from `file_id` and `collection`'s id is required.
-
-
-Primary workflows:
-
-1. File ingestion: operations in `FileBatch` and `File` endpoints will trigger `FileIngestionTaskHandler`, where file is split and transformed into embeddings.
-2. Online search: `file-search` as built-in tools in run objects if explicitly requested.
+### file-search
 
 Primary classes:
 
-* `VectorStoreController`: manage multiple `IVectorStore` instances.
-* `FileIngestionTaskHandler`: ingest uploaded file and update corresponding `IVectorStore`.
-* `FileSearchTool`: gather user query and search against given `IVectorStore`.
+* [SummaryGuidedFileSearch.hpp](../modules/instinct-assistant/include/assistant/v2/toolkit/SummaryGuidedFileSearch.hpp): Actual implementation of search tool
+* [RunObjectTaskHandler.hpp](../modules/instinct-assistant/include/assistant/v2/task_handler/RunObjectTaskHandler.hpp): Bring the search tool to user's run requests.
 
 
-### `code-interpreter`
+Search pipeline:
+
+![file_search_pipeline.png](file_search_pipeline.png)
+
+
+### code-interpreter
 
 Prompting is straightforward. The challenge would the sandbox for Python scripts.
 

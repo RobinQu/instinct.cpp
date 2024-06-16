@@ -55,6 +55,11 @@ namespace INSTINCT_RETRIEVAL_NS {
         bool create_or_replace_table = false;
 
         /**
+        * A flag to bypass table checking
+        */
+        bool bypass_table_check = false;
+
+        /**
          * Optional instance id
          */
         std::string instance_id;
@@ -316,10 +321,10 @@ namespace INSTINCT_RETRIEVAL_NS {
 
             const auto sql = details::make_create_table_sql(options_.table_name, options_.dimension, metadata_schema_, options_.create_or_replace_table);
             LOG_DEBUG("create document table with SQL if necessary: {}", sql);
-
-            const auto create_table_result = connection_.Query(sql);
-            assert_query_ok(create_table_result);
-
+            if (!options_.bypass_table_check) {
+                const auto create_table_result = connection_.Query(sql);
+                assert_query_ok(create_table_result);
+            }
             prepared_count_all_statement_ = connection_.Prepare(details::make_prepared_count_sql(options_.table_name));
             assert_prepared_ok(prepared_count_all_statement_, "Failed to prepare count statement");
         }

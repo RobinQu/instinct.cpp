@@ -85,6 +85,8 @@ namespace INSTINCT_RETRIEVAL_NS {
             auto metadata_schema = std::make_shared<MetadataSchema>(instance->metadata_schema());
             const auto embedding_model = std::invoke(embedding_model_selector_, instance_id, metadata_schema);
             DuckDBStoreOptions options;
+            // skip table creating as it should be already provisioned when calling this function
+            options.bypass_table_check = true;
             options.instance_id = instance_id;
             ConfigureDuckDBOptions(options, embedding_model);
             return CreateDuckDBVectorStore(duck_db_, embedding_model, options, metadata_schema);
