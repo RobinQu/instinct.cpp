@@ -35,8 +35,9 @@ namespace INSTINCT_CORE_NS {
     struct ManagedApplicationContext {
         std::vector<LifeCycleObjectPtr> life_cycle_managed;
 
-        void Manage(const std::shared_ptr<void>& ptr) {
-            if (const LifeCycleObjectPtr life_cycle = std::static_pointer_cast<ILifeCycle>(ptr)) {
+        template<typename T>
+        void Manage(const std::shared_ptr<T>& ptr) {
+            if (const LifeCycleObjectPtr life_cycle = std::dynamic_pointer_cast<ILifeCycle>(ptr)) {
                 life_cycle_managed.push_back(life_cycle);
             }
         }

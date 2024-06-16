@@ -192,7 +192,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 if (file_batch_object->file_counts().in_progress() == 0) {
                     ModifyVectorStoreFileBatchRequest modify_vector_store_file_batch_request;
                     modify_vector_store_file_batch_request.set_vector_store_id(file_batch_object->vector_store_id());
-                    modify_vector_store_file_batch_request.set_batch_id(modify_vector_store_file_batch_request.batch_id());
+                    modify_vector_store_file_batch_request.set_batch_id(file_batch_object->id());
                     if (file_batch_object->file_counts().cancelled() > 0) {
                         modify_vector_store_file_batch_request.set_status(VectorStoreFileBatchObject_VectorStoreFileBatchStatus_cancelled);
                     } else if (file_batch_object->file_counts().failed() > 0) {

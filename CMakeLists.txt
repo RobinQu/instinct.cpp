@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.26)
 project(instinct VERSION 0.1.0)
 
+option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
+
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 

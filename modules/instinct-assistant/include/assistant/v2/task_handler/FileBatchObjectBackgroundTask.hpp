@@ -55,7 +55,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
 
         u_int32_t GetPriority() override {
-            return STANDARD_PRIORITY;
+            return LOWEST_PRIORITY;
         }
 
         bool IsRunning() override {
@@ -66,10 +66,12 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             running_ = true;
             thread_ = std::thread([&] {
                 while (running_) {
+                    // sleep first for initial delay
+                    std::this_thread::sleep_for(options_.interval_);
+                    // handle wrapped by cpptrace
                     CPPTRACE_WRAP_BLOCK(
                         Handle();
                     );
-                    std::this_thread::sleep_for(options_.interval_);
                 }
             });
             LOG_INFO("FileBatchObjectBackgroundTask started");

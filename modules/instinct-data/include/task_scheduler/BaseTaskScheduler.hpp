@@ -37,7 +37,6 @@ namespace INSTINCT_DATA_NS {
             }
         }
 
-
         bool RegisterHandler(const TaskHandlerPtr &handler) override {
             task_handlers_.push_back(handler);
             return true;

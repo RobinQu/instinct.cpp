@@ -27,8 +27,8 @@ add_library(instinct::transformer
 include(FetchContent)
 FetchContent_Declare(
         ggml
-        GIT_REPOSITORY https://github.com/RobinQu/ggml.git
-        GIT_TAG 77c2778
+        GIT_REPOSITORY https://github.com/ggerganov/ggml.git
+        GIT_TAG f5c9599
         FIND_PACKAGE_ARGS # will invoke find_package first
 )
 FetchContent_MakeAvailable(ggml)
