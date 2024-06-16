@@ -33,9 +33,10 @@ docker buildx build --push --platform=linux/amd64,linux/arm64 -t robinqu/instinc
 To run `mini-assistant`:
 
 ```shell
-docker run robinqu/mini-assistant:latest \
+docker run \
   -v /tmp/mini-assistant:/data \
-  -p 9091:9091
+  -p 9091:9091 \
+  robinqu/instinct-mini-assistant:latest \
   --file_store_path=/tmp/mini-assistant-files/ \
   --db_file_path=/tmp/mini-assistant.db -p 9091
 ```

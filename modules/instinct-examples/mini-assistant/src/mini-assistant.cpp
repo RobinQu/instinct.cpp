@@ -87,7 +87,7 @@ namespace instinct::examples::mini_assistant {
             context.db_migration = std::make_shared<assistant::DBMigration<duckdb::Connection, duckdb::unique_ptr<duckdb::MaterializedQueryResult>>>(options_.db_file_path, context.connection_pool);
 
             // configure task scheduler
-            context.task_scheduler = CreateThreadPoolTaskScheduler();
+            context.task_scheduler = CreateThreadPoolTaskScheduler(std::min(10u, std::thread::hardware_concurrency()));
             context.task_scheduler->Start();
 
             // configure services
