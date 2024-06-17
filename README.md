@@ -50,8 +50,41 @@ Complete project plan is tracked at [Project kanban](https://github.com/users/Ro
 | [v0.1.6](https://github.com/RobinQu/instinct.cpp/milestone/6) | `code-interpreter` in `mini-assistant`                       | 7.15          |
 
 
-
-
-
-
 Contributions are welcomed! You can join [discord server](https://discord.gg/2jnyqY9sbC), or contact me via [email](mailto:robinqu@gmail.com).
+
+
+# Acknowledgements
+
+This project could not be possible without following awesome projects.
+
+* [bshoshany-thread-pool](https://github.com/bshoshany/thread-pool)
+* [base64](https://github.com/aklomp/base64)
+* [chatllm.cpp](https://github.com/foldl/chatllm.cpp)
+* [concurrentqueue](https://github.com/cameron314/concurrentqueue)
+* [cpptrace](https://github.com/jeremy-rifkin/cpptrace)
+* [corssguid](https://github.com/graeme-hill/crossguid)
+* [cpp-httplib](https://github.com/yhirose/cpp-httplib)
+* [duckx](https://github.com/amiremohamadi/DuckX)
+* [DuckDB](https://duckdb.org/)
+* [exprtk](https://github.com/ArashPartow/exprtk)
+* [fmt](https://github.com/MengRao/fmtlog)
+* [fmtlog](https://github.com/MengRao/fmtlog)
+* [hash_library](https://github.com/stbrumme/hash-library)
+* [icu](https://github.com/unicode-org/icu/)
+* [inja](https://pantor.github.io/inja/)
+* [libcurl](https://curl.se/libcurl/c/)
+* [llama.cpp](https://github.com/ggerganov/llama.cpp/)
+* [nlohmann_json](https://github.com/nlohmann/json)
+* [protobuf](https://github.com/protocolbuffers/protobuf)
+* [pdfium](https://pdfium.googlesource.com/pdfium)
+* [reactiveplusplus](https://github.com/victimsnino/ReactivePlusPlus)
+* [tsl-ordered-map](https://github.com/Tessil/ordered-map)
+* [uniparser](https://uriparser.github.io/)
+
+
+And many thanks to the shared training checkpoints from:
+
+* https://huggingface.co/BAAI/bge-m3
+* https://huggingface.co/BAAI/bge-reranker-v2-m3
+
+**All lists is sorted alphabetically.**
