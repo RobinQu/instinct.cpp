@@ -6,7 +6,7 @@
 #define LOCALRANKINGMODEL_HPP
 
 #include "./BaseRankingModel.hpp"
-#include "model.hpp"
+#include "models.hpp"
 #include "model_factory.hpp"
 #include "tools/file_vault/FileSystemFileVault.hpp"
 

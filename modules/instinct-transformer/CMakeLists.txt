@@ -7,11 +7,12 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/config.hpp
         include/ops.hpp
         include/layers.hpp
-        include/model.hpp
+        include/models.hpp
         include/tokenizer.hpp
-        include/models/bge_m3.hpp
+        include/models/bge_ranker.hpp
         include/globals.hpp
         include/model_factory.hpp
+        include/models/bge_embedding.hpp
 )
 
 add_library(

@@ -33,7 +33,6 @@ namespace INSTINCT_TRANSFORMER_NS {
         }
     };
 
-
     TEST_F(BGEM3RankerTest, test_encoder) {
         ASSERT_EQ(
             tokenizer_->encode("hello"),

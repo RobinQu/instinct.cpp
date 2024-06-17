@@ -253,7 +253,8 @@ namespace INSTINCT_TRANSFORMER_NS::models {
 
     enum ModelType {
         UNKNOWN = 0,
-        BGE_M3_RERANKER = 0x10000103
+        BGE_M3_RERANKER = 0x10000103,
+        BGE_M3_EMBEDDING = 0x10000100
     };
 
     enum ModelPurpose
@@ -282,10 +283,10 @@ namespace INSTINCT_TRANSFORMER_NS::models {
 
 
     template<typename TransformerModel>
-    class BaseGnerationModel: public BaseModel {
+    class BaseGenerationModel: public BaseModel {
     public:
 
-        BaseGnerationModel(
+        BaseGenerationModel(
             const ModelType model_type,
             const ModelPurpose model_purpose,
             const BaseConfig& config,
@@ -363,6 +364,57 @@ namespace INSTINCT_TRANSFORMER_NS::models {
         float logit_scale;
         std::vector<int> layer_ids;
     };
+
+
+    template<typename FinalBlock>
+    requires std::derived_from<FinalBlock, Block>
+    class XLMRoberta final: public Block {
+        BaseConfig config_;
+    public:
+        XLMRoberta(InitContext* init_context, const BaseConfig& config):
+                config_(config),
+                word_embeddings(init_context, config.vocab_size, config.hidden_size, config.max_length),
+                layers(),
+                final(init_context, config.hidden_size)
+        {
+            layers.reserve(config.num_hidden_layers);
+            for(int layer_id=0; layer_id<config_.num_hidden_layers; ++layer_id) {
+                layers.emplace_back(
+                        init_context,
+                        config.hidden_size,
+                        config.num_attention_heads,
+                        config.intermediate_size,
+                        config.num_attention_heads,
+                        config.max_length
+                );
+                layers[layer_id].set_id(layer_id);
+            }
+        }
+
+        ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *input_ids, int n_past) override {
+            ggml_tensor *hidden_states = word_embeddings.forward(ctx, input_ids, n_past);
+            for (auto &layer : layers) {
+                ggml_set_scratch(ctx->g_ctx, ctx->g_scratch);
+                hidden_states = layer.forward(ctx, hidden_states, n_past);
+            }
+            return final_steps(ctx, input_ids, hidden_states);
+        }
+
+        RobertaEmbedding word_embeddings;
+        std::vector<RobertaBlock> layers;
+        // RobertaClassificationHead final;
+        FinalBlock final;
+
+    private:
+        ggml_tensor *final_steps(ForwardContext *ctx, ggml_tensor *input_ids, ggml_tensor *hidden_states)
+        {
+            ggml_set_scratch(ctx->g_ctx, {.offs = 0, .size = 0, .data = nullptr});
+            ggml_tensor *transformer_outputs = final.forward(ctx, hidden_states);
+            return transformer_outputs;
+        }
+
+    };
+
 
 
 }

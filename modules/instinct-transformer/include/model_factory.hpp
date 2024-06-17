@@ -6,10 +6,10 @@
 #define MODEL_FACTORY_HPP
 
 #include "./globals.hpp"
-#include "./model.hpp"
+#include "./models.hpp"
 #include "./tokenizer.hpp"
 #include "./config.hpp"
-#include "models/bge_m3.hpp"
+#include "models/bge_ranker.hpp"
 
 namespace INSTINCT_TRANSFORMER_NS {
     using namespace INSTINCT_TRANSFORMER_NS::tokenizer;
@@ -66,7 +66,11 @@ namespace INSTINCT_TRANSFORMER_NS {
             switch (model_type) {
                 case ModelType::BGE_M3_RERANKER: {
                     GGML_ASSERT(version == 1);
-                    return load_<bge::Tokenizer, bge::BGEM3RerankerModel, bge::Config>(*loader);
+                    return load_<bge::ranker::Tokenizer, bge::ranker::BGERerankerModel, bge::ranker::Config>(*loader);
+                }
+                case ModelType::BGE_M3_EMBEDDING: {
+                    GGML_ASSERT(version == 1);
+                    return load_<bge::embedding::Tokenizer, bge::embedding::BGEEmbeddingModel, bge::embedding::Config>(*loader);
                 }
                 default:
                     // TODO throw exception

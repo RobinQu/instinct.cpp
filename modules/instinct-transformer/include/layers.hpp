@@ -9,6 +9,8 @@
 #include <iostream>
 #include <cmath>
 
+#include "ops.hpp"
+
 namespace INSTINCT_TRANSFORMER_NS::layers {
     enum ActFunc {
         GELU,
@@ -542,6 +544,159 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
     private:
         ggml_tensor *last_attn_scores;
     };
+
+
+
+    class RobertaSelfAttention final: public BaseSelfAttention<BaseCachelessAttention> {
+    public:
+        RobertaSelfAttention(InitContext *ctx, int hidden_size, int num_attention_heads, int max_length)
+                : RobertaSelfAttention(ctx, hidden_size, num_attention_heads, num_attention_heads, max_length) {}
+
+        RobertaSelfAttention(InitContext *ctx, int hidden_size, int num_attention_heads, int num_kv_heads, int max_length)
+                : RobertaSelfAttention(ctx, hidden_size, num_attention_heads, num_kv_heads, max_length, true, true) {}
+
+        RobertaSelfAttention(InitContext *ctx, int hidden_size, int num_attention_heads, int num_kv_heads, int max_length, bool qkv_bias, bool o_bias)
+                : BaseSelfAttention(ctx, hidden_size, num_attention_heads, num_kv_heads, max_length, qkv_bias, o_bias)
+        {
+            causal_ = false;
+        }
+
+    protected:
+        // input & output: [qlen, heads, head_size]
+        ggml_tensor *apply_pos_embedding_k(ForwardContext *ctx, ggml_tensor *k, int hidden_size, int qlen, ggml_tensor * past) const override
+        {
+            return k;
+        }
+        ggml_tensor *apply_pos_embedding_q(ForwardContext *ctx, ggml_tensor *q, int hidden_size, int qlen, ggml_tensor * past) const override
+        {
+            return q;
+        }
+
+    };
+
+
+    class RobertaOutput final: public Block {
+    public:
+
+        RobertaOutput(InitContext *ctx, int hidden_size, bool use_bias = true): RobertaOutput(ctx, hidden_size, hidden_size, use_bias) {}
+
+        RobertaOutput(InitContext *init_context, int hidden_size, int intermediate_size, bool use_bias = true):
+                dense(init_context, intermediate_size, hidden_size, nullptr, use_bias),
+                norm(init_context, hidden_size) {}
+
+        ggml_tensor *Forward(ForwardContext *ctx, ggml_tensor *hidden_states, ggml_tensor *attention_output) {
+            ggml_tensor *r = dense.forward(ctx, hidden_states);
+            r = ggml_add_inplace(ctx->g_ctx, r, attention_output);
+            r = norm.forward(ctx, r);
+            return r;
+        }
+
+        Linear dense;
+        LayerNorm norm;
+
+    };
+
+
+    class RobertaMLP final: public Block {
+    public:
+        RobertaMLP(InitContext* init_context, int hidden_size, int intermediate_size):
+                RobertaMLP(init_context, hidden_size, intermediate_size, ActFunc::GELU, true) {}
+
+        RobertaMLP(InitContext* init_context, int hidden_size, int intermediate_size, ActFunc act, bool bias):
+                intermediate(init_context, hidden_size, intermediate_size, nullptr, bias),
+                output(init_context, hidden_size, intermediate_size, bias),
+                act(act) {}
+
+
+        ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *hidden_states) override {
+            ggml_tensor *temp = intermediate.forward(ctx, hidden_states);
+            temp = inplace_act(ctx->g_ctx, act, temp);
+            temp = output.Forward(ctx, temp, hidden_states);
+            return temp;
+        }
+
+        Linear intermediate;
+        RobertaOutput output;
+        ActFunc act;
+    };
+
+
+    class RobertaBlock final: public Block {
+    public:
+        RobertaBlock(InitContext *ctx, int hidden_size, int num_attention_heads, int intermediate_size, int num_kv_heads, int max_length)
+                : RobertaBlock(ctx, hidden_size, num_attention_heads, intermediate_size, num_kv_heads, max_length, true, true)
+        {}
+
+        RobertaBlock(InitContext* init_context, int hidden_size, int num_attention_heads, int intermediate_size, int num_kv_heads, int max_length, bool qkv_bias, bool o_bias):
+                attention(init_context, hidden_size, num_attention_heads, num_kv_heads, max_length, qkv_bias, o_bias),
+                post_attention_layer_norm(init_context, hidden_size),
+                mlp(init_context, hidden_size, intermediate_size),
+                output_layer_norm(init_context, hidden_size)
+        {}
+
+        ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *hidden_states, int n_past) override {
+            ggml_tensor *attn_outputs = attention.forward(ctx, hidden_states, n_past);
+
+            // see XLMRobertaSelfOutput
+            ggml_tensor *sum = ggml_add(ctx->g_ctx, hidden_states, attn_outputs);
+            ggml_tensor *attention_output = post_attention_layer_norm.forward(ctx, sum);
+
+            ggml_tensor *r = mlp.forward(ctx, attention_output);
+            return r;
+        }
+
+
+        RobertaSelfAttention attention;
+        LayerNorm post_attention_layer_norm;
+        RobertaMLP mlp;
+        LayerNorm output_layer_norm;
+
+    };
+
+
+    class RobertaClassificationHead final: public Block {
+    public:
+        RobertaClassificationHead()=default;
+        RobertaClassificationHead(InitContext *init_context, int hidden_size):
+                dense(init_context, hidden_size, hidden_size, nullptr),
+                activation(ActFunc::Tanh),
+                out_proj(init_context, hidden_size, 1, nullptr)
+        {}
+
+
+        ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *hidden_states) override {
+            int hidden_size = (int)hidden_states->ne[0];
+
+            // We "pool" the model by simply taking the hidden state corresponding to the first token.
+            ggml_tensor *first_token_tensor = ggml_view_2d(ctx->g_ctx, hidden_states, hidden_size, 1,
+                                                           hidden_size * ggml_element_size(hidden_states), 0);
+            ggml_tensor *output = dense.forward(ctx, first_token_tensor);
+            output = inplace_act(ctx->g_ctx, activation, output);
+            output = out_proj.forward(ctx, output);
+            output = ggml_map_custom1(ctx->g_ctx, output, ops::ggml_compute_forward_sigmoid, 1, nullptr);
+            return output;
+        }
+
+        Linear dense;
+        ActFunc activation = ActFunc::Tanh;
+        Linear out_proj;
+    };
+
+    class BCEFinalNorm final: public Block
+    {
+    public:
+        BCEFinalNorm() = default;
+        BCEFinalNorm(InitContext *ctx, int hidden_size) {}
+
+        ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *hidden_states) override {
+            int hidden_size = (int)hidden_states->ne[0];
+            ggml_tensor *first_token_tensor = ggml_view_1d(ctx->g_ctx, hidden_states, hidden_size, 0);
+            ggml_tensor *output = ggml_map_custom1(ctx->g_ctx, first_token_tensor, ops::ggml_compute_forward_simple_norm, 1, this);
+            return output;
+        }
+    };
+
+
 }
 
 #endif //CXX_TEST_LAYERS_HPP
