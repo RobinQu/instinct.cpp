@@ -33,6 +33,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/chain/SummaryChain.hpp
         include/RetrieverObjectFactory.hpp
         include/chain/CitationAnnotatingChain.hpp
+        include/retrieval/duckdb/DuckDBBM25Retriever.hpp
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC
