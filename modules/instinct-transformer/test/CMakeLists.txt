@@ -22,7 +22,15 @@ FetchContent_Declare(
         DOWNLOAD_DIR ${ASSETS_DIR}/model_bins/
         DOWNLOAD_NO_EXTRACT TRUE
 )
-FetchContent_MakeAvailable(bge-reranker-v2-m3.bin)
+FetchContent_Declare(
+        bge-m3e.bin
+        URL https://huggingface.co/robinqu/baai-bge-m3-guff/resolve/main/bge-m3e.bin?download=true
+        URL_HASH    SHA256=982c136f3804b008fe5a2e7a46fafcc5624277aa0c856bb8ce7bfc521fd4bdfb
+        DOWNLOAD_NAME bge-m3e.bin
+        DOWNLOAD_DIR ${ASSETS_DIR}/model_bins/
+        DOWNLOAD_NO_EXTRACT TRUE
+)
+FetchContent_MakeAvailable(bge-reranker-v2-m3.bin bge-m3e.bin)
 
 
 # from list of files we'll create tests test_name.cpp -> test_name

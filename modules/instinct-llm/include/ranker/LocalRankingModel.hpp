@@ -21,10 +21,8 @@ namespace INSTINCT_LLM_NS {
         ModelPtr model_;
         std::mutex run_mutex_;
     public:
-        explicit LocalRankingModel(const ModelType model_type, const FileVaultPtr& file_vault) {
-            const auto resource_name = "model_bins/" + to_file_name(model_type);
-            const auto entry = file_vault->GetResource(resource_name).get();
-            std::tie(model_, tokenizer_) = ModelFactory::GetInstance().load(entry.local_path);
+        explicit LocalRankingModel(const std::filesystem::path& model_file_path) {
+            std::tie(model_, tokenizer_) = ModelFactory::GetInstance().load(model_file_path);
         }
 
         float GetRankingScore(const std::string &query, const std::string &doc) override {
@@ -49,8 +47,12 @@ namespace INSTINCT_LLM_NS {
     }
 
     static RankingModelPtr CreateLocalRankingModel(const ModelType model_type, const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
+        static std::mutex FILE_MUTEX;
+        std::lock_guard file_lock {FILE_MUTEX};
         PreloadRankingModelFiles(file_vault);
-        return std::make_shared<LocalRankingModel>(model_type, file_vault);
+        const auto resource_name = "model_bins/" + to_file_name(model_type);
+        const auto entry = file_vault->GetResource(resource_name).get();
+        return std::make_shared<LocalRankingModel>(entry.local_path);
     }
 
 }

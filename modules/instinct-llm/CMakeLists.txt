@@ -83,6 +83,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/ranker/BaseRankingModel.hpp
         include/model/IRankingModel.hpp
         include/ranker/LocalRankingModel.hpp
+        include/embedding_model/LocalEmbeddingModel.hpp
 )
 
 find_package(exprtk REQUIRED)

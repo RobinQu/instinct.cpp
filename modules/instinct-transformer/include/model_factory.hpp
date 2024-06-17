@@ -19,12 +19,16 @@ namespace INSTINCT_TRANSFORMER_NS {
         if (model_type == ModelType::BGE_M3_RERANKER) {
             return "bge-reranker-v2-m3.bin";
         }
+        if (model_type == ModelType::BGE_M3_EMBEDDING) {
+            return "bge-m3e.bin";
+        }
+
         throw std::runtime_error("unknown model type");
     }
 
 
     /**
-     * A factory class that manages lifecycle of model instantces
+     * A factory class that manages lifecycle of model instances
      */
     class ModelFactory {
         /**

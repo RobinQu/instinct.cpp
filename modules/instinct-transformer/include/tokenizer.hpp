@@ -275,8 +275,6 @@ namespace INSTINCT_TRANSFORMER_NS::tokenizer {
     public:
         Processor *tp;
     protected:
-//    std::string sys_prompt;
-//        int history_offset;
         const int max_length;
         bool auto_add_bos;
         std::set<int> terminate_ids;

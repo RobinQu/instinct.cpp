@@ -254,7 +254,7 @@ namespace INSTINCT_TRANSFORMER_NS::models {
     enum ModelType {
         UNKNOWN = 0,
         BGE_M3_RERANKER = 0x10000103,
-        BGE_M3_EMBEDDING = 0x10000100
+        BGE_M3_EMBEDDING = 0x10000102
     };
 
     enum ModelPurpose
@@ -273,7 +273,8 @@ namespace INSTINCT_TRANSFORMER_NS::models {
         virtual ~BaseModel()=default;
         virtual void load(ModelLoader& loader) = 0;
         virtual float qa_rank(const GenerationConfig& generation_config, const std::vector<int> &input_ids) = 0;
-        virtual void text_embedding(const GenerationConfig& generation_config, const std::vector<int>& input_ids, std::vector<float>& output_embeding) = 0;
+        virtual void text_embedding(const GenerationConfig& generation_config, const std::vector<int>& input_ids, std::vector<float>& output_embedding) = 0;
+        virtual size_t get_text_embedding_dim() { return 0; }
     protected:
         ModelType model_type_;
         ModelPurpose model_purpose_;
@@ -319,8 +320,11 @@ namespace INSTINCT_TRANSFORMER_NS::models {
         }
 
         void text_embedding(const GenerationConfig &generation_config, const std::vector<int> &input_ids,
-            std::vector<float> &output_embeding) override {
-            throw std::runtime_error("not implemented");
+            std::vector<float> &output_embedding) override {
+            const ggml_tensor *lm = run_model(input_ids, generation_config, 0);
+            GGML_ASSERT(lm->type == GGML_TYPE_F32);
+            output_embedding.resize(lm->ne[0]);
+            memcpy(output_embedding.data(), lm->data, output_embedding.size() * sizeof(output_embedding[0]));
         }
 
     protected:

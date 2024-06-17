@@ -21,7 +21,7 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge::embedding {
 
     class Tokenizer: public BaseTokenizer {
     public:
-        explicit Tokenizer(const BaseConfig &config) : BaseTokenizer(config) {}
+        explicit Tokenizer(const Config &config) : BaseTokenizer(config) {}
 
         size_t load(const char *buffer, const int n_vocab) override {
             tp = new UnigramProcessor(eos_token_id + 1);
@@ -59,19 +59,19 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge::embedding {
     class BGEEmbeddingModel final: public BaseGenerationModel<XLMRoberta<BCEFinalNorm>> {
     public:
         static constexpr size_t MEM_SIZE = 812ull * 1024 * 1024;
-        static constexpr size_t SCRATCH_SIZE = 44ull * 1024 * 1024;
+        static constexpr size_t SCRATCH_SIZE = 544ull * 1024 * 1024;
 
         explicit BGEEmbeddingModel(const Config& config, const size_t mem_size = MEM_SIZE, const size_t scratch_size = SCRATCH_SIZE):
             BaseGenerationModel(BGE_M3_EMBEDDING, TextEmbedding, config, mem_size, scratch_size),
             w_ctx_({
-                ggml_init({.mem_size = (GGML_TENSOR_SIZE + GGML_OBJECT_SIZE) * (5 + config.num_attention_heads * 19), .mem_buffer = nullptr, .no_alloc = true}),
+                ggml_init({.mem_size = (GGML_TENSOR_SIZE + GGML_OBJECT_SIZE) * (5 + config.num_hidden_layers * 19), .mem_buffer = nullptr, .no_alloc = true}),
                 config.dtype
             }),
             transformer_(&w_ctx_, config)
          {}
 
         void load(ModelLoader &loader) override {
-loader.read_tensor("embeddings.word_embeddings.weight",         transformer_.word_embeddings.word_weight);
+            loader.read_tensor("embeddings.word_embeddings.weight",         transformer_.word_embeddings.word_weight);
             loader.read_tensor("embeddings.position_embeddings.weight",     transformer_.word_embeddings.position_weight);
             loader.read_tensor("embeddings.LayerNorm.weight",               transformer_.word_embeddings.ln.weight);
             loader.read_tensor("embeddings.LayerNorm.bias",                 transformer_.word_embeddings.ln.bias);
@@ -104,6 +104,10 @@ loader.read_tensor("embeddings.word_embeddings.weight",         transformer_.wor
 
         XLMRoberta<BCEFinalNorm> & get_transformer() override {
             return transformer_;
+        }
+
+        size_t get_text_embedding_dim() override {
+            return config_.hidden_size;
         }
 
     private:

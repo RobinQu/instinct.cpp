@@ -20,11 +20,11 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge::ranker {
     using namespace INSTINCT_TRANSFORMER_NS::models;
     using namespace INSTINCT_TRANSFORMER_NS::tokenizer;
 
-    struct Config: public BaseConfig {};
+    struct Config: public embedding::Config {};
 
     class Tokenizer final: public embedding::Tokenizer {
     public:
-        explicit Tokenizer(const BaseConfig &config)
+        explicit Tokenizer(const Config &config)
             : embedding::Tokenizer(config) {
         }
 
