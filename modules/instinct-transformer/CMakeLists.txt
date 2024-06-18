@@ -26,6 +26,8 @@ add_library(instinct::transformer
 
 
 include(FetchContent)
+SET(GGML_METAL ON)
+SET(GGML_PERF ON)
 FetchContent_Declare(
         ggml
         GIT_REPOSITORY https://github.com/ggerganov/ggml.git
@@ -42,6 +44,7 @@ target_include_directories(${LIBRARY_TARGET_NAME}
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         ggml
+        instinct::core
 )
 
 install(TARGETS ${LIBRARY_TARGET_NAME}

@@ -36,28 +36,26 @@ namespace INSTINCT_SERVER_NS {
     using HttpLibController = HttpController<HttpLibServer>;
     using HttpLibControllerPtr = std::shared_ptr<HttpLibController>;
 
+
+    class log_guard {
+        std::string method_;
+        std::string path_;
+    public:
+        log_guard(std::string method, std::string path)
+            : method_(std::move(method)),
+              path_(std::move(path)) {
+            LOG_DEBUG("--> {} {}", method_, path_);
+        }
+
+        ~log_guard() {
+            LOG_DEBUG("<-- {} {}", method_, path_);
+        }
+    };
+
     class HttpLibServer final: public IManagedServer<HttpLibServer>, public std::enable_shared_from_this<HttpLibServer>{
         ServerOptions options_;
         Server server_;
         HttpLibServerLifeCycleManager life_cycle_manager_;
-
-
-        class log_guard {
-            std::string method_;
-            std::string path_;
-        public:
-            log_guard(std::string method, std::string path)
-                : method_(std::move(method)),
-                  path_(std::move(path)) {
-                LOG_DEBUG("--> {} {}", method_, path_);
-            }
-
-            ~log_guard() {
-                LOG_DEBUG("<-- {} {}", method_, path_);
-            }
-        };
-
-
     public:
         static void RegisterSignalHandlers() {
             static bool DONE = false;
@@ -91,23 +89,6 @@ namespace INSTINCT_SERVER_NS {
             });
             life_cycle_manager_.OnServerCreated(*this);
         }
-        //
-        // void Stop() override {
-        //     Shutdown();
-        // }
-        //
-        // void Start() override {
-        //     BindAndListen();
-        // }
-        //
-        // u_int32_t GetPriority() override {
-        //     // as it will block main thread, it should start at last
-        //     return LOWEST_PRIORITY;
-        // }
-        //
-        // bool IsRunning() override {
-        //     return server_.is_running();
-        // }
 
         int Bind() override {
             int port;
@@ -139,7 +120,7 @@ namespace INSTINCT_SERVER_NS {
 
         void Use(const MountablePtr<HttpLibServer> &mountable) override {
             if (const auto controller = std::dynamic_pointer_cast<HttpLibController>(mountable)) {
-                life_cycle_manager_.AddServerLifeCylce(controller);
+                life_cycle_manager_.AddServerLifeCycle(controller);
                 controller->Mount(*this);
             } else {
                 mountable->Mount(*this);

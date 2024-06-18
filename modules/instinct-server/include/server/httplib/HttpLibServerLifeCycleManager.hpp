@@ -21,7 +21,7 @@ namespace INSTINCT_SERVER_NS {
 
     public:
 
-        void AddServerLifeCylce(const HttpLibServerLifeCyclePtr& server_life_cycle) {
+        void AddServerLifeCycle(const HttpLibServerLifeCyclePtr& server_life_cycle) {
             server_life_cycles_.push_back(server_life_cycle);
         }
 

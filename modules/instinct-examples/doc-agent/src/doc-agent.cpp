@@ -272,11 +272,10 @@ Standalone question:)",
 
     static void BuildEmbeddingProviderOptionGroup(CLI::Option_group* llm_provider_ogroup,
                                             LLMProviderOptions& provider_options) {
-        llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported. Defaults to a local running Ollama service using llama2:latest model.");
+        llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported.");
         llm_provider_ogroup->add_option("--embedding_model_provider", provider_options.provider,
                                         "Specify embedding model to use. ")
-                ->check(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case))
-                ->default_val("ollama");
+                ->transform(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case));
 
         llm_provider_ogroup->add_option("--embedding_model_api_key", provider_options.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL.");
         llm_provider_ogroup->add_option("--embedding_model_host", provider_options.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.");
@@ -292,7 +291,7 @@ Standalone question:)",
         llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported. Defaults to a local running Ollama service using llama2:latest model.");
         llm_provider_ogroup
             ->add_option("--chat_model_provider", provider_options.provider, "Specify chat model to use for chat completion. ")
-            ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));;
+            ->transform(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case));
         llm_provider_ogroup->add_option("--chat_model_api_key", provider_options.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL.");
         llm_provider_ogroup->add_option("--chat_model_host", provider_options.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.");
         llm_provider_ogroup->add_option("--chat_model_port", provider_options.endpoint.port, "Port number for API service.");

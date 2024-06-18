@@ -61,7 +61,7 @@ namespace INSTINCT_SERVER_NS {
                     LOG_ERROR("Failed request in ChatCompletionController. ex.what={}", ex.what());
                     error_response["message"] = ex.what();
                 } catch (...) {
-                    error_response["message"] = "unkown exception occured.";
+                    error_response["message"] = "unknown exception occurred.";
                 }
                 res.set_content(error_response.dump(), HTTP_CONTENT_TYPES.at(kJSON));
             });
@@ -69,8 +69,7 @@ namespace INSTINCT_SERVER_NS {
 
         void Mount(HttpLibServer &server) override {
             server.GetHttpLibServer().Post("/v1/chat/completions", [&](const Request& req, Response& resp) {
-                long t1 = ChronoUtils::GetCurrentTimeMillis();
-                LOG_DEBUG("--> REQ /v1/chat/completions, req={}", req.body);
+                log_guard log {req.method, req.path};
                 const auto openai_req = ProtobufUtils::Deserialize<OpenAIChatCompletionRequest>(req.body);
                 const auto openai_response = chain_->Invoke(openai_req);
                 if(openai_req.stream()) {
@@ -79,7 +78,6 @@ namespace INSTINCT_SERVER_NS {
                 } else {
                     resp.set_content(ProtobufUtils::Serialize(openai_response), HTTP_CONTENT_TYPES.at(kJSON));
                 }
-                LOG_DEBUG("<-- RESP /v1/chat/completions, res={}, rt={}", resp.body, ChronoUtils::GetCurrentTimeMillis()-t1);
             });
         }
     };
@@ -94,11 +92,7 @@ namespace INSTINCT_SERVER_NS {
             fn
         );
         return std::make_shared<ChatCompletionController>(chain);
-
     }
-
-
-
 
 }
 

@@ -26,6 +26,7 @@ namespace INSTINCT_LLM_NS {
         }
 
         float GetRankingScore(const std::string &query, const std::string &doc) override {
+            trace_span span {"GetRankingScore"};
             // TODO remove this lock by using multi-instance or batching.
             std::lock_guard guard {run_mutex_};
             constexpr GenerationConfig config {};

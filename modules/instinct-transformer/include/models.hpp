@@ -28,7 +28,7 @@ namespace INSTINCT_TRANSFORMER_NS::models {
 //    int top_k;
 //    float top_p;
 //    float temperature;
-        int num_threads;
+        unsigned int num_threads;
 //    float presence_penalty;
 //    float tfs_z;
 //    std::string sampling;

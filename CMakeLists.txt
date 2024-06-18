@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.26)
 project(instinct VERSION 0.1.0)
 
-option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
-
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -52,7 +50,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 
 option(BUILD_TESTING "Create tests using CMake" ON)
-option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" ON)
+option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" OFF)
 
 
 # enable RPATH support for installed binaries and libraries

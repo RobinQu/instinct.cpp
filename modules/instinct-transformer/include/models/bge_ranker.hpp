@@ -60,7 +60,7 @@ namespace INSTINCT_TRANSFORMER_NS::models::bge::ranker {
     class BGERerankerModel final: public BaseGenerationModel<XLMRoberta<RobertaClassificationHead>> {
     public:
         static constexpr size_t MEM_SIZE = 812ull * 1024 * 1024;
-        static constexpr size_t SCRATCH_SIZE = 544ull * 1024 * 1024;
+        static constexpr size_t SCRATCH_SIZE = 544ull * 1024 * 1024 * 3;
 
         explicit BGERerankerModel(const Config& config, const size_t mem_size = MEM_SIZE, const size_t scratch_size = SCRATCH_SIZE):
             BaseGenerationModel(BGE_M3_RERANKER, Ranker, config, mem_size, scratch_size),
