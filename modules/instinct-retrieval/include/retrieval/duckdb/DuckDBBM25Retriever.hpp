@@ -9,7 +9,9 @@
 
 #include "RetrievalGlobals.hpp"
 #include "../BaseRetriever.hpp"
+#include "store/IVectorStore.hpp"
 #include "store/duckdb/DuckDBDocStore.hpp"
+#include "store/duckdb/DuckDBVectorStore.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
     struct DuckDBBM25RetrieverOptions {
@@ -29,17 +31,26 @@ namespace INSTINCT_RETRIEVAL_NS {
     * https://duckdb.org/docs/extensions/full_text_search.html
     */
     class DuckDBBM25Retriever final: public BaseStatefulRetriever {
-        std::shared_ptr<DuckDBDocStore> doc_store_;
+        DocStorePtr doc_store_;
         DuckDBBM25RetrieverOptions options_;
-
+        DuckDBPtr duck_db_;
+        std::unique_ptr<Connection> connection_;
+        std::string table_name_;
     public:
         DuckDBBM25Retriever(const DocStorePtr& doc_store, DuckDBBM25RetrieverOptions options)
-            : doc_store_(nullptr),
+            : doc_store_(doc_store),
               options_(std::move(options)) {
-            const auto ptr = std::dynamic_pointer_cast<DuckDBDocStore>(doc_store);
-            assert_true(ptr, "should assign a pointer to DuckDBDocStore");
-            doc_store_ = ptr;
-            const auto init_result = doc_store_->GetConnection().Query(R"(INSTALL fts;
+            if (const auto ptr = std::dynamic_pointer_cast<DuckDBDocStore>(doc_store)) {
+                duck_db_ = ptr->GetDuckDB();
+                table_name_ = ptr->GetOptions().table_name;
+            }
+            if (const auto ptr = std::dynamic_pointer_cast<DuckDBVectorStore>(doc_store)) {
+                duck_db_ = ptr->GetDuckDB();
+                table_name_ = ptr->GetOptions().table_name;
+            }
+            assert_true(duck_db_, "should assign a pointer to DuckDBDocStore or DuckDBVectorStore");
+            connection_ = std::make_unique<Connection>(*duck_db_);
+            const auto init_result = connection_->Query(R"(INSTALL fts;
 LOAD fts;)");
             assert_query_ok(init_result);
             if (options_.auto_build) {
@@ -49,7 +60,7 @@ LOAD fts;)");
 
         void BuildIndex(bool overwrite = true) const {
             fmt::dynamic_format_arg_store<fmt::format_context> store;
-            store.push_back(fmt::arg("table_name", doc_store_->GetOptions().table_name));
+            store.push_back(fmt::arg("table_name", table_name_));
             store.push_back(fmt::arg("id_column_name", options_.id_column_name));
             store.push_back(fmt::arg("text_column_name", options_.text_column_name));
             store.push_back(fmt::arg("stemmer", options_.stemmer));
@@ -59,21 +70,21 @@ LOAD fts;)");
             store.push_back(fmt::arg("overwrite", overwrite));
             const auto sql = fmt::vformat(R"(PRAGMA create_fts_index({table_name}, {id_column_name}, {text_column_name}, stemmer='{stemmer}', stopwords='{stopwords}', strip_accents={strip_accents}, lower={lower}, overwrite={overwrite});)", store);
             trace_span span {"BuildIndex with sql " + sql};
-            const auto result = doc_store_->GetConnection().Query(sql);
+            const auto result = connection_->Query(sql);
             assert_query_ok(result);
         }
 
         void DropIndex() const {
-            const auto sql = fmt::format("PRAGMA drop_fts_index({})", doc_store_->GetOptions().table_name);
+            const auto sql = fmt::format("PRAGMA drop_fts_index({})", table_name_);
             trace_span span {"DropIndex with sql " + sql};
-            const auto result = doc_store_->GetConnection().Query(sql);
+            const auto result = connection_->Query(sql);
             assert_query_ok(result);
         }
 
         [[nodiscard]] AsyncIterator<Document> Retrieve(const SearchRequest &search_request) const override {
             static int BUFFER_SIZE = 20;
             fmt::dynamic_format_arg_store<fmt::format_context> store;
-            store.push_back(fmt::arg("table_name", doc_store_->GetOptions().table_name));
+            store.push_back(fmt::arg("table_name", table_name_));
             store.push_back(fmt::arg("id_column_name", options_.id_column_name));
             store.push_back(fmt::arg("text_column_name", options_.text_column_name));
             store.push_back(fmt::arg("query", search_request.query()));
@@ -82,11 +93,11 @@ LOAD fts;)");
             auto* field_sort = sorter.mutable_field();
             field_sort->set_field_name("score");
             field_sort->set_order(DESC);
-            const auto sql = SQLBuilder::ToSelectString(doc_store_->GetOptions().table_name, column_list, search_request.metadata_filter(), {sorter}, 0, search_request.top_k());
+            const auto sql = SQLBuilder::ToSelectString(table_name_, column_list, search_request.metadata_filter(), {sorter}, 0, search_request.top_k());
             LOG_DEBUG("sql={}", sql);
             const auto t1 = ChronoUtils::GetCurrentTimeMillis();
             return rpp::source::create<std::string>([&, sql](const auto& ob) {
-                const auto result = doc_store_->GetConnection().Query(sql);
+                const auto result = connection_->Query(sql);
                 assert_query_ok(result);
                 for(const auto& row: *result) {
                     ob.on_next(row.GetValue<std::string>(1));

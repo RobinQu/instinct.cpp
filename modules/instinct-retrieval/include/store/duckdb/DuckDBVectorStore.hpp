@@ -115,6 +115,15 @@ namespace INSTINCT_RETRIEVAL_NS {
             assert_prepared_ok(prepared_search_statement_, "Failed to prepare search statement");
         }
 
+
+        [[nodiscard]] DuckDBPtr GetDuckDB() const {
+            return store_.GetDuckDB();
+        }
+
+        [[nodiscard]] const DuckDBStoreOptions& GetOptions() const {
+            return store_.GetOptions();
+        }
+
         AsyncIterator<Document> FindDocuments(const FindRequest &find_request) override {
             return store_.FindDocuments(find_request);
         }

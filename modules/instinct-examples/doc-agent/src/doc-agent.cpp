@@ -25,6 +25,7 @@
 #include "endpoint/chat_completion/ChatCompletionController.hpp"
 #include "ranker/LocalRankingModel.hpp"
 #include "retrieval/MultiPathRetriever.hpp"
+#include "retrieval/ParentChildRetriever.hpp"
 #include "retrieval/duckdb/DuckDBBM25Retriever.hpp"
 #include "tools/Assertions.hpp"
 
@@ -76,7 +77,7 @@ namespace instinct::examples::doc_agent {
         VectorStorePtr vector_store;
         StatefulRetrieverPtr chunked_vector_retriever;
         RetrieverPtr multipath_retriever;
-        RetrieverPtr bm25_retriever;
+        StatefulRetrieverPtr bm25_retriever;
         HttpLibServerPtr http_server;
     };
 
@@ -104,7 +105,8 @@ namespace instinct::examples::doc_agent {
             instance_.chat_model = LLMObjectFactory::CreateChatModel(options.chat_model_provider);
             instance_.chunked_vector_retriever = CreateChunkedMultiVectorRetriever(options.retriever, instance_.doc_store, instance_.vector_store);
             if (options.retriever.version == 2) {
-                instance_.bm25_retriever = CreateDuckDBBM25Retriever(instance_.doc_store, {.auto_build = false});
+                // create BM25 retriever with vector_store which stores chunked documents instead of original docs
+                instance_.bm25_retriever = CreateDuckDBBM25Retriever(instance_.vector_store, {.auto_build = false});
             }
         }
 
@@ -119,11 +121,12 @@ namespace instinct::examples::doc_agent {
 
             RetrieverPtr stateless_retriever;
             if (options.retriever.version == 2) {
-                instance_.bm25_retriever = CreateDuckDBBM25Retriever(instance_.doc_store, {.auto_build = false});
+                instance_.bm25_retriever = CreateDuckDBBM25Retriever(instance_.vector_store, {.auto_build = false});
                 instance_.multipath_retriever = CreateMultiPathRetriever(
                     CreateLocalRankingModel(BGE_M3_RERANKER),
                     instance_.chunked_vector_retriever,
-                    instance_.bm25_retriever
+                    // create a ParentChildRetriever that handles multi-hop search
+                    CreateParentChildRetriever(instance_.doc_store, instance_.bm25_retriever)
                 );
                 stateless_retriever = instance_.multipath_retriever;
             }
