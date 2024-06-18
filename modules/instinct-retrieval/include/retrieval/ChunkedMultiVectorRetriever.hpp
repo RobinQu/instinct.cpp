@@ -5,8 +5,8 @@
 #ifndef CHUNKEDMULTIVECTORRETRIEVER_HPP
 #define CHUNKEDMULTIVECTORRETRIEVER_HPP
 
-#include <document/TextSplitter.hpp>
-
+#include "document/RecursiveCharacterTextSplitter.hpp"
+#include "tokenizer/TiktokenTokenizer.hpp"
 #include "MultiVectorRetriever.hpp"
 #include "RetrievalGlobals.hpp"
 
@@ -97,6 +97,36 @@ namespace INSTINCT_RETRIEVAL_NS {
                 child_splitter,
                 parent_splitter,
                 options
+        );
+    }
+
+
+
+    struct RetrieverOptions {
+        int parent_chunk_size = 1000;
+        int child_chunk_size = 200;
+    };
+
+    static StatefulRetrieverPtr CreateChunkedMultiVectorRetriever(const RetrieverOptions& retriever_options,
+    const DocStorePtr& doc_store,
+    const VectorStorePtr& vector_store) {
+        // default to use tiktoken tokenizer
+        const auto tokenizer = TiktokenTokenizer::MakeGPT4Tokenizer();
+        const auto child_spliter = CreateRecursiveCharacterTextSplitter(tokenizer, {.chunk_size = retriever_options.child_chunk_size});
+        if (retriever_options.parent_chunk_size > 0) {
+            assert_true(retriever_options.parent_chunk_size > retriever_options.child_chunk_size, "parent_chunk_size should be larger than child_chunk_size");
+            const auto parent_splitter = CreateRecursiveCharacterTextSplitter({.chunk_size = retriever_options.parent_chunk_size});
+            return CreateChunkedMultiVectorRetriever(
+                doc_store,
+                vector_store,
+                child_spliter,
+                parent_splitter
+            );
+        }
+        return CreateChunkedMultiVectorRetriever(
+            doc_store,
+            vector_store,
+            child_spliter
         );
     }
 }

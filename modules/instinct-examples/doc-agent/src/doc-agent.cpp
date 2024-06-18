@@ -4,10 +4,13 @@
 
 #include <CLI/CLI.hpp>
 
+#include "LLMObjectFactory.hpp"
+#include "RetrieverObjectFactory.hpp"
 #include "document/RecursiveCharacterTextSplitter.hpp"
 #include "chain/RAGChain.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "commons/OllamaCommons.hpp"
+#include "embedding_model/LocalEmbeddingModel.hpp"
 #include "embedding_model/OllamaEmbedding.hpp"
 #include "embedding_model/OpenAIEmbedding.hpp"
 #include "ingestor/SingleFileIngestor.hpp"
@@ -20,6 +23,9 @@
 #include "store/duckdb/DuckDBDocStore.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
 #include "endpoint/chat_completion/ChatCompletionController.hpp"
+#include "ranker/LocalRankingModel.hpp"
+#include "retrieval/MultiPathRetriever.hpp"
+#include "retrieval/duckdb/DuckDBBM25Retriever.hpp"
 #include "tools/Assertions.hpp"
 
 
@@ -28,30 +34,8 @@ namespace instinct::examples::doc_agent {
     using namespace INSTINCT_SERVER_NS;
     using namespace INSTINCT_LLM_NS;
 
-
-    struct LLMProviderOptions {
-        std::string provider_name = "ollama";
-        // OpenAIConfiguration openai;
-        // OllamaConfiguration ollama;
-
-        std::string host;
-        int port = 0;
-        HttpProtocol protocol = kHTTPS;
-        std::string model_name;
-        std::string api_key;
-    };
-
-
-    struct RetrieverOptions {
-        bool plain_vector_retriever = false;
-        bool summary_guided_retriever = false;
-        bool hypothetical_queries_guided_retriever = false;
-        bool chunked_multi_vector_retriever = false;
-        bool multi_query_retriever = false;
-        bool auto_retriever = false;
-
-        int parent_chunk_size = 1000;
-        int child_chunk_size = 200;
+    struct DocAgentRetrieverOptions: RetrieverOptions {
+        int version = 2;
     };
 
     struct BuildCommandOptions {
@@ -70,145 +54,164 @@ namespace instinct::examples::doc_agent {
         LLMProviderOptions chat_model_provider;
         LLMProviderOptions embedding_provider;
         bool force_rebuild = false;
-        RetrieverOptions retriever;
+        DocAgentRetrieverOptions retriever;
     };
 
     struct ServeCommandOptions {
         LLMProviderOptions chat_model_provider;
         LLMProviderOptions embedding_provider;
-        // TODO DBStore refactoring to make it possible to share duckdb instantce.
         std::string shared_db_file_path;
         DuckDBStoreOptions doc_store;
         DuckDBStoreOptions vector_store;
         ServerOptions server;
-        RetrieverOptions retriever;
+        DocAgentRetrieverOptions retriever;
     };
 
-    static EmbeddingsPtr CreateEmbeddingModel(const LLMProviderOptions& options) {
-        if (options.provider_name == "ollama") {
-            return CreateOllamaEmbedding({
-                                                 .model_name = options.model_name,
-                .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
-                .max_parallel = (std::thread::hardware_concurrency() / 3),
-                .embedding_timeout_factor = 1s
-            });
-        }
-        if (options.provider_name == "openai") {
-            return CreateOpenAIEmbeddingModel({
-                .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
-                .model_name = options.model_name
-            });
-        }
-        return nullptr;
-    }
+    class DocAgentApplicationContext final: public ManagedApplicationContext {
+    public:
+        IngestorPtr ingestor;
+        DocStorePtr doc_store;
+        EmbeddingsPtr embedding_model;
+        ChatModelPtr chat_model;
+        VectorStorePtr vector_store;
+        StatefulRetrieverPtr chunked_vector_retriever;
+        RetrieverPtr multipath_retriever;
+        RetrieverPtr bm25_retriever;
+        HttpLibServerPtr http_server;
+    };
 
-    static ChatModelPtr CreateChatModel(const LLMProviderOptions& options) {
-        if (options.provider_name == "ollama") {
-            return CreateOllamaChatModel({
-                                                 .model_name = options.model_name,
-                .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
-                .temperature = 0.2
-            });
-        }
-        if (options.provider_name == "openai") {
-            return CreateOpenAIChatModel({
-                .endpoint = {.protocol = options.protocol, .host = options.host, .port = options.port},
-                .model_name = options.model_name,
-                .temperature = 0.2
-            });
-        }
-        return nullptr;
-    }
-
-    static void PrintDatabaseSummary(const std::string& announcment, const DocStorePtr& doc_store, const VectorStorePtr& vectore_store) {
+    static void PrintDatabaseSummary(const std::string& announcement, const DocStorePtr& doc_store, const VectorStorePtr& vector_store) {
         auto doc_count = doc_store->CountDocuments();
-        auto vector_count = vectore_store->CountDocuments();
-        LOG_INFO("{}: DocStore {} docs, VectorStore {} embeddings", announcment, doc_count, vector_count);
+        auto vector_count = vector_store->CountDocuments();
+        LOG_INFO("{}: DocStore {} docs, VectorStore {} embeddings", announcement, doc_count, vector_count);
     }
 
-    static StatefulRetrieverPtr CreateBaseRetriever(
-        const RetrieverOptions& retriever_options,
-        const DocStorePtr& doc_store,
-        const VectorStorePtr& vector_store,
-        const ChatModelPtr& chat_model
-    ) {
-        if (retriever_options.plain_vector_retriever) {
-            LOG_INFO("CreateVectorStoreRetriever");
-            return CreateVectorStoreRetriever(vector_store);
-        }
 
-        if(retriever_options.chunked_multi_vector_retriever) {
-            LOG_INFO("CreateChunkedMultiVectorRetriever");
-
-            // default to use tiktoken tokenizer
-            auto tokenizer = TiktokenTokenizer::MakeGPT4Tokenizer();
-
-            const auto child_spliter = CreateRecursiveCharacterTextSplitter(tokenizer, {.chunk_size = retriever_options.child_chunk_size});
-            if (retriever_options.parent_chunk_size > 0) {
-                assert_true(retriever_options.parent_chunk_size > retriever_options.child_chunk_size, "parent_chunk_size should be larger than child_chunk_size");
-                const auto parent_splitter = CreateRecursiveCharacterTextSplitter({.chunk_size = retriever_options.parent_chunk_size});
-                return CreateChunkedMultiVectorRetriever(
-                    doc_store,
-                    vector_store,
-                    child_spliter,
-                    parent_splitter
-                );
+    class DocAgentApplicationContextFactory final: IApplicationContextFactory<DocAgentApplicationContext> {
+        DocAgentApplicationContext instance_;
+        std::once_flag init_flag_;
+    public:
+        explicit DocAgentApplicationContextFactory(const BuildCommandOptions& options) {
+            instance_.ingestor = RetrieverObjectFactory::CreateIngestor(options.file_type, {
+                .file_path = options.filename,
+                .parquet_mapping = options.parquet_mapping,
+                .fail_fast = true
+            });
+            instance_.embedding_model = LLMObjectFactory::CreateEmbeddingModel(options.embedding_provider);
+            const auto db = std::make_shared<DuckDB>(options.shared_db_file_path);
+            instance_.doc_store = CreateDuckDBDocStore(db, options.doc_store);
+            instance_.vector_store = CreateDuckDBVectorStore(db, instance_.embedding_model, options.vector_store);
+            instance_.chat_model = LLMObjectFactory::CreateChatModel(options.chat_model_provider);
+            instance_.chunked_vector_retriever = CreateChunkedMultiVectorRetriever(options.retriever, instance_.doc_store, instance_.vector_store);
+            if (options.retriever.version == 2) {
+                instance_.bm25_retriever = CreateDuckDBBM25Retriever(instance_.doc_store, {.auto_build = false});
             }
-            return CreateChunkedMultiVectorRetriever(
-                doc_store,
-                vector_store,
-                child_spliter
-            );
-
         }
 
-        if(retriever_options.hypothetical_queries_guided_retriever) {
-            LOG_INFO("CreateHypotheticalQueriesGuidedRetriever");
-            return CreateHypotheticalQueriesGuidedRetriever(
-                chat_model,
-                doc_store,
-                vector_store
-            );
+        explicit DocAgentApplicationContextFactory(const ServeCommandOptions& options) {
+            instance_.embedding_model = LLMObjectFactory::CreateEmbeddingModel(options.embedding_provider);
+            const auto db = std::make_shared<DuckDB>(options.shared_db_file_path);
+            instance_.doc_store = CreateDuckDBDocStore(db, options.doc_store);
+            instance_.vector_store = CreateDuckDBVectorStore(db, instance_.embedding_model, options.vector_store);
+            instance_.chat_model = LLMObjectFactory::CreateChatModel(options.chat_model_provider);
+
+            instance_.chunked_vector_retriever = CreateChunkedMultiVectorRetriever(options.retriever, instance_.doc_store, instance_.vector_store);
+
+            RetrieverPtr stateless_retriever;
+            if (options.retriever.version == 2) {
+                instance_.bm25_retriever = CreateDuckDBBM25Retriever(instance_.doc_store, {.auto_build = false});
+                instance_.multipath_retriever = CreateMultiPathRetriever(
+                    CreateLocalRankingModel(BGE_M3_RERANKER),
+                    instance_.chunked_vector_retriever,
+                    instance_.bm25_retriever
+                );
+                stateless_retriever = instance_.multipath_retriever;
+            }
+            if (options.retriever.version == 1) {
+                stateless_retriever = instance_.chunked_vector_retriever;
+            }
+
+
+            const auto question_prompt_template = CreatePlainPromptTemplate(R"(
+Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
+Chat History:
+{chat_history}
+Follow Up Input: {question}
+Standalone question:)",
+                                                                        {
+                                                                            .input_keys = {"chat_history", "question"},
+                                                                        });
+            const auto answer_prompt_template = CreatePlainPromptTemplate(
+                R"(Answer the question in a concise and clear way based only on the following context:
+    {context}
+
+    Question: {standalone_question}
+
+    )", {.input_keys = {"context", "standalone_question"}});
+
+            const auto question_fn = xn::steps::mapping({
+                {
+                    "standalone_question", xn::steps::mapping({
+                                               // expecting `question` from input of `MappingData`
+                                               {"question", xn::steps::selection("question")},
+                                               {
+                                                   "chat_history",
+                                                   // expecting `chat_history` from input of `MappingData`.
+                                                   xn::steps::selection("chat_history") | xn::steps::combine_chat_history()
+                                               }
+                                           }) | question_prompt_template | instance_.chat_model->AsModelFunction() |
+                                           xn::steps::stringify_generation()
+                },
+                {
+                    // expecting `question` from input of `MappingData`
+                    "question", xn::steps::selection("question")
+                }
+            });
+
+            const auto context_fn = xn::steps::mapping({
+                {"context", xn::steps::selection("question") | stateless_retriever->AsContextRetrieverFunction({.top_k = 7})},
+                {"standalone_question", xn::steps::selection("standalone_question")}
+            });
+
+            const auto rag_chain = question_fn | context_fn | answer_prompt_template | instance_.chat_model->AsModelFunction();
+
+            instance_.http_server = CreateHttpLibServer(options.server);
+            instance_.http_server->Use(CreateOpenAIChatCompletionController(rag_chain));
         }
 
-        if (retriever_options.summary_guided_retriever) {
-            LOG_INFO("CreateSummaryGuidedRetriever");
-            return CreateSummaryGuidedRetriever(
-                chat_model,
-                doc_store,
-                vector_store
-            );
+        [[nodiscard]] const DocAgentApplicationContext & GetInstance() override {
+            return instance_;
         }
-        return nullptr;
+    };
+
+    using DocAgentApplicationContextFactoryPtr = std::shared_ptr<DocAgentApplicationContextFactory>;
+
+    static std::vector<DocAgentApplicationContextFactoryPtr> CONTEXT_FACTORIES;
+
+    static DocAgentApplicationContextFactoryPtr CreateContextFactory(const BuildCommandOptions& options) {
+        const auto ptr = std::make_shared<DocAgentApplicationContextFactory>(options);
+        CONTEXT_FACTORIES.push_back(ptr);
+        return ptr;
     }
 
-    static RetrieverPtr CreateAdaptorRetriever(
-        const RetrieverOptions& retriever_options,
-        const StatefulRetrieverPtr& base_retriever,
-        const ChatModelPtr& chat_model
-    ) {
-        if (retriever_options.multi_query_retriever) {
-            LOG_INFO("CreateMultiQueryRetriever");
-            return CreateMultiQueryRetriever(base_retriever, chat_model);
-        }
+    static DocAgentApplicationContextFactoryPtr CreateContextFactory(const ServeCommandOptions& options) {
+        const auto ptr = std::make_shared<DocAgentApplicationContextFactory>(options);
+        CONTEXT_FACTORIES.push_back(ptr);
+        return ptr;
+    }
 
-        // if no adaptor retriever is required, return base retirever instead
-        return base_retriever;
+    static void GracefulShutdown(int signal) {
+        LOG_INFO("GracefulShutdown due to signal {}", signal);
+        GracefullyShutdownRunningHttpServers();
+        for(const auto& f: CONTEXT_FACTORIES) {
+            if (f) {
+                f->GetInstance().Shutdown();
+            }
+        }
     }
 
     static void BuildCommand(const BuildCommandOptions& options) {
-        // create ingestor
-        IngestorPtr ingestor;
-        if (options.file_type == "PDF") {
-            ingestor = CreatePDFFileIngestor(options.filename);
-        } else if (options.file_type == "DOCX") {
-            ingestor = CreateDOCXFileIngestor(options.filename);
-        } else if (options.file_type == "PARQUET") {
-            assert_true(!options.parquet_mapping.empty(), "should provide mapping format for parquet file");
-            ingestor = CreateParquetIngestor(options.filename, options.parquet_mapping, {.limit = options.source_limit});
-        } else {
-            ingestor = CreatePlainTextFileIngestor(options.filename);
-        }
+        const auto context_factory = CreateContextFactory(options);
 
         // force rebuild
         if (options.force_rebuild) {
@@ -226,113 +229,31 @@ namespace instinct::examples::doc_agent {
                         "VectorStore file already exists. Abort to prevent data corruption.");
         }
 
-        // shared duckdb
-        const auto db = std::make_shared<DuckDB>(options.shared_db_file_path);
+        const auto& ctx = context_factory->GetInstance();
+        ctx.chunked_vector_retriever->Ingest(ctx.ingestor->Load());
+        if (const auto ptr = std::dynamic_pointer_cast<DuckDBBM25Retriever>(ctx.bm25_retriever)) {
+            ptr->BuildIndex();
+        }
 
-        // doc store
-        const auto doc_store = CreateDuckDBDocStore(db, options.doc_store);
-
-        // embedding model
-        EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.embedding_provider);
-        assert_true(embedding_model, "should have assigned correct embedding model");
-
-        // chat model
-        const auto chat_model = CreateChatModel(options.chat_model_provider);
-        assert_true(chat_model, "should have assigned correct chat model");
-
-        // vector model
-        const auto vectore_store = CreateDuckDBVectorStore(db, embedding_model, options.vector_store);
-
-        // base retriever is enough for data ingestion
-        const auto retriever = CreateBaseRetriever(
-            options.retriever,
-            doc_store,
-            vectore_store,
-            chat_model
-        );
-        assert_true(retriever, "Should have assigned correct retriever");
-
-        // ingest data
-        retriever->Ingest(ingestor->Load());
-
-        PrintDatabaseSummary("Database is built successfully", doc_store, vectore_store);
+        PrintDatabaseSummary("Database is built successfully", ctx.doc_store, ctx.vector_store);
     }
 
     static void ServeCommand(const ServeCommandOptions& options) {
-        HttpLibServer::RegisterSignalHandlers();
+        const auto context_factory = CreateContextFactory(options);
+        const auto& ctx = context_factory->GetInstance();
 
-        EmbeddingsPtr embedding_model = CreateEmbeddingModel(options.embedding_provider);
-        assert_true(embedding_model, "should have assigned correct embedding model");
+        // register shutdown handler
+        std::signal(SIGINT, GracefulShutdown);
+        std::signal(SIGTERM, GracefulShutdown);
 
-        const auto chat_model = CreateChatModel(options.chat_model_provider);
-        assert_true(chat_model, "should have assigned correct chat model");
-
-        const auto db = std::make_shared<DuckDB>(options.shared_db_file_path);
-
-        const auto doc_store = CreateDuckDBDocStore(db, options.doc_store);
-        const auto vector_store = CreateDuckDBVectorStore(db, embedding_model, options.vector_store);
-        PrintDatabaseSummary("VectorStore and DocStore loaded: ", doc_store, vector_store);
-
-        const auto base_retriever = CreateBaseRetriever(options.retriever, doc_store, vector_store, chat_model);
-        assert_true(base_retriever, "Should have assigned correct retriever");
-        const auto retriever = CreateAdaptorRetriever(options.retriever, base_retriever, chat_model);
-
-        const auto question_prompt_template = CreatePlainPromptTemplate(R"(
-Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
-Chat History:
-{chat_history}
-Follow Up Input: {question}
-Standalone question:)",
-                                                                        {
-                                                                            .input_keys = {"chat_history", "question"},
-                                                                        });
-        const auto answer_prompt_template = CreatePlainPromptTemplate(
-            R"(Answer the question in a concise and clear way based only on the following context:
-{context}
-
-Question: {standalone_question}
-
-)", {.input_keys = {"context", "standalone_question"}});
-
-        const auto question_fn = xn::steps::mapping({
-            {
-                "standalone_question", xn::steps::mapping({
-                                           // expecting `question` from input of `MappingData`
-                                           {"question", xn::steps::selection("question")},
-                                           {
-                                               "chat_history",
-                                               // expecting `chat_history` from input of `MappingData`.
-                                               xn::steps::selection("chat_history") | xn::steps::combine_chat_history()
-                                           }
-                                       }) | question_prompt_template | chat_model->AsModelFunction() |
-                                       xn::steps::stringify_generation()
-            },
-            {
-                // expecting `question` from input of `MappingData`
-                "question", xn::steps::selection("question")
-            }
-        });
-
-        const auto context_fn = xn::steps::mapping({
-            {"context", xn::steps::selection("question") | retriever->AsContextRetrieverFunction({.top_k = 7})},
-            {"standalone_question", xn::steps::selection("standalone_question")}
-        });
-
-        const auto rag_chain = question_fn | context_fn | answer_prompt_template | chat_model->AsModelFunction();
-
-        // create server and use controller
-        HttpLibServer server(options.server);
-        const auto controller = CreateOpenAIChatCompletionController(rag_chain);
-        server.Use(controller);
-        server.BindAndListen();
+        // start context
+        ctx.Startup();
+        ctx.http_server->BindAndListen();
+        ctx.Shutdown();
     }
 
-
-    static void BuildDocstoreOptionGroup(CLI::Option_group* doc_store_ogroup,
+    static void BuildDocStoreOptionGroup(CLI::Option_group* doc_store_ogroup,
                                          DuckDBStoreOptions& duck_db_options) {
-        // doc_store_ogroup
-        //         ->add_option("--doc_db_path", duck_db_options.db_file_path,
-        //                      "File path to database file, which will be created if given file doesn't exist.");
         doc_store_ogroup
                 ->add_option("--doc_table_name", duck_db_options.table_name, "Table name for documents")
                 ->default_val("doc_table");
@@ -340,9 +261,6 @@ Question: {standalone_question}
 
     static void BuildVecstoreOptionGroup(CLI::Option_group* vec_store_ogroup,
                                          DuckDBStoreOptions& duck_db_options) {
-        // vec_store_ogroup
-        //         ->add_option("--vector_db_path", duck_db_options.db_file_path,
-        //                      "File path to database file, which will be created if given file doesn't exist.");
         vec_store_ogroup
                 ->add_option("--vector_table_dimension", duck_db_options.dimension, "Dimension of embedding vector.")
                 ->check(CLI::Bound(1, 8192))
@@ -354,66 +272,41 @@ Question: {standalone_question}
 
     static void BuildEmbeddingProviderOptionGroup(CLI::Option_group* llm_provider_ogroup,
                                             LLMProviderOptions& provider_options) {
-
         llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported. Defaults to a local running Ollama service using llama2:latest model.");
-        llm_provider_ogroup->add_option("--embedding_model_provider", provider_options.provider_name,
+        llm_provider_ogroup->add_option("--embedding_model_provider", provider_options.provider,
                                         "Specify embedding model to use. ")
-                ->check(CLI::IsMember({"ollama", "openai"}, CLI::ignore_case))
+                ->check(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case))
                 ->default_val("ollama");
 
-        const std::map<std::string, HttpProtocol> protocol_map{
-            {"http", kHTTP},
-            {"https", kHTTPS}
-        };
         llm_provider_ogroup->add_option("--embedding_model_api_key", provider_options.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL.");
-        llm_provider_ogroup->add_option("--embedding_model_host", provider_options.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.")
-                ->default_val(OLLAMA_ENDPOINT.host);
-        llm_provider_ogroup->add_option("--embedding_model_port", provider_options.port, "Port number for API service.")
-                ->default_val(OLLAMA_ENDPOINT.port);
-        llm_provider_ogroup->add_option("--embedding_model_protocol", provider_options.protocol, "HTTP protocol for API service.")
-                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
-                ->default_val(OLLAMA_ENDPOINT.protocol);
-        llm_provider_ogroup->add_option("--embedding_model_model_name", provider_options.model_name, "Specify name of the model to be used.")
-                ->default_val(OLLAMA_DEFAULT_CHAT_MODEL_NAME);
+        llm_provider_ogroup->add_option("--embedding_model_host", provider_options.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.");
+        llm_provider_ogroup->add_option("--embedding_model_port", provider_options.endpoint.port, "Port number for API service.");
+        llm_provider_ogroup->add_option("--embedding_model_protocol", provider_options.endpoint.protocol, "HTTP protocol for API service.")
+                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));
+        llm_provider_ogroup->add_option("--embedding_model_model_name", provider_options.model_name, "Specify name of the model to be used.");
     }
 
     static void BuildChatModelProviderOptionGroup(
         CLI::Option_group* llm_provider_ogroup,
         LLMProviderOptions& provider_options) {
         llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported. Defaults to a local running Ollama service using llama2:latest model.");
-        llm_provider_ogroup->add_option("--chat_model_provider", provider_options.provider_name,
-                                        "Specify chat model to use for chat completion. ")
-                ->check(CLI::IsMember({"ollama", "openai"}, CLI::ignore_case))
-                ->default_val("ollama");
-
-        const std::map<std::string, HttpProtocol> protocol_map{
-            {"http", kHTTP},
-            {"https", kHTTPS}
-        };
-
-        llm_provider_ogroup->add_option("--chat_model_api_key", provider_options.api_key, "API key for comercial services like OpenAI. Leave blank for services without ACL.");
-        llm_provider_ogroup->add_option("--chat_model_host", provider_options.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.")
-                ->default_val(OLLAMA_ENDPOINT.host);
-        llm_provider_ogroup->add_option("--chat_model_port", provider_options.port, "Port number for API service.")
-                ->default_val(OLLAMA_ENDPOINT.port);
-        llm_provider_ogroup->add_option("--chat_model_protocol", provider_options.protocol, "HTTP protocol for API service.")
-                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case))
-                ->default_val(OLLAMA_ENDPOINT.protocol);
-        llm_provider_ogroup->add_option("--chat_model_model_name", provider_options.model_name, "Specify name of the model to be used.")
-                ->default_val(OLLAMA_DEFAULT_CHAT_MODEL_NAME);
+        llm_provider_ogroup
+            ->add_option("--chat_model_provider", provider_options.provider, "Specify chat model to use for chat completion. ")
+            ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));;
+        llm_provider_ogroup->add_option("--chat_model_api_key", provider_options.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL.");
+        llm_provider_ogroup->add_option("--chat_model_host", provider_options.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.");
+        llm_provider_ogroup->add_option("--chat_model_port", provider_options.endpoint.port, "Port number for API service.");
+        llm_provider_ogroup->add_option("--chat_model_protocol", provider_options.endpoint.protocol, "HTTP protocol for API service.")
+                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));
+        llm_provider_ogroup->add_option("--chat_model_model_name", provider_options.model_name, "Specify name of the model to be used.");
     }
 
-    void BuildRetrieverOptions(CLI::Option_group* retriever_option_group, RetrieverOptions& options) {
+    void BuildRetrieverOptions(CLI::Option_group* retriever_option_group, DocAgentRetrieverOptions& options) {
         // limited to one query_rewriter and one base_retriever
-        const auto base_retriever_ogroup = retriever_option_group->add_option_group("base_retriever", "A must-to-have base retriever that handles original documents.");
-        base_retriever_ogroup->add_flag("--plain_vector_retriever", options.plain_vector_retriever, "Enable VectorStoreRetiever.");
-        base_retriever_ogroup
-            ->add_flag("--parent_child_retriever", options.chunked_multi_vector_retriever, "Enable ChunkedMultiVectorRetriever.");
-        base_retriever_ogroup->add_flag("--summary_guided_retriever", options.summary_guided_retriever, "Enable MultiVectorGuidance with summary guidance.");
-        base_retriever_ogroup->add_flag("--hypothetical_quries_guided_retriever", options.hypothetical_queries_guided_retriever, "Enable MultiVectorGuidance with hypothetical queries.");
-        // one base retriever is required
-        base_retriever_ogroup->require_option(1, 1);
-
+        retriever_option_group->add_option("--retriever_version", options.version, R"(Version 1: Use ChunkedMultiVectorRetriever only.
+Version 2: Use ChunkedMultiVectorRetriever, and BM25 keyword-based Retriever together with a local reranker.
+        )")
+            ->default_val(2);
         const auto mv_ogroup = retriever_option_group->add_option_group("Options for ChunkedMultiVectorRetriever");
         mv_ogroup->add_option("--child_chunk_size", options.child_chunk_size, "chunk size for child document")
             ->default_val(200)
@@ -421,11 +314,6 @@ Question: {standalone_question}
         mv_ogroup->add_option("--parent_chunk_size", options.parent_chunk_size, "chunk size for parent document. Zero means disabling parent document splitter.")
             ->check(CLI::Range(0, 1000000))
             ->default_val(0);
-
-        const auto query_rerwier_ogorup = retriever_option_group->add_option_group("query_rewriter", "Adaptor retrievers that rewrites original query.");
-        query_rerwier_ogorup->add_flag("--multi_query_retriever",  options.multi_query_retriever, "Enable MultiQueryRetriever.");
-        // at most one query_retriever is specified
-        query_rerwier_ogorup->require_option(-1);
     }
 }
 
@@ -450,7 +338,7 @@ int main(int argc, char** argv) {
     BuildEmbeddingProviderOptionGroup(app.add_option_group("🧠 Provider for embedding model"), embedding_model_provider_options);
 
     // retriever options
-    RetrieverOptions retriever_options;
+    DocAgentRetrieverOptions retriever_options;
     BuildRetrieverOptions(app.add_option_group("🔍 Retriever", "Options for building retriever"), retriever_options);
 
     // db file path
@@ -464,7 +352,7 @@ int main(int argc, char** argv) {
 
     // doc store options
     DuckDBStoreOptions doc_store_options;
-    BuildDocstoreOptionGroup(
+    BuildDocStoreOptionGroup(
     app.add_option_group("📖 DocStore"), doc_store_options);
 
     // build command

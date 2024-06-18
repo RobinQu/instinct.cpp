@@ -25,6 +25,15 @@ namespace INSTINCT_LLM_NS {
         kLLAMACPP = 4
     };
 
+    static const std::map<std::string, ModelProvider> model_provider_map {
+        {"openai", kOPENAI},
+        {"ollama", kOLLAMA},
+        {"local", kLOCAL},
+        {"llm_studio", kLLMStudio},
+        {"llama_cpp", kLLAMACPP},
+    };
+
+
     // default values are required
     struct LLMProviderOptions {
         ModelProvider provider;

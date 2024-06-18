@@ -32,13 +32,18 @@ namespace INSTINCT_CORE_NS {
     using LifeCycleObjectPtr = std::shared_ptr<ILifeCycle>;
 
 
-    struct ManagedApplicationContext {
-        std::vector<LifeCycleObjectPtr> life_cycle_managed;
+    class ManagedApplicationContext {
+        std::vector<LifeCycleObjectPtr> life_cycle_managed_;
+    public:
+        ManagedApplicationContext()=default;
+        virtual ~ManagedApplicationContext()=default;
+        ManagedApplicationContext(const ManagedApplicationContext&)=delete;
+        ManagedApplicationContext(ManagedApplicationContext&&)=delete;
 
         template<typename T>
         void Manage(const std::shared_ptr<T>& ptr) {
             if (const LifeCycleObjectPtr life_cycle = std::dynamic_pointer_cast<ILifeCycle>(ptr)) {
-                life_cycle_managed.push_back(life_cycle);
+                life_cycle_managed_.push_back(life_cycle);
             }
         }
 
@@ -48,7 +53,7 @@ namespace INSTINCT_CORE_NS {
             };
             // build a PQ to select item with top priority
             std::priority_queue<LifeCycleObjectPtr, std::vector<LifeCycleObjectPtr>, decltype(cmp)> pq(cmp);
-            for(const auto& object: life_cycle_managed) {
+            for(const auto& object: life_cycle_managed_) {
                 pq.push(object);
             }
             while (!pq.empty()) {
@@ -64,7 +69,7 @@ namespace INSTINCT_CORE_NS {
             };
             // build a PQ to select item with the least priority
             std::priority_queue<LifeCycleObjectPtr, std::vector<LifeCycleObjectPtr>, decltype(cmp)> pq(cmp);
-            for(const auto& object: life_cycle_managed) {
+            for(const auto& object: life_cycle_managed_) {
                 pq.push(object);
             }
             while (!pq.empty()) {
@@ -77,6 +82,18 @@ namespace INSTINCT_CORE_NS {
                 pq.pop();
             }
         }
+    };
+
+
+    template<typename ApplicationContext>
+    requires std::derived_from<ApplicationContext, ManagedApplicationContext>
+    class IApplicationContextFactory {
+    public:
+        IApplicationContextFactory() = default;
+        virtual ~IApplicationContextFactory()=default;
+        IApplicationContextFactory(IApplicationContextFactory&&)=delete;
+        IApplicationContextFactory(const IApplicationContextFactory&)=delete;
+        virtual const ApplicationContext& GetInstance() = 0;
     };
 }
 

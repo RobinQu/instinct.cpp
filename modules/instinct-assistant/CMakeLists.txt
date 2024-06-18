@@ -33,7 +33,7 @@ SET(${LIBRARY_TARGET_NAME}_HDR
         include/assistant/v2/service/impl/RunServiceImpl.hpp
         include/assistant/v2/task_handler/RunObjectTaskHandler.hpp
         include/assistant/v2/endpoint/MessageController.hpp
-        include/assistant/v2/tool/IApplicationContextFactory.hpp
+        include/assistant/v2/tool/AssistantAPIApplicationContextFactory.hpp
         include/assistant/v2/tool/RequestUtils.hpp
         include/assistant/v2/task_handler/FileObjectTaskHandler.hpp
         include/assistant/v2/data_mapper/VectorStoreDataMapper.hpp

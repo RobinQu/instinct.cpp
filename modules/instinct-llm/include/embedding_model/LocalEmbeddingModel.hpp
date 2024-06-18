@@ -60,7 +60,7 @@ namespace INSTINCT_LLM_NS {
         }
     }
 
-    static EmbeddingsPtr CreateLocalRankingModel(const ModelType model_type, const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
+    static EmbeddingsPtr CreateLocalEmbeddingModel(const ModelType model_type, const FileVaultPtr& file_vault = DEFAULT_FILE_VAULT) {
         static std::mutex FILE_MUTEX;
         std::lock_guard file_lock {FILE_MUTEX};
         PreloadEmbeddingModelFiles(file_vault);

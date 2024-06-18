@@ -48,9 +48,10 @@ namespace INSTINCT_RETRIEVAL_NS {
     }
 
     TEST_F(SummaryChainTest, DoSummaryWithPDF) {
-        const auto ingestor = RetrieverObjectFactory::CreateIngestor(
-        corpus_dir / "papers" / "attention_is_all_you_need.pdf"
-        );
+        const auto ingestor = RetrieverObjectFactory::CreateIngestor({
+            .file_path = corpus_dir / "papers" / "attention_is_all_you_need.pdf",
+            .fail_fast = true
+        });
         const auto spliter = CreateRecursiveCharacterTextSplitter();
         const auto chain = CreateSummaryChain(chat_model_);
         auto f1 = CreateSummary(ingestor->LoadWithSplitter(spliter), chain, is_reducible);

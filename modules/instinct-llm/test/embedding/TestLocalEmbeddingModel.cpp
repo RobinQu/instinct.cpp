@@ -20,7 +20,7 @@ namespace INSTINCT_LLM_NS {
 
 
     TEST_F(LocalEmbeddingModelTest, BGE_M3_EMBEDDING) {
-        const auto embedding_model = CreateLocalRankingModel(ModelType::BGE_M3_EMBEDDING);
+        const auto embedding_model = CreateLocalEmbeddingModel(ModelType::BGE_M3_EMBEDDING);
         ASSERT_EQ(embedding_model->GetDimension(), 1024);
         const auto v1 = embedding_model->EmbedQuery("hello world");
         TensorUtils::PrintEmbedding(v1);

@@ -42,6 +42,11 @@ namespace INSTINCT_CORE_NS {
         kHTTPS
     };
 
+    static const std::map<std::string, HttpProtocol> protocol_map{
+            {"http", kHTTP},
+            {"https", kHTTPS}
+    };
+
     struct Endpoint {
         HttpProtocol protocol = kUnspecifiedProtocol;
         std::string host;

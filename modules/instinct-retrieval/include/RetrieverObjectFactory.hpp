@@ -9,39 +9,62 @@
 #include "ingestor/BaseIngestor.hpp"
 #include "ingestor/DirectoryTreeIngestor.hpp"
 #include "ingestor/DOCXFileIngestor.hpp"
+#include "ingestor/ParquetFileIngestor.hpp"
 #include "ingestor/PDFFileIngestor.hpp"
 #include "ingestor/SingleFileIngestor.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS {
 
+    struct IngestorOptions {
+        std::filesystem::path file_path;
+        std::string file_source_id;
+        std::string parquet_mapping;
+        DocumentPostProcessor document_post_processor;
+        bool fail_fast;
+    };
+
     class RetrieverObjectFactory final {
     public:
-        static IngestorPtr CreateIngestor(
-            const std::filesystem::path& file_path,
-            const std::string& parent_doc_id = ROOT_DOC_ID,
-            const DocumentPostProcessor& document_post_processor = nullptr,
-            bool fail_fast = false) {
-            assert_true(std::filesystem::exists(file_path), "file should exist");
-            assert_true(is_regular_file(file_path), "path should be pointed to a regular file");
+        static IngestorPtr CreateIngestor(const IngestorOptions& ingestor_options) {
             static std::regex EXT_NAME_PATTERN { R"(.+\.(.+))"};
             // we rely on extname to choose ingestor
-            const std::string path_string = file_path.string();
+            const std::string path_string = ingestor_options.file_path.string();
             if (std::smatch match; std::regex_match(path_string, match, EXT_NAME_PATTERN)) {
                 if (match.size() == 2) {
                     const auto extname = StringUtils::ToLower(match[1].str());
-                    if (extname == "pdf") {
-                        return CreatePDFFileIngestor(file_path, document_post_processor, parent_doc_id);
-                    }
-                    if (extname == "txt" || extname == "md") {
-                        return CreatePlainTextFileIngestor(file_path, document_post_processor, parent_doc_id);
-                    }
-                    if (extname == "docx") {
-                        return CreateDOCXFileIngestor(file_path, document_post_processor, parent_doc_id);
-                    }
+                    return CreateIngestor(extname, ingestor_options);
                 }
             }
-            if (fail_fast) {
-                throw InstinctException(fmt::format("Cannot build ingestor for file {}", path_string));
+            if (ingestor_options.fail_fast) {
+                throw InstinctException(fmt::format("Cannot get type hint from path {}", path_string));
+            }
+            return nullptr;
+        }
+
+        static IngestorPtr CreateIngestor(
+            std::string type_hint,
+            const IngestorOptions& ingestor_options) {
+            const auto& file_path = ingestor_options.file_path;
+            const DocumentPostProcessor& document_post_processor = ingestor_options.document_post_processor;
+            const auto& file_source_id = ingestor_options.file_source_id;
+            assert_true(std::filesystem::exists(file_path), "file should exist");
+            assert_true(is_regular_file(file_path), "path should be pointed to a regular file");
+
+            type_hint = StringUtils::ToLower(type_hint);
+            if (type_hint == "pdf") {
+                return CreatePDFFileIngestor(file_path, document_post_processor, file_source_id);
+            }
+            if (type_hint == "txt" || type_hint == "md") {
+                return CreatePlainTextFileIngestor(file_path, document_post_processor, file_source_id);
+            }
+            if (type_hint == "docx") {
+                return CreateDOCXFileIngestor(file_path, document_post_processor, file_source_id);
+            }
+            if (type_hint == "parquet") {
+                return CreateParquetIngestor(file_path, ingestor_options.parquet_mapping, {}, document_post_processor, file_source_id);
+            }
+            if (ingestor_options.fail_fast) {
+                throw InstinctException(fmt::format("Cannot build ingestor for file {}", file_path.string()));
             }
             return nullptr;
         }
@@ -53,7 +76,9 @@ namespace INSTINCT_RETRIEVAL_NS {
             bool recursive = true
         ) {
             if (!ingestor_factory_function) {
-                ingestor_factory_function = [](const std::filesystem::path& path) {return CreateIngestor(path);};
+                ingestor_factory_function = [](const std::filesystem::path& path) {return CreateIngestor({
+                    .file_path = path
+                });};
             }
             return std::make_shared<DirectoryTreeIngestor>(
                 folder,

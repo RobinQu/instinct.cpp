@@ -38,7 +38,11 @@ namespace INSTINCT_RETRIEVAL_NS {
         std::vector<ParquetColumnMapping> column_mapping_;
         std::string file_source_id_;
     public:
-        BaseParquetFileIngestor(std::string file_source, const std::vector<ParquetColumnMapping> &column_mapping, const DocumentPostProcessor &document_post_processor = nullptr, std::string file_source_id = "")
+        BaseParquetFileIngestor(
+            std::string file_source,
+            const std::vector<ParquetColumnMapping> &column_mapping,
+            const DocumentPostProcessor &document_post_processor ,
+            std::string file_source_id)
             : BaseIngestor(document_post_processor),
             file_source_(std::move(file_source)),
               column_mapping_(column_mapping),
@@ -115,8 +119,11 @@ namespace INSTINCT_RETRIEVAL_NS {
         ParquetFileIngestorOptions options_;
     public:
         NaiveParquetFileIngestor(const std::string &file_source,
-            const std::vector<ParquetColumnMapping> &column_mapping, const ParquetFileIngestorOptions& options = {}, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID)
-            : BaseParquetFileIngestor(file_source, column_mapping, document_post_processor, parent_doc_id), options_(options) {
+            const std::vector<ParquetColumnMapping> &column_mapping,
+            const DocumentPostProcessor &document_post_processor,
+            const std::string& file_source_id,
+            const ParquetFileIngestorOptions& options)
+            : BaseParquetFileIngestor(file_source, column_mapping, document_post_processor, file_source_id), options_(options) {
         }
 
         unique_ptr<MaterializedQueryResult> ReadParquet(Connection &conn, const std::string &file_source) override {
@@ -129,8 +136,13 @@ namespace INSTINCT_RETRIEVAL_NS {
     };
 
 
-    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::vector<ParquetColumnMapping> &column_mapping, const ParquetFileIngestorOptions& options = {}, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID) {
-        return std::make_shared<NaiveParquetFileIngestor>(file_source, column_mapping, options, document_post_processor, parent_doc_id);
+    static IngestorPtr CreateParquetIngestor(
+        const std::string& file_source,
+        const std::vector<ParquetColumnMapping> &column_mapping,
+        const DocumentPostProcessor &document_post_processor,
+        const std::string& parent_doc_id,
+        const ParquetFileIngestorOptions& options) {
+        return std::make_shared<NaiveParquetFileIngestor>(file_source, column_mapping, document_post_processor, parent_doc_id, options);
     }
 
     /**
@@ -138,11 +150,11 @@ namespace INSTINCT_RETRIEVAL_NS {
      * @param file_source remote or local file source
      * @param mapping_string string literals that describes column mappings. e.g. "0:t,1:m:parent_doc_id:int64,3:m:source:varchar"
      * @param document_post_processor
-     * @param parent_doc_id
+     * @param file_source_id
      * @param options
      * @return 
      */
-    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::string& mapping_string, const ParquetFileIngestorOptions& options = {}, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& parent_doc_id = ROOT_DOC_ID) {
+    static IngestorPtr CreateParquetIngestor(const std::string& file_source, const std::string& mapping_string, const ParquetFileIngestorOptions& options = {}, const DocumentPostProcessor &document_post_processor = nullptr, const std::string& file_source_id = "") {
         std::vector<ParquetColumnMapping> mappings;
 
         bool found_text;
@@ -187,7 +199,7 @@ namespace INSTINCT_RETRIEVAL_NS {
                     field_schema.set_type(VARCHAR);
                 }
 
-                assert_true(field_schema.type() != Unknown, "should have specified correct field type");
+                assert_true(field_schema.type() != PrimitiveType::Unknown, "should have specified correct field type");
 
                 column_mapping.metadata_field_schema = field_schema;
                 column_mapping.column_type = kMetadataColumn;
@@ -197,7 +209,7 @@ namespace INSTINCT_RETRIEVAL_NS {
 
         assert_true(found_text, "should have text column specified");
 
-        return CreateParquetIngestor(file_source, mappings, options, document_post_processor, parent_doc_id);
+        return CreateParquetIngestor(file_source, mappings, document_post_processor, file_source_id, options);
     }
 
 }

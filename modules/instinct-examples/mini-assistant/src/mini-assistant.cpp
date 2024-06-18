@@ -16,16 +16,13 @@
 #include "database/DBUtils.hpp"
 #include "server/httplib/DefaultErrorController.hpp"
 #include "store/duckdb/DuckDBVectorStoreOperator.hpp"
-#include "toolkit/LocalToolkit.hpp"
-
-
 #include "server/httplib/HttpLibServer.hpp"
 #include "assistant/v2/endpoint/AssistantController.hpp"
 #include "assistant/v2/endpoint/FileController.hpp"
 #include "assistant/v2/endpoint/MessageController.hpp"
 #include "assistant/v2/endpoint/RunController.hpp"
 #include "assistant/v2/endpoint/ThreadController.hpp"
-#include "assistant/v2/tool/IApplicationContextFactory.hpp"
+#include "assistant/v2/tool/AssistantAPIApplicationContextFactory.hpp"
 #include "assistant/v2/service/impl/AssistantServiceImpl.hpp"
 #include "assistant/v2/service/impl/FileServiceImpl.hpp"
 #include "assistant/v2/service/impl/MessageServiceImpl.hpp"
@@ -53,15 +50,17 @@ namespace instinct::examples::mini_assistant {
         RetrieverOperatorOptions retriever_operator;
     };
 
-    class MiniAssistantApplicationContextFactory final: public IApplicationContextFactory<duckdb::Connection, duckdb::unique_ptr<duckdb::MaterializedQueryResult>> {
+    using MiniApplicationContext = ApplicationContext<duckdb::Connection, duckdb::unique_ptr<duckdb::MaterializedQueryResult>>;
+
+    class MiniAssistantApplicationContextFactory final: public IApplicationContextFactory<MiniApplicationContext> {
         ApplicationOptions options_;
         std::once_flag init_flag_;
-        ApplicationContext instance_;
+        MiniApplicationContext instance_{};
     public:
-        explicit MiniAssistantApplicationContextFactory(ApplicationOptions applicationOptions)
-                : options_(std::move(applicationOptions)) {}
+        explicit MiniAssistantApplicationContextFactory(ApplicationOptions application_options)
+                : options_(std::move(application_options)) {}
 
-        ApplicationContext& GetInstance() override {
+        [[nodiscard]] const MiniApplicationContext& GetInstance() override  {
             std::call_once(init_flag_, [&] {
                Configure_(instance_);
             });
@@ -69,7 +68,7 @@ namespace instinct::examples::mini_assistant {
         }
 
     private:
-        void Configure_(ApplicationContext& context) {
+        void Configure_(MiniApplicationContext& context) {
             // configure database
             const auto duckdb = std::make_shared<DuckDB>(options_.db_file_path);
             context.connection_pool = CreateDuckDBConnectionPool(duckdb, options_.connection_pool);
@@ -193,19 +192,6 @@ namespace instinct::examples::mini_assistant {
         std::exit(0);
     }
 
-    static const std::map<std::string, HttpProtocol> protocol_map{
-        {"http", kHTTP},
-        {"https", kHTTPS}
-    };
-
-    static const std::map<std::string, ModelProvider> model_provider_map {
-        {"openai", kOPENAI},
-        {"ollama", kOLLAMA},
-        {"local", kLOCAL},
-        {"llm_studio", kLLMStudio},
-          {"llama_cpp", kLLAMACPP},
-    };
-
     static void BuildAgentExecutorOptionsGroup(
         CLI::Option_group* agent_executor_option_group,
         LLMCompilerOptions& llm_compiler_option
@@ -298,15 +284,17 @@ int main(int argc, char** argv) {
     std::signal(SIGINT, graceful_shutdown);
     std::signal(SIGTERM, graceful_shutdown);
 
-    // build context and start http server
+    // build context
     CONTEXT_FACTORY = std::make_shared<MiniAssistantApplicationContextFactory>(application_options);
 
+    const auto& ctx = CONTEXT_FACTORY->GetInstance();
+
     // start application context
-    CONTEXT_FACTORY->GetInstance().Startup();
+    ctx.Startup();
 
     // start server
-    CONTEXT_FACTORY->GetInstance().http_server->BindAndListen();
+    ctx.http_server->BindAndListen();
 
     // cleanup
-    CONTEXT_FACTORY->GetInstance().Shutdown();
+    ctx.Shutdown();
 }

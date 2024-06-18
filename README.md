@@ -87,4 +87,4 @@ And many thanks to the shared training checkpoints from:
 * https://huggingface.co/BAAI/bge-m3
 * https://huggingface.co/BAAI/bge-reranker-v2-m3
 
-**All lists is sorted alphabetically.**
+**Lists are sorted alphabetically.**

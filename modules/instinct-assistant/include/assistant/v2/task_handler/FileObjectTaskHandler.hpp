@@ -102,15 +102,16 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 // build ingestor
                 TempFile temp_file {file_object->filename()};
                 DownloadFile_(file_object.value(), temp_file);
-                const auto ingestor = RetrieverObjectFactory::CreateIngestor(
-                    temp_file.path,
-                    vs_file_object.file_id(),
-                    [&](Document& document) {
+                const auto ingestor = RetrieverObjectFactory::CreateIngestor({
+                    .file_path =temp_file.path,
+                    .file_source_id = vs_file_object.file_id(),
+                    .document_post_processor = [&](Document& document) {
                         auto* vs_id_field = document.add_metadata();
                         vs_id_field->set_name(VECTOR_STORE_ID_KEY);
                         vs_id_field->set_string_value(vs_file_object.vector_store_id());
-                    }
-                );
+                    },
+                    .fail_fast = true
+                });
                 assert_true(ingestor, "should have created ingestor for file");
                 LOG_INFO("Ingestor is built: {}", task.task_id);
                 // OpenAI's parameters: https://github.com/RobinQu/instinct.cpp/issues/16#issuecomment-2133171030

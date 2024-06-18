@@ -22,13 +22,17 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
     TEST_F(TestSummaryGuidedFileSearch, SimpleSearch) {
         // there files are academic papers that issued at 2024, so the model is unlikely trained with related data
         const auto ingestor1 = RetrieverObjectFactory::CreateIngestor(
-                asset_dir / "2405.21048v1.pdf",
-                "fake-file-1"
+                {
+                    .file_path = asset_dir / "2405.21048v1.pdf",
+                    .file_source_id = "fake-file-1",
+                    .fail_fast = true
+                }
             );
-        const auto ingestor2 = RetrieverObjectFactory::CreateIngestor(
-                asset_dir / "2405.21060v1.pdf",
-                "fake-file-2"
-            );
+        const auto ingestor2 = RetrieverObjectFactory::CreateIngestor({
+                .file_path = asset_dir / "2405.21060v1.pdf",
+                .file_source_id = "fake-file-2",
+                .fail_fast = true
+            });
 
         // build retriever
         const auto vdb = vector_store_operator_->CreateInstance("test-vs");
