@@ -26,8 +26,6 @@ add_library(instinct::transformer
 
 
 include(FetchContent)
-SET(GGML_METAL ON)
-SET(GGML_PERF ON)
 FetchContent_Declare(
         ggml
         GIT_REPOSITORY https://github.com/ggerganov/ggml.git
