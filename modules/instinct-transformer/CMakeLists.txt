@@ -32,9 +32,7 @@ FetchContent_Declare(
         GIT_TAG 3d6595a67f4575665e16c29d4b7e610c25bf18ed
         FIND_PACKAGE_ARGS # will invoke find_package first
 )
-#set(GGML_METAL ON)
-#set(GGML_OPENBLAS ON)
-#set(GGML_METAL_EMBED_LIBRARY ON)
+#set(GGML_PERF ON)
 FetchContent_MakeAvailable(ggml)
 
 
