@@ -338,7 +338,7 @@ namespace INSTINCT_TRANSFORMER_NS::models {
             ctx.g_scratch = {.offs = 0, .size = scratch_size_, .data = scratch_buffer_.get()};
 
             // int n_threads = input_ids.size() >= 32 && ggml_cpu_has_blas() && !ggml_cpu_has_gpublas() ? 1 : gen_config.num_threads;
-            int n_threads = input_ids.size() >= 32 ? 1: gen_config.num_threads;
+            int n_threads = input_ids.size() >= 32 ? gen_config.num_threads : 1;
             ctx.g_cgraph = ggml_new_graph_custom(ctx.g_ctx, graph_size, false);
 
             ggml_tensor *input_ids_tensor = ggml_new_tensor_1d(ctx.g_ctx, GGML_TYPE_I32, input_ids.size());

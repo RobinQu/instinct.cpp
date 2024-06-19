@@ -32,7 +32,7 @@ namespace INSTINCT_TRANSFORMER_NS {
         }
 
         [[nodiscard]] float get_rank_score(const std::string &q, const std::string& a) const {
-            const GenerationConfig config {};
+            const GenerationConfig config {.num_threads=std::thread::hardware_concurrency()};
             std::vector<int> ids;
             this->tokenizer_->encode_qa(q, a, ids);
             return this->model_->qa_rank(config, ids);
