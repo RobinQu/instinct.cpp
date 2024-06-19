@@ -526,17 +526,31 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
         RoPEMode rope_mode;
 
     protected:
-        // input & output: [qlen, heads, head_size]
+        // // input & output: [qlen, heads, head_size]
+        // ggml_tensor *apply_pos_embedding_k(ForwardContext *ctx, ggml_tensor *k, int hidden_size, int qlen,
+        //                                    ggml_tensor *past) const override {
+        //     return ggml_rope_ext_inplace(ctx->g_ctx, k, past, nullptr, rope_dim, rope_mode,  0,
+        //                                     freq_base, freq_scale, ext_factor, attn_factor, beta_fast,
+        //                                     beta_slow);    // [qlen, heads, head_size]
+        // }
+        //
+        // ggml_tensor *apply_pos_embedding_q(ForwardContext *ctx, ggml_tensor *q, int hidden_size, int qlen,
+        //                                    ggml_tensor *past) const override {
+        //     return ggml_rope_ext_inplace(ctx->g_ctx, q, past, nullptr, rope_dim, rope_mode, 0,
+        //                                     freq_base, freq_scale, ext_factor, attn_factor, beta_fast,
+        //                                     beta_slow);    // [qlen, heads, head_size];
+        // }
+
         ggml_tensor *apply_pos_embedding_k(ForwardContext *ctx, ggml_tensor *k, int hidden_size, int qlen,
-                                           ggml_tensor *past) const override {
-            return ggml_rope_ext_inplace(ctx->g_ctx, k, past, nullptr, rope_dim, rope_mode,  0,
+                                   ggml_tensor *past) const override {
+            return ggml_rope_custom_inplace(ctx->g_ctx, k, past, rope_dim, rope_mode, 0, 0,
                                             freq_base, freq_scale, ext_factor, attn_factor, beta_fast,
                                             beta_slow);    // [qlen, heads, head_size]
         }
 
         ggml_tensor *apply_pos_embedding_q(ForwardContext *ctx, ggml_tensor *q, int hidden_size, int qlen,
                                            ggml_tensor *past) const override {
-            return ggml_rope_ext_inplace(ctx->g_ctx, q, past, nullptr, rope_dim, rope_mode, 0,
+            return ggml_rope_custom_inplace(ctx->g_ctx, q, past, rope_dim, rope_mode, 0, 0,
                                             freq_base, freq_scale, ext_factor, attn_factor, beta_fast,
                                             beta_slow);    // [qlen, heads, head_size];
         }
