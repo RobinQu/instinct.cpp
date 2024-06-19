@@ -584,7 +584,7 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
                 dense(init_context, intermediate_size, hidden_size, nullptr, use_bias),
                 norm(init_context, hidden_size) {}
 
-        ggml_tensor *Forward(ForwardContext *ctx, ggml_tensor *hidden_states, ggml_tensor *attention_output) {
+        ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *hidden_states, ggml_tensor *attention_output) {
             ggml_tensor *r = dense.forward(ctx, hidden_states);
             r = ggml_add_inplace(ctx->g_ctx, r, attention_output);
             r = norm.forward(ctx, r);
@@ -611,7 +611,7 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
         ggml_tensor *forward(ForwardContext *ctx, ggml_tensor *hidden_states) override {
             ggml_tensor *temp = intermediate.forward(ctx, hidden_states);
             temp = inplace_act(ctx->g_ctx, act, temp);
-            temp = output.Forward(ctx, temp, hidden_states);
+            temp = output.forward(ctx, temp, hidden_states);
             return temp;
         }
 

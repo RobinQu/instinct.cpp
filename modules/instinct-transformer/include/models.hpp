@@ -337,7 +337,8 @@ namespace INSTINCT_TRANSFORMER_NS::models {
             ctx.g_ctx = ggml_init({.mem_size = mem_size_, .mem_buffer = mem_buffer_.get(), .no_alloc = false});
             ctx.g_scratch = {.offs = 0, .size = scratch_size_, .data = scratch_buffer_.get()};
 
-            int n_threads = input_ids.size() >= 32 && ggml_cpu_has_blas() && !ggml_cpu_has_gpublas() ? 1 : gen_config.num_threads;
+            // int n_threads = input_ids.size() >= 32 && ggml_cpu_has_blas() && !ggml_cpu_has_gpublas() ? 1 : gen_config.num_threads;
+            int n_threads = input_ids.size() >= 32 ? 1: gen_config.num_threads;
             ctx.g_cgraph = ggml_new_graph_custom(ctx.g_ctx, graph_size, false);
 
             ggml_tensor *input_ids_tensor = ggml_new_tensor_1d(ctx.g_ctx, GGML_TYPE_I32, input_ids.size());
@@ -381,15 +382,15 @@ namespace INSTINCT_TRANSFORMER_NS::models {
                 layers(),
                 final(init_context, config.hidden_size)
         {
-            layers.reserve(config.num_hidden_layers);
+            // layers.reserve(config.num_hidden_layers);
             for(int layer_id=0; layer_id<config_.num_hidden_layers; ++layer_id) {
                 layers.emplace_back(
-                        init_context,
-                        config.hidden_size,
-                        config.num_attention_heads,
-                        config.intermediate_size,
-                        config.num_attention_heads,
-                        config.max_length
+                    init_context,
+                    config.hidden_size,
+                    config.num_attention_heads,
+                    config.intermediate_size,
+                    config.num_attention_heads,
+                    config.max_length
                 );
                 layers[layer_id].set_id(layer_id);
             }
@@ -406,7 +407,6 @@ namespace INSTINCT_TRANSFORMER_NS::models {
 
         RobertaEmbedding word_embeddings;
         std::vector<RobertaBlock> layers;
-        // RobertaClassificationHead final;
         FinalBlock final;
 
     private:
