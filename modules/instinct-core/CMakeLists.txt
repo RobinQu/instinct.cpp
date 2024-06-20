@@ -47,8 +47,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
 #
 #)
 
-find_package(inja REQUIRED)
-
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
 #        ${${LIBRARY_TARGET_NAME}_SRC}
@@ -57,49 +55,127 @@ add_library(
 add_library(instinct::core
         ALIAS ${LIBRARY_TARGET_NAME})
 
-
-
 include(FetchContent)
 FetchContent_Declare(
         RPP
         GIT_REPOSITORY https://github.com/victimsnino/ReactivePlusPlus.git
         GIT_TAG 103b882
+        GIT_SHALLOW 1
         FIND_PACKAGE_ARGS NAMES RPP # will invoke find_package first
 )
-FetchContent_MakeAvailable(rpp)
+FetchContent_Declare(
+        hash-library
+        GIT_REPOSITORY https://github.com/stbrumme/hash-library.git
+        GIT_TAG hash_library_v8
+        GIT_SHALLOW 1
+        FIND_PACKAGE_ARGS NAMES hash-library # will invoke find_package first
+)
+FetchContent_Declare(
+        base64
+        GIT_REPOSITORY https://github.com/aklomp/base64.git
+        GIT_TAG v0.5.2
+        GIT_SHALLOW 1
+        FIND_PACKAGE_ARGS NAMES base64 # will invoke find_package first
+)
+FetchContent_Declare(
+        bshoshany-thread-pool
+        GIT_REPOSITORY https://github.com/bshoshany/thread-pool.git
+        GIT_TAG v4.1.0
+        GIT_SHALLOW 1
+        FIND_PACKAGE_ARGS NAMES bshoshany-thread-pool # will invoke find_package first
+)
+FetchContent_Declare(
+        cpptrace
+        GIT_REPOSITORY https://github.com/jeremy-rifkin/cpptrace.git
+        GIT_TAG v0.6.1
+        GIT_SHALLOW 1
+        FIND_PACKAGE_ARGS NAMES cpptrace # will invoke find_package first
+)
+FetchContent_Declare(
+        nlohmann_json
+        GIT_REPOSITORY https://github.com/nlohmann/json.git
+        GIT_TAG v3.11.3
+        GIT_SHALLOW 1
+        FIND_PACKAGE_ARGS NAMES nlohmann_json # will invoke find_package first
+)
+FetchContent_Declare(
+        tsl-ordered-map
+        GIT_REPOSITORY https://github.com/Tessil/ordered-map.git
+        GIT_TAG v1.1.0
+        GIT_SHALLOW 1
+        FIND_PACKAGE_ARGS NAMES tsl-ordered-map # will invoke find_package first
+)
+#FetchContent_Declare(
+#        fmt
+#        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+#        GIT_TAG 10.2.1
+#        GIT_SHALLOW 1
+#        FIND_PACKAGE_ARGS NAMES fmt # will invoke find_package first
+#)
+FetchContent_Declare(
+        fmtlog
+        GIT_REPOSITORY https://github.com/MengRao/fmtlog.git
+        GIT_TAG v2.2.1
+        GIT_SHALLOW 1
+        FIND_PACKAGE_ARGS NAMES fmtlog # will invoke find_package first
+)
+FetchContent_Declare(
+        crossguid
+        GIT_REPOSITORY https://github.com/graeme-hill/crossguid.git
+        GIT_TAG v0.2.2
+        GIT_SHALLOW 1
+        FIND_PACKAGE_ARGS NAMES crossguid # will invoke find_package first
+)
+SET(URIPARSER_BUILD_TESTS OFF)
+FetchContent_Declare(
+        uriparser
+        GIT_REPOSITORY https://github.com/uriparser/uriparser.git
+        GIT_TAG uriparser-0.9.8
+        GIT_SHALLOW 1
+        FIND_PACKAGE_ARGS NAMES uriparser # will invoke find_package first
+)
+FetchContent_Declare(
+        CURL
+        GIT_REPOSITORY https://github.com/curl/curl.git
+        GIT_TAG curl-8_8_0
+        GIT_SHALLOW 1
+        FIND_PACKAGE_ARGS NAMES CURL # will invoke find_package first
+)
+FetchContent_Declare(
+        ICU
+        GIT_REPOSITORY https://github.com/viaduck/icu-cmake.git
+        GIT_TAG 480105d
+        GIT_SHALLOW 1
+        FIND_PACKAGE_ARGS NAMES ICU # will invoke find_package first
+)
+SET(BUILD_ICU ON)
+SET(ICU_BUILD_VERSION 74.1)
+FetchContent_Declare(
+        inja
+        GIT_REPOSITORY https://github.com/pantor/inja.git
+        GIT_TAG v3.4.0
+        GIT_SHALLOW 1
+        FIND_PACKAGE_ARGS NAMES pantor # will invoke find_package first
+)
+FetchContent_MakeAvailable(base64 cpptrace hash-library rpp bshoshany-thread-pool nlohmann_json tsl-ordered-map fmtlog crossguid uriparser CURL ICU)
 
-
-find_package(bshoshany-thread-pool REQUIRED)
-find_package(nlohmann_json REQUIRED)
-#find_package(RPP REQUIRED)
-find_package(ICU 74.1 REQUIRED)
-find_package(tsl-ordered-map REQUIRED)
-find_package(fmt REQUIRED)
-find_package(fmtlog REQUIRED)
-find_package(crossguid REQUIRED)
-find_package(uriparser REQUIRED)
-find_package(CURL REQUIRED)
-find_package(hash-library REQUIRED)
-find_package(base64)
-find_package(cpptrace REQUIRED)
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
-        bshoshany-thread-pool::bshoshany-thread-pool
-        crossguid::crossguid
+        bshoshany-thread-pool
+        crossguid
         instinct::proto
         RPP::rpp
-        fmt::fmt
-        nlohmann_json::nlohmann_json
+        fmt
+        nlohmann_json
         icu::icu
-        aklomp::base64
+        base64
         tsl::ordered_map
-        fmtlog::fmtlog
-        crossguid::crossguid
+        fmtlog
         CURL::libcurl
-        uriparser::uriparser
-        hash-library::hash-library
-        pantor::inja
-        cpptrace::cpptrace
+        uriparser
+        hash-library
+        inja
+        cpptrace
 )
 
 

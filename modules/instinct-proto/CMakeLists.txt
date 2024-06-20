@@ -3,7 +3,21 @@ project(instinct-proto)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(Protobuf CONFIG REQUIRED)
+include(FetchContent)
+SET(protobuf_BUILD_TESTS OFF)
+SET(ABSL_PROPAGATE_CXX_STD ON)
+FetchContent_Declare(
+        Protobuf
+        GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
+        GIT_TAG v27.1
+        GIT_SHALLOW 1
+        FIND_PACKAGE_ARGS # will invoke find_package first
+)
+FetchContent_MakeAvailable(Protobuf)
+message(STATUS "proto"  ${Protobuf_INCLUDE_DIRS})
+#include_directories(${Protobuf_INCLUDE_DIRS})
+#include_directories(${CMAKE_CURRENT_BINARY_DIR})
+#find_package(Protobuf CONFIG REQUIRED)
 
 add_library(proto-objects STATIC
         src/core.proto

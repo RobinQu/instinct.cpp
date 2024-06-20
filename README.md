@@ -37,7 +37,7 @@ For library itself:
 
 ## Roadmap
 
-Complete project plan is tracked at [Project kanban](https://github.com/users/RobinQu/projects/1/views/1?layout=board).
+Complete project plan is tracked at [Project kanban](https://github.com/users/RobinQu/projects/1/views/1).
 
 | Milestone                                                    | Features                                                     | DDL           |
 |--------------------------------------------------------------|--------------------------------------------------------------|---------------|
@@ -67,11 +67,11 @@ This project could not be possible without following awesome projects.
 * [duckx](https://github.com/amiremohamadi/DuckX)
 * [DuckDB](https://duckdb.org/)
 * [exprtk](https://github.com/ArashPartow/exprtk)
-* [fmt](https://github.com/MengRao/fmtlog)
+* [fmt](https://github.com/fmtlib/fmt)
 * [fmtlog](https://github.com/MengRao/fmtlog)
 * [hash_library](https://github.com/stbrumme/hash-library)
 * [icu](https://github.com/unicode-org/icu/)
-* [inja](https://pantor.github.io/inja/)
+* [inja](https://github.com/pantor/inja)
 * [libcurl](https://curl.se/libcurl/c/)
 * [llama.cpp](https://github.com/ggerganov/llama.cpp/)
 * [nlohmann_json](https://github.com/nlohmann/json)

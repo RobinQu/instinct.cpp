@@ -20,7 +20,18 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/server/httplib/DefaultErrorController.hpp
 )
 
-find_package(httplib)
+FetchContent_Declare(
+        httplib
+        GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
+        GIT_TAG v0.16.0
+        GIT_SHALLOW 1
+        FIND_PACKAGE_ARGS NAMES httplib # will invoke find_package first
+)
+SET(HTTPLIB_USE_OPENSSL_IF_AVAILABLE OFF)
+SET(HTTPLIB_USE_ZLIB_IF_AVAILABLE OFF)
+SET(HTTPLIB_USE_BROTLI_IF_AVAILABLE OFF)
+FetchContent_MakeAvailable(httplib)
+
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
         #        ${${LIBRARY_TARGET_NAME}_SRC}
@@ -37,7 +48,7 @@ target_include_directories(${LIBRARY_TARGET_NAME}
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::core
-        httplib::httplib
+        httplib
 )
 
 install(TARGETS ${LIBRARY_TARGET_NAME}

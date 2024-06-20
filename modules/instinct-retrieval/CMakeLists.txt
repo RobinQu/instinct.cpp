@@ -40,10 +40,17 @@ set(${LIBRARY_TARGET_NAME}_HDR
 #set(${LIBRARY_TARGET_NAME}_SRC
 #
 #)
+FetchContent_Declare(
+        duckx
+        GIT_REPOSITORY https://github.com/amiremohamadi/DuckX.git
+        GIT_TAG v1.2.2
+        FIND_PACKAGE_ARGS # will invoke find_package first
+)
+#set(GGML_PERF ON)
+FetchContent_MakeAvailable(duckx)
 
-find_package(duckx REQUIRED)
 find_package(pdfium REQUIRED)
-find_package(Tesseract REQUIRED)
+#find_package(Tesseract REQUIRED)
 
 
 
@@ -76,7 +83,6 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         pdfium::pdfium
         icu::icu
         instinct::data
-        Tesseract::libtesseract
         duckx::duckx
 )
 
