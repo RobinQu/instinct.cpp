@@ -37,26 +37,21 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/cameron314/concurrentqueue.git
         GIT_TAG v1.0.4
         GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS NAMES concurrentqueue # will invoke find_package first
+        FIND_PACKAGE_ARGS # will invoke find_package first
 )
 FetchContent_Declare(
         duckdb
         GIT_REPOSITORY https://github.com/duckdb/duckdb.git
         GIT_TAG v1.0.0
         GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS NAMES duckdb # will invoke find_package first
+        FIND_PACKAGE_ARGS # will invoke find_package first
 )
 FetchContent_MakeAvailable(concurrentqueue duckdb)
-
-#find_package(inja REQUIRED)
-#find_package(duckdb REQUIRED)
-#find_package(concurrentqueue REQUIRED)
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::core
         instinct::proto
-        inja
-        duckdb
+        duckdb_static
         concurrentqueue
 )
 

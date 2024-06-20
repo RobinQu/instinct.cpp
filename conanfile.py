@@ -16,6 +16,7 @@ class InstinctCppRecipe(ConanFile):
 
 
     def requirements(self):
+        pass
         # self.requires("hash-library/8.0")
         # self.requires("bshoshany-thread-pool/4.1.0")
         # self.requires("duckdb/0.10.2", options={"with_httpfs": True})
@@ -32,9 +33,9 @@ class InstinctCppRecipe(ConanFile):
         # self.requires("libcurl/8.6.0")
         # self.requires("cpp-httplib/0.15.3")
         # self.requires("tesseract/5.3.3")
-        self.requires("pdfium/95.0.4629")
+        # self.requires("pdfium/95.0.4629")
         # self.requires("duckx/1.2.2")
-        self.requires("exprtk/0.0.2")
+        # self.requires("exprtk/0.0.2")
         # self.requires("inja/3.4.0")
         # self.requires("concurrentqueue/1.0.4")
         # self.requires("cpptrace/0.5.4")

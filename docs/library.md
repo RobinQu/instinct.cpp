@@ -6,16 +6,38 @@ WIP [#1](https://github.com/RobinQu/instinct.cpp/issues/1)
 
 ## Build from sources
 
-System Requirements:
+Build requirements:
 
 * CMake 3.26+
 * Compiler that supports C++ 20: GCC 12+ or Clang 15+
-* Conan 2+
+* Conan 2+ (Optional)
 
-This project relies on [conan](https://conan.io/) to resolve dependencies. To build and install:
+### Step 1:  Install dependencies:
+
+Software dependencies can be prepared using `conan` or package manager bundled in your OS. Please choose one and only one way to install these packages.
+
+Using `conan`:
 
 ```shell
 conan install . --build=missing --output-folder=build
+```
+
+Using `apt-get` for Ubuntu:
+
+```shell
+
+```
+
+Using `brew` for macOS:
+
+```shell
+brew install curl icu4c protobuf googletest
+```
+
+To build and install:
+
+```shell
+
 cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
 cmake --build . -j $(nproc)

@@ -46,10 +46,17 @@ FetchContent_Declare(
         GIT_TAG v1.2.2
         FIND_PACKAGE_ARGS # will invoke find_package first
 )
-#set(GGML_PERF ON)
-FetchContent_MakeAvailable(duckx)
 
-find_package(pdfium REQUIRED)
+FetchContent_Declare(
+        pdfium
+        URL https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-mac-univ.tgz
+        URL_HASH SHA256=e97039ff9eac8c215ed4bdf3d011192657f94aed4691083e3bf124eae70aefdb
+)
+FetchContent_MakeAvailable(duckx pdfium)
+# setup pdfium env according to their docs: https://github.com/bblanchon/pdfium-binaries
+message(STATUS "pdfium bianries" ${pdfium_SOURCE_DIR})
+SET(ENV{PDFium_DIR} ${pdfium_SOURCE_DIR})
+find_package(PDFium REQUIRED)
 #find_package(Tesseract REQUIRED)
 
 
@@ -80,8 +87,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::proto
         instinct::core
         instinct::llm
-        pdfium::pdfium
-        icu::icu
+        pdfium
         instinct::data
         duckx::duckx
 )

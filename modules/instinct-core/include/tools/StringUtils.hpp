@@ -10,6 +10,7 @@
 #include <string_view>
 #include <string>
 #include <iostream>
+#include <unicode/unistr.h>
 #include <unicode/ustream.h>
 #include <Guid.hpp>
 #include "Assertions.hpp"

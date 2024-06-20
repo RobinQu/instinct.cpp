@@ -30,8 +30,8 @@ namespace INSTINCT_CORE_NS {
         bool keep_default_values = false;
     };
 
-    static void assert_status_ok(const util::Status& status, const std::string& msg = "") {
-        assert_true(status.ok(), msg.empty() ? "Protobuf function returned with error status: " + status.message().as_string() : msg);
+    static void assert_status_ok(const absl::Status& status, const std::string& msg = "") {
+        assert_true(status.ok(), msg.empty() ? "Protobuf function returned with error status: " + std::string(status.message()) : msg);
     }
 
     class ProtobufUtils final {
@@ -321,7 +321,8 @@ namespace INSTINCT_CORE_NS {
                                     std::string any_string;
                                     util::JsonPrintOptions json_print_options;
                                     json_print_options.preserve_proto_field_names = options.keep_default_values;
-                                    google::protobuf::util::MessageToJsonString(sub_message, &any_string, json_print_options);
+                                    const auto status = google::protobuf::util::MessageToJsonString(sub_message, &any_string, json_print_options);
+                                    assert_status_ok(status);
                                     sub_obj = nlohmann::json::parse(any_string);
                                 } else {
                                     ConvertMessageToJsonObject(sub_message, sub_obj, options);
@@ -352,7 +353,7 @@ namespace INSTINCT_CORE_NS {
             options.case_insensitive_enum_parsing = true;
             auto status = util::JsonStringToMessage(buf, &result, options);
             if (!status.ok()) {
-                LOG_DEBUG("Deserialize failed. reason: {}, original string: {}", status.message().as_string(), buf);
+                LOG_DEBUG("Deserialize failed. reason: {}, original string: {}", status.message(), buf);
             }
             assert_true(status.ok(), "failed to parse protobuf message from response body");
             return result;
@@ -364,7 +365,7 @@ namespace INSTINCT_CORE_NS {
             options.case_insensitive_enum_parsing = true;
             const auto status = util::JsonStringToMessage(buf, &result, options);
             if (!status.ok()) {
-                LOG_DEBUG("Deserialize failed. reason: {}, orginal string: {}", status.message().as_string(), buf);
+                LOG_DEBUG("Deserialize failed. reason: {}, orginal string: {}", status.message(), buf);
             }
             assert_true(status.ok(), "failed to parse protobuf message from response body");
         }
@@ -372,10 +373,11 @@ namespace INSTINCT_CORE_NS {
         static void Serialize(const Message& obj, std::string& param_string) {
             util::JsonPrintOptions json_print_options;
             json_print_options.preserve_proto_field_names = true;
-            json_print_options.always_print_primitive_fields = true;
+            // json_print_options.always_print_primitive_fields = true;
+            json_print_options.always_print_fields_with_no_presence = true;
             const auto status = util::MessageToJsonString(obj, &param_string, json_print_options);
             if (!status.ok()) {
-                LOG_DEBUG("Serialize failed message obj. reason: {}, original string: {}", status.message().as_string(), obj.DebugString());
+                LOG_DEBUG("Serialize failed message obj. reason: {}, original string: {}", status.message(), obj.DebugString());
             }
             assert_true(status.ok(), "failed to dump parameters from protobuf message");
         }
@@ -387,7 +389,7 @@ namespace INSTINCT_CORE_NS {
             // json_print_options.always_print_primitive_fields = true;
             const auto status = util::MessageToJsonString(obj, &param_string, json_print_options);
             if (!status.ok()) {
-                LOG_DEBUG("Serialize failed message obj. reason: {}, original string: {}", status.message().as_string(), obj.DebugString());
+                LOG_DEBUG("Serialize failed message obj. reason: {}, original string: {}", status.message(), obj.DebugString());
             }
             assert_true(status.ok(), "failed to dump parameters from protobuf message");
             return param_string;

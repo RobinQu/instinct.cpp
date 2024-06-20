@@ -86,7 +86,17 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/embedding_model/LocalEmbeddingModel.hpp
 )
 
-find_package(exprtk REQUIRED)
+
+FetchContent_Declare(
+        exprtk
+        GIT_REPOSITORY https://github.com/ArashPartow/exprtk.git
+        GIT_TAG 0.0.2
+        FIND_PACKAGE_ARGS # will invoke find_package first
+)
+FetchContent_MakeAvailable(exprtk)
+
+# fix for exprtk as it is not a CMake project
+add_library(exprtk INTERFACE ${exprtk_SOURCE_DIR}/exprtk.hpp)
 
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
@@ -110,7 +120,11 @@ target_include_directories(${LIBRARY_TARGET_NAME}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
-target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::core instinct::transformer exprtk::exprtk)
+target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
+        instinct::core
+        instinct::transformer
+        exprtk
+)
 
 install(TARGETS ${LIBRARY_TARGET_NAME}
         EXPORT  ${PROJECT_NAME}

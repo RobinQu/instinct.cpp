@@ -11,7 +11,7 @@
 #include <unicode/unistr.h>
 #include <unicode/uversion.h>
 #include <google/protobuf/message.h>
-#include <fmtlog/fmtlog.h>
+#include <fmtlog.h>
 #include <BS_thread_pool.hpp>
 
 #define INSTINCT_CORE_NS instinct::core

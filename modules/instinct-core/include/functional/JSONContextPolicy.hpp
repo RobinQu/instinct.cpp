@@ -53,7 +53,7 @@ namespace INSTINCT_CORE_NS {
             assert_true(IsMessage(), "expecting a message wrapper type");
             T result;
             auto status = util::JsonStringToMessage(data_.at(MESSAGE_WRAPPER_DATA_KEY).template get<std::string>(), &result);
-            assert_true(status.ok(), "message deserialization failed: " + status.message().ToString());
+            assert_true(status.ok(), "message deserialization failed: " + std::string(status.message()));
             return result;
         }
 
@@ -62,7 +62,7 @@ namespace INSTINCT_CORE_NS {
             // TODO use reflection instead
             std::string buf;
             auto status = util::MessageToJsonString(message, &buf);
-            assert_true(status.ok(), "message serialization failed: " + status.message().ToString());
+            assert_true(status.ok(), "message serialization failed: " + std::string(status.message()));
             data_ = nlohmann::json{{MESSAGE_WRAPPER_DATA_KEY, buf}};
         }
 

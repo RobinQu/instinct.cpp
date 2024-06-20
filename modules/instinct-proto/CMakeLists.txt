@@ -13,11 +13,9 @@ FetchContent_Declare(
         GIT_SHALLOW 1
         FIND_PACKAGE_ARGS # will invoke find_package first
 )
-FetchContent_MakeAvailable(Protobuf)
-message(STATUS "proto"  ${Protobuf_INCLUDE_DIRS})
-#include_directories(${Protobuf_INCLUDE_DIRS})
-#include_directories(${CMAKE_CURRENT_BINARY_DIR})
-#find_package(Protobuf CONFIG REQUIRED)
+SET(Protobuf_USE_STATIC_LIBS ON)
+find_package(Protobuf CONFIG REQUIRED)
+message(STATUS "Protobuf_INCLUDE_DIRS:"  ${Protobuf_INCLUDE_DIRS})
 
 add_library(proto-objects STATIC
         src/core.proto

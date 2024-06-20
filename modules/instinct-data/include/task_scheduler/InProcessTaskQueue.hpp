@@ -5,7 +5,7 @@
 #ifndef INPROCESSTASKSCHEDULER_HPP
 #define INPROCESSTASKSCHEDULER_HPP
 
-#include <moodycamel/blockingconcurrentqueue.h>
+#include <blockingconcurrentqueue.h>
 
 #include "ITaskScheduler.hpp"
 

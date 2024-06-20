@@ -56,7 +56,7 @@ namespace INSTINCT_LLM_NS {
             auto* properties = schema_.mutable_parameters()->mutable_properties();
             for(int i=0;i<descriptor->field_count();++i) {
                 const auto& field_descriptor = descriptor->field(i);
-                if (field_descriptor->has_optional_keyword() && !GetOptions().with_optional_arguments) {
+                if (field_descriptor->is_optional() && !GetOptions().with_optional_arguments) {
                     // only output required fields
                     continue;
                 }
