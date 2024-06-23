@@ -7,7 +7,7 @@ include(FetchContent)
 ############################################################
 
 # finding by config is required: https://github.com/protocolbuffers/protobuf/issues/12637
-find_package(Protobuf 5.27 REQUIRED CONFIG)
+find_package(Protobuf 4.25 REQUIRED CONFIG)
 if(Protobuf_FOUND)
     include_directories(${Protobuf_INCLUDE_DIRS})
     message(STATUS "Protobuf version : ${Protobuf_VERSION}")
@@ -126,9 +126,8 @@ FetchContent_Declare(
         FIND_PACKAGE_ARGS # will invoke find_package first
 )
 
-
 # use pre-installed icu
-find_package(ICU 74.1 REQUIRED
+find_package(ICU 73.2 REQUIRED
         COMPONENTS uc data i18n io
 )
 if (ICU_FOUND)
