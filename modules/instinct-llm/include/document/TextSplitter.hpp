@@ -6,6 +6,7 @@
 #define TEXTSPLITTER_HPP
 
 #include <unicode/brkiter.h>
+#include <unicode/ustream.h>
 
 #include "CoreGlobals.hpp"
 #include "functional/ReactiveFunctions.hpp"

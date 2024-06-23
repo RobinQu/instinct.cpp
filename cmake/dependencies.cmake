@@ -6,7 +6,8 @@ include(FetchContent)
 #                                                          #
 ############################################################
 
-find_package(Protobuf 5.27 REQUIRED)
+# finding by config is required: https://github.com/protocolbuffers/protobuf/issues/12637
+find_package(Protobuf 5.27 REQUIRED CONFIG)
 if(Protobuf_FOUND)
     include_directories(${Protobuf_INCLUDE_DIRS})
     message(STATUS "Protobuf version : ${Protobuf_VERSION}")
@@ -36,7 +37,7 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/stbrumme/hash-library.git
         GIT_TAG hash_library_v8
         GIT_SHALLOW 1
-        PATCH_COMMAND git apply -q ${CMAKE_SOURCE_DIR}/patches/hash-library-fix-macos.patch || echo "Patch to hash_library failed"
+        PATCH_COMMAND git apply -q ${CMAKE_CURRENT_SOURCE_DIR}/patches/hash-library-fix-macos.patch || echo "Patch to hash_library failed"
         FIND_PACKAGE_ARGS # will invoke find_package first
 )
 FetchContent_Declare(
@@ -115,7 +116,7 @@ FetchContent_Declare(
 #
 
 find_package(ICU 74.1 REQUIRED
-        COMPONENTS uc data i18n
+        COMPONENTS uc data i18n io
 )
 if (ICU_FOUND)
     message(STATUS "ICU_VERSION: " ${ICU_VERSION})
@@ -154,8 +155,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(exprtk)
 if (exprtk_POPULATED)
+    message(STATUS "exprtk_SOURCE_DIR: " ${exprtk_SOURCE_DIR})
     # fix for exprtk as it is not a CMake project
     add_library(exprtk INTERFACE ${exprtk_SOURCE_DIR}/exprtk.hpp)
+    target_include_directories(exprtk INTERFACE $<BUILD_INTERFACE:${exprtk_SOURCE_DIR}>)
 endif ()
 
 
