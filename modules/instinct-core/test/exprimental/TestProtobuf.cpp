@@ -13,7 +13,7 @@ namespace INSTINCT_CORE_NS {
         v.set_bool_value(false);
         fields->emplace("k", v);
         std::string output;
-        google::protobuf::util::MessageToJsonString(ao, &output);
+        ASSERT_TRUE(google::protobuf::util::MessageToJsonString(ao, &output).ok());
         std::cout << output << std::endl;
         ASSERT_EQ(R"""({"metadata":{"k":false}})""", output);
     }
