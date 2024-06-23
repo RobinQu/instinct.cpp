@@ -77,6 +77,9 @@ endif ()
 
 include(cmake/CMakeRC.cmake)
 
+# add dependencies
+include(cmake/dependencies.cmake)
+
 # project modules
 add_subdirectory(modules/instinct-proto)
 add_subdirectory(modules/instinct-transformer)

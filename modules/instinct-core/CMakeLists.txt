@@ -55,117 +55,6 @@ add_library(
 add_library(instinct::core
         ALIAS ${LIBRARY_TARGET_NAME})
 
-include(FetchContent)
-FetchContent_Declare(
-        RPP
-        GIT_REPOSITORY https://github.com/victimsnino/ReactivePlusPlus.git
-        GIT_TAG f58e94d
-        GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS NAMES RPP # will invoke find_package first
-)
-FetchContent_Declare(
-        hash-library
-        GIT_REPOSITORY https://github.com/stbrumme/hash-library.git
-        GIT_TAG hash_library_v8
-        GIT_SHALLOW 1
-        PATCH_COMMAND git apply -q ${CMAKE_SOURCE_DIR}/patches/hash-library-fix-macos.patch || echo "Patch to hash_library failed"
-        FIND_PACKAGE_ARGS NAMES hash-library # will invoke find_package first
-)
-FetchContent_Declare(
-        base64
-        GIT_REPOSITORY https://github.com/aklomp/base64.git
-        GIT_TAG v0.5.2
-        GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS NAMES # will invoke find_package first
-)
-FetchContent_Declare(
-        BS_thread_pool
-        GIT_REPOSITORY https://github.com/bshoshany/thread-pool.git
-        GIT_TAG v4.1.0
-        GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS NAMES # will invoke find_package first
-)
-FetchContent_Declare(
-        cpptrace
-        GIT_REPOSITORY https://github.com/jeremy-rifkin/cpptrace.git
-        GIT_TAG v0.6.1
-        GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS NAMES cpptrace # will invoke find_package first
-)
-FetchContent_Declare(
-        nlohmann_json
-        GIT_REPOSITORY https://github.com/nlohmann/json.git
-        GIT_TAG v3.11.3
-        GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS# will invoke find_package first
-)
-FetchContent_Declare(
-        tsl-ordered-map
-        GIT_REPOSITORY https://github.com/Tessil/ordered-map.git
-        GIT_TAG v1.1.0
-        GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS NAMES tsl-ordered-map # will invoke find_package first
-)
-FetchContent_Declare(
-        fmt
-        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-        GIT_TAG 10.2.1
-        GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS # will invoke find_package first
-)
-FetchContent_Declare(
-        fmtlog
-        GIT_REPOSITORY https://github.com/MengRao/fmtlog.git
-        GIT_TAG v2.2.1
-        GIT_SHALLOW 1
-        GIT_SUBMODULES "" # disable submodules
-        FIND_PACKAGE_ARGS # will invoke find_package first
-)
-FetchContent_Declare(
-        crossguid
-        GIT_REPOSITORY https://github.com/graeme-hill/crossguid.git
-        GIT_TAG v0.2.2
-        GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS # will invoke find_package first
-)
-SET(URIPARSER_BUILD_TESTS OFF)
-FetchContent_Declare(
-        uriparser
-        GIT_REPOSITORY https://github.com/uriparser/uriparser.git
-        GIT_TAG uriparser-0.9.8
-        GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS NAMES uriparser # will invoke find_package first
-)
-
-#FetchContent_Declare(
-#        CURL
-#        GIT_REPOSITORY https://github.com/curl/curl.git
-#        GIT_TAG curl-8_8_0
-#        GIT_SHALLOW 1
-#        FIND_PACKAGE_ARGS NAMES CURL # will invoke find_package first
-#)
-
-#SET(BUILD_ICU ON)
-#SET(ICU_BUILD_VERSION 74.1)
-#FetchContent_Declare(
-#        ICU
-#        GIT_REPOSITORY https://github.com/viaduck/icu-cmake.git
-#        GIT_TAG 480105d
-#        GIT_SHALLOW 1
-#        FIND_PACKAGE_ARGS # will invoke find_package first
-#)
-FetchContent_Declare(
-        inja
-        GIT_REPOSITORY https://github.com/pantor/inja.git
-        GIT_TAG v3.4.0
-        GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS # will invoke find_package first
-)
-FetchContent_MakeAvailable(base64 cpptrace hash-library rpp nlohmann_json tsl-ordered-map crossguid uriparser BS_thread_pool fmt)
-
-# inja requires nlohmann_json to be available in advance
-SET(INJA_USE_EMBEDDED_JSON OFF)
-FetchContent_MakeAvailable(inja)
 
 # fix for fmtlog
 FetchContent_Populate(fmtlog)
@@ -187,10 +76,6 @@ target_include_directories(hash-library INTERFACE ${hash-library_SOURCE_DIR})
 # fix for crossguid as it does not export headers
 target_include_directories(xg INTERFACE ${crossguid_SOURCE_DIR})
 
-# following packages are expected to exist on system paths
-#SET(ICU_ROOT "/opt/homebrew/opt/icu4c/")
-find_package(ICU COMPONENTS io i18n uc REQUIRED)
-find_package(CURL REQUIRED)
 
 
 message(STATUS "CURL_INCLUDE_DIR: " ${CURL_INCLUDE_DIR})
@@ -204,7 +89,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         BS_thread_pool
         xg
         RPP::rpp
-        fmt
+        fmt::fmt
         nlohmann_json
         ${ICU_LIBRARIES}
         base64

@@ -48,7 +48,7 @@ target_include_directories(${LIBRARY_TARGET_NAME}
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::core
-        httplib
+        httplib::httplib
 )
 
 install(TARGETS ${LIBRARY_TARGET_NAME}

@@ -3,49 +3,36 @@ project(instinct-proto)
 
 set(CMAKE_CXX_STANDARD 20)
 
-include(FetchContent)
-SET(protobuf_BUILD_TESTS OFF)
-SET(ABSL_PROPAGATE_CXX_STD ON)
-FetchContent_Declare(
-        Protobuf
-        GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
-        GIT_TAG v27.1
-        GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS # will invoke find_package first
-)
-SET(Protobuf_USE_STATIC_LIBS ON)
-find_package(Protobuf CONFIG REQUIRED)
-message(STATUS "Protobuf_INCLUDE_DIRS:"  ${Protobuf_INCLUDE_DIRS})
 
 add_library(proto-objects STATIC
-        src/core.proto
-        src/retrieval.proto
-        src/llm.proto
-        src/agent.proto
-        src/assistant_api_v2.proto
-        src/embedding_api.proto
-        src/chat_completion_api.proto
-        src/ollama_api.proto
-        src/data.proto
+        core.proto
+        retrieval.proto
+        llm.proto
+        agent.proto
+        assistant_api_v2.proto
+        embedding_api.proto
+        chat_completion_api.proto
+        ollama_api.proto
+        data.proto
 )
 
 add_library(instinct::proto
         ALIAS proto-objects)
 
 target_link_libraries(proto-objects PUBLIC
-        protobuf::libprotoc
         protobuf::libprotobuf
 )
 
-set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
-target_include_directories(proto-objects PUBLIC "$<BUILD_INTERFACE:${PROTO_BINARY_DIR}>")
-
-
+target_include_directories(proto-objects PUBLIC
+        "$<BUILD_INTERFACE:${PROTO_BINARY_DIR}>"
+)
 
 protobuf_generate(
         TARGET proto-objects
-        IMPORT_DIRS "${CMAKE_CURRENT_LIST_DIR}/src"
+        # later is a hack for built-in proto objects to be found
+        IMPORT_DIRS "${CMAKE_CURRENT_LIST_DIR}"
         PROTOC_OUT_DIR "${PROTO_BINARY_DIR}"
 )
 

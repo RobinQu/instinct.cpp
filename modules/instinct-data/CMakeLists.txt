@@ -23,30 +23,12 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/task_scheduler/ThreadPoolTaskScheduler.hpp
 )
 
-
-
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
         ${${LIBRARY_TARGET_NAME}_HDR}
 )
 add_library(instinct::data
         ALIAS ${LIBRARY_TARGET_NAME})
-
-FetchContent_Declare(
-        concurrentqueue
-        GIT_REPOSITORY https://github.com/cameron314/concurrentqueue.git
-        GIT_TAG v1.0.4
-        GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS # will invoke find_package first
-)
-FetchContent_Declare(
-        duckdb
-        GIT_REPOSITORY https://github.com/duckdb/duckdb.git
-        GIT_TAG v1.0.0
-        GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS # will invoke find_package first
-)
-FetchContent_MakeAvailable(concurrentqueue duckdb)
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::core

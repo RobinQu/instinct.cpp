@@ -87,17 +87,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
 )
 
 
-FetchContent_Declare(
-        exprtk
-        GIT_REPOSITORY https://github.com/ArashPartow/exprtk.git
-        GIT_TAG 0.0.2
-        FIND_PACKAGE_ARGS # will invoke find_package first
-)
-FetchContent_MakeAvailable(exprtk)
-
-# fix for exprtk as it is not a CMake project
-add_library(exprtk INTERFACE ${exprtk_SOURCE_DIR}/exprtk.hpp)
-
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
 #        ${${LIBRARY_TARGET_NAME}_SRC}
