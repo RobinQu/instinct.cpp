@@ -6,10 +6,7 @@ include(FetchContent)
 #                                                          #
 ############################################################
 
-# Protobuf setup
-#SET(PROTOBUF_INCLUDE_DIR "/opt/homebrew/opt/protobuf/include")
-#set(Protobuf_LIBRARIES protobuf::libprotobuf)
-find_package(Protobuf 5.27 REQUIRED CONFIG NO_DEFAULT_PATH)
+find_package(Protobuf 5.27 REQUIRED)
 if(Protobuf_FOUND)
     include_directories(${Protobuf_INCLUDE_DIRS})
     message(STATUS "Protobuf version : ${Protobuf_VERSION}")
@@ -18,11 +15,6 @@ if(Protobuf_FOUND)
     message(STATUS "Protobuf compiler libraries : ${Protobuf_PROTOC_LIBRARIES}")
     message(STATUS "Protobuf lite libraries : ${Protobuf_LITE_LIBRARIES}")
     message(STATUS "Protobuf protoc : ${Protobuf_PROTOC_EXECUTABLE}")
-else()
-    message(
-            WARNING
-            "Protobuf package not found -> specify search path via Protobuf_ROOT variable"
-    )
 endif()
 
 
@@ -35,7 +27,7 @@ endif()
 FetchContent_Declare(
         RPP
         GIT_REPOSITORY https://github.com/victimsnino/ReactivePlusPlus.git
-        GIT_TAG f58e94d
+        GIT_TAG 973c278f6eb2302aa413e782822f7d7d1f4cb65e
         GIT_SHALLOW 1
         FIND_PACKAGE_ARGS NAMES RPP # will invoke find_package first
 )
@@ -45,28 +37,28 @@ FetchContent_Declare(
         GIT_TAG hash_library_v8
         GIT_SHALLOW 1
         PATCH_COMMAND git apply -q ${CMAKE_SOURCE_DIR}/patches/hash-library-fix-macos.patch || echo "Patch to hash_library failed"
-        FIND_PACKAGE_ARGS NAMES hash-library # will invoke find_package first
+        FIND_PACKAGE_ARGS # will invoke find_package first
 )
 FetchContent_Declare(
         base64
         GIT_REPOSITORY https://github.com/aklomp/base64.git
         GIT_TAG v0.5.2
         GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS NAMES # will invoke find_package first
+        FIND_PACKAGE_ARGS # will invoke find_package first
 )
 FetchContent_Declare(
         BS_thread_pool
         GIT_REPOSITORY https://github.com/bshoshany/thread-pool.git
         GIT_TAG v4.1.0
         GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS NAMES # will invoke find_package first
+        FIND_PACKAGE_ARGS # will invoke find_package first
 )
 FetchContent_Declare(
         cpptrace
         GIT_REPOSITORY https://github.com/jeremy-rifkin/cpptrace.git
         GIT_TAG v0.6.1
         GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS NAMES cpptrace # will invoke find_package first
+        FIND_PACKAGE_ARGS # will invoke find_package first
 )
 FetchContent_Declare(
         nlohmann_json
@@ -80,7 +72,7 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/Tessil/ordered-map.git
         GIT_TAG v1.1.0
         GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS NAMES tsl-ordered-map # will invoke find_package first
+        FIND_PACKAGE_ARGS # will invoke find_package first
 )
 FetchContent_Declare(
         fmt
@@ -110,7 +102,7 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/uriparser/uriparser.git
         GIT_TAG uriparser-0.9.8
         GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS NAMES uriparser # will invoke find_package first
+        FIND_PACKAGE_ARGS# will invoke find_package first
 )
 
 FetchContent_Declare(
@@ -161,9 +153,10 @@ FetchContent_Declare(
         FIND_PACKAGE_ARGS # will invoke find_package first
 )
 FetchContent_MakeAvailable(exprtk)
-
-# fix for exprtk as it is not a CMake project
-add_library(exprtk INTERFACE ${exprtk_SOURCE_DIR}/exprtk.hpp)
+if (exprtk_POPULATED)
+    # fix for exprtk as it is not a CMake project
+    add_library(exprtk INTERFACE ${exprtk_SOURCE_DIR}/exprtk.hpp)
+endif ()
 
 
 ############################################################
@@ -184,11 +177,13 @@ FetchContent_Declare(
         URL_HASH SHA256=e97039ff9eac8c215ed4bdf3d011192657f94aed4691083e3bf124eae70aefdb
 )
 FetchContent_MakeAvailable(duckx pdfium)
-# setup pdfium env according to their docs: https://github.com/bblanchon/pdfium-binaries
-message(STATUS "pdfium bianries" ${pdfium_SOURCE_DIR})
-SET(ENV{PDFium_DIR} ${pdfium_SOURCE_DIR})
-find_package(PDFium REQUIRED)
-#find_package(Tesseract REQUIRED)
+
+if (pdfium_POPULATED)
+    # setup pdfium env according to their docs: https://github.com/bblanchon/pdfium-binaries
+    message(STATUS "pdfium bianries" ${pdfium_SOURCE_DIR})
+    SET(ENV{PDFium_DIR} ${pdfium_SOURCE_DIR})
+    find_package(PDFium REQUIRED)
+endif ()
 
 
 ############################################################

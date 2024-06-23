@@ -41,8 +41,8 @@ namespace INSTINCT_LLM_NS {
             FetchHttpGetResourceToFileVault(
                 file_vault,
                 resource_name,
-                "https://huggingface.co/robinqu/baai-bge-m3-guff/resolve/main/bge-reranker-v2-m3.bin?download=true",
-                {.algorithm = kSHA256, .expected_value = "b3e05dbe06c0aa52fd974d9c9dedbc51292b81f2f285d56113c060a0931a7f0f"}
+                "https://huggingface.co/robinqu/baai-bge-m3-guff/resolve/main/bge-reranker-m3-q4_1.bin?download=true",
+                {.algorithm = kSHA256, .expected_value = "2b0d1b8f41b8cfd6bc18aa90dd89671ba9aeb0d8121688f8b6a044634761de0c"}
             ).wait();
         }
     }
