@@ -82,14 +82,25 @@ FetchContent_Declare(
         GIT_SHALLOW 1
         FIND_PACKAGE_ARGS # will invoke find_package first
 )
-FetchContent_Declare(
-        fmtlog
-        GIT_REPOSITORY https://github.com/MengRao/fmtlog.git
-        GIT_TAG v2.2.1
-        GIT_SHALLOW 1
-        GIT_SUBMODULES "" # disable submodules
-        FIND_PACKAGE_ARGS # will invoke find_package first
-)
+
+# fix for fmtlog
+find_package(fmtlog QUIET)
+if (NOT fmtlog_FOUND)
+    MESSAGE(STATUS "Post-process for fmtlog")
+    FetchContent_Declare(
+            fmtlog
+            GIT_REPOSITORY https://github.com/MengRao/fmtlog.git
+            GIT_TAG v2.2.1
+            GIT_SHALLOW 1
+            GIT_SUBMODULES "" # disable submodules
+    )
+    FetchContent_Populate(fmtlog)
+    add_library(fmtlog ${fmtlog_SOURCE_DIR}/fmtlog.cc)
+    target_link_libraries(fmtlog PRIVATE fmt)
+    target_include_directories(fmtlog INTERFACE ${fmtlog_SOURCE_DIR})
+    add_library(fmtlog::fmtlog ALIAS fmtlog)
+endif ()
+
 FetchContent_Declare(
         crossguid
         GIT_REPOSITORY https://github.com/graeme-hill/crossguid.git
@@ -106,6 +117,7 @@ FetchContent_Declare(
         FIND_PACKAGE_ARGS# will invoke find_package first
 )
 
+
 FetchContent_Declare(
         CURL
         GIT_REPOSITORY https://github.com/curl/curl.git
@@ -113,8 +125,9 @@ FetchContent_Declare(
         GIT_SHALLOW 1
         FIND_PACKAGE_ARGS # will invoke find_package first
 )
-#
 
+
+# use pre-installed icu
 find_package(ICU 74.1 REQUIRED
         COMPONENTS uc data i18n io
 )
@@ -123,6 +136,7 @@ if (ICU_FOUND)
     message(STATUS "ICU_LIBRARIES: " ${ICU_LIBRARIES})
     message(STATUS "ICU_INCLUDE_DIRS: " ${ICU_INCLUDE_DIRS})
 endif ()
+
 
 
 
@@ -135,6 +149,44 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(base64 cpptrace hash-library rpp nlohmann_json tsl-ordered-map crossguid uriparser BS_thread_pool fmt CURL)
+
+if (base64_POPULATED)
+    MESSAGE(STATUS "Post-process for base64")
+    add_library(aklomp::base64 ALIAS base64)
+endif ()
+
+if (uriparser_POPULATED)
+    MESSAGE(STATUS "Post-process for uriparser")
+    add_library(uriparser::uriparser ALIAS uriparser)
+endif ()
+
+if (bs_thread_pool_POPULATED)
+    MESSAGE(STATUS "Post-process for BS_thread_pool")
+    # BS_thread_pool needs extra configurations after `FetchContent_MakeAvailable`
+    add_library(BS_thread_pool INTERFACE)
+    target_include_directories(BS_thread_pool INTERFACE ${bs_thread_pool_SOURCE_DIR}/include)
+    message(STATUS "BS_thread_pool_SOURCE_DIR" ${bs_thread_pool_SOURCE_DIR})
+    add_library(bshoshany-thread-pool::bshoshany-thread-pool ALIAS BS_thread_pool)
+endif ()
+
+
+# fix for hash-library
+if (hash-library_POPULATED)
+    MESSAGE(STATUS "Post-process for hash-library")
+    file(GLOB_RECURSE HASHLIB_SRC_HEADERS ${hash-library_SOURCE_DIR}/*.h)
+    file(GLOB_RECURSE HASHLIB_SRC_FILES ${hash-library_SOURCE_DIR}/*.cpp)
+    add_library(hash-library ${HASHLIB_SRC_FILES} ${HASHLIB_SRC_HEADERS})
+    target_include_directories(hash-library INTERFACE ${hash-library_SOURCE_DIR})
+    add_library(hash-library::hash-library ALIAS hash-library)
+endif ()
+
+if (crossguid_POPULATED)
+    MESSAGE(STATUS "Post-process for crossguid")
+    # fix for crossguid as it does not export headers
+    target_include_directories(xg INTERFACE ${crossguid_SOURCE_DIR})
+    add_library(crossguid::crossguid ALIAS xg)
+endif ()
+
 
 # inja requires nlohmann_json to be available in advance
 SET(INJA_USE_EMBEDDED_JSON OFF)

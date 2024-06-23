@@ -55,29 +55,6 @@ add_library(
 add_library(instinct::core
         ALIAS ${LIBRARY_TARGET_NAME})
 
-
-# fix for fmtlog
-FetchContent_Populate(fmtlog)
-add_library(fmtlog ${fmtlog_SOURCE_DIR}/fmtlog.cc)
-target_link_libraries(fmtlog PRIVATE fmt)
-target_include_directories(fmtlog INTERFACE ${fmtlog_SOURCE_DIR})
-
-# BS_thread_pool needs extra configurations after `FetchContent_MakeAvailable`
-add_library(BS_thread_pool INTERFACE)
-target_include_directories(BS_thread_pool INTERFACE ${bs_thread_pool_SOURCE_DIR}/include)
-message(STATUS "BS_thread_pool_SOURCE_DIR" ${bs_thread_pool_SOURCE_DIR})
-
-# fix for hash-library
-file(GLOB_RECURSE HASHLIB_SRC_HEADERS ${hash-library_SOURCE_DIR}/*.h)
-file(GLOB_RECURSE HASHLIB_SRC_FILES ${hash-library_SOURCE_DIR}/*.cpp)
-add_library(hash-library ${HASHLIB_SRC_FILES} ${HASHLIB_SRC_HEADERS})
-target_include_directories(hash-library INTERFACE ${hash-library_SOURCE_DIR})
-
-# fix for crossguid as it does not export headers
-target_include_directories(xg INTERFACE ${crossguid_SOURCE_DIR})
-
-
-
 message(STATUS "CURL_INCLUDE_DIR: " ${CURL_INCLUDE_DIR})
 message(STATUS "ICU_INCLUDE_DIR: " ${ICU_INCLUDE_DIR})
 message(STATUS "ICU_LIBRARIES: " ${ICU_LIBRARIES})
@@ -86,18 +63,18 @@ target_include_directories(${LIBRARY_TARGET_NAME} INTERFACE ${ICU_INCLUDE_DIR})
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::proto
-        BS_thread_pool
-        xg
+        bshoshany-thread-pool::bshoshany-thread-pool
+        crossguid::crossguid
         RPP::rpp
         fmt::fmt
-        nlohmann_json
+        nlohmann_json::nlohmann_json
         ${ICU_LIBRARIES}
-        base64
+        aklomp::base64
         tsl::ordered_map
-        fmtlog
+        fmtlog::fmtlog
         CURL::libcurl
-        uriparser
-        hash-library
+        uriparser::uriparser
+        hash-library::hash-library
         pantor::inja
         cpptrace::cpptrace
 )
