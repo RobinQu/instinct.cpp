@@ -33,8 +33,8 @@ add_library(instinct::data
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::core
         instinct::proto
-        duckdb_static
-        concurrentqueue
+        duckdb::duckdb
+        concurrentqueue::concurrentqueue
 )
 
 target_include_directories(${LIBRARY_TARGET_NAME}
@@ -42,24 +42,6 @@ target_include_directories(${LIBRARY_TARGET_NAME}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
-install(TARGETS ${LIBRARY_TARGET_NAME}
-        EXPORT  ${PROJECT_NAME}
-        LIBRARY       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT shlib
-        ARCHIVE       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT lib
-        RUNTIME       DESTINATION "${CMAKE_INSTALL_BINDIR}"                            COMPONENT bin
-        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct" COMPONENT dev)
-
-install(DIRECTORY include/
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct"
-        COMPONENT instinct_core
-)
-
-#install(
-#        EXPORT InstinctTargets
-#        NAMESPACE INSTINCT::
-#        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake"
-#        COMPONENT instinct-core
-#)
 
 if(BUILD_TESTING)
     add_subdirectory(test)

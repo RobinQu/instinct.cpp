@@ -66,9 +66,9 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::proto
         instinct::core
         instinct::llm
-        pdfium
-        instinct::data
+        pdfium::pdfium
         duckx::duckx
+        instinct::data
 )
 
 install(TARGETS ${LIBRARY_TARGET_NAME}

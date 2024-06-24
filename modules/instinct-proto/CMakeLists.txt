@@ -3,8 +3,7 @@ project(instinct-proto)
 
 set(CMAKE_CXX_STANDARD 20)
 
-
-add_library(proto-objects STATIC
+add_library(proto-objects
         core.proto
         retrieval.proto
         llm.proto
@@ -16,30 +15,26 @@ add_library(proto-objects STATIC
         data.proto
 )
 
-add_library(instinct::proto
-        ALIAS proto-objects)
+add_library(instinct::proto ALIAS proto-objects)
 
-target_link_libraries(proto-objects PUBLIC
-        protobuf::libprotobuf
+target_link_libraries(proto-objects
+    protobuf::protobuf
 )
 
-set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+
+if (protobuf_FOUND)
+    message(STATUS "protobuf_INCLUDE_DIRS: " ${protobuf_INCLUDE_DIRS})
+    message(STATUS "Protobuf_PROTOC_EXECUTABLE" ${Protobuf_PROTOC_EXECUTABLE})
+endif ()
 
 target_include_directories(proto-objects PUBLIC
-        "$<BUILD_INTERFACE:${PROTO_BINARY_DIR}>"
+    "$<BUILD_INTERFACE:${PROTO_BINARY_DIR}>"
 )
 
 protobuf_generate(
         TARGET proto-objects
-        # later is a hack for built-in proto objects to be found
         IMPORT_DIRS "${CMAKE_CURRENT_LIST_DIR}"
         PROTOC_OUT_DIR "${PROTO_BINARY_DIR}"
 )
 
-
-install(TARGETS proto-objects
-        EXPORT  ${PROJECT_NAME}
-        LIBRARY       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT shlib
-        ARCHIVE       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT lib
-        RUNTIME       DESTINATION "${CMAKE_INSTALL_BINDIR}"                            COMPONENT bin
-        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct" COMPONENT dev)

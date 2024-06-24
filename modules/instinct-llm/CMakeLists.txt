@@ -112,19 +112,7 @@ target_include_directories(${LIBRARY_TARGET_NAME}
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::core
         instinct::transformer
-        exprtk
-)
-
-install(TARGETS ${LIBRARY_TARGET_NAME}
-        EXPORT  ${PROJECT_NAME}
-        LIBRARY       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT shlib
-        ARCHIVE       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT lib
-        RUNTIME       DESTINATION "${CMAKE_INSTALL_BINDIR}"                            COMPONENT bin
-        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct" COMPONENT dev)
-
-install(DIRECTORY include/
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct"
-        COMPONENT instinct_llm
+        exprtk::exprtk
 )
 
 if(BUILD_TESTING)

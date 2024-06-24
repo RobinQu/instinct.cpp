@@ -5,6 +5,9 @@
 #include <assistant_api_v2.pb.h>
 #include <google/protobuf/util/json_util.h>
 
+#include "CoreGlobals.hpp"
+
+
 namespace INSTINCT_CORE_NS {
     TEST(ProtobufTest, JSONConversion) {
         instinct::assistant::v2::AssistantObject ao;
