@@ -41,6 +41,13 @@ For example, on macOS you can install them using `brew`:
 brew install protobuf icu4c
 ```
 
+If you prefer `conda`, which is available in Linux, macOS and Windows:
+
+```shell
+conda install -c conda-forge icu protobuf libuuid
+```
+
+
 However, It's recommended to build and install these libraries from source because of following reasons:
 
 1. You can make sure both static and dynamic libraries are available. Some package managers like `brew` only ship dynamic libraries of protobuf so that it may prevent you from linking statically.
