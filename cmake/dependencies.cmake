@@ -7,7 +7,7 @@ include(FetchContent)
 ############################################################
 
 # finding by config is required: https://github.com/protocolbuffers/protobuf/issues/12637
-find_package(Protobuf 4.25 REQUIRED CONFIG)
+find_package(Protobuf REQUIRED CONFIG)
 if(Protobuf_FOUND)
     include_directories(${Protobuf_INCLUDE_DIRS})
     message(STATUS "Protobuf version : ${Protobuf_VERSION}")
@@ -17,8 +17,6 @@ if(Protobuf_FOUND)
     message(STATUS "Protobuf lite libraries : ${Protobuf_LITE_LIBRARIES}")
     message(STATUS "Protobuf protoc : ${Protobuf_PROTOC_EXECUTABLE}")
 endif()
-
-
 
 ############################################################
 #                                                          #
