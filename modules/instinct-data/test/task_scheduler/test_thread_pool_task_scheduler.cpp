@@ -3,8 +3,8 @@
 //
 #include <gtest/gtest.h>
 
-#include <instinct/DataGlobals.hpp>
-#include <instinct/task_scheduler/ThreadPoolTaskScheduler.hpp>
+#include <instinct/data_global.hpp>
+#include <instinct/task_scheduler/thread_pool_task_scheduler.hpp>
 #include <instinct/tools/random_utils.hpp>
 
 namespace INSTINCT_DATA_NS {

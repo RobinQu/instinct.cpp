@@ -14,7 +14,7 @@
 #include <inja/inja.hpp>
 
 #include <instinct/core_global.hpp>
-#include <instinct/DataGlobals.hpp>
+#include <instinct/data_global.hpp>
 #include <instinct/chain/MessageChain.hpp>
 #include <instinct/toolkit/BaseFunctionTool.hpp>
 #include <instinct/tools/snowflake_id_generator.hpp>

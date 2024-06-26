@@ -3,8 +3,8 @@
 //
 #include <gtest/gtest.h>
 #include <llm.pb.h>
-#include <instinct/database/duckdb/DuckDBConnectionPool.hpp>
-#include <instinct/database/duckdb/DuckDBDataTemplate.hpp>
+#include <instinct/database/duckdb/duckdb_connection_pool.hpp>
+#include <instinct/database/duckdb/duckdb_data_template.hpp>
 
 
 namespace INSTINCT_DATA_NS {

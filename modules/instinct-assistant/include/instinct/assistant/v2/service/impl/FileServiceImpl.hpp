@@ -8,8 +8,8 @@
 
 #include <instinct/assistant/v2/service/IFileService.hpp>
 #include <instinct/assistant/v2/tool/EntitySQLUtils.hpp>
-#include <instinct/database/IDataTemplate.hpp>
-#include <instinct/object_store/IObjectStore.hpp>
+#include <instinct/database/data_template.hpp>
+#include <instinct/object_store/object_store.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;

@@ -11,7 +11,7 @@
 #include <instinct/assistant/v2/data_mapper/VectorStoreFileDataMapper.hpp>
 #include <instinct/assistant/v2/task_handler/FileObjectTaskHandler.hpp>
 #include <instinct/assistant/v2/tool/SimpleRetrieverOperator.hpp>
-#include <instinct/task_scheduler/ThreadPoolTaskScheduler.hpp>
+#include <instinct/task_scheduler/thread_pool_task_scheduler.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 

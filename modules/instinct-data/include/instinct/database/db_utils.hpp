@@ -5,8 +5,8 @@
 #ifndef DBUTILS_HPP
 #define DBUTILS_HPP
 
-#include <instinct/database/BaseConnectionPool.hpp>
-#include <instinct/DataGlobals.hpp>
+#include <instinct/database/base_connection_pool.hpp>
+#include <instinct/data_global.hpp>
 #include <instinct/tools/io_utils.hpp>
 #include <instinct/tools/snowflake_id_generator.hpp>
 

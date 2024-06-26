@@ -7,10 +7,10 @@
 
 #include <instinct/AssistantGlobals.hpp>
 #include <instinct/assistant/v2/db/DBMigration.hpp>
-#include <instinct/database/duckdb/DuckDBConnectionPool.hpp>
-#include <instinct/database/duckdb/DuckDBDataTemplate.hpp>
-#include <instinct/object_store/FileSystemObjectStore.hpp>
-#include <instinct/task_scheduler/ThreadPoolTaskScheduler.hpp>
+#include <instinct/database/duckdb/duckdb_connection_pool.hpp>
+#include <instinct/database/duckdb/duckdb_data_template.hpp>
+#include <instinct/object_store/file_system_object_store.hpp>
+#include <instinct/task_scheduler/thread_pool_task_scheduler.hpp>
 #include <instinct/assistant/v2/service/AssistantFacade.hpp>
 #include <instinct/assistant/v2/task_handler/FileBatchObjectBackgroundTask.hpp>
 #include <instinct/assistant/v2/task_handler/RunObjectTaskHandler.hpp>

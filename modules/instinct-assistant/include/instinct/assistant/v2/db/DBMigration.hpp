@@ -7,7 +7,7 @@
 #include <cmrc/cmrc.hpp>
 
 #include <instinct/AssistantGlobals.hpp>
-#include <instinct/database/DBUtils.hpp>
+#include <instinct/database/db_utils.hpp>
 #include <instinct/ioc/application_context.hpp>
 
 CMRC_DECLARE(instinct::assistant);

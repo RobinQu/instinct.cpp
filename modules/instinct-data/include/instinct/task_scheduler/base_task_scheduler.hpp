@@ -5,8 +5,8 @@
 #ifndef BASETASKSCHEDULER_HPP
 #define BASETASKSCHEDULER_HPP
 
-#include <instinct/DataGlobals.hpp>
-#include <instinct/task_scheduler/ITaskScheduler.hpp>
+#include <instinct/data_global.hpp>
+#include <instinct/task_scheduler/task_scheduler.hpp>
 
 
 namespace INSTINCT_DATA_NS {

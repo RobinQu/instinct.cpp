@@ -6,9 +6,9 @@
 #define THREADPOOLTASKSCHEDULER_HPP
 #include <thread>
 
-#include <instinct/task_scheduler/BaseTaskScheduler.hpp>
-#include <instinct/DataGlobals.hpp>
-#include <instinct/task_scheduler/InProcessTaskQueue.hpp>
+#include <instinct/task_scheduler/base_task_scheduler.hpp>
+#include <instinct/data_global.hpp>
+#include <instinct/task_scheduler/in_process_task_queue.hpp>
 #include <instinct/ioc/application_context.hpp>
 
 namespace INSTINCT_DATA_NS {

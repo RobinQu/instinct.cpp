@@ -25,12 +25,12 @@ CMRC_DECLARE(instinct::assistant);
 #include <instinct/assistant/v2/service/impl/MessageServiceImpl.hpp>
 #include <instinct/assistant/v2/service/impl/RunServiceImpl.hpp>
 #include <instinct/assistant/v2/service/impl/ThreadServiceImpl.hpp>
-#include <instinct/database/DBUtils.hpp>
-#include <instinct/database/duckdb/DuckDBConnectionPool.hpp>
-#include <instinct/database/duckdb/DuckDBDataTemplate.hpp>
-#include <instinct/object_store/FileSystemObjectStore.hpp>
-#include <instinct/object_store/IObjectStore.hpp>
-#include <instinct/task_scheduler/ThreadPoolTaskScheduler.hpp>
+#include <instinct/database/db_utils.hpp>
+#include <instinct/database/duckdb/duckdb_connection_pool.hpp>
+#include <instinct/database/duckdb/duckdb_data_template.hpp>
+#include <instinct/object_store/file_system_object_store.hpp>
+#include <instinct/object_store/object_store.hpp>
+#include <instinct/task_scheduler/thread_pool_task_scheduler.hpp>
 
 namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_DATA_NS;

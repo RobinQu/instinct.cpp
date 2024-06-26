@@ -7,7 +7,7 @@
 
 #include <blockingconcurrentqueue.h>
 
-#include <instinct/task_scheduler/ITaskScheduler.hpp>
+#include <instinct/task_scheduler/task_scheduler.hpp>
 
 namespace INSTINCT_DATA_NS {
     template<typename T>

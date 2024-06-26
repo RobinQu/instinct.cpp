@@ -2,10 +2,12 @@
 // Created by RobinQu on 2024/4/24.
 //
 
-#ifndef IDATABASEMIGRATION_HPP
-#define IDATABASEMIGRATION_HPP
+#ifndef DATABASEMIGRATION_HPP
+#define DATABASEMIGRATION_HPP
 
-#include <instinct/DataGlobals.hpp>
+#include <instinct/database/base_connection_pool.hpp>
+#include <instinct/data_global.hpp>
+#include <instinct/database/database_migration.hpp>
 
 namespace INSTINCT_DATA_NS {
 
@@ -40,6 +42,24 @@ namespace INSTINCT_DATA_NS {
 
 
     };
+
+    template<typename ConnecitonImpl, typename QueryResultImpl>
+    class DatabaseMigration final: public IDatabaseMigration {
+        std::filesystem::path migration_dir_;
+        ConnectionPoolPtr<ConnecitonImpl, QueryResultImpl> connection_pool_;
+    public:
+        bool Migrate() override {
+
+        }
+
+        bool Rollback(unsigned steps) override {
+
+        }
+
+        DBSchemaVersion GetVersion() override {
+
+        }
+    };
 }
 
-#endif //IDATABASEMIGRATION_HPP
+#endif //DATABASEMIGRATION_HPP

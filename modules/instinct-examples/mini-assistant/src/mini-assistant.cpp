@@ -13,7 +13,7 @@
 #include <instinct/chat_model/OllamaChat.hpp>
 #include <instinct/chat_model/OpenAIChat.hpp>
 #include <instinct/commons/OllamaCommons.hpp>
-#include <instinct/database/DBUtils.hpp>
+#include <instinct/database/db_utils.hpp>
 #include <instinct/server/httplib/DefaultErrorController.hpp>
 #include <instinct/store/duckdb/DuckDBVectorStoreOperator.hpp>
 #include <instinct/server/httplib/HttpLibServer.hpp>

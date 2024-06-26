@@ -9,8 +9,8 @@
 #include <instinct/assistant/v2/service/IMessageService.hpp>
 #include <instinct/assistant/v2/task_handler/RunObjectTaskHandler.hpp>
 #include <instinct/assistant/v2/tool/EntitySQLUtils.hpp>
-#include <instinct/database/IDataTemplate.hpp>
-#include <instinct/task_scheduler/ThreadPoolTaskScheduler.hpp>
+#include <instinct/database/data_template.hpp>
+#include <instinct/task_scheduler/thread_pool_task_scheduler.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;

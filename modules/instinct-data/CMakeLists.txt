@@ -3,24 +3,22 @@ project(instinct_data)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 set(${LIBRARY_TARGET_NAME}_HDR
-        include/instinct/DataGlobals.hpp
-        include/instinct/database/IDataTemplate.hpp
-        include/instinct/database/duckdb/DuckDBDataTemplate.hpp
-        include/instinct/database/IConnectionPool.hpp
-        include/instinct/database/BaseConnectionPool.hpp
-        include/instinct/database/ManagedConnection.hpp
-        include/instinct/database/duckdb/DuckDBConnectionPool.hpp
-        include/instinct/database/DBUtils.hpp
-        include/instinct/database/duckdb/DuckDBConnection.hpp
-        include/instinct/database/DatabaseMigration.hpp
-        include/instinct/database/IDatabaseMigration.hpp
-        include/instinct/database/duckdb/TransactionAware.hpp
-        include/instinct/object_store/IObjectStore.hpp
-        include/instinct/object_store/FileSystemObjectStore.hpp
-        include/instinct/task_scheduler/ITaskScheduler.hpp
-        include/instinct/task_scheduler/InProcessTaskQueue.hpp
-        include/instinct/task_scheduler/BaseTaskScheduler.hpp
-        include/instinct/task_scheduler/ThreadPoolTaskScheduler.hpp
+        include/instinct/data_global.hpp
+        include/instinct/database/data_template.hpp
+        include/instinct/database/duckdb/duckdb_data_template.hpp
+        include/instinct/database/connection_pool.hpp
+        include/instinct/database/connection_pool.hpp
+        include/instinct/database/managed_connection.hpp
+        include/instinct/database/duckdb/duckdb_connection_pool.hpp
+        include/instinct/database/db_utils.hpp
+        include/instinct/database/duckdb/duckdb_connection.hpp
+        include/instinct/database/database_migration.hpp
+        include/instinct/object_store/object_store.hpp
+        include/instinct/object_store/file_system_object_store.hpp
+        include/instinct/task_scheduler/task_scheduler.hpp
+        include/instinct/task_scheduler/in_process_task_queue.hpp
+        include/instinct/task_scheduler/base_task_scheduler.hpp
+        include/instinct/task_scheduler/thread_pool_task_scheduler.hpp
 )
 
 add_library(

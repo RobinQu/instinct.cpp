@@ -7,10 +7,10 @@
 #include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/util/json_util.h>
 
-#include <instinct/DataGlobals.hpp>
-#include <instinct/database/BaseConnectionPool.hpp>
+#include <instinct/data_global.hpp>
+#include <instinct/database/base_connection_pool.hpp>
 #include <instinct/tools/assertions.hpp>
-#include <instinct/database/IDataTemplate.hpp>
+#include <instinct/database/data_template.hpp>
 #include <instinct/tools/protobuf_utils.hpp>
 
 

@@ -10,7 +10,7 @@
 #include <instinct/AssistantGlobals.hpp>
 #include <instinct/LLMObjectFactory.hpp>
 #include <instinct/agent/executor/BaseAgentExecutor.hpp>
-#include <instinct/task_scheduler/ThreadPoolTaskScheduler.hpp>
+#include <instinct/task_scheduler/thread_pool_task_scheduler.hpp>
 #include <instinct/agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp>
 #include <instinct/assistant/v2/service/IVectorStoreService.hpp>
 #include <instinct/assistant/v2/toolkit/SummaryGuidedFileSearch.hpp>

@@ -5,7 +5,7 @@
 #ifndef BASECONNECTION_HPP
 #define BASECONNECTION_HPP
 
-#include <instinct/database/IConnectionPool.hpp>
+#include <instinct/database/connection_pool.hpp>
 #include <instinct/tools/string_utils.hpp>
 
 namespace INSTINCT_DATA_NS {

@@ -7,7 +7,7 @@
 
 #include <instinct/assistant/v2/service/IMessageService.hpp>
 #include <instinct/assistant/v2/tool/EntitySQLUtils.hpp>
-#include <instinct/database/IDataTemplate.hpp>
+#include <instinct/database/data_template.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

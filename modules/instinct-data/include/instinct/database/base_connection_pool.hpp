@@ -5,7 +5,7 @@
 #ifndef COMMOMCONNECTIONPOOL_HPP
 #define COMMOMCONNECTIONPOOL_HPP
 
-#include <instinct/database/IConnectionPool.hpp>
+#include <instinct/database/connection_pool.hpp>
 
 namespace INSTINCT_DATA_NS {
     using namespace std::chrono_literals;

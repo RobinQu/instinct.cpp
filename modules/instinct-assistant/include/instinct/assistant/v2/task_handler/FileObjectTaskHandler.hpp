@@ -9,7 +9,7 @@
 
 #include <instinct/document/RecursiveCharacterTextSplitter.hpp>
 #include <instinct/store/IVectorStoreOperator.hpp>
-#include <instinct/task_scheduler/ThreadPoolTaskScheduler.hpp>
+#include <instinct/task_scheduler/thread_pool_task_scheduler.hpp>
 #include <instinct/AssistantGlobals.hpp>
 #include <instinct/assistant/v2/service/IFileService.hpp>
 #include <instinct/assistant/v2/tool/SimpleRetrieverOperator.hpp>

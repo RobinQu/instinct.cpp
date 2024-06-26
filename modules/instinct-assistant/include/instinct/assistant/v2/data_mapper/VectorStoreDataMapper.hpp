@@ -5,9 +5,9 @@
 #ifndef VECTORSTOREDATAMAPPER_HPP
 #define VECTORSTOREDATAMAPPER_HPP
 
-#include <instinct/database/IDataTemplate.hpp>
+#include <instinct/database/data_template.hpp>
 #include <instinct/AssistantGlobals.hpp>
-#include <instinct/database/BaseConnectionPool.hpp>
+#include <instinct/database/base_connection_pool.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;

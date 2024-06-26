@@ -7,8 +7,8 @@
 
 #include <fstream>
 
-#include <instinct/DataGlobals.hpp>
-#include <instinct/object_store/IObjectStore.hpp>
+#include <instinct/data_global.hpp>
+#include <instinct/object_store/object_store.hpp>
 #include <instinct/tools/io_utils.hpp>
 
 namespace INSTINCT_DATA_NS {

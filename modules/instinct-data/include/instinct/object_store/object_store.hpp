@@ -6,7 +6,7 @@
 #define IOBJECTSTORE_HPP
 #include <data.pb.h>
 
-#include <instinct/DataGlobals.hpp>
+#include <instinct/data_global.hpp>
 
 namespace INSTINCT_DATA_NS {
     template<typename Buffer=std::string, typename InputStream = std::istream, typename OutputStream = std::ostream>
