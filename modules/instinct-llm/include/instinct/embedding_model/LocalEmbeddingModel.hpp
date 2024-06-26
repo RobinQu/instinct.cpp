@@ -7,9 +7,9 @@
 
 
 #include <instinct/LLMGlobals.hpp>
-#include <instinct/models.hpp>
-#include <instinct/model_factory.hpp>
-#include <instinct/tokenizer.hpp>
+#include <instinct/transformer/models.hpp>
+#include <instinct/transformer/model_factory.hpp>
+#include <instinct/transformer/tokenizer.hpp>
 #include <instinct/model/IEmbeddingModel.hpp>
 #include <instinct/tools/file_vault/FileSystemFileVault.hpp>
 #include <instinct/tools/file_vault/IFileVault.hpp>

@@ -6,8 +6,8 @@
 #define LOCALRANKINGMODEL_HPP
 
 #include <instinct/ranker/BaseRankingModel.hpp>
-#include <instinct/models.hpp>
-#include <instinct/model_factory.hpp>
+#include <instinct/transformer/models.hpp>
+#include <instinct/transformer/model_factory.hpp>
 #include <instinct/tools/file_vault/FileSystemFileVault.hpp>
 
 namespace INSTINCT_LLM_NS {

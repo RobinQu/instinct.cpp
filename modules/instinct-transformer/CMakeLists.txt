@@ -4,15 +4,15 @@ project(instinct-transformer)
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
 set(${LIBRARY_TARGET_NAME}_HDR
-        include/instinct/config.hpp
-        include/instinct/ops.hpp
-        include/instinct/layers.hpp
-        include/instinct/models.hpp
-        include/instinct/tokenizer.hpp
-        include/instinct/models/bge_ranker.hpp
-        include/instinct/globals.hpp
-        include/instinct/model_factory.hpp
-        include/instinct/models/bge_embedding.hpp
+        include/instinct/transformer/config.hpp
+        include/instinct/transformer/ops.hpp
+        include/instinct/transformer/layers.hpp
+        include/instinct/transformer/models.hpp
+        include/instinct/transformer/tokenizer.hpp
+        include/instinct/transformer/models/bge_ranker.hpp
+        include/instinct/transformer_globals.hpp
+        include/instinct/transformer/model_factory.hpp
+        include/instinct/transformer/models/bge_embedding.hpp
 )
 
 add_library(

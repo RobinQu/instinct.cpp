@@ -4,7 +4,7 @@
 
 #ifndef CXX_TEST_OPS_HPP
 #define CXX_TEST_OPS_HPP
-
+#include <instinct/transformer_globals.hpp>
 
 namespace INSTINCT_TRANSFORMER_NS::ops {
 

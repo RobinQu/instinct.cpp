@@ -5,6 +5,7 @@
 #ifndef GLOBALS_HPP
 #define GLOBALS_HPP
 #include <ggml.h>
+#include <string>
 
 #define INSTINCT_TRANSFORMER_NS instinct::transformer
 

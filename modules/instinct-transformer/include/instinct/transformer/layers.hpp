@@ -9,7 +9,7 @@
 #include <iostream>
 #include <cmath>
 
-#include <instinct/ops.hpp>
+#include <instinct/transformer/ops.hpp>
 
 namespace INSTINCT_TRANSFORMER_NS::layers {
     enum ActFunc {
