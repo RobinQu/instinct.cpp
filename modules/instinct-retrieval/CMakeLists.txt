@@ -4,37 +4,36 @@ project(instinct_retrieval)
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
 set(${LIBRARY_TARGET_NAME}_HDR
-        include/instinct/RetrievalGlobals.hpp
-        include/instinct/ingestor/IIngestor.hpp
-        include/instinct/retrieval/IRetriever.hpp
-        include/instinct/retrieval/VectorStoreRetriever.hpp
-        include/instinct/store/IVectorStore.hpp
-        include/instinct/store/duckdb/DuckDBVectorStore.hpp
-        include/instinct/chain/RAGChain.hpp
-        include/instinct/store/IDocStore.hpp
-        include/instinct/retrieval/MultiVectorRetriever.hpp
-        include/instinct/retrieval/ChunkedMultiVectorRetriever.hpp
-        include/instinct/retrieval/MultiQueryRetriever.hpp
-        include/instinct/ingestor/BaseIngestor.hpp
-        include/instinct/ingestor/SingleFileIngestor.hpp
-        include/instinct/ingestor/DirectoryTreeIngestor.hpp
-        include/instinct/store/duckdb/DuckDBDocStore.hpp
-        include/instinct/RetrievalTestGlobals.hpp
-        include/instinct/retrieval/BaseRetriever.hpp
-        include/instinct/ingestor/PDFFileIngestor.hpp
-        include/instinct/ingestor/DOCXFileIngestor.hpp
-        include/instinct/store/duckdb/DuckDBDocWithEmbeddingStore.hpp
-        include/instinct/ingestor/ParquetFileIngestor.hpp
-        include/instinct/retrieval/MultiPathRetriever.hpp
-        include/instinct/store/IVectorStoreOperator.hpp
-        include/instinct/store/duckdb/DuckDBVectorStoreOperator.hpp
-        include/instinct/store/VectorStoreMetadataDataMapper.hpp
-        include/instinct/store/SQLBuilder.hpp
-        include/instinct/chain/SummaryChain.hpp
-        include/instinct/RetrieverObjectFactory.hpp
-        include/instinct/chain/CitationAnnotatingChain.hpp
-        include/instinct/retrieval/duckdb/DuckDBBM25Retriever.hpp
-        include/instinct/retrieval/ParentChildRetriever.hpp
+        include/instinct/retrieval_global.hpp
+        include/instinct/retrieval/retriever.hpp
+        include/instinct/retrieval/vector_store_retriever.hpp
+        include/instinct/store/vector_store.hpp
+        include/instinct/store/duckdb/duckdb_vector_store.hpp
+        include/instinct/chain/rag_chain.hpp
+        include/instinct/store/doc_store.hpp
+        include/instinct/retrieval/multi_vector_retriever.hpp
+        include/instinct/retrieval/chunked_multi_vector_retriever.hpp
+        include/instinct/retrieval/multi_query_retriever.hpp
+        include/instinct/ingestor/ingestor.hpp
+        include/instinct/ingestor/single_file_ingestor.hpp
+        include/instinct/ingestor/directory_tree_ingestor.hpp
+        include/instinct/store/duckdb/duckdb_doc_store.hpp
+        include/instinct/retrieval_test_global.hpp
+        include/instinct/retrieval/base_retriever.hpp
+        include/instinct/ingestor/pdf_file_ingestor.hpp
+        include/instinct/ingestor/docx_file_ingestor.hpp
+        include/instinct/store/duckdb/duckdb_doc_with_embedding_store.hpp
+        include/instinct/ingestor/parquet_file_ingestor.hpp
+        include/instinct/retrieval/multi_path_retriever.hpp
+        include/instinct/store/vector_store_operator.hpp
+        include/instinct/store/duckdb/duckdb_vector_store_operator.hpp
+        include/instinct/store/vector_store_metadata_data_mapper.hpp
+        include/instinct/store/sql_builder.hpp
+        include/instinct/chain/summary_chain.hpp
+        include/instinct/retriever_object_factory.hpp
+        include/instinct/chain/citation_annotating_chain.hpp
+        include/instinct/retrieval/duckdb/duckdb_bm25_retriever.hpp
+        include/instinct/retrieval/parent_child_retriever.hpp
 )
 
 #set(${LIBRARY_TARGET_NAME}_SRC

@@ -5,7 +5,7 @@
 
 #include <instinct/AssistantTestGlobals.hpp>
 #include <instinct/assistant/v2/toolkit/SummaryGuidedFileSearch.hpp>
-#include <instinct/retrieval/VectorStoreRetriever.hpp>
+#include <instinct/retrieval/vector_store_retriever.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

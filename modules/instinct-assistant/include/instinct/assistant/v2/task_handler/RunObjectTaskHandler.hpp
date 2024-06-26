@@ -14,7 +14,7 @@
 #include <instinct/agent/patterns/openai_tool/openai_tool_agent_executor.hpp>
 #include <instinct/assistant/v2/service/IVectorStoreService.hpp>
 #include <instinct/assistant/v2/toolkit/SummaryGuidedFileSearch.hpp>
-#include <instinct/chain/CitationAnnotatingChain.hpp>
+#include <instinct/chain/citation_annotating_chain.hpp>
 #include <instinct/toolkit/local_toolkit.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

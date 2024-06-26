@@ -5,28 +5,28 @@
 #include <CLI/CLI.hpp>
 
 #include <instinct/../../../instinct-llm/include/instinct/llm_object_factory.hpp>
-#include <instinct/RetrieverObjectFactory.hpp>
+#include <instinct/retriever_object_factory.hpp>
 #include <instinct/document/recursive_character_text_splitter.hpp>
-#include <instinct/chain/RAGChain.hpp>
+#include <instinct/chain/rag_chain.hpp>
 #include <instinct/chat_model/ollama_chat.hpp>
 #include <instinct/commons/ollama_commons.hpp>
 #include <instinct/embedding_model/local_embedding_model.hpp>
 #include <instinct/embedding_model/ollama_embedding.hpp>
 #include <instinct/embedding_model/openai_embedding.hpp>
-#include <instinct/ingestor/SingleFileIngestor.hpp>
-#include <instinct/ingestor/PDFFileIngestor.hpp>
-#include <instinct/ingestor/DOCXFileIngestor.hpp>
-#include <instinct/ingestor/ParquetFileIngestor.hpp>
-#include <instinct/retrieval/ChunkedMultiVectorRetriever.hpp>
-#include <instinct/retrieval/MultiQueryRetriever.hpp>
-#include <instinct/retrieval/VectorStoreRetriever.hpp>
-#include <instinct/store/duckdb/DuckDBDocStore.hpp>
-#include <instinct/store/duckdb/DuckDBVectorStore.hpp>
+#include <instinct/ingestor/single_file_ingestor.hpp>
+#include <instinct/ingestor/pdf_file_ingestor.hpp>
+#include <instinct/ingestor/docx_file_ingestor.hpp>
+#include <instinct/ingestor/parquet_file_ingestor.hpp>
+#include <instinct/retrieval/chunked_multi_vector_retriever.hpp>
+#include <instinct/retrieval/multi_query_retriever.hpp>
+#include <instinct/retrieval/vector_store_retriever.hpp>
+#include <instinct/store/duckdb/duckdb_doc_store.hpp>
+#include <instinct/store/duckdb/duckdb_vector_store.hpp>
 #include <instinct/endpoint/chat_completion/ChatCompletionController.hpp>
 #include <instinct/ranker/local_ranking_model.hpp>
-#include <instinct/retrieval/MultiPathRetriever.hpp>
-#include <instinct/retrieval/ParentChildRetriever.hpp>
-#include <instinct/retrieval/duckdb/DuckDBBM25Retriever.hpp>
+#include <instinct/retrieval/multi_path_retriever.hpp>
+#include <instinct/retrieval/parent_child_retriever.hpp>
+#include <instinct/retrieval/duckdb/duckdb_bm25_retriever.hpp>
 #include <instinct/tools/assertions.hpp>
 
 

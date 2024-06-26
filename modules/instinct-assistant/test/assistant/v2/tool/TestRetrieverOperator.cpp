@@ -6,7 +6,7 @@
 #include <instinct/database/duckdb/duckdb_connection_pool.hpp>
 #include <instinct/database/duckdb/duckdb_data_template.hpp>
 #include <instinct/embedding_model/openai_embedding.hpp>
-#include <instinct/store/duckdb/DuckDBVectorStoreOperator.hpp>
+#include <instinct/store/duckdb/duckdb_vector_store_operator.hpp>
 #include <instinct/AssistantTestGlobals.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

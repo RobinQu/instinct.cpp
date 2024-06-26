@@ -8,21 +8,21 @@
 #include <iostream>
 
 #include <instinct/document/recursive_character_text_splitter.hpp>
-#include <instinct/store/IVectorStoreOperator.hpp>
+#include <instinct/store/vector_store_operator.hpp>
 #include <instinct/task_scheduler/thread_pool_task_scheduler.hpp>
 #include <instinct/AssistantGlobals.hpp>
 #include <instinct/assistant/v2/service/IFileService.hpp>
 #include <instinct/assistant/v2/tool/SimpleRetrieverOperator.hpp>
-#include <instinct/ingestor/BaseIngestor.hpp>
-#include <instinct/ingestor/DOCXFileIngestor.hpp>
-#include <instinct/ingestor/PDFFileIngestor.hpp>
-#include <instinct/ingestor/SingleFileIngestor.hpp>
-#include <instinct/retrieval/BaseRetriever.hpp>
-#include <instinct/retrieval/ChunkedMultiVectorRetriever.hpp>
+#include <instinct/ingestor/ingestor.hpp>
+#include <instinct/ingestor/docx_file_ingestor.hpp>
+#include <instinct/ingestor/pdf_file_ingestor.hpp>
+#include <instinct/ingestor/single_file_ingestor.hpp>
+#include <instinct/retrieval/base_retriever.hpp>
+#include <instinct/retrieval/chunked_multi_vector_retriever.hpp>
 
 
-#include <instinct/RetrieverObjectFactory.hpp>
-#include <instinct/chain/SummaryChain.hpp>
+#include <instinct/retriever_object_factory.hpp>
+#include <instinct/chain/summary_chain.hpp>
 #include <instinct/tools/file_vault/temp_file.hpp>
 
 

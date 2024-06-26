@@ -11,8 +11,8 @@
 #include <instinct/assistant/v2/data_mapper/VectorStoreFileBatchDataMapper.hpp>
 #include <instinct/assistant/v2/data_mapper/VectorStoreFileDataMapper.hpp>
 #include <instinct/assistant/v2/service/impl/VectorStoreServiceImpl.hpp>
-#include <instinct/store/VectorStoreMetadataDataMapper.hpp>
-#include <instinct/store/duckdb/DuckDBVectorStoreOperator.hpp>
+#include <instinct/store/vector_store_metadata_data_mapper.hpp>
+#include <instinct/store/duckdb/duckdb_vector_store_operator.hpp>
 CMRC_DECLARE(instinct::assistant);
 
 #include <gtest/gtest.h>

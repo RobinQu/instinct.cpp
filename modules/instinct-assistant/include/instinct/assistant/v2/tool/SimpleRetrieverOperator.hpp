@@ -9,11 +9,11 @@
 
 #include <instinct/AssistantGlobals.hpp>
 #include <instinct/ranker/local_ranking_model.hpp>
-#include <instinct/retrieval/BaseRetriever.hpp>
-#include <instinct/retrieval/ChunkedMultiVectorRetriever.hpp>
-#include <instinct/retrieval/MultiPathRetriever.hpp>
-#include <instinct/store/IVectorStoreOperator.hpp>
-#include <instinct/store/duckdb/DuckDBDocStore.hpp>
+#include <instinct/retrieval/base_retriever.hpp>
+#include <instinct/retrieval/chunked_multi_vector_retriever.hpp>
+#include <instinct/retrieval/multi_path_retriever.hpp>
+#include <instinct/store/vector_store_operator.hpp>
+#include <instinct/store/duckdb/duckdb_doc_store.hpp>
 #include <instinct/tokenizer/tiktoken_tokenizer.hpp>
 
 

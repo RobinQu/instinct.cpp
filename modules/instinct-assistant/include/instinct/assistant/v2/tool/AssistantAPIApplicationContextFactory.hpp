@@ -16,7 +16,7 @@
 #include <instinct/assistant/v2/task_handler/RunObjectTaskHandler.hpp>
 #include <instinct/ioc/application_context.hpp>
 #include <instinct/server/httplib/HttpLibServer.hpp>
-#include <instinct/store/VectorStoreMetadataDataMapper.hpp>
+#include <instinct/store/vector_store_metadata_data_mapper.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 

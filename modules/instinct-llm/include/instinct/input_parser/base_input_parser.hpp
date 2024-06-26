@@ -27,7 +27,6 @@ namespace INSTINCT_LLM_NS {
     using InputParserLambda = std::function<JSONContextPtr(const T& input)>;
 
     struct InputParserOptions {
-//        std::string prompt_value_variable_key = DEFAULT_PROMPT_VARIABLE_KEY;
         std::string question_variable_key = DEFAULT_QUESTION_INPUT_OUTPUT_KEY;
     };
 

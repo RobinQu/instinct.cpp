@@ -15,7 +15,7 @@
 #include <instinct/commons/ollama_commons.hpp>
 #include <instinct/database/db_utils.hpp>
 #include <instinct/server/httplib/DefaultErrorController.hpp>
-#include <instinct/store/duckdb/DuckDBVectorStoreOperator.hpp>
+#include <instinct/store/duckdb/duckdb_vector_store_operator.hpp>
 #include <instinct/server/httplib/HttpLibServer.hpp>
 #include <instinct/assistant/v2/endpoint/AssistantController.hpp>
 #include <instinct/assistant/v2/endpoint/FileController.hpp>

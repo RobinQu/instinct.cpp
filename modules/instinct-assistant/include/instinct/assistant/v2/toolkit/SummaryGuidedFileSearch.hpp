@@ -7,7 +7,7 @@
 
 #include <instinct/AssistantGlobals.hpp>
 #include <instinct/assistant/v2/tool/SimpleRetrieverOperator.hpp>
-#include <instinct/retrieval/BaseRetriever.hpp>
+#include <instinct/retrieval/base_retriever.hpp>
 #include <instinct/toolkit/search_tool.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
