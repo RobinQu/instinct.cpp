@@ -7,8 +7,8 @@
 
 #include <vector>
 
-#include "HttpLibServer.hpp"
-#include "../IServerLifecycleHandler.hpp"
+#include <instinct/server/httplib/HttpLibServer.hpp>
+#include <instinct/server/IServerLifecycleHandler.hpp>
 
 
 

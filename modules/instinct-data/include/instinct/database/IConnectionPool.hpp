@@ -5,7 +5,7 @@
 #ifndef CONNECTIONPOOL_HPP
 #define CONNECTIONPOOL_HPP
 
-#include "DataGlobals.hpp"
+#include <instinct/DataGlobals.hpp>
 
 namespace INSTINCT_DATA_NS {
 

@@ -8,9 +8,9 @@
 
 #include <duckdb.hpp>
 
-#include "DuckDBConnection.hpp"
-#include "../BaseConnectionPool.hpp"
-#include "../ManagedConnection.hpp"
+#include <instinct/database/duckdb/DuckDBConnection.hpp>
+#include <instinct/database/BaseConnectionPool.hpp>
+#include <instinct/database/ManagedConnection.hpp>
 
 namespace INSTINCT_DATA_NS {
 

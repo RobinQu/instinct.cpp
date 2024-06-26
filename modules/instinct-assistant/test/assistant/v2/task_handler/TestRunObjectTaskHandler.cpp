@@ -4,12 +4,12 @@
 #include <gtest/gtest.h>
 #include <google/protobuf/util/message_differencer.h>
 
-#include "AssistantTestGlobals.hpp"
-#include "../../../../../instinct-llm/include/instinct/LLMTestGlobals.hpp"
-#include "assistant/v2/service/IRunService.hpp"
-#include "assistant/v2/task_handler/RunObjectTaskHandler.hpp"
-#include "chat_model/OpenAIChat.hpp"
-#include "toolkit/LocalToolkit.hpp"
+#include <instinct/AssistantTestGlobals.hpp>
+#include <instinct/LLMTestGlobals.hpp>
+#include <instinct/assistant/v2/service/IRunService.hpp>
+#include <instinct/assistant/v2/task_handler/RunObjectTaskHandler.hpp>
+#include <instinct/chat_model/OpenAIChat.hpp>
+#include <instinct/toolkit/LocalToolkit.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

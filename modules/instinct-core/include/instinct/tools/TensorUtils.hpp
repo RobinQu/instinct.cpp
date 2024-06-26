@@ -4,7 +4,7 @@
 
 #ifndef TENSORUTILS_HPP
 #define TENSORUTILS_HPP
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 #include <iostream>
 
 namespace INSTINCT_CORE_NS {

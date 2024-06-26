@@ -3,8 +3,8 @@
 //
 #include <gtest/gtest.h>
 
-#include "ingestor/PDFFileIngestor.hpp"
-#include "tools/MetadataSchemaBuilder.hpp"
+#include <instinct/ingestor/PDFFileIngestor.hpp>
+#include <instinct/tools/MetadataSchemaBuilder.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

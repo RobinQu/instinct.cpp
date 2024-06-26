@@ -6,8 +6,8 @@
 #define BASEINGESTOR_HPP
 
 
-#include "IIngestor.hpp"
-#include "tools/DocumentUtils.hpp"
+#include <instinct/ingestor/IIngestor.hpp>
+#include <instinct/tools/DocumentUtils.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace U_ICU_NAMESPACE;

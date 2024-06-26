@@ -5,8 +5,8 @@
 #ifndef FN_HPP
 #define FN_HPP
 
-#include "CoreGlobals.hpp"
-#include "StepFunctions.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/functional/StepFunctions.hpp>
 
 
 namespace xn {

@@ -8,10 +8,10 @@
 #include <unicode/brkiter.h>
 #include <unicode/ustream.h>
 
-#include "CoreGlobals.hpp"
-#include "functional/ReactiveFunctions.hpp"
-#include "tokenizer/Tokenizer.hpp"
-#include "tools/StringUtils.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/functional/ReactiveFunctions.hpp>
+#include <instinct/tokenizer/Tokenizer.hpp>
+#include <instinct/tools/StringUtils.hpp>
 
 
 namespace INSTINCT_LLM_NS {

@@ -6,8 +6,8 @@
 #define BASECHATMEMORY_HPP
 
 
-#include "IChatMemory.hpp"
-#include "LLMGlobals.hpp"
+#include <instinct/memory/IChatMemory.hpp>
+#include <instinct/LLMGlobals.hpp>
 
 namespace INSTINCT_LLM_NS {
 

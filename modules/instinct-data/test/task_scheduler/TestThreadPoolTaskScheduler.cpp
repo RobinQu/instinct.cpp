@@ -3,9 +3,9 @@
 //
 #include <gtest/gtest.h>
 
-#include "DataGlobals.hpp"
-#include "task_scheduler/ThreadPoolTaskScheduler.hpp"
-#include "tools/RandomUtils.hpp"
+#include <instinct/DataGlobals.hpp>
+#include <instinct/task_scheduler/ThreadPoolTaskScheduler.hpp>
+#include <instinct/tools/RandomUtils.hpp>
 
 namespace INSTINCT_DATA_NS {
     using namespace std::chrono_literals;

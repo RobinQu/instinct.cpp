@@ -4,13 +4,13 @@
 #include <gtest/gtest.h>
 
 
-#include "CoreGlobals.hpp"
-#include "document/RecursiveCharacterTextSplitter.hpp"
-#include "tokenizer/TiktokenTokenizer.hpp"
-#include "tokenizer/Tokenizer.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/document/RecursiveCharacterTextSplitter.hpp>
+#include <instinct/tokenizer/TiktokenTokenizer.hpp>
+#include <instinct/tokenizer/Tokenizer.hpp>
+#include <instinct/tools/Assertions.hpp>
 
 #include "Corpus.hpp"
-#include "tools/Assertions.hpp"
 
 namespace INSTINCT_LLM_NS {
 

@@ -5,10 +5,10 @@
 #ifndef DBUTILS_HPP
 #define DBUTILS_HPP
 
-#include "BaseConnectionPool.hpp"
-#include "DataGlobals.hpp"
-#include "tools/IOUtils.hpp"
-#include "tools/SnowflakeIDGenerator.hpp"
+#include <instinct/database/BaseConnectionPool.hpp>
+#include <instinct/DataGlobals.hpp>
+#include <instinct/tools/IOUtils.hpp>
+#include <instinct/tools/SnowflakeIDGenerator.hpp>
 
 namespace INSTINCT_DATA_NS {
 

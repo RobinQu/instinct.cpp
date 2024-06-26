@@ -7,9 +7,9 @@
 
 #include <fstream>
 
-#include "DataGlobals.hpp"
-#include "IObjectStore.hpp"
-#include "tools/IOUtils.hpp"
+#include <instinct/DataGlobals.hpp>
+#include <instinct/object_store/IObjectStore.hpp>
+#include <instinct/tools/IOUtils.hpp>
 
 namespace INSTINCT_DATA_NS {
     using FileSystemObjectKeyMapper = std::function<std::filesystem::path(const std::filesystem::path& root, const std::string &bucket_name, const std::string &object_key)>;

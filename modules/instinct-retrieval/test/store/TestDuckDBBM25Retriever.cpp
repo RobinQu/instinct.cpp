@@ -3,9 +3,9 @@
 //
 #include <gtest/gtest.h>
 
-#include "ingestor/BaseIngestor.hpp"
-#include "ingestor/ParquetFileIngestor.hpp"
-#include "retrieval/duckdb/DuckDBBM25Retriever.hpp"
+#include <instinct/ingestor/BaseIngestor.hpp>
+#include <instinct/ingestor/ParquetFileIngestor.hpp>
+#include <instinct/retrieval/duckdb/DuckDBBM25Retriever.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     class TestDuckDBBM25Retriever: public testing::Test {

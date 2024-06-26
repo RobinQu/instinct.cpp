@@ -3,8 +3,8 @@
 //
 
 #include <gtest/gtest.h>
-#include "embedding_model/LocalEmbeddingModel.hpp"
-#include "tools/TensorUtils.hpp"
+#include <instinct/embedding_model/LocalEmbeddingModel.hpp>
+#include <instinct/tools/TensorUtils.hpp>
 
 
 namespace INSTINCT_LLM_NS {

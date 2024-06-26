@@ -3,8 +3,8 @@
 //
 #include <gtest/gtest.h>
 
-#include "AssistantTestGlobals.hpp"
-#include "assistant/v2/task_handler/FileBatchObjectBackgroundTask.hpp"
+#include <instinct/AssistantTestGlobals.hpp>
+#include <instinct/assistant/v2/task_handler/FileBatchObjectBackgroundTask.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

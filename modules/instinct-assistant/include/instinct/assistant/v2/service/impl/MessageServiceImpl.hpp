@@ -5,9 +5,9 @@
 #ifndef MESSAGESERVICEIMPL_HPP
 #define MESSAGESERVICEIMPL_HPP
 
-#include "../IMessageService.hpp"
-#include "assistant/v2/tool/EntitySQLUtils.hpp"
-#include "database/IDataTemplate.hpp"
+#include <instinct/assistant/v2/service/IMessageService.hpp>
+#include <instinct/assistant/v2/tool/EntitySQLUtils.hpp>
+#include <instinct/database/IDataTemplate.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

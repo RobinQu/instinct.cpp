@@ -5,7 +5,7 @@
 #ifndef BASEEXMAPLESELECTOR_H
 #define BASEEXMAPLESELECTOR_H
 
-#include "LLMGlobals.hpp"
+#include <instinct/LLMGlobals.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

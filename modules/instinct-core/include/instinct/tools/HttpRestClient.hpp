@@ -5,19 +5,15 @@
 #ifndef HTTPRESTCLIENT_H
 #define HTTPRESTCLIENT_H
 
-
-
-
 #include <utility>
 
-#include "Assertions.hpp"
-#include "CoreGlobals.hpp"
-#include "functional/ReactiveFunctions.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/functional/ReactiveFunctions.hpp>
 
-#include "tools/http/HttpClientException.hpp"
-#include "tools/http/IHttpClient.hpp"
-#include "tools/http/CURLHttpClient.hpp"
-#include "tools/ProtobufUtils.hpp"
+#include <instinct/tools/http/HttpClientException.hpp>
+#include <instinct/tools/http/IHttpClient.hpp>
+#include <instinct/tools/http/CURLHttpClient.hpp>
+#include <instinct/tools/ProtobufUtils.hpp>
 
 
 

@@ -7,9 +7,9 @@
 
 #include <duckx.hpp>
 
-#include "BaseIngestor.hpp"
-#include "tools/DocumentUtils.hpp"
-#include "tools/Assertions.hpp"
+#include <instinct/ingestor/BaseIngestor.hpp>
+#include <instinct/tools/DocumentUtils.hpp>
+#include <instinct/tools/Assertions.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     /**

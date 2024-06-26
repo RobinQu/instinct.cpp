@@ -7,11 +7,11 @@
 #include <fmt/format.h>
 #include <fmt/args.h>
 
-#include "RetrievalGlobals.hpp"
-#include "../BaseRetriever.hpp"
-#include "store/IVectorStore.hpp"
-#include "store/duckdb/DuckDBDocStore.hpp"
-#include "store/duckdb/DuckDBVectorStore.hpp"
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/retrieval/BaseRetriever.hpp>
+#include <instinct/store/IVectorStore.hpp>
+#include <instinct/store/duckdb/DuckDBDocStore.hpp>
+#include <instinct/store/duckdb/DuckDBVectorStore.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     struct DuckDBBM25RetrieverOptions {

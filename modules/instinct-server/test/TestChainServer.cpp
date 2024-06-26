@@ -2,11 +2,11 @@
 // Created by RobinQu on 3/19/24.
 //
 #include <gtest/gtest.h>
-#include "chain/LLMChain.hpp"
-#include "chat_model/OpenAIChat.hpp"
-#include "../../instinct-llm/include/instinct/LLMTestGlobals.hpp"
-#include "endpoint/chain/MultiChainController.hpp"
-#include "server/httplib/HttpLibServer.hpp"
+#include <instinct/chain/LLMChain.hpp>
+#include <instinct/chat_model/OpenAIChat.hpp>
+#include <instinct/LLMTestGlobals.hpp>
+#include <instinct/endpoint/chain/MultiChainController.hpp>
+#include <instinct/server/httplib/HttpLibServer.hpp>
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_LLM_NS;

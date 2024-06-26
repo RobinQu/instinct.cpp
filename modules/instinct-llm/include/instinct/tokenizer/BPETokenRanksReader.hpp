@@ -5,7 +5,7 @@
 #ifndef BPEFILEREADER_HPP
 #define BPEFILEREADER_HPP
 
-#include "Tokenizer.hpp"
+#include <instinct/tokenizer/Tokenizer.hpp>
 
 namespace INSTINCT_LLM_NS {
     class BPETokenRanksReader {

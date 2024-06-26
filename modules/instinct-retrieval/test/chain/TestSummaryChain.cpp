@@ -3,10 +3,10 @@
 //
 #include <gtest/gtest.h>
 
-#include "RetrieverObjectFactory.hpp"
-#include "chain/SummaryChain.hpp"
-#include "chat_model/OpenAIChat.hpp"
-#include "ingestor/DirectoryTreeIngestor.hpp"
+#include <instinct/RetrieverObjectFactory.hpp>
+#include <instinct/chain/SummaryChain.hpp>
+#include <instinct/chat_model/OpenAIChat.hpp>
+#include <instinct/ingestor/DirectoryTreeIngestor.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     class SummaryChainTest: public testing::Test {

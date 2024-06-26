@@ -2,7 +2,7 @@
 // Created by RobinQu on 2024/4/23.
 //
 #include <gtest/gtest.h>
-#include "tools/StringUtils.hpp"
+#include <instinct/tools/StringUtils.hpp>
 
 namespace INSTINCT_CORE_NS {
     TEST(StringUtilsTest, EscapeSQLText) {

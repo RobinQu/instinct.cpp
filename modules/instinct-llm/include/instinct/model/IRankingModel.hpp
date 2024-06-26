@@ -5,7 +5,7 @@
 #ifndef IRANKINGMODEL_HPP
 #define IRANKINGMODEL_HPP
 
-#include "LLMGlobals.hpp"
+#include <instinct/LLMGlobals.hpp>
 
 namespace INSTINCT_LLM_NS {
     class IRankingModel {

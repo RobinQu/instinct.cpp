@@ -5,10 +5,10 @@
 #ifndef VECTORSTOREINSTANCEMETADATAMAPPER_HPP
 #define VECTORSTOREINSTANCEMETADATAMAPPER_HPP
 
-#include "database/IDataTemplate.hpp"
-#include "RetrievalGlobals.hpp"
-#include "database/duckdb/DuckDBConnectionPool.hpp"
-#include "database/duckdb/DuckDBDataTemplate.hpp"
+#include <instinct/database/IDataTemplate.hpp>
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/database/duckdb/DuckDBConnectionPool.hpp>
+#include <instinct/database/duckdb/DuckDBDataTemplate.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
 

@@ -8,8 +8,8 @@
 
 #include <unicode/format.h>
 
-#include "BasePromptTemplate.hpp"
-#include "LLMGlobals.hpp"
+#include <instinct/prompt/BasePromptTemplate.hpp>
+#include <instinct/LLMGlobals.hpp>
 
 
 namespace INSTINCT_LLM_NS {

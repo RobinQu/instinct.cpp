@@ -8,9 +8,9 @@
 
 #include <agent.pb.h>
 
-#include "output_parser/BaseOutputParser.hpp"
-#include "LLMGlobals.hpp"
-#include "prompt/MessageUtils.hpp"
+#include <instinct/output_parser/BaseOutputParser.hpp>
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/prompt/MessageUtils.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_LLM_NS;

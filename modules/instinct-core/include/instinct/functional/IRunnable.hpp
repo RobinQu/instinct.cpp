@@ -5,9 +5,9 @@
 #ifndef CHAINABLE_HPP
 #define CHAINABLE_HPP
 
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
-#include "functional/ReactiveFunctions.hpp"
+#include <instinct/functional/ReactiveFunctions.hpp>
 
 namespace INSTINCT_CORE_NS {
     template<

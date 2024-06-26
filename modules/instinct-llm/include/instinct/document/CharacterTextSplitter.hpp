@@ -5,7 +5,7 @@
 #ifndef CHARACTERTEXTSPLITTER_HPP
 #define CHARACTERTEXTSPLITTER_HPP
 
-#include "BaseTextSplitter.hpp"
+#include <instinct/document/BaseTextSplitter.hpp>
 
 namespace INSTINCT_LLM_NS {
 

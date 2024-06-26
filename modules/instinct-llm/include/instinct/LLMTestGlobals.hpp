@@ -6,16 +6,16 @@
 #define LLMTESTGLOBALS_HPP
 #include <random>
 
-#include "../chat_model/BaseChatModel.hpp"
-#include "../chat_model/OpenAIChat.hpp"
-#include "../embedding_model/OpenAIEmbedding.hpp"
-#include "llm/BaseLLM.hpp"
-#include "llm/OpenAILLM.hpp"
-#include "../toolkit/BaseSearchTool.hpp"
-#include "../toolkit/LocalToolkit.hpp"
-#include "../toolkit/builtin/LLMMath.hpp"
-#include "../toolkit/builtin/SerpAPI.hpp"
-#include "tools/ChronoUtils.hpp"
+#include <instinct/chat_model/BaseChatModel.hpp>
+#include <instinct/chat_model/OpenAIChat.hpp>
+#include <instinct/embedding_model/OpenAIEmbedding.hpp>
+#include <instinct/llm/BaseLLM.hpp>
+#include <instinct/llm/OpenAILLM.hpp>
+#include <instinct/toolkit/BaseSearchTool.hpp>
+#include <instinct/toolkit/LocalToolkit.hpp>
+#include <instinct/toolkit/builtin/LLMMath.hpp>
+#include <instinct/toolkit/builtin/SerpAPI.hpp>
+#include <instinct/tools/ChronoUtils.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

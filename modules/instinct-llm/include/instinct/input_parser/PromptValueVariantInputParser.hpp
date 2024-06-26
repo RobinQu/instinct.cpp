@@ -6,8 +6,8 @@
 #define INSTINCT_PROMPTVALUEVARIANTINPUTPARSER_HPP
 
 
-#include "BaseInputParser.hpp"
-#include "model/ILanguageModel.hpp"
+#include <instinct/input_parser/BaseInputParser.hpp>
+#include <instinct/model/ILanguageModel.hpp>
 
 namespace INSTINCT_LLM_NS {
 

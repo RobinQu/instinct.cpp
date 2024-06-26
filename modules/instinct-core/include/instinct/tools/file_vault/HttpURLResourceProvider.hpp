@@ -5,9 +5,9 @@
 #define IHTTPURLRESOURCEPROVIDER_HPP
 
 
-#include "BaseFileVaultResourceProvider.hpp"
-#include "tools/http/CURLHttpClient.hpp"
-#include "tools/http/IHttpClient.hpp"
+#include <instinct/tools/file_vault/BaseFileVaultResourceProvider.hpp>
+#include <instinct/tools/http/CURLHttpClient.hpp>
+#include <instinct/tools/http/IHttpClient.hpp>
 
 namespace INSTINCT_CORE_NS {
 

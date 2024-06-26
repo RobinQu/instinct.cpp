@@ -5,11 +5,11 @@
 #ifndef LLMCOMPILERAGNETSTATEINPUTPARSER_HPP
 #define LLMCOMPILERAGNETSTATEINPUTPARSER_HPP
 
-#include "LLMGlobals.hpp"
-#include "TaskGraphUtils.hpp"
-#include "functional/JSONContextPolicy.hpp"
-#include "input_parser/BaseInputParser.hpp"
-#include "prompt/MessageUtils.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/agent/patterns/llm_compiler/TaskGraphUtils.hpp>
+#include <instinct/functional/JSONContextPolicy.hpp>
+#include <instinct/input_parser/BaseInputParser.hpp>
+#include <instinct/prompt/MessageUtils.hpp>
 
 
 namespace INSTINCT_LLM_NS {

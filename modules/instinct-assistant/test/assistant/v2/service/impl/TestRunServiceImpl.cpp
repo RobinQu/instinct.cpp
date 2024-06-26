@@ -5,9 +5,9 @@
 #include <gtest/gtest.h>
 #include <google/protobuf/util/message_differencer.h>
 
-#include "AssistantTestGlobals.hpp"
-#include "assistant/v2/service/IRunService.hpp"
-#include "assistant/v2/service/impl/RunServiceImpl.hpp"
+#include <instinct/AssistantTestGlobals.hpp>
+#include <instinct/assistant/v2/service/IRunService.hpp>
+#include <instinct/assistant/v2/service/impl/RunServiceImpl.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

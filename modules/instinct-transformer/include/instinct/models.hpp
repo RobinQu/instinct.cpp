@@ -14,8 +14,8 @@
 #include <map>
 #include <unistd.h>
 
-#include "./config.hpp"
-#include "./layers.hpp"
+#include <instinct/./config.hpp>
+#include <instinct/./layers.hpp>
 
 
 namespace INSTINCT_TRANSFORMER_NS::models {

@@ -2,9 +2,9 @@
 // Created by RobinQu on 2024/3/2.
 //
 #include <gtest/gtest.h>
-#include "tokenizer/TiktokenTokenizer.hpp"
-#include "tools/Assertions.hpp"
-#include "tools/ChronoUtils.hpp"
+#include <instinct/tokenizer/TiktokenTokenizer.hpp>
+#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/ChronoUtils.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace  U_ICU_NAMESPACE;

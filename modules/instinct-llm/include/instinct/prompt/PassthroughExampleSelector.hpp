@@ -5,9 +5,9 @@
 #ifndef PASSTHROUGHEXAMPLESELECTOR_H
 #define PASSTHROUGHEXAMPLESELECTOR_H
 
-#include "LLMGlobals.hpp"
-#include "MutableExampleSelector.hpp"
-#include "functional/JSONContextPolicy.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/prompt/MutableExampleSelector.hpp>
+#include <instinct/functional/JSONContextPolicy.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

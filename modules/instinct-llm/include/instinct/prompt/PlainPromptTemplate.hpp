@@ -6,10 +6,10 @@
 #define PROMPTTEMPLATE_H
 #include <utility>
 
-#include "LLMGlobals.hpp"
+#include <instinct/LLMGlobals.hpp>
 
-#include "StringPromptTemplate.hpp"
-#include "prompt/MessageUtils.hpp"
+#include <instinct/prompt/StringPromptTemplate.hpp>
+#include <instinct/prompt/MessageUtils.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

@@ -9,12 +9,12 @@
 #include <httplib.h>
 #include <google/protobuf/util/json_util.h>
 
-#include "../IManagedServer.hpp"
-#include "ServerGlobals.hpp"
-#include "HttpLibServerLifeCycleManager.hpp"
-#include "tools/HttpRestClient.hpp"
-#include "HttpLibSession.hpp"
-#include "ioc/ManagedApplicationContext.hpp"
+#include <instinct/server/IManagedServer.hpp>
+#include <instinct/ServerGlobals.hpp>
+#include <instinct/server/httplib/HttpLibServerLifeCycleManager.hpp>
+#include <instinct/tools/HttpRestClient.hpp>
+#include <instinct/server/httplib/HttpLibSession.hpp>
+#include <instinct/ioc/ManagedApplicationContext.hpp>
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_CORE_NS;

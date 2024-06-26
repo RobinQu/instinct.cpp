@@ -4,10 +4,10 @@
 
 #ifndef OPENAITOOLAGENTPLANNER_HPP
 #define OPENAITOOLAGENTPLANNER_HPP
-#include "LLMGlobals.hpp"
-#include "agent/executor/IAgentExecutor.hpp"
-#include "chat_model/BaseChatModel.hpp"
-#include "functional/BaseRunnable.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/agent/executor/IAgentExecutor.hpp>
+#include <instinct/chat_model/BaseChatModel.hpp>
+#include <instinct/functional/BaseRunnable.hpp>
 
 namespace INSTINCT_LLM_NS {
     class OpenAIToolAgentPlanner final: public BaseRunnable<AgentState, AgentThought> {

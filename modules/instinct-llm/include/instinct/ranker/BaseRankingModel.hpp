@@ -5,9 +5,9 @@
 #ifndef BASE_RANKER_HPP
 #define BASE_RANKER_HPP
 
-#include "LLMGlobals.hpp"
-#include "functional/BaseRunnable.hpp"
-#include "model/IRankingModel.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/functional/BaseRunnable.hpp>
+#include <instinct/model/IRankingModel.hpp>
 
 namespace INSTINCT_LLM_NS {
     struct QAPair {

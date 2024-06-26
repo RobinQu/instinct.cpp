@@ -5,11 +5,11 @@
 #ifndef INSTINCT_JSONCONTEXTPOLICY_HPP
 #define INSTINCT_JSONCONTEXTPOLICY_HPP
 
-#include "CoreGlobals.hpp"
-#include "IContext.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/functional/IContext.hpp>
 #include <google/protobuf/util/json_util.h>
 
-#include "tools/Assertions.hpp"
+#include <instinct/tools/Assertions.hpp>
 
 namespace INSTINCT_CORE_NS {
     using namespace google::protobuf;

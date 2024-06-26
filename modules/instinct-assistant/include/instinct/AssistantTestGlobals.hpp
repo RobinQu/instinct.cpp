@@ -7,30 +7,30 @@
 
 #include <cmrc/cmrc.hpp>
 
-#include "assistant/v2/data_mapper/VectorStoreDataMapper.hpp"
-#include "assistant/v2/data_mapper/VectorStoreFileBatchDataMapper.hpp"
-#include "assistant/v2/data_mapper/VectorStoreFileDataMapper.hpp"
-#include "assistant/v2/service/impl/VectorStoreServiceImpl.hpp"
-#include "store/VectorStoreMetadataDataMapper.hpp"
-#include "store/duckdb/DuckDBVectorStoreOperator.hpp"
+#include <instinct/assistant/v2/data_mapper/VectorStoreDataMapper.hpp>
+#include <instinct/assistant/v2/data_mapper/VectorStoreFileBatchDataMapper.hpp>
+#include <instinct/assistant/v2/data_mapper/VectorStoreFileDataMapper.hpp>
+#include <instinct/assistant/v2/service/impl/VectorStoreServiceImpl.hpp>
+#include <instinct/store/VectorStoreMetadataDataMapper.hpp>
+#include <instinct/store/duckdb/DuckDBVectorStoreOperator.hpp>
 CMRC_DECLARE(instinct::assistant);
 
 #include <gtest/gtest.h>
-#include "AssistantGlobals.hpp"
-#include "assistant/v2/service/IFileService.hpp"
-#include "assistant/v2/service/IRunService.hpp"
-#include "assistant/v2/service/IThreadService.hpp"
-#include "assistant/v2/service/impl/AssistantServiceImpl.hpp"
-#include "assistant/v2/service/impl/FileServiceImpl.hpp"
-#include "assistant/v2/service/impl/MessageServiceImpl.hpp"
-#include "assistant/v2/service/impl/RunServiceImpl.hpp"
-#include "assistant/v2/service/impl/ThreadServiceImpl.hpp"
-#include "database/DBUtils.hpp"
-#include "database/duckdb/DuckDBConnectionPool.hpp"
-#include "database/duckdb/DuckDBDataTemplate.hpp"
-#include "object_store/FileSystemObjectStore.hpp"
-#include "object_store/IObjectStore.hpp"
-#include "task_scheduler/ThreadPoolTaskScheduler.hpp"
+#include <instinct/AssistantGlobals.hpp>
+#include <instinct/assistant/v2/service/IFileService.hpp>
+#include <instinct/assistant/v2/service/IRunService.hpp>
+#include <instinct/assistant/v2/service/IThreadService.hpp>
+#include <instinct/assistant/v2/service/impl/AssistantServiceImpl.hpp>
+#include <instinct/assistant/v2/service/impl/FileServiceImpl.hpp>
+#include <instinct/assistant/v2/service/impl/MessageServiceImpl.hpp>
+#include <instinct/assistant/v2/service/impl/RunServiceImpl.hpp>
+#include <instinct/assistant/v2/service/impl/ThreadServiceImpl.hpp>
+#include <instinct/database/DBUtils.hpp>
+#include <instinct/database/duckdb/DuckDBConnectionPool.hpp>
+#include <instinct/database/duckdb/DuckDBDataTemplate.hpp>
+#include <instinct/object_store/FileSystemObjectStore.hpp>
+#include <instinct/object_store/IObjectStore.hpp>
+#include <instinct/task_scheduler/ThreadPoolTaskScheduler.hpp>
 
 namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_DATA_NS;

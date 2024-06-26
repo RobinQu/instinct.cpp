@@ -4,10 +4,10 @@
 
 #ifndef IFUNCTIONTOOL_HPP
 #define IFUNCTIONTOOL_HPP
-#include "LLMGlobals.hpp"
+#include <instinct/LLMGlobals.hpp>
 #include <agent.pb.h>
 
-#include "functional/StepFunctions.hpp"
+#include <instinct/functional/StepFunctions.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

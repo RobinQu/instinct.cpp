@@ -6,8 +6,8 @@
 #define IFUNCTIONTOOLKIT_HPP
 
 
-#include "LLMGlobals.hpp"
-#include "BaseFunctionTool.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/toolkit/BaseFunctionTool.hpp>
 
 
 namespace INSTINCT_LLM_NS {

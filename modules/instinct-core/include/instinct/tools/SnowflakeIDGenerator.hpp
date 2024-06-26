@@ -4,7 +4,7 @@
 
 #ifndef SNOWFLAKEIDGENERATOR_HPP
 #define SNOWFLAKEIDGENERATOR_HPP
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
 #include <cstdint>
 #include <stdexcept>

@@ -5,7 +5,7 @@
 #ifndef INSTINCT_CORETESTGLOBALS_HPP
 #define INSTINCT_CORETESTGLOBALS_HPP
 
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
 
 

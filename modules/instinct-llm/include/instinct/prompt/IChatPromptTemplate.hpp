@@ -5,11 +5,11 @@
 #ifndef CHATPROMPTTEMPLATE_H
 #define CHATPROMPTTEMPLATE_H
 
-#include "IPromptTemplate.hpp"
+#include <instinct/prompt/IPromptTemplate.hpp>
 #include <string>
 #include <vector>
-#include "CoreGlobals.hpp"
-#include "LLMGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/LLMGlobals.hpp>
 #include <llm.pb.h>
 #include <concepts>
 

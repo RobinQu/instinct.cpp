@@ -5,8 +5,8 @@
 #ifndef DOCUMENTSOURCE_HPP
 #define DOCUMENTSOURCE_HPP
 
-#include "RetrievalGlobals.hpp"
-#include "document/TextSplitter.hpp"
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/document/TextSplitter.hpp>
 #include <retrieval.pb.h>
 
 

@@ -5,7 +5,7 @@
 #ifndef MANAGEDAPPLICATIONCONTEXT_HPP
 #define MANAGEDAPPLICATIONCONTEXT_HPP
 
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
 namespace INSTINCT_CORE_NS {
 

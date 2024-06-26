@@ -7,10 +7,10 @@
 
 #include <utility>
 
-#include "IOutputParser.hpp"
-#include "LLMGlobals.hpp"
-#include "functional/StepFunctions.hpp"
-#include "functional/JSONContextPolicy.hpp"
+#include <instinct/output_parser/IOutputParser.hpp>
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/functional/StepFunctions.hpp>
+#include <instinct/functional/JSONContextPolicy.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

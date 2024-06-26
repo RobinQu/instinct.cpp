@@ -5,7 +5,7 @@
 #ifndef FUNCTIONUTILS_HPP
 #define FUNCTIONUTILS_HPP
 
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
 
 namespace INSTINCT_CORE_NS {

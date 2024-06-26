@@ -5,9 +5,9 @@
 #ifndef FILEBATCHOBJECTBACKGROUNDTASK_HPP
 #define FILEBATCHOBJECTBACKGROUNDTASK_HPP
 
-#include "AssistantGlobals.hpp"
-#include "assistant/v2/service/IVectorStoreService.hpp"
-#include "ioc/ManagedApplicationContext.hpp"
+#include <instinct/AssistantGlobals.hpp>
+#include <instinct/assistant/v2/service/IVectorStoreService.hpp>
+#include <instinct/ioc/ManagedApplicationContext.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 

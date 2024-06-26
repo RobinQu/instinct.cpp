@@ -5,12 +5,12 @@
 #ifndef PARQUETFILEINGESTOR_HPP
 #define PARQUETFILEINGESTOR_HPP
 #include <duckdb.hpp>
-#include <store/duckdb/BaseDuckDBStore.hpp>
+#include <instinct/store/duckdb/BaseDuckDBStore.hpp>
 #include <utility>
 
-#include "BaseIngestor.hpp"
-#include "RetrievalGlobals.hpp"
-#include "tools/Assertions.hpp"
+#include <instinct/ingestor/BaseIngestor.hpp>
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/tools/Assertions.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_CORE_NS;

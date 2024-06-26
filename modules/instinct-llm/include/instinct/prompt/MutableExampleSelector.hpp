@@ -5,9 +5,9 @@
 #ifndef MUTABLEEXAMPLESELECTOR_H
 #define MUTABLEEXAMPLESELECTOR_H
 
-#include "LLMGlobals.hpp"
-#include "IExampleSelector.hpp"
-#include "PlainPromptTemplate.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/prompt/IExampleSelector.hpp>
+#include <instinct/prompt/PlainPromptTemplate.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

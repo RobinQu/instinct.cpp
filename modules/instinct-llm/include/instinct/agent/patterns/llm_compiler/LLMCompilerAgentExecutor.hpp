@@ -7,12 +7,12 @@
 
 #include <utility>
 
-#include "LLMCompilerJoiner.hpp"
-#include "LLMCompilerPlaner.hpp"
-#include "LLMGlobals.hpp"
-#include "TaskGraphUtils.hpp"
-#include "agent/executor/BaseAgentExecutor.hpp"
-#include "agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp"
+#include <instinct/agent/patterns/llm_compiler/LLMCompilerJoiner.hpp>
+#include <instinct/agent/patterns/llm_compiler/LLMCompilerPlaner.hpp>
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/agent/patterns/llm_compiler/TaskGraphUtils.hpp>
+#include <instinct/agent/executor/BaseAgentExecutor.hpp>
+#include <instinct/agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp>
 
 namespace INSTINCT_LLM_NS {
 

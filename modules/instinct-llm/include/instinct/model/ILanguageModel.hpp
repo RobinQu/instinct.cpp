@@ -6,12 +6,12 @@
 #define BASELANGUAGEMODEL_H
 #include <ranges>
 #include <llm.pb.h>
-#include "LLMGlobals.hpp"
-#include "functional/IRunnable.hpp"
-#include "prompt/MessageUtils.hpp"
-#include "prompt/StringPromptTemplate.hpp"
-#include "toolkit/BaseFunctionToolkit.hpp"
-#include "tools/Assertions.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/functional/IRunnable.hpp>
+#include <instinct/prompt/MessageUtils.hpp>
+#include <instinct/prompt/StringPromptTemplate.hpp>
+#include <instinct/toolkit/BaseFunctionToolkit.hpp>
+#include <instinct/tools/Assertions.hpp>
 
 
 namespace INSTINCT_LLM_NS {

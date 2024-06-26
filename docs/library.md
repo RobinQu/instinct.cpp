@@ -61,11 +61,11 @@ cmake --build build -j $(nproc) --config Release --target install
 Let's build a simple text completion task using Ollama API.
 
 ```c++
-#include "chain/MessageChain.hpp"
-#include "input_parser/PromptValueVariantInputParser.hpp"
-#include "chat_model/OllamaChat.hpp"
-#include "output_parser/StringOutputParser.hpp"
-#include "prompt/PlainPromptTemplate.hpp"
+#include <instinct/chain/MessageChain.hpp>
+#include <instinct/input_parser/PromptValueVariantInputParser.hpp>
+#include <instinct/chat_model/OllamaChat.hpp>
+#include <instinct/output_parser/StringOutputParser.hpp>
+#include <instinct/prompt/PlainPromptTemplate.hpp>
 
 int main() {
     using namespace INSTINCT_CORE_NS;

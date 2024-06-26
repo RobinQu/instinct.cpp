@@ -5,7 +5,7 @@
 #ifndef DUCKDBCONNECTION_HPP
 #define DUCKDBCONNECTION_HPP
 
-#include "../ManagedConnection.hpp"
+#include <instinct/database//ManagedConnection.hpp>
 
 namespace INSTINCT_DATA_NS {
     class DuckDBConnection final: public ManagedConnection<duckdb::Connection, duckdb::unique_ptr<duckdb::MaterializedQueryResult>> {

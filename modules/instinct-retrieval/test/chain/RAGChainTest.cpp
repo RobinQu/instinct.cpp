@@ -4,16 +4,16 @@
 
 #include <gtest/gtest.h>
 
-#include "RetrievalGlobals.hpp"
-#include "chain/RAGChain.hpp"
-#include "chat_model/OllamaChat.hpp"
-#include "embedding_model/OllamaEmbedding.hpp"
-#include "memory/EphemeralChatMemory.hpp"
-#include "retrieval/VectorStoreRetriever.hpp"
-#include "tools/ChronoUtils.hpp"
-#include "store/duckdb/DuckDBVectorStore.hpp"
-#include "../../../instinct-llm/include/instinct/LLMTestGlobals.hpp"
-#include "prompt/PlainChatPromptTemplate.hpp"
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/chain/RAGChain.hpp>
+#include <instinct/chat_model/OllamaChat.hpp>
+#include <instinct/embedding_model/OllamaEmbedding.hpp>
+#include <instinct/memory/EphemeralChatMemory.hpp>
+#include <instinct/retrieval/VectorStoreRetriever.hpp>
+#include <instinct/tools/ChronoUtils.hpp>
+#include <instinct/store/duckdb/DuckDBVectorStore.hpp>
+#include <instinct/LLMTestGlobals.hpp>
+#include <instinct/prompt/PlainChatPromptTemplate.hpp>
 
 namespace  INSTINCT_RETRIEVAL_NS {
     class RAGChainTest : public testing::Test {

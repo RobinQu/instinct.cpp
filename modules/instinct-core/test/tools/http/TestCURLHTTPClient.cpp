@@ -3,7 +3,7 @@
 //
 
 #include <gtest/gtest.h>
-#include "tools/http/CURLHttpClient.hpp"
+#include <instinct/tools/http/CURLHttpClient.hpp>
 
 
 namespace INSTINCT_CORE_NS {

@@ -5,9 +5,9 @@
 #ifndef DATABASEMIGRATION_HPP
 #define DATABASEMIGRATION_HPP
 
-#include "BaseConnectionPool.hpp"
-#include "DataGlobals.hpp"
-#include "IDatabaseMigration.hpp"
+#include <instinct/database/BaseConnectionPool.hpp>
+#include <instinct/DataGlobals.hpp>
+#include <instinct/database/IDatabaseMigration.hpp>
 
 namespace INSTINCT_DATA_NS {
 

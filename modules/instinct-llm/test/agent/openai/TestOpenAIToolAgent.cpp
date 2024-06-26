@@ -2,12 +2,12 @@
 // Created by RobinQu on 2024/4/30.
 //
 #include <gtest/gtest.h>
-#include "LLMGlobals.hpp"
-#include "../../../include/instinct/LLMTestGlobals.hpp"
-#include "agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp"
-#include "agent/executor/BaseAgentExecutor.hpp"
-#include "chat_model/OpenAIChat.hpp"
-#include "toolkit/LocalToolkit.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/LLMTestGlobals.hpp>
+#include <instinct/agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp>
+#include <instinct/agent/executor/BaseAgentExecutor.hpp>
+#include <instinct/chat_model/OpenAIChat.hpp>
+#include <instinct/toolkit/LocalToolkit.hpp>
 
 namespace INSTINCT_LLM_NS {
     class OpenAIToolAgentTest: public testing::Test {

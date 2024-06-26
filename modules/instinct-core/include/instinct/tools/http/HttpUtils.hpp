@@ -14,9 +14,8 @@
 #include <fmt/ranges.h>
 
 
-#include "IHttpClient.hpp"
-#include "tools/StringUtils.hpp"
-#include "CoreGlobals.hpp"
+#include <instinct/tools/StringUtils.hpp>
+#include <instinct/CoreGlobals.hpp>
 
 
 namespace INSTINCT_CORE_NS {

@@ -4,7 +4,7 @@
 
 #ifndef BASEFUNCTIONTOOLKIT_HPP
 #define BASEFUNCTIONTOOLKIT_HPP
-#include "IFunctionToolkit.hpp"
+#include <instinct/toolkit/IFunctionToolkit.hpp>
 
 namespace INSTINCT_LLM_NS {
     class BaseFunctionToolkit: public virtual IFunctionToolKit, public BaseRunnable<ToolCallObject, FunctionToolResult> {

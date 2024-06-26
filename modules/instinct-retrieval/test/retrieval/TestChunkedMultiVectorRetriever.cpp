@@ -3,14 +3,14 @@
 //
 #include <gtest/gtest.h>
 
-#include "retrieval/ChunkedMultiVectorRetriever.hpp"
-#include "RetrievalTestGlobals.hpp"
-#include "RetrieverObjectFactory.hpp"
-#include "store/duckdb/DuckDBDocStore.hpp"
-#include "store/duckdb/DuckDBVectorStore.hpp"
-#include "document/RecursiveCharacterTextSplitter.hpp"
-#include "ingestor/DirectoryTreeIngestor.hpp"
-#include "ingestor/ParquetFileIngestor.hpp"
+#include <instinct/retrieval/ChunkedMultiVectorRetriever.hpp>
+#include <instinct/RetrievalTestGlobals.hpp>
+#include <instinct/RetrieverObjectFactory.hpp>
+#include <instinct/store/duckdb/DuckDBDocStore.hpp>
+#include <instinct/store/duckdb/DuckDBVectorStore.hpp>
+#include <instinct/document/RecursiveCharacterTextSplitter.hpp>
+#include <instinct/ingestor/DirectoryTreeIngestor.hpp>
+#include <instinct/ingestor/ParquetFileIngestor.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

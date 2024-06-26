@@ -7,8 +7,8 @@
 
 #include <ollama_api.pb.h>
 
-#include "tools/http/HttpUtils.hpp"
-#include "LLMGlobals.hpp"
+#include <instinct/tools/http/HttpUtils.hpp>
+#include <instinct/LLMGlobals.hpp>
 
 /**
  * @see https://github.com/ollama/ollama/blob/main/docs/api.md

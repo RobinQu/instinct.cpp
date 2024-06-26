@@ -8,9 +8,9 @@
 
 #include <fstream>
 
-#include "BPETokenRanksReader.hpp"
-#include "tools/StringUtils.hpp"
-#include "tools/CodecUtils.hpp"
+#include <instinct/tokenizer/BPETokenRanksReader.hpp>
+#include <instinct/tools/StringUtils.hpp>
+#include <instinct/tools/CodecUtils.hpp>
 
 
 

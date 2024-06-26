@@ -5,13 +5,13 @@
 #ifndef OLLAMA_H
 #define OLLAMA_H
 
-#include "tools/HttpRestClient.hpp"
+#include <instinct/tools/HttpRestClient.hpp>
 #include <nlohmann/json.hpp>
 
 
-#include "BaseLLM.hpp"
-#include "LLMGlobals.hpp"
-#include "commons/OllamaCommons.hpp"
+#include <instinct/llm/BaseLLM.hpp>
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/commons/OllamaCommons.hpp>
 
 
 namespace INSTINCT_LLM_NS {

@@ -6,7 +6,7 @@
 #define VECSTORESERVICE_HPP
 
 #include <assistant_api_v2.pb.h>
-#include "AssistantGlobals.hpp"
+#include <instinct/AssistantGlobals.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 

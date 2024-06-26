@@ -1,14 +1,14 @@
 //
 // Created by RobinQu on 2024/2/29.
 //
-#include <document/TextSplitter.hpp>
+#include <instinct/document/TextSplitter.hpp>
 #include <unicode/brkiter.h>
 #include <gtest/gtest.h>
 #include <unicode/regex.h>
 #include <unicode/ustream.h>
 
-#include "tokenizer/Tokenizer.hpp"
-#include "tools/StringUtils.hpp"
+#include <instinct/tokenizer/Tokenizer.hpp>
+#include <instinct/tools/StringUtils.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace U_ICU_NAMESPACE;

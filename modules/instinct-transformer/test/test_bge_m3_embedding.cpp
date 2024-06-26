@@ -6,9 +6,9 @@
 #include <thread>
 #include <gtest/gtest.h>
 
-#include "models//bge_embedding.hpp"
-#include "model_factory.hpp"
-#include "tools/TensorUtils.hpp"
+#include <instinct/models//bge_embedding.hpp>
+#include <instinct/model_factory.hpp>
+#include <instinct/tools/TensorUtils.hpp>
 
 namespace INSTINCT_TRANSFORMER_NS {
 

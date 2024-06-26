@@ -8,11 +8,11 @@
 #include <string>
 #include <vector>
 
-#include "CoreGlobals.hpp"
-#include "IExampleSelector.hpp"
-#include "PlainPromptTemplate.hpp"
-#include "IPromptTemplate.hpp"
-#include "tools/StringUtils.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/prompt/IExampleSelector.hpp>
+#include <instinct/prompt/PlainPromptTemplate.hpp>
+#include <instinct/prompt/IPromptTemplate.hpp>
+#include <instinct/tools/StringUtils.hpp>
 
 
 namespace INSTINCT_LLM_NS {

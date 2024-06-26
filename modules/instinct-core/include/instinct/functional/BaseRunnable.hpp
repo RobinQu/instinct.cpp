@@ -5,9 +5,9 @@
 #ifndef INSTINCT_BASERUNNABLE_HPP
 #define INSTINCT_BASERUNNABLE_HPP
 
-#include "CoreGlobals.hpp"
-#include "IRunnable.hpp"
-#include "IConfigurable.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/functional/IRunnable.hpp>
+#include <instinct/functional/IConfigurable.hpp>
 
 namespace INSTINCT_CORE_NS {
 

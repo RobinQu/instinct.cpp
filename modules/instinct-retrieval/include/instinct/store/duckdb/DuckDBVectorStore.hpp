@@ -8,13 +8,13 @@
 #include <duckdb.hpp>
 #include <retrieval.pb.h>
 
-#include "BaseDuckDBStore.hpp"
-#include "DuckDBDocWithEmbeddingStore.hpp"
-#include "store/IVectorStore.hpp"
-#include "tools/Assertions.hpp"
-#include "tools/StringUtils.hpp"
-#include "tools/MetadataSchemaBuilder.hpp"
-#include "tools/ChronoUtils.hpp"
+#include <instinct/store/duckdb/BaseDuckDBStore.hpp>
+#include <instinct/store/duckdb/DuckDBDocWithEmbeddingStore.hpp>
+#include <instinct/store/IVectorStore.hpp>
+#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/StringUtils.hpp>
+#include <instinct/tools/MetadataSchemaBuilder.hpp>
+#include <instinct/tools/ChronoUtils.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

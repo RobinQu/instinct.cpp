@@ -4,7 +4,7 @@
 
 #ifndef VALIDATIONUTILS_HPP
 #define VALIDATIONUTILS_HPP
-#include "AssistantTestGlobals.hpp"
+#include <instinct/AssistantTestGlobals.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS {

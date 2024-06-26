@@ -14,7 +14,7 @@
 #include <cstring>
 #include <limits>
 
-#include "./config.hpp"
+#include <instinct/./config.hpp>
 
 
 namespace INSTINCT_TRANSFORMER_NS::tokenizer {

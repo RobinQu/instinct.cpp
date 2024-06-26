@@ -8,18 +8,18 @@
 
 #include <agent.pb.h>
 
-#include "LLMGlobals.hpp"
-#include "ReACTAgentStateInputParser.hpp"
-#include "ReACTAgentThoughtOutputParser.hpp"
-#include "agent/BaseWorker.hpp"
-#include "chain/LLMChain.hpp"
-#include "chain/MessageChain.hpp"
-#include "chat_model/BaseChatModel.hpp"
-#include "agent/executor/BaseAgentExecutor.hpp"
-#include "functional/StepFunctions.hpp"
-#include "prompt/PlainChatPromptTemplate.hpp"
-#include "functional/Xn.hpp"
-#include "toolkit/BaseFunctionToolkit.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/agent/patterns/react/ReACTAgentStateInputParser.hpp>
+#include <instinct/agent/patterns/react/ReACTAgentThoughtOutputParser.hpp>
+#include <instinct/agent/BaseWorker.hpp>
+#include <instinct/chain/LLMChain.hpp>
+#include <instinct/chain/MessageChain.hpp>
+#include <instinct/chat_model/BaseChatModel.hpp>
+#include <instinct/agent/executor/BaseAgentExecutor.hpp>
+#include <instinct/functional/StepFunctions.hpp>
+#include <instinct/prompt/PlainChatPromptTemplate.hpp>
+#include <instinct/functional/Xn.hpp>
+#include <instinct/toolkit/BaseFunctionToolkit.hpp>
 
 namespace INSTINCT_LLM_NS {
 

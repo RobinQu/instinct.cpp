@@ -5,15 +5,15 @@
 
 #include <gtest/gtest.h>
 
-#include "../../../instinct-llm/include/instinct/LLMTestGlobals.hpp"
-#include "RetrieverObjectFactory.hpp"
-#include "chat_model/OllamaChat.hpp"
-#include "ingestor/BaseIngestor.hpp"
-#include "ingestor/DirectoryTreeIngestor.hpp"
-#include "retrieval/MultiQueryRetriever.hpp"
-#include "retrieval/MultiVectorRetriever.hpp"
-#include "store/duckdb/DuckDBDocStore.hpp"
-#include "store/duckdb/DuckDBVectorStore.hpp"
+#include <instinct/LLMTestGlobals.hpp>
+#include <instinct/RetrieverObjectFactory.hpp>
+#include <instinct/chat_model/OllamaChat.hpp>
+#include <instinct/ingestor/BaseIngestor.hpp>
+#include <instinct/ingestor/DirectoryTreeIngestor.hpp>
+#include <instinct/retrieval/MultiQueryRetriever.hpp>
+#include <instinct/retrieval/MultiVectorRetriever.hpp>
+#include <instinct/store/duckdb/DuckDBDocStore.hpp>
+#include <instinct/store/duckdb/DuckDBVectorStore.hpp>
 
 
 

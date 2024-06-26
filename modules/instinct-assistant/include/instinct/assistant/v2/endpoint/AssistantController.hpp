@@ -5,10 +5,10 @@
 #ifndef ASSISTANTCONTROLLER_HPP
 #define ASSISTANTCONTROLLER_HPP
 
-#include "BaseController.hpp"
-#include "assistant/v2/service/AssistantFacade.hpp"
-#include "assistant/v2/tool/RequestUtils.hpp"
-#include "server/httplib/HttpLibServer.hpp"
+#include <instinct/assistant/v2/endpoint/BaseController.hpp>
+#include <instinct/assistant/v2/service/AssistantFacade.hpp>
+#include <instinct/assistant/v2/tool/RequestUtils.hpp>
+#include <instinct/server/httplib/HttpLibServer.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

@@ -7,12 +7,12 @@
 #include <duckdb.hpp>
 
 
-#include "BaseDuckDBStore.hpp"
+#include <instinct/store/duckdb/BaseDuckDBStore.hpp>
 
-#include "LLMGlobals.hpp"
-#include "RetrievalGlobals.hpp"
-#include "store/IDocStore.hpp"
-#include "tools/MetadataSchemaBuilder.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/store/IDocStore.hpp>
+#include <instinct/tools/MetadataSchemaBuilder.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;

@@ -5,7 +5,7 @@
 #ifndef LOCALTOOLKIT_HPP
 #define LOCALTOOLKIT_HPP
 
-#include "BaseFunctionToolkit.hpp"
+#include <instinct/toolkit/BaseFunctionToolkit.hpp>
 
 namespace INSTINCT_LLM_NS {
     /**

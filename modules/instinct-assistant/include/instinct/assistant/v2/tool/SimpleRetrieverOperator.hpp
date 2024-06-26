@@ -5,16 +5,16 @@
 #ifndef RETRIEVERFACTORY_HPP
 #define RETRIEVERFACTORY_HPP
 
-#include <document/RecursiveCharacterTextSplitter.hpp>
+#include <instinct/document/RecursiveCharacterTextSplitter.hpp>
 
-#include "AssistantGlobals.hpp"
-#include "ranker/LocalRankingModel.hpp"
-#include "retrieval/BaseRetriever.hpp"
-#include "retrieval/ChunkedMultiVectorRetriever.hpp"
-#include "retrieval/MultiPathRetriever.hpp"
-#include "store/IVectorStoreOperator.hpp"
-#include "store/duckdb/DuckDBDocStore.hpp"
-#include "tokenizer/TiktokenTokenizer.hpp"
+#include <instinct/AssistantGlobals.hpp>
+#include <instinct/ranker/LocalRankingModel.hpp>
+#include <instinct/retrieval/BaseRetriever.hpp>
+#include <instinct/retrieval/ChunkedMultiVectorRetriever.hpp>
+#include <instinct/retrieval/MultiPathRetriever.hpp>
+#include <instinct/store/IVectorStoreOperator.hpp>
+#include <instinct/store/duckdb/DuckDBDocStore.hpp>
+#include <instinct/tokenizer/TiktokenTokenizer.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

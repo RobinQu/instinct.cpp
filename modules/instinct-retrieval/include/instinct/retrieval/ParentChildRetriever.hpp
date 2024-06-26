@@ -6,7 +6,7 @@
 #define PARENTCHILDRETRIEVER_HPP
 
 
-#include "BaseRetriever.hpp"
+#include <instinct/retrieval/BaseRetriever.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     class ParentChildRetriever: public BaseRetriever {

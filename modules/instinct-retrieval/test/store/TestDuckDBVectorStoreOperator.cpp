@@ -3,11 +3,11 @@
 //
 #include <gtest/gtest.h>
 
-#include "database/DBUtils.hpp"
-#include "database/duckdb/DuckDBConnectionPool.hpp"
-#include "database/duckdb/DuckDBDataTemplate.hpp"
-#include "embedding_model/OpenAIEmbedding.hpp"
-#include "store/duckdb/DuckDBVectorStoreOperator.hpp"
+#include <instinct/database/DBUtils.hpp>
+#include <instinct/database/duckdb/DuckDBConnectionPool.hpp>
+#include <instinct/database/duckdb/DuckDBDataTemplate.hpp>
+#include <instinct/embedding_model/OpenAIEmbedding.hpp>
+#include <instinct/store/duckdb/DuckDBVectorStoreOperator.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     class DuckDBVectorStoreOperatorTest: public testing::Test {

@@ -9,8 +9,8 @@
 
 #include <utility>
 
-#include "toolkit/BaseSearchTool.hpp"
-#include "tools/HttpRestClient.hpp"
+#include <instinct/toolkit/BaseSearchTool.hpp>
+#include <instinct/tools/HttpRestClient.hpp>
 
 
 

@@ -5,8 +5,8 @@
 #ifndef LOCALTOOLKITSWORKER_HPP
 #define LOCALTOOLKITSWORKER_HPP
 
-#include "BaseWorker.hpp"
-#include "LLMGlobals.hpp"
+#include <instinct/agent/BaseWorker.hpp>
+#include <instinct/LLMGlobals.hpp>
 
 namespace INSTINCT_LLM_NS {
     class LocalToolkitsWorker final: public BaseWorker {

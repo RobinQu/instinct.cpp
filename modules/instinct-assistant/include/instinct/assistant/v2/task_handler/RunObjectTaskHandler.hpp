@@ -7,15 +7,15 @@
 
 #include <utility>
 
-#include "AssistantGlobals.hpp"
-#include "LLMObjectFactory.hpp"
-#include "agent/executor/BaseAgentExecutor.hpp"
-#include "task_scheduler/ThreadPoolTaskScheduler.hpp"
-#include "agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp"
-#include "assistant/v2/service/IVectorStoreService.hpp"
-#include "assistant/v2/toolkit/SummaryGuidedFileSearch.hpp"
-#include "chain/CitationAnnotatingChain.hpp"
-#include "toolkit/LocalToolkit.hpp"
+#include <instinct/AssistantGlobals.hpp>
+#include <instinct/LLMObjectFactory.hpp>
+#include <instinct/agent/executor/BaseAgentExecutor.hpp>
+#include <instinct/task_scheduler/ThreadPoolTaskScheduler.hpp>
+#include <instinct/agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp>
+#include <instinct/assistant/v2/service/IVectorStoreService.hpp>
+#include <instinct/assistant/v2/toolkit/SummaryGuidedFileSearch.hpp>
+#include <instinct/chain/CitationAnnotatingChain.hpp>
+#include <instinct/toolkit/LocalToolkit.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;

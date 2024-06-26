@@ -5,12 +5,12 @@
 #ifndef BASEFUNCTIONTOOL_HPP
 #define BASEFUNCTIONTOOL_HPP
 
-#include "LLMGlobals.hpp"
-#include "IFunctionTool.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/toolkit/IFunctionTool.hpp>
 #include <agent.pb.h>
 
-#include "tools/ChronoUtils.hpp"
-#include "tools/ProtobufUtils.hpp"
+#include <instinct/tools/ChronoUtils.hpp>
+#include <instinct/tools/ProtobufUtils.hpp>
 
 namespace INSTINCT_LLM_NS {
     struct FunctionToolOptions {

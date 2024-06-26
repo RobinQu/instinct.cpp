@@ -8,11 +8,11 @@
 #include <unordered_set>
 
 
-#include "BaseRetriever.hpp"
-#include "RetrievalGlobals.hpp"
-#include "chain/LLMChain.hpp"
-#include "prompt/PlainPromptTemplate.hpp"
-#include "tools/DocumentUtils.hpp"
+#include <instinct/retrieval/BaseRetriever.hpp>
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/chain/LLMChain.hpp>
+#include <instinct/prompt/PlainPromptTemplate.hpp>
+#include <instinct/tools/DocumentUtils.hpp>
 
 
 

@@ -8,9 +8,9 @@
 
 #include <gtest/gtest.h>
 
-#include "tokenizer/RegexTokenizer.hpp"
-#include "tools/TensorUtils.hpp"
-#include "tools/Assertions.hpp"
+#include <instinct/tokenizer/RegexTokenizer.hpp>
+#include <instinct/tools/TensorUtils.hpp>
+#include <instinct/tools/Assertions.hpp>
 
 namespace INSTINCT_LLM_NS {
     static UnicodeString text1 = UnicodeString::fromUTF8(R"""(<|endoftext|>The llama (/ˈlɑːmə/; Spanish pronunciation: [ˈʎama] or [ˈʝama]) (Lama glama) is a domesticated South American camelid, widely used as a meat and pack animal by Andean cultures since the pre-Columbian era.

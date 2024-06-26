@@ -5,15 +5,15 @@
 #ifndef LLMOBJECTFACTORY_HPP
 #define LLMOBJECTFACTORY_HPP
 
-#include "LLMGlobals.hpp"
-#include "../agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp"
-#include "chat_model/BaseChatModel.hpp"
-#include "chat_model/OllamaChat.hpp"
-#include "chat_model/OpenAIChat.hpp"
-#include "commons/OllamaCommons.hpp"
-#include "commons/OpenAICommons.hpp"
-#include "../embedding_model/OllamaEmbedding.hpp"
-#include "../embedding_model/OpenAIEmbedding.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp>
+#include <instinct/chat_model/BaseChatModel.hpp>
+#include <instinct/chat_model/OllamaChat.hpp>
+#include <instinct/chat_model/OpenAIChat.hpp>
+#include <instinct/commons/OllamaCommons.hpp>
+#include <instinct/commons/OpenAICommons.hpp>
+#include <instinct/embedding_model/OllamaEmbedding.hpp>
+#include <instinct/embedding_model/OpenAIEmbedding.hpp>
 
 namespace INSTINCT_LLM_NS {
 

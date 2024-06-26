@@ -5,7 +5,7 @@
 #ifndef HTTPCLIENTEXCEPTION_H
 #define HTTPCLIENTEXCEPTION_H
 
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
 
 namespace INSTINCT_CORE_NS {

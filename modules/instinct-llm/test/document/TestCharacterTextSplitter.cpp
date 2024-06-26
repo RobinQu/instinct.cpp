@@ -3,11 +3,11 @@
 //
 
 #include <gtest/gtest.h>
+#include <instinct/document/CharacterTextSplitter.hpp>
+#include <instinct/document/LanguageSplitters.hpp>
+#include <instinct/tools/StringUtils.hpp>
 
 #include "Corpus.hpp"
-#include "document/CharacterTextSplitter.hpp"
-#include "document/LanguageSplitters.hpp"
-#include "tools/StringUtils.hpp"
 
 
 namespace INSTINCT_LLM_NS {

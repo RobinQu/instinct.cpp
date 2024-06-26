@@ -6,7 +6,7 @@
 #define BASEAGENTEXECUTOR_HPP
 
 
-#include "IAgentExecutor.hpp"
+#include <instinct/agent/executor/IAgentExecutor.hpp>
 
 namespace INSTINCT_LLM_NS {
     /**

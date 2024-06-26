@@ -5,7 +5,7 @@
 #ifndef IFILEVAULTRESOURCEPROVIDER_HPP
 #define IFILEVAULTRESOURCEPROVIDER_HPP
 
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
 namespace INSTINCT_CORE_NS {
 

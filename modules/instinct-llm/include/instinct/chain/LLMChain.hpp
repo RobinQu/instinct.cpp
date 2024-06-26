@@ -9,21 +9,21 @@
 
 #include <utility>
 
-#include "MessageChain.hpp"
-#include "LLMGlobals.hpp"
-#include "model/ILanguageModel.hpp"
-#include "llm/BaseLLM.hpp"
-#include "chat_model/BaseChatModel.hpp"
-#include "output_parser/BaseOutputParser.hpp"
-#include "prompt/IPromptTemplate.hpp"
-#include "memory/BaseChatMemory.hpp"
-#include "tools/Assertions.hpp"
-#include "output_parser/MultilineGenerationOutputParser.hpp"
-#include "input_parser/PromptValueVariantInputParser.hpp"
-#include "output_parser/StringOutputParser.hpp"
-#include "prompt/PlainPromptTemplate.hpp"
-#include "functional/Xn.hpp"
-#include "CoreGlobals.hpp"
+#include <instinct/chain/MessageChain.hpp>
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/model/ILanguageModel.hpp>
+#include <instinct/llm/BaseLLM.hpp>
+#include <instinct/chat_model/BaseChatModel.hpp>
+#include <instinct/output_parser/BaseOutputParser.hpp>
+#include <instinct/prompt/IPromptTemplate.hpp>
+#include <instinct/memory/BaseChatMemory.hpp>
+#include <instinct/tools/Assertions.hpp>
+#include <instinct/output_parser/MultilineGenerationOutputParser.hpp>
+#include <instinct/input_parser/PromptValueVariantInputParser.hpp>
+#include <instinct/output_parser/StringOutputParser.hpp>
+#include <instinct/prompt/PlainPromptTemplate.hpp>
+#include <instinct/functional/Xn.hpp>
+#include <instinct/CoreGlobals.hpp>
 
 
 namespace INSTINCT_LLM_NS {

@@ -5,11 +5,11 @@
 #ifndef LENGTHBASEDPROMPTSELECTOR_H
 #define LENGTHBASEDPROMPTSELECTOR_H
 
-#include "LLMGlobals.hpp"
+#include <instinct/LLMGlobals.hpp>
 
-#include "MutableExampleSelector.hpp"
-#include "tools/StringUtils.hpp"
-#include "functional/JSONContextPolicy.hpp"
+#include <instinct/prompt/MutableExampleSelector.hpp>
+#include <instinct/tools/StringUtils.hpp>
+#include <instinct/functional/JSONContextPolicy.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

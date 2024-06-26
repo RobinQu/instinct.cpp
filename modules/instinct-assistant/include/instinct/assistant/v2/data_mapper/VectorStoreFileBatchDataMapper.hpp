@@ -5,8 +5,8 @@
 #ifndef VECTORSTOREFILEBATCHDATAMAPPER_HPP
 #define VECTORSTOREFILEBATCHDATAMAPPER_HPP
 
-#include "database/IDataTemplate.hpp"
-#include "AssistantGlobals.hpp"
+#include <instinct/database/IDataTemplate.hpp>
+#include <instinct/AssistantGlobals.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;

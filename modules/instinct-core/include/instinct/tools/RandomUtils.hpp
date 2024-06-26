@@ -7,7 +7,7 @@
 
 #include <random>
 
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
 namespace INSTINCT_CORE_NS {
     class RandomUtils final {

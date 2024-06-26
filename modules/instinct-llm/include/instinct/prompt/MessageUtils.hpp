@@ -8,8 +8,8 @@
 #include <fmt/format.h>
 #include <fmt/args.h>
 
-#include "LLMGlobals.hpp"
-#include "tools/StringUtils.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/tools/StringUtils.hpp>
 
 
 namespace INSTINCT_LLM_NS {

@@ -5,7 +5,7 @@
 #ifndef MESSAGECONTROLLER_HPP
 #define MESSAGECONTROLLER_HPP
 
-#include "BaseController.hpp"
+#include <instinct/assistant/v2/endpoint/BaseController.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

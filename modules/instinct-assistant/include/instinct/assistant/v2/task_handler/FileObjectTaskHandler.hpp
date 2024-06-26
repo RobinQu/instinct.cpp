@@ -7,23 +7,23 @@
 
 #include <iostream>
 
-#include "document/RecursiveCharacterTextSplitter.hpp"
-#include "store/IVectorStoreOperator.hpp"
-#include "task_scheduler/ThreadPoolTaskScheduler.hpp"
-#include "AssistantGlobals.hpp"
-#include "assistant/v2/service/IFileService.hpp"
-#include "assistant/v2/tool/SimpleRetrieverOperator.hpp"
-#include "ingestor/BaseIngestor.hpp"
-#include "ingestor/DOCXFileIngestor.hpp"
-#include "ingestor/PDFFileIngestor.hpp"
-#include "ingestor/SingleFileIngestor.hpp"
-#include "retrieval/BaseRetriever.hpp"
-#include "retrieval/ChunkedMultiVectorRetriever.hpp"
+#include <instinct/document/RecursiveCharacterTextSplitter.hpp>
+#include <instinct/store/IVectorStoreOperator.hpp>
+#include <instinct/task_scheduler/ThreadPoolTaskScheduler.hpp>
+#include <instinct/AssistantGlobals.hpp>
+#include <instinct/assistant/v2/service/IFileService.hpp>
+#include <instinct/assistant/v2/tool/SimpleRetrieverOperator.hpp>
+#include <instinct/ingestor/BaseIngestor.hpp>
+#include <instinct/ingestor/DOCXFileIngestor.hpp>
+#include <instinct/ingestor/PDFFileIngestor.hpp>
+#include <instinct/ingestor/SingleFileIngestor.hpp>
+#include <instinct/retrieval/BaseRetriever.hpp>
+#include <instinct/retrieval/ChunkedMultiVectorRetriever.hpp>
 
 
-#include "RetrieverObjectFactory.hpp"
-#include "chain/SummaryChain.hpp"
-#include "tools/file_vault/TempFile.hpp"
+#include <instinct/RetrieverObjectFactory.hpp>
+#include <instinct/chain/SummaryChain.hpp>
+#include <instinct/tools/file_vault/TempFile.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

@@ -5,10 +5,10 @@
 #ifndef FILECITATIONANNOTATIONCHAIN_HPP
 #define FILECITATIONANNOTATIONCHAIN_HPP
 
-#include "RetrievalGlobals.hpp"
-#include "chain/MessageChain.hpp"
-#include "prompt/PlainPromptTemplate.hpp"
-#include "chat_model/BaseChatModel.hpp"
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/chain/MessageChain.hpp>
+#include <instinct/prompt/PlainPromptTemplate.hpp>
+#include <instinct/chat_model/BaseChatModel.hpp>
 
 
 

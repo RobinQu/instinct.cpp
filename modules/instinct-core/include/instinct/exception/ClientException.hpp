@@ -5,8 +5,8 @@
 #ifndef ASSERTIONEXCEPTION_HPP
 #define ASSERTIONEXCEPTION_HPP
 
-#include "CoreGlobals.hpp"
-#include "InstinctException.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/exception/InstinctException.hpp>
 
 namespace INSTINCT_CORE_NS {
     /**

@@ -7,8 +7,9 @@
 
 #include <utility>
 
-#include "CoreGlobals.hpp"
-#include "ServerGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/ServerGlobals.hpp>
+#include <instinct/exception/InstinctException.hpp>
 
 
 namespace INSTINCT_SERVER_NS {
@@ -27,7 +28,7 @@ namespace INSTINCT_SERVER_NS {
         explicit HttpServerException(
             const std::string& message,
             const int status_code = 400,
-            std::string type = "invliad_request_error",
+            std::string type = "invalid_request_error",
             std::string code = "",
             nlohmann::json param = {}
             )

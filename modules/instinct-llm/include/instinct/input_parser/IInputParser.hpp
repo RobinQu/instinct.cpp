@@ -5,8 +5,8 @@
 #ifndef INSTINCT_IINPUTPARSER_HPP
 #define INSTINCT_IINPUTPARSER_HPP
 
-#include "LLMGlobals.hpp"
-#include "functional/JSONContextPolicy.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/functional/JSONContextPolicy.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

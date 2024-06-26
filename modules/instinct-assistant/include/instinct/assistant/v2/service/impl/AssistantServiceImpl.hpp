@@ -5,10 +5,10 @@
 #ifndef ASSISTANTSERVICEIMPL_HPP
 #define ASSISTANTSERVICEIMPL_HPP
 
-#include "AssistantGlobals.hpp"
-#include "assistant/v2/service/IAssistantService.hpp"
-#include "assistant/v2/tool/EntitySQLUtils.hpp"
-#include "database/IDataTemplate.hpp"
+#include <instinct/AssistantGlobals.hpp>
+#include <instinct/assistant/v2/service/IAssistantService.hpp>
+#include <instinct/assistant/v2/tool/EntitySQLUtils.hpp>
+#include <instinct/database/IDataTemplate.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;

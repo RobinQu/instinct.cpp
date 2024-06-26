@@ -4,9 +4,9 @@
 #include <assistant_api_v2.pb.h>
 #include <gtest/gtest.h>
 
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 #include <agent.pb.h>
-#include "tools/ProtobufUtils.hpp"
+#include <instinct/tools/ProtobufUtils.hpp>
 
 
 namespace INSTINCT_CORE_NS {

@@ -6,12 +6,12 @@
 #define GPT4TOKENIZER_HPP
 
 
-#include "Tokenizer.hpp"
+#include <instinct/tokenizer/Tokenizer.hpp>
 #include <ranges>
 #include <unordered_set>
 #include <utility>
 
-#include "tools/StringUtils.hpp"
+#include <instinct/tools/StringUtils.hpp>
 
 
 namespace INSTINCT_LLM_NS {

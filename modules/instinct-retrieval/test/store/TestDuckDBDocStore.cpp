@@ -2,12 +2,12 @@
 // Created by RobinQu on 2024/3/16.
 //
 #include <gtest/gtest.h>
-#include "store/duckdb/DuckDBDocStore.hpp"
-#include "RetrievalTestGlobals.hpp"
-#include "RetrievalGlobals.hpp"
-#include "tools/DocumentUtils.hpp"
-#include "tools/MetadataSchemaBuilder.hpp"
-#include "tools/TensorUtils.hpp"
+#include <instinct/store/duckdb/DuckDBDocStore.hpp>
+#include <instinct/RetrievalTestGlobals.hpp>
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/tools/DocumentUtils.hpp>
+#include <instinct/tools/MetadataSchemaBuilder.hpp>
+#include <instinct/tools/TensorUtils.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_CORE_NS;

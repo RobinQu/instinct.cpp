@@ -2,12 +2,12 @@
 // Created by RobinQu on 2024/5/31.
 //
 #include <gtest/gtest.h>
-#include "assistant/v2/tool/SimpleRetrieverOperator.hpp"
-#include "database/duckdb/DuckDBConnectionPool.hpp"
-#include "database/duckdb/DuckDBDataTemplate.hpp"
-#include "embedding_model/OpenAIEmbedding.hpp"
-#include "store/duckdb/DuckDBVectorStoreOperator.hpp"
-#include "AssistantTestGlobals.hpp"
+#include <instinct/assistant/v2/tool/SimpleRetrieverOperator.hpp>
+#include <instinct/database/duckdb/DuckDBConnectionPool.hpp>
+#include <instinct/database/duckdb/DuckDBDataTemplate.hpp>
+#include <instinct/embedding_model/OpenAIEmbedding.hpp>
+#include <instinct/store/duckdb/DuckDBVectorStoreOperator.hpp>
+#include <instinct/AssistantTestGlobals.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;

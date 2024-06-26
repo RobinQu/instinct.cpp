@@ -6,9 +6,9 @@
 #define DBMIGRATION_HPP
 #include <cmrc/cmrc.hpp>
 
-#include "AssistantGlobals.hpp"
-#include "database/DBUtils.hpp"
-#include "ioc/ManagedApplicationContext.hpp"
+#include <instinct/AssistantGlobals.hpp>
+#include <instinct/database/DBUtils.hpp>
+#include <instinct/ioc/ManagedApplicationContext.hpp>
 
 CMRC_DECLARE(instinct::assistant);
 

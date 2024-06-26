@@ -5,18 +5,18 @@
 #ifndef INSTINCT_IAPPLICAITONCONTEXTFACTORY_HPP
 #define INSTINCT_IAPPLICAITONCONTEXTFACTORY_HPP
 
-#include "AssistantGlobals.hpp"
-#include "assistant/v2/db/DBMigration.hpp"
-#include "database/duckdb/DuckDBConnectionPool.hpp"
-#include "database/duckdb/DuckDBDataTemplate.hpp"
-#include "object_store/FileSystemObjectStore.hpp"
-#include "task_scheduler/ThreadPoolTaskScheduler.hpp"
-#include "assistant/v2/service/AssistantFacade.hpp"
-#include "assistant/v2/task_handler/FileBatchObjectBackgroundTask.hpp"
-#include "assistant/v2/task_handler/RunObjectTaskHandler.hpp"
-#include "ioc/ManagedApplicationContext.hpp"
-#include "server/httplib/HttpLibServer.hpp"
-#include "store/VectorStoreMetadataDataMapper.hpp"
+#include <instinct/AssistantGlobals.hpp>
+#include <instinct/assistant/v2/db/DBMigration.hpp>
+#include <instinct/database/duckdb/DuckDBConnectionPool.hpp>
+#include <instinct/database/duckdb/DuckDBDataTemplate.hpp>
+#include <instinct/object_store/FileSystemObjectStore.hpp>
+#include <instinct/task_scheduler/ThreadPoolTaskScheduler.hpp>
+#include <instinct/assistant/v2/service/AssistantFacade.hpp>
+#include <instinct/assistant/v2/task_handler/FileBatchObjectBackgroundTask.hpp>
+#include <instinct/assistant/v2/task_handler/RunObjectTaskHandler.hpp>
+#include <instinct/ioc/ManagedApplicationContext.hpp>
+#include <instinct/server/httplib/HttpLibServer.hpp>
+#include <instinct/store/VectorStoreMetadataDataMapper.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 

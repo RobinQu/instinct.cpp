@@ -5,10 +5,10 @@
 #include <gtest/gtest.h>
 
 
-#include "llm/OllamaLLM.hpp"
-#include "LLMGlobals.hpp"
-#include "prompt/PlainPromptTemplate.hpp"
-#include "prompt/StringPromptTemplate.hpp"
+#include <instinct/llm/OllamaLLM.hpp>
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/prompt/PlainPromptTemplate.hpp>
+#include <instinct/prompt/StringPromptTemplate.hpp>
 
 
 namespace INSTINCT_LLM_NS {

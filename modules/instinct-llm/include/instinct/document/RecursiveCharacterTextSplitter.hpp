@@ -4,16 +4,16 @@
 
 #ifndef RECURSIVECHARACTERTEXTSPLITTER_HPP
 #define RECURSIVECHARACTERTEXTSPLITTER_HPP
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 #include <unicode/regex.h>
 #include <unicode/ustring.h>
 
 #include <utility>
 
-#include "BaseTextSplitter.hpp"
-#include "LanguageSplitters.hpp"
-#include "tokenizer/TiktokenTokenizer.hpp"
-#include "tokenizer/Tokenizer.hpp"
+#include <instinct/document/BaseTextSplitter.hpp>
+#include <instinct/document/LanguageSplitters.hpp>
+#include <instinct/tokenizer/TiktokenTokenizer.hpp>
+#include <instinct/tokenizer/Tokenizer.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace U_ICU_NAMESPACE;

@@ -8,11 +8,11 @@
 #include <agent.pb.h>
 #include <exprtk.hpp>
 
-#include "chain/LLMChain.hpp"
-#include "chat_model/BaseChatModel.hpp"
-#include "prompt/PlainChatPromptTemplate.hpp"
-#include "prompt/PlainPromptTemplate.hpp"
-#include "toolkit/ProtoMessageFunctionTool.hpp"
+#include <instinct/chain/LLMChain.hpp>
+#include <instinct/chat_model/BaseChatModel.hpp>
+#include <instinct/prompt/PlainChatPromptTemplate.hpp>
+#include <instinct/prompt/PlainPromptTemplate.hpp>
+#include <instinct/toolkit/ProtoMessageFunctionTool.hpp>
 
 
 

@@ -25,7 +25,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/prompt/PassthroughExampleSelector.hpp
         include/instinct/prompt/LengthBasedExampleSelector.h
         include/instinct/output_parser/IOutputParser.hpp
-        include/instinct/output_parser/StructuredGenerationOutputParser.hpp
         include/instinct/output_parser/BaseOutputParser.hpp
         include/instinct/prompt/MessageUtils.hpp
         include/instinct/tokenizer/Tokenizer.hpp

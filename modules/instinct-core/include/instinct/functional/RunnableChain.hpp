@@ -5,10 +5,10 @@
 #ifndef INSTINCT_RUNNABLECHAIN_HPP
 #define INSTINCT_RUNNABLECHAIN_HPP
 
-#include "CoreGlobals.hpp"
-#include "IRunnable.hpp"
-#include "StepFunctions.hpp"
-#include "JSONContextPolicy.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/functional/StepFunctions.hpp>
+#include <instinct/functional/JSONContextPolicy.hpp>
+#include <instinct/functional/BaseRunnable.hpp>
 
 namespace INSTINCT_CORE_NS {
 

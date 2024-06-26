@@ -7,7 +7,7 @@
 
 #include <utility>
 
-#include "BaseFunctionTool.hpp"
+#include <instinct/toolkit/BaseFunctionTool.hpp>
 
 namespace INSTINCT_LLM_NS {
     using FunctionToolFn = std::function<std::string(const std::string&)>;

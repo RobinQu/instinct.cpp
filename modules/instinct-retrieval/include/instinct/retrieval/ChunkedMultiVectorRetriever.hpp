@@ -5,10 +5,10 @@
 #ifndef CHUNKEDMULTIVECTORRETRIEVER_HPP
 #define CHUNKEDMULTIVECTORRETRIEVER_HPP
 
-#include "document/RecursiveCharacterTextSplitter.hpp"
-#include "tokenizer/TiktokenTokenizer.hpp"
-#include "MultiVectorRetriever.hpp"
-#include "RetrievalGlobals.hpp"
+#include <instinct/document/RecursiveCharacterTextSplitter.hpp>
+#include <instinct/tokenizer/TiktokenTokenizer.hpp>
+#include <instinct/retrieval/MultiVectorRetriever.hpp>
+#include <instinct/RetrievalGlobals.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
 

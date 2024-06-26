@@ -5,8 +5,8 @@
 #ifndef RUNSTEPCONTROLLER_HPP
 #define RUNSTEPCONTROLLER_HPP
 
-#include "BaseController.hpp"
-#include "assistant/v2/tool/RequestUtils.hpp"
+#include <instinct/BaseController.hpp>
+#include <instinct/assistant/v2/tool/RequestUtils.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 

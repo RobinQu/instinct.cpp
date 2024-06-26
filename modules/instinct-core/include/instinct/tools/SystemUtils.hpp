@@ -5,7 +5,7 @@
 #ifndef SYSTEMUTILS_HPP
 #define SYSTEMUTILS_HPP
 
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
 namespace INSTINCT_CORE_NS {
     class SystemUtils final {

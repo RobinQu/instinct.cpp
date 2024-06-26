@@ -5,13 +5,13 @@
 #ifndef RETRIEVEROBJECTFACTORY_HPP
 #define RETRIEVEROBJECTFACTORY_HPP
 #include <regex>
-#include "RetrievalGlobals.hpp"
-#include "ingestor/BaseIngestor.hpp"
-#include "ingestor/DirectoryTreeIngestor.hpp"
-#include "ingestor/DOCXFileIngestor.hpp"
-#include "ingestor/ParquetFileIngestor.hpp"
-#include "ingestor/PDFFileIngestor.hpp"
-#include "ingestor/SingleFileIngestor.hpp"
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/ingestor/BaseIngestor.hpp>
+#include <instinct/ingestor/DirectoryTreeIngestor.hpp>
+#include <instinct/ingestor/DOCXFileIngestor.hpp>
+#include <instinct/ingestor/ParquetFileIngestor.hpp>
+#include <instinct/ingestor/PDFFileIngestor.hpp>
+#include <instinct/ingestor/SingleFileIngestor.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
 

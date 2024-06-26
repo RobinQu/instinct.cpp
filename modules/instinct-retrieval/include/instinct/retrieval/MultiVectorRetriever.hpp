@@ -6,10 +6,10 @@
 #define MULTIVECTORRETRIEVER_HPP
 
 
-#include "BaseRetriever.hpp"
-#include "chain/LLMChain.hpp"
-#include "prompt/PlainPromptTemplate.hpp"
-#include "store/IVectorStore.hpp"
+#include <instinct/retrieval/BaseRetriever.hpp>
+#include <instinct/chain/LLMChain.hpp>
+#include <instinct/prompt/PlainPromptTemplate.hpp>
+#include <instinct/store/IVectorStore.hpp>
 #include <fmt/ranges.h>
 
 

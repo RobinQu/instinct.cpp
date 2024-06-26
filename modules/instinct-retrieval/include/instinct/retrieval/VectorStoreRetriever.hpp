@@ -6,9 +6,9 @@
 #define VECTORSTORERETRIEVER_HPP
 
 
-#include "BaseRetriever.hpp"
-#include "store/IVectorStore.hpp"
-#include "store/duckdb/DuckDBVectorStore.hpp"
+#include <instinct/retrieval/BaseRetriever.hpp>
+#include <instinct/store/IVectorStore.hpp>
+#include <instinct/store/duckdb/DuckDBVectorStore.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     class VectorStoreRetriever final: public BaseStatefulRetriever {

@@ -7,11 +7,11 @@
 
 
 #include <google/protobuf/util/json_util.h>
-#include "IOutputParser.hpp"
-#include "LLMGlobals.hpp"
-#include "tools/Assertions.hpp"
-#include "output_parser/BaseOutputParser.hpp"
-#include "prompt/MessageUtils.hpp"
+#include <instinct/output_parser/IOutputParser.hpp>
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/tools/Assertions.hpp>
+#include <instinct/output_parser/BaseOutputParser.hpp>
+#include <instinct/prompt/MessageUtils.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

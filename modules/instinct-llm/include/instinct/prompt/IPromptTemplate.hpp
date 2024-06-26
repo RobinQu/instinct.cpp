@@ -8,8 +8,8 @@
 #include <any>
 #include <string>
 
-#include "functional/JSONContextPolicy.hpp"
-#include "LLMGlobals.hpp"
+#include <instinct/functional/JSONContextPolicy.hpp>
+#include <instinct/LLMGlobals.hpp>
 
 
 namespace INSTINCT_LLM_NS {

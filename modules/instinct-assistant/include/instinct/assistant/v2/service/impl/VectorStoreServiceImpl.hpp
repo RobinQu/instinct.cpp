@@ -5,13 +5,13 @@
 #ifndef VECTORSTORESERVICEIMPL_HPP
 #define VECTORSTORESERVICEIMPL_HPP
 
-#include "../IVectorStoreService.hpp"
-#include "assistant/v2/data_mapper/VectorStoreDataMapper.hpp"
-#include "assistant/v2/data_mapper/VectorStoreFileBatchDataMapper.hpp"
-#include "assistant/v2/data_mapper/VectorStoreFileDataMapper.hpp"
-#include "assistant/v2/task_handler/FileObjectTaskHandler.hpp"
-#include "assistant/v2/tool/SimpleRetrieverOperator.hpp"
-#include "task_scheduler/ThreadPoolTaskScheduler.hpp"
+#include <instinct/assistant/v2/service/IVectorStoreService.hpp>
+#include <instinct/assistant/v2/data_mapper/VectorStoreDataMapper.hpp>
+#include <instinct/assistant/v2/data_mapper/VectorStoreFileBatchDataMapper.hpp>
+#include <instinct/assistant/v2/data_mapper/VectorStoreFileDataMapper.hpp>
+#include <instinct/assistant/v2/task_handler/FileObjectTaskHandler.hpp>
+#include <instinct/assistant/v2/tool/SimpleRetrieverOperator.hpp>
+#include <instinct/task_scheduler/ThreadPoolTaskScheduler.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 

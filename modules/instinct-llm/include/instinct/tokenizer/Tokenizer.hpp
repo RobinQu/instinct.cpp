@@ -5,13 +5,13 @@
 #ifndef TOKENIZER_HPP
 #define TOKENIZER_HPP
 
-#include "LLMGlobals.hpp"
+#include <instinct/LLMGlobals.hpp>
 #include <map>
 #include <utility>
 #include <unicode/regex.h>
 #include <unicode/unistr.h>
 
-#include "tools/TensorUtils.hpp"
+#include <instinct/tools/TensorUtils.hpp>
 #include <unicode/ustream.h>
 #include <unicode/schriter.h>
 #include <unicode/unimatch.h>

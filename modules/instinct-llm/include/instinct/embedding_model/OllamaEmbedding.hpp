@@ -6,11 +6,11 @@
 #define OLLAMAEMBEDDING_H
 #include <chrono>
 
-#include "LLMGlobals.hpp"
-#include "commons/OllamaCommons.hpp"
-#include "model/IEmbeddingModel.hpp"
-#include "tools/HttpRestClient.hpp"
-#include "llm.pb.h"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/commons/OllamaCommons.hpp>
+#include <instinct/model/IEmbeddingModel.hpp>
+#include <instinct/tools/HttpRestClient.hpp>
+#include <llm.pb.h>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

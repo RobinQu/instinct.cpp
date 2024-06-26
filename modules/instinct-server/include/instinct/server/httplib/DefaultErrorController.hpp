@@ -6,8 +6,10 @@
 #define DEFAULTERRORCONTROLLER_HPP
 
 #include <iostream>
-#include "HttpLibServer.hpp"
-#include "../IMountable.hpp"
+#include <instinct/server/httplib/HttpLibServer.hpp>
+#include <instinct/server/IMountable.hpp>
+
+#include <instinct/server/httplib/HttpLibSession.hpp>
 
 namespace
 INSTINCT_SERVER_NS {

@@ -5,12 +5,12 @@
 #ifndef IASSISTANTAPIFACADE_HPP
 #define IASSISTANTAPIFACADE_HPP
 
-#include "IAssistantService.hpp"
-#include "IFileService.hpp"
-#include "IMessageService.hpp"
-#include "IRunService.hpp"
-#include "IThreadService.hpp"
-#include "IVectorStoreService.hpp"
+#include <instinct/assistant/v2/service/IAssistantService.hpp>
+#include <instinct/assistant/v2/service/IFileService.hpp>
+#include <instinct/assistant/v2/service/IMessageService.hpp>
+#include <instinct/assistant/v2/service/IRunService.hpp>
+#include <instinct/assistant/v2/service/IThreadService.hpp>
+#include <instinct/assistant/v2/service/IVectorStoreService.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

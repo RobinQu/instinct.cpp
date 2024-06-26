@@ -4,13 +4,13 @@
 
 #include <gtest/gtest.h>
 
-#include "LLMGlobals.hpp"
-#include "chain/LLMChain.hpp"
-#include "chat_model/OllamaChat.hpp"
-#include "llm/OllamaLLM.hpp"
-#include "prompt/PlainChatPromptTemplate.hpp"
-#include "prompt/PlainPromptTemplate.hpp"
-#include "../../include/instinct/LLMTestGlobals.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/chain/LLMChain.hpp>
+#include <instinct/chat_model/OllamaChat.hpp>
+#include <instinct/llm/OllamaLLM.hpp>
+#include <instinct/prompt/PlainChatPromptTemplate.hpp>
+#include <instinct/prompt/PlainPromptTemplate.hpp>
+#include <instinct/../../include/instinct/LLMTestGlobals.hpp>
 
 
 namespace INSTINCT_LLM_NS {

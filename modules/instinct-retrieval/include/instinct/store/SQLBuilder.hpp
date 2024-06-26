@@ -4,7 +4,7 @@
 
 #ifndef SQLBUILDER_HPP
 #define SQLBUILDER_HPP
-#include "RetrievalGlobals.hpp"
+#include <instinct/RetrievalGlobals.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

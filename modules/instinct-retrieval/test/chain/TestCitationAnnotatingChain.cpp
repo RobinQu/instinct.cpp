@@ -2,8 +2,8 @@
 // Created by RobinQu on 2024/6/9.
 //
 #include <gtest/gtest.h>
-#include "chain/CitationAnnotatingChain.hpp"
-#include "chat_model/OpenAIChat.hpp"
+#include <instinct/chain/CitationAnnotatingChain.hpp>
+#include <instinct/chat_model/OpenAIChat.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

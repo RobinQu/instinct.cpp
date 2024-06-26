@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include <unordered_map>
 #include <core.pb.h>
-#include "functional/Xn.hpp"
+#include <instinct/functional/Xn.hpp>
 
 namespace INSTINCT_CORE_NS  {
 

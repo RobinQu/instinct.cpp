@@ -13,11 +13,11 @@
 #include <unicode/unistr.h>
 #include <unicode/ustream.h>
 #include <Guid.hpp>
-#include "Assertions.hpp"
+#include <instinct/tools/Assertions.hpp>
 #include <unicode/regex.h>
 
-#include "exception/ClientException.hpp"
-#include "exception/InstinctException.hpp"
+#include <instinct/exception/ClientException.hpp>
+#include <instinct/exception/InstinctException.hpp>
 
 
 namespace INSTINCT_CORE_NS {

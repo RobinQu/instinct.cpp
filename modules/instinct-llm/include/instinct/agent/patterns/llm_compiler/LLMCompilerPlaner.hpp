@@ -4,12 +4,12 @@
 
 #ifndef LLMCOMPILERPLANER_HPP
 #define LLMCOMPILERPLANER_HPP
-#include "LLMCompilerPlanerAgentStateInputParser.hpp"
-#include "LLMCompilerPlanerThoughtOutputParser.hpp"
-#include "LLMGlobals.hpp"
-#include "agent/executor/IAgentExecutor.hpp"
-#include "chat_model/BaseChatModel.hpp"
-#include "prompt/PlainChatPromptTemplate.hpp"
+#include <instinct/agent/patterns/llm_compiler/LLMCompilerPlanerAgentStateInputParser.hpp>
+#include <instinct/agent/patterns/llm_compiler/LLMCompilerPlanerThoughtOutputParser.hpp>
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/agent/executor/IAgentExecutor.hpp>
+#include <instinct/chat_model/BaseChatModel.hpp>
+#include <instinct/prompt/PlainChatPromptTemplate.hpp>
 
 
 namespace INSTINCT_LLM_NS {

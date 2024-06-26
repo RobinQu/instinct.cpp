@@ -5,10 +5,10 @@
 #ifndef ASSERTIONS_HPP
 #define ASSERTIONS_HPP
 
-#include "CoreGlobals.hpp"
-#include "StringUtils.hpp"
-#include "tools/http/IHttpClient.hpp"
-#include "exception/ClientException.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/tools/StringUtils.hpp>
+#include <instinct/tools/http/IHttpClient.hpp>
+#include <instinct/exception/ClientException.hpp>
 
 
 namespace INSTINCT_CORE_NS {

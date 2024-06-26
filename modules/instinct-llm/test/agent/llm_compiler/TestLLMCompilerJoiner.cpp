@@ -2,8 +2,8 @@
 // Created by RobinQu on 2024/5/14.
 //
 #include <gtest/gtest.h>
-#include "../../../include/instinct/LLMTestGlobals.hpp"
-#include "agent/patterns/llm_compiler/LLMCompilerJoiner.hpp"
+#include <instinct/LLMTestGlobals.hpp>
+#include <instinct/agent/patterns/llm_compiler/LLMCompilerJoiner.hpp>
 
 
 namespace INSTINCT_LLM_NS {

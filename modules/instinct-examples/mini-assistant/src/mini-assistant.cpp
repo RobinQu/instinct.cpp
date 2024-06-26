@@ -4,30 +4,30 @@
 #include <CLI/CLI.hpp>
 
 
-#include "../../../instinct-llm/include/instinct/LLMObjectFactory.hpp"
-#include "agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp"
-#include "assistant/v2/endpoint/VectorStoreController.hpp"
-#include "assistant/v2/endpoint/VectorStoreFileBatchController.hpp"
-#include "assistant/v2/endpoint/VectorStoreFileController.hpp"
-#include "assistant/v2/service/impl/VectorStoreServiceImpl.hpp"
-#include "chat_model/OllamaChat.hpp"
-#include "chat_model/OpenAIChat.hpp"
-#include "commons/OllamaCommons.hpp"
-#include "database/DBUtils.hpp"
-#include "server/httplib/DefaultErrorController.hpp"
-#include "store/duckdb/DuckDBVectorStoreOperator.hpp"
-#include "server/httplib/HttpLibServer.hpp"
-#include "assistant/v2/endpoint/AssistantController.hpp"
-#include "assistant/v2/endpoint/FileController.hpp"
-#include "assistant/v2/endpoint/MessageController.hpp"
-#include "assistant/v2/endpoint/RunController.hpp"
-#include "assistant/v2/endpoint/ThreadController.hpp"
-#include "assistant/v2/tool/AssistantAPIApplicationContextFactory.hpp"
-#include "assistant/v2/service/impl/AssistantServiceImpl.hpp"
-#include "assistant/v2/service/impl/FileServiceImpl.hpp"
-#include "assistant/v2/service/impl/MessageServiceImpl.hpp"
-#include "assistant/v2/service/impl/RunServiceImpl.hpp"
-#include "assistant/v2/service/impl/ThreadServiceImpl.hpp"
+#include <instinct/../../../instinct-llm/include/instinct/LLMObjectFactory.hpp>
+#include <instinct/agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp>
+#include <instinct/assistant/v2/endpoint/VectorStoreController.hpp>
+#include <instinct/assistant/v2/endpoint/VectorStoreFileBatchController.hpp>
+#include <instinct/assistant/v2/endpoint/VectorStoreFileController.hpp>
+#include <instinct/assistant/v2/service/impl/VectorStoreServiceImpl.hpp>
+#include <instinct/chat_model/OllamaChat.hpp>
+#include <instinct/chat_model/OpenAIChat.hpp>
+#include <instinct/commons/OllamaCommons.hpp>
+#include <instinct/database/DBUtils.hpp>
+#include <instinct/server/httplib/DefaultErrorController.hpp>
+#include <instinct/store/duckdb/DuckDBVectorStoreOperator.hpp>
+#include <instinct/server/httplib/HttpLibServer.hpp>
+#include <instinct/assistant/v2/endpoint/AssistantController.hpp>
+#include <instinct/assistant/v2/endpoint/FileController.hpp>
+#include <instinct/assistant/v2/endpoint/MessageController.hpp>
+#include <instinct/assistant/v2/endpoint/RunController.hpp>
+#include <instinct/assistant/v2/endpoint/ThreadController.hpp>
+#include <instinct/assistant/v2/tool/AssistantAPIApplicationContextFactory.hpp>
+#include <instinct/assistant/v2/service/impl/AssistantServiceImpl.hpp>
+#include <instinct/assistant/v2/service/impl/FileServiceImpl.hpp>
+#include <instinct/assistant/v2/service/impl/MessageServiceImpl.hpp>
+#include <instinct/assistant/v2/service/impl/RunServiceImpl.hpp>
+#include <instinct/assistant/v2/service/impl/ThreadServiceImpl.hpp>
 
 
 

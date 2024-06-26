@@ -3,8 +3,8 @@
 //
 #include <gtest/gtest.h>
 
-#include "tools/IOUtils.hpp"
-#include "tools/file_vault/FileSystemFileVault.hpp"
+#include <instinct/tools/IOUtils.hpp>
+#include <instinct/tools/file_vault/FileSystemFileVault.hpp>
 
 
 namespace INSTINCT_CORE_NS {

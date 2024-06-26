@@ -6,8 +6,8 @@
 #define PROTOMESSAGEFUNCTIONTOOL_HPP
 
 
-#include "LLMGlobals.hpp"
-#include "toolkit/BaseFunctionTool.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/toolkit/BaseFunctionTool.hpp>
 
 namespace INSTINCT_LLM_NS {
     /**

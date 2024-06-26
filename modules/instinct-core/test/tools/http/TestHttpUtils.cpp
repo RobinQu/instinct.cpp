@@ -3,8 +3,8 @@
 //
 #include <gtest/gtest.h>
 
-#include "tools/http/HttpUtils.hpp"
-#include "CoreGlobals.hpp"
+#include <instinct/tools/http/HttpUtils.hpp>
+#include <instinct/CoreGlobals.hpp>
 
 
 namespace INSTINCT_CORE_NS {

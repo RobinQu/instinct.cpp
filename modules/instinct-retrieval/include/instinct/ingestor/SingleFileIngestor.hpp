@@ -6,11 +6,11 @@
 #define TEXTFILEINGESTOR_HPP
 
 
-#include "BaseIngestor.hpp"
+#include <instinct/ingestor/BaseIngestor.hpp>
 #include <filesystem>
 #include <fstream>
 
-#include "retrieval/ChunkedMultiVectorRetriever.hpp"
+#include <instinct/retrieval/ChunkedMultiVectorRetriever.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

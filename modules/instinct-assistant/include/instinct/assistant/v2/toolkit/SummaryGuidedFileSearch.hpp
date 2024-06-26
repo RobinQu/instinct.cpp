@@ -5,10 +5,10 @@
 #ifndef SUMMARYGUIDEDFILESEARCH_HPP
 #define SUMMARYGUIDEDFILESEARCH_HPP
 
-#include "AssistantGlobals.hpp"
-#include "assistant/v2/tool/SimpleRetrieverOperator.hpp"
-#include "retrieval/BaseRetriever.hpp"
-#include "toolkit/BaseSearchTool.hpp"
+#include <instinct/AssistantGlobals.hpp>
+#include <instinct/assistant/v2/tool/SimpleRetrieverOperator.hpp>
+#include <instinct/retrieval/BaseRetriever.hpp>
+#include <instinct/toolkit/BaseSearchTool.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_RETRIEVAL_NS;

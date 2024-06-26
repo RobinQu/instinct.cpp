@@ -3,7 +3,7 @@
 //
 #include <gtest/gtest.h>
 
-#include "store/SQLBuilder.hpp"
+#include <instinct/store/SQLBuilder.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     TEST(TestSQLBuilder, BuildSelectWithTermQuery) {

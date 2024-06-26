@@ -4,9 +4,9 @@
 
 #ifndef REACTINPUTPARSER_HPP
 #define REACTINPUTPARSER_HPP
-#include "input_parser/BaseInputParser.hpp"
-#include "LLMGlobals.hpp"
-#include "prompt/MessageUtils.hpp"
+#include <instinct/input_parser/BaseInputParser.hpp>
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/prompt/MessageUtils.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_LLM_NS;

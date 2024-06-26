@@ -6,7 +6,7 @@
 #define CHORNOUTILS_HPP
 
 #include <chrono>
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
 
 namespace INSTINCT_CORE_NS {

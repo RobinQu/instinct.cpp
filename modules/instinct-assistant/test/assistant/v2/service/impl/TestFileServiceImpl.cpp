@@ -4,9 +4,9 @@
 #include <gtest/gtest.h>
 #include <google/protobuf/util/message_differencer.h>
 
-#include "AssistantTestGlobals.hpp"
-#include "assistant/v2/service/IFileService.hpp"
-#include "assistant/v2/service/impl/FileServiceImpl.hpp"
+#include <instinct/AssistantTestGlobals.hpp>
+#include <instinct/assistant/v2/service/IFileService.hpp>
+#include <instinct/assistant/v2/service/impl/FileServiceImpl.hpp>
 
 namespace INSTINCT_ASSISTANT_NS {
     class FileServiceTest: public BaseAssistantApiTest {

@@ -5,8 +5,8 @@
 #ifndef SERVERCONTROLLER_HPP
 #define SERVERCONTROLLER_HPP
 
-#include "IMountable.hpp"
-#include "IServerLifecycleHandler.hpp"
+#include <instinct/server/IMountable.hpp>
+#include <instinct/server/IServerLifecycleHandler.hpp>
 
 namespace INSTINCT_SERVER_NS {
     class HttpLibServer;

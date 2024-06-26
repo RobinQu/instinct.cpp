@@ -7,10 +7,10 @@
 
 #include <llm.pb.h>
 
-#include "BaseChatModel.hpp"
-#include "LLMGlobals.hpp"
-#include "commons/OpenAICommons.hpp"
-#include "tools/HttpRestClient.hpp"
+#include <instinct/chat_model/BaseChatModel.hpp>
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/commons/OpenAICommons.hpp>
+#include <instinct/tools/HttpRestClient.hpp>
 
 
 namespace INSTINCT_LLM_NS {

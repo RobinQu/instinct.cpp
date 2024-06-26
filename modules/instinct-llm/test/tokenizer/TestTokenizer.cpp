@@ -5,8 +5,8 @@
 
 #include <gtest/gtest.h>
 
-#include "tokenizer/Tokenizer.hpp"
-#include "tools/Assertions.hpp"
+#include <instinct/tokenizer/Tokenizer.hpp>
+#include <instinct/tools/Assertions.hpp>
 
 
 namespace INSTINCT_LLM_NS {

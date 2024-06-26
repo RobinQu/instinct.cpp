@@ -8,9 +8,9 @@
 #include <utility>
 
 
-#include "IFileVault.hpp"
-#include "tools/CodecUtils.hpp"
-#include "tools/HashUtils.hpp"
+#include <instinct/tools/file_vault/IFileVault.hpp>
+#include <instinct/tools/CodecUtils.hpp>
+#include <instinct/tools/HashUtils.hpp>
 
 
 

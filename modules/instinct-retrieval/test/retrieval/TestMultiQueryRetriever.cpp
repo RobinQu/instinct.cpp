@@ -2,12 +2,12 @@
 // Created by RobinQu on 2024/3/13.
 //
 #include <gtest/gtest.h>
-#include "retrieval/MultiQueryRetriever.hpp"
-#include "RetrievalTestGlobals.hpp"
-#include "RetrieverObjectFactory.hpp"
-#include "retrieval/VectorStoreRetriever.hpp"
-#include "retrieval/IRetriever.hpp"
-#include "ingestor/DirectoryTreeIngestor.hpp"
+#include <instinct/retrieval/MultiQueryRetriever.hpp>
+#include <instinct/RetrievalTestGlobals.hpp>
+#include <instinct/RetrieverObjectFactory.hpp>
+#include <instinct/retrieval/VectorStoreRetriever.hpp>
+#include <instinct/retrieval/IRetriever.hpp>
+#include <instinct/ingestor/DirectoryTreeIngestor.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

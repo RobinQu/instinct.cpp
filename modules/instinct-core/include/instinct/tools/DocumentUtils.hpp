@@ -7,7 +7,7 @@
 
 
 #include <google/protobuf/util/message_differencer.h>
-#include "StringUtils.hpp"
+#include <instinct/tools/StringUtils.hpp>
 
 
 namespace std {

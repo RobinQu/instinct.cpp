@@ -6,7 +6,7 @@
 #define INSTINCT_STRINGOUTPUTPARSER_HPP
 
 
-#include "BaseOutputParser.hpp"
+#include <instinct/output_parser/BaseOutputParser.hpp>
 
 namespace INSTINCT_LLM_NS {
     class StringOutputParser final: public BaseOutputParser<std::string> {

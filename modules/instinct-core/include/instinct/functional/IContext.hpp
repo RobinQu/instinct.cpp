@@ -6,8 +6,8 @@
 #define INSTINCT_ICONTEXT_HPP
 
 #include <memory>
-#include "CoreGlobals.hpp"
-#include "tools/Assertions.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/tools/Assertions.hpp>
 
 
 

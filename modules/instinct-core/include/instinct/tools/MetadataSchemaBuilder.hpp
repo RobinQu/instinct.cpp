@@ -4,7 +4,7 @@
 
 #ifndef METADATASCHEMABUILDER_HPP
 #define METADATASCHEMABUILDER_HPP
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
 
 namespace INSTINCT_CORE_NS {

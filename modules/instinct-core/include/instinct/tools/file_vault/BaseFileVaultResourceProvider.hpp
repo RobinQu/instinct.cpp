@@ -7,7 +7,7 @@
 
 #include <utility>
 
-#include "IFileVaultResourceProvider.hpp"
+#include <instinct/tools/file_vault/IFileVaultResourceProvider.hpp>
 
 namespace INSTINCT_CORE_NS {
     class BaseFileVaultResourceProvider: public IFileVaultResourceProvider {

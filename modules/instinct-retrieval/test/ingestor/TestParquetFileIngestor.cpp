@@ -3,9 +3,9 @@
 //
 #include <gtest/gtest.h>
 
-#include "RetrievalGlobals.hpp"
-#include "RetrievalTestGlobals.hpp"
-#include "ingestor/ParquetFileIngestor.hpp"
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/RetrievalTestGlobals.hpp>
+#include <instinct/ingestor/ParquetFileIngestor.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     class ParquetFileIngestorTest: public testing::Test {

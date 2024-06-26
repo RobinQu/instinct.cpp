@@ -8,10 +8,10 @@
 #include <fpdfview.h>
 #include <fpdf_text.h>
 #include <unicode/unistr.h>
-#include "tools/Assertions.hpp"
-#include "BaseIngestor.hpp"
-#include "RetrievalGlobals.hpp"
-#include "tools/DocumentUtils.hpp"
+#include <instinct/tools/Assertions.hpp>
+#include <instinct/ingestor/BaseIngestor.hpp>
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/tools/DocumentUtils.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

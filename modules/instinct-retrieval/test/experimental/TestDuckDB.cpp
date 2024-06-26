@@ -6,9 +6,9 @@
 #include <filesystem>
 #include <duckdb.hpp>
 
-#include "RetrievalGlobals.hpp"
-#include "tools/TensorUtils.hpp"
-#include "../../../instinct-llm/include/instinct/LLMTestGlobals.hpp"
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/tools/TensorUtils.hpp>
+#include <instinct/LLMTestGlobals.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS::experimental {
     using namespace duckdb;

@@ -4,8 +4,8 @@
 #include <gtest/gtest.h>
 
 
-#include "embedding_model/OllamaEmbedding.hpp"
-#include "tools/TensorUtils.hpp"
+#include <instinct/embedding_model/OllamaEmbedding.hpp>
+#include <instinct/tools/TensorUtils.hpp>
 #include <string>
 #include <iostream>
 

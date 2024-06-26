@@ -6,7 +6,7 @@
 #define ENDPOINTMOUNT_HPP
 
 
-#include "ServerGlobals.hpp"
+#include <instinct/ServerGlobals.hpp>
 
 namespace INSTINCT_SERVER_NS {
 

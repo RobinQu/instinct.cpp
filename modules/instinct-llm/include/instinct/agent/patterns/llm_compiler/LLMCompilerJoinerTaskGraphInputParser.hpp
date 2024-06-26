@@ -4,9 +4,9 @@
 
 #ifndef LLMCOMPILERJOINERTASKGRAPHINPUTPARSER_HPP
 #define LLMCOMPILERJOINERTASKGRAPHINPUTPARSER_HPP
-#include "LLMGlobals.hpp"
-#include "TaskGraphUtils.hpp"
-#include "input_parser/BaseInputParser.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/agent/patterns/llm_compiler/TaskGraphUtils.hpp>
+#include <instinct/input_parser/BaseInputParser.hpp>
 
 namespace INSTINCT_LLM_NS {
     struct LLMCompilerJoinerTaskGraphInputParserOptions {

@@ -6,8 +6,8 @@
 #define TEMPFILE_HPP
 #include <fstream>
 
-#include "CoreGlobals.hpp"
-#include "tools/StringUtils.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/tools/StringUtils.hpp>
 
 namespace INSTINCT_CORE_NS {
     /**

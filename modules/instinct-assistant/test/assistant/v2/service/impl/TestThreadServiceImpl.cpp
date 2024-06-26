@@ -2,8 +2,8 @@
 // Created by RobinQu on 2024/4/25.
 //
 #include <gtest/gtest.h>
-#include "AssistantTestGlobals.hpp"
-#include "assistant/v2/service/IThreadService.hpp"
+#include <instinct/AssistantTestGlobals.hpp>
+#include <instinct/assistant/v2/service/IThreadService.hpp>
 
 namespace INSTINCT_ASSISTANT_NS {
     class ThreadServiceTest: public BaseAssistantApiTest {

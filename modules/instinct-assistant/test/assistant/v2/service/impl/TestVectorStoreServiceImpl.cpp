@@ -2,8 +2,8 @@
 // Created by RobinQu on 2024/5/31.
 //
 #include <gtest/gtest.h>
-#include "assistant/v2/service/impl/VectorStoreServiceImpl.hpp"
-#include "AssistantTestGlobals.hpp"
+#include <instinct/assistant/v2/service/impl/VectorStoreServiceImpl.hpp>
+#include <instinct/AssistantTestGlobals.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 

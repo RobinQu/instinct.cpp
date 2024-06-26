@@ -5,7 +5,7 @@
 #ifndef INSTINCTEXCEPTION_HPP
 #define INSTINCTEXCEPTION_HPP
 #include <cpptrace/cpptrace.hpp>
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
 namespace INSTINCT_CORE_NS {
     class InstinctException: public cpptrace::exception_with_message {

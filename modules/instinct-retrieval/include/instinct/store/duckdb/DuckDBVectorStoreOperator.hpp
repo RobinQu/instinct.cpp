@@ -4,13 +4,14 @@
 
 #ifndef DUCKDBVECTORSTOREOPERATOR_HPP
 #define DUCKDBVECTORSTOREOPERATOR_HPP
-#include "BaseDuckDBStore.hpp"
-#include "DuckDBDocStore.hpp"
-#include "DuckDBVectorStore.hpp"
-#include "../IVectorStoreOperator.hpp"
-#include "store/VectorStoreMetadataDataMapper.hpp"
-#include "tools/HashUtils.hpp"
-#include "tools/RandomUtils.hpp"
+
+#include <instinct/store/duckdb/BaseDuckDBStore.hpp>
+#include <instinct/store/duckdb/DuckDBDocStore.hpp>
+#include <instinct/store/duckdb/DuckDBVectorStore.hpp>
+#include <instinct/store/IVectorStoreOperator.hpp>
+#include <instinct/store/VectorStoreMetadataDataMapper.hpp>
+#include <instinct/tools/HashUtils.hpp>
+#include <instinct/tools/RandomUtils.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
 

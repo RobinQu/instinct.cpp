@@ -4,10 +4,10 @@
 #include <gtest/gtest.h>
 #include <random>
 #include <ranges>
-#include "RetrievalGlobals.hpp"
-#include "store/duckdb/DuckDBVectorStore.hpp"
-#include "tools/ChronoUtils.hpp"
-#include "RetrievalTestGlobals.hpp"
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/store/duckdb/DuckDBVectorStore.hpp>
+#include <instinct/tools/ChronoUtils.hpp>
+#include <instinct/RetrievalTestGlobals.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

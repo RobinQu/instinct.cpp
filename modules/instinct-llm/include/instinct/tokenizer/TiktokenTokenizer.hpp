@@ -6,12 +6,12 @@
 #define TIKTOKENTOKENIZER_HPP
 
 #include <filesystem>
-#include "RegexTokenizer.hpp"
+#include <instinct/tokenizer/RegexTokenizer.hpp>
 #include <ranges>
 
-#include "GPT2BPEFileReader.hpp"
-#include "TiktokenBPEFileReader.hpp"
-#include "tools/file_vault/FileSystemFileVault.hpp"
+#include <instinct/tokenizer/GPT2BPEFileReader.hpp>
+#include <instinct/tokenizer/TiktokenBPEFileReader.hpp>
+#include <instinct/tools/file_vault/FileSystemFileVault.hpp>
 
 
 namespace INSTINCT_LLM_NS {

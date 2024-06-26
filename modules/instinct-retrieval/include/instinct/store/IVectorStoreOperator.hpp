@@ -5,8 +5,8 @@
 #ifndef IVECTORSTORECONTROLLER_HPP
 #define IVECTORSTORECONTROLLER_HPP
 
-#include "IVectorStore.hpp"
-#include "RetrievalGlobals.hpp"
+#include <instinct/store/IVectorStore.hpp>
+#include <instinct/RetrievalGlobals.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
 

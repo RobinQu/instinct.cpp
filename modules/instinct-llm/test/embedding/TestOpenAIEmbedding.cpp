@@ -5,7 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include "embedding_model/OpenAIEmbedding.hpp"
+#include <instinct/embedding_model/OpenAIEmbedding.hpp>
 
 
 namespace INSTINCT_LLM_NS {

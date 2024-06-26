@@ -6,8 +6,8 @@
 #define FILECONTROLLER_HPP
 
 
-#include "BaseController.hpp"
-#include "tools/file_vault/TempFile.hpp"
+#include <instinct/assistant/v2/endpoint/BaseController.hpp>
+#include <instinct/tools/file_vault/TempFile.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 

@@ -6,9 +6,9 @@
 #define HTTPLIBSESSION_HPP
 #include <httplib.h>
 
-#include "ServerGlobals.hpp"
-#include "server/HttpServerException.hpp"
-#include "tools/ProtobufUtils.hpp"
+#include <instinct/ServerGlobals.hpp>
+#include <instinct/server/HttpServerException.hpp>
+#include <instinct/tools/ProtobufUtils.hpp>
 
 namespace INSTINCT_SERVER_NS {
     using namespace httplib;

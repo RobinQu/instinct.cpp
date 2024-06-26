@@ -2,10 +2,10 @@
 // Created by RobinQu on 2024/5/14.
 //
 #include <gtest/gtest.h>
-#include "../../../include/instinct/LLMTestGlobals.hpp"
-#include "agent/patterns/llm_compiler/LLMCompilerPlaner.hpp"
-#include "agent/patterns/llm_compiler/LLMCompilerPlanerAgentStateInputParser.hpp"
-#include "agent/patterns/llm_compiler/LLMCompilerPlanerThoughtOutputParser.hpp"
+#include <instinct/LLMTestGlobals.hpp>
+#include <instinct/agent/patterns/llm_compiler/LLMCompilerPlaner.hpp>
+#include <instinct/agent/patterns/llm_compiler/LLMCompilerPlanerAgentStateInputParser.hpp>
+#include <instinct/agent/patterns/llm_compiler/LLMCompilerPlanerThoughtOutputParser.hpp>
 
 
 namespace INSTINCT_LLM_NS {

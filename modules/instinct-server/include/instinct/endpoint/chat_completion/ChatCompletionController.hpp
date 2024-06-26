@@ -8,15 +8,15 @@
 
 #include <utility>
 
-#include "ServerGlobals.hpp"
+#include <instinct/ServerGlobals.hpp>
 
-#include "chain/MessageChain.hpp"
-#include "chat_model/OpenAIChat.hpp"
-#include "ChatCompletionRequestInputParser.hpp"
-#include "ChatCompletionResponseOutputParser.hpp"
-#include "server/HttpController.hpp"
-#include "server/httplib/HttpLibServer.hpp"
-#include "tools/ChronoUtils.hpp"
+#include <instinct/chain/MessageChain.hpp>
+#include <instinct/chat_model/OpenAIChat.hpp>
+#include <instinct/endpoint/chat_completion/ChatCompletionRequestInputParser.hpp>
+#include <instinct/endpoint/chat_completion/ChatCompletionResponseOutputParser.hpp>
+#include <instinct/server/HttpController.hpp>
+#include <instinct/server/httplib/HttpLibServer.hpp>
+#include <instinct/tools/ChronoUtils.hpp>
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_LLM_NS;

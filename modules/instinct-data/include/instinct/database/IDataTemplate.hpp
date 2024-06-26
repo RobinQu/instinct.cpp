@@ -5,7 +5,7 @@
 #ifndef IDATAMAPPER_HPP
 #define IDATAMAPPER_HPP
 
-#include "DataGlobals.hpp"
+#include <instinct/DataGlobals.hpp>
 
 namespace INSTINCT_DATA_NS {
 

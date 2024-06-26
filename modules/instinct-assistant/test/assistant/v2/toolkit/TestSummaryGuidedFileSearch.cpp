@@ -3,9 +3,9 @@
 //
 #include <gtest/gtest.h>
 
-#include "AssistantTestGlobals.hpp"
-#include "assistant/v2/toolkit/SummaryGuidedFileSearch.hpp"
-#include "retrieval/VectorStoreRetriever.hpp"
+#include <instinct/AssistantTestGlobals.hpp>
+#include <instinct/assistant/v2/toolkit/SummaryGuidedFileSearch.hpp>
+#include <instinct/retrieval/VectorStoreRetriever.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

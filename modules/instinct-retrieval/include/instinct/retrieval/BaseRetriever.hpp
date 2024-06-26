@@ -5,10 +5,10 @@
 #ifndef INSTINCT_BASERETRIEVER_HPP
 #define INSTINCT_BASERETRIEVER_HPP
 
-#include "retrieval/IRetriever.hpp"
-#include "tools/DocumentUtils.hpp"
-#include "functional/StepFunctions.hpp"
-#include "store/IDocStore.hpp"
+#include <instinct/retrieval/IRetriever.hpp>
+#include <instinct/tools/DocumentUtils.hpp>
+#include <instinct/functional/StepFunctions.hpp>
+#include <instinct/store/IDocStore.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;

@@ -3,8 +3,8 @@
 //
 #include <gtest/gtest.h>
 
-#include "chat_model/OllamaChat.hpp"
-#include "prompt/MessageUtils.hpp"
+#include <instinct/chat_model/OllamaChat.hpp>
+#include <instinct/prompt/MessageUtils.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

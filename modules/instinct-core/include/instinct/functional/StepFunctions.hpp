@@ -5,13 +5,11 @@
 #ifndef INSTINCT_STEPFUNCTIONS_HPP
 #define INSTINCT_STEPFUNCTIONS_HPP
 
-#include <utility>
-
-#include "CoreGlobals.hpp"
-#include "IRunnable.hpp"
-#include "JSONContextPolicy.hpp"
-#include "tools/Assertions.hpp"
-#include "BaseRunnable.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/functional/IRunnable.hpp>
+#include <instinct/functional/JSONContextPolicy.hpp>
+#include <instinct/tools/Assertions.hpp>
+#include <instinct/functional/BaseRunnable.hpp>
 
 namespace INSTINCT_CORE_NS {
 

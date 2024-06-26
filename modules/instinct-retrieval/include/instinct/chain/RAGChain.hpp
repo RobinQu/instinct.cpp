@@ -7,13 +7,15 @@
 
 #include <utility>
 
-#include "RetrievalGlobals.hpp"
-#include "chain/MessageChain.hpp"
-#include "chain/LLMChain.hpp"
-#include "retrieval/BaseRetriever.hpp"
-#include "tools/DocumentUtils.hpp"
-#include "functional/Xn.hpp"
-#include "prompt/PlainPromptTemplate.hpp"
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/chain/MessageChain.hpp>
+#include <instinct/chain/LLMChain.hpp>
+#include <instinct/retrieval/BaseRetriever.hpp>
+#include <instinct/tools/DocumentUtils.hpp>
+#include <instinct/functional/Xn.hpp>
+#include <instinct/prompt/PlainPromptTemplate.hpp>
+
+#include <instinct/prompt/BasePromptTemplate.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;

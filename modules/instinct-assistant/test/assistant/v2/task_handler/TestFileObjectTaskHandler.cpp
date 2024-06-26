@@ -3,8 +3,8 @@
 //
 #include <gtest/gtest.h>
 #include <fstream>
-#include "AssistantTestGlobals.hpp"
-#include "assistant/v2/task_handler/FileObjectTaskHandler.hpp"
+#include <instinct/AssistantTestGlobals.hpp>
+#include <instinct/assistant/v2/task_handler/FileObjectTaskHandler.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     class TestFileObjectTaskHandler: public BaseAssistantApiTest {

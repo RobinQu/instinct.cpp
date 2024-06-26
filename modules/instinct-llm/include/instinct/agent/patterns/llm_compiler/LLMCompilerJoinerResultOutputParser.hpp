@@ -4,9 +4,9 @@
 
 #ifndef LLMCOMPILERJOINERRESULTOUTPUTPARSER_HPP
 #define LLMCOMPILERJOINERRESULTOUTPUTPARSER_HPP
-#include "LLMGlobals.hpp"
-#include "output_parser/BaseOutputParser.hpp"
-#include "prompt/MessageUtils.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/output_parser/BaseOutputParser.hpp>
+#include <instinct/prompt/MessageUtils.hpp>
 
 namespace INSTINCT_LLM_NS {
 

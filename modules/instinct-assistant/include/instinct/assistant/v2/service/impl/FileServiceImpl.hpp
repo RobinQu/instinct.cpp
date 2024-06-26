@@ -6,10 +6,10 @@
 #define FILESERVICEIMPL_HPP
 
 
-#include "../IFileService.hpp"
-#include "assistant/v2/tool/EntitySQLUtils.hpp"
-#include "database/IDataTemplate.hpp"
-#include "object_store/IObjectStore.hpp"
+#include <instinct/assistant/v2/service/IFileService.hpp>
+#include <instinct/assistant/v2/tool/EntitySQLUtils.hpp>
+#include <instinct/database/IDataTemplate.hpp>
+#include <instinct/object_store/IObjectStore.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;

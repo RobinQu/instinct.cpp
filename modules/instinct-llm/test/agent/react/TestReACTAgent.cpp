@@ -3,14 +3,14 @@
 //
 #include <gtest/gtest.h>
 
-#include "../../../include/instinct/LLMTestGlobals.hpp"
-#include "agent/patterns/react/Agent.hpp"
-#include "chat_model/OllamaChat.hpp"
-#include "chat_model/OpenAIChat.hpp"
-#include "toolkit/LocalToolkit.hpp"
-#include "toolkit/builtin/LLMMath.hpp"
-#include "toolkit/builtin/SerpAPI.hpp"
-#include "tools/SystemUtils.hpp"
+#include <instinct/LLMTestGlobals.hpp>
+#include <instinct/agent/patterns/react/Agent.hpp>
+#include <instinct/chat_model/OllamaChat.hpp>
+#include <instinct/chat_model/OpenAIChat.hpp>
+#include <instinct/toolkit/LocalToolkit.hpp>
+#include <instinct/toolkit/builtin/LLMMath.hpp>
+#include <instinct/toolkit/builtin/SerpAPI.hpp>
+#include <instinct/tools/SystemUtils.hpp>
 
 namespace INSTINCT_LLM_NS {
     class ReACTAgentTest: public BaseAgentTest {

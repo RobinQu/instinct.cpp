@@ -6,11 +6,11 @@
 #define OPENAIEMBEDDING_HPP
 
 #include <embedding_api.pb.h>
-#include <model/IEmbeddingModel.hpp>
+#include <instinct/model/IEmbeddingModel.hpp>
 
-#include "LLMGlobals.hpp"
-#include "commons/OpenAICommons.hpp"
-#include "tools/HttpRestClient.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/commons/OpenAICommons.hpp>
+#include <instinct/tools/HttpRestClient.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

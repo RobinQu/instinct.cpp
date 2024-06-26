@@ -5,8 +5,8 @@
 #ifndef INSTINCT_PROTOBUFUTILS_HPP
 #define INSTINCT_PROTOBUFUTILS_HPP
 
-#include "CoreGlobals.hpp"
-#include "tools/Assertions.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/tools/Assertions.hpp>
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/message.h>

@@ -3,8 +3,8 @@
 //
 
 #include <gtest/gtest.h>
-#include "CoreGlobals.hpp"
-#include "tokenizer/GPT2BPEFileReader.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/tokenizer/GPT2BPEFileReader.hpp>
 
 namespace INSTINCT_LLM_NS {
     TEST(GPT2BPEFileReader, TestLoad) {

@@ -5,17 +5,16 @@
 #ifndef INSTINCT_CURLHTTPCLIENT_HPP
 #define INSTINCT_CURLHTTPCLIENT_HPP
 
-#include <future>
 #include <curl/curl.h>
 #include <BS_thread_pool.hpp>
 #include <csignal>
 
 
-#include "CoreGlobals.hpp"
-#include "IHttpClient.hpp"
-#include "HttpUtils.hpp"
-#include "HttpClientException.hpp"
-#include "tools/SystemUtils.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/tools/http/IHttpClient.hpp>
+#include <instinct/tools/http/HttpUtils.hpp>
+#include <instinct/tools/http/HttpClientException.hpp>
+#include <instinct/tools/SystemUtils.hpp>
 
 namespace INSTINCT_CORE_NS {
 

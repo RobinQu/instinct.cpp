@@ -7,10 +7,11 @@
 #include <filesystem>
 #include <ostream>
 
-#include "CoreGlobals.hpp"
-#include "HttpURLResourceProvider.hpp"
-#include "IFileVaultResourceProvider.hpp"
-#include "tools/http/IHttpClient.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/tools/http/IHttpClient.hpp>
+
+#include <instinct/tools/file_vault/HttpURLResourceProvider.hpp>
+#include <instinct/tools/file_vault/IFileVaultResourceProvider.hpp>
 
 
 namespace INSTINCT_CORE_NS {

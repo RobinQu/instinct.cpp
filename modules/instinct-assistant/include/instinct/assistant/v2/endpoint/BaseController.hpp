@@ -7,9 +7,9 @@
 
 #include <utility>
 
-#include "AssistantGlobals.hpp"
-#include "assistant/v2/service/AssistantFacade.hpp"
-#include "server/httplib/HttpLibServer.hpp"
+#include <instinct/AssistantGlobals.hpp>
+#include <instinct/assistant/v2/service/AssistantFacade.hpp>
+#include <instinct/server/httplib/HttpLibServer.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_SERVER_NS;

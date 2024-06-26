@@ -5,10 +5,10 @@
 #ifndef OPENAICHATCOMPLETIONRESPONSEOUTPUTPARSER_HPP
 #define OPENAICHATCOMPLETIONRESPONSEOUTPUTPARSER_HPP
 
-#include "ServerGlobals.hpp"
-#include "output_parser/BaseOutputParser.hpp"
-#include "LLMGlobals.hpp"
-#include "tools/ChronoUtils.hpp"
+#include <instinct/ServerGlobals.hpp>
+#include <instinct/output_parser/BaseOutputParser.hpp>
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/tools/ChronoUtils.hpp>
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_LLM_NS;

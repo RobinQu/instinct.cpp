@@ -7,7 +7,7 @@
 
 #include <httplib.h>
 
-#include "AssistantGlobals.hpp"
+#include <instinct/AssistantGlobals.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 

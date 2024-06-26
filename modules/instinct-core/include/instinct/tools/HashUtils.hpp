@@ -9,7 +9,7 @@
 #include <sha256.h>
 
 
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
 namespace INSTINCT_CORE_NS {
 

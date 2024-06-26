@@ -3,9 +3,9 @@
 //
 #include <gtest/gtest.h>
 
-#include "CoreGlobals.hpp"
-#include "tools/Assertions.hpp"
-#include "tools/HashUtils.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/HashUtils.hpp>
 
 namespace INSTINCT_CORE_NS {
 

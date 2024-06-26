@@ -4,7 +4,7 @@
 #include <google/protobuf/util/message_differencer.h>
 #include <gtest/gtest.h>
 
-#include "AssistantTestGlobals.hpp"
+#include <instinct/AssistantTestGlobals.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS {

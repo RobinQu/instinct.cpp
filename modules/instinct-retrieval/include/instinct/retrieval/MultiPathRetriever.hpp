@@ -5,10 +5,8 @@
 #ifndef MUTLI_PATH_RETRIEVER_HPP
 #define MUTLI_PATH_RETRIEVER_HPP
 #include <rpp/rpp.hpp>
-
-
-#include "BaseRetriever.hpp"
-#include "ranker/BaseRankingModel.hpp"
+#include <instinct/retrieval/BaseRetriever.hpp>
+#include <instinct/ranker/BaseRankingModel.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

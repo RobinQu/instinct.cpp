@@ -6,11 +6,11 @@
 #define DIRECTORYTREEINGESTOR_HPP
 
 
-#include "BaseIngestor.hpp"
-#include "tools/Assertions.hpp"
+#include <instinct/ingestor/BaseIngestor.hpp>
+#include <instinct/tools/Assertions.hpp>
 #include <filesystem>
 
-#include "SingleFileIngestor.hpp"
+#include <instinct/ingestor/SingleFileIngestor.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace U_ICU_NAMESPACE;

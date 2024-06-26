@@ -5,7 +5,7 @@
 #ifndef TASKGRAPHUTILS_HPP
 #define TASKGRAPHUTILS_HPP
 
-#include "LLMGlobals.hpp"
+#include <instinct/LLMGlobals.hpp>
 
 namespace INSTINCT_LLM_NS {
 

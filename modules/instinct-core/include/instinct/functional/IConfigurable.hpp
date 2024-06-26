@@ -5,7 +5,7 @@
 #ifndef INSTINCT_ICONFIGURABLE_HPP
 #define INSTINCT_ICONFIGURABLE_HPP
 
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
 namespace INSTINCT_CORE_NS {
     template<typename Options>

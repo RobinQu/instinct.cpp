@@ -4,9 +4,9 @@
 
 #ifndef INSTINCT_BASECHATPROMPTTEMPLATE_HPP
 #define INSTINCT_BASECHATPROMPTTEMPLATE_HPP
-#include "LLMGlobals.hpp"
-#include "BasePromptTemplate.hpp"
-#include "IChatPromptTemplate.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/prompt/BasePromptTemplate.hpp>
+#include <instinct/prompt/IChatPromptTemplate.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

@@ -7,9 +7,9 @@
 
 #include <utility>
 
-#include "BaseLLM.hpp"
-#include "chat_model/OpenAIChat.hpp"
-#include "commons/OllamaCommons.hpp"
+#include <instinct/llm/BaseLLM.hpp>
+#include <instinct/chat_model/OpenAIChat.hpp>
+#include <instinct/commons/OllamaCommons.hpp>
 
 namespace INSTINCT_LLM_NS {
     /**

@@ -6,7 +6,7 @@
 #define CHATMEMORY_HPP
 
 
-#include "LLMGlobals.hpp"
+#include <instinct/LLMGlobals.hpp>
 #include <llm.pb.h>
 
 

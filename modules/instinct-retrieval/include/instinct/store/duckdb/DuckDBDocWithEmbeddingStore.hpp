@@ -5,9 +5,9 @@
 #ifndef BASEDUCKDBVECTORSTORE_HPP
 #define BASEDUCKDBVECTORSTORE_HPP
 
-#include "BaseDuckDBStore.hpp"
-#include "RetrievalGlobals.hpp"
-#include "model/IEmbeddingModel.hpp"
+#include <instinct/store/duckdb/BaseDuckDBStore.hpp>
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/model/IEmbeddingModel.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;

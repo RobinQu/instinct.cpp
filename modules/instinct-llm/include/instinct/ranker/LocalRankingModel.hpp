@@ -5,10 +5,10 @@
 #ifndef LOCALRANKINGMODEL_HPP
 #define LOCALRANKINGMODEL_HPP
 
-#include "./BaseRankingModel.hpp"
-#include "models.hpp"
-#include "model_factory.hpp"
-#include "tools/file_vault/FileSystemFileVault.hpp"
+#include <instinct/ranker/BaseRankingModel.hpp>
+#include <instinct/models.hpp>
+#include <instinct/model_factory.hpp>
+#include <instinct/tools/file_vault/FileSystemFileVault.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace  INSTINCT_TRANSFORMER_NS;

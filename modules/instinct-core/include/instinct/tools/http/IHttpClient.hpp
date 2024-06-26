@@ -5,8 +5,8 @@
 #ifndef INSTINCT_IHTTPCLIENT_HPP
 #define INSTINCT_IHTTPCLIENT_HPP
 
-#include "CoreGlobals.hpp"
-#include "functional/ReactiveFunctions.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/functional/ReactiveFunctions.hpp>
 
 namespace INSTINCT_CORE_NS {
     using HttpHeaders = std::unordered_map<std::string, std::string>;

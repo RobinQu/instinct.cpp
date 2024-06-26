@@ -3,8 +3,8 @@
 //
 #include <gtest/gtest.h>
 
-#include "CoreGlobals.hpp"
-#include "tools/CodecUtils.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/tools/CodecUtils.hpp>
 
 namespace INSTINCT_CORE_NS {
 

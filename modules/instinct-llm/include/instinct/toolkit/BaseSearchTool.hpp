@@ -6,8 +6,8 @@
 #define BASESEARCHTOOL_HPP
 
 
-#include "LLMGlobals.hpp"
-#include "ProtoMessageFunctionTool.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/toolkit/ProtoMessageFunctionTool.hpp>
 
 namespace INSTINCT_LLM_NS {
     class BaseSearchTool: public ProtoMessageFunctionTool<SearchToolRequest, SearchToolResponse> {

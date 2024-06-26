@@ -6,9 +6,9 @@
 #define INSTINCT_ICHAINSERVER_HPP
 #include <string>
 
-#include "CoreGlobals.hpp"
-#include "HttpController.hpp"
-#include "ServerGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/server/HttpController.hpp>
+#include <instinct/ServerGlobals.hpp>
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_CORE_NS;

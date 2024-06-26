@@ -2,8 +2,8 @@
 // Created by RobinQu on 2024/4/23.
 //
 #include <gtest/gtest.h>
-#include "DataGlobals.hpp"
-#include "database/duckdb/DuckDBConnectionPool.hpp"
+#include <instinct/DataGlobals.hpp>
+#include <instinct/database/duckdb/DuckDBConnectionPool.hpp>
 
 namespace INSTINCT_DATA_NS {
     using namespace INSTINCT_CORE_NS;

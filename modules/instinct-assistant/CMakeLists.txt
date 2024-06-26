@@ -62,7 +62,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::llm instinct::p
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}/instinct>)
+        $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
 install(DIRECTORY include/
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct"

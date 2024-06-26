@@ -8,8 +8,8 @@
 #include <retrieval.pb.h>
 
 #include <utility>
-#include "tools/DocumentUtils.hpp"
-#include "TextSplitter.hpp"
+#include <instinct/tools/DocumentUtils.hpp>
+#include <instinct/document/TextSplitter.hpp>
 
 
 namespace  INSTINCT_LLM_NS {

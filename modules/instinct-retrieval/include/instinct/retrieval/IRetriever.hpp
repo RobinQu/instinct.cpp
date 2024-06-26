@@ -5,8 +5,8 @@
 #ifndef DOCUMENTRETRIEVAL_HPP
 #define DOCUMENTRETRIEVAL_HPP
 
-#include "RetrievalGlobals.hpp"
-#include "functional/ReactiveFunctions.hpp"
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/functional/ReactiveFunctions.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_CORE_NS;

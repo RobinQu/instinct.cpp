@@ -5,11 +5,11 @@
 #ifndef MODEL_FACTORY_HPP
 #define MODEL_FACTORY_HPP
 
-#include "./globals.hpp"
-#include "./models.hpp"
-#include "./tokenizer.hpp"
-#include "./config.hpp"
-#include "models/bge_ranker.hpp"
+#include <instinct/./globals.hpp>
+#include <instinct/./models.hpp>
+#include <instinct/./tokenizer.hpp>
+#include <instinct/./config.hpp>
+#include <instinct/models/bge_ranker.hpp>
 
 namespace INSTINCT_TRANSFORMER_NS {
     using namespace INSTINCT_TRANSFORMER_NS::tokenizer;

@@ -6,10 +6,10 @@
 #define COLLECTIONSTORAGE_HPP
 
 #include <retrieval.pb.h>
-#include "RetrievalGlobals.hpp"
-#include "model/IEmbeddingModel.hpp"
-#include "store/IDocStore.hpp"
-#include "tools/MetadataSchemaBuilder.hpp"
+#include <instinct/RetrievalGlobals.hpp>
+#include <instinct/model/IEmbeddingModel.hpp>
+#include <instinct/store/IDocStore.hpp>
+#include <instinct/tools/MetadataSchemaBuilder.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

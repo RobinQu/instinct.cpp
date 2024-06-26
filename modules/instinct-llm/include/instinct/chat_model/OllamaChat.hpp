@@ -4,10 +4,10 @@
 
 #ifndef OLLAMACHAT_H
 #define OLLAMACHAT_H
-#include "BaseChatModel.hpp"
-#include "tools/HttpRestClient.hpp"
-#include "LLMGlobals.hpp"
-#include "commons/OllamaCommons.hpp"
+#include <instinct/chat_model/BaseChatModel.hpp>
+#include <instinct/tools/HttpRestClient.hpp>
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/commons/OllamaCommons.hpp>
 #include <llm.pb.h>
 
 

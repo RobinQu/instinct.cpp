@@ -5,10 +5,10 @@
 #ifndef PLAINCHATTEMPLATE_HPP
 #define PLAINCHATTEMPLATE_HPP
 
-#include "BaseChatPromptTemplate.hpp"
-#include "LLMGlobals.hpp"
-#include "prompt/MessageUtils.hpp"
-#include "functional/JSONContextPolicy.hpp"
+#include <instinct/prompt/BaseChatPromptTemplate.hpp>
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/prompt/MessageUtils.hpp>
+#include <instinct/functional/JSONContextPolicy.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

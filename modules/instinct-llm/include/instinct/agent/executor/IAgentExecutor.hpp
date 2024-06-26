@@ -6,8 +6,8 @@
 #define IAGENTEXECUTOR_HPP
 
 
-#include "../../LLMGlobals.hpp"
-#include "../../chain/MessageChain.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/chain/MessageChain.hpp>
 
 namespace INSTINCT_LLM_NS {
 

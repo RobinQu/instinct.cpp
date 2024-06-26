@@ -4,11 +4,11 @@
 
 #ifndef BGE_EMBEDDING_HPP
 #define BGE_EMBEDDING_HPP
-#include "./config.hpp"
-#include "./layers.hpp"
-#include "./ops.hpp"
-#include "./models.hpp"
-#include "./tokenizer.hpp"
+#include <instinct/./config.hpp>
+#include <instinct/./layers.hpp>
+#include <instinct/./ops.hpp>
+#include <instinct/./models.hpp>
+#include <instinct/./tokenizer.hpp>
 
 
 namespace INSTINCT_TRANSFORMER_NS::models::bge::embedding {

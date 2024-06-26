@@ -5,12 +5,12 @@
 #ifndef OPENAITOOLAGENTEXECUTOR_HPP
 #define OPENAITOOLAGENTEXECUTOR_HPP
 
-#include "LLMGlobals.hpp"
-#include "OpenAIToolAgentPlanner.hpp"
-#include "agent/LocalToolkitsWorker.hpp"
-#include "agent/executor/BaseAgentExecutor.hpp"
-#include "chain/MessageChain.hpp"
-#include "chat_model/BaseChatModel.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/agent/patterns/openai_tool/OpenAIToolAgentPlanner.hpp>
+#include <instinct/agent/LocalToolkitsWorker.hpp>
+#include <instinct/agent/executor/BaseAgentExecutor.hpp>
+#include <instinct/chain/MessageChain.hpp>
+#include <instinct/chat_model/BaseChatModel.hpp>
 
 namespace INSTINCT_LLM_NS {
     /**

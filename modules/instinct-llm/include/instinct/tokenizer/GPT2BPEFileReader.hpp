@@ -6,12 +6,12 @@
 #define GPT2BPEFILEREADER_HPP
 
 
-#include "BPETokenRanksReader.hpp"
+#include <instinct/tokenizer/BPETokenRanksReader.hpp>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <unicode/ustream.h>
-#include "tools/StringUtils.hpp"
+#include <instinct/tools/StringUtils.hpp>
 #include <nlohmann/json.hpp>
 #include <unicode/schriter.h>
 

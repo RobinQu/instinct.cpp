@@ -4,30 +4,30 @@
 
 #include <CLI/CLI.hpp>
 
-#include "../../../instinct-llm/include/instinct/LLMObjectFactory.hpp"
-#include "RetrieverObjectFactory.hpp"
-#include "document/RecursiveCharacterTextSplitter.hpp"
-#include "chain/RAGChain.hpp"
-#include "chat_model/OllamaChat.hpp"
-#include "commons/OllamaCommons.hpp"
-#include "embedding_model/LocalEmbeddingModel.hpp"
-#include "embedding_model/OllamaEmbedding.hpp"
-#include "embedding_model/OpenAIEmbedding.hpp"
-#include "ingestor/SingleFileIngestor.hpp"
-#include "ingestor/PDFFileIngestor.hpp"
-#include "ingestor/DOCXFileIngestor.hpp"
-#include "ingestor/ParquetFileIngestor.hpp"
-#include "retrieval/ChunkedMultiVectorRetriever.hpp"
-#include "retrieval/MultiQueryRetriever.hpp"
-#include "retrieval/VectorStoreRetriever.hpp"
-#include "store/duckdb/DuckDBDocStore.hpp"
-#include "store/duckdb/DuckDBVectorStore.hpp"
-#include "endpoint/chat_completion/ChatCompletionController.hpp"
-#include "ranker/LocalRankingModel.hpp"
-#include "retrieval/MultiPathRetriever.hpp"
-#include "retrieval/ParentChildRetriever.hpp"
-#include "retrieval/duckdb/DuckDBBM25Retriever.hpp"
-#include "tools/Assertions.hpp"
+#include <instinct/../../../instinct-llm/include/instinct/LLMObjectFactory.hpp>
+#include <instinct/RetrieverObjectFactory.hpp>
+#include <instinct/document/RecursiveCharacterTextSplitter.hpp>
+#include <instinct/chain/RAGChain.hpp>
+#include <instinct/chat_model/OllamaChat.hpp>
+#include <instinct/commons/OllamaCommons.hpp>
+#include <instinct/embedding_model/LocalEmbeddingModel.hpp>
+#include <instinct/embedding_model/OllamaEmbedding.hpp>
+#include <instinct/embedding_model/OpenAIEmbedding.hpp>
+#include <instinct/ingestor/SingleFileIngestor.hpp>
+#include <instinct/ingestor/PDFFileIngestor.hpp>
+#include <instinct/ingestor/DOCXFileIngestor.hpp>
+#include <instinct/ingestor/ParquetFileIngestor.hpp>
+#include <instinct/retrieval/ChunkedMultiVectorRetriever.hpp>
+#include <instinct/retrieval/MultiQueryRetriever.hpp>
+#include <instinct/retrieval/VectorStoreRetriever.hpp>
+#include <instinct/store/duckdb/DuckDBDocStore.hpp>
+#include <instinct/store/duckdb/DuckDBVectorStore.hpp>
+#include <instinct/endpoint/chat_completion/ChatCompletionController.hpp>
+#include <instinct/ranker/LocalRankingModel.hpp>
+#include <instinct/retrieval/MultiPathRetriever.hpp>
+#include <instinct/retrieval/ParentChildRetriever.hpp>
+#include <instinct/retrieval/duckdb/DuckDBBM25Retriever.hpp>
+#include <instinct/tools/Assertions.hpp>
 
 
 namespace instinct::examples::doc_agent {

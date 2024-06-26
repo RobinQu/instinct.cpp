@@ -8,11 +8,11 @@
 
 #include <llm.pb.h>
 #include <agent.pb.h>
-#include "CoreGlobals.hpp"
-#include "tools/ChronoUtils.hpp"
-#include "tools/ProtobufUtils.hpp"
-#include "tools/SnowflakeIDGenerator.hpp"
-#include "tools/StringUtils.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/tools/ChronoUtils.hpp>
+#include <instinct/tools/ProtobufUtils.hpp>
+#include <instinct/tools/SnowflakeIDGenerator.hpp>
+#include <instinct/tools/StringUtils.hpp>
 
 #define INSTINCT_LLM_NS instinct::llm
 

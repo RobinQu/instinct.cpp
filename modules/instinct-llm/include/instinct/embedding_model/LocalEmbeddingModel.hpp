@@ -6,13 +6,13 @@
 #define LOCALEMBEDDINGMODEL_HPP
 
 
-#include "LLMGlobals.hpp"
-#include "models.hpp"
-#include "model_factory.hpp"
-#include "tokenizer.hpp"
-#include "model/IEmbeddingModel.hpp"
-#include "tools/file_vault/FileSystemFileVault.hpp"
-#include "tools/file_vault/IFileVault.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/models.hpp>
+#include <instinct/model_factory.hpp>
+#include <instinct/tokenizer.hpp>
+#include <instinct/model/IEmbeddingModel.hpp>
+#include <instinct/tools/file_vault/FileSystemFileVault.hpp>
+#include <instinct/tools/file_vault/IFileVault.hpp>
 
 
 namespace INSTINCT_LLM_NS {

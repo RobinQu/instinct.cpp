@@ -5,7 +5,7 @@
 #ifndef CXX_TEST_CONFIG_HPP
 #define CXX_TEST_CONFIG_HPP
 #include <ggml.h>
-#include "./globals.hpp"
+#include <instinct/./globals.hpp>
 
 
 namespace INSTINCT_TRANSFORMER_NS {

@@ -5,10 +5,10 @@
 #include <filesystem>
 #include <fstream>
 
-#include "CoreGlobals.hpp"
-#include "tools/CodecUtils.hpp"
-#include "tools/HashUtils.hpp"
-#include "tools/file_vault/HttpURLResourceProvider.hpp"
+#include <instinct/CoreGlobals.hpp>
+#include <instinct/tools/CodecUtils.hpp>
+#include <instinct/tools/HashUtils.hpp>
+#include <instinct/tools/file_vault/HttpURLResourceProvider.hpp>
 
 namespace INSTINCT_CORE_NS {
 

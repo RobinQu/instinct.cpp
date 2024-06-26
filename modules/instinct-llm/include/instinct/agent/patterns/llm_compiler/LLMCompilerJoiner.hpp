@@ -5,14 +5,14 @@
 #ifndef LLMCOMPILERJOINER_HPP
 #define LLMCOMPILERJOINER_HPP
 
-#include "LLMCompilerJoinerResultOutputParser.hpp"
-#include "LLMCompilerJoinerTaskGraphInputParser.hpp"
-#include "LLMCompilerPlanerThoughtOutputParser.hpp"
-#include "LLMGlobals.hpp"
-#include "chain/MessageChain.hpp"
-#include "chat_model/BaseChatModel.hpp"
-#include "prompt/IChatPromptTemplate.hpp"
-#include "prompt/PlainChatPromptTemplate.hpp"
+#include <instinct/agent/patterns/llm_compiler/LLMCompilerJoinerResultOutputParser.hpp>
+#include <instinct/agent/patterns/llm_compiler/LLMCompilerJoinerTaskGraphInputParser.hpp>
+#include <instinct/agent/patterns/llm_compiler/LLMCompilerPlanerThoughtOutputParser.hpp>
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/chain/MessageChain.hpp>
+#include <instinct/chat_model/BaseChatModel.hpp>
+#include <instinct/prompt/IChatPromptTemplate.hpp>
+#include <instinct/prompt/PlainChatPromptTemplate.hpp>
 
 namespace INSTINCT_LLM_NS {
     using JoinerPtr = RunnablePtr<LLMCompilerTaskGraph, LLMCompilerJoinerResult>;

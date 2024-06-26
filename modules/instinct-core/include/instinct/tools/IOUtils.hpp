@@ -8,9 +8,8 @@
 #include <string>
 #include <fstream>
 #include <streambuf>
-
-#include "Assertions.hpp"
-#include "CoreGlobals.hpp"
+#include <instinct/tools/Assertions.hpp>
+#include <instinct/CoreGlobals.hpp>
 
 
 namespace INSTINCT_CORE_NS {

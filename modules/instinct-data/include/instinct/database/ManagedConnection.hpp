@@ -5,8 +5,8 @@
 #ifndef BASECONNECTION_HPP
 #define BASECONNECTION_HPP
 
-#include "IConnectionPool.hpp"
-#include "tools/StringUtils.hpp"
+#include <instinct/database/IConnectionPool.hpp>
+#include <instinct/tools/StringUtils.hpp>
 
 namespace INSTINCT_DATA_NS {
     template<typename ConnectionImpl, typename  QueryResultImpl>

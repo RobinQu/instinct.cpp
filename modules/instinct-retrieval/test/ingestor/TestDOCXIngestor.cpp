@@ -3,9 +3,9 @@
 //
 
 #include <gtest/gtest.h>
-#include <tools/MetadataSchemaBuilder.hpp>
+#include <instinct/tools/MetadataSchemaBuilder.hpp>
 
-#include "ingestor/DOCXFileIngestor.hpp"
+#include <instinct/ingestor/DOCXFileIngestor.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     class TestDOCXIngestor: public testing::Test {

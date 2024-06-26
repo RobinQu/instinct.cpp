@@ -7,10 +7,10 @@
 
 #include <utility>
 
-#include "LLMGlobals.hpp"
-#include "model/ILanguageModel.hpp"
-#include "tools/Assertions.hpp"
-#include "functional/StepFunctions.hpp"
+#include <instinct/LLMGlobals.hpp>
+#include <instinct/model/ILanguageModel.hpp>
+#include <instinct/tools/Assertions.hpp>
+#include <instinct/functional/StepFunctions.hpp>
 
 
 namespace INSTINCT_LLM_NS {

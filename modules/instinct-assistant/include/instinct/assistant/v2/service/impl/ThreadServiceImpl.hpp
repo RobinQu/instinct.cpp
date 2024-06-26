@@ -4,8 +4,8 @@
 
 #ifndef THREADSERVICEIMPL_HPP
 #define THREADSERVICEIMPL_HPP
-#include "assistant/v2/service/IThreadService.hpp"
-#include "assistant/v2/tool/EntitySQLUtils.hpp"
+#include <instinct/assistant/v2/service/IThreadService.hpp>
+#include <instinct/assistant/v2/tool/EntitySQLUtils.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

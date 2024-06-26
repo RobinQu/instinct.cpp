@@ -5,7 +5,7 @@
 #include <assistant_api_v2.pb.h>
 #include <google/protobuf/util/json_util.h>
 
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 
 
 namespace INSTINCT_CORE_NS {
