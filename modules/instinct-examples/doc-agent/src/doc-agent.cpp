@@ -4,7 +4,7 @@
 
 #include <CLI/CLI.hpp>
 
-#include <instinct/../../../instinct-llm/include/instinct/llm_object_factory.hpp>
+#include <instinct/llm_object_factory.hpp>
 #include <instinct/retriever_object_factory.hpp>
 #include <instinct/document/recursive_character_text_splitter.hpp>
 #include <instinct/chain/rag_chain.hpp>

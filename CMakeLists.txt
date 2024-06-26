@@ -50,9 +50,6 @@ if(NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 
-
-include(cmake/CMakeRC.cmake)
-
 # add dependencies
 include(cmake/conan_dependencies.cmake)
 

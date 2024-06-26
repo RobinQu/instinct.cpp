@@ -4,7 +4,7 @@
 #include <CLI/CLI.hpp>
 
 
-#include <instinct/../../../instinct-llm/include/instinct/llm_object_factory.hpp>
+#include <instinct/llm_object_factory.hpp>
 #include <instinct/agent/patterns/llm_compiler/llm_compiler_agent_executor.hpp>
 #include <instinct/assistant/v2/endpoint/vector_store_controller.hpp>
 #include <instinct/assistant/v2/endpoint/vector_store_file_batch_controller.hpp>
