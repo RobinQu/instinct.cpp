@@ -63,6 +63,6 @@ add_subdirectory(modules/instinct-server)
 add_subdirectory(modules/instinct-data)
 add_subdirectory(modules/instinct-assistant)
 
-# examples
-add_subdirectory(modules/instinct-examples/doc-agent)
-add_subdirectory(modules/instinct-examples/mini-assistant)
+# apps
+add_subdirectory(modules/instinct-apps/doc-agent)
+add_subdirectory(modules/instinct-apps/mini-assistant)

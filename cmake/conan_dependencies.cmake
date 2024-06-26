@@ -39,5 +39,5 @@ find_package(pdfium REQUIRED)
 # deps for instinct-server
 find_package(httplib)
 
-# deps for instinct-examples
+# deps for instinct-apps
 find_package(CLI11)
