@@ -7,7 +7,7 @@
 
 #include <retrieval.pb.h>
 #include <instinct/RetrievalGlobals.hpp>
-#include <instinct/model/IEmbeddingModel.hpp>
+#include <instinct/model/embedding_model.hpp>
 #include <instinct/store/IDocStore.hpp>
 #include <instinct/tools/metadata_schema_builder.hpp>
 

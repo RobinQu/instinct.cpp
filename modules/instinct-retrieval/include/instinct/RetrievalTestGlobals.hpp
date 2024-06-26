@@ -5,6 +5,6 @@
 #ifndef RETRIEVALTESTGLOBALS_HPP
 #define RETRIEVALTESTGLOBALS_HPP
 
-#include <instinct/LLMTestGlobals.hpp>
+#include <instinct/llm_test_global.hpp>
 
 #endif //RETRIEVALTESTGLOBALS_HPP

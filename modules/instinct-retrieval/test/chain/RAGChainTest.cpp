@@ -6,14 +6,14 @@
 
 #include <instinct/RetrievalGlobals.hpp>
 #include <instinct/chain/RAGChain.hpp>
-#include <instinct/chat_model/OllamaChat.hpp>
-#include <instinct/embedding_model/OllamaEmbedding.hpp>
-#include <instinct/memory/EphemeralChatMemory.hpp>
+#include <instinct/chat_model/ollama_chat.hpp>
+#include <instinct/embedding_model/ollama_embedding.hpp>
+#include <instinct/memory/ephemeral_chat_memory.hpp>
 #include <instinct/retrieval/VectorStoreRetriever.hpp>
 #include <instinct/tools/chrono_utils.hpp>
 #include <instinct/store/duckdb/DuckDBVectorStore.hpp>
-#include <instinct/LLMTestGlobals.hpp>
-#include <instinct/prompt/PlainChatPromptTemplate.hpp>
+#include <instinct/llm_test_global.hpp>
+#include <instinct/prompt/plain_chat_prompt_template.hpp>
 
 namespace  INSTINCT_RETRIEVAL_NS {
     class RAGChainTest : public testing::Test {

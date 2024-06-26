@@ -3,9 +3,9 @@
 //
 #include <gtest/gtest.h>
 
-#include <instinct/chat_model/OpenAIChat.hpp>
-#include <instinct/chain/LLMChain.hpp>
-#include <instinct/prompt/PlainChatPromptTemplate.hpp>
+#include <instinct/chat_model/openai_chat.hpp>
+#include <instinct/chain/llm_chain.hpp>
+#include <instinct/prompt/plain_chat_prompt_template.hpp>
 
 
 /**

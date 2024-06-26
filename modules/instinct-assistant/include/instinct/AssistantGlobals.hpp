@@ -15,10 +15,10 @@
 
 #include <instinct/core_global.hpp>
 #include <instinct/data_global.hpp>
-#include <instinct/chain/MessageChain.hpp>
-#include <instinct/toolkit/BaseFunctionTool.hpp>
+#include <instinct/chain/message_chain.hpp>
+#include <instinct/toolkit/function_tool.hpp>
 #include <instinct/tools/snowflake_id_generator.hpp>
-#include <instinct/LLMGlobals.hpp>
+#include <instinct/llm_global.hpp>
 
 namespace INSTINCT_ASSISTANT_NS {
     using namespace INSTINCT_CORE_NS;

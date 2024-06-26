@@ -3,7 +3,7 @@
 //
 #include <gtest/gtest.h>
 #include <instinct/chain/CitationAnnotatingChain.hpp>
-#include <instinct/chat_model/OpenAIChat.hpp>
+#include <instinct/chat_model/openai_chat.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

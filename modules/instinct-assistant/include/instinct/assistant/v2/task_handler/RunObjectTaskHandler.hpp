@@ -8,14 +8,14 @@
 #include <utility>
 
 #include <instinct/AssistantGlobals.hpp>
-#include <instinct/LLMObjectFactory.hpp>
-#include <instinct/agent/executor/BaseAgentExecutor.hpp>
+#include <instinct/llm_object_factory.hpp>
+#include <instinct/agent/executor/agent_executor.hpp>
 #include <instinct/task_scheduler/thread_pool_task_scheduler.hpp>
-#include <instinct/agent/patterns/openai_tool/OpenAIToolAgentExecutor.hpp>
+#include <instinct/agent/patterns/openai_tool/openai_tool_agent_executor.hpp>
 #include <instinct/assistant/v2/service/IVectorStoreService.hpp>
 #include <instinct/assistant/v2/toolkit/SummaryGuidedFileSearch.hpp>
 #include <instinct/chain/CitationAnnotatingChain.hpp>
-#include <instinct/toolkit/LocalToolkit.hpp>
+#include <instinct/toolkit/local_toolkit.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_DATA_NS;

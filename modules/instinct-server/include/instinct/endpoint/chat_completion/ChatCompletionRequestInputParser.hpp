@@ -6,8 +6,8 @@
 #define OPENAICHATCOMPLETIONREQUESTINPUTPARSER_HPP
 
 #include <instinct/ServerGlobals.hpp>
-#include <instinct/input_parser/BaseInputParser.hpp>
-#include <instinct/LLMGlobals.hpp>
+#include <instinct/input_parser/base_input_parser.hpp>
+#include <instinct/llm_global.hpp>
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_LLM_NS;

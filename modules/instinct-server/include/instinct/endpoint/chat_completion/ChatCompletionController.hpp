@@ -10,8 +10,8 @@
 
 #include <instinct/ServerGlobals.hpp>
 
-#include <instinct/chain/MessageChain.hpp>
-#include <instinct/chat_model/OpenAIChat.hpp>
+#include <instinct/chain/message_chain.hpp>
+#include <instinct/chat_model/openai_chat.hpp>
 #include <instinct/endpoint/chat_completion/ChatCompletionRequestInputParser.hpp>
 #include <instinct/endpoint/chat_completion/ChatCompletionResponseOutputParser.hpp>
 #include <instinct/server/HttpController.hpp>

@@ -6,9 +6,9 @@
 #define FILECITATIONANNOTATIONCHAIN_HPP
 
 #include <instinct/RetrievalGlobals.hpp>
-#include <instinct/chain/MessageChain.hpp>
-#include <instinct/prompt/PlainPromptTemplate.hpp>
-#include <instinct/chat_model/BaseChatModel.hpp>
+#include <instinct/chain/message_chain.hpp>
+#include <instinct/prompt/plain_prompt_template.hpp>
+#include <instinct/chat_model/base_chat_model.hpp>
 
 
 

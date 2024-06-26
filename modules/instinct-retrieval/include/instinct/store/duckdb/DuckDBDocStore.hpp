@@ -9,7 +9,7 @@
 
 #include <instinct/store/duckdb/BaseDuckDBStore.hpp>
 
-#include <instinct/LLMGlobals.hpp>
+#include <instinct/llm_global.hpp>
 #include <instinct/RetrievalGlobals.hpp>
 #include <instinct/store/IDocStore.hpp>
 #include <instinct/tools/metadata_schema_builder.hpp>

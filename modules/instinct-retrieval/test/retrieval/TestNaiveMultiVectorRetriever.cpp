@@ -5,9 +5,9 @@
 
 #include <gtest/gtest.h>
 
-#include <instinct/LLMTestGlobals.hpp>
+#include <instinct/llm_test_global.hpp>
 #include <instinct/RetrieverObjectFactory.hpp>
-#include <instinct/chat_model/OllamaChat.hpp>
+#include <instinct/chat_model/ollama_chat.hpp>
 #include <instinct/ingestor/BaseIngestor.hpp>
 #include <instinct/ingestor/DirectoryTreeIngestor.hpp>
 #include <instinct/retrieval/MultiQueryRetriever.hpp>

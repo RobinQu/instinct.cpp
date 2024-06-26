@@ -5,11 +5,11 @@
 #include <google/protobuf/util/message_differencer.h>
 
 #include <instinct/AssistantTestGlobals.hpp>
-#include <instinct/LLMTestGlobals.hpp>
+#include <instinct/llm_test_global.hpp>
 #include <instinct/assistant/v2/service/IRunService.hpp>
 #include <instinct/assistant/v2/task_handler/RunObjectTaskHandler.hpp>
-#include <instinct/chat_model/OpenAIChat.hpp>
-#include <instinct/toolkit/LocalToolkit.hpp>
+#include <instinct/chat_model/openai_chat.hpp>
+#include <instinct/toolkit/local_toolkit.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

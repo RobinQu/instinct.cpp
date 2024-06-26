@@ -4,15 +4,15 @@
 #include <CLI/CLI.hpp>
 
 
-#include <instinct/../../../instinct-llm/include/instinct/LLMObjectFactory.hpp>
-#include <instinct/agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp>
+#include <instinct/../../../instinct-llm/include/instinct/llm_object_factory.hpp>
+#include <instinct/agent/patterns/llm_compiler/llm_compiler_agent_executor.hpp>
 #include <instinct/assistant/v2/endpoint/VectorStoreController.hpp>
 #include <instinct/assistant/v2/endpoint/VectorStoreFileBatchController.hpp>
 #include <instinct/assistant/v2/endpoint/VectorStoreFileController.hpp>
 #include <instinct/assistant/v2/service/impl/VectorStoreServiceImpl.hpp>
-#include <instinct/chat_model/OllamaChat.hpp>
-#include <instinct/chat_model/OpenAIChat.hpp>
-#include <instinct/commons/OllamaCommons.hpp>
+#include <instinct/chat_model/ollama_chat.hpp>
+#include <instinct/chat_model/openai_chat.hpp>
+#include <instinct/commons/ollama_commons.hpp>
 #include <instinct/database/db_utils.hpp>
 #include <instinct/server/httplib/DefaultErrorController.hpp>
 #include <instinct/store/duckdb/DuckDBVectorStoreOperator.hpp>

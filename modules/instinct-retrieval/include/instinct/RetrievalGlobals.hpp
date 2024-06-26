@@ -8,7 +8,7 @@
 #include <retrieval.pb.h>
 #include <duckdb.hpp>
 #include <instinct/core_global.hpp>
-#include <instinct/LLMGlobals.hpp>
+#include <instinct/llm_global.hpp>
 #include <instinct/data_global.hpp>
 
 #define INSTINCT_RETRIEVAL_NS instinct::retrieval

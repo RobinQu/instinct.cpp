@@ -5,8 +5,8 @@
 #ifndef CHUNKEDMULTIVECTORRETRIEVER_HPP
 #define CHUNKEDMULTIVECTORRETRIEVER_HPP
 
-#include <instinct/document/RecursiveCharacterTextSplitter.hpp>
-#include <instinct/tokenizer/TiktokenTokenizer.hpp>
+#include <instinct/document/recursive_character_text_splitter.hpp>
+#include <instinct/tokenizer/tiktoken_tokenizer.hpp>
 #include <instinct/retrieval/MultiVectorRetriever.hpp>
 #include <instinct/RetrievalGlobals.hpp>
 

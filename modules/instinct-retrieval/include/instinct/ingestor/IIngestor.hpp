@@ -6,7 +6,7 @@
 #define DOCUMENTSOURCE_HPP
 
 #include <instinct/RetrievalGlobals.hpp>
-#include <instinct/document/TextSplitter.hpp>
+#include <instinct/document/text_splitter.hpp>
 #include <retrieval.pb.h>
 
 

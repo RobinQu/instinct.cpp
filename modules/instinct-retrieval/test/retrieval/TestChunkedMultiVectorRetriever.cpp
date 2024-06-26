@@ -8,7 +8,7 @@
 #include <instinct/RetrieverObjectFactory.hpp>
 #include <instinct/store/duckdb/DuckDBDocStore.hpp>
 #include <instinct/store/duckdb/DuckDBVectorStore.hpp>
-#include <instinct/document/RecursiveCharacterTextSplitter.hpp>
+#include <instinct/document/recursive_character_text_splitter.hpp>
 #include <instinct/ingestor/DirectoryTreeIngestor.hpp>
 #include <instinct/ingestor/ParquetFileIngestor.hpp>
 

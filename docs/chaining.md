@@ -38,10 +38,10 @@ The whole processing flow is direct and easy to understand. And in `instinct.cpp
 In `quick_start.cpp`, we have built a sequential chain:
 
 ```c++
-#include <instinct/chain/MessageChain.hpp>
+#include <instinct/chain/message_chain.hpp>
 #include <instinct/input_parser/PromptValueVariantInputParser.hpp>
 #include <instinct/chat_model/OllamaChat.hpp>
-#include <instinct/output_parser/StringOutputParser.hpp>
+#include <instinct/output_parser/string_output_parser.hpp>
 #include <instinct/prompt/PlainPromptTemplate.hpp>
 
 int main() {

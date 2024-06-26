@@ -8,7 +8,7 @@
 #include <instinct/AssistantGlobals.hpp>
 #include <instinct/assistant/v2/tool/SimpleRetrieverOperator.hpp>
 #include <instinct/retrieval/BaseRetriever.hpp>
-#include <instinct/toolkit/BaseSearchTool.hpp>
+#include <instinct/toolkit/search_tool.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
     using namespace INSTINCT_RETRIEVAL_NS;

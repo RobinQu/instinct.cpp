@@ -5,7 +5,7 @@
 
 #include <instinct/RetrieverObjectFactory.hpp>
 #include <instinct/chain/SummaryChain.hpp>
-#include <instinct/chat_model/OpenAIChat.hpp>
+#include <instinct/chat_model/openai_chat.hpp>
 #include <instinct/ingestor/DirectoryTreeIngestor.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {

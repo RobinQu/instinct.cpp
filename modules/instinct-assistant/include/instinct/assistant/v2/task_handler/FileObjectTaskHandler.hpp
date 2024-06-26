@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include <instinct/document/RecursiveCharacterTextSplitter.hpp>
+#include <instinct/document/recursive_character_text_splitter.hpp>
 #include <instinct/store/IVectorStoreOperator.hpp>
 #include <instinct/task_scheduler/thread_pool_task_scheduler.hpp>
 #include <instinct/AssistantGlobals.hpp>

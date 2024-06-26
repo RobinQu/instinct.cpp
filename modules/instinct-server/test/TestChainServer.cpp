@@ -2,9 +2,9 @@
 // Created by RobinQu on 3/19/24.
 //
 #include <gtest/gtest.h>
-#include <instinct/chain/LLMChain.hpp>
-#include <instinct/chat_model/OpenAIChat.hpp>
-#include <instinct/LLMTestGlobals.hpp>
+#include <instinct/chain/llm_chain.hpp>
+#include <instinct/chat_model/openai_chat.hpp>
+#include <instinct/llm_test_global.hpp>
 #include <instinct/endpoint/chain/MultiChainController.hpp>
 #include <instinct/server/httplib/HttpLibServer.hpp>
 

@@ -5,14 +5,14 @@
 #ifndef SUMMARYCHAIN_HPP
 #define SUMMARYCHAIN_HPP
 
-#include <instinct/document/RecursiveCharacterTextSplitter.hpp>
+#include <instinct/document/recursive_character_text_splitter.hpp>
 
 #include <instinct/RetrievalGlobals.hpp>
-#include <instinct/chain/MessageChain.hpp>
-#include <instinct/chat_model/BaseChatModel.hpp>
-#include <instinct/output_parser/StringOutputParser.hpp>
-#include <instinct/prompt/PlainChatPromptTemplate.hpp>
-#include <instinct/prompt/PlainPromptTemplate.hpp>
+#include <instinct/chain/message_chain.hpp>
+#include <instinct/chat_model/base_chat_model.hpp>
+#include <instinct/output_parser/string_output_parser.hpp>
+#include <instinct/prompt/plain_chat_prompt_template.hpp>
+#include <instinct/prompt/plain_prompt_template.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
 

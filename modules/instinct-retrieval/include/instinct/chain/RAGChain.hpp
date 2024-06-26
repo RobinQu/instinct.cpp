@@ -8,14 +8,14 @@
 #include <utility>
 
 #include <instinct/RetrievalGlobals.hpp>
-#include <instinct/chain/MessageChain.hpp>
-#include <instinct/chain/LLMChain.hpp>
+#include <instinct/chain/message_chain.hpp>
+#include <instinct/chain/llm_chain.hpp>
 #include <instinct/retrieval/BaseRetriever.hpp>
 #include <instinct/tools/document_utils.hpp>
 #include <instinct/functional/xn.hpp>
-#include <instinct/prompt/PlainPromptTemplate.hpp>
+#include <instinct/prompt/plain_prompt_template.hpp>
 
-#include <instinct/prompt/BasePromptTemplate.hpp>
+#include <instinct/prompt/prompt_template.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;

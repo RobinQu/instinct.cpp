@@ -5,7 +5,7 @@
 #include <instinct/assistant/v2/tool/SimpleRetrieverOperator.hpp>
 #include <instinct/database/duckdb/duckdb_connection_pool.hpp>
 #include <instinct/database/duckdb/duckdb_data_template.hpp>
-#include <instinct/embedding_model/OpenAIEmbedding.hpp>
+#include <instinct/embedding_model/openai_embedding.hpp>
 #include <instinct/store/duckdb/DuckDBVectorStoreOperator.hpp>
 #include <instinct/AssistantTestGlobals.hpp>
 

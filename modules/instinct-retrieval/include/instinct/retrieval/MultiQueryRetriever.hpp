@@ -10,8 +10,8 @@
 
 #include <instinct/retrieval/BaseRetriever.hpp>
 #include <instinct/RetrievalGlobals.hpp>
-#include <instinct/chain/LLMChain.hpp>
-#include <instinct/prompt/PlainPromptTemplate.hpp>
+#include <instinct/chain/llm_chain.hpp>
+#include <instinct/prompt/plain_prompt_template.hpp>
 #include <instinct/tools/document_utils.hpp>
 
 

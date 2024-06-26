@@ -7,7 +7,7 @@
 
 #include <instinct/store/duckdb/BaseDuckDBStore.hpp>
 #include <instinct/RetrievalGlobals.hpp>
-#include <instinct/model/IEmbeddingModel.hpp>
+#include <instinct/model/embedding_model.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;
