@@ -6,10 +6,10 @@
 
 #include <instinct/../../../instinct-llm/include/instinct/llm_object_factory.hpp>
 #include <instinct/agent/patterns/llm_compiler/llm_compiler_agent_executor.hpp>
-#include <instinct/assistant/v2/endpoint/VectorStoreController.hpp>
-#include <instinct/assistant/v2/endpoint/VectorStoreFileBatchController.hpp>
-#include <instinct/assistant/v2/endpoint/VectorStoreFileController.hpp>
-#include <instinct/assistant/v2/service/impl/VectorStoreServiceImpl.hpp>
+#include <instinct/assistant/v2/endpoint/vector_store_controller.hpp>
+#include <instinct/assistant/v2/endpoint/vector_store_file_batch_controller.hpp>
+#include <instinct/assistant/v2/endpoint/vector_store_file_controller.hpp>
+#include <instinct/assistant/v2/service/impl/vector_store_service_impl.hpp>
 #include <instinct/chat_model/ollama_chat.hpp>
 #include <instinct/chat_model/openai_chat.hpp>
 #include <instinct/commons/ollama_commons.hpp>
@@ -17,17 +17,17 @@
 #include <instinct/server/httplib/default_error_controller.hpp>
 #include <instinct/store/duckdb/duckdb_vector_store_operator.hpp>
 #include <instinct/server/httplib/http_lib_server.hpp>
-#include <instinct/assistant/v2/endpoint/AssistantController.hpp>
-#include <instinct/assistant/v2/endpoint/FileController.hpp>
-#include <instinct/assistant/v2/endpoint/MessageController.hpp>
-#include <instinct/assistant/v2/endpoint/RunController.hpp>
-#include <instinct/assistant/v2/endpoint/ThreadController.hpp>
-#include <instinct/assistant/v2/tool/AssistantAPIApplicationContextFactory.hpp>
-#include <instinct/assistant/v2/service/impl/AssistantServiceImpl.hpp>
-#include <instinct/assistant/v2/service/impl/FileServiceImpl.hpp>
-#include <instinct/assistant/v2/service/impl/MessageServiceImpl.hpp>
-#include <instinct/assistant/v2/service/impl/RunServiceImpl.hpp>
-#include <instinct/assistant/v2/service/impl/ThreadServiceImpl.hpp>
+#include <instinct/assistant/v2/endpoint/assistant_controller.hpp>
+#include <instinct/assistant/v2/endpoint/file_controller.hpp>
+#include <instinct/assistant/v2/endpoint/message_controller.hpp>
+#include <instinct/assistant/v2/endpoint/run_controller.hpp>
+#include <instinct/assistant/v2/endpoint/thread_controller.hpp>
+#include <instinct/assistant/v2/tool/assistant_api_application_context_factory.hpp>
+#include <instinct/assistant/v2/service/impl/assistant_service_impl.hpp>
+#include <instinct/assistant/v2/service/impl/file_service_impl.hpp>
+#include <instinct/assistant/v2/service/impl/message_service_impl.hpp>
+#include <instinct/assistant/v2/service/impl/run_service_impl.hpp>
+#include <instinct/assistant/v2/service/impl/thread_service_impl.hpp>
 
 
 
