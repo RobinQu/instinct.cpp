@@ -22,7 +22,7 @@
 #include <instinct/retrieval/vector_store_retriever.hpp>
 #include <instinct/store/duckdb/duckdb_doc_store.hpp>
 #include <instinct/store/duckdb/duckdb_vector_store.hpp>
-#include <instinct/endpoint/chat_completion/ChatCompletionController.hpp>
+#include <instinct/endpoint/chat_completion/chat_completion_controller.hpp>
 #include <instinct/ranker/local_ranking_model.hpp>
 #include <instinct/retrieval/multi_path_retriever.hpp>
 #include <instinct/retrieval/parent_child_retriever.hpp>

@@ -8,7 +8,7 @@
 #include <instinct/assistant/v2/endpoint/BaseController.hpp>
 #include <instinct/assistant/v2/service/AssistantFacade.hpp>
 #include <instinct/assistant/v2/tool/RequestUtils.hpp>
-#include <instinct/server/httplib/HttpLibServer.hpp>
+#include <instinct/server/httplib/http_lib_server.hpp>
 
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

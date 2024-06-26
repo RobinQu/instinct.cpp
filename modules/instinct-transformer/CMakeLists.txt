@@ -10,7 +10,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/transformer/models.hpp
         include/instinct/transformer/tokenizer.hpp
         include/instinct/transformer/models/bge_ranker.hpp
-        include/instinct/transformer_globals.hpp
+        include/instinct/transformer_global.hpp
         include/instinct/transformer/model_factory.hpp
         include/instinct/transformer/models/bge_embedding.hpp
 )

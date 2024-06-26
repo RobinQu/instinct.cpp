@@ -5,7 +5,7 @@
 #ifndef OPENAICHATCOMPLETIONRESPONSEOUTPUTPARSER_HPP
 #define OPENAICHATCOMPLETIONRESPONSEOUTPUTPARSER_HPP
 
-#include <instinct/ServerGlobals.hpp>
+#include <instinct/server_global.hpp>
 #include <instinct/output_parser/base_output_parser.hpp>
 #include <instinct/llm_global.hpp>
 #include <instinct/tools/chrono_utils.hpp>

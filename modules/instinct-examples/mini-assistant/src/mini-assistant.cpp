@@ -14,9 +14,9 @@
 #include <instinct/chat_model/openai_chat.hpp>
 #include <instinct/commons/ollama_commons.hpp>
 #include <instinct/database/db_utils.hpp>
-#include <instinct/server/httplib/DefaultErrorController.hpp>
+#include <instinct/server/httplib/default_error_controller.hpp>
 #include <instinct/store/duckdb/duckdb_vector_store_operator.hpp>
-#include <instinct/server/httplib/HttpLibServer.hpp>
+#include <instinct/server/httplib/http_lib_server.hpp>
 #include <instinct/assistant/v2/endpoint/AssistantController.hpp>
 #include <instinct/assistant/v2/endpoint/FileController.hpp>
 #include <instinct/assistant/v2/endpoint/MessageController.hpp>

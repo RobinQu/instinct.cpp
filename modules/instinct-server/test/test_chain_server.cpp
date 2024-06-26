@@ -5,8 +5,8 @@
 #include <instinct/chain/llm_chain.hpp>
 #include <instinct/chat_model/openai_chat.hpp>
 #include <instinct/llm_test_global.hpp>
-#include <instinct/endpoint/chain/MultiChainController.hpp>
-#include <instinct/server/httplib/HttpLibServer.hpp>
+#include <instinct/endpoint/chain/multi_chain_controller.hpp>
+#include <instinct/server/httplib/http_lib_server.hpp>
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_LLM_NS;

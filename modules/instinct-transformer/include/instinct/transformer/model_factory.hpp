@@ -5,7 +5,7 @@
 #ifndef MODEL_FACTORY_HPP
 #define MODEL_FACTORY_HPP
 
-#include <instinct/transformer_globals.hpp>
+#include <instinct/transformer_global.hpp>
 #include <instinct/transformer/models.hpp>
 #include <instinct/transformer/tokenizer.hpp>
 #include <instinct/transformer/config.hpp>

@@ -8,14 +8,14 @@
 
 #include <utility>
 
-#include <instinct/ServerGlobals.hpp>
+#include <instinct/server_global.hpp>
 
 #include <instinct/chain/message_chain.hpp>
 #include <instinct/chat_model/openai_chat.hpp>
-#include <instinct/endpoint/chat_completion/ChatCompletionRequestInputParser.hpp>
-#include <instinct/endpoint/chat_completion/ChatCompletionResponseOutputParser.hpp>
+#include <instinct/endpoint/chat_completion/chat_completion_request_input_parser.hpp>
+#include <instinct/endpoint/chat_completion/chat_completion_response_output_parser.hpp>
 #include <instinct/server/HttpController.hpp>
-#include <instinct/server/httplib/HttpLibServer.hpp>
+#include <instinct/server/httplib/http_lib_server.hpp>
 #include <instinct/tools/chrono_utils.hpp>
 
 namespace INSTINCT_SERVER_NS {

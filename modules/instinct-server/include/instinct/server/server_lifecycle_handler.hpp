@@ -6,7 +6,7 @@
 #define ISERVERLIFECYCLEHANDLER_HPP
 
 #include <memory>
-#include <instinct/ServerGlobals.hpp>
+#include <instinct/server_global.hpp>
 
 
 namespace INSTINCT_SERVER_NS {

@@ -8,7 +8,7 @@
 
 #include <instinct/core_global.hpp>
 #include <instinct/server/HttpController.hpp>
-#include <instinct/ServerGlobals.hpp>
+#include <instinct/server_global.hpp>
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_CORE_NS;

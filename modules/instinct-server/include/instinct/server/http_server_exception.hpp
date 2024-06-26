@@ -8,7 +8,7 @@
 #include <utility>
 
 #include <instinct/core_global.hpp>
-#include <instinct/ServerGlobals.hpp>
+#include <instinct/server_global.hpp>
 #include <instinct/exception/instinct_exception.hpp>
 
 
