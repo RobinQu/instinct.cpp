@@ -9,8 +9,8 @@
 #include <fstream>
 
 #include <instinct/tokenizer/BPETokenRanksReader.hpp>
-#include <instinct/tools/StringUtils.hpp>
-#include <instinct/tools/CodecUtils.hpp>
+#include <instinct/tools/string_utils.hpp>
+#include <instinct/tools/codec_utils.hpp>
 
 
 

@@ -9,8 +9,8 @@
 #include <instinct/toolkit/IFunctionTool.hpp>
 #include <agent.pb.h>
 
-#include <instinct/tools/ChronoUtils.hpp>
-#include <instinct/tools/ProtobufUtils.hpp>
+#include <instinct/tools/chrono_utils.hpp>
+#include <instinct/tools/protobuf_utils.hpp>
 
 namespace INSTINCT_LLM_NS {
     struct FunctionToolOptions {

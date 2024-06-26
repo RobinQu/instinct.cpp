@@ -8,7 +8,7 @@
 #include <instinct/ranker/BaseRankingModel.hpp>
 #include <instinct/transformer/models.hpp>
 #include <instinct/transformer/model_factory.hpp>
-#include <instinct/tools/file_vault/FileSystemFileVault.hpp>
+#include <instinct/tools/file_vault/file_system_file_vault.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace  INSTINCT_TRANSFORMER_NS;

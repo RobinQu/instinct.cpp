@@ -9,7 +9,7 @@
 #include <instinct/LLMGlobals.hpp>
 #include <instinct/commons/OllamaCommons.hpp>
 #include <instinct/model/IEmbeddingModel.hpp>
-#include <instinct/tools/HttpRestClient.hpp>
+#include <instinct/tools/http_rest_client.hpp>
 #include <llm.pb.h>
 
 namespace INSTINCT_LLM_NS {

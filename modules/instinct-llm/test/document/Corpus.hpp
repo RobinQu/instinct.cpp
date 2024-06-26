@@ -8,7 +8,7 @@
 #include <unicode/unistr.h>
 
 
-#include <instinct/CoreGlobals.hpp>
+#include <instinct/core_global.hpp>
 
 namespace INSTINCT_CORE_NS::corpus {
     using namespace U_ICU_NAMESPACE;

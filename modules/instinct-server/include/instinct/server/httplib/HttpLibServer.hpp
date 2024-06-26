@@ -12,9 +12,9 @@
 #include <instinct/server/IManagedServer.hpp>
 #include <instinct/ServerGlobals.hpp>
 #include <instinct/server/httplib/HttpLibServerLifeCycleManager.hpp>
-#include <instinct/tools/HttpRestClient.hpp>
+#include <instinct/tools/http_rest_client.hpp>
 #include <instinct/server/httplib/HttpLibSession.hpp>
-#include <instinct/ioc/ManagedApplicationContext.hpp>
+#include <instinct/ioc/application_context.hpp>
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_CORE_NS;

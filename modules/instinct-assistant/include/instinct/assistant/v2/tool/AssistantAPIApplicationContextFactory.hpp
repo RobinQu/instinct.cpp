@@ -14,7 +14,7 @@
 #include <instinct/assistant/v2/service/AssistantFacade.hpp>
 #include <instinct/assistant/v2/task_handler/FileBatchObjectBackgroundTask.hpp>
 #include <instinct/assistant/v2/task_handler/RunObjectTaskHandler.hpp>
-#include <instinct/ioc/ManagedApplicationContext.hpp>
+#include <instinct/ioc/application_context.hpp>
 #include <instinct/server/httplib/HttpLibServer.hpp>
 #include <instinct/store/VectorStoreMetadataDataMapper.hpp>
 

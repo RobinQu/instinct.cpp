@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 
 #include <instinct/tokenizer/Tokenizer.hpp>
-#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/assertions.hpp>
 
 
 namespace INSTINCT_LLM_NS {

@@ -11,7 +11,9 @@
 
 #include <instinct/tokenizer/GPT2BPEFileReader.hpp>
 #include <instinct/tokenizer/TiktokenBPEFileReader.hpp>
-#include <instinct/tools/file_vault/FileSystemFileVault.hpp>
+#include <instinct/tools/file_vault/file_system_file_vault.hpp>
+
+#include "instinct/tools/file_vault/http_url_resource_provider.hpp"
 
 
 namespace INSTINCT_LLM_NS {

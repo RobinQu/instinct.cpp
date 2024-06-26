@@ -6,7 +6,7 @@
 #define BASE_RANKER_HPP
 
 #include <instinct/LLMGlobals.hpp>
-#include <instinct/functional/BaseRunnable.hpp>
+#include <instinct/functional/runnable.hpp>
 #include <instinct/model/IRankingModel.hpp>
 
 namespace INSTINCT_LLM_NS {

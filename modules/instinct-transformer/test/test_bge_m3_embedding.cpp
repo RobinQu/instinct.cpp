@@ -8,7 +8,7 @@
 
 #include <instinct/transformer/models/bge_embedding.hpp>
 #include <instinct/transformer/model_factory.hpp>
-#include <instinct/tools/TensorUtils.hpp>
+#include <instinct/tools/tensor_utils.hpp>
 
 namespace INSTINCT_TRANSFORMER_NS {
 

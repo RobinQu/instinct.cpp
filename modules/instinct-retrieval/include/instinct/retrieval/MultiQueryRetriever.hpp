@@ -12,7 +12,7 @@
 #include <instinct/RetrievalGlobals.hpp>
 #include <instinct/chain/LLMChain.hpp>
 #include <instinct/prompt/PlainPromptTemplate.hpp>
-#include <instinct/tools/DocumentUtils.hpp>
+#include <instinct/tools/document_utils.hpp>
 
 
 

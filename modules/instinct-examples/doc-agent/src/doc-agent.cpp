@@ -27,7 +27,7 @@
 #include <instinct/retrieval/MultiPathRetriever.hpp>
 #include <instinct/retrieval/ParentChildRetriever.hpp>
 #include <instinct/retrieval/duckdb/DuckDBBM25Retriever.hpp>
-#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/assertions.hpp>
 
 
 namespace instinct::examples::doc_agent {

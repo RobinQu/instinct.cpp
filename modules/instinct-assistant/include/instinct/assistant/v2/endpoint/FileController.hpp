@@ -7,7 +7,7 @@
 
 
 #include <instinct/assistant/v2/endpoint/BaseController.hpp>
-#include <instinct/tools/file_vault/TempFile.hpp>
+#include <instinct/tools/file_vault/temp_file.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {
 

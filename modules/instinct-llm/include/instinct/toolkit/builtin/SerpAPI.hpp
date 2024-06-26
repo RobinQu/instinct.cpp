@@ -10,7 +10,7 @@
 #include <utility>
 
 #include <instinct/toolkit/BaseSearchTool.hpp>
-#include <instinct/tools/HttpRestClient.hpp>
+#include <instinct/tools/http_rest_client.hpp>
 
 
 

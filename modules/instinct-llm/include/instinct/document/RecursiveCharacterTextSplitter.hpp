@@ -4,7 +4,7 @@
 
 #ifndef RECURSIVECHARACTERTEXTSPLITTER_HPP
 #define RECURSIVECHARACTERTEXTSPLITTER_HPP
-#include <instinct/CoreGlobals.hpp>
+#include <instinct/core_global.hpp>
 #include <unicode/regex.h>
 #include <unicode/ustring.h>
 

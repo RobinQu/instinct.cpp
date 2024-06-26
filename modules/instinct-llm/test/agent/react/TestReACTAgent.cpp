@@ -10,7 +10,7 @@
 #include <instinct/toolkit/LocalToolkit.hpp>
 #include <instinct/toolkit/builtin/LLMMath.hpp>
 #include <instinct/toolkit/builtin/SerpAPI.hpp>
-#include <instinct/tools/SystemUtils.hpp>
+#include <instinct/tools/system_utils.hpp>
 
 namespace INSTINCT_LLM_NS {
     class ReACTAgentTest: public BaseAgentTest {

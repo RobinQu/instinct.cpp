@@ -9,8 +9,8 @@
 
 #include <instinct/LLMGlobals.hpp>
 #include <instinct/model/ILanguageModel.hpp>
-#include <instinct/tools/Assertions.hpp>
-#include <instinct/functional/StepFunctions.hpp>
+#include <instinct/tools/assertions.hpp>
+#include <instinct/functional/step_functions.hpp>
 
 
 namespace INSTINCT_LLM_NS {

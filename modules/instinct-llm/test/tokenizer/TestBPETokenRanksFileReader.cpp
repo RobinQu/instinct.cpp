@@ -4,9 +4,9 @@
 #include <gtest/gtest.h>
 
 
-#include <instinct/CoreGlobals.hpp>
+#include <instinct/core_global.hpp>
 #include <instinct/tokenizer/TiktokenBPEFileReader.hpp>
-#include <instinct/tools/ChronoUtils.hpp>
+#include <instinct/tools/chrono_utils.hpp>
 
 namespace INSTINCT_LLM_NS {
     TEST(BPETokenRanksFileReader, TestLoad) {

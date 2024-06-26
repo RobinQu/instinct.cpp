@@ -9,7 +9,7 @@
 
 #include <instinct/model/ILanguageModel.hpp>
 #include <instinct/LLMGlobals.hpp>
-#include <instinct/functional/StepFunctions.hpp>
+#include <instinct/functional/step_functions.hpp>
 
 
 namespace INSTINCT_LLM_NS {

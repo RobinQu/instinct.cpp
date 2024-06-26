@@ -8,7 +8,7 @@
 #include <instinct/memory/BaseChatMemory.hpp>
 #include <instinct/LLMGlobals.hpp>
 #include <instinct/prompt/MessageUtils.hpp>
-#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/assertions.hpp>
 
 
 namespace INSTINCT_LLM_NS {

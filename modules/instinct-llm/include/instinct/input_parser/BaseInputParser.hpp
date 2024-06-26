@@ -8,8 +8,8 @@
 #include <utility>
 
 #include <instinct/input_parser/IInputParser.hpp>
-#include <instinct/functional/BaseRunnable.hpp>
-#include <instinct/functional/JSONContextPolicy.hpp>
+#include <instinct/functional/runnable.hpp>
+#include <instinct/functional/json_context.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

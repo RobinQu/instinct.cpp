@@ -10,7 +10,7 @@
 #include <instinct/embedding_model/OllamaEmbedding.hpp>
 #include <instinct/memory/EphemeralChatMemory.hpp>
 #include <instinct/retrieval/VectorStoreRetriever.hpp>
-#include <instinct/tools/ChronoUtils.hpp>
+#include <instinct/tools/chrono_utils.hpp>
 #include <instinct/store/duckdb/DuckDBVectorStore.hpp>
 #include <instinct/LLMTestGlobals.hpp>
 #include <instinct/prompt/PlainChatPromptTemplate.hpp>

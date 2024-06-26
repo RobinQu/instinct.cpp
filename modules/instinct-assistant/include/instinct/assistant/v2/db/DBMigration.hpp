@@ -8,7 +8,7 @@
 
 #include <instinct/AssistantGlobals.hpp>
 #include <instinct/database/DBUtils.hpp>
-#include <instinct/ioc/ManagedApplicationContext.hpp>
+#include <instinct/ioc/application_context.hpp>
 
 CMRC_DECLARE(instinct::assistant);
 

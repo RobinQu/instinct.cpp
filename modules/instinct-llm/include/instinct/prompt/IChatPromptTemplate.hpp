@@ -8,7 +8,7 @@
 #include <instinct/prompt/IPromptTemplate.hpp>
 #include <string>
 #include <vector>
-#include <instinct/CoreGlobals.hpp>
+#include <instinct/core_global.hpp>
 #include <instinct/LLMGlobals.hpp>
 #include <llm.pb.h>
 #include <concepts>

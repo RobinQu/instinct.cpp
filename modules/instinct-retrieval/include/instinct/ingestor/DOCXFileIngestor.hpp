@@ -8,8 +8,8 @@
 #include <duckx.hpp>
 
 #include <instinct/ingestor/BaseIngestor.hpp>
-#include <instinct/tools/DocumentUtils.hpp>
-#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/document_utils.hpp>
+#include <instinct/tools/assertions.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     /**

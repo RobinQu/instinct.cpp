@@ -8,7 +8,7 @@
 #include <thread>
 
 #include <instinct/transformer/model_factory.hpp>
-#include <instinct/CoreGlobals.hpp>
+#include <instinct/core_global.hpp>
 
 namespace INSTINCT_TRANSFORMER_NS {
     using namespace INSTINCT_CORE_NS;

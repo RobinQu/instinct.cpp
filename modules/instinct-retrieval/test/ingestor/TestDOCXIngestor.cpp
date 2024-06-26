@@ -3,7 +3,7 @@
 //
 
 #include <gtest/gtest.h>
-#include <instinct/tools/MetadataSchemaBuilder.hpp>
+#include <instinct/tools/metadata_schema_builder.hpp>
 
 #include <instinct/ingestor/DOCXFileIngestor.hpp>
 

@@ -13,11 +13,11 @@
 #include <string>
 #include <inja/inja.hpp>
 
-#include <instinct/CoreGlobals.hpp>
+#include <instinct/core_global.hpp>
 #include <instinct/DataGlobals.hpp>
 #include <instinct/chain/MessageChain.hpp>
 #include <instinct/toolkit/BaseFunctionTool.hpp>
-#include <instinct/tools/SnowflakeIDGenerator.hpp>
+#include <instinct/tools/snowflake_id_generator.hpp>
 #include <instinct/LLMGlobals.hpp>
 
 namespace INSTINCT_ASSISTANT_NS {

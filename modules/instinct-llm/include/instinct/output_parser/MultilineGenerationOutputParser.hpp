@@ -7,7 +7,7 @@
 
 #include <google/protobuf/util/json_util.h>
 #include <instinct/LLMGlobals.hpp>
-#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/assertions.hpp>
 #include <instinct/output_parser/BaseOutputParser.hpp>
 #include <instinct/prompt/MessageUtils.hpp>
 

@@ -5,7 +5,7 @@
 #ifndef OLLAMACHAT_H
 #define OLLAMACHAT_H
 #include <instinct/chat_model/BaseChatModel.hpp>
-#include <instinct/tools/HttpRestClient.hpp>
+#include <instinct/tools/http_rest_client.hpp>
 #include <instinct/LLMGlobals.hpp>
 #include <instinct/commons/OllamaCommons.hpp>
 #include <llm.pb.h>

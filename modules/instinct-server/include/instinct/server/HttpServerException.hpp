@@ -7,9 +7,9 @@
 
 #include <utility>
 
-#include <instinct/CoreGlobals.hpp>
+#include <instinct/core_global.hpp>
 #include <instinct/ServerGlobals.hpp>
-#include <instinct/exception/InstinctException.hpp>
+#include <instinct/exception/instinct_exception.hpp>
 
 
 namespace INSTINCT_SERVER_NS {

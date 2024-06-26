@@ -7,11 +7,11 @@
 #include <ranges>
 #include <llm.pb.h>
 #include <instinct/LLMGlobals.hpp>
-#include <instinct/functional/IRunnable.hpp>
+#include <instinct/functional/runnable.hpp>
 #include <instinct/prompt/MessageUtils.hpp>
 #include <instinct/prompt/StringPromptTemplate.hpp>
 #include <instinct/toolkit/BaseFunctionToolkit.hpp>
-#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/assertions.hpp>
 
 
 namespace INSTINCT_LLM_NS {

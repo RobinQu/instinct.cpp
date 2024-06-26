@@ -12,7 +12,7 @@
 #include <instinct/LLMGlobals.hpp>
 #include <instinct/RetrievalGlobals.hpp>
 #include <instinct/store/IDocStore.hpp>
-#include <instinct/tools/MetadataSchemaBuilder.hpp>
+#include <instinct/tools/metadata_schema_builder.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_LLM_NS;

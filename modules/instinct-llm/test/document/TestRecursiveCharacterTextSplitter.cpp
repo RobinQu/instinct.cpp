@@ -4,11 +4,11 @@
 #include <gtest/gtest.h>
 
 
-#include <instinct/CoreGlobals.hpp>
+#include <instinct/core_global.hpp>
 #include <instinct/document/RecursiveCharacterTextSplitter.hpp>
 #include <instinct/tokenizer/TiktokenTokenizer.hpp>
 #include <instinct/tokenizer/Tokenizer.hpp>
-#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/assertions.hpp>
 
 #include "Corpus.hpp"
 

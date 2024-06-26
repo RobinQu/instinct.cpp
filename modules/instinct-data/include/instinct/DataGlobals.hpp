@@ -13,8 +13,8 @@
 #include <duckdb.hpp>
 #include <inja/inja.hpp>
 
-#include <instinct/CoreGlobals.hpp>
-#include <instinct/tools/StringUtils.hpp>
+#include <instinct/core_global.hpp>
+#include <instinct/tools/string_utils.hpp>
 
 
 namespace INSTINCT_DATA_NS {

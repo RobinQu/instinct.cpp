@@ -9,9 +9,9 @@
 
 #include <instinct/DataGlobals.hpp>
 #include <instinct/database/BaseConnectionPool.hpp>
-#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/assertions.hpp>
 #include <instinct/database/IDataTemplate.hpp>
-#include <instinct/tools/ProtobufUtils.hpp>
+#include <instinct/tools/protobuf_utils.hpp>
 
 
 namespace INSTINCT_DATA_NS {

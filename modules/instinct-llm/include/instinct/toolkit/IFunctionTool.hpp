@@ -7,7 +7,7 @@
 #include <instinct/LLMGlobals.hpp>
 #include <agent.pb.h>
 
-#include <instinct/functional/StepFunctions.hpp>
+#include <instinct/functional/step_functions.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

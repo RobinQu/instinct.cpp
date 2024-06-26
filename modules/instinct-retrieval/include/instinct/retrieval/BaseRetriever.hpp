@@ -6,8 +6,8 @@
 #define INSTINCT_BASERETRIEVER_HPP
 
 #include <instinct/retrieval/IRetriever.hpp>
-#include <instinct/tools/DocumentUtils.hpp>
-#include <instinct/functional/StepFunctions.hpp>
+#include <instinct/tools/document_utils.hpp>
+#include <instinct/functional/step_functions.hpp>
 #include <instinct/store/IDocStore.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {

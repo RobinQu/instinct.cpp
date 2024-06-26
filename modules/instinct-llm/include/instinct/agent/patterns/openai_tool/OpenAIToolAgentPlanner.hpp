@@ -7,7 +7,7 @@
 #include <instinct/LLMGlobals.hpp>
 #include <instinct/agent/executor/IAgentExecutor.hpp>
 #include <instinct/chat_model/BaseChatModel.hpp>
-#include <instinct/functional/BaseRunnable.hpp>
+#include <instinct/functional/runnable.hpp>
 
 namespace INSTINCT_LLM_NS {
     class OpenAIToolAgentPlanner final: public BaseRunnable<AgentState, AgentThought> {

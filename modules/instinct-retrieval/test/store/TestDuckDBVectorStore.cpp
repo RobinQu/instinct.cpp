@@ -6,7 +6,7 @@
 #include <ranges>
 #include <instinct/RetrievalGlobals.hpp>
 #include <instinct/store/duckdb/DuckDBVectorStore.hpp>
-#include <instinct/tools/ChronoUtils.hpp>
+#include <instinct/tools/chrono_utils.hpp>
 #include <instinct/RetrievalTestGlobals.hpp>
 
 

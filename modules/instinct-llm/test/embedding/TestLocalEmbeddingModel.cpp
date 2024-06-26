@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 #include <instinct/embedding_model/LocalEmbeddingModel.hpp>
-#include <instinct/tools/TensorUtils.hpp>
+#include <instinct/tools/tensor_utils.hpp>
 
 
 namespace INSTINCT_LLM_NS {

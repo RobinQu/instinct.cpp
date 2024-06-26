@@ -8,7 +8,7 @@
 #include <instinct/ServerGlobals.hpp>
 #include <instinct/output_parser/BaseOutputParser.hpp>
 #include <instinct/LLMGlobals.hpp>
-#include <instinct/tools/ChronoUtils.hpp>
+#include <instinct/tools/chrono_utils.hpp>
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_LLM_NS;

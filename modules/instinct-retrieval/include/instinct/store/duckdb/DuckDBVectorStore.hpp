@@ -11,10 +11,10 @@
 #include <instinct/store/duckdb/BaseDuckDBStore.hpp>
 #include <instinct/store/duckdb/DuckDBDocWithEmbeddingStore.hpp>
 #include <instinct/store/IVectorStore.hpp>
-#include <instinct/tools/Assertions.hpp>
-#include <instinct/tools/StringUtils.hpp>
-#include <instinct/tools/MetadataSchemaBuilder.hpp>
-#include <instinct/tools/ChronoUtils.hpp>
+#include <instinct/tools/assertions.hpp>
+#include <instinct/tools/string_utils.hpp>
+#include <instinct/tools/metadata_schema_builder.hpp>
+#include <instinct/tools/chrono_utils.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

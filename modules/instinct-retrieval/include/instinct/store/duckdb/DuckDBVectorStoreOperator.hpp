@@ -10,8 +10,8 @@
 #include <instinct/store/duckdb/DuckDBVectorStore.hpp>
 #include <instinct/store/IVectorStoreOperator.hpp>
 #include <instinct/store/VectorStoreMetadataDataMapper.hpp>
-#include <instinct/tools/HashUtils.hpp>
-#include <instinct/tools/RandomUtils.hpp>
+#include <instinct/tools/hash_utils.hpp>
+#include <instinct/tools/random_utils.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
 

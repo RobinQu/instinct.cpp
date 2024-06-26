@@ -6,7 +6,7 @@
 #define INSTINCT_ICHAINSERVER_HPP
 #include <string>
 
-#include <instinct/CoreGlobals.hpp>
+#include <instinct/core_global.hpp>
 #include <instinct/server/HttpController.hpp>
 #include <instinct/ServerGlobals.hpp>
 

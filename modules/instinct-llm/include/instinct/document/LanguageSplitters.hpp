@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <string>
 #include <unicode/ustring.h>
-#include <instinct/CoreGlobals.hpp>
+#include <instinct/core_global.hpp>
 
 
 namespace INSTINCT_LLM_NS {

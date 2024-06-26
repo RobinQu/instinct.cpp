@@ -11,8 +11,10 @@
 #include <instinct/transformer/model_factory.hpp>
 #include <instinct/transformer/tokenizer.hpp>
 #include <instinct/model/IEmbeddingModel.hpp>
-#include <instinct/tools/file_vault/FileSystemFileVault.hpp>
-#include <instinct/tools/file_vault/IFileVault.hpp>
+#include <instinct/tools/file_vault/file_system_file_vault.hpp>
+#include <instinct/tools/file_vault/file_vault.hpp>
+
+#include <instinct/tools/file_vault/http_url_resource_provider.hpp>
 
 
 namespace INSTINCT_LLM_NS {

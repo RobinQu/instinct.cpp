@@ -7,11 +7,11 @@
 
 #include <utility>
 
-#include <instinct/functional/RunnableChain.hpp>
+#include <instinct/functional/runnable_chain.hpp>
 #include <instinct/input_parser/BaseInputParser.hpp>
 #include <instinct/output_parser/BaseOutputParser.hpp>
 #include <instinct/model/ILanguageModel.hpp>
-#include <instinct/functional/Xn.hpp>
+#include <instinct/functional/xn.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

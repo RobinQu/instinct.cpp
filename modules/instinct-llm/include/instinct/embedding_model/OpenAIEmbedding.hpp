@@ -10,7 +10,7 @@
 
 #include <instinct/LLMGlobals.hpp>
 #include <instinct/commons/OpenAICommons.hpp>
-#include <instinct/tools/HttpRestClient.hpp>
+#include <instinct/tools/http_rest_client.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

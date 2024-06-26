@@ -8,7 +8,7 @@
 
 #include <instinct/ServerGlobals.hpp>
 #include <instinct/server/HttpServerException.hpp>
-#include <instinct/tools/ProtobufUtils.hpp>
+#include <instinct/tools/protobuf_utils.hpp>
 
 namespace INSTINCT_SERVER_NS {
     using namespace httplib;

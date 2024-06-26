@@ -10,7 +10,7 @@
 #include <instinct/chat_model/BaseChatModel.hpp>
 #include <instinct/LLMGlobals.hpp>
 #include <instinct/commons/OpenAICommons.hpp>
-#include <instinct/tools/HttpRestClient.hpp>
+#include <instinct/tools/http_rest_client.hpp>
 
 
 namespace INSTINCT_LLM_NS {

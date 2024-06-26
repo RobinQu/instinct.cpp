@@ -9,8 +9,8 @@
 
 #include <instinct/output_parser/IOutputParser.hpp>
 #include <instinct/LLMGlobals.hpp>
-#include <instinct/functional/StepFunctions.hpp>
-#include <instinct/functional/JSONContextPolicy.hpp>
+#include <instinct/functional/step_functions.hpp>
+#include <instinct/functional/json_context.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

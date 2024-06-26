@@ -11,7 +11,7 @@
 #include <unicode/regex.h>
 #include <unicode/unistr.h>
 
-#include <instinct/tools/TensorUtils.hpp>
+#include <instinct/tools/tensor_utils.hpp>
 #include <unicode/ustream.h>
 #include <unicode/schriter.h>
 #include <unicode/unimatch.h>

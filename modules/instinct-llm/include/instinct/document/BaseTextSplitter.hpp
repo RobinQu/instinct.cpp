@@ -8,7 +8,7 @@
 #include <retrieval.pb.h>
 
 #include <utility>
-#include <instinct/tools/DocumentUtils.hpp>
+#include <instinct/tools/document_utils.hpp>
 #include <instinct/document/TextSplitter.hpp>
 
 

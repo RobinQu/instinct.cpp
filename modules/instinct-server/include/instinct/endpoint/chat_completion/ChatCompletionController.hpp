@@ -16,7 +16,7 @@
 #include <instinct/endpoint/chat_completion/ChatCompletionResponseOutputParser.hpp>
 #include <instinct/server/HttpController.hpp>
 #include <instinct/server/httplib/HttpLibServer.hpp>
-#include <instinct/tools/ChronoUtils.hpp>
+#include <instinct/tools/chrono_utils.hpp>
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_LLM_NS;

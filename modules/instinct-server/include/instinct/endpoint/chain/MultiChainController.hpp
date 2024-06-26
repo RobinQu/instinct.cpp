@@ -10,10 +10,10 @@
 #include <google/protobuf/util/json_util.h>
 
 #include <instinct/ServerGlobals.hpp>
-#include <instinct/functional/StepFunctions.hpp>
+#include <instinct/functional/step_functions.hpp>
 #include <instinct/server/HttpController.hpp>
 #include <instinct/server/httplib/HttpLibServer.hpp>
-#include <instinct/tools/HttpRestClient.hpp>
+#include <instinct/tools/http_rest_client.hpp>
 
 namespace INSTINCT_SERVER_NS {
     using namespace INSTINCT_CORE_NS;

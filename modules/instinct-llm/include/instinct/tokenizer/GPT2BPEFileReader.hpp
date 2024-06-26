@@ -11,7 +11,7 @@
 #include <fstream>
 #include <string>
 #include <unicode/ustream.h>
-#include <instinct/tools/StringUtils.hpp>
+#include <instinct/tools/string_utils.hpp>
 #include <nlohmann/json.hpp>
 #include <unicode/schriter.h>
 

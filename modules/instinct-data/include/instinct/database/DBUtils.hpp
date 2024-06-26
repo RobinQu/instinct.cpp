@@ -7,8 +7,8 @@
 
 #include <instinct/database/BaseConnectionPool.hpp>
 #include <instinct/DataGlobals.hpp>
-#include <instinct/tools/IOUtils.hpp>
-#include <instinct/tools/SnowflakeIDGenerator.hpp>
+#include <instinct/tools/io_utils.hpp>
+#include <instinct/tools/snowflake_id_generator.hpp>
 
 namespace INSTINCT_DATA_NS {
 

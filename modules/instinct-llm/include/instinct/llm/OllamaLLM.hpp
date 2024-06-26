@@ -5,7 +5,7 @@
 #ifndef OLLAMA_H
 #define OLLAMA_H
 
-#include <instinct/tools/HttpRestClient.hpp>
+#include <instinct/tools/http_rest_client.hpp>
 #include <nlohmann/json.hpp>
 
 

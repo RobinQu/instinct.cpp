@@ -5,7 +5,7 @@
 
 
 #include <instinct/embedding_model/OllamaEmbedding.hpp>
-#include <instinct/tools/TensorUtils.hpp>
+#include <instinct/tools/tensor_utils.hpp>
 #include <string>
 #include <iostream>
 

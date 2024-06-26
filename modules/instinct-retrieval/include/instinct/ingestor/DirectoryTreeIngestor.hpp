@@ -7,7 +7,7 @@
 
 
 #include <instinct/ingestor/BaseIngestor.hpp>
-#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/assertions.hpp>
 #include <filesystem>
 
 #include <instinct/ingestor/SingleFileIngestor.hpp>

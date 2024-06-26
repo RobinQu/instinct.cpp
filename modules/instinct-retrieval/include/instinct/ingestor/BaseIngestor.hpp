@@ -7,7 +7,7 @@
 
 
 #include <instinct/ingestor/IIngestor.hpp>
-#include <instinct/tools/DocumentUtils.hpp>
+#include <instinct/tools/document_utils.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace U_ICU_NAMESPACE;

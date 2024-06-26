@@ -7,7 +7,7 @@
 
 #include <ollama_api.pb.h>
 
-#include <instinct/tools/http/HttpUtils.hpp>
+#include <instinct/tools/http/http_utils.hpp>
 #include <instinct/LLMGlobals.hpp>
 
 /**

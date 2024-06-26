@@ -11,8 +11,8 @@
 #include <instinct/chain/MessageChain.hpp>
 #include <instinct/chain/LLMChain.hpp>
 #include <instinct/retrieval/BaseRetriever.hpp>
-#include <instinct/tools/DocumentUtils.hpp>
-#include <instinct/functional/Xn.hpp>
+#include <instinct/tools/document_utils.hpp>
+#include <instinct/functional/xn.hpp>
 #include <instinct/prompt/PlainPromptTemplate.hpp>
 
 #include <instinct/prompt/BasePromptTemplate.hpp>

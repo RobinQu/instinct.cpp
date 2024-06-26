@@ -7,7 +7,7 @@
 
 #include <instinct/LLMGlobals.hpp>
 #include <instinct/prompt/MutableExampleSelector.hpp>
-#include <instinct/functional/JSONContextPolicy.hpp>
+#include <instinct/functional/json_context.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 
 #include <instinct/ingestor/PDFFileIngestor.hpp>
-#include <instinct/tools/MetadataSchemaBuilder.hpp>
+#include <instinct/tools/metadata_schema_builder.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {

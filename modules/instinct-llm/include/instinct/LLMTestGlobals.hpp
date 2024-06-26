@@ -15,7 +15,7 @@
 #include <instinct/toolkit/LocalToolkit.hpp>
 #include <instinct/toolkit/builtin/LLMMath.hpp>
 #include <instinct/toolkit/builtin/SerpAPI.hpp>
-#include <instinct/tools/ChronoUtils.hpp>
+#include <instinct/tools/chrono_utils.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

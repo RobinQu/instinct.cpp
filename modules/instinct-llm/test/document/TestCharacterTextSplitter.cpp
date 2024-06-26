@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 #include <instinct/document/CharacterTextSplitter.hpp>
 #include <instinct/document/LanguageSplitters.hpp>
-#include <instinct/tools/StringUtils.hpp>
+#include <instinct/tools/string_utils.hpp>
 
 #include "Corpus.hpp"
 

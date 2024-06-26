@@ -8,7 +8,7 @@
 #include <any>
 #include <string>
 
-#include <instinct/functional/JSONContextPolicy.hpp>
+#include <instinct/functional/json_context.hpp>
 #include <instinct/LLMGlobals.hpp>
 
 

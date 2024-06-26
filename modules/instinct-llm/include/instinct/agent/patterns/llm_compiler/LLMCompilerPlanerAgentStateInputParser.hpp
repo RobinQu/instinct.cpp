@@ -7,7 +7,7 @@
 
 #include <instinct/LLMGlobals.hpp>
 #include <instinct/agent/patterns/llm_compiler/TaskGraphUtils.hpp>
-#include <instinct/functional/JSONContextPolicy.hpp>
+#include <instinct/functional/json_context.hpp>
 #include <instinct/input_parser/BaseInputParser.hpp>
 #include <instinct/prompt/MessageUtils.hpp>
 

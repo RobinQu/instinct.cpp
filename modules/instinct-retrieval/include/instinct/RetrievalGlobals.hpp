@@ -7,7 +7,7 @@
 
 #include <retrieval.pb.h>
 #include <duckdb.hpp>
-#include <instinct/CoreGlobals.hpp>
+#include <instinct/core_global.hpp>
 #include <instinct/LLMGlobals.hpp>
 #include <instinct/DataGlobals.hpp>
 

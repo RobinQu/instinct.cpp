@@ -17,13 +17,13 @@
 #include <instinct/output_parser/BaseOutputParser.hpp>
 #include <instinct/prompt/IPromptTemplate.hpp>
 #include <instinct/memory/BaseChatMemory.hpp>
-#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/assertions.hpp>
 #include <instinct/output_parser/MultilineGenerationOutputParser.hpp>
 #include <instinct/input_parser/PromptValueVariantInputParser.hpp>
 #include <instinct/output_parser/StringOutputParser.hpp>
 #include <instinct/prompt/PlainPromptTemplate.hpp>
-#include <instinct/functional/Xn.hpp>
-#include <instinct/CoreGlobals.hpp>
+#include <instinct/functional/xn.hpp>
+#include <instinct/core_global.hpp>
 
 
 namespace INSTINCT_LLM_NS {

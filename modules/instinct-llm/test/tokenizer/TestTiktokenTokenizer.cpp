@@ -3,8 +3,8 @@
 //
 #include <gtest/gtest.h>
 #include <instinct/tokenizer/TiktokenTokenizer.hpp>
-#include <instinct/tools/Assertions.hpp>
-#include <instinct/tools/ChronoUtils.hpp>
+#include <instinct/tools/assertions.hpp>
+#include <instinct/tools/chrono_utils.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace  U_ICU_NAMESPACE;

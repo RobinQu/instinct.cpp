@@ -11,7 +11,7 @@
 #include <unordered_set>
 #include <utility>
 
-#include <instinct/tools/StringUtils.hpp>
+#include <instinct/tools/string_utils.hpp>
 
 
 namespace INSTINCT_LLM_NS {

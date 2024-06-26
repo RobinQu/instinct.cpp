@@ -9,7 +9,7 @@
 #include <llm.pb.h>
 
 #include <instinct/LLMGlobals.hpp>
-#include <instinct/functional/JSONContextPolicy.hpp>
+#include <instinct/functional/json_context.hpp>
 
 namespace INSTINCT_LLM_NS {
 

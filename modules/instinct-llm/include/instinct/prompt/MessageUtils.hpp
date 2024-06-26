@@ -9,7 +9,7 @@
 #include <fmt/args.h>
 
 #include <instinct/LLMGlobals.hpp>
-#include <instinct/tools/StringUtils.hpp>
+#include <instinct/tools/string_utils.hpp>
 
 
 namespace INSTINCT_LLM_NS {

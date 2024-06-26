@@ -9,7 +9,7 @@
 #include <instinct/task_scheduler/BaseTaskScheduler.hpp>
 #include <instinct/DataGlobals.hpp>
 #include <instinct/task_scheduler/InProcessTaskQueue.hpp>
-#include <instinct/ioc/ManagedApplicationContext.hpp>
+#include <instinct/ioc/application_context.hpp>
 
 namespace INSTINCT_DATA_NS {
     template<typename T>

@@ -8,7 +8,7 @@
 #include <unicode/ustream.h>
 
 #include <instinct/tokenizer/Tokenizer.hpp>
-#include <instinct/tools/StringUtils.hpp>
+#include <instinct/tools/string_utils.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace U_ICU_NAMESPACE;

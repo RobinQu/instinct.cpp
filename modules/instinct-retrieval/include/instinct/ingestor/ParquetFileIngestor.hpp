@@ -10,7 +10,7 @@
 
 #include <instinct/ingestor/BaseIngestor.hpp>
 #include <instinct/RetrievalGlobals.hpp>
-#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/assertions.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {
     using namespace INSTINCT_CORE_NS;

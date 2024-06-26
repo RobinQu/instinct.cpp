@@ -16,9 +16,9 @@
 #include <instinct/chain/MessageChain.hpp>
 #include <instinct/chat_model/BaseChatModel.hpp>
 #include <instinct/agent/executor/BaseAgentExecutor.hpp>
-#include <instinct/functional/StepFunctions.hpp>
+#include <instinct/functional/step_functions.hpp>
 #include <instinct/prompt/PlainChatPromptTemplate.hpp>
-#include <instinct/functional/Xn.hpp>
+#include <instinct/functional/xn.hpp>
 #include <instinct/toolkit/BaseFunctionToolkit.hpp>
 
 namespace INSTINCT_LLM_NS {

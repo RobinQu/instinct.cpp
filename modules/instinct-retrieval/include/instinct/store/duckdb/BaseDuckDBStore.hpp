@@ -6,14 +6,14 @@
 #define BASEDUCKDBSTORE_HPP
 
 #include <duckdb.hpp>
-#include <instinct/tools/Assertions.hpp>
+#include <instinct/tools/assertions.hpp>
 
 #include <instinct/RetrievalGlobals.hpp>
 #include <instinct/store/IDocStore.hpp>
-#include <instinct/tools/StringUtils.hpp>
-#include <instinct/functional/ReactiveFunctions.hpp>
+#include <instinct/tools/string_utils.hpp>
+#include <instinct/functional/reactive_functions.hpp>
 #include <instinct/store/SQLBuilder.hpp>
-#include <instinct/tools/DocumentUtils.hpp>
+#include <instinct/tools/document_utils.hpp>
 
 
 namespace INSTINCT_RETRIEVAL_NS {
