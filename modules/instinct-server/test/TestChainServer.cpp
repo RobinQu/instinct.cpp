@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include "chain/LLMChain.hpp"
 #include "chat_model/OpenAIChat.hpp"
-#include "LLMTestGlobals.hpp"
+#include "../../instinct-llm/include/instinct/LLMTestGlobals.hpp"
 #include "endpoint/chain/MultiChainController.hpp"
 #include "server/httplib/HttpLibServer.hpp"
 

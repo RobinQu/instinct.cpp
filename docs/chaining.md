@@ -59,7 +59,7 @@ int main() {
 
 ```
 
-In fact, all sub-classes of [StepFunction](../modules/instinct-core/include/functional/StepFunctions.hpp) are all composable. `StepFunction`s have many desirable characteristics:
+In fact, all sub-classes of [StepFunction](../modules/instinct-core/include/instinct/functional/StepFunctions.hpp) are all composable. `StepFunction`s have many desirable characteristics:
 
 * They share same input type and same output type. That's `JSONContextPtr`.
 * They share similar functional interface. That's `Invoke(T)`, `Batch(std::vector<T>)` and  `Stream(T)`. 

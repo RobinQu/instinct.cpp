@@ -2,7 +2,7 @@
 // Created by RobinQu on 2024/5/14.
 //
 #include <gtest/gtest.h>
-#include "LLMTestGlobals.hpp"
+#include "../../../include/instinct/LLMTestGlobals.hpp"
 #include "agent/patterns/llm_compiler/LLMCompilerPlaner.hpp"
 #include "agent/patterns/llm_compiler/LLMCompilerPlanerAgentStateInputParser.hpp"
 #include "agent/patterns/llm_compiler/LLMCompilerPlanerThoughtOutputParser.hpp"

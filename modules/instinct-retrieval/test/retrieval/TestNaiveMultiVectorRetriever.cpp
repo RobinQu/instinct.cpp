@@ -5,7 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include "LLMTestGlobals.hpp"
+#include "../../../instinct-llm/include/instinct/LLMTestGlobals.hpp"
 #include "RetrieverObjectFactory.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "ingestor/BaseIngestor.hpp"

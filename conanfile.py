@@ -36,9 +36,6 @@ class InstinctCppRecipe(ConanFile):
     def _min_cppstd(self):
         return "20"
 
-    def package_id(self):
-        self.info.clear()
-
     def validate(self):
         check_min_cppstd(self, 20)
 
@@ -96,13 +93,10 @@ class InstinctCppRecipe(ConanFile):
         cmake.build()
 
     def package(self):
-        # cmake = CMake(self)
-        # cmake.install()
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "LICENSE"))
-        copy(self, "*",
-             src=os.path.join(self.package_folder, "modules/instinct"),
-             dst=os.path.join(self.package_folder, "include", "instinct")
-         )
-
-    def package_info(self):
-        self.cpp_info.libs = ["hello"]
+        cmake = CMake(self)
+        cmake.install()
+        # copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "LICENSE"))
+        # copy(self, "*",
+        #      src=os.path.join(self.package_folder, "modules/instinct"),
+        #      dst=os.path.join(self.package_folder, "include", "instinct")
+        #  )

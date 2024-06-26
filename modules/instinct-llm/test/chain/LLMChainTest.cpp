@@ -10,7 +10,7 @@
 #include "llm/OllamaLLM.hpp"
 #include "prompt/PlainChatPromptTemplate.hpp"
 #include "prompt/PlainPromptTemplate.hpp"
-#include "LLMTestGlobals.hpp"
+#include "../../include/instinct/LLMTestGlobals.hpp"
 
 
 namespace INSTINCT_LLM_NS {

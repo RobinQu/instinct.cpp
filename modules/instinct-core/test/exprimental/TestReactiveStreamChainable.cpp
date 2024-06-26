@@ -2,7 +2,7 @@
 // Created by RobinQu on 2024/2/21.
 //
 
-#include "CoreGlobals.hpp"
+#include <instinct/CoreGlobals.hpp>
 #include <rpp/rpp.hpp>
 #include <gtest/gtest.h>
 

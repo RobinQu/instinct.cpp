@@ -8,7 +8,7 @@
 
 #include "RetrievalGlobals.hpp"
 #include "tools/TensorUtils.hpp"
-#include "LLMTestGlobals.hpp"
+#include "../../../instinct-llm/include/instinct/LLMTestGlobals.hpp"
 
 namespace INSTINCT_RETRIEVAL_NS::experimental {
     using namespace duckdb;

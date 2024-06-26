@@ -3,24 +3,24 @@ project(instinct_data)
 
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 set(${LIBRARY_TARGET_NAME}_HDR
-        include/DataGlobals.hpp
-        include/database/IDataTemplate.hpp
-        include/database/duckdb/DuckDBDataTemplate.hpp
-        include/database/IConnectionPool.hpp
-        include/database/BaseConnectionPool.hpp
-        include/database/ManagedConnection.hpp
-        include/database/duckdb/DuckDBConnectionPool.hpp
-        include/database/DBUtils.hpp
-        include/database/duckdb/DuckDBConnection.hpp
-        include/database/DatabaseMigration.hpp
-        include/database/IDatabaseMigration.hpp
-        include/database/duckdb/TransactionAware.hpp
-        include/object_store/IObjectStore.hpp
-        include/object_store/FileSystemObjectStore.hpp
-        include/task_scheduler/ITaskScheduler.hpp
-        include/task_scheduler/InProcessTaskQueue.hpp
-        include/task_scheduler/BaseTaskScheduler.hpp
-        include/task_scheduler/ThreadPoolTaskScheduler.hpp
+        include/instinct/DataGlobals.hpp
+        include/instinct/database/IDataTemplate.hpp
+        include/instinct/database/duckdb/DuckDBDataTemplate.hpp
+        include/instinct/database/IConnectionPool.hpp
+        include/instinct/database/BaseConnectionPool.hpp
+        include/instinct/database/ManagedConnection.hpp
+        include/instinct/database/duckdb/DuckDBConnectionPool.hpp
+        include/instinct/database/DBUtils.hpp
+        include/instinct/database/duckdb/DuckDBConnection.hpp
+        include/instinct/database/DatabaseMigration.hpp
+        include/instinct/database/IDatabaseMigration.hpp
+        include/instinct/database/duckdb/TransactionAware.hpp
+        include/instinct/object_store/IObjectStore.hpp
+        include/instinct/object_store/FileSystemObjectStore.hpp
+        include/instinct/task_scheduler/ITaskScheduler.hpp
+        include/instinct/task_scheduler/InProcessTaskQueue.hpp
+        include/instinct/task_scheduler/BaseTaskScheduler.hpp
+        include/instinct/task_scheduler/ThreadPoolTaskScheduler.hpp
 )
 
 add_library(

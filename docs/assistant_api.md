@@ -65,12 +65,12 @@ In first release of `mini-assistant`, following endpoints are supported:
 
 ## task-queue 
 
-In `mini-assistant`, an in-process, multi-consumer task queue is created. See [ThreadPoolTaskScheduler.hpp](../modules/instinct-data/include/task_scheduler/ThreadPoolTaskScheduler.hpp) for more details.
+In `mini-assistant`, an in-process, multi-consumer task queue is created. See [ThreadPoolTaskScheduler.hpp](../modules/instinct-data/include/instinct/task_scheduler/ThreadPoolTaskScheduler.hpp) for more details.
 
 Primary task handler classes are:
 
-* [FileObjectTaskHandler.hpp](../modules/instinct-assistant/include/assistant/v2/task_handler/FileObjectTaskHandler.hpp): To process uploaded file.
-* [RunObjectTaskHandler.hpp](../modules/instinct-assistant/include/assistant/v2/task_handler/RunObjectTaskHandler.hpp): To execute a run request for threads.
+* [FileObjectTaskHandler.hpp](../modules/instinct-assistant/include/instinct/assistant/v2/task_handler/FileObjectTaskHandler.hpp): To process uploaded file.
+* [RunObjectTaskHandler.hpp](../modules/instinct-assistant/include/instinct/assistant/v2/task_handler/RunObjectTaskHandler.hpp): To execute a run request for threads.
 
 `ThreadPoolTaskScheduler` is kind of  `ILifeCycle` and it's bootstrap in main.
 
@@ -81,8 +81,8 @@ Primary task handler classes are:
 
 Primary classes:
 
-* [SummaryGuidedFileSearch.hpp](../modules/instinct-assistant/include/assistant/v2/toolkit/SummaryGuidedFileSearch.hpp): Actual implementation of search tool
-* [RunObjectTaskHandler.hpp](../modules/instinct-assistant/include/assistant/v2/task_handler/RunObjectTaskHandler.hpp): Bring the search tool to user's run requests.
+* [SummaryGuidedFileSearch.hpp](../modules/instinct-assistant/include/instinct/assistant/v2/toolkit/SummaryGuidedFileSearch.hpp): Actual implementation of search tool
+* [RunObjectTaskHandler.hpp](../modules/instinct-assistant/include/instinct/assistant/v2/task_handler/RunObjectTaskHandler.hpp): Bring the search tool to user's run requests.
 
 
 Search pipeline:

@@ -12,7 +12,7 @@
 #include "retrieval/VectorStoreRetriever.hpp"
 #include "tools/ChronoUtils.hpp"
 #include "store/duckdb/DuckDBVectorStore.hpp"
-#include "LLMTestGlobals.hpp"
+#include "../../../instinct-llm/include/instinct/LLMTestGlobals.hpp"
 #include "prompt/PlainChatPromptTemplate.hpp"
 
 namespace  INSTINCT_RETRIEVAL_NS {

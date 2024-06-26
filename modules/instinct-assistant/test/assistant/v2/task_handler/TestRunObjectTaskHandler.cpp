@@ -5,7 +5,7 @@
 #include <google/protobuf/util/message_differencer.h>
 
 #include "AssistantTestGlobals.hpp"
-#include "LLMTestGlobals.hpp"
+#include "../../../../../instinct-llm/include/instinct/LLMTestGlobals.hpp"
 #include "assistant/v2/service/IRunService.hpp"
 #include "assistant/v2/task_handler/RunObjectTaskHandler.hpp"
 #include "chat_model/OpenAIChat.hpp"

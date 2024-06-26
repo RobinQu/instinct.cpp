@@ -3,7 +3,7 @@
 //
 #include <gtest/gtest.h>
 
-#include "LLMTestGlobals.hpp"
+#include "../../../include/instinct/LLMTestGlobals.hpp"
 #include "agent/patterns/react/Agent.hpp"
 #include "chat_model/OllamaChat.hpp"
 #include "chat_model/OpenAIChat.hpp"

@@ -3,7 +3,7 @@
 //
 #include <gtest/gtest.h>
 
-#include "LLMTestGlobals.hpp"
+#include "../../../include/instinct/LLMTestGlobals.hpp"
 #include "agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp"
 
 namespace INSTINCT_LLM_NS {

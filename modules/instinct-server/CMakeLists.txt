@@ -4,20 +4,20 @@ project(instinct-server)
 set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
 
 set(${LIBRARY_TARGET_NAME}_HDR
-        include/ServerGlobals.hpp
-        include/server/IManagedServer.hpp
-        include/endpoint/chain/MultiChainController.hpp
-        include/server/httplib/HttpLibServer.hpp
-        include/endpoint/chat_completion/ChatCompletionController.hpp
-        include/endpoint/chat_completion/ChatCompletionRequestInputParser.hpp
-        include/endpoint/chat_completion/ChatCompletionResponseOutputParser.hpp
-        include/server/IMountable.hpp
-        include/server/IServerLifecycleHandler.hpp
-        include/server/httplib/HttpLibServerLifeCycleManager.hpp
-        include/server/HttpController.hpp
-        include/server/HttpServerException.hpp
-        include/server/httplib/HttpLibSession.hpp
-        include/server/httplib/DefaultErrorController.hpp
+        include/instinct/ServerGlobals.hpp
+        include/instinct/server/IManagedServer.hpp
+        include/instinct/endpoint/chain/MultiChainController.hpp
+        include/instinct/server/httplib/HttpLibServer.hpp
+        include/instinct/endpoint/chat_completion/ChatCompletionController.hpp
+        include/instinct/endpoint/chat_completion/ChatCompletionRequestInputParser.hpp
+        include/instinct/endpoint/chat_completion/ChatCompletionResponseOutputParser.hpp
+        include/instinct/server/IMountable.hpp
+        include/instinct/server/IServerLifecycleHandler.hpp
+        include/instinct/server/httplib/HttpLibServerLifeCycleManager.hpp
+        include/instinct/server/HttpController.hpp
+        include/instinct/server/HttpServerException.hpp
+        include/instinct/server/httplib/HttpLibSession.hpp
+        include/instinct/server/httplib/DefaultErrorController.hpp
 )
 
 FetchContent_Declare(

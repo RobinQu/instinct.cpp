@@ -4,7 +4,7 @@
 #include <CLI/CLI.hpp>
 
 
-#include "LLMObjectFactory.hpp"
+#include "../../../instinct-llm/include/instinct/LLMObjectFactory.hpp"
 #include "agent/patterns/llm_compiler/LLMCompilerAgentExecutor.hpp"
 #include "assistant/v2/endpoint/VectorStoreController.hpp"
 #include "assistant/v2/endpoint/VectorStoreFileBatchController.hpp"

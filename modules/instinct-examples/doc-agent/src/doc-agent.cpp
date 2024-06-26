@@ -4,7 +4,7 @@
 
 #include <CLI/CLI.hpp>
 
-#include "LLMObjectFactory.hpp"
+#include "../../../instinct-llm/include/instinct/LLMObjectFactory.hpp"
 #include "RetrieverObjectFactory.hpp"
 #include "document/RecursiveCharacterTextSplitter.hpp"
 #include "chain/RAGChain.hpp"
