@@ -5,7 +5,7 @@
 #ifndef OPENAIEMBEDDING_HPP
 #define OPENAIEMBEDDING_HPP
 
-#include <embedding_api.pb.h>
+#include <instinct/embedding_api.pb.h>
 #include <instinct/model/embedding_model.hpp>
 
 #include <instinct/llm_global.hpp>

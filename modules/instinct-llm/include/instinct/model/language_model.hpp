@@ -5,7 +5,7 @@
 #ifndef BASELANGUAGEMODEL_H
 #define BASELANGUAGEMODEL_H
 #include <ranges>
-#include <llm.pb.h>
+#include <instinct/llm.pb.h>
 #include <instinct/llm_global.hpp>
 #include <instinct/functional/runnable.hpp>
 #include <instinct/prompt/message_utils.hpp>

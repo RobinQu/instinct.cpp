@@ -5,7 +5,7 @@
 #ifndef LLMCHAIN_HPP
 #define LLMCHAIN_HPP
 
-#include <llm.pb.h>
+#include <instinct/llm.pb.h>
 
 #include <utility>
 

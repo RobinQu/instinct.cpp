@@ -5,7 +5,7 @@
 #ifndef COLLECTIONSTORAGE_HPP
 #define COLLECTIONSTORAGE_HPP
 
-#include <retrieval.pb.h>
+#include <instinct/retrieval.pb.h>
 #include <instinct/retrieval_global.hpp>
 #include <instinct/model/embedding_model.hpp>
 #include <instinct/store/doc_store.hpp>

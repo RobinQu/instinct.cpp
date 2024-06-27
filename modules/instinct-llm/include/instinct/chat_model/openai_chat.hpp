@@ -5,7 +5,7 @@
 #ifndef OPENAICHAT_HPP
 #define OPENAICHAT_HPP
 
-#include <llm.pb.h>
+#include <instinct/llm.pb.h>
 
 #include <instinct/chat_model/base_chat_model.hpp>
 #include <instinct/llm_global.hpp>

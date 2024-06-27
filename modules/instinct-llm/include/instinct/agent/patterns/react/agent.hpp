@@ -6,7 +6,7 @@
 #define AGENT_HPP
 
 
-#include <agent.pb.h>
+#include <instinct/agent.pb.h>
 
 #include <instinct/llm_global.hpp>
 #include <instinct/agent/patterns/react/react_agent_state_input_parser.hpp>

@@ -6,7 +6,7 @@
 #define DUCKDBVECTORSTORE_HPP
 
 #include <duckdb.hpp>
-#include <retrieval.pb.h>
+#include <instinct/retrieval.pb.h>
 
 #include <instinct/store/duckdb/base_duckdb_store.hpp>
 #include <instinct/store/duckdb/duckdb_doc_with_embedding_store.hpp>

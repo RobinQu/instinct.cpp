@@ -5,7 +5,7 @@
 #ifndef LLMMATH_HPP
 #define LLMMATH_HPP
 
-#include <agent.pb.h>
+#include <instinct/agent.pb.h>
 #include <exprtk.hpp>
 
 #include <instinct/chain/llm_chain.hpp>

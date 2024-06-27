@@ -9,7 +9,7 @@
 #define INSTINCT_ASSISTANT_NS instinct::assistant
 
 
-#include <assistant_api_v2.pb.h>
+#include <instinct/assistant_api_v2.pb.h>
 #include <string>
 #include <inja/inja.hpp>
 

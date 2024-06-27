@@ -10,7 +10,7 @@
 #include <instinct/commons/ollama_commons.hpp>
 #include <instinct/model/embedding_model.hpp>
 #include <instinct/tools/http_rest_client.hpp>
-#include <llm.pb.h>
+#include <instinct/llm.pb.h>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;

@@ -65,7 +65,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         RPP::rpp
         fmt::fmt
         nlohmann_json::nlohmann_json
-        ${ICU_LIBRARIES}
+        icu::icu
         aklomp::base64
         tsl::ordered_map
         fmtlog::fmtlog
@@ -76,34 +76,11 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         cpptrace::cpptrace
 )
 
-#set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES
-#        VERSION ${${PROJECT_NAME}_VERSION}
-#        PUBLIC_HEADER "${${LIBRARY_TARGET_NAME}_HDR}"
-#)
-
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
-install(TARGETS ${LIBRARY_TARGET_NAME}
-        EXPORT  ${PROJECT_NAME}
-        LIBRARY       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT shlib
-        ARCHIVE       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT lib
-        RUNTIME       DESTINATION "${CMAKE_INSTALL_BINDIR}"                            COMPONENT bin
-        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct" COMPONENT dev)
-
-install(DIRECTORY include/
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct"
-        COMPONENT instinct_core
-)
-
-#install(
-#        EXPORT InstinctTargets
-#        NAMESPACE INSTINCT::
-#        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake"
-#        COMPONENT instinct-core
-#)
 
 if(BUILD_TESTING)
     add_subdirectory(test)

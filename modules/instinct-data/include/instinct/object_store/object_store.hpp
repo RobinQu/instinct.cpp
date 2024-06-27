@@ -4,7 +4,7 @@
 
 #ifndef IOBJECTSTORE_HPP
 #define IOBJECTSTORE_HPP
-#include <data.pb.h>
+#include <instinct/data.pb.h>
 
 #include <instinct/data_global.hpp>
 

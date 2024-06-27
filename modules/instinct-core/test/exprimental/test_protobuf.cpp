@@ -2,7 +2,7 @@
 // Created by RobinQu on 2024/4/20.
 //
 #include <gtest/gtest.h>
-#include <assistant_api_v2.pb.h>
+#include <instinct/assistant_api_v2.pb.h>
 #include <google/protobuf/util/json_util.h>
 
 #include <instinct/core_global.hpp>

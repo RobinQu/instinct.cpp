@@ -7,7 +7,7 @@
 
 #include <instinct/llm_global.hpp>
 #include <instinct/toolkit/function_tool.hpp>
-#include <agent.pb.h>
+#include <instinct/agent.pb.h>
 #include <instinct/functional/runnable.hpp>
 #include <instinct/tools/chrono_utils.hpp>
 #include <instinct/tools/protobuf_utils.hpp>

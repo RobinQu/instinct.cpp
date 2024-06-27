@@ -21,7 +21,8 @@ target_link_libraries(proto
     protobuf::protobuf
 )
 
-set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/instinct")
+file(MAKE_DIRECTORY ${PROTO_BINARY_DIR})
 
 if (protobuf_FOUND)
     message(STATUS "protobuf_INCLUDE_DIRS: " ${protobuf_INCLUDE_DIRS})
@@ -29,7 +30,8 @@ if (protobuf_FOUND)
 endif ()
 
 target_include_directories(proto PUBLIC
-    "$<BUILD_INTERFACE:${PROTO_BINARY_DIR}>"
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+        $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 protobuf_generate(

@@ -3,7 +3,7 @@
 //
 #include <gtest/gtest.h>
 #include <unordered_map>
-#include <core.pb.h>
+#include <instinct/core.pb.h>
 #include <instinct/functional/xn.hpp>
 
 namespace INSTINCT_CORE_NS  {

@@ -9,7 +9,7 @@
 #define INSTINCT_DATA_NS instinct::data
 #endif
 
-#include <data.pb.h>
+#include <instinct/data.pb.h>
 #include <duckdb.hpp>
 #include <inja/inja.hpp>
 

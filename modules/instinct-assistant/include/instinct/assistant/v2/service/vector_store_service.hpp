@@ -5,7 +5,7 @@
 #ifndef VECSTORESERVICE_HPP
 #define VECSTORESERVICE_HPP
 
-#include <assistant_api_v2.pb.h>
+#include <instinct/assistant_api_v2.pb.h>
 #include <instinct/assistant_global.hpp>
 
 namespace INSTINCT_ASSISTANT_NS::v2 {

@@ -1,11 +1,11 @@
 //
 // Created by RobinQu on 2024/4/22.
 //
-#include <assistant_api_v2.pb.h>
+#include <instinct/assistant_api_v2.pb.h>
 #include <gtest/gtest.h>
 
 #include <instinct/core_global.hpp>
-#include <agent.pb.h>
+#include <instinct/agent.pb.h>
 #include <instinct/tools/protobuf_utils.hpp>
 
 

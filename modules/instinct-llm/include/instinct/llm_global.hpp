@@ -6,8 +6,8 @@
 #define MODELGLOBALS_H
 
 
-#include <llm.pb.h>
-#include <agent.pb.h>
+#include <instinct/llm.pb.h>
+#include <instinct/agent.pb.h>
 #include <instinct/core_global.hpp>
 #include <instinct/tools/chrono_utils.hpp>
 #include <instinct/tools/protobuf_utils.hpp>

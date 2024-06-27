@@ -42,7 +42,7 @@ class InstinctCppRecipe(ConanFile):
 
     def requirements(self):
         self.requires("hash-library/8.0")
-        self.requires("bshoshany-thread-pool/4.1.0")
+        self.requires("bshoshany-thread-pool/4.1.0", transitive_headers=True)
 
         if self.options.with_duckdb:
             self.requires("duckdb/0.10.2", options={"with_httpfs": True})
@@ -55,7 +55,7 @@ class InstinctCppRecipe(ConanFile):
         self.requires("tsl-ordered-map/1.1.0")
         self.requires("fmt/10.2.1")
         self.requires("fmtlog/2.2.1")
-        self.requires("nlohmann_json/3.11.3")
+        self.requires("nlohmann_json/3.11.3", transitive_headers=True)
         self.requires("base64/0.5.2")
         self.requires("libcurl/8.6.0")
         self.requires("inja/3.4.0")

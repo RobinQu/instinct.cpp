@@ -5,7 +5,7 @@
 #ifndef OLLAMACOMMONS_H
 #define OLLAMACOMMONS_H
 
-#include <ollama_api.pb.h>
+#include <instinct/ollama_api.pb.h>
 
 #include <instinct/tools/http/http_utils.hpp>
 #include <instinct/llm_global.hpp>

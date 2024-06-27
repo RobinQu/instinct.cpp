@@ -10,7 +10,7 @@
 #include <vector>
 #include <instinct/core_global.hpp>
 #include <instinct/llm_global.hpp>
-#include <llm.pb.h>
+#include <instinct/llm.pb.h>
 #include <concepts>
 
 namespace INSTINCT_LLM_NS {

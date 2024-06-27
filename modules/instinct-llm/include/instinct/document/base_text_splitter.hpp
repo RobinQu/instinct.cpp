@@ -5,7 +5,7 @@
 #ifndef BASETEXTSPLITTER_HPP
 #define BASETEXTSPLITTER_HPP
 
-#include <retrieval.pb.h>
+#include <instinct/retrieval.pb.h>
 
 #include <utility>
 #include <instinct/tools/document_utils.hpp>

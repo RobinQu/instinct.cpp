@@ -5,7 +5,7 @@
 #ifndef SERPAPI_HPP
 #define SERPAPI_HPP
 
-#include <agent.pb.h>
+#include <instinct/agent.pb.h>
 
 #include <utility>
 

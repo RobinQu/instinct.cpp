@@ -2,7 +2,7 @@
 // Created by RobinQu on 2024/4/23.
 //
 #include <gtest/gtest.h>
-#include <llm.pb.h>
+#include <instinct/llm.pb.h>
 #include <instinct/database/duckdb/duckdb_connection_pool.hpp>
 #include <instinct/database/duckdb/duckdb_data_template.hpp>
 

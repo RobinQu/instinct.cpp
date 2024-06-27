@@ -51,8 +51,6 @@ add_library(
         ${${LIBRARY_TARGET_NAME}_HDR}
 )
 
-
-
 add_library(instinct::agent
         ALIAS ${LIBRARY_TARGET_NAME})
 
@@ -62,11 +60,6 @@ target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
-
-install(DIRECTORY include/
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct"
-        COMPONENT instinct_agent
-)
 
 add_subdirectory(assets)
 

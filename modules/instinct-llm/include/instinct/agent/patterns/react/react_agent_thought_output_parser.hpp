@@ -6,7 +6,7 @@
 #define REACTOUTPUTPARSER_HPP
 
 
-#include <agent.pb.h>
+#include <instinct/agent.pb.h>
 
 #include <instinct/output_parser/base_output_parser.hpp>
 #include <instinct/llm_global.hpp>

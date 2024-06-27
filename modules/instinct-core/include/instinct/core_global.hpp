@@ -5,7 +5,7 @@
 #ifndef COREGLOBALS_H
 #define COREGLOBALS_H
 
-#include <core.pb.h>
+#include <instinct/core.pb.h>
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
 #include <unicode/unistr.h>

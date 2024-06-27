@@ -77,7 +77,7 @@ write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Conf
         COMPATIBILITY SameMajorVersion)
 
 # declare targets to be installed
-install(TARGETS proto core llm transformer data retrieval
+install(TARGETS proto core llm transformer data retrieval doc-agent mini-assistant
         EXPORT ${PROJECT_NAME}_Targets
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -85,18 +85,17 @@ install(TARGETS proto core llm transformer data retrieval
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-
 # install header files
-install(DIRECTORY ${PROJECT_BINARY_DIR}/modules/instinct-proto
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+install(DIRECTORY ${PROJECT_BINARY_DIR}/modules/instinct-proto/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         FILES_MATCHING PATTERN "*.h"
 )
 install(DIRECTORY
-            ${PROJECT_SOURCE_DIR}/modules/instinct-core/include
-            ${PROJECT_SOURCE_DIR}/modules/instinct-llm/include
-            ${PROJECT_SOURCE_DIR}/modules/instinct-transformer/include
-            ${PROJECT_SOURCE_DIR}/modules/instinct-data/include
-            ${PROJECT_SOURCE_DIR}/modules/instinct-retrieval/include
+            ${PROJECT_SOURCE_DIR}/modules/instinct-core/include/instinct
+            ${PROJECT_SOURCE_DIR}/modules/instinct-llm/include/instinct
+            ${PROJECT_SOURCE_DIR}/modules/instinct-transformer/include/instinct
+            ${PROJECT_SOURCE_DIR}/modules/instinct-data/include/instinct
+            ${PROJECT_SOURCE_DIR}/modules/instinct-retrieval/include/instinct
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
