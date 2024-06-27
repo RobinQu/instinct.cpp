@@ -81,7 +81,7 @@ add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
 #        ${${LIBRARY_TARGET_NAME}_SRC}
         ${${LIBRARY_TARGET_NAME}_HDR}
-        include/llm_all.hpp
+        include/instinct/llm_all.hpp
 )
 
 

@@ -24,6 +24,7 @@ add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
         #        ${${LIBRARY_TARGET_NAME}_SRC}
         ${${LIBRARY_TARGET_NAME}_HDR}
+        include/instinct/server_all.hpp
 )
 
 add_library(instinct::server
