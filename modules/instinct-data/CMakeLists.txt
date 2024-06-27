@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
 project(instinct_data)
 
-set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
+set(LIBRARY_TARGET_NAME data)
 set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/data_global.hpp
         include/instinct/database/data_template.hpp

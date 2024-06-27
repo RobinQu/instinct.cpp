@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
 project(instinct-server)
 
-set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
+set(LIBRARY_TARGET_NAME server)
 
 set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/server_global.hpp
@@ -19,18 +19,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/server/httplib/http_lib_session.hpp
         include/instinct/server/httplib/default_error_controller.hpp
 )
-
-FetchContent_Declare(
-        httplib
-        GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
-        GIT_TAG v0.16.0
-        GIT_SHALLOW 1
-        FIND_PACKAGE_ARGS NAMES httplib # will invoke find_package first
-)
-SET(HTTPLIB_USE_OPENSSL_IF_AVAILABLE OFF)
-SET(HTTPLIB_USE_ZLIB_IF_AVAILABLE OFF)
-SET(HTTPLIB_USE_BROTLI_IF_AVAILABLE OFF)
-FetchContent_MakeAvailable(httplib)
 
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE

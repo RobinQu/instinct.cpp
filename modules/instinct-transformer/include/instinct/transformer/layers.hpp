@@ -500,9 +500,9 @@ namespace INSTINCT_TRANSFORMER_NS::layers {
             ggml_tensor *tmpk = BaseAttn::k_proj.forward(ctx, hidden_states);
             ggml_tensor *tmpv = BaseAttn::v_proj.forward(ctx, hidden_states);
 
-            ggml_mul_mat_set_prec(tmpk, BaseAttn::precision_);
-            ggml_mul_mat_set_prec(tmpq, BaseAttn::precision_);
-            ggml_mul_mat_set_prec(tmpv, BaseAttn::precision_);
+            // ggml_mul_mat_set_prec(tmpk, BaseAttn::precision_);
+            // ggml_mul_mat_set_prec(tmpq, BaseAttn::precision_);
+            // ggml_mul_mat_set_prec(tmpv, BaseAttn::precision_);
 
             last_attn_scores = BaseAttn::cross_attention(ctx, hidden_size, n_past, qlen, tmpq, tmpk, tmpv);
 

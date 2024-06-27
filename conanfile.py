@@ -12,10 +12,7 @@ class InstinctCppRecipe(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     no_copy_source = True
     options = {
-        # module-level switches (instinct-proto and instinct-core cannot be switched off)
-        "with_transformer_module": [True, False],
-        "with_server_module": [True, False],
-
+        "with_tests": [True, False],
         # target-level switches
         "with_duckdb": [True, False],
         "with_exprtk": [True, False],
@@ -24,13 +21,14 @@ class InstinctCppRecipe(ConanFile):
     }
 
     default_options = {
-        "with_transformer_module": True,
-        "with_server_module": True,
+        "with_tests": False,
         "with_duckdb": True,
         "with_exprtk": True,
         "with_pdfium": True,
         "with_duckx": True
     }
+
+    exports_sources = ["CMakeLists.txt", "modules/*", "cmake/*", "LICENSE"]
 
     @property
     def _min_cppstd(self):
@@ -73,9 +71,8 @@ class InstinctCppRecipe(ConanFile):
         if self.options.with_exprtk:
             self.requires("exprtk/0.0.2")
 
-        if self.options.with_transformer_module:
-            self.requires("cpp-httplib/0.15.3")
-
+        self.requires("llama-cpp/b3040")
+        self.requires("cpp-httplib/0.15.3")
         # deps of examples
         self.requires("cli11/2.4.1")
         # test deps
@@ -85,6 +82,11 @@ class InstinctCppRecipe(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
         tc = CMakeToolchain(self)
+        tc.variables["BUILD_TESTING"] = self.options.with_tests
+        tc.variables["WITH_DUCKDB"] = self.options.with_duckdb
+        tc.variables["WITH_EXPRTK"] = self.options.with_exprtk
+        tc.variables["WITH_PDFIUM"] = self.options.with_pdfium
+        tc.variables["WITH_DUCKX"] = self.options.with_duckx
         tc.generate()
 
     def build(self):
@@ -95,8 +97,3 @@ class InstinctCppRecipe(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        # copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "LICENSE"))
-        # copy(self, "*",
-        #      src=os.path.join(self.package_folder, "modules/instinct"),
-        #      dst=os.path.join(self.package_folder, "include", "instinct")
-        #  )

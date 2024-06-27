@@ -27,6 +27,8 @@ find_package(cpptrace REQUIRED)
 # deps for instinct-llm
 find_package(exprtk REQUIRED)
 
+# deps for instinct-transformer
+find_package(llama-cpp REQUIRED)
 
 # deps for instinct-data
 find_package(duckdb REQUIRED)

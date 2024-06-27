@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
 project(instinct_core)
 
-set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
+set(LIBRARY_TARGET_NAME core)
 set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/tools/string_utils.hpp
         include/instinct/tools/http/http_utils.hpp

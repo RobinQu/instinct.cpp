@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.26)
 project(instinct-assistant VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 20)
-set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
+set(LIBRARY_TARGET_NAME assistant)
 
 SET(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/assistant_global.hpp

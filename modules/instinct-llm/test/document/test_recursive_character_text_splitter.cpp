@@ -11,7 +11,7 @@
 #include <instinct/tokenizer/tokenizer.hpp>
 #include <instinct/tools/assertions.hpp>
 
-#include "Corpus.hpp"
+#include "corpus.hpp"
 
 namespace INSTINCT_LLM_NS {
 

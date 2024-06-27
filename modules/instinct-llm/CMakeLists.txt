@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
 project(instinct_llm)
 
-set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
+set(LIBRARY_TARGET_NAME llm)
 
 set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/llm_global.hpp

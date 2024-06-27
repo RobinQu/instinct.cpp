@@ -3,7 +3,7 @@ project(instinct-proto)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_library(proto-objects
+add_library(proto
         core.proto
         retrieval.proto
         llm.proto
@@ -15,9 +15,9 @@ add_library(proto-objects
         data.proto
 )
 
-add_library(instinct::proto ALIAS proto-objects)
+add_library(instinct::proto ALIAS proto)
 
-target_link_libraries(proto-objects
+target_link_libraries(proto
     protobuf::protobuf
 )
 
@@ -28,12 +28,12 @@ if (protobuf_FOUND)
     message(STATUS "Protobuf_PROTOC_EXECUTABLE" ${Protobuf_PROTOC_EXECUTABLE})
 endif ()
 
-target_include_directories(proto-objects PUBLIC
+target_include_directories(proto PUBLIC
     "$<BUILD_INTERFACE:${PROTO_BINARY_DIR}>"
 )
 
 protobuf_generate(
-        TARGET proto-objects
+        TARGET proto
         IMPORT_DIRS "${CMAKE_CURRENT_LIST_DIR}"
         PROTOC_OUT_DIR "${PROTO_BINARY_DIR}"
 )
