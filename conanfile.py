@@ -30,6 +30,10 @@ class InstinctCppRecipe(ConanFile):
 
     exports_sources = ["CMakeLists.txt", "modules/*", "cmake/*", "LICENSE"]
 
+    def package_info(self):
+        # the only library we offer, other modules provide header-only files
+        self.cpp_info.libs = ["proto"]
+
     @property
     def _min_cppstd(self):
         return "20"

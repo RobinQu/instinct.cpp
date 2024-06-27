@@ -40,14 +40,11 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/exception/client_exception.hpp
         include/instinct/ioc/application_context.hpp
 )
-#set(${LIBRARY_TARGET_NAME}_SRC
-#
-#)
 
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
-#        ${${LIBRARY_TARGET_NAME}_SRC}
         ${${LIBRARY_TARGET_NAME}_HDR}
+        include/instinct/core_all.hpp
 )
 add_library(instinct::core
         ALIAS ${LIBRARY_TARGET_NAME})
@@ -55,8 +52,12 @@ add_library(instinct::core
 message(STATUS "CURL_INCLUDE_DIR: " ${CURL_INCLUDE_DIR})
 message(STATUS "ICU_INCLUDE_DIR: " ${ICU_INCLUDE_DIR})
 message(STATUS "ICU_LIBRARIES: " ${ICU_LIBRARIES})
-target_include_directories(${LIBRARY_TARGET_NAME} INTERFACE ${ICU_INCLUDE_DIR})
 
+target_include_directories(${LIBRARY_TARGET_NAME}
+        INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
+)
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::proto
@@ -75,11 +76,6 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         pantor::inja
         cpptrace::cpptrace
 )
-
-target_include_directories(${LIBRARY_TARGET_NAME}
-        INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
 
 if(BUILD_TESTING)

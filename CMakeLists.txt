@@ -52,6 +52,9 @@ if(NOT CMAKE_CONFIGURATION_TYPES)
     endif()
 endif()
 
+#add functions
+include(cmake/functions.cmake)
+
 # add dependencies
 include(cmake/conan_dependencies.cmake)
 

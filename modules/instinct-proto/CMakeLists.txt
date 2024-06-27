@@ -3,7 +3,8 @@ project(instinct-proto)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_library(proto
+# TODO figure out why proto must be STATIC?!
+add_library(proto STATIC
         core.proto
         retrieval.proto
         llm.proto
@@ -17,7 +18,7 @@ add_library(proto
 
 add_library(instinct::proto ALIAS proto)
 
-target_link_libraries(proto
+target_link_libraries(proto PUBLIC
     protobuf::protobuf
 )
 

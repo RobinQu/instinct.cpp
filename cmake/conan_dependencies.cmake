@@ -1,4 +1,5 @@
 # this file contains `find_package` for dependencies built by conan
+find_package(Threads REQUIRED)
 
 ## gtest
 if(BUILD_TESTING)
