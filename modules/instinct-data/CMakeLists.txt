@@ -24,6 +24,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
         ${${LIBRARY_TARGET_NAME}_HDR}
+        include/instinct/data_all.hpp
 )
 add_library(instinct::data
         ALIAS ${LIBRARY_TARGET_NAME})
