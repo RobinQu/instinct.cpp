@@ -19,21 +19,11 @@ add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
         #        ${${LIBRARY_TARGET_NAME}_SRC}
         ${${LIBRARY_TARGET_NAME}_HDR}
+        include/instinct/transformer_all.hpp
 )
 
 add_library(instinct::transformer
         ALIAS ${LIBRARY_TARGET_NAME})
-
-
-#include(FetchContent)
-#FetchContent_Declare(
-#        ggml
-#        GIT_REPOSITORY https://github.com/ggerganov/ggml.git
-#        GIT_TAG f5c9599
-#        FIND_PACKAGE_ARGS # will invoke find_package first
-#)
-##set(GGML_PERF ON)
-#FetchContent_MakeAvailable(ggml)
 
 
 target_include_directories(${LIBRARY_TARGET_NAME}
