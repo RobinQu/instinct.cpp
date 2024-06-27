@@ -43,17 +43,12 @@ add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
 #        ${${LIBRARY_TARGET_NAME}_SRC}
         ${${LIBRARY_TARGET_NAME}_HDR}
+        include/instinct/retrieval_all.hpp
 )
 
 
 add_library(instinct::retrieval
         ALIAS ${LIBRARY_TARGET_NAME})
-
-
-#set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES
-#        #        VERSION ${${PROJECT_NAME}_VERSION}
-#        PUBLIC_HEADER "${${LIBRARY_TARGET_NAME}_HDR}"
-#)
 
 
 target_include_directories(${LIBRARY_TARGET_NAME}
@@ -70,17 +65,7 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::data
 )
 
-install(TARGETS ${LIBRARY_TARGET_NAME}
-        EXPORT  ${PROJECT_NAME}
-        LIBRARY       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT shlib
-        ARCHIVE       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT lib
-        RUNTIME       DESTINATION "${CMAKE_INSTALL_BINDIR}"                            COMPONENT bin
-        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct" COMPONENT dev)
-
-install(DIRECTORY include/
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct"
-        COMPONENT instinct_retrieval
-)
+generate_combined_header(${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/retrieval_all.hpp)
 
 
 if(BUILD_TESTING)
