@@ -51,7 +51,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/toolkit/local_toolkit.hpp
         include/instinct/agent/patterns/react/react_agent_thought_output_parser.hpp
         include/instinct/agent/patterns/react/react_agent_state_input_parser.hpp
-        include/instinct/agent/patterns/react/Agent.hpp
+        include/instinct/agent/patterns/react/agent.hpp
         include/instinct/agent/executor/agent_executor.hpp
         include/instinct/agent/base_worker.hpp
         include/instinct/toolkit/proto_message_function_tool.hpp
