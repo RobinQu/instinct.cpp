@@ -248,7 +248,7 @@ namespace INSTINCT_CORE_NS {
                 if (code!=0) {
                     observer.on_error(std::make_exception_ptr(InstinctException("curl request failed with reason: " + std::string(curl_easy_strerror(code)))));
                 }
-            }) | rpp::ops::tap({}, {}, [&,call]() {
+            }) | rpp::ops::tap({}, {}, [&,call,url]() {
                 LOG_DEBUG("RESP: {} {}", call.method, url);
             });
         }

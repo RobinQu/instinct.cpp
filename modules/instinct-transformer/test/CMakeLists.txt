@@ -42,5 +42,6 @@ foreach(_test_file ${TEST_SRC_FILES})
     # link retrieval for testing purpose only
     target_link_libraries(${_test_name} ${LIBRARY_TARGET_NAME} instinct::transformer)
     add_test(${_test_name} ${_test_name})
+    set_tests_properties(${_test_name} PROPERTIES LABELS "unit_test;transformer")
     set_tests_properties(${_test_name} PROPERTIES TIMEOUT 30)
 endforeach()

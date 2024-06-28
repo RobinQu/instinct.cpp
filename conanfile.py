@@ -12,7 +12,6 @@ class InstinctCppRecipe(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     no_copy_source = True
     options = {
-        "with_tests": [True, False],
         # target-level switches
         "with_duckdb": [True, False],
         "with_exprtk": [True, False],
@@ -21,7 +20,6 @@ class InstinctCppRecipe(ConanFile):
     }
 
     default_options = {
-        "with_tests": False,
         "with_duckdb": True,
         "with_exprtk": True,
         "with_pdfium": True,
@@ -86,7 +84,6 @@ class InstinctCppRecipe(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
         tc = CMakeToolchain(self)
-        tc.variables["BUILD_TESTING"] = self.options.with_tests
         tc.variables["WITH_DUCKDB"] = self.options.with_duckdb
         tc.variables["WITH_EXPRTK"] = self.options.with_exprtk
         tc.variables["WITH_PDFIUM"] = self.options.with_pdfium
@@ -97,6 +94,9 @@ class InstinctCppRecipe(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
+        if self.conf.get("tools.build:skip_test", default=False):
+            return
+        cmake.ctest(cli_args=["-L", "\"core|data\""])
 
     def package(self):
         cmake = CMake(self)

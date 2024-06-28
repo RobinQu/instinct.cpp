@@ -20,8 +20,6 @@ ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 # see https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html
 include(GNUInstallDirs)
 
-# add CTest
-include(CTest)
 
 #add_compile_options(-fsanitize=address)
 #add_link_options(-fsanitize=address)
@@ -33,13 +31,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # include additional cmake modules
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-# compilation options
-option(BUILD_TESTING "Create tests using CMake" ON)
-option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" ON)
-option(WITH_DUCKDB "Enable duckdb related classes" ON)
-option(WITH_EXPRTK "Enable exprtk for LLM math" ON)
-option(WITH_PDFIUM "Enable PDF parsing with PDFium" ON)
-option(WITH_DUCKX "Enable DOCX parsing with duckx" ON)
+
 
 
 # encourage user to specify a build type (e.g. Release, Debug, etc.), otherwise set it to Release.
@@ -50,11 +42,33 @@ if(NOT CMAKE_CONFIGURATION_TYPES)
     endif()
 endif()
 
+# add CTest
+include(CTest)
+
 #add functions
 include(cmake/functions.cmake)
 
 # add dependencies
 include(cmake/conan_dependencies.cmake)
+
+# compilation options
+option(BUILD_TESTING "Create tests using CMake" ON)
+option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" ON)
+option(WITH_DUCKDB "Enable duckdb related classes" ON)
+option(WITH_EXPRTK "Enable exprtk for LLM math" ON)
+option(WITH_PDFIUM "Enable PDF parsing with PDFium" ON)
+option(WITH_DUCKX "Enable DOCX parsing with duckx" ON)
+
+# print options before entering submodules
+message(STATUS "--------------------------------instinct-cpp--------------------------------------------------------")
+message(STATUS "CMAKE_BUILD_TYPE: " ${CMAKE_BUILD_TYPE})
+message(STATUS "BUILD_TESTING: " ${BUILD_TESTING})
+message(STATUS "BUILD_SHARED_LIBS: " ${BUILD_SHARED_LIBS})
+message(STATUS "WITH_DUCKDB: " ${WITH_DUCKDB})
+message(STATUS "WITH_EXPRTK: " ${WITH_EXPRTK})
+message(STATUS "WITH_PDFIUM: " ${WITH_PDFIUM})
+message(STATUS "WITH_DUCKX: " ${WITH_DUCKX})
+message(STATUS "----------------------------------------------------------------------------------------------------")
 
 # project modules
 add_subdirectory(modules/instinct-proto)
