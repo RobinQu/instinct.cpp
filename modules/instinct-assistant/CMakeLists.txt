@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.26)
 project(instinct-assistant VERSION 0.1.0)
 
+if (NOT WITH_DUCKDB)
+    message(WARNING "Currently duckdb is the only storage backend and it's required for assistant framework to work. Will skip instinct-assistant")
+    return()
+endif ()
+
 set(CMAKE_CXX_STANDARD 20)
 set(LIBRARY_TARGET_NAME assistant)
 
@@ -51,7 +56,7 @@ add_library(
         ${${LIBRARY_TARGET_NAME}_HDR}
 )
 
-add_library(instinct::agent
+add_library(instinct::assistant
         ALIAS ${LIBRARY_TARGET_NAME})
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::llm instinct::proto instinct::server instinct::data instinct::retrieval)
@@ -66,6 +71,5 @@ add_subdirectory(assets)
 if(BUILD_TESTING)
     add_subdirectory(test)
 endif()
-
 
 message(STATUS "Created target ${LIBRARY_TARGET_NAME} for export ${PROJECT_NAME}.")

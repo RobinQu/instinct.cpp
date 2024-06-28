@@ -11,7 +11,6 @@
 #include <instinct/core_global.hpp>
 #include <instinct/prompt/example_selector.hpp>
 #include <instinct/prompt/plain_prompt_template.hpp>
-#include <instinct/prompt/IPromptTemplate.hpp>
 #include <instinct/tools/string_utils.hpp>
 
 

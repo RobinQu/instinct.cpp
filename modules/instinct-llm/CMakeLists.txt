@@ -57,7 +57,6 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/toolkit/proto_message_function_tool.hpp
         include/instinct/toolkit/search_tool.hpp
         include/instinct/toolkit/builtin/serp_api.hpp
-        include/instinct/toolkit/builtin/llm_math.hpp
         include/instinct/agent/patterns/openai_tool/openai_tool_agent_executor.hpp
         include/instinct/agent/patterns/llm_compiler/llm_compiler_agent_executor.hpp
         include/instinct/agent/patterns/llm_compiler/llm_compiler_planer.hpp
@@ -76,18 +75,18 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/embedding_model/local_embedding_model.hpp
 )
 
+if (WITH_EXPRTK)
+    list(APPEND ${LIBRARY_TARGET_NAME}_HDR include/instinct/toolkit/builtin/llm_math.hpp)
+endif()
 
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
-#        ${${LIBRARY_TARGET_NAME}_SRC}
         ${${LIBRARY_TARGET_NAME}_HDR}
         include/instinct/llm_all.hpp
 )
 
-
 add_library(instinct::llm
         ALIAS ${LIBRARY_TARGET_NAME})
-
 
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE
@@ -97,8 +96,14 @@ target_include_directories(${LIBRARY_TARGET_NAME}
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::core
         instinct::transformer
-        exprtk::exprtk
 )
+
+if (WITH_EXPRTK)
+    target_compile_definitions(${LIBRARY_TARGET_NAME} INTERFACE WITH_EXPRTK=1)
+    target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
+            exprtk::exprtk
+    )
+endif ()
 
 if(BUILD_TESTING)
     add_subdirectory(test)

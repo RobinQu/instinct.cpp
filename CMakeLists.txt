@@ -1,10 +1,8 @@
 cmake_minimum_required(VERSION 3.26)
 project(instinct VERSION 0.1.0)
 
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 
 # force cache value to update when building with submodules
 # https://cmake.org/cmake/help/latest/policy/CMP0077.html
@@ -80,7 +78,16 @@ write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Conf
         COMPATIBILITY SameMajorVersion)
 
 # declare targets to be installed
-install(TARGETS proto core llm transformer data retrieval doc-agent mini-assistant
+
+list(APPEND EXPORTED_TARGETS proto core llm transformer data retrieval)
+if (TARGET instinct::assistant AND TARGET mini-assistant)
+    list(APPEND EXPORTED_TARGETS mini-assistant)
+endif ()
+if (TARGET doc-agent)
+    list(APPEND EXPORTED_TARGETS doc-agent)
+endif ()
+
+install(TARGETS ${EXPORTED_TARGETS}
         EXPORT ${PROJECT_NAME}_Targets
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

@@ -185,6 +185,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         return schema;
     }
 
+#ifdef WITH_DUCKDB
     /**
      * This override function will create SimpleRetrieverOperator with duckdb backend and auto-configured metadata schema
      * @param vector_store_operator
@@ -202,6 +203,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         const auto doc_store = CreateDuckDBDocStore(duck_db, options, CreatePresetMetadataSchemaForRetrieverOperator());
         return std::make_shared<SimpleRetrieverOperator>(vector_store_operator, doc_store, operator_options);
     }
+#endif
 
 
 }

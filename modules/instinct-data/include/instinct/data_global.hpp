@@ -10,7 +10,12 @@
 #endif
 
 #include <instinct/data.pb.h>
+
+
+#ifdef WITH_DUCKDB
 #include <duckdb.hpp>
+#endif
+
 #include <inja/inja.hpp>
 
 #include <instinct/core_global.hpp>
@@ -20,15 +25,12 @@
 namespace INSTINCT_DATA_NS {
     using namespace INSTINCT_CORE_NS;
 
-    using DuckDBPtr = std::shared_ptr<duckdb::DuckDB>;
-
     using SQLTemplate = std::string_view;
 
     using SQLContext = nlohmann::ordered_json;
 
 
     namespace details {
-        using namespace duckdb;
 
         static std::shared_ptr<inja::Environment> create_shared_sql_template_env() {
             auto env = std::make_shared<inja::Environment>();
@@ -56,12 +58,15 @@ namespace INSTINCT_DATA_NS {
                 return std::string {"NULL"};
             });
 
+
+#ifdef WITH_DUCKDB
+            using namespace duckdb;
             env->add_callback("timestamp", 1, [](const inja::Arguments& args) {
                 const auto v = args.at(0)->get<int64_t>();
                 // TIMESTAMP in sql database has micro-second precision
                 return "'" + Timestamp::ToString(Timestamp::FromEpochMicroSeconds(v)) + "'";
             });
-
+#endif
             env->set_trim_blocks(true);
             env->set_lstrip_blocks(true);
             return env;
@@ -82,6 +87,8 @@ namespace INSTINCT_DATA_NS {
     static bool check_query_ok(const duckdb::unique_ptr<duckdb::MaterializedQueryResult>& result) {
         return !result->GetErrorObject().HasError();
     }
+#ifdef WITH_DUCKDB
+    using DuckDBPtr = std::shared_ptr<duckdb::DuckDB>;
 
     static void assert_query_ok(const duckdb::unique_ptr<duckdb::MaterializedQueryResult>& result) {
         if (!check_query_ok(result)) {
@@ -101,6 +108,7 @@ namespace INSTINCT_DATA_NS {
             throw ClientException(msg + " " + result->GetError());
         }
     }
+#endif
 
     static void assert_status_ok(const OSSStatus& status) {
         if (status.has_error()) {

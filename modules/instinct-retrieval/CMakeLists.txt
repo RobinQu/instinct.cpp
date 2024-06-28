@@ -20,10 +20,7 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/store/duckdb/duckdb_doc_store.hpp
         include/instinct/retrieval_test_global.hpp
         include/instinct/retrieval/base_retriever.hpp
-        include/instinct/ingestor/pdf_file_ingestor.hpp
-        include/instinct/ingestor/docx_file_ingestor.hpp
         include/instinct/store/duckdb/duckdb_doc_with_embedding_store.hpp
-        include/instinct/ingestor/parquet_file_ingestor.hpp
         include/instinct/retrieval/multi_path_retriever.hpp
         include/instinct/store/vector_store_operator.hpp
         include/instinct/store/duckdb/duckdb_vector_store_operator.hpp
@@ -36,12 +33,25 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/retrieval/parent_child_retriever.hpp
 )
 
-#set(${LIBRARY_TARGET_NAME}_SRC
-#
-#)
+if (WITH_DUCKDB)
+    list(APPEND ${LIBRARY_TARGET_NAME}_HDR
+            include/instinct/ingestor/parquet_file_ingestor.hpp
+    )
+endif ()
+if (WITH_PDFIUM)
+    list(APPEND ${LIBRARY_TARGET_NAME}_HDR
+            include/instinct/ingestor/pdf_file_ingestor.hpp
+    )
+endif ()
+if (WITH_DUCKX)
+    list(APPEND ${LIBRARY_TARGET_NAME}_HDR
+            include/instinct/ingestor/docx_file_ingestor.hpp
+    )
+endif ()
+
+
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
-#        ${${LIBRARY_TARGET_NAME}_SRC}
         ${${LIBRARY_TARGET_NAME}_HDR}
         include/instinct/retrieval_all.hpp
 )
@@ -60,13 +70,18 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::proto
         instinct::core
         instinct::llm
-        pdfium::pdfium
-        duckx::duckx
         instinct::data
 )
 
-generate_combined_header(${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/retrieval_all.hpp)
+if (WITH_PDFIUM)
+    target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE pdfium::pdfium)
+    target_compile_definitions(${LIBRARY_TARGET_NAME} INTERFACE WITH_PDFIUM=1)
+endif ()
 
+if (WITH_DUCKX)
+    target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE duckx::duckx)
+    target_compile_definitions(${LIBRARY_TARGET_NAME} INTERFACE WITH_DUCKX=1)
+endif ()
 
 if(BUILD_TESTING)
     add_subdirectory(test)

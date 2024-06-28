@@ -5,9 +5,7 @@
 #ifndef CORE_HPP
 #define CORE_HPP
 
-
 #include <instinct/core_global.hpp>
-#include <instinct/core_test_global.hpp>
 #include <instinct/exception/client_exception.hpp>
 #include <instinct/exception/instinct_exception.hpp>
 #include <instinct/functional/context.hpp>

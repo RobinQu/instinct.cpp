@@ -40,4 +40,3 @@ protobuf_generate(
         IMPORT_DIRS "${CMAKE_CURRENT_LIST_DIR}"
         PROTOC_OUT_DIR "${PROTO_BINARY_DIR}"
 )
-

@@ -5,13 +5,10 @@ set(LIBRARY_TARGET_NAME data)
 set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/data_global.hpp
         include/instinct/database/data_template.hpp
-        include/instinct/database/duckdb/duckdb_data_template.hpp
         include/instinct/database/connection_pool.hpp
         include/instinct/database/connection_pool.hpp
         include/instinct/database/managed_connection.hpp
-        include/instinct/database/duckdb/duckdb_connection_pool.hpp
         include/instinct/database/db_utils.hpp
-        include/instinct/database/duckdb/duckdb_connection.hpp
         include/instinct/database/database_migration.hpp
         include/instinct/object_store/object_store.hpp
         include/instinct/object_store/file_system_object_store.hpp
@@ -20,6 +17,14 @@ set(${LIBRARY_TARGET_NAME}_HDR
         include/instinct/task_scheduler/base_task_scheduler.hpp
         include/instinct/task_scheduler/thread_pool_task_scheduler.hpp
 )
+
+if (WITH_DUCKDB)
+list(APPEND ${LIBRARY_TARGET_NAME}_HDR
+        include/instinct/database/duckdb/duckdb_connection.hpp
+        include/instinct/database/duckdb/duckdb_connection_pool.hpp
+        include/instinct/database/duckdb/duckdb_data_template.hpp
+)
+endif ()
 
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
@@ -32,9 +37,13 @@ add_library(instinct::data
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::core
         instinct::proto
-        duckdb::duckdb
         concurrentqueue::concurrentqueue
 )
+
+if (WITH_DUCKDB)
+    target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE duckdb::duckdb)
+    target_compile_definitions(${LIBRARY_TARGET_NAME} INTERFACE WITH_DUCKDB=1)
+endif ()
 
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE
@@ -48,5 +57,3 @@ endif()
 
 
 message(STATUS "Created target ${LIBRARY_TARGET_NAME} for export ${PROJECT_NAME}.")
-
-

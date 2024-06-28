@@ -6,7 +6,6 @@
 #define RETRIEVALGLOBALS_HPP
 
 #include <instinct/retrieval.pb.h>
-#include <duckdb.hpp>
 #include <instinct/core_global.hpp>
 #include <instinct/llm_global.hpp>
 #include <instinct/data_global.hpp>

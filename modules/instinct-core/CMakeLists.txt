@@ -82,7 +82,6 @@ if(BUILD_TESTING)
     add_subdirectory(test)
 endif()
 
-
 message(STATUS "Created target ${LIBRARY_TARGET_NAME} for export ${PROJECT_NAME}.")
 
 

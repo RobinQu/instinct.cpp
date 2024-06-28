@@ -7,11 +7,9 @@
 
 
 #include <google/protobuf/util/json_util.h>
-#include <instinct/output_parser/IOutputParser.hpp>
+#include <instinct/output_parser/base_output_parser.hpp>
 #include <instinct/llm_global.hpp>
 #include <instinct/tools/assertions.hpp>
-#include <instinct/output_parser/base_output_parser.hpp>
-#include <instinct/prompt/message_utils.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace INSTINCT_CORE_NS;
@@ -21,6 +19,10 @@ namespace INSTINCT_LLM_NS {
     requires IsProtobufMessage<T>
     class ProtobufMessageOutputParser final : public BaseOutputParser<T> {
     public:
+        explicit ProtobufMessageOutputParser(const OutputParserOptions &options)
+            : BaseOutputParser<T>(options) {
+        }
+
         std::string GetFormatInstruction() override {
             // TODO output json format instruction
             return "";

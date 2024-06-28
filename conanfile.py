@@ -45,40 +45,40 @@ class InstinctCppRecipe(ConanFile):
         cmake_layout(self)
 
     def requirements(self):
-        self.requires("hash-library/8.0")
+        self.requires("hash-library/8.0", transitive_headers=True)
         self.requires("bshoshany-thread-pool/4.1.0", transitive_headers=True)
 
         if self.options.with_duckdb:
             self.requires("duckdb/0.10.2", options={"with_httpfs": True})
 
-        self.requires("uriparser/0.9.7")
-        self.requires("crossguid/0.2.2")
-        self.requires("protobuf/5.27.0")
-        self.requires("reactiveplusplus/2.1.1")
+        self.requires("uriparser/0.9.7", transitive_headers=True)
+        self.requires("crossguid/0.2.2", transitive_headers=True)
+        self.requires("protobuf/5.27.0", transitive_headers=True)
+        self.requires("reactiveplusplus/2.1.1", transitive_headers=True)
         self.requires("icu/74.1", options={"with_extras": True, "data_packaging": "static"})
-        self.requires("tsl-ordered-map/1.1.0")
-        self.requires("fmt/10.2.1")
-        self.requires("fmtlog/2.2.1")
+        self.requires("tsl-ordered-map/1.1.0", transitive_headers=True)
+        self.requires("fmt/10.2.1", transitive_headers=True)
+        self.requires("fmtlog/2.2.1", transitive_headers=True)
         self.requires("nlohmann_json/3.11.3", transitive_headers=True)
-        self.requires("base64/0.5.2")
-        self.requires("libcurl/8.6.0")
-        self.requires("inja/3.4.0")
-        self.requires("concurrentqueue/1.0.4")
-        self.requires("cpptrace/0.5.4")
+        self.requires("base64/0.5.2", transitive_headers=True)
+        self.requires("libcurl/8.6.0", transitive_headers=True)
+        self.requires("inja/3.4.0", transitive_headers=True)
+        self.requires("concurrentqueue/1.0.4", transitive_headers=True)
+        self.requires("cpptrace/0.5.4", transitive_headers=True)
 
         if self.options.with_pdfium:
-            self.requires("pdfium/95.0.4629")
+            self.requires("pdfium/95.0.4629", transitive_headers=True)
 
         if self.options.with_duckx:
-            self.requires("duckx/1.2.2")
+            self.requires("duckx/1.2.2", transitive_headers=True)
 
         if self.options.with_exprtk:
-            self.requires("exprtk/0.0.2")
+            self.requires("exprtk/0.0.2", transitive_headers=True)
 
-        self.requires("llama-cpp/b3040")
-        self.requires("cpp-httplib/0.15.3")
+        self.requires("llama-cpp/b3040", transitive_headers=True)
+        self.requires("cpp-httplib/0.15.3", transitive_headers=True)
         # deps of examples
-        self.requires("cli11/2.4.1")
+        self.requires("cli11/2.4.1", transitive_headers=True)
         # test deps
         self.test_requires("gtest/1.14.0")
 

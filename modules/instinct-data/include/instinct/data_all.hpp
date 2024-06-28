@@ -11,9 +11,13 @@
 #include <instinct/database/data_template.hpp>
 #include <instinct/database/database_migration.hpp>
 #include <instinct/database/db_utils.hpp>
+
+#ifdef WITH_DUCKDB
 #include <instinct/database/duckdb/duckdb_connection.hpp>
 #include <instinct/database/duckdb/duckdb_connection_pool.hpp>
 #include <instinct/database/duckdb/duckdb_data_template.hpp>
+#endif
+
 #include <instinct/database/managed_connection.hpp>
 #include <instinct/object_store/file_system_object_store.hpp>
 #include <instinct/object_store/object_store.hpp>
