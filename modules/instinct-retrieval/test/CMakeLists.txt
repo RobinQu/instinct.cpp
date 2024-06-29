@@ -44,6 +44,7 @@ foreach(_test_file ${TEST_SRC_FILES})
     target_link_libraries(${_test_name} ${LIBRARY_TARGET_NAME})
     add_test(${_test_name} ${_test_name})
     set_tests_properties(${_test_name} PROPERTIES TIMEOUT 120)
+    set_tests_properties(${_test_name} PROPERTIES LABELS "unit_test;retrieval")
 
     # copy corpus test data to build tree
     add_custom_command(TARGET ${_test_name} PRE_BUILD

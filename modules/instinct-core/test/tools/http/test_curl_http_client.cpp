@@ -61,7 +61,8 @@ namespace INSTINCT_CORE_NS {
         CURLHttpClient client;
         const auto req1 = HttpUtils::CreateRequest("GET https://httpbin.org/stream/3");
         client.StreamChunk(req1, {.line_breaker = "\n"})
-            .subscribe([](const auto& chunk) {
+            | rpp::ops::as_blocking()
+            | rpp::ops::subscribe([](const auto& chunk) {
                 LOG_INFO("chunk: {}", chunk);
             });
     }
