@@ -1,0 +1,73 @@
+# This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
+name: CI Build
+on:
+  push:
+    paths:
+      - '.github/workflow/**'
+      - 'modules/**'
+    branches:
+      - "main"
+      - "sprint/**"
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
+      fail-fast: false
+
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        build_type: [Release]
+        c_compiler: [gcc, clang]
+        exclude:
+          - os: macos-latest
+            c_compiler: gcc
+          - os: ubuntu-latest
+            c_compiler: clang
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set reusable strings
+        # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+        id: strings
+        shell: bash
+        run: |
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+      - name: "Update gcc"
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get -y update
+          sudo apt-get install -y build-essential gcc-12 g++-12 wget
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 --slave /usr/bin/g++ g++ /usr/bin/g++-12
+
+      - name: Get Conan
+        if: matrix.os == 'ubuntu-latest'
+        uses: turtlebrowser/get-conan@v1.2
+        with:
+          version: 2.4.1
+
+      - name: Get Conan (macOS)
+        if: matrix.os == 'macos-latest'
+        run: brew install conan
+
+      - name: Cache
+        uses: actions/cache@v4.0.2
+        with:
+          path: "~/.conan2"
+          key: ${{ matrix.os }}-${{ matrix.build_type }}-${{matrix.c_compiler}}
+
+      - name: Download conan profile
+        run: mkdir -p ~/.conan2/profiles && wget -O ~/.conan2/profiles/default https://github.com/RobinQu/instinct-cpp-github-workflow/raw/main/conan/profiles/${{ matrix.os }}-${{matrix.c_compiler}}-${{matrix.build_type}}.yaml
+
+      - name: Conan install
+        run: conan install conanfile.py --build=missing
+
+      - name: Conan build (with ctest)
+        run: conan build .
+
