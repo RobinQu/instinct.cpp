@@ -4,11 +4,11 @@ name: CI Build
 on:
   push:
     paths:
-      - '.github/workflow/**'
+      - '.github/workflows/**'
       - 'modules/**'
     branches:
       - "main"
-      - "sprint/**"
+      - "sprint/*"
   pull_request:
     branches: [ "main" ]
 
