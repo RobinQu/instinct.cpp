@@ -2,7 +2,7 @@
 
 `instinct.cpp` is a toolkit for developing LLM-powered applications.
 
-[![Discord](https://img.shields.io/badge/Discord%20Chat-purple?style=flat-square&logo=discord&logoColor=white&link=https%3A%2F%2Fdiscord.gg%2jnyqY9sbC)](https://discord.gg/2jnyqY9sbC)   [![C++ 20](https://img.shields.io/badge/C%2B%2B-20-blue?style=flat-square&link=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FC%252B%252B20)](https://en.wikipedia.org/wiki/C%2B%2B20)    [![License](https://img.shields.io/badge/Apache%20License-2.0-green?style=flat-square&logo=Apache&link=.%2FLICENSE)](./LICENSE)
+[![Discord](https://img.shields.io/badge/Discord%20Chat-purple?style=flat-square&logo=discord&logoColor=white&link=https%3A%2F%2Fdiscord.gg%2jnyqY9sbC)](https://discord.gg/2jnyqY9sbC)   [![C++ 20](https://img.shields.io/badge/C%2B%2B-20-blue?style=flat-square&link=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FC%252B%252B20)](https://en.wikipedia.org/wiki/C%2B%2B20)    [![License](https://img.shields.io/badge/Apache%20License-2.0-green?style=flat-square&logo=Apache&link=.%2FLICENSE)](./LICENSE) [![CI Build](https://github.com/RobinQu/instinct.cpp/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/RobinQu/instinct.cpp/actions/workflows/cmake-multi-platform.yml)
 
 **🚨 This project is under active development and has not reached to GA stage of first major release. See more at [Roadmap section](#roadmap).**
 

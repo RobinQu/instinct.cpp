@@ -49,15 +49,15 @@ include(CTest)
 include(cmake/functions.cmake)
 
 # add dependencies
+option(WITH_DUCKDB "Enable duckdb related classes" ON)
+option(WITH_EXPRTK "Enable exprtk for LLM math" ON)
+option(WITH_PDFIUM "Enable PDF parsing with PDFium" ON)
+option(WITH_DUCKX "Enable DOCX parsing with duckx" ON)
 include(cmake/conan_dependencies.cmake)
 
 # compilation options
 option(BUILD_TESTING "Create tests using CMake" ON)
 option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" ON)
-option(WITH_DUCKDB "Enable duckdb related classes" ON)
-option(WITH_EXPRTK "Enable exprtk for LLM math" ON)
-option(WITH_PDFIUM "Enable PDF parsing with PDFium" ON)
-option(WITH_DUCKX "Enable DOCX parsing with duckx" ON)
 
 # print options before entering submodules
 message(STATUS "--------------------------------instinct-cpp--------------------------------------------------------")

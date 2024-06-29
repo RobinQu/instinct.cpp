@@ -56,7 +56,15 @@ namespace INSTINCT_LLM_NS {
             auto* properties = schema_.mutable_parameters()->mutable_properties();
             for(int i=0;i<descriptor->field_count();++i) {
                 const auto& field_descriptor = descriptor->field(i);
-                if (field_descriptor->is_optional() && !GetOptions().with_optional_arguments) {
+
+                // https://github.com/protocolbuffers/protobuf/issues/13400
+                // as has_optional_keyword is depreciated. we have to exclude repeated fields , map fields and one-of fields and singular fields with presence.
+                if (!GetOptions().with_optional_arguments &&
+                    !field_descriptor->is_repeated() &&
+                    !field_descriptor->is_map() &&
+                    field_descriptor->containing_oneof() != nullptr &&
+                    field_descriptor->has_presence()
+                ) {
                     // only output required fields
                     continue;
                 }
