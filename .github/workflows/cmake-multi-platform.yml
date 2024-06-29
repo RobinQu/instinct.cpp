@@ -8,7 +8,7 @@ on:
       - 'modules/**'
     branches:
       - "main"
-      - "sprint/**"
+      - "sprint/*"
   pull_request:
     branches: [ "main" ]
 
