@@ -32,7 +32,7 @@ namespace INSTINCT_LLM_NS {
         OllamaConfiguration configuration_;
     public:
         explicit OllamaChat(const OllamaConfiguration& ollama_configuration = {}):
-                client_(ollama_configuration.endpoint),
+                client_(*ollama_configuration.endpoint),
                 configuration_(ollama_configuration) {
         }
 
@@ -75,7 +75,7 @@ namespace INSTINCT_LLM_NS {
                 request.mutable_options()->mutable_stop()->Add(configuration_.stop_words.begin(),
                                                                configuration_.stop_words.end());
             }
-            const auto response = client_.PostObject<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request);
+            const auto response = client_.PostObject<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(configuration_.chat_completion_path, request);
             return transform_raw_response(response);
         }
 
@@ -110,7 +110,7 @@ namespace INSTINCT_LLM_NS {
                                                                configuration_.stop_words.end());
             }
 
-            return  client_.StreamChunkObject<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(OLLAMA_CHAT_PATH, request, true, OLLAMA_SSE_LINE_BREAKER)
+            return  client_.StreamChunkObject<OllamaChatCompletionRequest, OllamaChatCompletionResponse>(configuration_.chat_completion_path, request, true, OLLAMA_SSE_LINE_BREAKER)
                 | rpp::operators::map(transform_raw_response);
         }
 
@@ -120,14 +120,18 @@ namespace INSTINCT_LLM_NS {
         if (StringUtils::IsBlankString(configuration.model_name)) {
             configuration.model_name = SystemUtils::GetEnv("OLLAMA_CHAT_MODEL", OLLAMA_DEFAULT_CHAT_MODEL_NAME);
         }
-        if (StringUtils::IsBlankString(configuration.endpoint.host)) {
-            configuration.endpoint.host = SystemUtils::GetEnv("OLLAMA_HOST", OLLAMA_ENDPOINT.host);
+        if (!configuration.endpoint) {
+            const auto endpoint_url_env = SystemUtils::GetEnv("OLLAMA_CHAT_API_ENDPOINT");
+            if (StringUtils::IsBlankString(endpoint_url_env)) {
+                configuration.endpoint = OLLAMA_ENDPOINT;
+            } else {
+                const auto req = HttpUtils::CreateRequest("POST " + endpoint_url_env);
+                configuration.endpoint = req.endpoint;
+                configuration.chat_completion_path = req.target;
+            }
         }
-        if (configuration.endpoint.port == 0) {
-            configuration.endpoint.port = SystemUtils::GetIntEnv("OLLAMA_PORT", OLLAMA_ENDPOINT.port);
-        }
-        if (configuration.endpoint.protocol == kUnspecifiedProtocol) {
-            configuration.endpoint.protocol = StringUtils::ToLower(SystemUtils::GetEnv("OLLAMA_PROTOCOL")) == "https" ? kHTTPS : kHTTP;
+        if (StringUtils::IsBlankString(configuration.chat_completion_path)) {
+            configuration.chat_completion_path = OLLAMA_CHAT_PATH;
         }
     }
 

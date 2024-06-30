@@ -25,7 +25,11 @@ INSTINCT_LLM_NS {
         /**
          * HTTP Endpoint
          */
-        Endpoint endpoint {};
+        std::optional<Endpoint> endpoint {};
+
+        std::string chat_completion_path;
+
+        std::string text_embedding_path;
 
         /**
          * Model name

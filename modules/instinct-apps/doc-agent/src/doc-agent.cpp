@@ -285,10 +285,7 @@ Standalone question:)",
                 ->transform(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case));
 
         llm_provider_ogroup->add_option("--embedding_model_api_key", provider_options.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL.");
-        llm_provider_ogroup->add_option("--embedding_model_host", provider_options.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.");
-        llm_provider_ogroup->add_option("--embedding_model_port", provider_options.endpoint.port, "Port number for API service.");
-        llm_provider_ogroup->add_option("--embedding_model_protocol", provider_options.endpoint.protocol, "HTTP protocol for API service.")
-                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));
+        llm_provider_ogroup->add_option("--embedding_model_endpoint", provider_options.endpoint_url_string, "Endpoint for text embedding model, .e.g. 'https://api.openai.com/v1/api/embeddings' for OpenAI.");
         llm_provider_ogroup->add_option("--embedding_model_model_name", provider_options.model_name, "Specify name of the model to be used.");
     }
 
@@ -300,10 +297,7 @@ Standalone question:)",
                 ->transform(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case));
 
         llm_provider_ogroup->add_option("--reranker_model_api_key", provider_options.api_key, "API key for commercial services like Jina.ai. Leave blank for services without ACL.");
-        llm_provider_ogroup->add_option("--reranker_model_host", provider_options.endpoint.host, "Host name for API endpoint.");
-        llm_provider_ogroup->add_option("--reranker_model_port", provider_options.endpoint.port, "Port number for API service if applicable.");
-        llm_provider_ogroup->add_option("--reranker_model_protocol", provider_options.endpoint.protocol, "HTTP protocol for API service if applicable.")
-                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));
+        llm_provider_ogroup->add_option("--reranker_model_endpoint", provider_options.endpoint_url_string, "Endpoint for reranker model API.");
         llm_provider_ogroup->add_option("--reranker_model_model_name", provider_options.model_name, "Specify name of the model to be used.");
     }
 
@@ -315,10 +309,7 @@ Standalone question:)",
             ->add_option("--chat_model_provider", provider_options.provider, "Specify chat model to use for chat completion. ")
             ->transform(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case));
         llm_provider_ogroup->add_option("--chat_model_api_key", provider_options.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL.");
-        llm_provider_ogroup->add_option("--chat_model_host", provider_options.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.");
-        llm_provider_ogroup->add_option("--chat_model_port", provider_options.endpoint.port, "Port number for API service.");
-        llm_provider_ogroup->add_option("--chat_model_protocol", provider_options.endpoint.protocol, "HTTP protocol for API service.")
-                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));
+        llm_provider_ogroup->add_option("--chat_model_endpoint", provider_options.endpoint_url_string, "Endpoint for chat model API.");
         llm_provider_ogroup->add_option("--chat_model_model_name", provider_options.model_name, "Specify name of the model to be used.");
     }
 

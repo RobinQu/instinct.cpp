@@ -42,8 +42,9 @@ namespace INSTINCT_LLM_NS {
     struct ModelProviderOptions {
         ModelProvider provider;
         std::string model_name;
-        Endpoint endpoint;
+        // Endpoint endpoint;
         std::string api_key;
+        std::string endpoint_url_string;
         int dim = 0;
         OpenAIConfiguration openai;
         OllamaConfiguration ollama;
@@ -66,8 +67,12 @@ namespace INSTINCT_LLM_NS {
                 }
                 case kJINAAI: {
                     options.jina.model_name = options.model_name;
-                    options.jina.endpoint = options.endpoint;
                     options.jina.api_key = options.api_key;
+                    if (StringUtils::IsNotBlankString(options.endpoint_url_string)) {
+                        const auto req = HttpUtils::CreateRequest("POST " + options.endpoint_url_string);
+                        options.jina.endpoint = req.endpoint;
+                        options.jina.rerank_path = req.target;
+                    }
                     LoadJinaRerankerConfiguration(options.jina);
                     return CreateJinaRerankerModel(options.jina);
                 }
@@ -85,14 +90,21 @@ namespace INSTINCT_LLM_NS {
                 case kLLMStudio:
                 case kLLAMACPP: {
                     options.openai.model_name = options.model_name;
-                    options.openai.endpoint = options.endpoint;
                     options.openai.api_key = options.api_key;
+                    if (StringUtils::IsNotBlankString(options.endpoint_url_string)) {
+                        const auto req = HttpUtils::CreateRequest("POST " + options.endpoint_url_string);
+                        options.openai.endpoint = req.endpoint;
+                        options.openai.chat_completion_path = req.target;
+                    }
                     LoadOpenAIChatConfiguration(options.openai);
                     return CreateOpenAIChatModel(options.openai);
                 }
                 case kOLLAMA: {
                     options.ollama.model_name = options.model_name;
-                    options.ollama.endpoint = options.endpoint;
+                    if (StringUtils::IsNotBlankString(options.endpoint_url_string)) {
+                        const auto req = HttpUtils::CreateRequest("POST " + options.endpoint_url_string);
+                        options.ollama.chat_completion_path = req.target;
+                    }
                     LoadOllamaChatConfiguration(options.ollama);
                     return CreateOllamaChatModel(options.ollama);
                 }
@@ -105,8 +117,12 @@ namespace INSTINCT_LLM_NS {
             switch (options.provider) {
                 case kOLLAMA: {
                     options.ollama.model_name = options.model_name;
-                    options.ollama.endpoint = options.endpoint;
                     options.ollama.dimension = options.dim;
+                    if (StringUtils::IsNotBlankString(options.endpoint_url_string)) {
+                        const auto req = HttpUtils::CreateRequest("POST " + options.endpoint_url_string);
+                        options.ollama.endpoint = req.endpoint;
+                        options.ollama.chat_completion_path = req.target;
+                    }
                     LoadOllamaEmbeddingConfiguration(options.ollama);
                     return CreateOllamaEmbedding(options.ollama);
                 }
@@ -114,9 +130,13 @@ namespace INSTINCT_LLM_NS {
                 case kLLMStudio:
                 case kLLAMACPP: {
                     options.openai.model_name = options.model_name;
-                    options.openai.endpoint = options.endpoint;
                     options.openai.api_key = options.api_key;
                     options.openai.dimension = options.dim;
+                    if (StringUtils::IsNotBlankString(options.endpoint_url_string)) {
+                        const auto req = HttpUtils::CreateRequest("POST " + options.endpoint_url_string);
+                        options.openai.endpoint = req.endpoint;
+                        options.openai.text_embedding_path = req.target;
+                    }
                     LoadOpenAIEmbeddingConfiguration(options.openai);
                     return CreateOpenAIEmbeddingModel(options.openai);
                 }

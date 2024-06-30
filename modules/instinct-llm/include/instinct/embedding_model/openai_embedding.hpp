@@ -21,7 +21,7 @@ namespace INSTINCT_LLM_NS {
 
     public:
         explicit OpenAIEmbedding(OpenAIConfiguration configuration)
-            : configuration_(std::move(configuration)), client_(configuration_.endpoint) {
+            : configuration_(std::move(configuration)), client_(*configuration_.endpoint) {
             assert_gt(configuration.dimension, 0, "dimension should be greater than zero");
             client_.GetDefaultHeaders().emplace("Authorization", fmt::format("Bearer {}", configuration_.api_key));
         }
@@ -36,8 +36,8 @@ namespace INSTINCT_LLM_NS {
                 req.add_input(text);
             }
             req.set_model(configuration_.model_name);
-            req.set_dimension(configuration_.dimension);
-            const auto res = client_.PostObject<OpenAIEmbeddingRequest, OpenAIEmbeddingResponse>(DEFAULT_OPENAI_EMBEDDING_ENDPOINT, req);
+            // req.set_dimension(configuration_.dimension);
+            const auto res = client_.PostObject<OpenAIEmbeddingRequest, OpenAIEmbeddingResponse>(configuration_.text_embedding_path, req);
 
             assert_true(res.data_size()>0, "should have at least one embedding returned");
             for(const auto&embedding_response: res.data()) {
@@ -55,8 +55,8 @@ namespace INSTINCT_LLM_NS {
             OpenAIEmbeddingRequest req;
             req.add_input(text);
             req.set_model(configuration_.model_name);
-            req.set_dimension(configuration_.dimension);
-            auto res = client_.PostObject<OpenAIEmbeddingRequest, OpenAIEmbeddingResponse>(DEFAULT_OPENAI_EMBEDDING_ENDPOINT, req);
+            // req.set_dimension(configuration_.dimension);
+            auto res = client_.PostObject<OpenAIEmbeddingRequest, OpenAIEmbeddingResponse>(configuration_.text_embedding_path, req);
             Embedding embedding;
             embedding.reserve(configuration_.dimension);
             assert_true(res.data_size()>0, "should have at least one embedding returned");
@@ -87,14 +87,18 @@ namespace INSTINCT_LLM_NS {
                 if (configuration.model_name == "text-embedding-ada-002") configuration.dimension = 1536;
             }
         }
-        if (StringUtils::IsBlankString(configuration.endpoint.host)) {
-            configuration.endpoint.host = SystemUtils::GetEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.host);
+        if (!configuration.endpoint) {
+            const auto endpoint_url_env = SystemUtils::GetEnv("OPENAI_EMBEDDING_API_ENDPOINT");
+            if (StringUtils::IsBlankString(endpoint_url_env)) {
+                configuration.endpoint = OPENAI_DEFAULT_ENDPOINT;
+            } else {
+                const auto req = HttpUtils::CreateRequest("POST " + endpoint_url_env);
+                configuration.endpoint = req.endpoint;
+                configuration.text_embedding_path = req.target;
+            }
         }
-        if (configuration.endpoint.port == 0) {
-            configuration.endpoint.port = SystemUtils::GetIntEnv("OPENAI_PORT", OPENAI_DEFAULT_ENDPOINT.port);
-        }
-        if (configuration.endpoint.protocol == kUnspecifiedProtocol) {
-            configuration.endpoint.protocol = StringUtils::ToLower(SystemUtils::GetEnv("OPENAI_PROTOCOL", "https")) == "https" ? kHTTPS : kHTTP;
+        if (StringUtils::IsBlankString(configuration.text_embedding_path)) {
+            configuration.text_embedding_path = DEFAULT_OPENAI_EMBEDDING_ENDPOINT;
         }
     }
 

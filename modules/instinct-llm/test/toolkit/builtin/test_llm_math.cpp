@@ -16,8 +16,6 @@ namespace INSTINCT_AGENT_NS {
         void SetUp() override {
             SetupLogging();
             const ChatModelPtr chat_model = CreateOpenAIChatModel({
-                // gpt-3.5 often make mistakes
-                .model_name = "gpt-4o",
                 .temperature = 0
             });
             math = CreateLLMMath(chat_model, {.max_attempts = 3});

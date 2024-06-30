@@ -22,7 +22,7 @@ namespace INSTINCT_LLM_NS {
 
     public:
         explicit OllamaEmbedding(const OllamaConfiguration& configuration = {}):
-            client_(configuration.endpoint),
+            client_(*configuration.endpoint),
             configuration_(configuration), thread_pool_(configuration_.max_parallel) {
         }
 
@@ -60,7 +60,7 @@ namespace INSTINCT_LLM_NS {
                 // TODO handle model options
                 // request.mutable_options()->CopyFrom(configuration_->model_options());
                 auto response = client_.PostObject<OllamaEmbeddingRequest, OllamaEmbeddingResponse>(
-                    OLLAMA_EMBEDDING_PATH, request);
+                    configuration_.text_embedding_path, request);
                 result.emplace_back(response.embedding().begin(), response.embedding().end());
             }
             return result;
@@ -73,7 +73,7 @@ namespace INSTINCT_LLM_NS {
             // TODO handle model options
                 // request.mutable_options()->CopyFrom(configuration_->model_options());
             const auto response = client_.PostObject<OllamaEmbeddingRequest, OllamaEmbeddingResponse>(
-                OLLAMA_EMBEDDING_PATH, request);
+                configuration_.text_embedding_path, request);
             return {response.embedding().begin(), response.embedding().end()};
         }
 
@@ -102,14 +102,18 @@ namespace INSTINCT_LLM_NS {
                 }
             }
         }
-        if (StringUtils::IsBlankString(configuration.endpoint.host)) {
-            configuration.endpoint.host = SystemUtils::GetEnv("OLLAMA_HOST", OLLAMA_ENDPOINT.host);
+        if (!configuration.endpoint) {
+            const auto endpoint_url_env = SystemUtils::GetEnv("OLLAMA_EMBEDDING_API_ENDPOINT");
+            if (StringUtils::IsBlankString(endpoint_url_env)) {
+                configuration.endpoint = OLLAMA_ENDPOINT;
+            } else {
+                const auto req = HttpUtils::CreateRequest("POST " + endpoint_url_env);
+                configuration.endpoint = req.endpoint;
+                configuration.text_embedding_path = req.target;
+            }
         }
-        if(configuration.endpoint.port == 0) {
-            configuration.endpoint.port = SystemUtils::GetIntEnv("OLLAMA_PORT", OLLAMA_ENDPOINT.port);
-        }
-        if (configuration.endpoint.protocol == kUnspecifiedProtocol) {
-            configuration.endpoint.protocol = StringUtils::ToLower(SystemUtils::GetEnv("OLLAMA_PROTOCOL")) == "https" ? kHTTPS : kHTTP;
+        if (StringUtils::IsBlankString(configuration.text_embedding_path)) {
+            configuration.text_embedding_path = OLLAMA_EMBEDDING_PATH;
         }
     }
 

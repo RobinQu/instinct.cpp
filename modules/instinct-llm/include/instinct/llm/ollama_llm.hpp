@@ -33,7 +33,7 @@ namespace INSTINCT_LLM_NS {
     public:
 
         explicit OllamaLLM(const OllamaConfiguration& configuration = {}):
-                http_client_(configuration.endpoint), configuration_(configuration) {}
+                http_client_(*configuration.endpoint), configuration_(configuration) {}
 
         void Configure(const ModelOverrides &options) override {
             if (!options.stop_words.empty()) {
@@ -62,7 +62,7 @@ namespace INSTINCT_LLM_NS {
             if (configuration_.temperature) {
                 request.mutable_options()->set_temperature(configuration_.temperature.value());
             }
-            const auto response = http_client_.PostObject<OllamaCompletionRequest, OllamaCompletionResponse>(OLLAMA_GENERATE_PATH, request);
+            const auto response = http_client_.PostObject<OllamaCompletionRequest, OllamaCompletionResponse>(configuration_.text_completion_path, request);
             return details::conv_raw_response_to_model_result(response, false);
         }
 
@@ -102,16 +102,20 @@ namespace INSTINCT_LLM_NS {
 
     static LLMPtr CreateOllamaLLM(OllamaConfiguration configuration = {}) {
         if (StringUtils::IsBlankString(configuration.model_name)) {
-            configuration.model_name = SystemUtils::GetEnv("OLLAMA_CHAT_MODEL", OLLAMA_DEFAULT_CHAT_MODEL_NAME);
+            configuration.model_name = SystemUtils::GetEnv("OLLAMA_TEXT_MODEL", OLLAMA_DEFAULT_TEXT_MODEL_NAME);
         }
-        if (StringUtils::IsBlankString(configuration.endpoint.host)) {
-            configuration.endpoint.host = SystemUtils::GetEnv("OLLAMA_HOST", OLLAMA_ENDPOINT.host);
+        if (!configuration.endpoint) {
+            const auto endpoint_url_env = SystemUtils::GetEnv("OLLAMA_GENERATE_API_ENDPOINT");
+            if (StringUtils::IsBlankString(endpoint_url_env)) {
+                configuration.endpoint = OLLAMA_ENDPOINT;
+            } else {
+                const auto req = HttpUtils::CreateRequest("POST " + endpoint_url_env);
+                configuration.endpoint = req.endpoint;
+                configuration.text_completion_path = req.target;
+            }
         }
-        if (configuration.endpoint.port == 0) {
-            configuration.endpoint.port = SystemUtils::GetIntEnv("OLLAMA_PORT", OLLAMA_ENDPOINT.port);
-        }
-        if (configuration.endpoint.protocol == kUnspecifiedProtocol) {
-            configuration.endpoint.protocol = StringUtils::ToLower(SystemUtils::GetEnv("OLLAMA_PROTOCOL")) == "https" ? kHTTPS : kHTTP;
+        if (StringUtils::IsBlankString(configuration.text_completion_path)) {
+            configuration.text_completion_path = OLLAMA_GENERATE_PATH;
         }
         return std::make_shared<OllamaLLM>(configuration);
     }

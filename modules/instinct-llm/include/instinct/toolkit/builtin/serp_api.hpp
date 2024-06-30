@@ -23,8 +23,7 @@ namespace INSTINCT_LLM_NS {
         .port = 443
     };
 
-    struct SerpAPIOptions {
-        FunctionToolOptions base_options = {};
+    struct SerpAPIOptions: SearchToolOptions {
         Endpoint endpoint = SERP_API_DEFAULT_ENDPOINT;
         std::string apikey;
         std::string engine = "google";
@@ -34,7 +33,7 @@ namespace INSTINCT_LLM_NS {
         CURLHttpClient client_;
         SerpAPIOptions options_;
     public:
-        explicit SerpAPI(const SerpAPIOptions& options): BaseSearchTool(options.base_options), client_(), options_(options) {
+        explicit SerpAPI(const SerpAPIOptions& options): BaseSearchTool(options), client_(), options_(options) {
         }
 
         SearchToolResponse DoExecute(const SearchToolRequest &input) override {

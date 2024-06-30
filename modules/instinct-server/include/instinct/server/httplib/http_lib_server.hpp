@@ -40,15 +40,17 @@ namespace INSTINCT_SERVER_NS {
     class log_guard {
         std::string method_;
         std::string path_;
+        u_int64_t start_;
     public:
         log_guard(std::string method, std::string path)
             : method_(std::move(method)),
-              path_(std::move(path)) {
+              path_(std::move(path)),
+              start_(ChronoUtils::GetCurrentTimeMillis()){
             LOG_DEBUG("--> {} {}", method_, path_);
         }
 
         ~log_guard() {
-            LOG_DEBUG("<-- {} {}", method_, path_);
+            LOG_DEBUG("<-- {} {} {}ms", method_, path_, ChronoUtils::GetCurrentTimeMillis() - start_);
         }
     };
 

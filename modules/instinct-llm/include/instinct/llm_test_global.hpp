@@ -164,12 +164,6 @@ talking non-sense
         return std::make_shared<PesudoEmbeddings>(dim);
     }
 
-    static OpenAIConfiguration DEFAULT_NITRO_SERVER_CONFIGURATION = {
-        .endpoint = {.host = "localhost", .port = 3928},
-        .model_name = "local-model",
-        .dimension = 512
-    };
-
     static std::filesystem::path ensure_random_temp_folder() {
         auto root_path = std::filesystem::temp_directory_path() / "instinct-test" / std::to_string(
                              ChronoUtils::GetCurrentTimeMillis());
@@ -177,25 +171,10 @@ talking non-sense
         return root_path;
     }
 
-    static ChatModelPtr create_local_chat_model() {
-        return CreateOpenAIChatModel(DEFAULT_NITRO_SERVER_CONFIGURATION);
-    }
-
-    static LLMPtr create_local_llm() {
-        return CreateOpenAILLM(DEFAULT_NITRO_SERVER_CONFIGURATION);
-    }
-
-    static EmbeddingsPtr create_local_embedding_model(const size_t dimension = 512) {
-        auto conf = DEFAULT_NITRO_SERVER_CONFIGURATION;
-        conf.dimension = dimension;
-        return CreateOpenAIEmbeddingModel(conf);
-    }
-
-
     class MockSearchTool final: public BaseSearchTool {
         std::multimap<std::string, SearchToolResponseEntry> entries_;
     public:
-        explicit MockSearchTool(const FunctionToolOptions &options = {})
+        explicit MockSearchTool(const SearchToolOptions &options = {})
             : BaseSearchTool(options) {
         }
 

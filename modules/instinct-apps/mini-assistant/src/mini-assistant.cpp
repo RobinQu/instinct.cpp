@@ -237,10 +237,7 @@ int main(int argc, char** argv) {
         ogroup->add_option("--chat_model_name", application_options.chat_model.model_name,
                                             "Specify chat model to use for chat completion. Default to gpt-3.5-turbo for OpenAI, llama3:8b for Ollama. Note that some model providers will ignore the passed model name and use the model currently loaded instead.");
         ogroup->add_option("--chat_model_api_key", application_options.chat_model.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.");
-        ogroup->add_option("--chat_model_host", application_options.chat_model.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.");
-        ogroup->add_option("--chat_model_port", application_options.chat_model.endpoint.port, "Port number for API service.");
-        ogroup->add_option("--chat_model_protocol", application_options.chat_model.endpoint.protocol, "HTTP protocol for API service.")
-                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));
+        ogroup->add_option("--chat_model_endpoint", application_options.chat_model.endpoint_url_string, "Endpoint for chat model API, .e.g. 'https://api.openai.com/v1/chat_completion' for OpenAI.");
     }
 
     {
@@ -255,10 +252,7 @@ int main(int argc, char** argv) {
         ogroup->add_option("--embedding_model_dim", application_options.embedding_model.dim, "Dimension of given embedding model.")
             ->check(PositiveNumber);
         ogroup->add_option("--embedding_model_api_key", application_options.embedding_model.api_key, "API key for commercial services like OpenAI. Leave blank for services without ACL. API key is also retrieved from env variable named OPENAI_API_KEY.");
-        ogroup->add_option("--embedding_model_host", application_options.embedding_model.endpoint.host, "Host name for API endpoint, .e.g. 'api.openai.com' for OpenAI.");
-        ogroup->add_option("--embedding_model_port", application_options.embedding_model.endpoint.port, "Port number for API service.");
-        ogroup->add_option("--embedding_model_protocol", application_options.embedding_model.endpoint.protocol, "HTTP protocol for API service.")
-                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));
+        ogroup->add_option("--embedding_model_endpoint", application_options.embedding_model.endpoint_url_string, "Endpoint for text embedding model API.");
     }
 
     {
@@ -269,10 +263,7 @@ int main(int argc, char** argv) {
                 ->transform(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case));
 
         ogroup->add_option("--reranker_model_api_key", application_options.ranking_model.api_key, "API key for commercial services like Jina.ai. Leave blank for services without ACL.");
-        ogroup->add_option("--reranker_model_host", application_options.ranking_model.endpoint.host, "Host name for API endpoint.");
-        ogroup->add_option("--reranker_model_port", application_options.ranking_model.endpoint.port, "Port number for API service if applicable.");
-        ogroup->add_option("--reranker_model_protocol", application_options.ranking_model.endpoint.protocol, "HTTP protocol for API service if applicable.")
-                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));
+        ogroup->add_option("--reranker_model_endpoint", application_options.ranking_model.endpoint_url_string, "Endpoint for reranker model API.");
         ogroup->add_option("--reranker_model_model_name", application_options.ranking_model.model_name, "Specify name of the model to be used.");
     }
 

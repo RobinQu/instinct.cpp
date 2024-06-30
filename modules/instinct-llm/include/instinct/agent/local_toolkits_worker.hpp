@@ -30,7 +30,7 @@ namespace INSTINCT_LLM_NS {
                 }
 
                 AgentObservation observation;
-                // it's possible we have empty tool calls after fitering
+                // it's possible we have empty tool calls after filtering
                 if (!filtered_tool_calls.empty()) {
                     // only execute tool call that has matching tools in worker
                     for (auto multi_futures = thread_pool_.submit_sequence(0, tool_request_msg.tool_calls_size(), [&](auto i) {

@@ -26,7 +26,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         }
     }
 
-    struct SummaryGuidedFileSearchOptions: public FunctionToolOptions {
+    struct SummaryGuidedFileSearchOptions: SearchToolOptions {
         int top_file_n = 10;
     };
 

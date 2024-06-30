@@ -38,10 +38,19 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         void Ingest(const AsyncIterator<Document>& input) override {
-            UpdateResult update_result;
-            vecstore_store_->AddDocuments(input, update_result);
-            LOG_DEBUG("Ingest done, added={}, failed={}", update_result.affected_rows(), update_result.failed_documents().size());
-            assert_true(update_result.failed_documents_size() == 0, "should not have failed documents");
+            input | rpp::ops::as_blocking()
+                | rpp::ops::buffer(10)
+                | rpp::ops::subscribe([&](const std::vector<Document>& docs) {
+                    UpdateResult update_result;
+                    std::vector<Document> copied_docs = docs;
+                    vecstore_store_->AddDocuments(copied_docs, update_result);
+                    LOG_DEBUG("Ingest done, added={}, failed={}", update_result.affected_rows(), update_result.failed_documents().size());
+                    assert_true(update_result.failed_documents_size() == 0, "should not have failed documents");
+                });
+
+
+
+
         }
     };
 

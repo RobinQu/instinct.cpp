@@ -157,6 +157,13 @@ message SerpAPISearchResponse {
     string question = 4;
     string answer = 5;
   }
+  message KnowledgeGraph {
+    string title = 1;
+    message KnowledgeGraphTab {
+      string text = 1;
+      string link = 2;
+    }
+  }
   repeated OrganicResult organic_results = 1;
   repeated QuestionAndAnswer questions_and_answers = 2;
   AnswerBox answer_box = 3;

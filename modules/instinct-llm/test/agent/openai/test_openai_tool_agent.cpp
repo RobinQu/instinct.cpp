@@ -16,9 +16,7 @@ namespace INSTINCT_LLM_NS {
         void SetUp() override {
             SetupLogging();
         }
-        ChatModelPtr chat_model = CreateOpenAIChatModel({
-            .model_name = "gpt-3.5-turbo"
-        });
+        ChatModelPtr chat_model = CreateOpenAIChatModel();
         FunctionToolkitPtr tool_kit = CreateLocalToolkit(
             std::make_shared<GetFlightPriceTool>(),
             std::make_shared<GetNightlyHotelPrice>()

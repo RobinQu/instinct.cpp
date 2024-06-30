@@ -24,17 +24,19 @@ namespace INSTINCT_LLM_NS {
         std::vector<OpenAIChatCompletionRequest_ChatCompletionTool> function_tools_;
     public:
         explicit OpenAIChat(OpenAIConfiguration configuration)
-            :  configuration_(std::move(configuration)), client_(configuration_.endpoint) {
+            :  configuration_(std::move(configuration)), client_(*configuration_.endpoint) {
             client_.GetDefaultHeaders().emplace("Authorization", fmt::format("Bearer {}", configuration_.api_key));
         }
 
         void BindToolSchemas(const std::vector<FunctionTool> &function_tool_schema) override {
-            function_tools_.clear();
-            for(const auto& function_tool: function_tool_schema) {
-                OpenAIChatCompletionRequest_ChatCompletionTool tool;
-                tool.set_type("function");
-                tool.mutable_function()->CopyFrom(function_tool);
-                function_tools_.push_back(tool);
+            if (!function_tool_schema.empty()) {
+                function_tools_.clear();
+                for(const auto& function_tool: function_tool_schema) {
+                    OpenAIChatCompletionRequest_ChatCompletionTool tool;
+                    tool.set_type("function");
+                    tool.mutable_function()->CopyFrom(function_tool);
+                    function_tools_.push_back(tool);
+                }
             }
         }
 
@@ -55,7 +57,7 @@ namespace INSTINCT_LLM_NS {
 
         void CallOpenAI(const MessageList& message_list, BatchedLangaugeModelResult& batched_language_model_result) {
             const auto req = BuildRequest_(message_list, false);
-            const auto resp = client_.PostObject<OpenAIChatCompletionRequest, OpenAIChatCompletionResponse>(DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT, req);
+            const auto resp = client_.PostObject<OpenAIChatCompletionRequest, OpenAIChatCompletionResponse>(configuration_.chat_completion_path, req);
 
             auto* language_model_result = batched_language_model_result.add_generations();
             for(const auto& choice: resp.choices()) {
@@ -82,7 +84,7 @@ namespace INSTINCT_LLM_NS {
 
         AsyncIterator<LangaugeModelResult> StreamGenerate(const MessageList& messages) override {
             const auto req = BuildRequest_(messages, true);
-            const auto chunk_itr = client_.StreamChunkObject<OpenAIChatCompletionRequest, OpenAIChatCompletionChunk>(DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT, req, true, OPENAI_SSE_LINE_BREAKER, {"[DONE]"});
+            const auto chunk_itr = client_.StreamChunkObject<OpenAIChatCompletionRequest, OpenAIChatCompletionChunk>(configuration_.chat_completion_path, req, true, OPENAI_SSE_LINE_BREAKER, {"[DONE]"});
             return chunk_itr | rpp::operators::map([](const OpenAIChatCompletionChunk& chunk) {
                 LangaugeModelResult language_model_result;
                 for (const auto& choice: chunk.choices()) {
@@ -99,7 +101,7 @@ namespace INSTINCT_LLM_NS {
         OpenAIChatCompletionRequest BuildRequest_(const MessageList& message_list, const bool stream) {
             OpenAIChatCompletionRequest req;
             for (const auto& msg: message_list.messages()) {
-                LOG_DEBUG("msg=[{}],role={},tool_calls_size={}", msg.content(), msg.role(), msg.tool_calls_size());
+                LOG_DEBUG("msg=[{}],role={},tool_calls_size={},tools_size()={}", msg.content(), msg.role(), msg.tool_calls_size(), function_tools_.size());
                 req.add_messages()->CopyFrom(msg);
             }
             req.set_model(configuration_.model_name);
@@ -135,14 +137,18 @@ namespace INSTINCT_LLM_NS {
         if(StringUtils::IsBlankString(configuration.model_name)) {
             configuration.model_name = SystemUtils::GetEnv("OPENAI_CHAT_MODEL", "gpt-3.5-turbo");
         }
-        if (StringUtils::IsBlankString(configuration.endpoint.host)) {
-            configuration.endpoint.host = SystemUtils::GetEnv("OPENAI_HOST", OPENAI_DEFAULT_ENDPOINT.host);
+        if (!configuration.endpoint) {
+            const auto endpoint_url_env = SystemUtils::GetEnv("OPENAI_CHAT_API_ENDPOINT");
+            if (StringUtils::IsBlankString(endpoint_url_env)) {
+                configuration.endpoint = OPENAI_DEFAULT_ENDPOINT;
+            } else {
+                const auto req = HttpUtils::CreateRequest("POST " + endpoint_url_env);
+                configuration.endpoint = req.endpoint;
+                configuration.chat_completion_path = req.target;
+            }
         }
-        if (configuration.endpoint.port == 0) {
-            configuration.endpoint.port = SystemUtils::GetIntEnv("OPENAI_PORT", OPENAI_DEFAULT_ENDPOINT.port);
-        }
-        if (configuration.endpoint.protocol == kUnspecifiedProtocol) {
-            configuration.endpoint.protocol = StringUtils::ToLower(SystemUtils::GetEnv("OPENAI_PROTOCOL", "https")) == "https" ? kHTTPS : kHTTP;
+        if (StringUtils::IsBlankString(configuration.chat_completion_path)) {
+            configuration.chat_completion_path = DEFAULT_OPENAI_CHAT_COMPLETION_ENDPOINT;
         }
     }
 

@@ -28,6 +28,8 @@ namespace INSTINCT_LLM_NS {
 
     static const std::string OLLAMA_DEFAULT_CHAT_MODEL_NAME = "mistral:latest";
 
+    static const std::string OLLAMA_DEFAULT_TEXT_MODEL_NAME = "mistral:latest";
+
     static const std::string OLLAMA_DEFAULT_EMBEDDING_MODEL_NAME = "all-minilm:latest";
 
     static const std::string OLLAMA_SSE_LINE_BREAKER = "\n";
@@ -37,7 +39,7 @@ namespace INSTINCT_LLM_NS {
      */
     struct OllamaConfiguration {
         std::string model_name;
-        Endpoint endpoint {};
+        std::optional<Endpoint> endpoint;
         std::optional<float> temperature;
         std::optional<int> seed;
         bool json_mode = false;
@@ -53,6 +55,13 @@ namespace INSTINCT_LLM_NS {
          * Define timeout for generating one embedding
          */
         std::chrono::seconds embedding_timeout_factor = 0s;
+
+        std::string chat_completion_path;
+
+        std::string text_embedding_path;
+
+        std::string text_completion_path;
+
     };
 
 

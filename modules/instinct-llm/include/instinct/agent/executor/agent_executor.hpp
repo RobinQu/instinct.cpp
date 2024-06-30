@@ -73,9 +73,12 @@ namespace INSTINCT_LLM_NS {
         }
 
         virtual AgentState InitializeState(const PromptValueVariant& input) {
-            const auto pv = MessageUtils::ConvertPromptValueVariantToPromptValue(input);
+            // const auto pv = MessageUtils::ConvertPromptValueVariantToPromptValue(input);
+            const auto content = details::conv_prompt_value_variant_to_string(input);
             AgentState agent_state;
-            agent_state.mutable_input()->CopyFrom(pv);
+            auto* user_message = agent_state.mutable_input()->mutable_chat()->add_messages();
+            user_message->set_content(content);
+            user_message->set_role("user");
             return agent_state;
         }
 

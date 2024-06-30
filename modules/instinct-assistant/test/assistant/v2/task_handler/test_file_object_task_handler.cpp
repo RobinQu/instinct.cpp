@@ -78,7 +78,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
 
         // validate docs
         FindRequest find_request;
-        find_request.mutable_query()->mutable_term()->set_name(METADATA_SCHEMA_PARENT_DOC_ID_KEY);
+        find_request.mutable_query()->mutable_term()->set_name(METADATA_SCHEMA_FILE_SOURCE_KEY);
         find_request.mutable_query()->mutable_term()->mutable_term()->set_string_value(vector_store_file_object1->file_id());
         const auto all_doc_itr = retriever->GetDocStore()->FindDocuments(find_request);
         const auto all_docs = CollectVector(all_doc_itr);

@@ -17,13 +17,16 @@ namespace INSTINCT_LLM_NS {
         .protocol = kHTTPS
     };
 
+    static std::string JINA_DEFAULT_RERANK_PATH = "/v1/rerank";
+
     class RemoteRerankerModel: public BaseRankingModel {
     };
 
     struct JinaConfiguration {
-        Endpoint endpoint {};
+        std::optional<Endpoint> endpoint;
         std::string api_key;
         std::string model_name;
+        std::string rerank_path;
     };
 
 
@@ -32,7 +35,7 @@ namespace INSTINCT_LLM_NS {
         JinaConfiguration configuration_;
     public:
         explicit JinaRerankerModel(const JinaConfiguration& configuration)
-            : client_(configuration.endpoint), configuration_(configuration) {
+            : client_(*configuration.endpoint), configuration_(configuration) {
             assert_not_blank(configuration_.api_key, "should provide api key for jina.ai");
             client_.GetDefaultHeaders().emplace("Authorization", fmt::format("Bearer {}", configuration_.api_key));
         }
@@ -58,7 +61,7 @@ namespace INSTINCT_LLM_NS {
             for(const auto& doc: docs) {
                 request.add_documents(doc.text());
             }
-            const auto response = client_.PostObject<JinaRerankRequest, JinaRerankResponse>("/v1/rerank", request);
+            const auto response = client_.PostObject<JinaRerankRequest, JinaRerankResponse>(configuration_.rerank_path, request);
             std::vector<IdxWithScore> result;
             for(const auto& item: response.results()) {
                 if (item.index() < docs.size()) {
@@ -78,14 +81,18 @@ namespace INSTINCT_LLM_NS {
         if (StringUtils::IsBlankString(configuration.model_name)) {
             configuration.model_name = "jina-reranker-v2-base-multilingual";
         }
-        if (StringUtils::IsBlankString(configuration.endpoint.host)) {
-            configuration.endpoint.host =SystemUtils::GetEnv("JINA_HOST", JINA_DEFAULT_ENDPOINT.host);
+        if (!configuration.endpoint) {
+            const auto endpoint_url_env = SystemUtils::GetEnv("JINA_RERANK_API_ENDPOINT");
+            if (StringUtils::IsBlankString(endpoint_url_env)) {
+                configuration.endpoint = JINA_DEFAULT_ENDPOINT;
+            } else {
+                const auto req = HttpUtils::CreateRequest("POST " + endpoint_url_env);
+                configuration.endpoint = req.endpoint;
+                configuration.rerank_path = req.target;
+            }
         }
-        if (configuration.endpoint.port == 0) {
-            configuration.endpoint.port = SystemUtils::GetIntEnv("JINA_PORT", JINA_DEFAULT_ENDPOINT.port);
-        }
-        if (configuration.endpoint.protocol == kUnspecifiedProtocol) {
-            configuration.endpoint.protocol = StringUtils::ToLower(SystemUtils::GetEnv("JINA_PROTOCOL", "https"))  == "https" ? kHTTPS : kHTTP;
+        if (StringUtils::IsBlankString(configuration.rerank_path)) {
+            configuration.rerank_path = JINA_DEFAULT_RERANK_PATH;
         }
     }
 

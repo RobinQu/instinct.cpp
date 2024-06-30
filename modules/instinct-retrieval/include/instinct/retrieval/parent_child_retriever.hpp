@@ -5,7 +5,7 @@
 #ifndef PARENTCHILDRETRIEVER_HPP
 #define PARENTCHILDRETRIEVER_HPP
 
-
+#include <instinct/retrieval_global.hpp>
 #include <instinct/retrieval/base_retriever.hpp>
 
 namespace INSTINCT_RETRIEVAL_NS {

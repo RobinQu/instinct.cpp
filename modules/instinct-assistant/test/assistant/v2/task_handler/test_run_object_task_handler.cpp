@@ -52,6 +52,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 vector_store_service_,
                 thread_service_,
                 citation_annotating_chain,
+                // CreateLocalRankingModel(ModelType::BGE_M3_RERANKER),
+                CreateJinaRerankerModel(),
                 llm_provider_options,
                 agent_executor_options
             );

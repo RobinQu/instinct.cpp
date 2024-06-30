@@ -51,7 +51,7 @@ namespace INSTINCT_LLM_NS {
 
         MessageList messages;
         llm::Message message;
-        message.set_content("Why Elon Musk have an urgent visit to China in April. 2024?");
+        message.set_content("What's the population of China in 2023?");
         message.set_role("user");
         messages.add_messages()->CopyFrom(message);
         while (true) {
@@ -83,7 +83,7 @@ namespace INSTINCT_LLM_NS {
         auto last_msg = *messages.messages().rbegin();
         ASSERT_EQ(last_msg.role(), "assistant");
         ASSERT_FALSE(last_msg.content().empty());
-        ASSERT_TRUE(last_msg.content().find("Elon") != std::string::npos);
+        ASSERT_TRUE(last_msg.content().find("China") != std::string::npos);
     }
 
 
