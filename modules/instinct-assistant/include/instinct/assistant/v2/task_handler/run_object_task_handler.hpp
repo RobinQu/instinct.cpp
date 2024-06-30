@@ -29,7 +29,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         std::optional<float> temperature;
     };
 
-    using AgentExecutorProvider = std::function<AgentExecutorPtr(const LLMProviderOptions& llm_options, const AgentExecutorOptions& options)>;
+    using AgentExecutorProvider = std::function<AgentExecutorPtr(const ModelProviderOptions& llm_options, const AgentExecutorOptions& options)>;
 
     namespace details {
         static bool has_file_search(const AssistantObject& assistant_object) {
@@ -50,12 +50,13 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         RunServicePtr run_service_;
         MessageServicePtr message_service_;
         AssistantServicePtr assistant_service_;
-        LLMProviderOptions llm_provider_options_;
+        ModelProviderOptions llm_provider_options_;
         AgentExecutorOptions agent_executor_options_;
         RetrieverOperatorPtr retriever_operator_;
         VectorStoreServicePtr vector_store_service_;
         ThreadServicePtr thread_service_;
         CitationAnnotatingChainPtr citation_annotating_chain_;
+        RankingModelPtr ranking_model_;
 
     public:
         static inline std::string CATEGORY = "run_object";
@@ -67,7 +68,8 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
             VectorStoreServicePtr vector_store_service,
             ThreadServicePtr thread_service,
             CitationAnnotatingChainPtr citation_annotating_chain,
-            LLMProviderOptions llm_provider_options,
+            RankingModelPtr ranking_model,
+            ModelProviderOptions llm_provider_options,
             AgentExecutorOptions agent_executor_options)
             : run_service_(std::move(run_service)),
               message_service_(std::move(message_service)),
@@ -77,7 +79,9 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
               retriever_operator_(std::move(retriever_operator)),
               vector_store_service_(std::move(vector_store_service)),
               thread_service_(std::move(thread_service)),
-              citation_annotating_chain_(std::move(citation_annotating_chain)) {
+              citation_annotating_chain_(std::move(citation_annotating_chain)),
+              ranking_model_(std::move(ranking_model))
+               {
         }
 
         bool Accept(const ITaskScheduler<std::string>::Task &task) override {
@@ -368,7 +372,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
                 const auto related_files = vector_store_service_->ListAllVectorStoreObjectFiles(vs_id_list);
                 const auto retriever = retriever_operator_->GetStatelessRetriever(vs_id_list);
                 const auto file_search_tool = CreateSummaryGuidedFileSearch(
-                    CreateLocalRankingModel(ModelType::BGE_M3_RERANKER),
+                    ranking_model_,
                     retriever,
                     related_files
                     );

@@ -15,6 +15,9 @@
 #include <instinct/embedding_model/ollama_embedding.hpp>
 #include <instinct/embedding_model/openai_embedding.hpp>
 
+#include "ranker/jina_reranker_model.hpp"
+#include "ranker/local_ranking_model.hpp"
+
 namespace INSTINCT_LLM_NS {
 
     enum ModelProvider {
@@ -22,7 +25,8 @@ namespace INSTINCT_LLM_NS {
         kOLLAMA = 1,
         kLOCAL = 2,
         kLLMStudio = 3,
-        kLLAMACPP = 4
+        kLLAMACPP = 4,
+        kJINAAI = 5
     };
 
     static const std::map<std::string, ModelProvider> model_provider_map {
@@ -31,11 +35,11 @@ namespace INSTINCT_LLM_NS {
         {"local", kLOCAL},
         {"llm_studio", kLLMStudio},
         {"llama_cpp", kLLAMACPP},
+        {"jina_ai", kJINAAI}
     };
 
-
     // default values are required
-    struct LLMProviderOptions {
+    struct ModelProviderOptions {
         ModelProvider provider;
         std::string model_name;
         Endpoint endpoint;
@@ -43,6 +47,7 @@ namespace INSTINCT_LLM_NS {
         int dim = 0;
         OpenAIConfiguration openai;
         OllamaConfiguration ollama;
+        JinaConfiguration jina;
     };
 
     struct AgentExecutorOptions {
@@ -53,7 +58,28 @@ namespace INSTINCT_LLM_NS {
     class LLMObjectFactory final {
     public:
 
-        static ChatModelPtr CreateChatModel(LLMProviderOptions options) {
+        static RankingModelPtr CreateRankingModel(ModelProviderOptions options) {
+            switch (options.provider) {
+                case kLOCAL: {
+                    // only BGE-M3-Reranker is supported right now
+                    return CreateLocalRankingModel(BGE_M3_RERANKER);
+                }
+                case kJINAAI: {
+                    options.jina.model_name = options.model_name;
+                    options.jina.endpoint = options.endpoint;
+                    options.jina.api_key = options.api_key;
+                    LoadJinaRerankerConfiguration(options.jina);
+                    return CreateJinaRerankerModel(options.jina);
+                }
+
+                default: {
+                    LOG_WARN("Supported provider type for ranking model");
+                }
+            }
+            return nullptr;
+        }
+
+        static ChatModelPtr CreateChatModel(ModelProviderOptions options) {
             switch (options.provider) {
                 case kOPENAI:
                 case kLLMStudio:
@@ -75,7 +101,7 @@ namespace INSTINCT_LLM_NS {
             }
         }
 
-        static EmbeddingsPtr CreateEmbeddingModel(LLMProviderOptions options) {
+        static EmbeddingsPtr CreateEmbeddingModel(ModelProviderOptions options) {
             switch (options.provider) {
                 case kOLLAMA: {
                     options.ollama.model_name = options.model_name;

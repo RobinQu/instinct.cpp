@@ -37,41 +37,36 @@ namespace INSTINCT_RETRIEVAL_NS {
 
             if(retrievers_.size() == 1) return retrievers_[0]->Retrieve(search_request);
 
-            auto multi_futures = thread_pool_.submit_sequence<size_t>(0, retrievers_.size(), [&](const size_t idx) {
-                return CollectVector(retrievers_[idx]->Retrieve(search_request));
-            });
-            if (!multi_futures.wait_for(60s)) {
-                throw InstinctException("Retrieving with multiple retrievers has been timeout");
-            }
-
-            std::vector<Document> docs;
-            for (auto& f: multi_futures) {
-                const auto& batch =f.get();
-                docs.insert(docs.end(), batch.begin(), batch.end());
-            }
-
-            auto multi_futures_2 = thread_pool_.submit_sequence<size_t>(0, docs.size(), [&](const size_t idx) {
-                return ranking_model_->GetRankingScore(search_request.query(), docs[idx].text());
-            });
-            std::vector<std::pair<std::string, float>> doc_id_with_score;
-            doc_id_with_score.reserve(docs.size());
-            for(int i=0; auto& f: multi_futures_2) {
-                doc_id_with_score.emplace_back(docs[i++].id(), f.get());
-            }
-            std::ranges::sort(doc_id_with_score, [](const auto& a, const auto& b) {
-                return a.second > b.second;
-            });
-
-            std::map<std::string, size_t> doc_id_idx;
-            for(int i=0;i<docs.size();++i) {
-                doc_id_idx[docs[i].id()] = i;
-            }
-
-            return rpp::source::create<Document>([&](const auto& observer) {
-                for(int i=0;i<search_request.top_k() && i<doc_id_with_score.size();++i) {
-                    const auto&[doc_id, score] = doc_id_with_score[i];
-                    observer.on_next(docs.at(doc_id_idx.at(doc_id)));
+            return rpp::source::create<Document>([&, search_request](const auto& observer) {
+                auto multi_futures = thread_pool_.submit_sequence<size_t>(0, retrievers_.size(), [&](const size_t idx) {
+                    return CollectVector(retrievers_[idx]->Retrieve(search_request));
+                });
+                if (!multi_futures.wait_for(60s)) {
+                    throw InstinctException("Retrieving with multiple retrievers has been timeout");
                 }
+
+                std::vector<Document> docs;
+                for (auto& f: multi_futures) {
+                    const auto& batch =f.get();
+                    docs.insert(docs.end(), batch.begin(), batch.end());
+                }
+                const auto dedupe_result = std::ranges::unique(docs, {}, &Document::id);
+                docs.erase(dedupe_result.begin(), dedupe_result.end());
+                LOG_DEBUG("unique_docs.size()={},top_k={}", docs.size(), search_request.top_k());
+                if (docs.size()>search_request.top_k()) {
+                    const auto idx_with_score = ranking_model_->RerankDocuments(docs, search_request.query(), search_request.top_k());
+                    LOG_DEBUG("Re-ranked docs: {}", DocumentUtils::StringifyRerankResult(idx_with_score));
+                    for(int i=0;i<search_request.top_k() && i<idx_with_score.size();++i) {
+                        if (const auto&[idx, score] = idx_with_score[i]; idx < docs.size()) {
+                            observer.on_next(docs.at(idx));
+                        }
+                    }
+                } else {
+                    for(const auto& doc: docs) {
+                        observer.on_next(doc);
+                    }
+                }
+                observer.on_completed();
             });
         }
 

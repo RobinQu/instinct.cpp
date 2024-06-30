@@ -128,8 +128,6 @@ namespace INSTINCT_LLM_NS {
 
     };
 
-
-
     static void LoadOpenAIChatConfiguration(OpenAIConfiguration& configuration) {
         if (StringUtils::IsBlankString(configuration.api_key)) {
             configuration.api_key = SystemUtils::GetEnv("OPENAI_API_KEY");

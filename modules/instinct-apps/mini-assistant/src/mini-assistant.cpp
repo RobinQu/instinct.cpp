@@ -39,8 +39,9 @@ namespace instinct::examples::mini_assistant {
 
 
     struct ApplicationOptions {
-        LLMProviderOptions embedding_model;
-        LLMProviderOptions chat_model;
+        ModelProviderOptions embedding_model;
+        ModelProviderOptions chat_model;
+        ModelProviderOptions ranking_model;
         ServerOptions server;
         ConnectionPoolOptions connection_pool;
         std::filesystem::path db_file_path;
@@ -135,6 +136,7 @@ namespace instinct::examples::mini_assistant {
                 context.assistant_facade.vector_store,
                 thread_service,
                 citation_annotating_chain,
+                LLMObjectFactory::CreateRankingModel(options_.ranking_model),
                 options_.chat_model,
                 options_.agent_executor
             );
@@ -257,6 +259,21 @@ int main(int argc, char** argv) {
         ogroup->add_option("--embedding_model_port", application_options.embedding_model.endpoint.port, "Port number for API service.");
         ogroup->add_option("--embedding_model_protocol", application_options.embedding_model.endpoint.protocol, "HTTP protocol for API service.")
                 ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));
+    }
+
+    {
+        auto ogroup = app.add_option_group("ranking_model", "Configuration for ranking model");
+        ogroup->description("Currently only Jina.ai and local model are supported.");
+        ogroup->add_option("--reranker_model_provider", application_options.ranking_model.provider,
+                                        "Specify reranker model provider to use. ")
+                ->transform(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case));
+
+        ogroup->add_option("--reranker_model_api_key", application_options.ranking_model.api_key, "API key for commercial services like Jina.ai. Leave blank for services without ACL.");
+        ogroup->add_option("--reranker_model_host", application_options.ranking_model.endpoint.host, "Host name for API endpoint.");
+        ogroup->add_option("--reranker_model_port", application_options.ranking_model.endpoint.port, "Port number for API service if applicable.");
+        ogroup->add_option("--reranker_model_protocol", application_options.ranking_model.endpoint.protocol, "HTTP protocol for API service if applicable.")
+                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));
+        ogroup->add_option("--reranker_model_model_name", application_options.ranking_model.model_name, "Specify name of the model to be used.");
     }
 
     app.add_option("--agent_executor_type", application_options.agent_executor.agent_executor_name, "Specify agent executor type. `llm_compiler` enables parallel function calling with opensourced models like mistral series and llama series, while `openai_tool` relies on official OpenAI function calling capability to direct agent workflow.")

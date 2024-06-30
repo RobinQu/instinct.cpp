@@ -57,33 +57,3 @@ message BatchedLangaugeModelResult {
 message MultilineGeneration {
   repeated string lines = 1;
 }
-
-
-//
-//message StructuredGeneration {
-//
-//  repeated StructuredBlock blocks = 1;
-//  Generation raw_generation = 2;
-//
-//  message StructuredBlock {
-//    oneof value {
-//      TextBlock text = 1;
-//      TabularBlock table = 2;
-//      TabularBlock image = 3;
-//    }
-//  }
-//
-//  message TextBlock {
-//
-//  }
-//
-//  message TabularBlock {
-//
-//  }
-//
-//  message ImageBlock {
-//
-//  }
-//
-//}
-//

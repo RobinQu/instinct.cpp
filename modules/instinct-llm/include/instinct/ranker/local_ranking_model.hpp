@@ -9,9 +9,11 @@
 #include <instinct/transformer/models.hpp>
 #include <instinct/transformer/model_factory.hpp>
 #include <instinct/tools/file_vault/file_system_file_vault.hpp>
+#include <instinct/tools/file_vault/http_url_resource_provider.hpp>
 
 namespace INSTINCT_LLM_NS {
     using namespace  INSTINCT_TRANSFORMER_NS;
+
 
     /**
      * This class uses models in `instinct-transformer` module
@@ -29,7 +31,7 @@ namespace INSTINCT_LLM_NS {
             trace_span span {"GetRankingScore"};
             // TODO remove this lock by using multi-instance or batching.
             std::lock_guard guard {run_mutex_};
-            constexpr GenerationConfig config {};
+            const GenerationConfig config {.num_threads = std::thread::hardware_concurrency() / 2};
             std::vector<int> ids;
             this->tokenizer_->encode_qa(query, doc, ids);
             return this->model_->qa_rank(config, ids);

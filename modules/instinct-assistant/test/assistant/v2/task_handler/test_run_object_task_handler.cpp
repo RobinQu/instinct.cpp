@@ -39,7 +39,7 @@ namespace INSTINCT_ASSISTANT_NS::v2 {
         FileObjectTaskHandler file_object_task_handler {retriever_operator_, vector_store_service_, file_service_, summary_chain};
 
         std::shared_ptr<RunObjectTaskHandler> CreateTaskHandler() {
-            LLMProviderOptions llm_provider_options;
+            ModelProviderOptions llm_provider_options;
             LoadOpenAIChatConfiguration(llm_provider_options.openai);
             llm_provider_options.provider = ModelProvider::kOPENAI;
 

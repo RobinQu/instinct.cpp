@@ -14,6 +14,7 @@ add_library(proto STATIC
         chat_completion_api.proto
         ollama_api.proto
         data.proto
+        jina_api.proto
 )
 
 add_library(instinct::proto ALIAS proto)

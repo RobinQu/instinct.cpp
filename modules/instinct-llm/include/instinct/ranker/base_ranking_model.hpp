@@ -4,7 +4,7 @@
 
 #ifndef BASE_RANKER_HPP
 #define BASE_RANKER_HPP
-
+#include <ranges>
 #include <instinct/llm_global.hpp>
 #include <instinct/functional/runnable.hpp>
 #include <instinct/model/ranking_model.hpp>
@@ -15,6 +15,8 @@ namespace INSTINCT_LLM_NS {
         std::string doc;
     };
 
+
+
     class BaseRankingModel :
             public virtual IRankingModel,
             public BaseRunnable<QAPair, float>,
@@ -22,6 +24,17 @@ namespace INSTINCT_LLM_NS {
     public:
         float Invoke(const QAPair &input) override {
             return this->GetRankingScore(input.query, input.doc);
+        }
+
+        std::vector<IdxWithScore> RerankDocuments(const std::vector<Document> &docs, const std::string &query, const int top_n) override {
+            assert_true(top_n <= docs.size());
+            std::vector<IdxWithScore> result;
+            result.reserve(docs.size());
+            for (int i=0; const auto& doc: docs) {
+                result.emplace_back(i++, this->GetRankingScore(query, doc.text()));
+            }
+            std::ranges::sort(result, std::ranges::greater{}, &IdxWithScore::second);
+            return {result.begin(), result.begin() + top_n};
         }
     };
 

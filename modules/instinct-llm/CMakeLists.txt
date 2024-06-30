@@ -83,6 +83,7 @@ add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
         ${${LIBRARY_TARGET_NAME}_HDR}
         include/instinct/llm_all.hpp
+        include/instinct/ranker/jina_reranker_model.hpp
 )
 
 add_library(instinct::llm

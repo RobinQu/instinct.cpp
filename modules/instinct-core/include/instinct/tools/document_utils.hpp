@@ -9,6 +9,8 @@
 #include <google/protobuf/util/message_differencer.h>
 #include <instinct/tools/string_utils.hpp>
 
+#include "instinct/model/ranking_model.hpp"
+
 
 namespace std {
     /**
@@ -323,6 +325,31 @@ namespace INSTINCT_CORE_NS {
                 map[name] = metadata_schema->mutable_fields(i);
             }
             return map;
+        }
+
+        static void PrintRerankResult(const std::vector<llm::IdxWithScore>& result, std::ostream& out = std::cout, bool flush = true) {
+            for(const auto& pair: result) {
+                out << "[" << pair.first << "," << pair.second << "]" << ",";
+            }
+            if (flush) {
+                out << std::endl;
+            }
+        }
+
+        static void StringifyRerankResult(const std::vector<llm::IdxWithScore>& result, std::string& output) {
+            for(const auto&[fst, snd]: result) {
+                output += "[";
+                output += std::to_string(fst);
+                output += ",";
+                output += std::to_string(snd);
+                output += "], ";
+            }
+        }
+
+        static std::string StringifyRerankResult(const std::vector<llm::IdxWithScore>& result) {
+            std::string str;
+            StringifyRerankResult(result, str);
+            return str;
         }
 
 

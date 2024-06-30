@@ -52,15 +52,17 @@ namespace instinct::examples::doc_agent {
         DuckDBStoreOptions doc_store;
         size_t source_limit = 0;
         DuckDBStoreOptions vector_store;
-        LLMProviderOptions chat_model_provider;
-        LLMProviderOptions embedding_provider;
+        ModelProviderOptions chat_model_provider;
+        ModelProviderOptions embedding_provider;
+        ModelProviderOptions reranker_provider;
         bool force_rebuild = false;
         DocAgentRetrieverOptions retriever;
     };
 
     struct ServeCommandOptions {
-        LLMProviderOptions chat_model_provider;
-        LLMProviderOptions embedding_provider;
+        ModelProviderOptions chat_model_provider;
+        ModelProviderOptions embedding_provider;
+        ModelProviderOptions reranker_provider;
         std::string shared_db_file_path;
         DuckDBStoreOptions doc_store;
         DuckDBStoreOptions vector_store;
@@ -122,8 +124,10 @@ namespace instinct::examples::doc_agent {
             RetrieverPtr stateless_retriever;
             if (options.retriever.version == 2) {
                 instance_.bm25_retriever = CreateDuckDBBM25Retriever(instance_.vector_store, {.auto_build = false});
+                const auto reranker = LLMObjectFactory::CreateRankingModel(options.reranker_provider);
+                assert_true(reranker, "reranker model is not correctly configured but it's mandatory in this retriever.");
                 instance_.multipath_retriever = CreateMultiPathRetriever(
-                    CreateLocalRankingModel(BGE_M3_RERANKER),
+                    reranker,
                     instance_.chunked_vector_retriever,
                     // create a ParentChildRetriever that handles multi-hop search
                     CreateParentChildRetriever(instance_.doc_store, instance_.bm25_retriever)
@@ -274,7 +278,7 @@ Standalone question:)",
     }
 
     static void BuildEmbeddingProviderOptionGroup(CLI::Option_group* llm_provider_ogroup,
-                                            LLMProviderOptions& provider_options) {
+                                            ModelProviderOptions& provider_options) {
         llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported.");
         llm_provider_ogroup->add_option("--embedding_model_provider", provider_options.provider,
                                         "Specify embedding model to use. ")
@@ -288,10 +292,25 @@ Standalone question:)",
         llm_provider_ogroup->add_option("--embedding_model_model_name", provider_options.model_name, "Specify name of the model to be used.");
     }
 
+    static void BuildRerankerProviderOptionGroup(CLI::Option_group* llm_provider_ogroup,
+                                            ModelProviderOptions& provider_options) {
+        llm_provider_ogroup->description("Currently only Jina.ai and local model are supported.");
+        llm_provider_ogroup->add_option("--reranker_model_provider", provider_options.provider,
+                                        "Specify reranker model provider to use. ")
+                ->transform(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case));
+
+        llm_provider_ogroup->add_option("--reranker_model_api_key", provider_options.api_key, "API key for commercial services like Jina.ai. Leave blank for services without ACL.");
+        llm_provider_ogroup->add_option("--reranker_model_host", provider_options.endpoint.host, "Host name for API endpoint.");
+        llm_provider_ogroup->add_option("--reranker_model_port", provider_options.endpoint.port, "Port number for API service if applicable.");
+        llm_provider_ogroup->add_option("--reranker_model_protocol", provider_options.endpoint.protocol, "HTTP protocol for API service if applicable.")
+                ->transform(CLI::CheckedTransformer(protocol_map, CLI::ignore_case));
+        llm_provider_ogroup->add_option("--reranker_model_model_name", provider_options.model_name, "Specify name of the model to be used.");
+    }
+
     static void BuildChatModelProviderOptionGroup(
         CLI::Option_group* llm_provider_ogroup,
-        LLMProviderOptions& provider_options) {
-        llm_provider_ogroup->description("Ollama, OpenAI API, or any OpenAI API compatible servers are supported. Defaults to a local running Ollama service using llama2:latest model.");
+        ModelProviderOptions& provider_options) {
+        llm_provider_ogroup->description("Model provider for chat model");
         llm_provider_ogroup
             ->add_option("--chat_model_provider", provider_options.provider, "Specify chat model to use for chat completion. ")
             ->transform(CLI::CheckedTransformer(model_provider_map, CLI::ignore_case));
@@ -333,11 +352,14 @@ int main(int argc, char** argv) {
     app.require_subcommand();
 
     // llm_provider_options for both chat model and embedding model
-    LLMProviderOptions chat_model_provider_options;
+    ModelProviderOptions chat_model_provider_options;
     BuildChatModelProviderOptionGroup(app.add_option_group("🧠 Provider for chat model"), chat_model_provider_options);
 
-    LLMProviderOptions embedding_model_provider_options;
+    ModelProviderOptions embedding_model_provider_options;
     BuildEmbeddingProviderOptionGroup(app.add_option_group("🧠 Provider for embedding model"), embedding_model_provider_options);
+
+    ModelProviderOptions reranker_model_provider_options;
+    BuildRerankerProviderOptionGroup(app.add_option_group("🧠 Provider for reranker model"), reranker_model_provider_options);
 
     // retriever options
     DocAgentRetrieverOptions retriever_options;
@@ -345,7 +367,7 @@ int main(int argc, char** argv) {
 
     // db file path
     std::string shared_db_path;
-    app.add_option("--db_path", shared_db_path, "DB file path for botch vetcor store and doc store.")->required();
+    app.add_option("--db_path", shared_db_path, "DB file path for botch vector store and doc store.")->required();
 
     // vector store options
     DuckDBStoreOptions vector_store_options;
@@ -361,7 +383,7 @@ int main(int argc, char** argv) {
     BuildCommandOptions build_command_options;
 
     const auto build_command = app.add_subcommand(
-        "build", "💼 Anaylize a single document and build database of learned context data. Proper values should be offered for Embedding model, Chat model, DocStore, VecStore and Retriever mentioned above.");
+        "build", "💼 Analyze a single document and build database of learned context data. Proper values should be offered for Embedding model, Chat model, DocStore, VecStore and Retriever mentioned above.");
     build_command->add_flag("--force", build_command_options.force_rebuild,
                             "A flag to force rebuild of database, which means existing db files will be deleted. Use this option with caution!");
     auto ds_ogroup = build_command->add_option_group("Data source");
@@ -386,6 +408,7 @@ int main(int argc, char** argv) {
         }
         build_command_options.retriever = retriever_options;
         build_command_options.shared_db_file_path = shared_db_path;
+        build_command_options.reranker_provider = reranker_model_provider_options;
     });
 
     // serve command
@@ -402,6 +425,7 @@ int main(int argc, char** argv) {
         serve_command_options.vector_store = vector_store_options;
         serve_command_options.retriever = retriever_options;
         serve_command_options.shared_db_file_path = shared_db_path;
+        serve_command_options.reranker_provider = reranker_model_provider_options;
     });
 
     // log level

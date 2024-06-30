@@ -8,6 +8,9 @@
 #include <instinct/llm_global.hpp>
 
 namespace INSTINCT_LLM_NS {
+
+    using IdxWithScore = std::pair<size_t, float>;
+
     class IRankingModel {
     public:
         IRankingModel()=default;
@@ -16,6 +19,8 @@ namespace INSTINCT_LLM_NS {
         IRankingModel(IRankingModel&&)=delete;
 
         virtual float GetRankingScore(const std::string& query, const std::string& doc) = 0;
+        virtual std::vector<IdxWithScore> RerankDocuments(const std::vector<Document>& docs, const std::string& query, int top_n) = 0;
+
     };
 
 }
