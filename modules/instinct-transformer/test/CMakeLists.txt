@@ -12,17 +12,26 @@ find_package(GTest REQUIRED)
 file(GLOB_RECURSE TEST_SRC_FILES *.cpp)
 
 set(ASSETS_DIR "${CMAKE_CURRENT_BINARY_DIR}/_assets")
+message(STATUS "ASSET_DIR: " ${ASSETS_DIR})
 
 include(FetchContent)
 FetchContent_Declare(
         bge-reranker-v2-m3.bin
-        URL https://huggingface.co/robinqu/baai-bge-m3-guff/resolve/main/bge-reranker-v2-m3.bin?download=true
-        URL_HASH    SHA256=b3e05dbe06c0aa52fd974d9c9dedbc51292b81f2f285d56113c060a0931a7f0f
+        URL https://huggingface.co/robinqu/baai-bge-m3-guff/resolve/main/bge-reranker-m3-q4_1.bin?download=true
+        URL_HASH    SHA256=2b0d1b8f41b8cfd6bc18aa90dd89671ba9aeb0d8121688f8b6a044634761de0c
         DOWNLOAD_NAME bge-reranker-v2-m3.bin
         DOWNLOAD_DIR ${ASSETS_DIR}/model_bins/
         DOWNLOAD_NO_EXTRACT TRUE
 )
-FetchContent_MakeAvailable(bge-reranker-v2-m3.bin)
+FetchContent_Declare(
+        bge-m3e.bin
+        URL https://huggingface.co/robinqu/baai-bge-m3-guff/resolve/main/bge-m3-q4_1.bin?download=true
+        URL_HASH    SHA256=07312678bcb0a842c586f792a6d2a8f735fd3362de1d594969f687b17dc99c0d
+        DOWNLOAD_NAME bge-m3e.bin
+        DOWNLOAD_DIR ${ASSETS_DIR}/model_bins/
+        DOWNLOAD_NO_EXTRACT TRUE
+)
+FetchContent_MakeAvailable(bge-reranker-v2-m3.bin bge-m3e.bin)
 
 
 # from list of files we'll create tests test_name.cpp -> test_name
@@ -33,5 +42,6 @@ foreach(_test_file ${TEST_SRC_FILES})
     # link retrieval for testing purpose only
     target_link_libraries(${_test_name} ${LIBRARY_TARGET_NAME} instinct::transformer)
     add_test(${_test_name} ${_test_name})
+    set_tests_properties(${_test_name} PROPERTIES LABELS "unit_test;transformer")
     set_tests_properties(${_test_name} PROPERTIES TIMEOUT 30)
 endforeach()

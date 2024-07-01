@@ -38,11 +38,11 @@ The whole processing flow is direct and easy to understand. And in `instinct.cpp
 In `quick_start.cpp`, we have built a sequential chain:
 
 ```c++
-#include "chain/MessageChain.hpp"
-#include "input_parser/PromptValueVariantInputParser.hpp"
-#include "chat_model/OllamaChat.hpp"
-#include "output_parser/StringOutputParser.hpp"
-#include "prompt/PlainPromptTemplate.hpp"
+#include <instinct/chain/message_chain.hpp>
+#include <instinct/input_parser/PromptValueVariantInputParser.hpp>
+#include <instinct/chat_model/OllamaChat.hpp>
+#include <instinct/output_parser/string_output_parser.hpp>
+#include <instinct/prompt/PlainPromptTemplate.hpp>
 
 int main() {
     using namespace INSTINCT_CORE_NS;
@@ -59,7 +59,7 @@ int main() {
 
 ```
 
-In fact, all sub-classes of [StepFunction](../modules/instinct-core/include/functional/StepFunctions.hpp) are all composable. `StepFunction`s have many desirable characteristics:
+In fact, all sub-classes of [StepFunction](../modules/instinct-core/include/instinct/functional/StepFunctions.hpp) are all composable. `StepFunction`s have many desirable characteristics:
 
 * They share same input type and same output type. That's `JSONContextPtr`.
 * They share similar functional interface. That's `Invoke(T)`, `Batch(std::vector<T>)` and  `Stream(T)`. 

@@ -1,0 +1,171 @@
+syntax = "proto3";
+import "llm.proto";
+import "google/protobuf/any.proto";
+import "chat_completion_api.proto";
+
+package instinct.llm;
+
+
+message FunctionToolSelfCheckResponse {
+  bool passed = 2;
+}
+
+message FunctionToolResult { // this is useful for toolkit related classes, tool message cannot represent invoke result lossless.
+  string invocation_id = 1;
+  string return_value = 2;
+  bool has_error = 3;
+  string exception = 4;
+}
+
+message LLMCompilerToolCallCustomData {// custom data for llm.Message.custom, assistant.v2.RunStepDetails.ToolCallDetail.custom
+  // index in function graph
+  int64 index = 1;
+  string thought = 2;
+  repeated int64 dependencies = 3;
+}
+
+message LLMCompilerTaskGraph { //used in llm.AgentContinuation.custom, llm.AgentPause.custom
+  repeated LLMCompilerTask tasks = 1;
+  message LLMCompilerTask {
+    int64 index = 1;
+    ToolCallObject tool_call = 2;
+    repeated int64 dependencies = 3;
+    string thought = 4;
+    // optional message to save result
+    llm.Message result = 5;
+  }
+  // question field is only used in joiner
+  string question = 2;
+
+  // field for joiner result
+  LLMCompilerJoinerResult joiner_result = 3;
+
+}
+
+message LLMCompilerJoinerResult { // used in llm.AgentFinish.details
+  bool is_replan = 1;
+  string answer = 2;
+  string thought = 3;
+}
+
+message AgentContinuation {
+  llm.Message tool_call_message = 1; // should be a message container tool call requests
+//  repeated llm.FunctionTool functions = 2; // possible function tools
+
+  // reserved for user defined thought
+  google.protobuf.Any custom = 100;
+}
+
+message AgentPause {
+  repeated llm.Message completed = 1; // should be a group of completed tool message
+  llm.Message tool_call_message = 2; // original tool call requests
+
+  // reserved for user defined thought
+  google.protobuf.Any custom = 100;
+}
+
+message AgentFinish {
+  string response = 1;
+  bool is_cancelled = 2;
+  bool is_expired = 3;
+  bool is_failed = 4;
+  // this is for error details
+  google.protobuf.Any details = 6;
+  // original user input question
+  llm.PromptValue question = 7;
+  // this is for custom step data
+  google.protobuf.Any custom = 100;
+}
+
+message AgentThought {
+  oneof value {
+      AgentContinuation continuation = 1;
+      AgentPause pause = 2;
+      AgentFinish finish = 3;
+  }
+}
+
+message AgentObservation {
+  // completed tool calls
+  repeated llm.Message tool_messages = 1;
+
+  // reserved for user defined observation
+  google.protobuf.Any custom = 100;
+}
+
+message AgentStep {
+  oneof value {
+    AgentThought thought = 1;
+    AgentObservation observation = 2;
+  }
+}
+
+message AgentState {
+  repeated AgentStep previous_steps = 1;
+  llm.PromptValue input = 2;
+  // code_interpreter and file_search should be translated to FunctionTool format
+  repeated llm.FunctionTool function_tools = 3;
+}
+
+message SearchToolRequest {
+  string query = 1;
+  optional int32 result_limit = 2;
+  optional int32 result_offset = 3;
+}
+
+message SearchToolResponseEntry {
+  string url = 1;
+  string content = 2;
+  string title = 3;
+
+  // used in file search tool
+  string parent_doc_id = 4;
+  int32 start_index = 5;
+  int32 end_index = 6;
+  string file_source = 7;
+}
+
+message SearchToolResponse {
+  repeated SearchToolResponseEntry entries = 1;
+}
+
+message CaculatorToolRequest {
+  string math_question = 1;
+}
+
+message CalculatorToolResponse {
+  double answer = 1;
+}
+
+/**
+  https://serpapi.com/search-api
+ */
+message SerpAPISearchResponse {
+  message AnswerBox {
+    string type = 1;
+    string result = 2;
+  }
+  message OrganicResult {
+    string title = 1;
+    string link = 2;
+    string snippet = 3;
+  }
+  message QuestionAndAnswer {
+    string title = 1;
+    string link = 2;
+    string source = 3;
+    string question = 4;
+    string answer = 5;
+  }
+  message KnowledgeGraph {
+    string title = 1;
+    message KnowledgeGraphTab {
+      string text = 1;
+      string link = 2;
+    }
+  }
+  repeated OrganicResult organic_results = 1;
+  repeated QuestionAndAnswer questions_and_answers = 2;
+  AnswerBox answer_box = 3;
+
+}

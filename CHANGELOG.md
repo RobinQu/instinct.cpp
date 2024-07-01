@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.1.5
+
+**Full Changelog**: https://github.com/RobinQu/instinct.cpp/commits/v0.1.5
+
+* Features
+  * `instinct-transformer`: New bge-m3 embedding model. Generally speaking, bge-reranker and bge-embedding are still in preview as they are not fast enough for production.
+  * `instinct-llm`: New `JinaRerankerModel` for Reranker model API from Jina.ai.
+  * `instinct-retrieval`: New `DuckDBBM25Retriever` for BM25 keyword based retriever using DuckDB's built-in function. 
+* Improvements
+  * Move example code to standalone repository: [instinct-cpp-examples](https://github.com/RobinQu/instinct-cpp-examples). 
+  * Rename for all files for camel-case naming conventions 
+  * Build system:
+    * Fix include paths for internal header files. Now all files are referenced using angle bracket pattern like `#include <instinct/...>`. 
+    * Rewrite Cmake install rules. 
+    * Run unit tests during `conan build` using `Ctest`.
+  * `doc-agent`:
+    * Use `retriver-version` argument in CLI to control how retriever related components are constructed.
+    * Rewrite lifecycle control using application context
+  * `instinct-retrieval`: Fix RAG evaluation. RAG pipeline with MultiPathRetriever should get score more than 80%.
 
 ## v0.1.4
 

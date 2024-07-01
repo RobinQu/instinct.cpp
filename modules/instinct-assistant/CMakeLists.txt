@@ -1,49 +1,53 @@
 cmake_minimum_required(VERSION 3.26)
 project(instinct-assistant VERSION 0.1.0)
 
+if (NOT WITH_DUCKDB)
+    message(WARNING "Currently duckdb is the only storage backend and it's required for assistant framework to work. Will skip instinct-assistant")
+    return()
+endif ()
+
 set(CMAKE_CXX_STANDARD 20)
-set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
+set(LIBRARY_TARGET_NAME assistant)
 
 SET(${LIBRARY_TARGET_NAME}_HDR
-        include/AssistantGlobals.hpp
-        include/AssistantTestGlobals.hpp
-        include/assistant/v2/service/AssistantFacade.hpp
-        include/assistant/v2/service/IAssistantService.hpp
-        include/assistant/v2/service/IFileService.hpp
-        include/assistant/v2/service/IRunService.hpp
-        include/assistant/v2/service/IThreadService.hpp
-        include/assistant/v2/service/IVectorStoreService.hpp
-
-        include/assistant/v2/endpoint/AssistantController.hpp
-        include/assistant/v2/endpoint/ThreadController.hpp
-        include/assistant/v2/endpoint/RunController.hpp
-        include/assistant/v2/endpoint/RunStepController.hpp
-        include/assistant/v2/endpoint/VectorStoreController.hpp
-        include/assistant/v2/endpoint/VectorStoreFileController.hpp
-        include/assistant/v2/endpoint/VectorStoreFileBatchController.hpp
-        include/assistant/v2/endpoint/FileController.hpp
-        include/assistant/v2/endpoint/BaseController.hpp
-        include/assistant/v2/service/IMessageService.hpp
-        include/assistant/v2/service/impl/AssistantServiceImpl.hpp
-        include/assistant/v2/service/impl/ThreadServiceImpl.hpp
-        include/assistant/v2/tool/ValidationUtils.hpp
-        include/assistant/v2/tool/EntitySQLUtils.hpp
-        include/assistant/v2/service/impl/MessageServiceImpl.hpp
-        include/assistant/v2/service/impl/FileServiceImpl.hpp
-        include/assistant/v2/service/impl/RunServiceImpl.hpp
-        include/assistant/v2/task_handler/RunObjectTaskHandler.hpp
-        include/assistant/v2/endpoint/MessageController.hpp
-        include/assistant/v2/tool/IApplicationContextFactory.hpp
-        include/assistant/v2/tool/RequestUtils.hpp
-        include/assistant/v2/task_handler/FileObjectTaskHandler.hpp
-        include/assistant/v2/data_mapper/VectorStoreDataMapper.hpp
-        include/assistant/v2/data_mapper/VectorStoreFileDataMapper.hpp
-        include/assistant/v2/service/impl/VectorStoreServiceImpl.hpp
-        include/assistant/v2/tool/SimpleRetrieverOperator.hpp
-        include/assistant/v2/data_mapper/VectorStoreFileBatchDataMapper.hpp
-        include/assistant/v2/toolkit/SummaryGuidedFileSearch.hpp
-        include/assistant/v2/task_handler/FileBatchObjectBackgroundTask.hpp
-        include/assistant/v2/db/DBMigration.hpp
+        include/instinct/assistant_global.hpp
+        include/instinct/assistant_test_global.hpp
+        include/instinct/assistant/v2/service/assistant_facade.hpp
+        include/instinct/assistant/v2/service/assistant_service.hpp
+        include/instinct/assistant/v2/service/file_service.hpp
+        include/instinct/assistant/v2/service/run_service.hpp
+        include/instinct/assistant/v2/service/thread_service.hpp
+        include/instinct/assistant/v2/service/vector_store_service.hpp
+        include/instinct/assistant/v2/endpoint/assistant_controller.hpp
+        include/instinct/assistant/v2/endpoint/thread_controller.hpp
+        include/instinct/assistant/v2/endpoint/run_controller.hpp
+        include/instinct/assistant/v2/endpoint/run_step_controller.hpp
+        include/instinct/assistant/v2/endpoint/vector_store_controller.hpp
+        include/instinct/assistant/v2/endpoint/vector_store_file_controller.hpp
+        include/instinct/assistant/v2/endpoint/vector_store_file_batch_controller.hpp
+        include/instinct/assistant/v2/endpoint/file_controller.hpp
+        include/instinct/assistant/v2/endpoint/base_controller.hpp
+        include/instinct/assistant/v2/service/message_service.hpp
+        include/instinct/assistant/v2/service/impl/assistant_service_impl.hpp
+        include/instinct/assistant/v2/service/impl/thread_service_impl.hpp
+        include/instinct/assistant/v2/tool/validation_utils.hpp
+        include/instinct/assistant/v2/tool/entity_sql_utils.hpp
+        include/instinct/assistant/v2/service/impl/message_service_impl.hpp
+        include/instinct/assistant/v2/service/impl/file_service_impl.hpp
+        include/instinct/assistant/v2/service/impl/run_service_impl.hpp
+        include/instinct/assistant/v2/task_handler/run_object_task_handler.hpp
+        include/instinct/assistant/v2/endpoint/message_controller.hpp
+        include/instinct/assistant/v2/tool/assistant_api_application_context_factory.hpp
+        include/instinct/assistant/v2/tool/request_utils.hpp
+        include/instinct/assistant/v2/task_handler/file_object_task_handler.hpp
+        include/instinct/assistant/v2/data_mapper/vector_store_data_mapper.hpp
+        include/instinct/assistant/v2/data_mapper/vector_store_file_data_mapper.hpp
+        include/instinct/assistant/v2/service/impl/vector_store_service_impl.hpp
+        include/instinct/assistant/v2/tool/simple_retriever_operator.hpp
+        include/instinct/assistant/v2/data_mapper/vector_store_file_batch_data_mapper.hpp
+        include/instinct/assistant/v2/toolkit/summary_guided_file_search.hpp
+        include/instinct/assistant/v2/task_handler/file_batch_object_background_task.hpp
+        include/instinct/assistant/v2/db/db_migration.hpp
 )
 
 
@@ -52,9 +56,7 @@ add_library(
         ${${LIBRARY_TARGET_NAME}_HDR}
 )
 
-
-
-add_library(instinct::agent
+add_library(instinct::assistant
         ALIAS ${LIBRARY_TARGET_NAME})
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::llm instinct::proto instinct::server instinct::data instinct::retrieval)
@@ -62,18 +64,12 @@ target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE instinct::llm instinct::p
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}/instinct>)
-
-install(DIRECTORY include/
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct"
-        COMPONENT instinct_agent
-)
+        $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
 add_subdirectory(assets)
 
 if(BUILD_TESTING)
     add_subdirectory(test)
 endif()
-
 
 message(STATUS "Created target ${LIBRARY_TARGET_NAME} for export ${PROJECT_NAME}.")

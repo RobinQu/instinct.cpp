@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+message JinaRerankRequest {
+  string model = 1;
+  string query = 2;
+  repeated string documents = 3;
+  int32 top_n = 4;
+  bool return_documents = 5;
+}
+
+message JinaRerankResponse {
+    message JinaRerankResponseItem {
+      int32 index = 1;
+      Document document = 2;
+      message Document {
+        string text = 1;
+      }
+      float relevance_score = 3;
+    }
+    repeated JinaRerankResponseItem results = 1;
+    message JinaRerankResponseUsage {
+      int32 total_tokens = 1;
+      int32 prompt_tokens = 2;
+    }
+    JinaRerankResponseUsage usage = 2;
+}

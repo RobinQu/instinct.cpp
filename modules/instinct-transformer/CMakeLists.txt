@@ -1,37 +1,29 @@
 cmake_minimum_required(VERSION 3.26)
 project(instinct-transformer)
 
-set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
+set(LIBRARY_TARGET_NAME transformer)
 
 set(${LIBRARY_TARGET_NAME}_HDR
-        include/config.hpp
-        include/ops.hpp
-        include/layers.hpp
-        include/model.hpp
-        include/tokenizer.hpp
-        include/models/bge_m3.hpp
-        include/globals.hpp
-        include/model_factory.hpp
+        include/instinct/transformer/config.hpp
+        include/instinct/transformer/ops.hpp
+        include/instinct/transformer/layers.hpp
+        include/instinct/transformer/models.hpp
+        include/instinct/transformer/tokenizer.hpp
+        include/instinct/transformer/models/bge_ranker.hpp
+        include/instinct/transformer_global.hpp
+        include/instinct/transformer/model_factory.hpp
+        include/instinct/transformer/models/bge_embedding.hpp
 )
 
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
         #        ${${LIBRARY_TARGET_NAME}_SRC}
         ${${LIBRARY_TARGET_NAME}_HDR}
+        include/instinct/transformer_all.hpp
 )
 
 add_library(instinct::transformer
         ALIAS ${LIBRARY_TARGET_NAME})
-
-
-include(FetchContent)
-FetchContent_Declare(
-        ggml
-        GIT_REPOSITORY https://github.com/ggerganov/ggml.git
-        GIT_TAG f5c9599
-        FIND_PACKAGE_ARGS # will invoke find_package first
-)
-FetchContent_MakeAvailable(ggml)
 
 
 target_include_directories(${LIBRARY_TARGET_NAME}
@@ -40,22 +32,9 @@ target_include_directories(${LIBRARY_TARGET_NAME}
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
-        ggml
+        llama-cpp::llama-cpp
+        instinct::core
 )
-
-install(TARGETS ${LIBRARY_TARGET_NAME}
-        EXPORT  ${PROJECT_NAME}
-        LIBRARY       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT shlib
-        ARCHIVE       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT lib
-        RUNTIME       DESTINATION "${CMAKE_INSTALL_BINDIR}"                            COMPONENT bin
-        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct" COMPONENT dev)
-
-
-install(DIRECTORY include/
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct"
-        COMPONENT instinct_transformer
-)
-
 
 if(BUILD_TESTING)
     add_subdirectory(test)

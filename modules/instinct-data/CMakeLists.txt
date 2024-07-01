@@ -1,73 +1,55 @@
 cmake_minimum_required(VERSION 3.26)
 project(instinct_data)
 
-set(LIBRARY_TARGET_NAME lib${PROJECT_NAME})
+set(LIBRARY_TARGET_NAME data)
 set(${LIBRARY_TARGET_NAME}_HDR
-        include/DataGlobals.hpp
-        include/database/IDataTemplate.hpp
-        include/database/duckdb/DuckDBDataTemplate.hpp
-        include/database/IConnectionPool.hpp
-        include/database/BaseConnectionPool.hpp
-        include/database/ManagedConnection.hpp
-        include/database/duckdb/DuckDBConnectionPool.hpp
-        include/database/DBUtils.hpp
-        include/database/duckdb/DuckDBConnection.hpp
-        include/database/DatabaseMigration.hpp
-        include/database/IDatabaseMigration.hpp
-        include/database/duckdb/TransactionAware.hpp
-        include/object_store/IObjectStore.hpp
-        include/object_store/FileSystemObjectStore.hpp
-        include/task_scheduler/ITaskScheduler.hpp
-        include/task_scheduler/InProcessTaskQueue.hpp
-        include/task_scheduler/BaseTaskScheduler.hpp
-        include/task_scheduler/ThreadPoolTaskScheduler.hpp
+        include/instinct/data_global.hpp
+        include/instinct/database/data_template.hpp
+        include/instinct/database/connection_pool.hpp
+        include/instinct/database/connection_pool.hpp
+        include/instinct/database/managed_connection.hpp
+        include/instinct/database/db_utils.hpp
+        include/instinct/database/database_migration.hpp
+        include/instinct/object_store/object_store.hpp
+        include/instinct/object_store/file_system_object_store.hpp
+        include/instinct/task_scheduler/task_scheduler.hpp
+        include/instinct/task_scheduler/in_process_task_queue.hpp
+        include/instinct/task_scheduler/base_task_scheduler.hpp
+        include/instinct/task_scheduler/thread_pool_task_scheduler.hpp
 )
 
-
+if (WITH_DUCKDB)
+list(APPEND ${LIBRARY_TARGET_NAME}_HDR
+        include/instinct/database/duckdb/duckdb_connection.hpp
+        include/instinct/database/duckdb/duckdb_connection_pool.hpp
+        include/instinct/database/duckdb/duckdb_data_template.hpp
+)
+endif ()
 
 add_library(
         ${LIBRARY_TARGET_NAME} INTERFACE
         ${${LIBRARY_TARGET_NAME}_HDR}
+        include/instinct/data_all.hpp
 )
 add_library(instinct::data
         ALIAS ${LIBRARY_TARGET_NAME})
 
-
-find_package(inja REQUIRED)
-find_package(duckdb REQUIRED)
-find_package(concurrentqueue REQUIRED)
-
 target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE
         instinct::core
         instinct::proto
-        pantor::inja
-        duckdb::duckdb
         concurrentqueue::concurrentqueue
 )
+
+if (WITH_DUCKDB)
+    target_link_libraries(${LIBRARY_TARGET_NAME} INTERFACE duckdb::duckdb)
+    target_compile_definitions(${LIBRARY_TARGET_NAME} INTERFACE WITH_DUCKDB=1)
+endif ()
 
 target_include_directories(${LIBRARY_TARGET_NAME}
         INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
-install(TARGETS ${LIBRARY_TARGET_NAME}
-        EXPORT  ${PROJECT_NAME}
-        LIBRARY       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT shlib
-        ARCHIVE       DESTINATION "${CMAKE_INSTALL_LIBDIR}"                            COMPONENT lib
-        RUNTIME       DESTINATION "${CMAKE_INSTALL_BINDIR}"                            COMPONENT bin
-        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct" COMPONENT dev)
-
-install(DIRECTORY include/
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/instinct"
-        COMPONENT instinct_core
-)
-
-#install(
-#        EXPORT InstinctTargets
-#        NAMESPACE INSTINCT::
-#        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake"
-#        COMPONENT instinct-core
-#)
 
 if(BUILD_TESTING)
     add_subdirectory(test)
@@ -75,5 +57,3 @@ endif()
 
 
 message(STATUS "Created target ${LIBRARY_TARGET_NAME} for export ${PROJECT_NAME}.")
-
-

@@ -1,0 +1,7 @@
+function(generate_combined_header folder_path output_file)
+    file(GLOB_RECURSE headers RELATIVE ${folder_path} "${folder_path}/*.hpp")
+    file(WRITE ${output_file} "#pragma once\n")
+    foreach(header ${headers})
+        file(APPEND ${output_file} "#include <${header}>\n")
+    endforeach()
+endfunction()

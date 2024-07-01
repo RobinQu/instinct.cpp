@@ -1,19 +1,15 @@
 cmake_minimum_required(VERSION 3.26)
 project(instinct VERSION 0.1.0)
 
-option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
-
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 
 # force cache value to update when building with submodules
 # https://cmake.org/cmake/help/latest/policy/CMP0077.html
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
 # show progress
-Set(FETCHCONTENT_QUIET FALSE)
+set(FETCHCONTENT_QUIET FALSE)
 
 # specify default install location
 IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -24,24 +20,9 @@ ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 # see https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html
 include(GNUInstallDirs)
 
-find_package(Threads REQUIRED)
-
-# add CTest
-include(CTest)
 
 #add_compile_options(-fsanitize=address)
 #add_link_options(-fsanitize=address)
-
-
-# control where libraries and executables are placed during the build.
-# with the following settings executables are placed in <the top level of the
-# build tree>/bin and libraries/archives in <top level of the build tree>/lib.
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
-#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
-
-# build position independent code.
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # disable C and C++ compiler extensions.
 set(CMAKE_C_EXTENSIONS OFF)
@@ -51,17 +32,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 
-option(BUILD_TESTING "Create tests using CMake" ON)
-option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" ON)
 
-
-# enable RPATH support for installed binaries and libraries
-#include(AddInstallRPATHSupport)
-#add_install_rpath_support(
-#        BIN_DIRS "${CMAKE_INSTALL_FULL_BINDIR}"
-#        LIB_DIRS "${CMAKE_INSTALL_FULL_LIBDIR}"
-#        INSTALL_NAME_DIR "${CMAKE_INSTALL_FULL_LIBDIR}"
-#        USE_LINK_PATH)
 
 # encourage user to specify a build type (e.g. Release, Debug, etc.), otherwise set it to Release.
 if(NOT CMAKE_CONFIGURATION_TYPES)
@@ -71,14 +42,33 @@ if(NOT CMAKE_CONFIGURATION_TYPES)
     endif()
 endif()
 
+# add CTest
+include(CTest)
 
+#add functions
+include(cmake/functions.cmake)
 
-## gtest
-if(BUILD_TESTING)
-    find_package(GTest REQUIRED)
-endif ()
+# add dependencies
+option(WITH_DUCKDB "Enable duckdb related classes" ON)
+option(WITH_EXPRTK "Enable exprtk for LLM math" ON)
+option(WITH_PDFIUM "Enable PDF parsing with PDFium" ON)
+option(WITH_DUCKX "Enable DOCX parsing with duckx" ON)
+include(cmake/conan_dependencies.cmake)
 
-include(cmake/CMakeRC.cmake)
+# compilation options
+option(BUILD_TESTING "Create tests using CMake" ON)
+option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" ON)
+
+# print options before entering submodules
+message(STATUS "--------------------------------instinct-cpp--------------------------------------------------------")
+message(STATUS "CMAKE_BUILD_TYPE: " ${CMAKE_BUILD_TYPE})
+message(STATUS "BUILD_TESTING: " ${BUILD_TESTING})
+message(STATUS "BUILD_SHARED_LIBS: " ${BUILD_SHARED_LIBS})
+message(STATUS "WITH_DUCKDB: " ${WITH_DUCKDB})
+message(STATUS "WITH_EXPRTK: " ${WITH_EXPRTK})
+message(STATUS "WITH_PDFIUM: " ${WITH_PDFIUM})
+message(STATUS "WITH_DUCKX: " ${WITH_DUCKX})
+message(STATUS "----------------------------------------------------------------------------------------------------")
 
 # project modules
 add_subdirectory(modules/instinct-proto)
@@ -90,7 +80,63 @@ add_subdirectory(modules/instinct-server)
 add_subdirectory(modules/instinct-data)
 add_subdirectory(modules/instinct-assistant)
 
-# examples
-add_subdirectory(modules/instinct-examples/doc-agent)
-add_subdirectory(modules/instinct-examples/quick-start)
-add_subdirectory(modules/instinct-examples/mini-assistant)
+# apps
+add_subdirectory(modules/instinct-apps/doc-agent)
+add_subdirectory(modules/instinct-apps/mini-assistant)
+
+
+# write config version file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY SameMajorVersion)
+
+# declare targets to be installed
+
+list(APPEND EXPORTED_TARGETS proto core llm transformer data retrieval)
+if (TARGET instinct::assistant AND TARGET mini-assistant)
+    list(APPEND EXPORTED_TARGETS mini-assistant)
+endif ()
+if (TARGET doc-agent)
+    list(APPEND EXPORTED_TARGETS doc-agent)
+endif ()
+
+install(TARGETS ${EXPORTED_TARGETS}
+        EXPORT ${PROJECT_NAME}_Targets
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+# install header files
+install(DIRECTORY ${PROJECT_BINARY_DIR}/modules/instinct-proto/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        FILES_MATCHING PATTERN "*.h"
+)
+install(DIRECTORY
+            ${PROJECT_SOURCE_DIR}/modules/instinct-core/include/instinct
+            ${PROJECT_SOURCE_DIR}/modules/instinct-llm/include/instinct
+            ${PROJECT_SOURCE_DIR}/modules/instinct-transformer/include/instinct
+            ${PROJECT_SOURCE_DIR}/modules/instinct-data/include/instinct
+            ${PROJECT_SOURCE_DIR}/modules/instinct-retrieval/include/instinct
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+# write target file to lib/instinct/cmake folder
+install(EXPORT ${PROJECT_NAME}_Targets
+        FILE ${PROJECT_NAME}Targets.cmake
+        NAMESPACE ${PROJECT_NAME}::
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+
+configure_package_config_file(
+        "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
+        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+        INSTALL_DESTINATION
+        ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+
+# copy config files to lib/instinct/cmake folder
+install(FILES
+            "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+            "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)

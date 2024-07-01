@@ -6,38 +6,59 @@ WIP [#1](https://github.com/RobinQu/instinct.cpp/issues/1)
 
 ## Build from sources
 
-System Requirements:
+Build requirements:
 
 * CMake 3.26+
 * Compiler that supports C++ 20: GCC 12+ or Clang 15+
-* Conan 2+
+* Conan 2+ (Optional)
 
-This project relies on [conan](https://conan.io/) to resolve dependencies. To build and install:
-
-```shell
-conan install . --build=missing --output-folder=build
-cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-cmake --build . -j $(nproc)
-```
-
-Unit tests are registered to ctest, so you can trigger test runner by running following command in `build` folder:
+Simple run the `install` command:
 
 ```shell
-ctest
+conan install conanfile.py --build=missing --output-folder=build
 ```
 
+As I am still working on publishing this package to conan center, you have to install to local `conan` cache:
+
+```
+conan create . 
+```
 
 ## Quick start
 
-Let's build a simple text completion task using Ollama API.
+In your project's `conanfile.py`, add `instinct-cpp` as requirement. A working example is hosted [here](https://github.com/RobinQu/instinct-cpp-examples/tree/master/quick_start_simple).
+
+```py
+from conan import ConanFile
+from conan.tools.build import check_min_cppstd
+
+class YourRecipe(ConanFile):
+    settings = "os", "compiler", "build_type", "arch"
+    generators = "CMakeToolchain", "CMakeDeps"
+    
+    def validate(self):
+        check_min_cppstd(self, 20)
+
+    def requirements(self):
+        # toggle off all switches
+        # you can turn on for further experiments
+        self.requires("instinct-cpp/0.1.5")
+```
+
+And prepare dependencies:
+
+```shell
+conan install conanfile.py --build=missing
+```
+
+Once installed, let's build a simple text completion task using Ollama API.
 
 ```c++
-#include "chain/MessageChain.hpp"
-#include "input_parser/PromptValueVariantInputParser.hpp"
-#include "chat_model/OllamaChat.hpp"
-#include "output_parser/StringOutputParser.hpp"
-#include "prompt/PlainPromptTemplate.hpp"
+#include <instinct/chain/message_chain.hpp>
+#include <instinct/input_parser/PromptValueVariantInputParser.hpp>
+#include <instinct/chat_model/ollama_chat.hpp>
+#include <instinct/output_parser/string_output_parser.hpp>
+#include <instinct/prompt/plain_prompt_template.hpp>
 
 int main() {
     using namespace INSTINCT_CORE_NS;
@@ -53,14 +74,13 @@ int main() {
 }
 ```
 
-
 ## What's next
 
-You can learn more about this frameworks by following links below:
+You can learn more about frameworks by following links below:
 
 * [Chaining](./chaining.md)
 * [Built-in components](./components.md)
 * Read more about single-binary services
     * [doc-agent](../modules/instinct-examples/doc-agent/README.md) : Chat with your docs locally with privacy.
     * [mini-assistant-api](../modules/instinct-examples/mini-assistant/README.md): Fully compatible with OpenAI's Assistant API at your service locally.
-
+* [Testing](./testing.md)

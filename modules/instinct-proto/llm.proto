@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+import "chat_completion_api.proto";
+import "ollama_api.proto";
+
+package instinct.llm;
+
+
+message PromptValue {
+  oneof value {
+    StringPromptValue string = 1;
+    ChatPromptValue chat = 2;
+  }
+}
+
+message StringPromptValue {
+  string text = 1;
+}
+
+message ChatPromptValue {
+  repeated Message messages = 1;
+}
+
+message MessageList {
+  repeated Message messages = 1;
+}
+
+
+message Generation {
+  string text = 1;
+  Message message = 2;
+  bool is_chunk = 3;
+}
+
+
+/**
+for both LLM and ChatModel
+ */
+message LangaugeModelResult {
+  repeated Generation generations = 1;
+  oneof raw_response {
+    OllamaCompletionResponse ollama_completion = 2;
+    OllamaChatCompletionResponse ollama_chat = 3;
+  }
+}
+
+message BatchedLangaugeModelResult {
+  //  LangaugeModelOutput won't contain valid `raw_response` in BatchedLangaugeModelOutput, read content of `raw_response` below
+  repeated LangaugeModelResult generations = 1;
+  oneof raw_response {
+    OllamaCompletionResponse ollama_completion = 2;
+    OllamaChatCompletionResponse ollama_chat = 3;
+  }
+}
+
+
+message MultilineGeneration {
+  repeated string lines = 1;
+}

@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.26)
 set(CMAKE_CXX_STANDARD 20)
 
+#FetchContent_Declare(
+#        GTest
+#        GIT_REPOSITORY https://github.com/google/googletest.git
+#        GIT_TAG Version v1.14.0
+#        FIND_PACKAGE_ARGS NAMES GTest # will invoke find_package first
+#)
+#FetchContent_MakeAvailable(GTest)
 
 if(BUILD_TESTING)
     enable_testing()
@@ -23,7 +30,8 @@ foreach(_test_file ${TEST_SRC_FILES})
     get_filename_component(_test_name ${_test_file} NAME_WE)
     add_executable(${_test_name} ${_test_file})
     target_link_libraries(${_test_name} GTest::gtest GTest::gtest_main)
-    target_link_libraries(${_test_name} ${LIBRARY_TARGET_NAME})
+    target_link_libraries(${_test_name} instinct::core)
     add_test(${_test_name} ${_test_name})
+    set_tests_properties(${_test_name} PROPERTIES LABELS "unit_test;core")
     set_tests_properties(${_test_name} PROPERTIES TIMEOUT 30)
 endforeach()
