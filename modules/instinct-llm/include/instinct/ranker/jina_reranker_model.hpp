@@ -12,9 +12,9 @@
 namespace INSTINCT_LLM_NS {
 
     static const Endpoint JINA_DEFAULT_ENDPOINT = {
+        .protocol = kHTTPS,
         .host = "api.jina.ai",
-        .port = 443,
-        .protocol = kHTTPS
+        .port = 443
     };
 
     static std::string JINA_DEFAULT_RERANK_PATH = "/v1/rerank";
