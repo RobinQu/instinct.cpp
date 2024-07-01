@@ -13,6 +13,9 @@
 #include <cstring>
 #include <map>
 #include <unistd.h>
+#include <memory>
+#include <vector>
+
 
 #include <instinct/transformer/config.hpp>
 #include <instinct/transformer/layers.hpp>
@@ -22,16 +25,7 @@ namespace INSTINCT_TRANSFORMER_NS::models {
     using namespace  INSTINCT_TRANSFORMER_NS::layers;
 
     struct GenerationConfig {
-//    int max_length;
-//    int max_context_length;
-//    bool do_sample;
-//    int top_k;
-//    float top_p;
-//    float temperature;
         unsigned int num_threads;
-//    float presence_penalty;
-//    float tfs_z;
-//    std::string sampling;
     };
 
     static ggml_tensor * ggml_init_tensor(ggml_tensor *tensor,
