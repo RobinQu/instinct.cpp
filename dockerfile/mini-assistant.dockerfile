@@ -17,14 +17,12 @@ RUN --mount=type=cache,id=id=conan-$TARGETARCH$TARGETVARIANT,target=/root/.conan
 RUN --mount=type=cache,id=id=conan-$TARGETARCH$TARGETVARIANT,target=/root/.conan2,sharing=locked \
     conan install . --build=missing --output-folder=build
 RUN --mount=type=cache,id=id=conan-$TARGETARCH$TARGETVARIANT,target=/root/.conan2,sharing=locked \
-    cd build && \
-    cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON && \
-    cmake --build . -j $(nproc)
+    conan build -c tools.build:skip_test=True -o shared=False .
 
 
 FROM ubuntu:$UBUNTU_VERSION
 
 WORKDIR /app
-COPY --from=builder /src/build/modules/instinct-examples/mini-assistant/mini-assistant /app/
+COPY --from=builder /src/build/Release/modules/instinct-apps/mini-assistant/mini-assistant /app/
 ENTRYPOINT ["/app/mini-assistant"]
 

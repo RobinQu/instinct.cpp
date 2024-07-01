@@ -12,60 +12,46 @@ Build requirements:
 * Compiler that supports C++ 20: GCC 12+ or Clang 15+
 * Conan 2+ (Optional)
 
-### Option 1. Using `conan`
-If you are using conan to resolve all dependencies, simple run the `install` command:
+Simple run the `install` command:
 
 ```shell
 conan install conanfile.py --build=missing --output-folder=build
 ```
 
-To build and install to `/tmp/instinct.cpp`:
+As I am still working on publishing this package to conan center, you have to install to local `conan` cache:
 
-```shell
-
-cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/tmp/instinct.cpp
-cmake --build . -j $(nproc) --target install
 ```
-
-### Option 2. Using `CMake` only
-
-Some dependencies are expected to be installed in system, and you should make sure they can be found by Cmake's `find_package` command. These libraries include:
-
-* protobuf >= 5.27.0, which brings in `absl` and `googletest` transitively.
-* ICU >= 74.1
-
-For example, on macOS you can install them using `brew`: 
-
-```shell
-brew install protobuf icu4c
-```
-
-If you prefer `conda`, which is available in Linux, macOS and Windows:
-
-```shell
-conda install -c conda-forge icu protobuf libuuid
-```
-
-
-However, It's recommended to build and install these libraries from source because of following reasons:
-
-1. You can make sure both static and dynamic libraries are available. Some package managers like `brew` only ship dynamic libraries of protobuf so that it may prevent you from linking statically.
-2. Mainstream providers like `apt` and `yum` are shipping very old versions of these libraries in "stable" channel. 
-
-I know it's possible to build a standalone `protobuf` using Cmake's `FetchContent`. But I haven't figured a proper way to make every pieces working together.  
-
-And then just build and install in common practices. Example to build install to `/tmp/instinct.cpp` with default project settings.
-
-```shell
-cd build
-cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/tmp/instinct.cpp
-cmake --build build -j $(nproc) --config Release --target install
+conan create . 
 ```
 
 ## Quick start
 
-Let's build a simple text completion task using Ollama API.
+In your project's `conanfile.py`, add `instinct-cpp` as requirement. A working example is hosted [here](https://github.com/RobinQu/instinct-cpp-examples/tree/master/quick_start_simple).
+
+```py
+from conan import ConanFile
+from conan.tools.build import check_min_cppstd
+
+class YourRecipe(ConanFile):
+    settings = "os", "compiler", "build_type", "arch"
+    generators = "CMakeToolchain", "CMakeDeps"
+    
+    def validate(self):
+        check_min_cppstd(self, 20)
+
+    def requirements(self):
+        # toggle off all switches
+        # you can turn on for further experiments
+        self.requires("instinct-cpp/0.1.5")
+```
+
+And prepare dependencies:
+
+```shell
+conan install conanfile.py --build=missing
+```
+
+Once installed, let's build a simple text completion task using Ollama API.
 
 ```c++
 #include <instinct/chain/message_chain.hpp>

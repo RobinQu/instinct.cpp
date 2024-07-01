@@ -12,6 +12,7 @@ class InstinctCppRecipe(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     no_copy_source = True
     options = {
+        "shared": [True, False],
         # target-level switches
         "with_duckdb": [True, False],
         "with_exprtk": [True, False],
@@ -23,7 +24,8 @@ class InstinctCppRecipe(ConanFile):
         "with_duckdb": True,
         "with_exprtk": True,
         "with_pdfium": True,
-        "with_duckx": True
+        "with_duckx": True,
+        "shared": True
     }
 
     exports_sources = ["CMakeLists.txt", "modules/*", "cmake/*", "LICENSE"]
@@ -88,6 +90,7 @@ class InstinctCppRecipe(ConanFile):
         tc.variables["WITH_EXPRTK"] = self.options.with_exprtk
         tc.variables["WITH_PDFIUM"] = self.options.with_pdfium
         tc.variables["WITH_DUCKX"] = self.options.with_duckx
+        tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
         tc.generate()
 
     def build(self):
