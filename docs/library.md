@@ -81,6 +81,6 @@ You can learn more about frameworks by following links below:
 * [Chaining](./chaining.md)
 * [Built-in components](./components.md)
 * Read more about single-binary services
-    * [doc-agent](../modules/instinct-examples/doc-agent/README.md) : Chat with your docs locally with privacy.
-    * [mini-assistant-api](../modules/instinct-examples/mini-assistant/README.md): Fully compatible with OpenAI's Assistant API at your service locally.
+    * [doc-agent](../modules/instinct-apps/doc-agent/README.md) : Chat with your docs locally with privacy.
+    * [mini-assistant-api](../modules/instinct-apps/mini-assistant/README.md): Fully compatible with OpenAI's Assistant API at your service locally.
 * [Testing](./testing.md)

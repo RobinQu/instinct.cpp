@@ -14,9 +14,9 @@ What `instinct.cpp` offer:
 
 * Applications that are working out-of-box.
   * Assistant API server: Agent service that is fully compatible with OpenAI's Assistant API.
-    * [mini-assistant-api](./modules/instinct-examples/mini-assistant): Single binary for single node deployment with vector database and other dependencies bundled. 
+    * [mini-assistant-api](./modules/instinct-apps/mini-assistant): Single binary for single node deployment with vector database and other dependencies bundled. 
     * `mighty-assistant-api`: (**WIP**) A cloud native implementation that is highly scalable with distributed components and multi-tenant support.  
-  * [chat-agent](./modules/instinct-examples/doc-agent): A CLI application that create knowledge index with your docs (PDF,TXT,MD,...) and launch an HTTP server that is fully compatible with OpenAI `ChatCompletion`.
+  * [chat-agent](./modules/instinct-apps/doc-agent): A CLI application that create knowledge index with your docs (PDF,TXT,MD,...) and launch an HTTP server that is fully compatible with OpenAI `ChatCompletion`.
 * Frameworks to build LLM-based applications. Say it `langchain.cpp`.   
   * Integration for privacy-first LLM providers: Built-in support for [Ollama](https://ollama.com/) and other OpenAI compatible API services like [vllm](https://vllm.readthedocs.io/en/latest/), [llama.cpp server](https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md), [nitro](https://nitro.jan.ai/) and more.
   * Building blocks for common application patterns like Chatbot, RAG, LLM Agent.
@@ -27,8 +27,8 @@ What `instinct.cpp` offer:
 
 For built-in applications:
 
-* [mini-assistant-api](./modules/instinct-examples/mini-assistant)
-* [chat-agent](./modules/instinct-examples/doc-agent)
+* [mini-assistant-api](./modules/instinct-apps/mini-assistant)
+* [doc-agent](./modules/instinct-apps/doc-agent)
 
 For library itself:
 

@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
 set(CMAKE_CXX_STANDARD 20)
 
-if(BUILD_TESTING)
-    enable_testing()
-endif()
+enable_testing()
 
 find_package(Threads REQUIRED)
 find_package(GTest REQUIRED)

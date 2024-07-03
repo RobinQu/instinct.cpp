@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
 set(CMAKE_CXX_STANDARD 20)
 
-if(BUILD_TESTING)
-    enable_testing()
-endif()
+enable_testing()
 
 #include_directories(${GTEST_INCLUDE_DIRS})
 #if(NOT GTEST_LIBRARIES)

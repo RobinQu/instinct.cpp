@@ -9,9 +9,7 @@ set(CMAKE_CXX_STANDARD 20)
 #)
 #FetchContent_MakeAvailable(GTest)
 
-if(BUILD_TESTING)
-    enable_testing()
-endif()
+enable_testing()
 
 #find_package(Threads REQUIRED)
 find_package(GTest REQUIRED)

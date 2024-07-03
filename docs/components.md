@@ -104,7 +104,7 @@ The most important role in RAG pipeline is `Retriever`.  Some common retrieving 
 
 Please refer to following links for more exemplary usage for retrievers.
 
-* [doc-agent app](../modules/instinct-examples/doc-agent)
+* [doc-agent app](../modules/instinct-apps/doc-agent)
 * [retrieval test](../modules/instinct-retrieval/test/retrieval)
 
 
