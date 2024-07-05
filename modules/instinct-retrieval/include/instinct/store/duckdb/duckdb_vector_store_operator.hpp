@@ -94,10 +94,11 @@ namespace INSTINCT_RETRIEVAL_NS {
         }
 
         std::vector<std::string> ListInstances() override {
-            const auto ids_view = metadata_data_mapper_->ListInstances() | std::views::transform([](const VectorStoreInstanceMetadata& instance) {
+            std::vector<std::string> result;
+            std::ranges::transform(metadata_data_mapper_->ListInstances(), result.begin(), [](const VectorStoreInstanceMetadata& instance) {
                 return instance.instance_id();
             });
-            return {ids_view.begin(), ids_view.end()};
+            return result;
         }
 
         bool RemoveInstance(const std::string &instance_id) override {

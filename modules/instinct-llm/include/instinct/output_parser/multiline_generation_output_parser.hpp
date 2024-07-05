@@ -23,10 +23,10 @@ namespace INSTINCT_LLM_NS {
         MultilineGeneration ParseResult(const Generation &generation) override {
             MultilineGeneration multiline;
             const auto text = MessageUtils::StringifyGeneration(generation);
-            auto lines = StringUtils::ReSplit(text, std::regex {"\n"})
-                | std::views::transform(StringUtils::Trim)
-                | std::views::filter(StringUtils::IsNotBlankString);
-            for(auto line: lines) {
+            auto x = StringUtils::ReSplit(text, std::regex {"\n"});
+            for(auto line: x
+                           | std::views::transform(StringUtils::Trim)
+                           | std::views::filter(StringUtils::IsNotBlankString)) {
                 *multiline.mutable_lines()->Add() = line;
             }
             return multiline;

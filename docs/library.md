@@ -9,13 +9,13 @@ WIP [#1](https://github.com/RobinQu/instinct.cpp/issues/1)
 Build requirements:
 
 * CMake 3.26+
-* Compiler that supports C++ 20: GCC 12+ or Clang 15+
-* Conan 2+ (Optional)
+* Compiler that supports C++ 20: GCC 11+ or AppleClang 15+
+* Conan 2+
 
 Simple run the `install` command:
 
 ```shell
-conan install conanfile.py --build=missing --output-folder=build
+conan install conanfile.py --build=missing
 ```
 
 As I am still working on publishing this package to conan center, you have to install to local `conan` cache:
