@@ -73,7 +73,7 @@ class InstinctCppRecipe(ConanFile):
             self.requires("duckx/1.2.2", transitive_headers=True)
 
         if self.options.with_exprtk:
-            self.requires("exprtk/0.0.2", transitive_headers=True)
+            self.requires("exprtk/0.0.3", transitive_headers=True)
 
         self.requires("llama-cpp/b3040", transitive_headers=True)
         self.requires("cpp-httplib/0.15.3", transitive_headers=True)
